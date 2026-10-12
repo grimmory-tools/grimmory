@@ -98,6 +98,15 @@ public class SidecarMetadataWriter {
         try {
             Path sidecarPath = getSidecarPath(bookPath);
             if (Files.exists(sidecarPath)) {
+                try {
+                    String declaredCoverPath = objectMapper.readTree(Files.readString(sidecarPath)).path("cover").path("path").asText();
+                    if (StringUtils.hasText(declaredCoverPath)
+                            && Files.deleteIfExists(FileUtils.resolvePathWithinBase(bookPath.getParent(), declaredCoverPath))) {
+                        log.info("Deleted sidecar cover file declared by {}", sidecarPath);
+                    }
+                } catch (IOException | JacksonException | IllegalArgumentException e) {
+                    log.warn("Failed to delete declared sidecar cover for {}: {}", bookPath, e.getMessage());
+                }
                 Files.delete(sidecarPath);
                 log.info("Deleted sidecar file: {}", sidecarPath);
             }
@@ -118,30 +127,53 @@ public class SidecarMetadataWriter {
         }
 
         try {
+            oldBookPath = oldBookPath.toAbsolutePath().normalize();
+            newBookPath = newBookPath.toAbsolutePath().normalize();
             Path oldSidecarPath = getSidecarPath(oldBookPath);
             Path newSidecarPath = getSidecarPath(newBookPath);
-            if (Files.exists(oldSidecarPath)) {
+            boolean hasSidecar = Files.exists(oldSidecarPath);
+            if (hasSidecar) {
                 Files.createDirectories(newSidecarPath.getParent());
                 Files.move(oldSidecarPath, newSidecarPath, StandardCopyOption.REPLACE_EXISTING);
                 log.info("Moved sidecar file from {} to {}", oldSidecarPath, newSidecarPath);
             }
 
             Path oldCoverPath = getCoverPath(oldBookPath);
+            Path newCoverPath = getCoverPath(newBookPath);
             if (Files.exists(oldCoverPath)) {
-                Path newCoverPath = getCoverPath(newBookPath);
                 Files.move(oldCoverPath, newCoverPath, StandardCopyOption.REPLACE_EXISTING);
                 log.info("Moved sidecar cover from {} to {}", oldCoverPath, newCoverPath);
-                if (Files.exists(newSidecarPath) && !oldCoverPath.getFileName().equals(newCoverPath.getFileName())) {
-                    JsonNode sidecar = objectMapper.readTree(Files.readString(newSidecarPath));
-                    String declaredCoverPath = sidecar.path("cover").path("path").asText();
-                    if (sidecar.path("cover") instanceof ObjectNode cover
-                            && StringUtils.hasText(declaredCoverPath)
-                            && oldCoverPath.toAbsolutePath().normalize().equals(
-                                    FileUtils.resolvePathWithinBase(oldBookPath.getParent(), declaredCoverPath))) {
-                        cover.put("path", newCoverPath.getFileName().toString());
-                        Files.writeString(newSidecarPath, objectMapper.writeValueAsString(sidecar));
-                    }
+            }
+
+            if (!hasSidecar) {
+                return;
+            }
+            JsonNode sidecar = objectMapper.readTree(Files.readString(newSidecarPath));
+            String declaredCoverPath = sidecar.path("cover").path("path").asText();
+            if (!(sidecar.path("cover") instanceof ObjectNode cover) || !StringUtils.hasText(declaredCoverPath)) {
+                return;
+            }
+
+            Path oldDirectory = oldBookPath.getParent();
+            Path newDirectory = newBookPath.getParent();
+            Path oldCover = FileUtils.resolvePathWithinBase(oldDirectory, declaredCoverPath);
+            Path newCover;
+            if (oldCover.equals(oldCoverPath)) {
+                newCover = newCoverPath;
+            } else if (oldCover.startsWith(oldBookPath)) {
+                newCover = newBookPath.resolve(oldBookPath.relativize(oldCover));
+            } else {
+                newCover = newDirectory.resolve(oldDirectory.relativize(oldCover));
+                if (!newCover.equals(oldCover) && Files.isRegularFile(oldCover)) {
+                    Files.createDirectories(newCover.getParent());
+                    Files.move(oldCover, newCover, StandardCopyOption.REPLACE_EXISTING);
+                    log.info("Moved sidecar cover from {} to {}", oldCover, newCover);
                 }
+            }
+
+            if (!newCover.equals(newDirectory.resolve(declaredCoverPath).normalize())) {
+                cover.put("path", newDirectory.relativize(newCover).toString());
+                Files.writeString(newSidecarPath, objectMapper.writeValueAsString(sidecar));
             }
         } catch (IOException | JacksonException | IllegalArgumentException e) {
             log.warn("Failed to move or update sidecar files from {} to {}: {}", oldBookPath, newBookPath, e.getMessage());
