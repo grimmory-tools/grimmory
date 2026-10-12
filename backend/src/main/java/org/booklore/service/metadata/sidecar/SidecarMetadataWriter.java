@@ -7,12 +7,18 @@ import org.booklore.model.dto.settings.SidecarSettings;
 import org.booklore.model.dto.sidecar.SidecarMetadata;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
+import org.booklore.model.enums.BookFileType;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.util.FileService;
+import org.booklore.util.FileUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -111,8 +117,8 @@ public class SidecarMetadataWriter {
 
         try {
             Path oldSidecarPath = getSidecarPath(oldBookPath);
+            Path newSidecarPath = getSidecarPath(newBookPath);
             if (Files.exists(oldSidecarPath)) {
-                Path newSidecarPath = getSidecarPath(newBookPath);
                 Files.createDirectories(newSidecarPath.getParent());
                 Files.move(oldSidecarPath, newSidecarPath, StandardCopyOption.REPLACE_EXISTING);
                 log.info("Moved sidecar file from {} to {}", oldSidecarPath, newSidecarPath);
@@ -123,9 +129,20 @@ public class SidecarMetadataWriter {
                 Path newCoverPath = getCoverPath(newBookPath);
                 Files.move(oldCoverPath, newCoverPath, StandardCopyOption.REPLACE_EXISTING);
                 log.info("Moved sidecar cover from {} to {}", oldCoverPath, newCoverPath);
+                if (Files.exists(newSidecarPath) && !oldCoverPath.getFileName().equals(newCoverPath.getFileName())) {
+                    JsonNode sidecar = objectMapper.readTree(Files.readString(newSidecarPath));
+                    String declaredCoverPath = sidecar.path("cover").path("path").asText();
+                    if (sidecar.path("cover") instanceof ObjectNode cover
+                            && StringUtils.hasText(declaredCoverPath)
+                            && oldCoverPath.toAbsolutePath().normalize().equals(
+                                    FileUtils.resolvePathWithinBase(oldBookPath.getParent(), declaredCoverPath))) {
+                        cover.put("path", newCoverPath.getFileName().toString());
+                        Files.writeString(newSidecarPath, objectMapper.writeValueAsString(sidecar));
+                    }
+                }
             }
-        } catch (IOException e) {
-            log.warn("Failed to move sidecar files from {} to {}: {}", oldBookPath, newBookPath, e.getMessage());
+        } catch (IOException | JacksonException | IllegalArgumentException e) {
+            log.warn("Failed to move or update sidecar files from {} to {}: {}", oldBookPath, newBookPath, e.getMessage());
         }
     }
 
@@ -145,7 +162,8 @@ public class SidecarMetadataWriter {
 
     private void writeCoverFile(BookEntity book, Path coverPath) {
         try {
-            String coverFile = fileService.getCoverFile(book.getId());
+            String coverFile = book.getPrimaryBookFile().getBookType() == BookFileType.AUDIOBOOK
+                    ? fileService.getAudiobookCoverFile(book.getId()) : fileService.getCoverFile(book.getId());
             Path sourceCoverPath = Path.of(coverFile);
             if (Files.exists(sourceCoverPath)) {
                 Files.copy(sourceCoverPath, coverPath, StandardCopyOption.REPLACE_EXISTING);

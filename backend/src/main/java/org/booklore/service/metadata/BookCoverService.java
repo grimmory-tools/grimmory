@@ -277,7 +277,7 @@ public class BookCoverService {
         return regenerateCoverSlots(book, replaceMode != MetadataReplaceMode.REPLACE_ALL);
     }
 
-    public void saveRegeneratedCovers(List<BookEntity> books) {
+    public void saveUpdatedCovers(List<BookEntity> books) {
         if (!books.isEmpty()) {
             bookRepository.saveAll(books);
             notifyBookCoverUpdates(books.stream().map(BookEntity::getId).toList());
@@ -392,7 +392,7 @@ public class BookCoverService {
         }
     }
 
-    private boolean applyUploadedCoverSlots(BookEntity book, byte[] coverBytes) {
+    public boolean applyUploadedCoverSlots(BookEntity book, byte[] coverBytes) {
         boolean updated = false;
         if (hasUnlockedEbookSlot(book)) {
             try {
