@@ -73,8 +73,10 @@ public class SidecarMetadataWriter {
 
             String coverFileName = null;
             if (settings.isIncludeCoverFile()) {
-                coverFileName = mapper.getCoverFileName(bookPath);
-                writeCoverFile(book, bookPath.getParent().resolve(coverFileName));
+                String fileName = mapper.getCoverFileName(bookPath);
+                if (writeCoverFile(book, bookPath.getParent().resolve(fileName))) {
+                    coverFileName = fileName;
+                }
             }
 
             SidecarMetadata sidecarMetadata = mapper.toSidecarMetadata(metadata, coverFileName);
@@ -160,7 +162,7 @@ public class SidecarMetadataWriter {
         return bookPath.getParent().resolve(baseName + ".cover.jpg");
     }
 
-    private void writeCoverFile(BookEntity book, Path coverPath) {
+    private boolean writeCoverFile(BookEntity book, Path coverPath) {
         try {
             String coverFile = book.getPrimaryBookFile().getBookType() == BookFileType.AUDIOBOOK
                     ? fileService.getAudiobookCoverFile(book.getId()) : fileService.getCoverFile(book.getId());
@@ -168,10 +170,12 @@ public class SidecarMetadataWriter {
             if (Files.exists(sourceCoverPath)) {
                 Files.copy(sourceCoverPath, coverPath, StandardCopyOption.REPLACE_EXISTING);
                 log.info("Wrote cover file to: {}", coverPath);
+                return true;
             }
         } catch (IOException e) {
             log.warn("Failed to write cover file for book ID {}: {}", book.getId(), e.getMessage());
         }
+        return false;
     }
 
     private SidecarSettings getSidecarSettings() {

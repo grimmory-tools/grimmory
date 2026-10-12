@@ -29,13 +29,13 @@ class SidecarCoverImportTest {
         when(reader.readSidecarMetadata(bookPath)).thenReturn(Optional.of(sidecar));
         when(reader.readSidecarCover(bookPath, sidecar)).thenReturn(coverBytes);
         BookCoverService covers = mock(BookCoverService.class);
-        when(covers.applyUploadedCoverSlots(book, coverBytes)).thenReturn(true);
+        when(covers.applyUploadedCoverSlots(book, coverBytes, true)).thenReturn(true);
         SidecarService importer = new SidecarService(books, null, reader,
                 mock(SidecarMetadataWriter.class), new SidecarMetadataMapper(), null, covers);
 
         importer.importFromSidecar(1L);
 
-        verify(covers).applyUploadedCoverSlots(book, coverBytes);
+        verify(covers).applyUploadedCoverSlots(book, coverBytes, true);
         verify(covers).saveUpdatedCovers(List.of(book));
     }
 }

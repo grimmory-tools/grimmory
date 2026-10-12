@@ -86,7 +86,7 @@ public class SidecarService {
     private boolean importSidecar(BookEntity book, SidecarMetadata sidecar, List<BookEntity> booksWithUpdatedCovers) {
         byte[] coverBytes = sidecarReader.readSidecarCover(book.getFullFilePath(), sidecar);
         BookMetadata bookMetadata = sidecarMapper.toBookMetadata(sidecar);
-        boolean coverUpdated = coverBytes != null && bookCoverService.applyUploadedCoverSlots(book, coverBytes);
+        boolean coverUpdated = coverBytes != null && bookCoverService.applyUploadedCoverSlots(book, coverBytes, true);
         boolean metadataUpdated = false;
 
         if (bookMetadata != null) {
