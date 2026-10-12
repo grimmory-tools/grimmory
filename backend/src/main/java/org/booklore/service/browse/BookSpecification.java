@@ -1,4 +1,4 @@
-package org.booklore.app.specification;
+package org.booklore.service.browse;
 
 import org.booklore.exception.APIException;
 import org.booklore.exception.ApiError;
@@ -18,11 +18,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-public class AppBookSpecification {
+public class BookSpecification {
 
     private static final String PHYSICAL_FILE_TYPE = "PHYSICAL";
 
-    private AppBookSpecification() {
+    private BookSpecification() {
     }
 
     private static List<Integer> parseIntList(List<String> values, String paramName) {
