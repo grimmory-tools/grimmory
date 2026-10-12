@@ -10,6 +10,7 @@ import org.booklore.model.dto.browse.FacetGroupsResponse.Properties;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 final class FacetResponseBuilder {
 
@@ -41,10 +42,6 @@ final class FacetResponseBuilder {
     }
 
     FacetGroup group(String key, String title, List<FacetCount> counts) {
-        return group(key, title, counts, null, null);
-    }
-
-    FacetGroup group(String key, String title, List<FacetCount> counts, Number min, Number max) {
         List<FacetLink> links = counts.stream()
                 .map(c -> {
                     boolean active = BrowseParams.hasFacet(selectedFacets, key, c.value());
@@ -55,7 +52,17 @@ final class FacetResponseBuilder {
                     return new FacetLink(rel, href, Link.JSON_TYPE, c.value(), c.value(), new Properties(c.count()));
                 })
                 .toList();
-        return new FacetGroup(new Metadata("facet", key, title, min, max), links);
+        return new FacetGroup(new Metadata("facet", key, title), links);
+    }
+
+    FacetGroup numberGroup(String key, String title, List<FacetCount> counts, Number min, Number max) {
+        FacetGroup group = group(key, title, counts);
+        if (min == null) {
+            return group;
+        }
+        String href = pageLink("facet=" + BrowseParams.encode(key + ":") + "{min}..{max}");
+        FacetLink range = new FacetLink(List.of("facet"), href, Link.JSON_TYPE, true, title, null, new Properties(null, min, max));
+        return new FacetGroup(group.metadata(), Stream.concat(Stream.of(range), group.links().stream()).toList());
     }
 
     List<Link> selfLinks() {

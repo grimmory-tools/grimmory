@@ -308,12 +308,16 @@ class BookFacetServiceTest {
         }
         em.flush();
 
-        FacetGroup pageCount = group(facetService.getFacets(null, null, null), "page_count");
+        FacetGroupsResponse response = facetService.getFacets(null, null, null);
+        FacetGroup pageCount = group(response, "page_count");
 
-        assertThat(pageCount.links()).isEmpty();
-        assertThat(pageCount.metadata().min().intValue()).isEqualTo(1);
-        assertThat(pageCount.metadata().max().intValue()).isEqualTo(101);
-        assertThat(group(facetService.getFacets(null, null, null), "genre").metadata().max()).isNull();
+        assertThat(pageCount.links()).hasSize(1);
+        FacetLink range = pageCount.links().getFirst();
+        assertThat(range.templated()).isTrue();
+        assertThat(range.href()).isEqualTo("/api/v1/books/page?facet=page_count%3A{min}..{max}");
+        assertThat(range.properties().min().intValue()).isEqualTo(1);
+        assertThat(range.properties().max().intValue()).isEqualTo(101);
+        assertThat(group(response, "genre").links()).noneMatch(l -> Boolean.TRUE.equals(l.templated()));
     }
 
     @Test
@@ -322,18 +326,24 @@ class BookFacetServiceTest {
             book("R" + i, "Genre", "Author").setGoodreadsRating(3.5 + i / 1000.0);
         }
         book("Four", "Genre", "Author").setGoodreadsRating(4.0);
+        book("Edge", "Genre", "Author").setGoodreadsRating(4.5);
         book("High", "Genre", "Author").setGoodreadsRating(4.8);
         em.flush();
 
-        FacetGroup goodreads = group(facetService.getFacets(List.of("goodreads_rating:4..4.5"), null, null), "goodreads_rating");
+        FacetGroup goodreads = group(facetService.getFacets(List.of("goodreads_rating:4..<4.5"), null, null), "goodreads_rating");
 
-        assertThat(goodreads.links()).extracting(FacetLink::value)
-                .containsExactly("0..1", "1..2", "2..3", "3..4", "4..4.5", "4.5..*");
-        assertThat(count(goodreads, "0..1")).isZero();
-        assertThat(count(goodreads, "3..4")).isEqualTo(151);
-        assertThat(count(goodreads, "4..4.5")).isEqualTo(1);
-        assertThat(count(goodreads, "4.5..*")).isEqualTo(1);
-        assertThat(link(goodreads, "4..4.5").rel()).containsExactly("self", "facet");
+        FacetLink range = goodreads.links().getFirst();
+        assertThat(range.templated()).isTrue();
+        assertThat(range.href()).isEqualTo("/api/v1/books/page?facet=goodreads_rating%3A4..%3C4.5&facet=goodreads_rating%3A{min}..{max}");
+        assertThat(range.properties().min().doubleValue()).isEqualTo(3.5);
+        assertThat(range.properties().max().doubleValue()).isEqualTo(4.8);
+        assertThat(goodreads.links()).filteredOn(l -> l.templated() == null).extracting(FacetLink::value)
+                .containsExactly("0..<1", "1..<2", "2..<3", "3..<4", "4..<4.5", "4.5..*");
+        assertThat(count(goodreads, "0..<1")).isZero();
+        assertThat(count(goodreads, "3..<4")).isEqualTo(150);
+        assertThat(count(goodreads, "4..<4.5")).isEqualTo(1);
+        assertThat(count(goodreads, "4.5..*")).isEqualTo(2);
+        assertThat(link(goodreads, "4..<4.5").rel()).containsExactly("self", "facet");
     }
 
     @Test

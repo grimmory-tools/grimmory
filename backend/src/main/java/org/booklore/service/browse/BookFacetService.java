@@ -109,9 +109,9 @@ public class BookFacetService {
             "amazon_rating", "goodreads_rating", "hardcover_rating", "ranobedb_rating",
             "lubimyczytac_rating", "audible_rating", "applebooks_rating");
 
-    private static final List<String> RATING_BANDS = List.of("0..1", "1..2", "2..3", "3..4", "4..4.5", "4.5..*");
+    private static final List<String> RATING_BANDS = List.of("0..<1", "1..<2", "2..<3", "3..<4", "4..<4.5", "4.5..*");
     private static final Map<String, List<String>> NUMBER_BANDS = Map.of(
-            "match_score", List.of("95..*", "90..95", "80..90", "70..80", "50..70", "30..50", "0..30"),
+            "match_score", List.of("95..*", "90..<95", "80..<90", "70..<80", "50..<70", "30..<50", "0..<30"),
             "amazon_rating", RATING_BANDS,
             "goodreads_rating", RATING_BANDS,
             "hardcover_rating", RATING_BANDS,
@@ -223,7 +223,7 @@ public class BookFacetService {
         List<FacetResponseBuilder.FacetCount> counts = bands.stream()
                 .map(band -> new FacetResponseBuilder.FacetCount(band, row.get(band, Long.class)))
                 .toList();
-        return builder.group(def.key(), def.title(), counts, row.get("min", Number.class), row.get("max", Number.class));
+        return builder.numberGroup(def.key(), def.title(), counts, row.get("min", Number.class), row.get("max", Number.class));
     }
 
     // COUNT(DISTINCT CASE WHEN <filter matches> THEN id END), so one query can count several filters at once
