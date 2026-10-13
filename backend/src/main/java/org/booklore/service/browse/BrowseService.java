@@ -79,6 +79,10 @@ public class BrowseService<E, T> {
                 window, fetched.total(), fetched.items());
     }
 
+    public Specification<E> filter(List<String> facet, String facetLogicParam, String query) {
+        return entity.filter(query, BrowseParams.parseFacets(facet), FacetLogic.from(facetLogicParam), scopeFactory.current(), null);
+    }
+
     public List<Long> findAllIds(String sort, List<String> facet, String facetLogicParam, String query) {
         BrowseScope scope = scopeFactory.current();
         Map<String, List<String>> facets = BrowseParams.parseFacets(facet);

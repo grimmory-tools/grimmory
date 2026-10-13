@@ -127,6 +127,11 @@ public class SecurityUtil {
         return user != null && user.getPermissions().isCanAccessBookdrop();
     }
 
+    public boolean canAccessLibraryStats() {
+        var user = getCurrentUser();
+        return user != null && user.getPermissions().isCanAccessLibraryStats();
+    }
+
     public boolean canAccessUserStats() {
         var user = getCurrentUser();
         return user != null && user.getPermissions().isCanAccessUserStats();
