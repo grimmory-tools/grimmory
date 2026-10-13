@@ -55,17 +55,6 @@
   background: linear-gradient(90deg, transparent, var(--color-border), transparent);
 }
 
-.chart-info-icon {
-  color: var(--color-text-muted);
-  font-size: 0.7875rem;
-  cursor: help;
-  transition: color var(--transition-base);
-
-  &:hover {
-    color: var(--color-text-secondary);
-  }
-}
-
 .virtual-scroller {
   .virtual-content {
     position: relative;
