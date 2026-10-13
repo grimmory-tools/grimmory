@@ -4032,47 +4032,28 @@
       "publicationTimeline": "Časovnica izdaj"
     },
     "bookFormats": {
-      "title": "Formati knjig",
-      "description": "Porazdelitev vrst datotek v tvoji knjižnici"
+      "title": "Formati knjig"
     },
-    "language": {
-      "title": "Jeziki",
-      "description": "Jeziki, ki so zastopani v tvoji zbirki"
+    "languages": {
+      "title": "Jeziki"
     },
     "metadataScore": {
-      "title": "Kakovost metapodatkov",
-      "description": "Kakovost metapodatkov knjig v tvoji knjižnici",
-      "excellent": "Odlično (90–100 %)",
-      "good": "Dobro (70–89 %)",
-      "fair": "Zadovoljivo (50–69 %)",
-      "poor": "Slabo (25–49 %)",
-      "veryPoor": "Zelo slabo (0–24 %)"
+      "title": "Kakovost metapodatkov"
     },
     "pageCount": {
-      "title": "Porazdelitev števila strani",
-      "description": "Porazdelitev dolžine knjig v tvoji knjižnici",
       "tooltipTitle": "{{ label }} strani",
       "axisPageCount": "Število strani",
       "axisBooks": "Knjige"
     },
     "publicationTimeline": {
       "title": "Časovnica izdaj",
-      "description": "Kdaj so bile tvoje knjige prvotno izdane?",
       "axisNumberOfBooks": "Število knjig",
       "insightOldest": "Najstarejša",
       "insightNewest": "Najnovejša",
-      "insightPeakDecadeBooks": "{{ count }} knjig"
+      "booksCount": "{{ count }} knjig"
     },
     "topItems": {
-      "axisNumberOfBooks": "Število knjig",
-      "dataTypes": {
-        "authors": "Avtorji",
-        "categories": "Kategorije",
-        "series": "Zbirke",
-        "publishers": "Založniki",
-        "tags": "Oznake",
-        "moods": "Razpoloženja"
-      }
+      "axisNumberOfBooks": "Število knjig"
     },
     "libraryFilter": {
       "allLibraries": "Vse knjižnice"
@@ -4085,68 +4066,37 @@
     },
     "chartNames": {
       "favoriteDays": "Najljubši dnevi za branje",
-      "timeline": "Časovnica bralnih sej",
-      "readingHeatmap": "Toplotni zemljevid bralne aktivnosti",
-      "personalRating": "Porazdelitev osebnih ocen",
-      "readStatus": "Porazdelitev statusa branja",
+      "sessionTimeline": "Časovnica bralnih sej",
       "readingClock": "Bralna ura",
-      "readingSurvival": "Krivulja bralnega preživetja",
-      "bookLength": "Idealna dolžina knjige",
-      "ratingTaste": "Primerjava okusa in ocen",
-      "seriesProgress": "Sledenje napredku zbirk",
-      "readingDna": "Bralni DNA profil",
-      "readingHabits": "Analiza bralnih navad",
-      "bookFlow": "Tok knjig",
-      "publicationEra": "Obdobje izdaje glede na oceno"
+      "bookFlow": "Tok knjig"
     },
-    "sessionHeatmap": {
+    "sessionActivity": {
       "title": "Aktivnost bralnih sej",
-      "description": "Dnevni pregled tvojih bralnih sej čez leto",
       "currentStreak": "Trenutni niz",
       "longestStreak": "Najdaljši niz",
       "readingSessions": "Bralne seje"
     },
     "sessionTimeline": {
       "title": "Časovnica bralnih sej",
-      "description": "Tedenski pregled bralnih sej in vzorcev",
-      "previousWeek": "Prejšnji teden",
-      "nextWeek": "Naslednji teden",
-      "week": "{{ number }}. teden",
-      "readingSession": "Bralna seja",
-      "tooltipTime": "Čas:",
-      "tooltipDuration": "Trajanje:",
-      "tooltipFormat": ""
+      "readingSession": "Bralna seja"
     },
-    "genreStats": {
+    "readingByGenre": {
       "title": "Branje po žanrih",
-      "description": "Najboljši žanri po skupnem času branja",
       "axisGenres": "Žanri",
-      "axisTimeRead": "Čas branja",
       "readingTime": "Čas branja"
     },
     "favoriteDays": {
       "title": "Najljubši dnevi za branje",
-      "selectYear": "Izberi leto",
-      "selectMonth": "Izberi mesec",
-      "allYears": "Vsa leta",
-      "allMonths": "Vsi meseci",
       "axisDayOfWeek": "Dan v tednu"
     },
     "personalRating": {
-      "title": "Porazdelitev osebnih ocen",
       "axisPersonalRating": "Osebna ocena",
       "axisNumberOfBooks": "Število knjig",
       "tooltipTitle": "Osebna ocena: {{ label }}"
     },
-    "readStatus": {
-      "title": "Porazdelitev statusa branja",
-      "description": "Knjige po njihovem statusu branja"
-    },
+    "readStatus": {},
     "readingDna": {
-      "title": "Bralni DNA profil",
-      "description": "Tvoja edinstvena bralna osebnost skozi 8 dimenzij",
       "tooltipPersonality": "Osebnost: {{ label }}",
-      "tooltipScore": "Rezultat: {{ score }}/100",
       "traits": {
         "adventurous": "Pustolovski",
         "perfectionist": "Perfekcionist",
@@ -4201,10 +4151,7 @@
       }
     },
     "readingHabits": {
-      "title": "Analiza bralnih navad",
-      "description": "Tvoji vedenjski bralni vzorci skozi 8 dimenzij",
       "tooltipHabit": "Navada: {{ label }}",
-      "tooltipScore": "Rezultat: {{ score }}/100",
       "habits": {
         "consistency": "Doslednost",
         "multitasking": "Večopravilnost",
@@ -4253,20 +4200,19 @@
         }
       }
     },
-    "readingHeatmap": {
-      "title": "Toplotni zemljevid bralne aktivnosti",
-      "booksRead": "Prebranih knjig"
+    "booksFinished": {},
+    "booksAddedVsFinished": {
+      "axisMonth": "Mesec",
+      "axisCumulativeBooks": "Skupno število knjig",
+      "legendBooksAdded": "Dodane knjige",
+      "legendBooksFinished": "Dokončane knjige",
+      "insightCurrentBacklog": "Trenutni zaostanek"
     },
-    "ratingTaste": {
-      "title": "Primerjava okusa in ocen",
-      "description": "Primerjaj svoje osebne ocene z zunanjimi (Goodreads, Amazon, itd.)"
-    },
+    "ratingComparison": {},
     "seriesProgress": {
-      "title": "Sledenje napredku zbirk",
       "seriesBreakdown": "Razčlenitev zbirke",
       "ofTotal": "{{ filtered }} od {{ total }}",
       "searchSeries": "Išči zbirke...",
-      "allStatus": "Vsi statusi",
       "inProgress": "V teku",
       "completed": "Dokončano",
       "notStarted": "Ni začeto",
@@ -4281,44 +4227,30 @@
       "abandoned": "Opuščeno",
       "wontRead": "Ne bom bral",
       "unread": "Neprebrano",
-      "booksRead": "{{ read }}/{{ owned }} prebrano",
       "next": "Naslednja:",
-      "tooltipRead": "Prebrano: {{ read }}/{{ owned }} v lasti",
       "noMatchingSearch": "Nobena zbirka ne ustreza iskanju \"{{ term }}\"",
       "pageInfo": "Stran {{ current }} od {{ total }}"
     },
-    "readingSurvival": {
-      "title": "Krivulja bralnega preživetja",
+    "readingDropOff": {
       "completionRate": "Stopnja dokončanja",
-      "survivalRate": "Stopnja preživetja",
-      "axisProgressThreshold": "Prag napredka",
-      "axisBooksSurviving": "% preživelih knjig",
       "tooltipProgress": "{{ label }} napredek"
     },
     "readingClock": {
       "title": "Bralna ura",
-      "description": "Kdaj bereš čez dan",
-      "peakHour": "Najbolj aktivna ura",
-      "totalRead": "Skupaj prebrano"
+      "peakHour": "Najbolj aktivna ura"
     },
-    "bookLength": {
-      "title": "Idealna dolžina knjige",
-      "description": "Kako je dolžina knjige povezana s tvojimi ocenami",
-      "sweetSpot": "Idealna točka",
+    "ratingsByLength": {
       "axisPageCount": "Število strani",
       "axisPersonalRating": "Osebna ocena"
     },
     "bookFlow": {
       "title": "Tok knjig",
-      "description": "Kako knjige tečejo od pridobitve do statusa in ocene",
       "totalBooks": "Skupaj knjig",
       "colAdded": "Dodano",
       "colStatus": "",
       "colRating": "Ocena"
     },
-    "publicationEra": {
-      "title": "Obdobje izdaje glede na oceno",
-      "description": "Katera desetletja izdaje ocenjuješ najvišje",
+    "ratingsByDecade": {
       "bestDecade": "Najboljše desetletje"
     }
   },
@@ -4763,6 +4695,28 @@
       "viewMode": "Pogled",
       "density": "Velikost",
       "resetColumns": "Ponastavi na privzeto"
+    }
+  },
+  "stats": {
+    "config": {
+      "title": "Konfiguracija grafov",
+      "resetOrder": "Ponastavi vrstni red"
+    },
+    "filter": {
+      "allYears": "Vsa leta",
+      "selectYear": "Izberi leto",
+      "allMonths": "Vsi meseci",
+      "selectMonth": "Izberi mesec",
+      "week": "{{ number }}. teden",
+      "previousWeek": "Prejšnji teden",
+      "nextWeek": "Naslednji teden",
+      "dataTypes": {
+        "authors": "Avtorji",
+        "series": "Zbirke",
+        "publishers": "Založniki",
+        "tags": "Oznake",
+        "moods": "Razpoloženja"
+      }
     }
   }
 }

@@ -4031,47 +4031,28 @@
       "publicationTimeline": "Utgivningstidslinje"
     },
     "bookFormats": {
-      "title": "Bokformat",
-      "description": "Fordelning av filtyper i ditt bibliotek"
+      "title": "Bokformat"
     },
-    "language": {
-      "title": "Sprak",
-      "description": "Sprak som finns i din samling"
+    "languages": {
+      "title": "Sprak"
     },
     "metadataScore": {
-      "title": "Metadatapoang",
-      "description": "Kvalitet pa bokmetadata i ditt bibliotek",
-      "excellent": "Utmarkt (90-100%)",
-      "good": "Bra (70-89%)",
-      "fair": "Godkant (50-69%)",
-      "poor": "Daligt (25-49%)",
-      "veryPoor": "Mycket daligt (0-24%)"
+      "title": "Metadatapoang"
     },
     "pageCount": {
-      "title": "Sidantalfordelning",
-      "description": "Fordelning av boklangder i ditt bibliotek",
       "tooltipTitle": "{{ label }} sidor",
       "axisPageCount": "Sidantal",
       "axisBooks": "Bocker"
     },
     "publicationTimeline": {
       "title": "Utgivningstidslinje",
-      "description": "Nar publicerades dina bocker ursprungligen?",
       "axisNumberOfBooks": "Antal bocker",
       "insightOldest": "Aldst",
       "insightNewest": "Nyast",
-      "insightPeakDecadeBooks": "{{ count }} bocker"
+      "booksCount": "{{ count }} bocker"
     },
     "topItems": {
-      "axisNumberOfBooks": "Antal bocker",
-      "dataTypes": {
-        "authors": "Forfattare",
-        "categories": "Kategorier",
-        "series": "Serier",
-        "publishers": "Forlag",
-        "tags": "Taggar",
-        "moods": "Stämningar"
-      }
+      "axisNumberOfBooks": "Antal bocker"
     },
     "libraryFilter": {
       "allLibraries": "Alla bibliotek"
@@ -4084,68 +4065,37 @@
     },
     "chartNames": {
       "favoriteDays": "Favoritläsdagar",
-      "timeline": "Lassessionstidslinje",
-      "readingHeatmap": "Lasaktivitetsvarmekarta",
-      "personalRating": "Personlig betygsfordelning",
-      "readStatus": "Lasstatusfordelning",
+      "sessionTimeline": "Lassessionstidslinje",
       "readingClock": "Lasklocka",
-      "readingSurvival": "Lasoverlevnadskurva",
-      "bookLength": "Boklangdens optimala langd",
-      "ratingTaste": "Betygsjamforelse",
-      "seriesProgress": "Serieframsteg",
-      "readingDna": "Las-DNA-profil",
-      "readingHabits": "Lasvanoranalys",
-      "bookFlow": "Bokflöde",
-      "publicationEra": "Publikationsera vs. betyg"
+      "bookFlow": "Bokflöde"
     },
-    "sessionHeatmap": {
+    "sessionActivity": {
       "title": "Lassessionsaktivitet",
-      "description": "Daglig oversikt av dina lassessioner under aret",
       "currentStreak": "Nuvarande svit",
       "longestStreak": "Langsta svit",
       "readingSessions": "Lassessioner"
     },
     "sessionTimeline": {
       "title": "Lassessionstidslinje",
-      "description": "Veckooversikt av dina lassessioner och monster",
-      "previousWeek": "Foregaende vecka",
-      "nextWeek": "Nasta vecka",
-      "week": "Vecka {{ number }}",
-      "readingSession": "Lassession",
-      "tooltipTime": "Tid:",
-      "tooltipDuration": "Varaktighet:",
-      "tooltipFormat": ""
+      "readingSession": "Lassession"
     },
-    "genreStats": {
+    "readingByGenre": {
       "title": "Lasning per genre",
-      "description": "Toppgenrer efter total lastid",
       "axisGenres": "Genrer",
-      "axisTimeRead": "Tid last",
       "readingTime": "Lastid"
     },
     "favoriteDays": {
       "title": "Favoritläsdagar",
-      "selectYear": "Välj år",
-      "selectMonth": "Välj månad",
-      "allYears": "Alla år",
-      "allMonths": "Alla månader",
       "axisDayOfWeek": "Veckodag"
     },
     "personalRating": {
-      "title": "Personlig betygsfordelning",
       "axisPersonalRating": "Personligt betyg",
       "axisNumberOfBooks": "Antal bocker",
       "tooltipTitle": "Personligt betyg: {{ label }}"
     },
-    "readStatus": {
-      "title": "Lasstatusfordelning",
-      "description": "Bocker efter lasstatus"
-    },
+    "readStatus": {},
     "readingDna": {
-      "title": "Las-DNA-profil",
-      "description": "Din unika laspersonlighet over 8 dimensioner",
       "tooltipPersonality": "{{ label }}-personlighet",
-      "tooltipScore": "Poang: {{ score }}/100",
       "traits": {
         "adventurous": "Aventyrlig",
         "perfectionist": "Perfektionist",
@@ -4200,10 +4150,7 @@
       }
     },
     "readingHabits": {
-      "title": "Lasvanoranalys",
-      "description": "Dina beteendemonster for lasning over 8 dimensioner",
       "tooltipHabit": "{{ label }}-vana",
-      "tooltipScore": "Poang: {{ score }}/100",
       "habits": {
         "consistency": "Konsekvens",
         "multitasking": "Mångsysslare",
@@ -4252,20 +4199,19 @@
         }
       }
     },
-    "readingHeatmap": {
-      "title": "Lasaktivitetsvarmekarta",
-      "booksRead": "Bocker lasta"
+    "booksFinished": {},
+    "booksAddedVsFinished": {
+      "axisMonth": "Manad",
+      "axisCumulativeBooks": "Kumulativa bocker",
+      "legendBooksAdded": "Bocker tillagda",
+      "legendBooksFinished": "Bocker avslutade",
+      "insightCurrentBacklog": "Nuvarande backlog"
     },
-    "ratingTaste": {
-      "title": "Betygsjamforelse",
-      "description": "Jamfor dina personliga betyg med externa betyg (Goodreads, Amazon, etc.)"
-    },
+    "ratingComparison": {},
     "seriesProgress": {
-      "title": "Serieframsteg",
       "seriesBreakdown": "Serieuppdelning",
       "ofTotal": "{{ filtered }} av {{ total }}",
       "searchSeries": "Sok serier...",
-      "allStatus": "Alla statusar",
       "inProgress": "Pagar",
       "completed": "Avslutade",
       "notStarted": "Ej paborjad",
@@ -4280,44 +4226,30 @@
       "abandoned": "Overgiven",
       "wontRead": "Kommer inte lasa",
       "unread": "Olast",
-      "booksRead": "{{ read }}/{{ owned }} lasta",
       "next": "Nasta:",
-      "tooltipRead": "Lasta: {{ read }}/{{ owned }} agda",
       "noMatchingSearch": "Inga serier matchar \"{{ term }}\"",
       "pageInfo": "Sida {{ current }} av {{ total }}"
     },
-    "readingSurvival": {
-      "title": "Lasoverlevnadskurva",
+    "readingDropOff": {
       "completionRate": "Fardighetsgrad",
-      "survivalRate": "Overlevnadsgrad",
-      "axisProgressThreshold": "Framstegstroskelvarde",
-      "axisBooksSurviving": "% bocker som overlevde",
       "tooltipProgress": "{{ label }} framsteg"
     },
     "readingClock": {
       "title": "Lasklocka",
-      "description": "Nar pa dygnet laser du",
-      "peakHour": "Topptimme",
-      "totalRead": "Totalt last"
+      "peakHour": "Topptimme"
     },
-    "bookLength": {
-      "title": "Boklangdens optimala langd",
-      "description": "Hur boklangd relaterar till dina personliga betyg",
-      "sweetSpot": "Optimala langden",
+    "ratingsByLength": {
       "axisPageCount": "Sidantal",
       "axisPersonalRating": "Personligt betyg"
     },
     "bookFlow": {
       "title": "Bokflöde",
-      "description": "Hur böcker går från förvärv till status till betyg",
       "totalBooks": "Totalt antal böcker",
       "colAdded": "Tillagd",
       "colStatus": "",
       "colRating": "Betyg"
     },
-    "publicationEra": {
-      "title": "Publikationsera kontra betyg",
-      "description": "Vilka publikationsdecennier rankar du högst",
+    "ratingsByDecade": {
       "bestDecade": "Bästa decennium"
     }
   },
@@ -4762,6 +4694,28 @@
       "organizeFiles": "Organisera filer",
       "updateReadStatus": "Uppdatera lässtatus",
       "lockUnlockMetadata": "Lås/lås upp metadata"
+    }
+  },
+  "stats": {
+    "config": {
+      "title": "Diagramkonfiguration",
+      "resetOrder": "Aterstall ordning"
+    },
+    "filter": {
+      "allYears": "Alla år",
+      "selectYear": "Välj år",
+      "allMonths": "Alla månader",
+      "selectMonth": "Välj månad",
+      "week": "Vecka {{ number }}",
+      "previousWeek": "Foregaende vecka",
+      "nextWeek": "Nasta vecka",
+      "dataTypes": {
+        "authors": "Forfattare",
+        "series": "Serier",
+        "publishers": "Forlag",
+        "tags": "Taggar",
+        "moods": "Stämningar"
+      }
     }
   }
 }

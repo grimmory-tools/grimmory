@@ -4030,47 +4030,28 @@
       "publicationTimeline": "出版タイムライン"
     },
     "bookFormats": {
-      "title": "書籍フォーマット",
-      "description": "ライブラリ内のファイルタイプの分布"
+      "title": "書籍フォーマット"
     },
-    "language": {
-      "title": "言語",
-      "description": "コレクション内の言語分布"
+    "languages": {
+      "title": "言語"
     },
     "metadataScore": {
-      "title": "メタデータスコア",
-      "description": "ライブラリ内の書籍メタデータの品質",
-      "excellent": "優秀 (90-100%)",
-      "good": "良好 (70-89%)",
-      "fair": "普通 (50-69%)",
-      "poor": "不良 (25-49%)",
-      "veryPoor": "非常に不良 (0-24%)"
+      "title": "メタデータスコア"
     },
     "pageCount": {
-      "title": "ページ数分布",
-      "description": "ライブラリ内の書籍の長さの分布",
       "tooltipTitle": "{{ label }}ページ",
       "axisPageCount": "ページ数",
       "axisBooks": "書籍"
     },
     "publicationTimeline": {
       "title": "出版タイムライン",
-      "description": "あなたの書籍はいつ出版されましたか？",
       "axisNumberOfBooks": "書籍数",
       "insightOldest": "最古",
       "insightNewest": "最新",
-      "insightPeakDecadeBooks": "{{ count }}冊"
+      "booksCount": "{{ count }}冊"
     },
     "topItems": {
-      "axisNumberOfBooks": "書籍数",
-      "dataTypes": {
-        "authors": "著者",
-        "categories": "カテゴリ",
-        "series": "シリーズ",
-        "publishers": "出版社",
-        "tags": "タグ",
-        "moods": "ムード"
-      }
+      "axisNumberOfBooks": "書籍数"
     },
     "libraryFilter": {
       "allLibraries": "すべてのライブラリ"
@@ -4083,68 +4064,37 @@
     },
     "chartNames": {
       "favoriteDays": "お気に入りの読書曜日",
-      "timeline": "読書セッションタイムライン",
-      "readingHeatmap": "読書活動ヒートマップ",
-      "personalRating": "個人評価の分布",
-      "readStatus": "読書ステータスの分布",
+      "sessionTimeline": "読書セッションタイムライン",
       "readingClock": "読書クロック",
-      "readingSurvival": "読書サバイバルカーブ",
-      "bookLength": "書籍の長さのスイートスポット",
-      "ratingTaste": "評価テイスト比較",
-      "seriesProgress": "シリーズ進捗トラッカー",
-      "readingDna": "読書DNAプロフィール",
-      "readingHabits": "読書習慣分析",
-      "bookFlow": "",
-      "publicationEra": ""
+      "bookFlow": ""
     },
-    "sessionHeatmap": {
+    "sessionActivity": {
       "title": "読書セッション活動",
-      "description": "年間を通じた読書セッションの日別概要",
       "currentStreak": "現在の連続記録",
       "longestStreak": "最長連続記録",
       "readingSessions": "読書セッション"
     },
     "sessionTimeline": {
       "title": "読書セッションタイムライン",
-      "description": "読書セッションとパターンの週間概要",
-      "previousWeek": "前の週",
-      "nextWeek": "次の週",
-      "week": "第{{ number }}週",
-      "readingSession": "読書セッション",
-      "tooltipTime": "時間:",
-      "tooltipDuration": "所要時間:",
-      "tooltipFormat": "フォーマット:"
+      "readingSession": "読書セッション"
     },
-    "genreStats": {
+    "readingByGenre": {
       "title": "ジャンル別読書",
-      "description": "総読書時間によるトップジャンル",
       "axisGenres": "ジャンル",
-      "axisTimeRead": "読書時間",
       "readingTime": "読書時間"
     },
     "favoriteDays": {
       "title": "お気に入りの読書曜日",
-      "selectYear": "年を選択",
-      "selectMonth": "月を選択",
-      "allYears": "全年",
-      "allMonths": "全月",
       "axisDayOfWeek": "曜日"
     },
     "personalRating": {
-      "title": "個人評価の分布",
       "axisPersonalRating": "個人評価",
       "axisNumberOfBooks": "書籍数",
       "tooltipTitle": "個人評価: {{ label }}"
     },
-    "readStatus": {
-      "title": "読書ステータスの分布",
-      "description": "読書ステータス別の書籍"
-    },
+    "readStatus": {},
     "readingDna": {
-      "title": "読書DNAプロフィール",
-      "description": "8つの次元で見るあなた独自の読書パーソナリティ",
       "tooltipPersonality": "{{ label }}パーソナリティ",
-      "tooltipScore": "スコア: {{ score }}/100",
       "traits": {
         "adventurous": "冒険的",
         "perfectionist": "完璧主義",
@@ -4199,10 +4149,7 @@
       }
     },
     "readingHabits": {
-      "title": "読書習慣分析",
-      "description": "8つの次元で見るあなたの行動的読書パターン",
       "tooltipHabit": "{{ label }}習慣",
-      "tooltipScore": "スコア: {{ score }}/100",
       "habits": {
         "consistency": "一貫性",
         "multitasking": "マルチタスク",
@@ -4251,20 +4198,19 @@
         }
       }
     },
-    "readingHeatmap": {
-      "title": "読書活動ヒートマップ",
-      "booksRead": "読了書籍"
+    "booksFinished": {},
+    "booksAddedVsFinished": {
+      "axisMonth": "月",
+      "axisCumulativeBooks": "累計書籍数",
+      "legendBooksAdded": "追加された書籍",
+      "legendBooksFinished": "読了した書籍",
+      "insightCurrentBacklog": "現在のバックログ"
     },
-    "ratingTaste": {
-      "title": "評価テイスト比較",
-      "description": "外部評価（Goodreads、Amazonなど）とあなたの個人評価を比較"
-    },
+    "ratingComparison": {},
     "seriesProgress": {
-      "title": "シリーズ進捗トラッカー",
       "seriesBreakdown": "シリーズ内訳",
       "ofTotal": "{{ filtered }} / {{ total }}",
       "searchSeries": "シリーズを検索...",
-      "allStatus": "すべてのステータス",
       "inProgress": "進行中",
       "completed": "完了",
       "notStarted": "未開始",
@@ -4279,44 +4225,30 @@
       "abandoned": "中断",
       "wontRead": "読まない",
       "unread": "未読",
-      "booksRead": "{{ read }}/{{ owned }}冊読了",
       "next": "次:",
-      "tooltipRead": "読了: {{ read }}/{{ owned }}冊所有",
       "noMatchingSearch": "「{{ term }}」に一致するシリーズがありません",
       "pageInfo": "{{ current }} / {{ total }}ページ"
     },
-    "readingSurvival": {
-      "title": "読書サバイバルカーブ",
+    "readingDropOff": {
       "completionRate": "読了率",
-      "survivalRate": "生存率",
-      "axisProgressThreshold": "進捗しきい値",
-      "axisBooksSurviving": "残存書籍 %",
       "tooltipProgress": "{{ label }}進捗"
     },
     "readingClock": {
       "title": "読書クロック",
-      "description": "1日を通していつ読書しているか",
-      "peakHour": "ピーク時間",
-      "totalRead": "総読書時間"
+      "peakHour": "ピーク時間"
     },
-    "bookLength": {
-      "title": "書籍の長さのスイートスポット",
-      "description": "書籍の長さとあなたの個人評価の関係",
-      "sweetSpot": "スイートスポット",
+    "ratingsByLength": {
       "axisPageCount": "ページ数",
       "axisPersonalRating": "個人評価"
     },
     "bookFlow": {
       "title": "",
-      "description": "",
       "totalBooks": "",
       "colAdded": "",
       "colStatus": "",
       "colRating": ""
     },
-    "publicationEra": {
-      "title": "",
-      "description": "",
+    "ratingsByDecade": {
       "bestDecade": ""
     }
   },
@@ -4758,6 +4690,28 @@
       "viewMode": "表示",
       "density": "サイズ",
       "resetColumns": "デフォルトに戻す"
+    }
+  },
+  "stats": {
+    "config": {
+      "title": "チャート設定",
+      "resetOrder": "順序をリセット"
+    },
+    "filter": {
+      "allYears": "全年",
+      "selectYear": "年を選択",
+      "allMonths": "全月",
+      "selectMonth": "月を選択",
+      "week": "第{{ number }}週",
+      "previousWeek": "前の週",
+      "nextWeek": "次の週",
+      "dataTypes": {
+        "authors": "著者",
+        "series": "シリーズ",
+        "publishers": "出版社",
+        "tags": "タグ",
+        "moods": "ムード"
+      }
     }
   }
 }
