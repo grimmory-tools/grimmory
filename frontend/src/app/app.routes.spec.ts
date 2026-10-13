@@ -4,6 +4,8 @@ import {routes} from './app.routes';
 import {AuthChildGuard, AuthGuard} from './core/security/auth.guard';
 import {BookdropGuard} from './core/security/guards/bookdrop.guard';
 import {EditMetadataGuard} from './core/security/guards/edit-metdata.guard';
+import {LibraryStatsGuard} from './core/security/guards/library-stats.guard';
+import {UserStatsGuard} from './core/security/guards/user-stats.guard';
 import {LoginGuard} from './shared/components/setup/login.guard';
 import {SetupGuard} from './shared/components/setup/setup.guard';
 import {SetupRedirectGuard} from './shared/components/setup/setup-redirect.guard';
@@ -29,7 +31,7 @@ describe('app routes', () => {
     const browseFilterPage = (path: string) => children.find(route => route.path === path)
       ?.children?.find(route => route.path === 'filter');
 
-    expect(children).toHaveLength(19);
+    expect(children).toHaveLength(21);
     expect(children.find(route => route.path === 'browse/filter')).toBeUndefined();
     expect(shellRoute?.canActivateChild).toEqual([AuthChildGuard]);
     expect(children.find(route => route.path === 'dashboard')?.canActivate).toBeUndefined();
@@ -49,12 +51,14 @@ describe('app routes', () => {
     expect(typeof children.find(route => route.path === 'design-system/form/everything')?.loadComponent).toBe('function');
   });
 
-  it('defines guarded lazy routes for metadata and bookdrop', () => {
+  it('defines guarded lazy routes for metadata, stats, and bookdrop', () => {
     const shellRoute = routes.find(route => route.path === '' && Array.isArray(route.children));
     const children = shellRoute?.children ?? [];
 
     expect(children.find(route => route.path === 'bookdrop')?.canActivate).toEqual([BookdropGuard]);
     expect(children.find(route => route.path === 'metadata-manager')?.canActivate).toEqual([EditMetadataGuard]);
+    expect(children.find(route => route.path === 'library-stats')?.canActivate).toEqual([LibraryStatsGuard]);
+    expect(children.find(route => route.path === 'reading-stats')?.canActivate).toEqual([UserStatsGuard]);
 
     expect(typeof children.find(route => route.path === 'settings')?.loadComponent).toBe('function');
     expect(typeof children.find(route => route.path === 'series')?.loadComponent).toBe('function');
