@@ -1,0 +1,103 @@
+<div class="app-page @container mx-auto w-full max-w-[100rem]">
+  <app-page-header [pageHeader]="pageHeader()">
+    @if (!isEditing() && config.libraryPage) {
+      <app-select
+        inputId="stats-page-library"
+        size="md"
+        styleClass="min-w-52"
+        [options]="libraryOptions()"
+        [value]="selectedLibrary()"
+        [placeholder]="'statsLibrary.main.selectLibrary' | transloco"
+        [ariaLabel]="'statsLibrary.main.selectLibrary' | transloco"
+        (valueChange)="selectedLibrary.set($event ?? 'all')" />
+    }
+
+    @if (isEditing()) {
+      <ng-container>
+        <app-button
+          [label]="'stats.config.addChart' | transloco"
+          [disabled]="grid.availableCharts().length === 0"
+          [appMenuTriggerFor]="chartAddMenuPanel" />
+
+        <app-menu #chartAddMenuPanel [ariaLabel]="'stats.config.addChart' | transloco">
+          <ng-template appMenuContent>
+            @for (chart of grid.availableCharts(); track chart.id) {
+              <app-menu-item [value]="chart.id" (selected)="grid.add(chart)">
+                {{ chart.nameKey | transloco }}
+              </app-menu-item>
+            }
+          </ng-template>
+        </app-menu>
+
+        <app-button
+          tone="primary"
+          [label]="'stats.config.done' | transloco"
+          (clicked)="finishEditing()" />
+      </ng-container>
+    }
+
+    <app-button
+      variant="ghost"
+      iconOnly
+      buttonId="stats-page-config-trigger"
+      [ariaLabel]="'stats.config.title' | transloco"
+      [appMenuTriggerFor]="chartConfigMenuPanel">
+      <svg lucideEllipsisVertical aria-hidden="true"></svg>
+    </app-button>
+
+    <app-menu #chartConfigMenuPanel [ariaLabel]="'stats.config.title' | transloco">
+      <ng-template appMenuContent>
+        @if (!isEditing()) {
+          <app-menu-item value="edit" [icon]="iconEdit" (selected)="isEditing.set(true)">
+            {{ 'common.edit' | transloco }}
+          </app-menu-item>
+
+          <app-menu-separator />
+        }
+
+        <app-menu-item value="reset" [icon]="iconReset" (selected)="grid.resetOrder()">
+          {{ 'stats.config.resetOrder' | transloco }}
+        </app-menu-item>
+      </ng-template>
+    </app-menu>
+  </app-page-header>
+
+  <div
+    class="flex flex-col gap-4"
+    cdkDropListGroup>
+    @for (row of grid.rows(); track row.id) {
+      <div
+        class="group/row grid min-w-0 grid-cols-1 gap-4 @2xl:grid-cols-12 data-[preview-layout=emptied]:hidden"
+        [attr.data-preview-layout]="grid.previewLayout(row.id)"
+        [id]="row.id"
+        cdkDropList
+        cdkDropListOrientation="mixed"
+        [cdkDropListDisabled]="!isEditing()"
+        (cdkDropListEntered)="grid.previewReorder($event.container.id, $event.currentIndex)"
+        (cdkDropListSorted)="grid.previewReorder($event.container.id, $event.currentIndex)"
+        (cdkDropListDropped)="dropChart($event)">
+        @for (chart of row.charts; track chart.id) {
+          <div
+            class="relative col-span-1 min-w-0 [&.cdk-drag-animating]:transition-transform [&.cdk-drag-animating]:duration-[250ms] [&.cdk-drag-animating]:ease-out [&.cdk-drag-placeholder>*]:invisible [&.cdk-drag-placeholder]:rounded-xl [&.cdk-drag-placeholder]:outline-2 [&.cdk-drag-placeholder]:-outline-offset-2 [&.cdk-drag-placeholder]:outline-dashed [&.cdk-drag-placeholder]:outline-primary [&.cdk-drag-placeholder]:bg-page [&.cdk-drag-placeholder]:opacity-40 [&.cdk-drag-placeholder]:shadow-none [&.cdk-drag-preview]:rounded-xl [&.cdk-drag-preview]:shadow-pop [&.cdk-drag-placeholder]:group-data-[preview-layout=own-row-after]/row:order-1 @2xl:group-data-[preview-layout=single-small]/row:col-span-6 @2xl:group-data-[preview-layout=halves]/row:col-span-6 @2xl:group-data-[preview-layout=full]/row:col-span-12 @2xl:group-data-[preview-layout=thirds]/row:col-span-4 @2xl:group-data-[preview-layout=small-wide]/row:data-[chart-size=small]:col-span-4 @2xl:group-data-[preview-layout=small-wide]/row:data-[chart-size=wide]:col-span-8 @2xl:[&.cdk-drag-placeholder]:group-data-[preview-layout^=own-row]/row:col-[1/span_12] @2xl:[&.cdk-drag-placeholder]:group-data-[preview-layout^=own-row]/row:data-[chart-size=small]:col-[1/span_6] @2xl:[.cdk-drag-placeholder+&]:group-data-[preview-layout=own-row-before]/row:col-start-1"
+            [class]="columnClass(row.charts, chart)"
+            [attr.data-chart-size]="chart.size"
+            cdkDrag
+            [cdkDragDisabled]="!isEditing()"
+            [cdkDragStartDelay]="chartDragStartDelay"
+            [cdkDragData]="chart"
+            (cdkDragStarted)="grid.startReorderPreview(row.id, chart)"
+            (cdkDragEnded)="grid.clearReorderPreview()">
+            @if (isEditing()) {
+              <div class="absolute inset-0 z-10 cursor-grab rounded-xl active:cursor-grabbing" cdkDragHandle aria-hidden="true"></div>
+            }
+            <app-stats-card
+              [definition]="chart"
+              [editing]="isEditing() ? editingById().get(chart.id) ?? null : null"
+              (moved)="moveChart(chart.id, $event)"
+              (removed)="removeChart(chart.id)" />
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
