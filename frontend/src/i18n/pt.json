@@ -4029,47 +4029,28 @@
       "publicationTimeline": "Linha do Tempo de Publicação"
     },
     "bookFormats": {
-      "title": "Formatos de Livros",
-      "description": "Distribuição de tipos de arquivo na sua biblioteca"
+      "title": "Formatos de Livros"
     },
-    "language": {
-      "title": "Idiomas",
-      "description": "Idiomas representados na sua coleção"
+    "languages": {
+      "title": "Idiomas"
     },
     "metadataScore": {
-      "title": "Pontuação de Metadados",
-      "description": "Qualidade dos metadados dos livros na sua biblioteca",
-      "excellent": "Excelente (90-100%)",
-      "good": "Bom (70-89%)",
-      "fair": "Regular (50-69%)",
-      "poor": "Ruim (25-49%)",
-      "veryPoor": "Muito Ruim (0-24%)"
+      "title": "Pontuação de Metadados"
     },
     "pageCount": {
-      "title": "Distribuição de Páginas",
-      "description": "Distribuição do tamanho dos livros na sua biblioteca",
       "tooltipTitle": "{{ label }} páginas",
       "axisPageCount": "Número de Páginas",
       "axisBooks": "Livros"
     },
     "publicationTimeline": {
       "title": "Linha do Tempo de Publicação",
-      "description": "Quando seus livros foram publicados originalmente?",
       "axisNumberOfBooks": "Número de Livros",
       "insightOldest": "Mais Antigo",
       "insightNewest": "Mais Recente",
-      "insightPeakDecadeBooks": "{{ count }} livros"
+      "booksCount": "{{ count }} livros"
     },
     "topItems": {
-      "axisNumberOfBooks": "Número de Livros",
-      "dataTypes": {
-        "authors": "Autores",
-        "categories": "Categorias",
-        "series": "Séries",
-        "publishers": "Editoras",
-        "tags": "",
-        "moods": "Humores"
-      }
+      "axisNumberOfBooks": "Número de Livros"
     },
     "libraryFilter": {
       "allLibraries": "Todas as Bibliotecas"
@@ -4082,68 +4063,37 @@
     },
     "chartNames": {
       "favoriteDays": "Dias Favoritos de Leitura",
-      "timeline": "Linha do Tempo de Sessões de Leitura",
-      "readingHeatmap": "Mapa de Calor de Atividade de Leitura",
-      "personalRating": "Distribuição de Avaliações Pessoais",
-      "readStatus": "Distribuição de Status de Leitura",
+      "sessionTimeline": "Linha do Tempo de Sessões de Leitura",
       "readingClock": "Relógio de Leitura",
-      "readingSurvival": "Curva de Sobrevivência de Leitura",
-      "bookLength": "Tamanho Ideal de Livro",
-      "ratingTaste": "Comparação de Gosto de Avaliação",
-      "seriesProgress": "Acompanhamento de Progresso de Séries",
-      "readingDna": "Perfil de DNA de Leitura",
-      "readingHabits": "Análise de Hábitos de Leitura",
-      "bookFlow": "",
-      "publicationEra": ""
+      "bookFlow": ""
     },
-    "sessionHeatmap": {
+    "sessionActivity": {
       "title": "Atividade de Sessões de Leitura",
-      "description": "Visão geral diária das suas sessões de leitura ao longo do ano",
       "currentStreak": "Sequência Atual",
       "longestStreak": "Maior Sequência",
       "readingSessions": "Sessões de Leitura"
     },
     "sessionTimeline": {
       "title": "Linha do Tempo de Sessões de Leitura",
-      "description": "Visão geral semanal das suas sessões e padrões de leitura",
-      "previousWeek": "Semana anterior",
-      "nextWeek": "Próxima semana",
-      "week": "Semana {{ number }}",
-      "readingSession": "Sessão de Leitura",
-      "tooltipTime": "Horário:",
-      "tooltipDuration": "Duração:",
-      "tooltipFormat": "Formato:"
+      "readingSession": "Sessão de Leitura"
     },
-    "genreStats": {
+    "readingByGenre": {
       "title": "Leitura por Gênero",
-      "description": "Principais gêneros por tempo total de leitura",
       "axisGenres": "Gêneros",
-      "axisTimeRead": "Tempo de Leitura",
       "readingTime": "Tempo de Leitura"
     },
     "favoriteDays": {
       "title": "Dias Favoritos de Leitura",
-      "selectYear": "Selecionar Ano",
-      "selectMonth": "Selecionar Mês",
-      "allYears": "Todos os Anos",
-      "allMonths": "Todos os Meses",
       "axisDayOfWeek": "Dia da Semana"
     },
     "personalRating": {
-      "title": "Distribuição de Avaliações Pessoais",
       "axisPersonalRating": "Avaliação Pessoal",
       "axisNumberOfBooks": "Número de Livros",
       "tooltipTitle": "Avaliação Pessoal: {{ label }}"
     },
-    "readStatus": {
-      "title": "Distribuição de Status de Leitura",
-      "description": "Livros por status de leitura"
-    },
+    "readStatus": {},
     "readingDna": {
-      "title": "Perfil de DNA de Leitura",
-      "description": "Sua personalidade de leitura única em 8 dimensões",
       "tooltipPersonality": "Personalidade {{ label }}",
-      "tooltipScore": "Pontuação: {{ score }}/100",
       "traits": {
         "adventurous": "Aventureiro",
         "perfectionist": "Perfeccionista",
@@ -4198,10 +4148,7 @@
       }
     },
     "readingHabits": {
-      "title": "Análise de Hábitos de Leitura",
-      "description": "Seus padrões comportamentais de leitura em 8 dimensões",
       "tooltipHabit": "Hábito {{ label }}",
-      "tooltipScore": "Pontuação: {{ score }}/100",
       "habits": {
         "consistency": "Consistência",
         "multitasking": "Multitarefa",
@@ -4250,20 +4197,19 @@
         }
       }
     },
-    "readingHeatmap": {
-      "title": "Mapa de Calor de Atividade de Leitura",
-      "booksRead": "Livros Lidos"
+    "booksFinished": {},
+    "booksAddedVsFinished": {
+      "axisMonth": "Mês",
+      "axisCumulativeBooks": "Livros Acumulados",
+      "legendBooksAdded": "Livros Adicionados",
+      "legendBooksFinished": "Livros Concluídos",
+      "insightCurrentBacklog": "Pendentes Atuais"
     },
-    "ratingTaste": {
-      "title": "Comparação de Gosto de Avaliação",
-      "description": "Compare suas avaliações pessoais com avaliações externas (Goodreads, Amazon, etc.)"
-    },
+    "ratingComparison": {},
     "seriesProgress": {
-      "title": "Acompanhamento de Progresso de Séries",
       "seriesBreakdown": "Detalhamento de Séries",
       "ofTotal": "{{ filtered }} de {{ total }}",
       "searchSeries": "Pesquisar séries...",
-      "allStatus": "Todos os Status",
       "inProgress": "Em Andamento",
       "completed": "Concluída",
       "notStarted": "Não Iniciada",
@@ -4278,44 +4224,30 @@
       "abandoned": "Abandonado",
       "wontRead": "Não Vou Ler",
       "unread": "Não Lido",
-      "booksRead": "{{ read }}/{{ owned }} lidos",
       "next": "Próximo:",
-      "tooltipRead": "Lido: {{ read }}/{{ owned }} possuídos",
       "noMatchingSearch": "Nenhuma série correspondente a \"{{ term }}\"",
       "pageInfo": "Página {{ current }} de {{ total }}"
     },
-    "readingSurvival": {
-      "title": "Curva de Sobrevivência de Leitura",
+    "readingDropOff": {
       "completionRate": "Taxa de Conclusão",
-      "survivalRate": "Taxa de Sobrevivência",
-      "axisProgressThreshold": "Limiar de Progresso",
-      "axisBooksSurviving": "% de Livros Sobreviventes",
       "tooltipProgress": "{{ label }} de progresso"
     },
     "readingClock": {
       "title": "Relógio de Leitura",
-      "description": "Quando você lê ao longo do dia",
-      "peakHour": "Horário de Pico",
-      "totalRead": "Total Lido"
+      "peakHour": "Horário de Pico"
     },
-    "bookLength": {
-      "title": "Tamanho Ideal de Livro",
-      "description": "Como o tamanho do livro se relaciona com suas avaliações pessoais",
-      "sweetSpot": "Ponto Ideal",
+    "ratingsByLength": {
       "axisPageCount": "Número de Páginas",
       "axisPersonalRating": "Avaliação Pessoal"
     },
     "bookFlow": {
       "title": "",
-      "description": "",
       "totalBooks": "",
       "colAdded": "",
       "colStatus": "",
       "colRating": ""
     },
-    "publicationEra": {
-      "title": "",
-      "description": "",
+    "ratingsByDecade": {
       "bestDecade": ""
     }
   },
@@ -4757,6 +4689,28 @@
       "viewMode": "Visualização",
       "density": "Tamanho",
       "resetColumns": "Redefinir para Padrão"
+    }
+  },
+  "stats": {
+    "config": {
+      "title": "Configuração de Gráficos",
+      "resetOrder": "Redefinir Ordem"
+    },
+    "filter": {
+      "allYears": "Todos os Anos",
+      "selectYear": "Selecionar Ano",
+      "allMonths": "Todos os Meses",
+      "selectMonth": "Selecionar Mês",
+      "week": "Semana {{ number }}",
+      "previousWeek": "Semana anterior",
+      "nextWeek": "Próxima semana",
+      "dataTypes": {
+        "authors": "Autores",
+        "series": "Séries",
+        "publishers": "Editoras",
+        "tags": "",
+        "moods": "Humores"
+      }
     }
   }
 }

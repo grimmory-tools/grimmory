@@ -4007,47 +4007,28 @@
       "publicationTimeline": ""
     },
     "bookFormats": {
-      "title": "",
-      "description": ""
+      "title": ""
     },
-    "language": {
-      "title": "",
-      "description": ""
+    "languages": {
+      "title": ""
     },
     "metadataScore": {
-      "title": "",
-      "description": "",
-      "excellent": "",
-      "good": "",
-      "fair": "",
-      "poor": "",
-      "veryPoor": ""
+      "title": ""
     },
     "pageCount": {
-      "title": "",
-      "description": "",
       "tooltipTitle": "",
       "axisPageCount": "",
       "axisBooks": ""
     },
     "publicationTimeline": {
       "title": "",
-      "description": "",
       "axisNumberOfBooks": "",
       "insightOldest": "",
       "insightNewest": "",
-      "insightPeakDecadeBooks": ""
+      "booksCount": ""
     },
     "topItems": {
-      "axisNumberOfBooks": "",
-      "dataTypes": {
-        "authors": "",
-        "categories": "",
-        "series": "",
-        "publishers": "",
-        "tags": "",
-        "moods": ""
-      }
+      "axisNumberOfBooks": ""
     },
     "libraryFilter": {
       "allLibraries": ""
@@ -4060,23 +4041,12 @@
     },
     "chartNames": {
       "favoriteDays": "",
-      "timeline": "",
-      "readingHeatmap": "",
-      "personalRating": "",
-      "readStatus": "",
+      "sessionTimeline": "",
       "readingClock": "",
-      "readingSurvival": "",
-      "bookLength": "",
-      "ratingTaste": "",
-      "seriesProgress": "",
-      "readingDna": "",
-      "readingHabits": "",
-      "bookFlow": "",
-      "publicationEra": ""
+      "bookFlow": ""
     },
-    "sessionHeatmap": {
+    "sessionActivity": {
       "title": "",
-      "description": "",
       "currentStreak": "",
       "longestStreak": "",
       "totalDays": "",
@@ -4084,45 +4054,25 @@
     },
     "sessionTimeline": {
       "title": "",
-      "description": "",
-      "previousWeek": "",
-      "nextWeek": "",
-      "week": "",
-      "readingSession": "",
-      "tooltipTime": "",
-      "tooltipDuration": "",
-      "tooltipFormat": ""
+      "readingSession": ""
     },
-    "genreStats": {
+    "readingByGenre": {
       "title": "",
-      "description": "",
       "axisGenres": "",
-      "axisTimeRead": "",
       "readingTime": ""
     },
     "favoriteDays": {
       "title": "",
-      "selectYear": "",
-      "selectMonth": "",
-      "allYears": "",
-      "allMonths": "",
       "axisDayOfWeek": ""
     },
     "personalRating": {
-      "title": "",
       "axisPersonalRating": "",
       "axisNumberOfBooks": "",
       "tooltipTitle": ""
     },
-    "readStatus": {
-      "title": "",
-      "description": ""
-    },
+    "readStatus": {},
     "readingDna": {
-      "title": "",
-      "description": "",
       "tooltipPersonality": "",
-      "tooltipScore": "",
       "traits": {
         "adventurous": "",
         "perfectionist": "",
@@ -4177,10 +4127,7 @@
       }
     },
     "readingHabits": {
-      "title": "",
-      "description": "",
       "tooltipHabit": "",
-      "tooltipScore": "",
       "habits": {
         "consistency": "",
         "multitasking": "",
@@ -4229,20 +4176,19 @@
         }
       }
     },
-    "readingHeatmap": {
-      "title": "",
-      "booksRead": ""
+    "booksFinished": {},
+    "booksAddedVsFinished": {
+      "axisMonth": "",
+      "axisCumulativeBooks": "",
+      "legendBooksAdded": "",
+      "legendBooksFinished": "",
+      "insightCurrentBacklog": ""
     },
-    "ratingTaste": {
-      "title": "",
-      "description": ""
-    },
+    "ratingComparison": {},
     "seriesProgress": {
-      "title": "",
       "seriesBreakdown": "",
       "ofTotal": "",
       "searchSeries": "",
-      "allStatus": "",
       "inProgress": "",
       "completed": "",
       "notStarted": "",
@@ -4257,44 +4203,30 @@
       "abandoned": "",
       "wontRead": "",
       "unread": "",
-      "booksRead": "",
       "next": "",
-      "tooltipRead": "",
       "noMatchingSearch": "",
       "pageInfo": ""
     },
-    "readingSurvival": {
-      "title": "",
+    "readingDropOff": {
       "completionRate": "",
-      "survivalRate": "",
-      "axisProgressThreshold": "",
-      "axisBooksSurviving": "",
       "tooltipProgress": ""
     },
     "readingClock": {
       "title": "",
-      "description": "",
-      "peakHour": "",
-      "totalRead": ""
+      "peakHour": ""
     },
-    "bookLength": {
-      "title": "",
-      "description": "",
-      "sweetSpot": "",
+    "ratingsByLength": {
       "axisPageCount": "",
       "axisPersonalRating": ""
     },
     "bookFlow": {
       "title": "",
-      "description": "",
       "totalBooks": "",
       "colAdded": "",
       "colStatus": "",
       "colRating": ""
     },
-    "publicationEra": {
-      "title": "",
-      "description": "",
+    "ratingsByDecade": {
       "bestDecade": ""
     }
   },
@@ -4729,6 +4661,28 @@
     "bulk": {
       "organizeFiles": "Fájlok rendszerezése",
       "lockUnlockMetadata": "Metaadatok zárolása / feloldása"
+    }
+  },
+  "stats": {
+    "config": {
+      "title": "",
+      "resetOrder": ""
+    },
+    "filter": {
+      "allYears": "",
+      "selectYear": "",
+      "allMonths": "",
+      "selectMonth": "",
+      "week": "",
+      "previousWeek": "",
+      "nextWeek": "",
+      "dataTypes": {
+        "authors": "",
+        "series": "",
+        "publishers": "",
+        "tags": "",
+        "moods": ""
+      }
     }
   }
 }

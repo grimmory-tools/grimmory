@@ -3996,47 +3996,28 @@
       "publicationTimeline": ""
     },
     "bookFormats": {
-      "title": "",
-      "description": ""
+      "title": ""
     },
-    "language": {
-      "title": "Bahasa",
-      "description": ""
+    "languages": {
+      "title": "Bahasa"
     },
     "metadataScore": {
-      "title": "",
-      "description": "",
-      "excellent": "",
-      "good": "",
-      "fair": "",
-      "poor": "",
-      "veryPoor": ""
+      "title": ""
     },
     "pageCount": {
-      "title": "",
-      "description": "",
       "tooltipTitle": "",
       "axisPageCount": "",
       "axisBooks": "Buku"
     },
     "publicationTimeline": {
       "title": "",
-      "description": "",
       "axisNumberOfBooks": "",
       "insightOldest": "Tertua",
       "insightNewest": "Terbaru",
-      "insightPeakDecadeBooks": ""
+      "booksCount": ""
     },
     "topItems": {
-      "axisNumberOfBooks": "",
-      "dataTypes": {
-        "authors": "Penulis",
-        "categories": "Kategori",
-        "series": "Seri",
-        "publishers": "Penerbit",
-        "tags": "Tag",
-        "moods": ""
-      }
+      "axisNumberOfBooks": ""
     },
     "libraryFilter": {
       "allLibraries": ""
@@ -4049,23 +4030,12 @@
     },
     "chartNames": {
       "favoriteDays": "",
-      "timeline": "",
-      "readingHeatmap": "",
-      "personalRating": "",
-      "readStatus": "",
+      "sessionTimeline": "",
       "readingClock": "",
-      "readingSurvival": "",
-      "bookLength": "",
-      "ratingTaste": "",
-      "seriesProgress": "",
-      "readingDna": "",
-      "readingHabits": "",
-      "bookFlow": "",
-      "publicationEra": ""
+      "bookFlow": ""
     },
-    "sessionHeatmap": {
+    "sessionActivity": {
       "title": "",
-      "description": "",
       "currentStreak": "",
       "longestStreak": "",
       "totalDays": "",
@@ -4073,45 +4043,25 @@
     },
     "sessionTimeline": {
       "title": "",
-      "description": "",
-      "previousWeek": "",
-      "nextWeek": "",
-      "week": "",
-      "readingSession": "",
-      "tooltipTime": "",
-      "tooltipDuration": "Durasi:",
-      "tooltipFormat": ""
+      "readingSession": ""
     },
-    "genreStats": {
+    "readingByGenre": {
       "title": "",
-      "description": "",
       "axisGenres": "Genre",
-      "axisTimeRead": "",
       "readingTime": ""
     },
     "favoriteDays": {
       "title": "",
-      "selectYear": "",
-      "selectMonth": "",
-      "allYears": "",
-      "allMonths": "",
       "axisDayOfWeek": ""
     },
     "personalRating": {
-      "title": "",
       "axisPersonalRating": "Peringkat Pribadi",
       "axisNumberOfBooks": "Jumlah Buku",
       "tooltipTitle": "Peringkat Pribadi: {{ label }}"
     },
-    "readStatus": {
-      "title": "Distribusi Status Pembacaan",
-      "description": "Buku berdasarkan status pembacaan"
-    },
+    "readStatus": {},
     "readingDna": {
-      "title": "",
-      "description": "",
       "tooltipPersonality": "",
-      "tooltipScore": "",
       "traits": {
         "adventurous": "",
         "perfectionist": "Perfeksionis",
@@ -4166,10 +4116,7 @@
       }
     },
     "readingHabits": {
-      "title": "",
-      "description": "",
       "tooltipHabit": "",
-      "tooltipScore": "",
       "habits": {
         "consistency": "Konsistensi",
         "multitasking": "",
@@ -4218,20 +4165,19 @@
         }
       }
     },
-    "readingHeatmap": {
-      "title": "",
-      "booksRead": ""
+    "booksFinished": {},
+    "booksAddedVsFinished": {
+      "axisMonth": "Bulan",
+      "axisCumulativeBooks": "",
+      "legendBooksAdded": "",
+      "legendBooksFinished": "",
+      "insightCurrentBacklog": ""
     },
-    "ratingTaste": {
-      "title": "",
-      "description": ""
-    },
+    "ratingComparison": {},
     "seriesProgress": {
-      "title": "",
       "seriesBreakdown": "",
       "ofTotal": "",
       "searchSeries": "",
-      "allStatus": "",
       "inProgress": "",
       "completed": "Selesai",
       "notStarted": "",
@@ -4246,44 +4192,30 @@
       "abandoned": "Ditinggalkan",
       "wontRead": "",
       "unread": "Belum Dibaca",
-      "booksRead": "",
       "next": "Berikutnya:",
-      "tooltipRead": "",
       "noMatchingSearch": "",
       "pageInfo": ""
     },
-    "readingSurvival": {
-      "title": "",
+    "readingDropOff": {
       "completionRate": "",
-      "survivalRate": "",
-      "axisProgressThreshold": "",
-      "axisBooksSurviving": "",
       "tooltipProgress": ""
     },
     "readingClock": {
       "title": "",
-      "description": "",
-      "peakHour": "",
-      "totalRead": ""
+      "peakHour": ""
     },
-    "bookLength": {
-      "title": "",
-      "description": "",
-      "sweetSpot": "",
+    "ratingsByLength": {
       "axisPageCount": "",
       "axisPersonalRating": ""
     },
     "bookFlow": {
       "title": "",
-      "description": "",
       "totalBooks": "",
       "colAdded": "Ditambahkan",
       "colStatus": "",
       "colRating": ""
     },
-    "publicationEra": {
-      "title": "",
-      "description": "",
+    "ratingsByDecade": {
       "bestDecade": ""
     }
   },
@@ -4722,6 +4654,28 @@
     "bulk": {
       "organizeFiles": "Atur Berkas",
       "lockUnlockMetadata": "Kunci/Buka kunci metadata"
+    }
+  },
+  "stats": {
+    "config": {
+      "title": "",
+      "resetOrder": ""
+    },
+    "filter": {
+      "allYears": "",
+      "selectYear": "",
+      "allMonths": "",
+      "selectMonth": "",
+      "week": "",
+      "previousWeek": "",
+      "nextWeek": "",
+      "dataTypes": {
+        "authors": "Penulis",
+        "series": "Seri",
+        "publishers": "Penerbit",
+        "tags": "Tag",
+        "moods": ""
+      }
     }
   }
 }
