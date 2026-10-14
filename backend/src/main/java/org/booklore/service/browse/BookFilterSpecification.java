@@ -9,6 +9,7 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
+import org.booklore.browse.NumericRange;
 import org.booklore.exception.APIException;
 import org.booklore.exception.ApiError;
 import org.booklore.model.entity.AuthorEntity;
@@ -30,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 
 public class BookFilterSpecification {
 
@@ -77,79 +77,6 @@ public class BookFilterSpecification {
             throw new APIException("Invalid " + paramName + " values: " + invalid, HttpStatus.BAD_REQUEST);
         }
         return result;
-    }
-
-    private record NumericRange<T>(T min, T max, boolean maxExclusive) {
-    }
-
-    private static <T extends Comparable<? super T>> List<NumericRange<T>> parseNumericRanges(List<String> values, Function<String, T> parser, String paramName) {
-        List<String> invalid = new ArrayList<>();
-        List<NumericRange<T>> ranges = new ArrayList<>();
-        for (String value : values) {
-            if (value == null || value.isBlank()) {
-                continue;
-            }
-            NumericRange<T> range = parseNumericRange(value.trim(), parser);
-            if (range == null) {
-                invalid.add(value.trim());
-            } else {
-                ranges.add(range);
-            }
-        }
-        if (!invalid.isEmpty()) {
-            throw new APIException("Invalid " + paramName + " values: " + invalid
-                    + ". Expected a number, min..max, min..*, *..max, or min..<max to exclude max. Minimum must not exceed maximum.", HttpStatus.BAD_REQUEST);
-        }
-        return ranges;
-    }
-
-    private static <T extends Comparable<? super T>> NumericRange<T> parseNumericRange(String value, Function<String, T> parser) {
-        try {
-            int separator = value.indexOf("..");
-            if (separator < 0) {
-                T exact = parser.apply(value);
-                return new NumericRange<>(exact, exact, false);
-            }
-            String minPart = value.substring(0, separator).trim();
-            String maxPart = value.substring(separator + 2).trim();
-            boolean maxExclusive = maxPart.startsWith("<");
-            if (maxExclusive) {
-                maxPart = maxPart.substring(1).trim();
-            }
-            if (maxPart.equals("*") && (maxExclusive || minPart.equals("*"))) {
-                return null;
-            }
-            T min = minPart.equals("*") ? null : parser.apply(minPart);
-            T max = maxPart.equals("*") ? null : parser.apply(maxPart);
-            if (min != null && max != null && min.compareTo(max) > 0) {
-                return null;
-            }
-            return new NumericRange<>(min, max, maxExclusive);
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
-    private static <T extends Comparable<? super T>> Predicate rangesPredicate(
-            CriteriaBuilder cb, Expression<T> field, List<NumericRange<T>> ranges) {
-        List<Predicate> predicates = new ArrayList<>();
-        for (NumericRange<T> range : ranges) {
-            if (range.min() != null && range.max() != null) {
-                predicates.add(cb.and(
-                        cb.greaterThanOrEqualTo(field, range.min()),
-                        upperBound(cb, field, range)));
-            } else if (range.min() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(field, range.min()));
-            } else {
-                predicates.add(upperBound(cb, field, range));
-            }
-        }
-        return cb.or(predicates.toArray(Predicate[]::new));
-    }
-
-    private static <T extends Comparable<? super T>> Predicate upperBound(
-            CriteriaBuilder cb, Expression<T> field, NumericRange<T> range) {
-        return range.maxExclusive() ? cb.lessThan(field, range.max()) : cb.lessThanOrEqualTo(field, range.max());
     }
 
     @SuppressWarnings("unchecked")
@@ -571,11 +498,11 @@ public class BookFilterSpecification {
 
     public static Specification<BookEntity> withAgeRatings(List<String> values, String mode) {
         return (root, query, cb) -> {
-            List<NumericRange<Integer>> ranges = parseNumericRanges(values, Integer::valueOf, "ageRating");
+            List<NumericRange<Integer>> ranges = NumericRange.parseAll(values, Integer::valueOf, "ageRating");
             if (ranges.isEmpty()) return cb.conjunction();
             Join<BookEntity, BookMetadataEntity> metadataJoin = getOrCreateJoin(root, "metadata", JoinType.INNER);
             Expression<Integer> ageRating = metadataJoin.get("ageRating");
-            Predicate combined = rangesPredicate(cb, ageRating, ranges);
+            Predicate combined = NumericRange.anyOf(cb, ageRating, ranges);
             return "not".equals(mode) ? cb.not(combined) : combined;
         };
     }
@@ -590,28 +517,28 @@ public class BookFilterSpecification {
 
     public static Specification<BookEntity> withMatchScores(List<String> values, String mode) {
         return (root, query, cb) -> {
-            List<NumericRange<Float>> ranges = parseNumericRanges(values, Float::valueOf, "matchScore");
+            List<NumericRange<Float>> ranges = NumericRange.parseAll(values, Float::valueOf, "matchScore");
             if (ranges.isEmpty()) return cb.conjunction();
             Expression<Float> score = root.get("metadataMatchScore");
-            Predicate combined = rangesPredicate(cb, score, ranges);
+            Predicate combined = NumericRange.anyOf(cb, score, ranges);
             return "not".equals(mode) ? cb.not(combined) : combined;
         };
     }
 
     public static Specification<BookEntity> withPublishedYears(List<String> years, String mode) {
         return (root, query, cb) -> {
-            List<NumericRange<Integer>> ranges = parseNumericRanges(years, Integer::valueOf, "publishedDate");
+            List<NumericRange<Integer>> ranges = NumericRange.parseAll(years, Integer::valueOf, "publishedDate");
             if (ranges.isEmpty()) return cb.conjunction();
             Join<BookEntity, BookMetadataEntity> metadataJoin = getOrCreateJoin(root, "metadata", JoinType.INNER);
             Expression<Integer> yearExpr = cb.function("YEAR", Integer.class, metadataJoin.get("publishedDate"));
-            Predicate combined = rangesPredicate(cb, yearExpr, ranges);
+            Predicate combined = NumericRange.anyOf(cb, yearExpr, ranges);
             return "not".equals(mode) ? cb.not(combined) : combined;
         };
     }
 
     public static Specification<BookEntity> withFileSizes(List<String> values, String mode) {
         return (root, query, cb) -> {
-            List<NumericRange<Long>> ranges = parseNumericRanges(values, Long::valueOf, "fileSize");
+            List<NumericRange<Long>> ranges = NumericRange.parseAll(values, Long::valueOf, "fileSize");
             if (ranges.isEmpty()) return cb.conjunction();
 
             // Matches against the book's first book-format file.
@@ -627,7 +554,7 @@ public class BookFilterSpecification {
                     cb.equal(file.get("book").get("id"), root.get("id")),
                     cb.equal(file.get("isBookFormat"), true),
                     cb.not(cb.exists(earlier)),
-                    rangesPredicate(cb, file.get("fileSizeKb"), ranges));
+                    NumericRange.anyOf(cb, file.get("fileSizeKb"), ranges));
 
             return "not".equals(mode) ? cb.not(cb.exists(sub)) : cb.exists(sub);
         };
@@ -680,22 +607,22 @@ public class BookFilterSpecification {
     private static Specification<BookEntity> buildRatingRangeSpec(
             List<String> values, String mode, String fieldName) {
         return (root, query, cb) -> {
-            List<NumericRange<Double>> ranges = parseNumericRanges(values, Double::valueOf, fieldName);
+            List<NumericRange<Double>> ranges = NumericRange.parseAll(values, Double::valueOf, fieldName);
             if (ranges.isEmpty()) return cb.conjunction();
             Join<BookEntity, BookMetadataEntity> metadataJoin = getOrCreateJoin(root, "metadata", JoinType.INNER);
             Expression<Double> rating = metadataJoin.get(fieldName);
-            Predicate combined = rangesPredicate(cb, rating, ranges);
+            Predicate combined = NumericRange.anyOf(cb, rating, ranges);
             return "not".equals(mode) ? cb.not(combined) : combined;
         };
     }
 
     public static Specification<BookEntity> withPageCounts(List<String> values, String mode) {
         return (root, query, cb) -> {
-            List<NumericRange<Integer>> ranges = parseNumericRanges(values, Integer::valueOf, "pageCount");
+            List<NumericRange<Integer>> ranges = NumericRange.parseAll(values, Integer::valueOf, "pageCount");
             if (ranges.isEmpty()) return cb.conjunction();
             Join<BookEntity, BookMetadataEntity> metadataJoin = getOrCreateJoin(root, "metadata", JoinType.INNER);
             Expression<Integer> count = metadataJoin.get("pageCount");
-            Predicate combined = rangesPredicate(cb, count, ranges);
+            Predicate combined = NumericRange.anyOf(cb, count, ranges);
             return "not".equals(mode) ? cb.not(combined) : combined;
         };
     }

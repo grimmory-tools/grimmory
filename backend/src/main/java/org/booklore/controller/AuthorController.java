@@ -9,10 +9,10 @@ import org.booklore.model.dto.CoverImage;
 import org.booklore.model.dto.request.AuthorMatchRequest;
 import org.booklore.model.dto.request.AuthorUpdateRequest;
 import org.booklore.model.dto.browse.FacetGroupsResponse;
+import org.booklore.model.entity.AuthorEntity;
 import org.booklore.service.AuthorMetadataService;
 import org.booklore.service.AuthorService;
-import org.booklore.service.browse.AuthorBrowseService;
-import org.booklore.service.browse.AuthorFacetService;
+import org.booklore.service.browse.BrowseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,8 +38,7 @@ public class AuthorController {
 
     private final AuthorService authorService;
     private final AuthorMetadataService authorMetadataService;
-    private final AuthorBrowseService authorBrowseService;
-    private final AuthorFacetService authorFacetService;
+    private final BrowseService<AuthorEntity, AuthorSummary> authorBrowse;
 
     @Operation(summary = "Get all authors", description = "Retrieve all authors with book counts.")
     @ApiResponse(responseCode = "200", description = "Authors returned successfully")
@@ -61,10 +60,10 @@ public class AuthorController {
             @RequestParam(required = false) String query,
             @Parameter(description = "Opaque pagination cursor from a prior response's links")
             @RequestParam(required = false) String cursor) {
-        return ResponseEntity.ok(authorBrowseService.browse(sort, facet, query, cursor, pageable));
+        return ResponseEntity.ok(authorBrowse.browse(sort, facet, query, cursor, pageable));
     }
 
-    @Operation(summary = "Get author facets", description = "Available facet values and author counts for the current user, scoped by the same facet and query parameters as the page endpoint. Each facet's counts leave out its own plain values but keep its required and excluded ones. book_count, library, and read_status are filter-only and not enumerated here.")
+    @Operation(summary = "Get author facets", description = "The facets that have values for the current user, without their values, scoped by the same facet and query parameters as the page endpoint, plus the sort options. Load a facet's values from /facets/{facetName}.")
     @ApiResponse(responseCode = "200", description = "Facet groups returned successfully")
     @GetMapping("/facets")
     public ResponseEntity<FacetGroupsResponse> getAuthorFacets(
@@ -72,7 +71,23 @@ public class AuthorController {
             @RequestParam(required = false) List<String> facet,
             @Parameter(description = "Free-text search applied to the counts")
             @RequestParam(required = false) String query) {
-        return ResponseEntity.ok(authorFacetService.getFacets(facet, query));
+        return ResponseEntity.ok(authorBrowse.getFacets(facet, query));
+    }
+
+    @Operation(summary = "Get one author facet", description = "Values and counts for a single facet, scoped by the same facet and query parameters as the page endpoint. The counts leave out the facet's own plain values but keep its required and excluded ones. book_count returns a templated range link carrying its min and max instead of values. The has_asin, has_photo, and has_description facets list true and false with their counts, including zero. genre and language are paged and can be searched.")
+    @ApiResponse(responseCode = "200", description = "Facet values returned successfully")
+    @GetMapping("/facets/{facetName}")
+    public ResponseEntity<FacetGroupsResponse> getAuthorFacet(
+            @Parameter(description = "Facet name (for example genre, library, read_status, or book_count)")
+            @PathVariable String facetName,
+            @Parameter(hidden = true) Pageable pageable,
+            @Parameter(description = "Facet selection in key:value form; repeatable, with '+' to require or '-' to exclude a value")
+            @RequestParam(required = false) List<String> facet,
+            @Parameter(description = "Free-text search applied to the counts")
+            @RequestParam(required = false) String query,
+            @Parameter(description = "Case-insensitive text the values must contain; genre and language only")
+            @RequestParam(required = false) String search) {
+        return ResponseEntity.ok(authorBrowse.getFacet(facetName, facet, query, search, pageable));
     }
 
     @Operation(summary = "Get matching author ids", description = "Returns every author id matching the given sort, facet, and query parameters, in sort order. For select-all over the current filters.")
@@ -85,7 +100,7 @@ public class AuthorController {
             @RequestParam(required = false) List<String> facet,
             @Parameter(description = "Free-text search")
             @RequestParam(required = false) String query) {
-        return ResponseEntity.ok(authorBrowseService.findAllIds(sort, facet, query));
+        return ResponseEntity.ok(authorBrowse.findAllIds(sort, facet, query));
     }
 
     @Operation(summary = "Find author by name", description = "Find an author by exact name (case-insensitive).")

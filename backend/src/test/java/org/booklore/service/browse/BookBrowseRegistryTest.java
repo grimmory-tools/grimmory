@@ -159,7 +159,7 @@ class BookBrowseRegistryTest {
     }
 
     private Set<Long> facetIds(String facet, List<String> values, Long userId) {
-        return bookRepository.findAll(facetRegistry.matching(facet, values, userId)).stream()
+        return bookRepository.findAll(facetRegistry.registry().find(facet).filter().matching(values, new BrowseScope(userId, true, Set.of(), null))).stream()
                 .map(BookEntity::getId).collect(Collectors.toSet());
     }
 
