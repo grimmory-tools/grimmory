@@ -74,7 +74,7 @@ public class AuthorController {
         return ResponseEntity.ok(authorBrowse.getFacets(facet, query));
     }
 
-    @Operation(summary = "Get one author facet", description = "Values and counts for a single facet, scoped by the same facet and query parameters as the page endpoint. The counts leave out the facet's own plain values but keep its required and excluded ones. book_count returns a templated range link carrying its min and max instead of values. The has_asin, has_photo, and has_description facets list true and false with their counts, including zero. genre and language are paged and can be searched.")
+    @Operation(summary = "Get one author facet", description = "Values and counts for a single facet, scoped by the same facet and query parameters as the page endpoint. The counts leave out the facet's own plain values but keep its required and excluded ones.")
     @ApiResponse(responseCode = "200", description = "Facet values returned successfully")
     @GetMapping("/facets/{facetName}")
     public ResponseEntity<FacetGroupsResponse> getAuthorFacet(
