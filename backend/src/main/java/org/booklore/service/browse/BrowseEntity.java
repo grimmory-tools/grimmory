@@ -19,7 +19,7 @@ public record BrowseEntity<E, T>(
         Function<String, Specification<E>> search,
         FacetRegistry<E> facets,
         Function<BrowseScope, SortRegistry<E>> sorts,
-        BrowseService.PageFetcher<E, T> pages,
+        PageFetcher<E, T> pages,
         Function<T, Long> id
 ) {
 
