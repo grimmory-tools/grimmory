@@ -9,7 +9,9 @@ import org.booklore.browse.SortRegistry;
 import org.booklore.model.entity.AuthorEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -18,29 +20,29 @@ public class AuthorSortRegistry {
     private final AuthorVisibleBooks visibleBooks;
 
     public SortRegistry<AuthorEntity> registry(BrowseScope scope) {
-        SortRegistry<AuthorEntity> registry = new SortRegistry<>();
+        Map<String, SortOrderBuilder<AuthorEntity>> builders = new LinkedHashMap<>();
 
-        registry.register("id", rootField("id"));
-        registry.register("name", rootField("name"));
-        registry.register("sortName", rootField("sortName"));
+        builders.put("id", rootField("id"));
+        builders.put("name", rootField("name"));
+        builders.put("sortName", rootField("sortName"));
 
-        registry.register("bookCount", ctx ->
+        builders.put("bookCount", ctx ->
                 List.of(order(ctx, visibleBooks.bookCount(ctx.root().get("id"), ctx.query(), ctx.cb(), scope))));
-        registry.register("seriesCount", ctx ->
+        builders.put("seriesCount", ctx ->
                 List.of(order(ctx, visibleBooks.seriesCount(ctx.root().get("id"), ctx.query(), ctx.cb(), scope))));
-        registry.register("addedOn", ctx ->
+        builders.put("addedOn", ctx ->
                 List.of(order(ctx, visibleBooks.latestAddedOn(ctx.root().get("id"), ctx.query(), ctx.cb(), scope))));
-        registry.register("lastReadTime", ctx ->
+        builders.put("lastReadTime", ctx ->
                 List.of(order(ctx, visibleBooks.lastReadTime(ctx.root().get("id"), ctx.query(), ctx.cb(), scope))));
-        registry.register("personalRating", ctx ->
+        builders.put("personalRating", ctx ->
                 List.of(order(ctx, visibleBooks.avgPersonalRating(ctx.root().get("id"), ctx.query(), ctx.cb(), scope))));
 
         for (String field : List.of("amazonRating", "goodreadsRating", "hardcoverRating", "ranobedbRating")) {
-            registry.register(field, ctx ->
+            builders.put(field, ctx ->
                     List.of(order(ctx, visibleBooks.avgMetadataRating(field, ctx.root().get("id"), ctx.query(), ctx.cb(), scope))));
         }
 
-        return registry;
+        return new SortRegistry<>(builders);
     }
 
     private static SortOrderBuilder<AuthorEntity> rootField(String field) {

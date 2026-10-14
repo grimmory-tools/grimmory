@@ -43,20 +43,20 @@ public class AuthorFacetRegistry {
     }
 
     private FacetRegistry<AuthorEntity> build() {
-        return new FacetRegistry<AuthorEntity>()
-                .register(choices("has_asin", "ASIN", anyValue(
-                        (root, query, cb, scope, value) -> booleanPredicate(hasAsin(root, cb), value, "has_asin")), "true", "false"))
-                .register(choices("has_photo", "Photo", anyValue(
-                        (root, query, cb, scope, value) -> booleanPredicate(hasPhoto(root, cb), value, "has_photo")), "true", "false"))
-                .register(choices("has_description", "Description", anyValue(
-                        (root, query, cb, scope, value) -> booleanPredicate(hasDescription(root, cb), value, "has_description")), "true", "false"))
-                .register(names("genre", "Genre", anyValue(this::genre),
-                        (root, query, cb, scope) -> visibleMetadata(root, query, cb, scope).join("categories", JoinType.LEFT).get("name")))
-                .register(names("language", "Language", anyValue(this::language),
-                        (root, query, cb, scope) -> visibleMetadata(root, query, cb, scope).get("language")))
-                .register(values("library", "Library", anyValue(this::library),
-                        (root, query, cb, scope) -> visibleMetadata(root, query, cb, scope).join("book").get("library").get("id")))
-                .register(values("read_status", "Read Status", anyValue(this::readStatus),
+        return new FacetRegistry<>(List.of(
+                choices("has_asin", "ASIN", anyValue(
+                        (root, query, cb, scope, value) -> booleanPredicate(hasAsin(root, cb), value, "has_asin")), "true", "false"),
+                choices("has_photo", "Photo", anyValue(
+                        (root, query, cb, scope, value) -> booleanPredicate(hasPhoto(root, cb), value, "has_photo")), "true", "false"),
+                choices("has_description", "Description", anyValue(
+                        (root, query, cb, scope, value) -> booleanPredicate(hasDescription(root, cb), value, "has_description")), "true", "false"),
+                names("genre", "Genre", anyValue(this::genre),
+                        (root, query, cb, scope) -> visibleMetadata(root, query, cb, scope).join("categories", JoinType.LEFT).get("name")),
+                names("language", "Language", anyValue(this::language),
+                        (root, query, cb, scope) -> visibleMetadata(root, query, cb, scope).get("language")),
+                values("library", "Library", anyValue(this::library),
+                        (root, query, cb, scope) -> visibleMetadata(root, query, cb, scope).join("book").get("library").get("id")),
+                values("read_status", "Read Status", anyValue(this::readStatus),
                         (root, query, cb, scope) -> {
                             Join<BookEntity, UserBookProgressEntity> progress =
                                     visibleMetadata(root, query, cb, scope).join("book").join("userBookProgress", JoinType.LEFT);
@@ -64,9 +64,9 @@ public class AuthorFacetRegistry {
                             return cb.<ReadStatus>selectCase()
                                     .when(progress.get("id").isNull(), ReadStatus.UNSET)
                                     .otherwise(progress.get("readStatus"));
-                        }))
-                .register(number("book_count", "Book Count", this::bookCount,
-                        (root, query, cb, scope) -> visibleBooks.bookCount(root.get("id"), query, cb, scope)));
+                        }),
+                number("book_count", "Book Count", this::bookCount,
+                        (root, query, cb, scope) -> visibleBooks.bookCount(root.get("id"), query, cb, scope))));
     }
 
     private Join<AuthorEntity, BookMetadataEntity> visibleMetadata(Root<AuthorEntity> root, CriteriaQuery<?> query,

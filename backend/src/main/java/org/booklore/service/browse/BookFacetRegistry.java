@@ -41,24 +41,24 @@ public class BookFacetRegistry {
     }
 
     private FacetRegistry<BookEntity> build() {
-        return new FacetRegistry<BookEntity>()
-                .register(names("author", "Authors", any(BookFilterSpecification::withAuthors),
-                        (root, query, cb, scope) -> metadata(root).join("authors", JoinType.LEFT).get("name")))
-                .register(names("genre", "Genre", any(BookFilterSpecification::withCategories),
-                        (root, query, cb, scope) -> metadata(root).join("categories", JoinType.LEFT).get("name")))
-                .register(names("tag", "Tags", any(BookFilterSpecification::withTags),
-                        (root, query, cb, scope) -> metadata(root).join("tags", JoinType.LEFT).get("name")))
-                .register(names("mood", "Moods", any(BookFilterSpecification::withMoods),
-                        (root, query, cb, scope) -> metadata(root).join("moods", JoinType.LEFT).get("name")))
-                .register(names("series", "Series", any(BookFilterSpecification::inSeriesMulti),
-                        (root, query, cb, scope) -> metadata(root).get("seriesName")))
-                .register(names("publisher", "Publisher", any(BookFilterSpecification::withPublishers),
-                        (root, query, cb, scope) -> metadata(root).get("publisher")))
-                .register(names("language", "Language", any(BookFilterSpecification::withLanguages),
-                        (root, query, cb, scope) -> metadata(root).get("language")))
-                .register(names("narrator", "Narrator", any(BookFilterSpecification::withNarrators),
-                        (root, query, cb, scope) -> metadata(root).get("narrator")))
-                .register(values("file_type", "File Type", any(BookFilterSpecification::withFileTypes),
+        return new FacetRegistry<>(List.of(
+                names("author", "Authors", any(BookFilterSpecification::withAuthors),
+                        (root, query, cb, scope) -> metadata(root).join("authors", JoinType.LEFT).get("name")),
+                names("genre", "Genre", any(BookFilterSpecification::withCategories),
+                        (root, query, cb, scope) -> metadata(root).join("categories", JoinType.LEFT).get("name")),
+                names("tag", "Tags", any(BookFilterSpecification::withTags),
+                        (root, query, cb, scope) -> metadata(root).join("tags", JoinType.LEFT).get("name")),
+                names("mood", "Moods", any(BookFilterSpecification::withMoods),
+                        (root, query, cb, scope) -> metadata(root).join("moods", JoinType.LEFT).get("name")),
+                names("series", "Series", any(BookFilterSpecification::inSeriesMulti),
+                        (root, query, cb, scope) -> metadata(root).get("seriesName")),
+                names("publisher", "Publisher", any(BookFilterSpecification::withPublishers),
+                        (root, query, cb, scope) -> metadata(root).get("publisher")),
+                names("language", "Language", any(BookFilterSpecification::withLanguages),
+                        (root, query, cb, scope) -> metadata(root).get("language")),
+                names("narrator", "Narrator", any(BookFilterSpecification::withNarrators),
+                        (root, query, cb, scope) -> metadata(root).get("narrator")),
+                values("file_type", "File Type", any(BookFilterSpecification::withFileTypes),
                         (root, query, cb, scope) -> {
                             Join<BookEntity, BookFileEntity> files = root.join("bookFiles", JoinType.LEFT);
                             files.on(cb.isTrue(files.get("isBookFormat")));
@@ -66,33 +66,33 @@ public class BookFacetRegistry {
                         },
                         (root, query, cb, scope) -> cb.<String>selectCase()
                                 .when(cb.isTrue(root.get("isPhysical")), "PHYSICAL")
-                                .otherwise(cb.nullLiteral(String.class))))
-                .register(values("content_rating", "Content Rating", any(BookFilterSpecification::withContentRatings),
-                        (root, query, cb, scope) -> metadata(root).get("contentRating")))
-                .register(rating("amazon_rating", "Amazon Rating", BookFilterSpecification::withAmazonRatings, "amazonRating"))
-                .register(rating("goodreads_rating", "Goodreads Rating", BookFilterSpecification::withGoodreadsRatings, "goodreadsRating"))
-                .register(rating("hardcover_rating", "Hardcover Rating", BookFilterSpecification::withHardcoverRatings, "hardcoverRating"))
-                .register(rating("ranobedb_rating", "RanobeDB Rating", BookFilterSpecification::withRanobedbRatings, "ranobedbRating"))
-                .register(rating("lubimyczytac_rating", "Lubimyczytac Rating", BookFilterSpecification::withLubimyczytacRatings, "lubimyczytacRating"))
-                .register(rating("audible_rating", "Audible Rating", BookFilterSpecification::withAudibleRatings, "audibleRating"))
-                .register(rating("applebooks_rating", "Apple Books Rating", BookFilterSpecification::withApplebooksRatings, "applebooksRating"))
-                .register(values("age_rating", "Age Rating", any(BookFilterSpecification::withAgeRatings),
-                        (root, query, cb, scope) -> metadata(root).get("ageRating")))
-                .register(number("page_count", "Page Count", any(BookFilterSpecification::withPageCounts),
-                        (root, query, cb, scope) -> metadata(root).get("pageCount")))
-                .register(number("match_score", "Match Score", any(BookFilterSpecification::withMatchScores),
-                        (root, query, cb, scope) -> root.get("metadataMatchScore")).banded(MATCH_SCORE_BANDS))
-                .register(number("published_year", "Published Year", any(BookFilterSpecification::withPublishedYears),
-                        (root, query, cb, scope) -> cb.function("YEAR", Integer.class, metadata(root).get("publishedDate"))))
-                .register(values("library", "Library", any(BookFilterSpecification::inLibraries),
-                        (root, query, cb, scope) -> root.join("library").get("id")))
-                .register(values("shelf", "Shelf", this::shelves,
-                        (root, query, cb, scope) -> root.join("shelves", JoinType.LEFT).get("id")))
-                .register(values("shelf_status", "Shelf Status", any(BookFilterSpecification::withShelfStatus),
+                                .otherwise(cb.nullLiteral(String.class))),
+                values("content_rating", "Content Rating", any(BookFilterSpecification::withContentRatings),
+                        (root, query, cb, scope) -> metadata(root).get("contentRating")),
+                rating("amazon_rating", "Amazon Rating", BookFilterSpecification::withAmazonRatings, "amazonRating"),
+                rating("goodreads_rating", "Goodreads Rating", BookFilterSpecification::withGoodreadsRatings, "goodreadsRating"),
+                rating("hardcover_rating", "Hardcover Rating", BookFilterSpecification::withHardcoverRatings, "hardcoverRating"),
+                rating("ranobedb_rating", "RanobeDB Rating", BookFilterSpecification::withRanobedbRatings, "ranobedbRating"),
+                rating("lubimyczytac_rating", "Lubimyczytac Rating", BookFilterSpecification::withLubimyczytacRatings, "lubimyczytacRating"),
+                rating("audible_rating", "Audible Rating", BookFilterSpecification::withAudibleRatings, "audibleRating"),
+                rating("applebooks_rating", "Apple Books Rating", BookFilterSpecification::withApplebooksRatings, "applebooksRating"),
+                values("age_rating", "Age Rating", any(BookFilterSpecification::withAgeRatings),
+                        (root, query, cb, scope) -> metadata(root).get("ageRating")),
+                number("page_count", "Page Count", any(BookFilterSpecification::withPageCounts),
+                        (root, query, cb, scope) -> metadata(root).get("pageCount")),
+                number("match_score", "Match Score", any(BookFilterSpecification::withMatchScores),
+                        (root, query, cb, scope) -> root.get("metadataMatchScore")).banded(MATCH_SCORE_BANDS),
+                number("published_year", "Published Year", any(BookFilterSpecification::withPublishedYears),
+                        (root, query, cb, scope) -> cb.function("YEAR", Integer.class, metadata(root).get("publishedDate"))),
+                values("library", "Library", any(BookFilterSpecification::inLibraries),
+                        (root, query, cb, scope) -> root.join("library").get("id")),
+                values("shelf", "Shelf", this::shelves,
+                        (root, query, cb, scope) -> root.join("shelves", JoinType.LEFT).get("id")),
+                values("shelf_status", "Shelf Status", any(BookFilterSpecification::withShelfStatus),
                         (root, query, cb, scope) -> cb.<String>selectCase()
                                 .when(cb.isNotEmpty(root.get("shelves")), "shelved")
-                                .otherwise("unshelved")))
-                .register(values("read_status", "Read Status",
+                                .otherwise("unshelved")),
+                values("read_status", "Read Status",
                         (values, scope) -> BookFilterSpecification.withReadStatuses(values, scope.userId(), "or"),
                         (root, query, cb, scope) -> {
                             Join<BookEntity, UserBookProgressEntity> progress = root.join("userBookProgress", JoinType.LEFT);
@@ -100,28 +100,28 @@ public class BookFacetRegistry {
                             return cb.<ReadStatus>selectCase()
                                     .when(progress.get("id").isNull(), ReadStatus.UNSET)
                                     .otherwise(progress.get("readStatus"));
-                        }))
-                .register(values("personal_rating", "Personal Rating",
+                        }),
+                values("personal_rating", "Personal Rating",
                         (values, scope) -> BookFilterSpecification.withPersonalRatings(values, scope.userId(), "or"),
                         (root, query, cb, scope) -> {
                             Join<BookEntity, UserBookProgressEntity> progress = root.join("userBookProgress");
                             progress.on(cb.equal(progress.get("user").get("id"), scope.userId()));
                             return progress.get("personalRating");
-                        }))
-                .register(number("file_size", "File Size", any(BookFilterSpecification::withFileSizes),
+                        }),
+                number("file_size", "File Size", any(BookFilterSpecification::withFileSizes),
                         (root, query, cb, scope) -> {
                             Join<BookEntity, BookFileEntity> files = root.join("bookFiles", JoinType.LEFT);
                             files.on(cb.isTrue(files.get("isBookFormat")));
                             return files.get("fileSizeKb");
-                        }))
-                .register(names("comic_character", "Comic Characters", any(BookFilterSpecification::withComicCharacters),
-                        (root, query, cb, scope) -> comic(root).join("characters", JoinType.LEFT).get("name")))
-                .register(names("comic_team", "Comic Teams", any(BookFilterSpecification::withComicTeams),
-                        (root, query, cb, scope) -> comic(root).join("teams", JoinType.LEFT).get("name")))
-                .register(names("comic_location", "Comic Locations", any(BookFilterSpecification::withComicLocations),
-                        (root, query, cb, scope) -> comic(root).join("locations", JoinType.LEFT).get("name")))
-                .register(names("comic_creator", "Comic Creators", any(BookFilterSpecification::withComicCreators),
-                        (root, query, cb, scope) -> comic(root).join("creatorMappings", JoinType.LEFT).join("creator", JoinType.LEFT).get("name")));
+                        }),
+                names("comic_character", "Comic Characters", any(BookFilterSpecification::withComicCharacters),
+                        (root, query, cb, scope) -> comic(root).join("characters", JoinType.LEFT).get("name")),
+                names("comic_team", "Comic Teams", any(BookFilterSpecification::withComicTeams),
+                        (root, query, cb, scope) -> comic(root).join("teams", JoinType.LEFT).get("name")),
+                names("comic_location", "Comic Locations", any(BookFilterSpecification::withComicLocations),
+                        (root, query, cb, scope) -> comic(root).join("locations", JoinType.LEFT).get("name")),
+                names("comic_creator", "Comic Creators", any(BookFilterSpecification::withComicCreators),
+                        (root, query, cb, scope) -> comic(root).join("creatorMappings", JoinType.LEFT).join("creator", JoinType.LEFT).get("name"))));
     }
 
     private static FacetFilter<BookEntity> any(BiFunction<List<String>, String, Specification<BookEntity>> filter) {
