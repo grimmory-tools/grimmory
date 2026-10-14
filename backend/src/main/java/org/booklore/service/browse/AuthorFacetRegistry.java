@@ -6,60 +6,94 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import jakarta.persistence.criteria.Subquery;
-import lombok.RequiredArgsConstructor;
+import org.booklore.browse.NumericRange;
 import org.booklore.exception.ApiError;
 import org.booklore.model.entity.AuthorEntity;
+import org.booklore.model.entity.BookEntity;
+import org.booklore.model.entity.BookMetadataEntity;
+import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.enums.ReadStatus;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-@Component
-@RequiredArgsConstructor
-public class AuthorFacetRegistry {
+import static org.booklore.service.browse.FacetDef.choices;
+import static org.booklore.service.browse.FacetDef.names;
+import static org.booklore.service.browse.FacetDef.number;
+import static org.booklore.service.browse.FacetDef.values;
 
-    private static final Set<String> NAMES = Set.of(
-            "has_asin", "has_photo", "has_description", "read_status", "book_count", "library", "genre", "language");
+@Component
+public class AuthorFacetRegistry {
 
     private final AuthorVisibleBooks visibleBooks;
     private final AuthorPhotoIndex photoIndex;
+    private final FacetRegistry<AuthorEntity> registry;
 
-    public boolean has(String facetName) {
-        return NAMES.contains(facetName);
+    public AuthorFacetRegistry(AuthorVisibleBooks visibleBooks, AuthorPhotoIndex photoIndex) {
+        this.visibleBooks = visibleBooks;
+        this.photoIndex = photoIndex;
+        this.registry = build();
     }
 
-    public Set<String> facetNames() {
-        return NAMES;
+    public FacetRegistry<AuthorEntity> registry() {
+        return registry;
     }
 
-    public Specification<AuthorEntity> matching(String facetName, List<String> values, BrowseScope scope) {
+    private FacetRegistry<AuthorEntity> build() {
+        return new FacetRegistry<AuthorEntity>()
+                .register(choices("has_asin", "ASIN", anyValue(
+                        (root, query, cb, scope, value) -> booleanPredicate(hasAsin(root, cb), value, "has_asin")), "true", "false"))
+                .register(choices("has_photo", "Photo", anyValue(
+                        (root, query, cb, scope, value) -> booleanPredicate(hasPhoto(root, cb), value, "has_photo")), "true", "false"))
+                .register(choices("has_description", "Description", anyValue(
+                        (root, query, cb, scope, value) -> booleanPredicate(hasDescription(root, cb), value, "has_description")), "true", "false"))
+                .register(names("genre", "Genre", anyValue(this::genre),
+                        (root, query, cb, scope) -> visibleMetadata(root, query, cb, scope).join("categories", JoinType.LEFT).get("name")))
+                .register(names("language", "Language", anyValue(this::language),
+                        (root, query, cb, scope) -> visibleMetadata(root, query, cb, scope).get("language")))
+                .register(values("library", "Library", anyValue(this::library),
+                        (root, query, cb, scope) -> visibleMetadata(root, query, cb, scope).join("book").get("library").get("id")))
+                .register(values("read_status", "Read Status", anyValue(this::readStatus),
+                        (root, query, cb, scope) -> {
+                            Join<BookEntity, UserBookProgressEntity> progress =
+                                    visibleMetadata(root, query, cb, scope).join("book").join("userBookProgress", JoinType.LEFT);
+                            progress.on(cb.equal(progress.get("user").get("id"), scope.userId()));
+                            return cb.<ReadStatus>selectCase()
+                                    .when(progress.get("id").isNull(), ReadStatus.UNSET)
+                                    .otherwise(progress.get("readStatus"));
+                        }))
+                .register(number("book_count", "Book Count", this::bookCount,
+                        (root, query, cb, scope) -> visibleBooks.bookCount(root.get("id"), query, cb, scope)));
+    }
+
+    private Join<AuthorEntity, BookMetadataEntity> visibleMetadata(Root<AuthorEntity> root, CriteriaQuery<?> query,
+                                                                  CriteriaBuilder cb, BrowseScope scope) {
+        Join<AuthorEntity, BookMetadataEntity> metadata = root.join("bookMetadataEntityList", JoinType.INNER);
+        metadata.on(visibleBooks.bookIdVisible(metadata.get("bookId"), query, cb, scope));
+        return metadata;
+    }
+
+    private static FacetFilter<AuthorEntity> anyValue(ValuePredicate predicate) {
+        return (values, scope) -> (root, query, cb) -> values.isEmpty()
+                ? cb.conjunction()
+                : cb.or(values.stream().map(value -> predicate.apply(root, query, cb, scope, value)).toArray(Predicate[]::new));
+    }
+
+    private Specification<AuthorEntity> bookCount(List<String> values, BrowseScope scope) {
         return (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            for (String value : values) {
-                predicates.add(valuePredicate(facetName, value, root, query, cb, scope));
-            }
-            return predicates.isEmpty() ? cb.conjunction() : cb.or(predicates.toArray(Predicate[]::new));
+            List<NumericRange<Long>> ranges = NumericRange.parseAll(values, Long::valueOf, "book_count");
+            return ranges.isEmpty()
+                    ? cb.conjunction()
+                    : NumericRange.anyOf(cb, visibleBooks.bookCount(root.get("id"), query, cb, scope), ranges);
         };
     }
 
-    public Predicate valuePredicate(String facetName, String value, Root<AuthorEntity> root,
-                                    CriteriaQuery<?> query, CriteriaBuilder cb, BrowseScope scope) {
-        return switch (facetName) {
-            case "has_asin" -> booleanPredicate(cb, hasAsin(root, cb), value, facetName);
-            case "has_photo" -> booleanPredicate(cb, hasPhoto(root, cb), value, facetName);
-            case "has_description" -> booleanPredicate(cb, hasDescription(root, cb), value, facetName);
-            case "read_status" -> readStatus(root, query, cb, scope, value);
-            case "book_count" -> bookCountRange(root, query, cb, scope, value);
-            case "library" -> library(root, query, cb, scope, value);
-            case "genre" -> genre(root, query, cb, scope, value);
-            case "language" -> language(root, query, cb, scope, value);
-            default -> throw ApiError.INVALID_FACET.createException("Unknown facet: " + facetName);
-        };
+    @FunctionalInterface
+    private interface ValuePredicate {
+        Predicate apply(Root<AuthorEntity> root, CriteriaQuery<?> query, CriteriaBuilder cb, BrowseScope scope, String value);
     }
 
     private Predicate hasAsin(Root<AuthorEntity> root, CriteriaBuilder cb) {
@@ -75,7 +109,7 @@ public class AuthorFacetRegistry {
         return ids.isEmpty() ? cb.disjunction() : root.get("id").in(ids);
     }
 
-    private Predicate booleanPredicate(CriteriaBuilder cb, Predicate truePredicate, String value, String facetName) {
+    private Predicate booleanPredicate(Predicate truePredicate, String value, String facetName) {
         return switch (value.trim().toLowerCase(Locale.ROOT)) {
             case "true" -> truePredicate;
             case "false" -> truePredicate.not();
@@ -94,57 +128,6 @@ public class AuthorFacetRegistry {
                     "Invalid read_status value: " + value + ". Valid values: " + List.of(ReadStatus.values()));
         }
         return visibleBooks.hasBookWithReadStatus(root.get("id"), query, cb, scope, status);
-    }
-
-    private Predicate bookCountRange(Root<AuthorEntity> root, CriteriaQuery<?> query, CriteriaBuilder cb,
-                                     BrowseScope scope, String value) {
-        long[] bounds = parseRange(value);
-        Subquery<Long> count = visibleBooks.bookCount(root.get("id"), query, cb, scope);
-        if (bounds[0] >= 0 && bounds[1] >= 0) {
-            return cb.and(cb.greaterThanOrEqualTo(count, bounds[0]), cb.lessThanOrEqualTo(count, bounds[1]));
-        }
-        if (bounds[0] >= 0) {
-            return cb.greaterThanOrEqualTo(count, bounds[0]);
-        }
-        return cb.lessThanOrEqualTo(count, bounds[1]);
-    }
-
-    private static long[] parseRange(String value) {
-        String range = value.trim();
-        try {
-            if (!range.contains("-")) {
-                long exact = Long.parseLong(range);
-                requireNonNegative(exact, value);
-                return new long[]{exact, exact};
-            }
-            int dash = range.indexOf('-');
-            String left = range.substring(0, dash).trim();
-            String right = range.substring(dash + 1).trim();
-            long min = left.isEmpty() ? -1 : Long.parseLong(left);
-            long max = right.isEmpty() ? -1 : Long.parseLong(right);
-            if (min < 0 && max < 0) {
-                throw ApiError.INVALID_FACET.createException("Facet book_count range needs at least one bound: " + value);
-            }
-            if (!left.isEmpty()) {
-                requireNonNegative(min, value);
-            }
-            if (!right.isEmpty()) {
-                requireNonNegative(max, value);
-            }
-            if (min >= 0 && max >= 0 && min > max) {
-                throw ApiError.INVALID_FACET.createException("Facet book_count range is inverted: " + value);
-            }
-            return new long[]{min, max};
-        } catch (NumberFormatException e) {
-            throw ApiError.INVALID_FACET.createException(
-                    "Facet book_count must be a count or range (e.g. 4, 2-10, 5-, -3), got: " + value);
-        }
-    }
-
-    private static void requireNonNegative(long bound, String value) {
-        if (bound < 0) {
-            throw ApiError.INVALID_FACET.createException("Facet book_count bounds must be non-negative: " + value);
-        }
     }
 
     private Predicate library(Root<AuthorEntity> root, CriteriaQuery<?> query, CriteriaBuilder cb,
