@@ -67,7 +67,7 @@ public class BrowseService<E, T> {
         List<SortTerm> sortTerms = SortParser.parse(window.sort(), sorts.keys());
         Specification<E> filter = entity.filter(query, facets, facetLogic, scope, null);
 
-        FetchedPage<T> fetched = entity.pages().fetch(scope, filter, sorts, sortTerms, window);
+        PageFetcher.FetchedPage<T> fetched = entity.pages().fetch(scope, filter, sorts, sortTerms, window);
         return pager.assemble(entity.pagePath(), entity.facetPath(), BrowseParams.preserved(facet, facetLogicParam, query),
                 window, fetched.total(), fetched.items());
     }
@@ -330,14 +330,5 @@ public class BrowseService<E, T> {
     private static boolean hasCollectionJoin(From<?, ?> from) {
         return from.getJoins().stream().anyMatch(join ->
                 join.getAttribute().isCollection() || hasCollectionJoin(join));
-    }
-
-    @FunctionalInterface
-    public interface PageFetcher<E, T> {
-        FetchedPage<T> fetch(BrowseScope scope, Specification<E> filter, SortRegistry<E> sorts,
-                             List<SortTerm> sortTerms, BrowsePager.Window window);
-    }
-
-    public record FetchedPage<T>(List<T> items, long total) {
     }
 }

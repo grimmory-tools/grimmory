@@ -22,19 +22,19 @@ import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
-public class AuthorPageFetcher implements BrowseService.PageFetcher<AuthorEntity, AuthorSummary> {
+public class AuthorPageFetcher implements PageFetcher<AuthorEntity, AuthorSummary> {
 
     private final AuthorVisibleBooks visibleBooks;
     private final AuthorPhotoIndex photoIndex;
     private final EntityManager entityManager;
 
     @Override
-    public BrowseService.FetchedPage<AuthorSummary> fetch(BrowseScope scope, Specification<AuthorEntity> filter,
-                                                          SortRegistry<AuthorEntity> sorts, List<SortTerm> sortTerms,
-                                                          BrowsePager.Window window) {
+    public FetchedPage<AuthorSummary> fetch(BrowseScope scope, Specification<AuthorEntity> filter,
+                                            SortRegistry<AuthorEntity> sorts, List<SortTerm> sortTerms,
+                                            BrowsePager.Window window) {
         long total = count(filter);
         List<AuthorEntity> authors = page(filter, sorts, sortTerms, scope, window.offset(), window.limit());
-        return new BrowseService.FetchedPage<>(toSummaries(authors, scope), total);
+        return new FetchedPage<>(toSummaries(authors, scope), total);
     }
 
     private long count(Specification<AuthorEntity> spec) {
