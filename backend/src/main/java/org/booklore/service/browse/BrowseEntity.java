@@ -18,7 +18,7 @@ public record BrowseEntity<E, T>(
         Function<String, Specification<E>> search,
         FacetRegistry<E> facets,
         Function<BrowseScope, SortRegistry<E>> sorts,
-        BrowseService.PageFetcher<E, T> pages
+        PageFetcher<E, T> pages
 ) {
 
     public Specification<E> filter(String query, Map<String, List<String>> selections, BrowseScope scope, String omitFacet) {

@@ -23,21 +23,21 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class BookPageFetcher implements BrowseService.PageFetcher<BookEntity, Book> {
+public class BookPageFetcher implements PageFetcher<BookEntity, Book> {
 
     private final BookQueryService bookQueryService;
     private final ReadingProgressService readingProgressService;
 
     @Override
-    public BrowseService.FetchedPage<Book> fetch(BrowseScope scope, Specification<BookEntity> filter, SortRegistry<BookEntity> sorts,
-                                                 List<SortTerm> sortTerms, BrowsePager.Window window) {
+    public FetchedPage<Book> fetch(BrowseScope scope, Specification<BookEntity> filter, SortRegistry<BookEntity> sorts,
+                                   List<SortTerm> sortTerms, BrowsePager.Window window) {
         Long userId = scope.userId();
         Specification<BookEntity> spec = withSort(filter, sorts, sortTerms, userId, window.randomSeed());
 
         Pageable pageRequest = PageRequest.of((int) (window.offset() / window.limit()), window.limit());
         Page<Book> page = bookQueryService.findBooksPaged(spec, pageRequest, userId);
         enrich(page.getContent(), userId);
-        return new BrowseService.FetchedPage<>(page.getContent(), page.getTotalElements());
+        return new FetchedPage<>(page.getContent(), page.getTotalElements());
     }
 
     private Specification<BookEntity> withSort(Specification<BookEntity> filter, SortRegistry<BookEntity> sorts,
