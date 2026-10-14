@@ -18,11 +18,10 @@ import java.util.Set;
 // Every registry must register the "id" tiebreaker.
 public class SortRegistry<E> {
 
-    private final Map<String, SortOrderBuilder<E>> builders = new LinkedHashMap<>();
+    private final Map<String, SortOrderBuilder<E>> builders;
 
-    public SortRegistry<E> register(String key, SortOrderBuilder<E> builder) {
-        builders.put(key, builder);
-        return this;
+    public SortRegistry(Map<String, SortOrderBuilder<E>> builders) {
+        this.builders = new LinkedHashMap<>(builders);
     }
 
     public boolean has(String key) {
