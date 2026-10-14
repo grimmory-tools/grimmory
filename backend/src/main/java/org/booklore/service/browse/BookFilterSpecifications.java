@@ -1,7 +1,6 @@
 package org.booklore.service.browse;
 
 import lombok.RequiredArgsConstructor;
-import org.booklore.app.specification.AppBookSpecification;
 import org.booklore.browse.FacetLogic;
 import org.booklore.exception.ApiError;
 import org.booklore.model.entity.BookEntity;
@@ -40,6 +39,6 @@ public class BookFilterSpecifications {
             }
             specs.add(facetRegistry.toSpecification(entry.getKey(), entry.getValue(), facetLogic, scope.userId()));
         }
-        return AppBookSpecification.combine(specs.toArray(Specification[]::new));
+        return BookFilterSpecification.combine(specs.toArray(Specification[]::new));
     }
 }

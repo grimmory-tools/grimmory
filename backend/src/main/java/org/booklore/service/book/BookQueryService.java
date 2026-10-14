@@ -13,6 +13,7 @@ import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserContentRestrictionRepository;
 import org.booklore.security.policy.ContentRestrictionSpecification;
+import org.booklore.service.browse.BookFilterSpecification;
 import org.booklore.service.restriction.ContentRestrictionService;
 import org.booklore.util.BookUtils;
 import org.hibernate.Hibernate;
@@ -94,7 +95,7 @@ public class BookQueryService {
                 libraryIds == null || libraryIds.isEmpty()
                         ? cb.disjunction()
                         : root.get("library").get("id").in(libraryIds);
-        return AppBookSpecification.notDeleted()
+        return BookFilterSpecification.notDeleted()
                 .and(inLibraries)
                 .and(ContentRestrictionSpecification.from(restrictionRepository.findByUserId(userId)));
     }
