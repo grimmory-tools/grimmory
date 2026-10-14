@@ -18,14 +18,14 @@ import org.booklore.model.dto.response.BookDeletionResponse;
 import org.booklore.model.dto.response.BookStatusUpdateResponse;
 import org.booklore.model.dto.response.DuplicateGroup;
 import org.booklore.model.dto.response.PersonalRatingUpdateResponse;
+import org.booklore.model.entity.BookEntity;
 import org.booklore.model.enums.ResetProgressType;
 import org.booklore.service.book.BookFileAttachmentService;
 import org.booklore.service.book.BookService;
 import org.booklore.service.book.BookUpdateService;
 import org.booklore.service.book.DuplicateDetectionService;
 import org.booklore.service.book.PhysicalBookService;
-import org.booklore.service.browse.BookBrowseService;
-import org.booklore.service.browse.BookFacetService;
+import org.booklore.service.browse.BrowseService;
 import org.booklore.model.dto.browse.FacetGroupsResponse;
 import org.booklore.service.metadata.BookMetadataService;
 import org.booklore.service.progress.ReadingProgressService;
@@ -62,8 +62,7 @@ import java.io.IOException;
 public class BookController {
 
     private final BookService bookService;
-    private final BookBrowseService bookBrowseService;
-    private final BookFacetService bookFacetService;
+    private final BrowseService<BookEntity, Book> bookBrowse;
     private final BookUpdateService bookUpdateService;
     private final BookRecommendationService bookRecommendationService;
     private final BookFileAttachmentService bookFileAttachmentService;
@@ -100,9 +99,9 @@ public class BookController {
             @RequestParam(required = false) String cursor) {
         boolean browseMode = sort != null || facet != null || facetLogic != null || query != null || cursor != null;
         if (browseMode) {
-            return ResponseEntity.ok(bookBrowseService.browse(sort, facet, facetLogic, query, cursor, pageable));
+            return ResponseEntity.ok(bookBrowse.browse(sort, facet, facetLogic, query, cursor, pageable));
         }
-        return ResponseEntity.ok(bookBrowseService.wrapLegacy(bookService.getBookDTOsPaged(pageable), pageable));
+        return ResponseEntity.ok(bookBrowse.wrapLegacy(bookService.getBookDTOsPaged(pageable), pageable));
     }
 
     @Operation(summary = "Get book facets", description = "Every facet for the current user, without its values, scoped by the same facet and query parameters as the page endpoint, plus the sort options. Each facet's hasItems says whether any matching book has a value for it. Load a facet's values from /facets/{facetName}.")
@@ -115,7 +114,7 @@ public class BookController {
             @RequestParam(name = "facet_logic", required = false) String facetLogic,
             @Parameter(description = "Free-text search applied to the counts")
             @RequestParam(required = false) String query) {
-        return ResponseEntity.ok(bookFacetService.getFacets(facet, facetLogic, query));
+        return ResponseEntity.ok(bookBrowse.getFacets(facet, facetLogic, query));
     }
 
     @Operation(summary = "Get one book facet", description = "Values and counts for a single facet, scoped by the same facet and query parameters as the page endpoint. When counting a facet, its own unprefixed values are not applied; its '+' and '-' values are.")
@@ -133,7 +132,7 @@ public class BookController {
             @RequestParam(required = false) String query,
             @Parameter(description = "Case-insensitive text the values must contain; author, genre, tag, mood, series, publisher, language, narrator, and comic facets only")
             @RequestParam(required = false) String search) {
-        return ResponseEntity.ok(bookFacetService.getFacet(facetName, facet, facetLogic, query, search, pageable));
+        return ResponseEntity.ok(bookBrowse.getFacet(facetName, facet, facetLogic, query, search, pageable));
     }
 
     @Operation(summary = "Get matching book ids", description = "Returns every book id matching the given sort, facet, and query parameters, in sort order. For select-all over the current filters.")
@@ -148,7 +147,7 @@ public class BookController {
             @RequestParam(name = "facet_logic", required = false) String facetLogic,
             @Parameter(description = "Free-text search")
             @RequestParam(required = false) String query) {
-        return ResponseEntity.ok(bookBrowseService.findAllIds(sort, facet, facetLogic, query));
+        return ResponseEntity.ok(bookBrowse.findAllIds(sort, facet, facetLogic, query));
     }
 
     @Operation(summary = "Get books by IDs", description = "Retrieve books for the given IDs, returned in request order. Applies the same visibility rules as the browse endpoints; IDs that are not found or not visible to the caller are simply omitted from the response.")
@@ -157,7 +156,7 @@ public class BookController {
     public ResponseEntity<List<Book>> getBooksBatch(
             @Parameter(description = "Comma-separated book IDs to retrieve, in the desired order (max 500)")
             @RequestParam @Size(max = 500, message = "A maximum of 500 IDs can be requested at once") List<Long> ids) {
-        return ResponseEntity.ok(bookBrowseService.findByIds(ids));
+        return ResponseEntity.ok(bookBrowse.findByIds(ids));
     }
 
     @Operation(summary = "Get a book by ID", description = "Retrieve details of a specific book by its ID.")

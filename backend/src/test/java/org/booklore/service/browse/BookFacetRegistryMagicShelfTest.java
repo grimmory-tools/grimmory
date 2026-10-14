@@ -12,6 +12,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -35,41 +36,45 @@ class BookFacetRegistryMagicShelfTest {
         Specification<BookEntity> magicSpec = mock(Specification.class);
         when(magicShelfBookService.toSpecification(7L, 42L)).thenReturn(magicSpec);
 
-        registry.matching("shelf", List.of("magic:42"), 7L);
+        shelf(List.of("magic:42"), 7L);
 
         verify(magicShelfBookService).toSpecification(7L, 42L);
     }
 
     @Test
     void regularShelfValueDoesNotTouchMagicShelfService() {
-        registry.matching("shelf", List.of("3"), 7L);
+        shelf(List.of("3"), 7L);
         verifyNoInteractions(magicShelfBookService);
     }
 
     @Test
     void unknownFacetThrows() {
-        assertThatThrownBy(() -> registry.matching("bogus", List.of("x"), 1L))
+        assertThatThrownBy(() -> registry.registry().find("bogus"))
                 .isInstanceOf(APIException.class);
     }
 
     @Test
     void malformedMagicShelfIdThrows() {
-        assertThatThrownBy(() -> registry.matching("shelf", List.of("magic:not-a-number"), 1L))
+        assertThatThrownBy(() -> shelf(List.of("magic:not-a-number"), 1L))
                 .isInstanceOf(APIException.class);
-        assertThatThrownBy(() -> registry.matching("shelf", List.of("magic:"), 1L))
+        assertThatThrownBy(() -> shelf(List.of("magic:"), 1L))
                 .isInstanceOf(APIException.class);
     }
 
     @Test
     void emptyShelfValuesDoesNotThrow() {
-        assertThatCode(() -> registry.matching("shelf", List.of(), 1L))
+        assertThatCode(() -> shelf(List.of(), 1L))
                 .doesNotThrowAnyException();
     }
 
     @Test
     void blankAndNullShelfTokensAreIgnored() {
-        assertThatCode(() -> registry.matching("shelf", Arrays.asList(null, "", "   "), 1L))
+        assertThatCode(() -> shelf(Arrays.asList(null, "", "   "), 1L))
                 .doesNotThrowAnyException();
         verifyNoInteractions(magicShelfBookService);
+    }
+
+    private Specification<BookEntity> shelf(List<String> values, Long userId) {
+        return registry.registry().find("shelf").filter().matching(values, new BrowseScope(userId, false, Set.of(), null));
     }
 }

@@ -1,6 +1,7 @@
 package org.booklore.service.browse;
 
 import lombok.RequiredArgsConstructor;
+import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.Library;
 import org.booklore.repository.UserContentRestrictionRepository;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 public class BrowseScopeFactory {
 
     private final UserContentRestrictionRepository restrictionRepository;
+    private final AuthenticationService authenticationService;
 
     private Set<Long> assignedLibraryIds(BookLoreUser user) {
         if (user.getAssignedLibraries() == null) {
@@ -27,7 +29,8 @@ public class BrowseScopeFactory {
                 .collect(Collectors.toSet());
     }
 
-    public BrowseScope from(BookLoreUser user) {
+    public BrowseScope current() {
+        BookLoreUser user = authenticationService.getAuthenticatedUser();
         boolean isAdmin = user.getPermissions().isAdmin();
         return new BrowseScope(
                 user.getId(),
