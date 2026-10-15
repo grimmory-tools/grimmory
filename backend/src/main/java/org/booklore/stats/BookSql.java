@@ -48,7 +48,11 @@ final class BookSql {
     private JpaDerivedJoin<Tuple> fileProgress;
     private Join<BookEntity, BookFileEntity> files;
 
-    private BookSql(HibernateCriteriaBuilder cb, JpaSelectCriteria<?> query, CriteriaQuery<?> top, Scope scope) {
+    BookSql(HibernateCriteriaBuilder cb, JpaCriteriaQuery<?> query, Scope scope) {
+        this(cb, query, query, scope);
+    }
+
+    BookSql(HibernateCriteriaBuilder cb, JpaSelectCriteria<?> query, CriteriaQuery<?> top, Scope scope) {
         this.cb = cb;
         this.query = query;
         this.scope = scope;
@@ -57,14 +61,6 @@ final class BookSql {
         if (filter != null) {
             where.add(filter);
         }
-    }
-
-    static BookSql of(HibernateCriteriaBuilder cb, JpaCriteriaQuery<?> query, Scope scope) {
-        return new BookSql(cb, query, query, scope);
-    }
-
-    static BookSql in(HibernateCriteriaBuilder cb, JpaSelectCriteria<?> query, CriteriaQuery<?> top, Scope scope) {
-        return new BookSql(cb, query, top, scope);
     }
 
     static Expression<Integer> flag(HibernateCriteriaBuilder cb, Predicate predicate) {
