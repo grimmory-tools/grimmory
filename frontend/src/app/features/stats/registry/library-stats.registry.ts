@@ -4,9 +4,9 @@ import {MetadataScoreChartComponent} from '../component/library-stats/charts/met
 import {PageCountChartComponent} from '../component/library-stats/charts/page-count-chart/page-count-chart.component';
 import {PublicationTimelineChartComponent} from '../component/library-stats/charts/publication-timeline-chart/publication-timeline-chart.component';
 import {TopItemsChartComponent} from '../component/library-stats/charts/top-items-chart/top-items-chart.component';
-import {type AnyStatsChartDefinition, defineStatsChart} from '../card/stats-chart-definition';
+import {defineStatsChart, type StatsChartDefinition} from '../card/stats-chart-definition';
 
-export const LIBRARY_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
+export const LIBRARY_STATS_CHARTS: readonly StatsChartDefinition[] = [
   defineStatsChart({
     id: 'library.bookFormats',
     nameKey: 'statsLibrary.chartNames.bookFormats',

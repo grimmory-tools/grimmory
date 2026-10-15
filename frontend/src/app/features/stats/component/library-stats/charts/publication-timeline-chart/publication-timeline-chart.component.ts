@@ -1,11 +1,10 @@
 import {Component, computed, input} from '@angular/core';
-import {barY, defineChart, ruleY} from '@tanstack/charts';
+import {barY, defaultChartTheme, defineChart, ruleY} from '@tanstack/charts';
 import {scaleLinear} from '@tanstack/charts/scales/linear';
 
 import {type StatsDistribution} from '../../../../data/stats-response.models';
 import {
   countTicks,
-  STATS_CHART_PALETTE,
   statsAxis,
   statsBar,
   statsBarBand,
@@ -66,7 +65,7 @@ export class PublicationTimelineChartComponent {
         chart: ({width}) => ({
           marks: [
             ruleY([0], {strokeOpacity: 0.3}),
-            barY(decades, {x: 'decade', y: 'books', fill: STATS_CHART_PALETTE[0], ...statsBar(width)}),
+            barY(decades, {x: 'decade', y: 'books', fill: defaultChartTheme.palette[0], ...statsBar(width)}),
           ],
           scales: {
             x: {

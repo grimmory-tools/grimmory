@@ -40,7 +40,7 @@ describe('StatsQueryService', () => {
   });
 
   it('removes its cached stats when the authenticated session ends', () => {
-    const {queryKey} = service.genres(SCOPE);
+    const {queryKey} = service.genres(SCOPE).options;
     queryClient.setQueryData(queryKey, {rows: [{genre: 'Fantasy', seconds: 3600}]});
 
     authService.token.set('token-456');

@@ -2,7 +2,6 @@ import {LiveAnnouncer} from '@angular/cdk/a11y';
 import {HttpTestingController} from '@angular/common/http/testing';
 import {signal} from '@angular/core';
 import {type ComponentFixture, TestBed} from '@angular/core/testing';
-import {ActivatedRoute} from '@angular/router';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {API_CONFIG} from '../../../core/config/api-config';
@@ -15,9 +14,10 @@ import {getTranslocoModule} from '../../../core/testing/transloco-testing';
 import {AuthService} from '../../../shared/service/auth.service';
 import {LibraryService} from '../../book/service/library.service';
 import {UserService} from '../../settings/user-management/user.service';
+import {STATS_PAGE, type StatsPageId} from '../card/stats-context';
 import {LIBRARY_STATS_CHARTS} from '../registry/library-stats.registry';
 import {READING_STATS_CHARTS} from '../registry/reading-stats.registry';
-import {StatsPageComponent, type StatsPageId} from './stats-page.component';
+import {StatsPageComponent} from './stats-page.component';
 
 const STATS_URL = `${API_CONFIG.BASE_URL}/api/v1/stats/`;
 
@@ -37,7 +37,7 @@ describe('StatsPageComponent', () => {
         {provide: AuthService, useValue: createAuthServiceStub()},
         {provide: UserService, useValue: {currentUser: signal({name: 'Ada', username: 'ada'})}},
         {provide: LibraryService, useValue: {libraries: signal([{id: 2, name: 'Comics'}, {id: 1, name: 'Fiction'}])}},
-        {provide: ActivatedRoute, useValue: {snapshot: {data: {statsPage: page}}}},
+        {provide: STATS_PAGE, useValue: page},
         {provide: LiveAnnouncer, useValue: {announce: vi.fn()}},
       ],
     });

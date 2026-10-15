@@ -33,12 +33,13 @@ export function injectStatsText(prefix: string) {
       new Intl.DateTimeFormat(activeLang(), {hour: 'numeric', minute, timeZone: 'UTC'})
         .format(Date.UTC(2023, 0, 1, 0, Math.round(hour * 60))),
     duration: (minutes: number) => {
-      const format = (value: number) => value.toLocaleString(activeLang());
+      const format = (value: number, unit: 'hour' | 'minute') =>
+        value.toLocaleString(activeLang(), {style: 'unit', unit, unitDisplay: 'narrow'});
       const rounded = Math.round(minutes);
-      if (rounded === 0 && minutes > 0) return `<${format(1)}m`;
+      if (rounded === 0 && minutes > 0) return `<${format(1, 'minute')}`;
       const hours = Math.floor(rounded / 60);
-      if (hours === 0) return `${format(rounded)}m`;
-      return rounded % 60 === 0 ? `${format(hours)}h` : `${format(hours)}h ${format(rounded % 60)}m`;
+      if (hours === 0) return format(rounded, 'minute');
+      return rounded % 60 === 0 ? format(hours, 'hour') : `${format(hours, 'hour')} ${format(rounded % 60, 'minute')}`;
     },
     weekday: (isoWeekday: number, style: 'short' | 'long' = 'short') =>
       new Intl.DateTimeFormat(activeLang(), {weekday: style, timeZone: 'UTC'}).format(Date.UTC(2023, 0, 1 + isoWeekday)),

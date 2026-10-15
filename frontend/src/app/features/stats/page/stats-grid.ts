@@ -37,8 +37,8 @@ export function createStatsChartGrid<Chart extends StatsPageChartConfig>({prefer
   const storage = inject(LocalStorageService);
   const defaultsById: ReadonlyMap<string, Chart> = new Map(defaults.map((chart) => [chart.id, chart]));
 
-  const saved = loadPreferences();
-  const rows = signal<readonly StatsChartLayoutRow<Chart>[]>(saved ? savedLayout(saved) : makeRows(packStatsChartRows(defaults)));
+  const stored = storage.get<unknown>(preferencesKey);
+  const rows = signal<readonly StatsChartLayoutRow<Chart>[]>(isStoredPreferences(stored) ? savedLayout(stored) : packRows(defaults));
   let reorderPreview: StatsChartReorderPreview<Chart> | null = null;
   const previewLayouts = signal<ReadonlyMap<string, StatsChartPreviewLayout>>(new Map());
 
@@ -72,20 +72,11 @@ export function createStatsChartGrid<Chart extends StatsPageChartConfig>({prefer
 
   function setLayout(layout: readonly StatsChartLayoutRow<Chart>[]): void {
     rows.set(layout.filter(({charts}) => charts.length > 0));
-    savePreferences();
-  }
-
-  function savePreferences(): void {
     const preferences: StoredStatsPreferences = {
       rows: rows().map(({charts}) => charts.map(({id}) => id)),
       hidden: availableCharts().map(({id}) => id),
     };
     storage.set(preferencesKey, preferences);
-  }
-
-  function loadPreferences(): StoredStatsPreferences | null {
-    const stored = storage.get<unknown>(preferencesKey);
-    return isStoredPreferences(stored) ? stored : null;
   }
 
   function savedLayout(stored: StoredStatsPreferences): readonly StatsChartLayoutRow<Chart>[] {
@@ -100,11 +91,11 @@ export function createStatsChartGrid<Chart extends StatsPageChartConfig>({prefer
         placed.add(id);
         return [chart];
       });
-      layout.push(...makeRows(packStatsChartRows(charts)));
+      layout.push(...packRows(charts));
     }
 
     const unplaced = defaults.filter(({id}) => !placed.has(id) && !hidden.has(id));
-    layout.push(...makeRows(packStatsChartRows(unplaced)));
+    layout.push(...packRows(unplaced));
     return layout;
   }
 
@@ -133,14 +124,10 @@ export function createStatsChartGrid<Chart extends StatsPageChartConfig>({prefer
       const source = result.find(({id}) => id === preview.sourceRowId);
       const targetIndex = result.findIndex(({id}) => id === targetRowId);
       const target = result[targetIndex];
+      const ownRow = result[targetIndex - 1]?.charts.includes(preview.chart) ? 'own-row-before' : 'own-row-after';
       previewLayouts.set(new Map<string, StatsChartPreviewLayout>([
         [preview.sourceRowId, source ? statsChartRowLayout(source.charts) : 'emptied'],
-        [
-          targetRowId,
-          target.charts.includes(preview.chart)
-            ? statsChartRowLayout(target.charts)
-            : result[targetIndex - 1]?.charts.includes(preview.chart) ? 'own-row-before' : 'own-row-after',
-        ],
+        [targetRowId, target.charts.includes(preview.chart) ? statsChartRowLayout(target.charts) : ownRow],
       ]));
     },
 
@@ -185,13 +172,13 @@ export function createStatsChartGrid<Chart extends StatsPageChartConfig>({prefer
 
     resetOrder(): void {
       const enabled = new Set(enabledCharts().map(({id}) => id));
-      setLayout(makeRows(packStatsChartRows(defaults.filter(({id}) => enabled.has(id)))));
+      setLayout(packRows(defaults.filter(({id}) => enabled.has(id))));
     },
   };
 }
 
-function makeRows<Chart extends StatsPageChartConfig>(rows: readonly (readonly Chart[])[]): readonly StatsChartLayoutRow<Chart>[] {
-  return rows.map((charts) => makeRow(charts));
+function packRows<Chart extends StatsPageChartConfig>(charts: readonly Chart[]): readonly StatsChartLayoutRow<Chart>[] {
+  return packStatsChartRows(charts).map((row) => makeRow(row));
 }
 
 function makeRow<Chart extends StatsPageChartConfig>(charts: readonly Chart[]): StatsChartLayoutRow<Chart> {

@@ -1,4 +1,4 @@
-import {type AnyStatsChartDefinition, defineStatsChart} from '../card/stats-chart-definition';
+import {defineStatsChart, type StatsChartDefinition} from '../card/stats-chart-definition';
 import {BookFlowChartComponent} from '../component/user-stats/charts/book-flow-chart/book-flow-chart.component';
 import {type BookRatingData, BookRatingChartComponent} from '../component/user-stats/charts/book-rating-chart/book-rating-chart.component';
 import {DaysToFinishChartComponent} from '../component/user-stats/charts/days-to-finish-chart/days-to-finish-chart.component';
@@ -17,7 +17,7 @@ import {ReadingSessionActivityComponent} from '../component/user-stats/charts/re
 import {ReadingSessionTimelineComponent} from '../component/user-stats/charts/reading-session-timeline/reading-session-timeline.component';
 import {runningActivity} from '../component/shared/stats-chart-data';
 
-export const READING_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
+export const READING_STATS_CHARTS: readonly StatsChartDefinition[] = [
   defineStatsChart({
     id: 'reading.sessionActivity',
     nameKey: 'statsUser.chartNames.sessionActivity',

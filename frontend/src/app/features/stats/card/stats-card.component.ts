@@ -30,10 +30,11 @@ import {
   type StatsItemMeasure,
 } from '../data/stats-response.models';
 import {
-  type AnyStatsChartDefinition,
   type StatsCardParams,
+  type StatsChartDefinition,
   type StatsChartSize,
   type StatsFilterKind,
+  type StatsFilterValues,
   STATS_ITEM_NAMES,
 } from './stats-chart-definition';
 import {STATS_CARD, STATS_CONTEXT, type StatsCardContext, type StatsCardState} from './stats-context';
@@ -49,6 +50,21 @@ interface StatsCardPeriod {
   readonly week: number;
   readonly weekday: number | null;
 }
+
+interface StatsCardSelection {
+  readonly period: StatsCardPeriod;
+  readonly item: StatsItemDimension;
+  readonly measure: StatsItemMeasure;
+}
+
+const FILTER_VALUES: {readonly [K in StatsFilterKind]: (selection: StatsCardSelection) => StatsFilterValues[K]} = {
+  none: () => ({}),
+  year: ({period}) => ({year: period.year ?? new Date().getFullYear()}),
+  yearMonth: ({period}) => ({year: period.year, month: period.month}),
+  yearWeekday: ({period}) => ({year: period.year, weekday: period.weekday}),
+  week: ({period}) => ({year: period.year ?? new Date().getFullYear(), week: period.week}),
+  item: ({item, measure}) => ({item, by: measure}),
+};
 
 const YEAR_OPTION_COUNT = 11;
 
@@ -88,7 +104,7 @@ export class StatsCardComponent implements StatsCardContext {
   private readonly context = inject(STATS_CONTEXT);
   private readonly transloco = inject(TranslocoService);
 
-  readonly definition = input.required<AnyStatsChartDefinition>();
+  readonly definition = input.required<StatsChartDefinition>();
   readonly editing = input<StatsCardEditing | null>(null);
   readonly moved = output<-1 | 1>();
   readonly removed = output<void>();
@@ -105,31 +121,15 @@ export class StatsCardComponent implements StatsCardContext {
   protected readonly item = signal<StatsItemDimension>('author');
   protected readonly measure = signal<StatsItemMeasure>('books');
 
-  private readonly params = computed<StatsCardParams>(() => {
-    const scope = this.context.scope();
-    const {year, month, week, weekday} = this.period();
-    const currentYear = new Date().getFullYear();
-
-    switch (this.definition().filter) {
-      case 'none':
-        return scope;
-      case 'year':
-        return {...scope, year: year ?? currentYear};
-      case 'yearMonth':
-        return {...scope, year, month};
-      case 'yearWeekday':
-        return {...scope, year, weekday};
-      case 'week':
-        return {...scope, year: year ?? currentYear, week};
-      case 'item':
-        return {...scope, item: this.item(), by: this.measure()};
-    }
-  });
+  private readonly params = computed<StatsCardParams>(() => ({
+    ...this.context.scope(),
+    ...FILTER_VALUES[this.definition().filter]({period: this.period(), item: this.item(), measure: this.measure()}),
+  }));
 
   private readonly request = computed(() => this.definition().query(this.params(), this.stats));
 
   private readonly query = injectQuery(() => ({
-    ...this.request(),
+    ...this.request().options,
     placeholderData: keepPreviousData,
   }));
 
@@ -139,9 +139,9 @@ export class StatsCardComponent implements StatsCardContext {
   });
 
   private readonly chartData = computed(() => {
-    const response = this.query.data() ?? this.request().meta?.['empty'];
-    const {select} = this.definition();
-    return select ? select(response, this.shownParams()) : response;
+    const response = this.query.data() ?? this.request().empty;
+    const definition = this.definition();
+    return definition.select ? definition.select(response, this.shownParams()) : response;
   });
 
   protected readonly chartInputs = computed(() => ({data: this.chartData()}));
@@ -179,13 +179,10 @@ export class StatsCardComponent implements StatsCardContext {
     ),
   );
 
-  private readonly itemName = computed(() => {
+  protected readonly titleParams = computed(() => {
     this.activeLang();
-    return this.itemLabel(this.item());
+    return this.definition().filter === 'item' ? {kind: this.itemLabel(this.item())} : {};
   });
-  protected readonly titleParams = computed(() =>
-    this.definition().filter === 'item' ? {kind: this.itemName()} : {},
-  );
   readonly description = computed(() => {
     this.activeLang();
     const key = this.definition().descriptionKey;
@@ -237,8 +234,7 @@ export class StatsCardComponent implements StatsCardContext {
   }
 
   protected selectYear(year: number | null): void {
-    const filter = this.definition().filter;
-    if (year === null && filter !== 'yearMonth' && filter !== 'yearWeekday') return;
+    if (year === null && this.definition().filter === 'year') return;
 
     this.period.update(period => (year === null ? {...period, year: null, month: null} : {...period, year}));
   }

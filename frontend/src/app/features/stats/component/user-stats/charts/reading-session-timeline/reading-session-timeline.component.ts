@@ -2,7 +2,7 @@ import {NgTemplateOutlet} from '@angular/common';
 import {Component, computed, inject, input} from '@angular/core';
 import {defineChart, rect, ruleX} from '@tanstack/charts';
 import {scaleLinear} from '@tanstack/charts/scales/linear';
-import {addDays, addWeeks, startOfDay} from 'date-fns';
+import {addDays, addWeeks, min, startOfDay} from 'date-fns';
 
 import {UrlHelperService} from '../../../../../../shared/service/url-helper.service';
 import {STATS_CARD} from '../../../../card/stats-context';
@@ -188,16 +188,19 @@ function weekSegments(rows: readonly StatsWeekSession[], year: number, week: num
 
     for (let cursor = start < weekStart ? weekStart : start; cursor < end && cursor < weekEnd;) {
       const midnight = startOfDay(addDays(cursor, 1));
-      const until = [end, weekEnd, midnight].reduce((earliest, time) => (time < earliest ? time : earliest));
+      const until = min([end, weekEnd, midnight]);
+      const startHour = hourOf(cursor);
+      const endHour = until.getTime() === midnight.getTime() ? 24 : hourOf(until);
+      const durationMinutes = (until.getTime() - cursor.getTime()) / 60_000;
       segments.push({
         key: `${row.bookId}:${start.getTime()}:${index}:${cursor.getTime()}`,
         bookId: row.bookId,
         bookTitle: row.title,
         format: row.format,
         dayIndex: (cursor.getDay() + 6) % 7,
-        startHour: hourOf(cursor),
-        endHour: until.getTime() === midnight.getTime() ? 24 : hourOf(until),
-        durationMinutes: (until.getTime() - cursor.getTime()) / 60_000,
+        startHour,
+        endHour: endHour < startHour ? startHour + durationMinutes / 60 : endHour,
+        durationMinutes,
       });
       cursor = until;
     }

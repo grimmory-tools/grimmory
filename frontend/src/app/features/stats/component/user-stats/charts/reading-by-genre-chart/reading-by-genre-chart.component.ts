@@ -1,13 +1,13 @@
 import {Component, computed, inject, input, linkedSignal} from '@angular/core';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {LucideChevronLeft, LucideChevronRight} from '@lucide/angular';
-import {barX, defineChart} from '@tanstack/charts';
+import {barX, defaultChartTheme, defineChart} from '@tanstack/charts';
 import {scaleLinear} from '@tanstack/charts/scales/linear';
 
 import {AppButtonComponent} from '../../../../../../shared/ui/button/app-button.component';
 import {STATS_CARD} from '../../../../card/stats-context';
 import {type StatsGenreTime} from '../../../../data/stats-response.models';
-import {shorten, STATS_CHART_PALETTE, statsAxis, statsBar, statsBarBand, statsTooltip} from '../../../shared/stats-chart-style';
+import {shorten, statsAxis, statsBar, statsBarBand, statsTooltip} from '../../../shared/stats-chart-style';
 import {StatsChartPlotComponent} from '../../../shared/stats-chart-plot.component';
 import {injectStatsText, STATS_CHART_HOST_CLASS} from '../../../shared/stats-chart-text';
 
@@ -65,7 +65,7 @@ export class ReadingByGenreChartComponent {
       definition: defineChart({
         chart: ({width}) => ({
           marks: [
-            barX(genres.filter(({hours}) => hours > 0), {x: 'hours', y: 'genre', fill: STATS_CHART_PALETTE[0], ...statsBar(width)}),
+            barX(genres.filter(({hours}) => hours > 0), {x: 'hours', y: 'genre', fill: defaultChartTheme.palette[0], ...statsBar(width)}),
           ],
           scales: {
             x: {

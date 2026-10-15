@@ -15,7 +15,7 @@ import {LibraryStatsGuard} from './core/security/guards/library-stats.guard';
 import {UserStatsGuard} from './core/security/guards/user-stats.guard';
 import {EditMetadataGuard} from './core/security/guards/edit-metdata.guard';
 import {validBookBrowseScope, type BookBrowseRouteData} from './features/book/browse/book-browse-scope';
-import {type StatsPageRouteData} from './features/stats/page/stats-page.component';
+import {STATS_PAGE, type StatsPageId} from './features/stats/card/stats-context';
 
 const loadBookBrowsePage = () =>
   import('./features/book/browse/book-browse-page.component').then(m => m.BookBrowsePageComponent);
@@ -62,8 +62,8 @@ export const routes: Routes = [
       {path: 'book/:bookId', loadComponent: () => import('./features/metadata/component/book-metadata-center/book-metadata-center.component').then(m => m.BookMetadataCenterComponent)},
       {path: 'bookdrop', loadComponent: () => import('./features/bookdrop/component/bookdrop-file-review/bookdrop-file-review.component').then(m => m.BookdropFileReviewComponent), canActivate: [BookdropGuard]},
       {path: 'metadata-manager', loadComponent: () => import('./features/metadata/component/metadata-manager/metadata-manager.component').then(m => m.MetadataManagerComponent), canActivate: [EditMetadataGuard]},
-      {path: 'library-stats', loadComponent: loadStatsPage, data: {statsPage: 'library'} satisfies StatsPageRouteData, canActivate: [LibraryStatsGuard]},
-      {path: 'reading-stats', loadComponent: loadStatsPage, data: {statsPage: 'reading'} satisfies StatsPageRouteData, canActivate: [UserStatsGuard]},
+      {path: 'library-stats', loadComponent: loadStatsPage, providers: [{provide: STATS_PAGE, useValue: 'library' satisfies StatsPageId}], canActivate: [LibraryStatsGuard]},
+      {path: 'reading-stats', loadComponent: loadStatsPage, providers: [{provide: STATS_PAGE, useValue: 'reading' satisfies StatsPageId}], canActivate: [UserStatsGuard]},
       {path: 'notebook', loadComponent: () => import('./features/notebook/components/notebook/notebook.component').then(m => m.NotebookComponent)},
       {path: 'design-system', loadComponent: () => import('./features/design-system/design-system.component').then(m => m.DesignSystemComponent)},
       {path: 'design-system/form/library', loadComponent: () => import('./features/design-system/forms/library-form.component').then(m => m.LibraryFormExampleComponent)},

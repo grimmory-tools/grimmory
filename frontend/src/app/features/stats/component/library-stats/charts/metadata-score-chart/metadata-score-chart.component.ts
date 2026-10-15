@@ -1,7 +1,7 @@
 import {Component, computed, input} from '@angular/core';
+import {defaultChartTheme} from '@tanstack/charts';
 
 import {type StatsDistribution, type StatsMetadataBand} from '../../../../data/stats-response.models';
-import {STATS_CHART_PALETTE} from '../../../shared/stats-chart-style';
 import {StatsCircularChartComponent, type StatsPie} from '../../../shared/stats-circular-chart.component';
 import {injectStatsText, STATS_CHART_HOST_CLASS} from '../../../shared/stats-chart-text';
 import {type StatsInsight} from '../../../shared/stats-insight-list.component';
@@ -31,7 +31,7 @@ export class MetadataScoreChartComponent {
     return {
       label: t('metadataScore.title'),
       valueName: t('main.books'),
-      slices: BANDS.map((band, index) => ({id: band.id, label: t(`metadataScore.${band.labelKey}`), value: books.get(band.id) ?? 0, color: STATS_CHART_PALETTE[index]})),
+      slices: BANDS.map((band, index) => ({id: band.id, label: t(`metadataScore.${band.labelKey}`), value: books.get(band.id) ?? 0, color: defaultChartTheme.palette[index]})),
     };
   });
 
