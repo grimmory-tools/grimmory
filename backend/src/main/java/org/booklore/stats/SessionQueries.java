@@ -172,7 +172,7 @@ final class SessionQueries {
         firstRead.multiselect(sessionBook.alias("book"), cb.least(session.<Instant>get("startTime")).alias("firstRead"))
                 .where(cb.equal(session.get("user").get("id"), scope.userId()), session.get("endProgress").isNotNull())
                 .groupBy(sessionBook);
-        BookSql books = BookSql.in(cb, finished, query, scope);
+        BookSql books = new BookSql(cb, finished, query, scope);
         JpaDerivedRoot<Tuple> first = finished.from(firstRead);
         Expression<Instant> finishedAt = books.finishedAt();
         Expression<Instant> started = first.get("firstRead");
@@ -234,7 +234,7 @@ final class SessionQueries {
     }
 
     private Sessions sessions(JpaSelectCriteria<?> query, CriteriaQuery<?> top, Period period) {
-        BookSql books = BookSql.in(cb, query, top, scope);
+        BookSql books = new BookSql(cb, query, top, scope);
         JpaEntityJoin<BookEntity, ReadingSessionEntity> session = books.book.join(ReadingSessionEntity.class);
         session.on(cb.equal(session.get("book").get("id"), books.id()), cb.equal(session.get("user").get("id"), scope.userId()));
         Path<Instant> start = session.get("startTime");

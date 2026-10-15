@@ -2,7 +2,6 @@ package org.booklore.stats;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
-import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Path;
@@ -17,7 +16,6 @@ import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
 import org.hibernate.query.criteria.JpaDerivedRoot;
 import org.hibernate.query.criteria.JpaSearchedCase;
-import org.hibernate.query.criteria.JpaSelectCriteria;
 import org.hibernate.query.criteria.JpaSubQuery;
 import org.hibernate.query.criteria.JpaWindow;
 
@@ -60,13 +58,15 @@ final class SeriesQueries {
 
     SeriesSummary summary() {
         JpaCriteriaQuery<Tuple> query = cb.createTupleQuery();
-        Columns series = columns(query.from(perSeries(query, query)));
+        JpaDerivedRoot<Tuple> row = query.from(perSeries(query));
+        Columns series = columns(row);
         JpaSearchedCase<Integer> rank = cb.selectCase();
         for (int index = 0; index < STATES.size(); index++) {
             rank.when(cb.equal(series.state, STATES.get(index)), index);
         }
         JpaWindow all = cb.createWindow();
-        List<Selection<?>> columns = new ArrayList<>(series.selections());
+        List<Selection<?>> columns = new ArrayList<>(List.of(series.name.alias("series"), series.books.alias("books"), series.rating.alias("rating")));
+        GROUPS.forEach(each -> columns.add(row.get(each).alias(each)));
         columns.addAll(List.of(
                 cb.count(cb.literal(1), all).alias("total"),
                 cb.avg(series.completion, all).alias("averageCompletion"),
@@ -93,7 +93,7 @@ final class SeriesQueries {
         String term = search == null ? "" : search.trim().toLowerCase(Locale.ROOT);
 
         JpaCriteriaQuery<Tuple> query = cb.createTupleQuery();
-        Columns series = columns(query.from(perSeries(query, query)));
+        Columns series = columns(query.from(perSeries(query)));
         List<Order> ordering = new ArrayList<>(switch (sort) {
             case PROGRESS -> List.of(cb.desc(series.completion, false));
             case RATING -> List.of(cb.desc(series.rating, false));
@@ -118,13 +118,13 @@ final class SeriesQueries {
 
     private long matching(String term, String state) {
         JpaCriteriaQuery<Long> query = cb.createQuery(Long.class);
-        Columns series = columns(query.from(perSeries(query, query)));
+        Columns series = columns(query.from(perSeries(query)));
         return entityManager.createQuery(query.select(cb.count(cb.literal(1))).where(filters(series, term, state))).getSingleResult();
     }
 
-    private JpaSubQuery<Tuple> perSeries(JpaSelectCriteria<?> parent, CriteriaQuery<?> top) {
-        JpaSubQuery<Tuple> grouped = parent.subquery(Tuple.class);
-        BookSql books = BookSql.in(cb, grouped, top, scope);
+    private JpaSubQuery<Tuple> perSeries(JpaCriteriaQuery<?> query) {
+        JpaSubQuery<Tuple> grouped = query.subquery(Tuple.class);
+        BookSql books = new BookSql(cb, grouped, query, scope);
         Path<String> name = books.metadata().get("seriesName");
         Expression<ReadStatus> status = books.status();
         Expression<String> group = cb.<String>selectCase()
@@ -157,7 +157,7 @@ final class SeriesQueries {
                 .when(cb.gt(row.<Long>get("paused"), 0L), "paused")
                 .when(cb.gt(cb.sum(read, row.<Long>get("partiallyRead")), 0L), "in-progress")
                 .otherwise("not-started");
-        return new Columns(row, row.get("series"), books, read, reading, intended, completion, state, row.get("rating"));
+        return new Columns(row.get("series"), books, read, reading, intended, completion, state, row.get("rating"));
     }
 
     private Predicate[] filters(Columns series, String term, String state) {
@@ -177,7 +177,7 @@ final class SeriesQueries {
         }
         JpaCriteriaQuery<Tuple> query = cb.createTupleQuery();
         JpaSubQuery<Tuple> ranked = query.subquery(Tuple.class);
-        BookSql books = BookSql.in(cb, ranked, query, scope);
+        BookSql books = new BookSql(cb, ranked, query, scope);
         Path<String> name = books.metadata().get("seriesName");
         Path<Float> number = books.metadata().get("seriesNumber");
         Expression<String> title = books.title();
@@ -197,14 +197,7 @@ final class SeriesQueries {
         return ((Number) value).longValue();
     }
 
-    private record Columns(JpaDerivedRoot<Tuple> row, Expression<String> name, Expression<Long> books, Expression<Long> read,
-                           Expression<Long> reading, Expression<Long> intended, Expression<Double> completion, Expression<String> state,
-                           Expression<Double> rating) {
-
-        List<Selection<?>> selections() {
-            List<Selection<?>> selections = new ArrayList<>(List.of(name.alias("series"), books.alias("books"), rating.alias("rating")));
-            GROUPS.forEach(each -> selections.add(row.get(each).alias(each)));
-            return selections;
-        }
+    private record Columns(Expression<String> name, Expression<Long> books, Expression<Long> read, Expression<Long> reading,
+                           Expression<Long> intended, Expression<Double> completion, Expression<String> state, Expression<Double> rating) {
     }
 }
