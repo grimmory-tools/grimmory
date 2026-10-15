@@ -40,6 +40,9 @@ updates:
       angular:
         patterns:
           - "@angular/*"
+      openng:
+        patterns:
+          - "@openng/*"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
