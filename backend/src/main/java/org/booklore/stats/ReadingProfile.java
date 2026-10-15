@@ -109,7 +109,7 @@ final class ReadingProfile {
     private Map<String, Double> facts() {
         JpaCriteriaQuery<Tuple> query = cb.createTupleQuery();
         JpaSubQuery<Tuple> perBook = query.subquery(Tuple.class);
-        BookSql book = BookSql.in(cb, perBook, query, scope);
+        BookSql book = new BookSql(cb, perBook, query, scope);
         Expression<ReadStatus> status = book.status();
         Expression<Integer> rating = book.rating();
         Path<String> series = book.metadata().get("seriesName");
@@ -173,7 +173,7 @@ final class ReadingProfile {
     private double consistency() {
         JpaCriteriaQuery<Tuple> query = cb.createTupleQuery();
         JpaSubQuery<Tuple> finishes = query.subquery(Tuple.class);
-        BookSql book = BookSql.in(cb, finishes, query, scope);
+        BookSql book = new BookSql(cb, finishes, query, scope);
         Expression<Instant> finished = book.finishedAt();
         JpaWindow inOrder = cb.createWindow().orderBy(cb.asc(finished));
         book.where.add(finished.isNotNull());
@@ -201,7 +201,7 @@ final class ReadingProfile {
     private double seriesOrderScore() {
         JpaCriteriaQuery<Tuple> query = cb.createTupleQuery();
         JpaSubQuery<Tuple> finishes = query.subquery(Tuple.class);
-        BookSql book = BookSql.in(cb, finishes, query, scope);
+        BookSql book = new BookSql(cb, finishes, query, scope);
         Expression<Instant> finished = book.finishedAt();
         Path<Float> number = book.metadata().get("seriesNumber");
         Path<String> series = book.metadata().get("seriesName");
@@ -232,7 +232,7 @@ final class ReadingProfile {
     private Names names(String collection, int minimum) {
         JpaCriteriaQuery<Tuple> query = cb.createTupleQuery();
         JpaSubQuery<Tuple> perName = query.subquery(Tuple.class);
-        BookSql book = BookSql.in(cb, perName, query, scope);
+        BookSql book = new BookSql(cb, perName, query, scope);
         Path<Long> name = book.metadata().join(collection).get("id");
         perName.multiselect(name.alias("name"), cb.countDistinct(book.id()).alias("books"))
                 .where(book.where.toArray(Predicate[]::new))
@@ -267,7 +267,7 @@ final class ReadingProfile {
         });
         classified.multiselect(kinds).where(cb.or(any.toArray(Predicate[]::new))).groupBy(id);
 
-        BookSql book = BookSql.in(cb, perBook, query, scope);
+        BookSql book = new BookSql(cb, perBook, query, scope);
         Path<Long> genre = book.metadata().join("categories").get("id");
         JpaDerivedRoot<Tuple> kind = perBook.from(classified);
         List<Selection<?>> perBookColumns = new ArrayList<>(List.of(book.id().alias("book")));

@@ -132,10 +132,10 @@ final class BookQueries {
 
     Rows<LengthCell> length() {
         JpaCriteriaQuery<Tuple> query = cb.createTupleQuery();
-        BookSql books = BookSql.of(cb, query, scope);
+        BookSql books = new BookSql(cb, query, scope);
         Expression<String> band = banded(cb, books.pages(), PAGE_BANDS);
         Expression<Integer> rating = books.rating();
-        books.where.add(books.pages().isNotNull());
+        books.where.add(cb.gt(books.pages(), 0));
         books.where.add(rating.isNotNull());
         query.multiselect(band, rating, cb.count(books.id())).where(books.where.toArray(Predicate[]::new)).groupBy(band, rating);
         return new Rows<>(entityManager.createQuery(query).getResultList().stream()
@@ -145,7 +145,7 @@ final class BookQueries {
 
     Rows<ComparisonCell> comparison() {
         JpaCriteriaQuery<Tuple> query = cb.createTupleQuery();
-        BookSql books = BookSql.of(cb, query, scope);
+        BookSql books = new BookSql(cb, query, scope);
         Expression<Double> outside = books.outsideRating();
         Expression<Integer> rating = books.rating();
         Expression<Integer> halfStars = cb.toInteger(cb.floor(cb.sum(cb.round(cb.prod(outside, 2.0), 4), 0.5)));
@@ -162,7 +162,7 @@ final class BookQueries {
 
     Rows<DecadeCell> decade() {
         JpaCriteriaQuery<Tuple> query = cb.createTupleQuery();
-        BookSql books = BookSql.of(cb, query, scope);
+        BookSql books = new BookSql(cb, query, scope);
         Expression<Integer> year = books.publicationYear();
         Expression<Integer> decade = cb.prod(cb.toInteger(cb.floor(cb.quot(cb.toDouble(year), 10.0))), 10);
         Expression<Integer> rating = books.rating();
@@ -176,13 +176,13 @@ final class BookQueries {
 
     BookFlow flow() {
         JpaCriteriaQuery<Tuple> byYear = cb.createTupleQuery();
-        BookSql added = BookSql.of(cb, byYear, scope);
+        BookSql added = new BookSql(cb, byYear, scope);
         Expression<Integer> year = added.yearKey(added.addedOn());
         Expression<String> group = statusGroup(added);
         byYear.multiselect(year, group, cb.count(added.id())).where(added.where.toArray(Predicate[]::new)).groupBy(year, group);
 
         JpaCriteriaQuery<Tuple> byRating = cb.createTupleQuery();
-        BookSql rated = BookSql.of(cb, byRating, scope);
+        BookSql rated = new BookSql(cb, byRating, scope);
         Expression<String> status = statusGroup(rated);
         Expression<String> level = banded(cb, rated.rating(), RATING_LEVELS);
         byRating.multiselect(status, level, cb.count(rated.id())).where(rated.where.toArray(Predicate[]::new)).groupBy(status, level);
@@ -199,7 +199,7 @@ final class BookQueries {
     Rows<ActivityMonth> activity() {
         JpaCriteriaQuery<Tuple> addedQuery = cb.createTupleQuery();
         JpaSubQuery<Tuple> addedBooks = addedQuery.subquery(Tuple.class);
-        BookSql added = BookSql.in(cb, addedBooks, addedQuery, scope);
+        BookSql added = new BookSql(cb, addedBooks, addedQuery, scope);
         added.where.add(added.addedOn().isNotNull());
         addedBooks.multiselect(added.addedOn().alias("added"), added.finishedAt().alias("finished")).where(added.where.toArray(Predicate[]::new));
         JpaDerivedRoot<Tuple> addedBook = addedQuery.from(addedBooks);
@@ -210,7 +210,7 @@ final class BookQueries {
 
         JpaCriteriaQuery<Tuple> finishedQuery = cb.createTupleQuery();
         JpaSubQuery<Tuple> finishedBooks = finishedQuery.subquery(Tuple.class);
-        BookSql read = BookSql.in(cb, finishedBooks, finishedQuery, scope);
+        BookSql read = new BookSql(cb, finishedBooks, finishedQuery, scope);
         read.where.add(read.finishedAt().isNotNull());
         finishedBooks.multiselect(read.finishedAt().alias("finished"), read.addedOn().alias("added"), read.pages().alias("pages"))
                 .where(read.where.toArray(Predicate[]::new));
@@ -261,7 +261,7 @@ final class BookQueries {
                               Map<ReadStatus, Expression<Integer>> statuses, List<Predicate> where) {}
 
     private NamedBooks namedBooks(JpaCriteriaQuery<Tuple> ranking, Kind kind) {
-        BookSql books = BookSql.of(cb, ranking, scope);
+        BookSql books = new BookSql(cb, ranking, scope);
         Expression<String> name = name(books, kind);
         books.where.add(name.isNotNull());
         Map<ReadStatus, Expression<Integer>> statuses = new EnumMap<>(ReadStatus.class);
@@ -271,7 +271,7 @@ final class BookQueries {
 
     private NamedBooks authorBooks(JpaCriteriaQuery<Tuple> ranking) {
         JpaSubQuery<Tuple> perBook = ranking.subquery(Tuple.class);
-        BookSql books = BookSql.in(cb, perBook, ranking, scope);
+        BookSql books = new BookSql(cb, perBook, ranking, scope);
         Path<Long> author = books.metadata().join(Kind.AUTHOR.attribute).get("id");
         List<Selection<?>> columns = new ArrayList<>(List.of(author.alias("author"),
                 cb.max(BookSql.flag(cb, books.isRead())).alias("readBook"), cb.max(books.rating()).alias("rating")));
@@ -303,7 +303,7 @@ final class BookQueries {
 
     private List<Count> counts(Dimension dimension) {
         JpaCriteriaQuery<Tuple> query = cb.createTupleQuery();
-        BookSql books = BookSql.of(cb, query, scope);
+        BookSql books = new BookSql(cb, query, scope);
         Expression<?> value = dimension.value.apply(books);
         Expression<Long> count = cb.countDistinct(books.id());
         if (dimension.counted != null) {
@@ -344,7 +344,7 @@ final class BookQueries {
 
     private Distribution formats() {
         JpaCriteriaQuery<Long> query = cb.createQuery(Long.class);
-        BookSql books = BookSql.of(cb, query, scope);
+        BookSql books = new BookSql(cb, query, scope);
         books.where.add(cb.isTrue(books.physical()));
         long physical = entityManager.createQuery(query.select(cb.count(books.id())).where(books.where.toArray(Predicate[]::new))).getSingleResult();
         List<Count> rows = new ArrayList<>(counts(Dimension.FORMAT));
@@ -357,7 +357,7 @@ final class BookQueries {
 
     private Distribution metadataScores() {
         JpaCriteriaQuery<Tuple> query = cb.createTupleQuery();
-        BookSql books = BookSql.of(cb, query, scope);
+        BookSql books = new BookSql(cb, query, scope);
         Expression<String> band = metadataBand(books);
         Expression<Long> count = cb.count(books.id());
         query.multiselect(band, count, cb.sum(cb.toDouble(validScore(books))))
