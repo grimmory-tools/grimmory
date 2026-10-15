@@ -26,7 +26,39 @@
     </div>
 
     <div [class]="actionsClass()">
-      @if (!editing()) {
+      @if (editing(); as edit) {
+        <div class="relative z-20 flex items-center gap-1">
+          <app-button
+            variant="ghost"
+            iconOnly
+            [attr.data-chart-move-earlier]="definition().id"
+            [disabled]="!edit.canMoveEarlier"
+            [ariaLabel]="'stats.config.moveChartEarlier' | transloco: {name: definition().nameKey | transloco}"
+            [title]="'stats.config.moveChartEarlier' | transloco: {name: definition().nameKey | transloco}"
+            (clicked)="moved.emit(-1)">
+            <svg lucideChevronUp aria-hidden="true"></svg>
+          </app-button>
+          <app-button
+            variant="ghost"
+            iconOnly
+            [attr.data-chart-move-later]="definition().id"
+            [disabled]="!edit.canMoveLater"
+            [ariaLabel]="'stats.config.moveChartLater' | transloco: {name: definition().nameKey | transloco}"
+            [title]="'stats.config.moveChartLater' | transloco: {name: definition().nameKey | transloco}"
+            (clicked)="moved.emit(1)">
+            <svg lucideChevronDown aria-hidden="true"></svg>
+          </app-button>
+          <app-button
+            tone="danger"
+            variant="ghost"
+            iconOnly
+            [ariaLabel]="'stats.config.removeChart' | transloco: {name: definition().nameKey | transloco}"
+            [title]="'stats.config.removeChart' | transloco: {name: definition().nameKey | transloco}"
+            (clicked)="removed.emit()">
+            <svg lucideX aria-hidden="true"></svg>
+          </app-button>
+        </div>
+      } @else {
         @let filter = definition().filter;
         @if (filter === 'year' || filter === 'yearMonth' || filter === 'yearWeekday') {
           <div [class]="filter === 'year' ? 'flex shrink-0 items-center' : 'flex min-w-0 flex-wrap items-center gap-2'">
@@ -119,39 +151,6 @@
             </div>
           </div>
         }
-      }
-      @if (editing(); as edit) {
-        <div class="relative z-20 flex items-center gap-1">
-          <app-button
-            variant="ghost"
-            iconOnly
-            [attr.data-chart-move-earlier]="definition().id"
-            [disabled]="!edit.canMoveEarlier"
-            [ariaLabel]="'stats.config.moveChartEarlier' | transloco: {name: definition().nameKey | transloco}"
-            [title]="'stats.config.moveChartEarlier' | transloco: {name: definition().nameKey | transloco}"
-            (clicked)="moved.emit(-1)">
-            <svg lucideChevronUp aria-hidden="true"></svg>
-          </app-button>
-          <app-button
-            variant="ghost"
-            iconOnly
-            [attr.data-chart-move-later]="definition().id"
-            [disabled]="!edit.canMoveLater"
-            [ariaLabel]="'stats.config.moveChartLater' | transloco: {name: definition().nameKey | transloco}"
-            [title]="'stats.config.moveChartLater' | transloco: {name: definition().nameKey | transloco}"
-            (clicked)="moved.emit(1)">
-            <svg lucideChevronDown aria-hidden="true"></svg>
-          </app-button>
-          <app-button
-            tone="danger"
-            variant="ghost"
-            iconOnly
-            [ariaLabel]="'stats.config.removeChart' | transloco: {name: definition().nameKey | transloco}"
-            [title]="'stats.config.removeChart' | transloco: {name: definition().nameKey | transloco}"
-            (clicked)="removed.emit()">
-            <svg lucideX aria-hidden="true"></svg>
-          </app-button>
-        </div>
       }
     </div>
 

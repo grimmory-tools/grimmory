@@ -1,12 +1,12 @@
 import {Component, computed, input} from '@angular/core';
-import {defineChart} from '@tanstack/charts';
+import {defaultChartTheme, defineChart} from '@tanstack/charts';
 import {angleGrid, focusGroupAngle, polar, radialArea, radialDot, radialGrid, radialLine} from '@tanstack/charts/polar';
 import {scaleLinear} from '@tanstack/charts/scales/linear';
 import {scalePoint} from '@tanstack/charts/scales/point';
 import {curveLinearClosed} from 'd3-shape';
 
 import {type ProfileRow} from '../../../../data/stats-response.models';
-import {STATS_CHART_PALETTE, STATS_POLAR_GRID, statsTooltip} from '../../../shared/stats-chart-style';
+import {STATS_POLAR_GRID, statsTooltip} from '../../../shared/stats-chart-style';
 import {StatsChartPlotComponent} from '../../../shared/stats-chart-plot.component';
 import {injectStatsText, STATS_CHART_HOST_CLASS} from '../../../shared/stats-chart-text';
 import {type StatsInsight, StatsInsightListComponent} from '../../../shared/stats-insight-list.component';
@@ -57,7 +57,7 @@ export class ReadingProfileChartComponent {
     const {t, number} = this.text;
     const {prefix, group, tooltip} = PROFILES[this.data().profile];
     const axes = this.data().rows.map(({trait, score}) => ({name: t(`${prefix}.${group}.${trait}`), score}));
-    const color = STATS_CHART_PALETTE[0];
+    const color = defaultChartTheme.palette[0];
     const profile = {angle: 'name', radius: 'score', curve: curveLinearClosed} as const;
 
     return {
@@ -68,7 +68,7 @@ export class ReadingProfileChartComponent {
             polar({
               inset: Math.min(width, height) / 2 - Math.min(height / 2 - INSET, width / 2 - LABEL_ROOM),
               scales: {
-                angle: {scale: scalePoint<string>().domain(axes.map(({name}) => name)), wrap: true},
+                angle: {scale: scalePoint().domain(axes.map(({name}) => name)), wrap: true},
                 radius: {scale: scaleLinear().domain([0, 100])},
               },
               guides: [

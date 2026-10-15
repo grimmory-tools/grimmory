@@ -15,24 +15,23 @@ import {portal} from '@tanstack/charts/tooltip/portal';
 import {type KnownBookReadStatus} from '../../../book/data/book-response.models';
 import {STATS_PAGE_BANDS, type StatsPageBand} from '../../data/stats-response.models';
 
-export const STATS_CHART_PALETTE = defaultChartTheme.palette;
 export const STATS_CHART_OTHER = 'var(--stats-chart-other)';
 
 export const STATS_STATUS_COLORS = {
-  READ: STATS_CHART_PALETTE[0],
-  READING: STATS_CHART_PALETTE[1],
-  RE_READING: STATS_CHART_PALETTE[1],
-  PARTIALLY_READ: STATS_CHART_PALETTE[2],
-  PAUSED: STATS_CHART_PALETTE[3],
-  ABANDONED: STATS_CHART_PALETTE[4],
-  WONT_READ: STATS_CHART_PALETTE[5],
+  READ: defaultChartTheme.palette[0],
+  READING: defaultChartTheme.palette[1],
+  RE_READING: defaultChartTheme.palette[1],
+  PARTIALLY_READ: defaultChartTheme.palette[2],
+  PAUSED: defaultChartTheme.palette[3],
+  ABANDONED: defaultChartTheme.palette[4],
+  WONT_READ: defaultChartTheme.palette[5],
   UNREAD: STATS_CHART_OTHER,
   UNSET: STATS_CHART_OTHER,
 } as const satisfies Record<KnownBookReadStatus, string>;
 
 export function statsChartColors<T>(items: readonly T[], neutral: (item: T) => boolean = () => false): readonly (readonly [T, string])[] {
   let slot = 0;
-  return items.map((item) => [item, neutral(item) ? STATS_CHART_OTHER : (STATS_CHART_PALETTE[slot++] ?? STATS_CHART_OTHER)]);
+  return items.map((item) => [item, neutral(item) ? STATS_CHART_OTHER : (defaultChartTheme.palette[slot++] ?? STATS_CHART_OTHER)]);
 }
 
 export function statsColorScale<K extends string>(colors: readonly (readonly [K, string])[]) {
@@ -88,7 +87,7 @@ export const STATS_PAGE_BAND_LABELS = {
 export const STATS_PAGE_LENGTHS = STATS_PAGE_BANDS.map((band) => STATS_PAGE_BAND_LABELS[band]);
 
 export function statsBarBand(domain: readonly string[]) {
-  return scaleBand<string>().domain(domain).paddingInner(0.18).paddingOuter(0.08);
+  return scaleBand().domain(domain).paddingInner(0.18).paddingOuter(0.08);
 }
 
 export const STATS_BAR_FOCUS = [

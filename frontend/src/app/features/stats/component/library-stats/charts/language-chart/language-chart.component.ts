@@ -26,8 +26,8 @@ export class LanguageChartComponent {
       valueName: t('main.books'),
       slices: [
         ...rows.flatMap(({value, books}) => (value === null ? [] : [{id: value, label: this.languageResolver.displayName(value), value: books}])),
-        ...(other > 0 ? [{id: '(other)', label: t('languages.other'), value: other, neutral: true}] : []),
-        ...(unknown > 0 ? [{id: '(unknown)', label: t('languages.unknown'), value: unknown, neutral: true}] : []),
+        {id: '(other)', label: t('languages.other'), value: other, neutral: true},
+        {id: '(unknown)', label: t('languages.unknown'), value: unknown, neutral: true},
       ],
     };
   });

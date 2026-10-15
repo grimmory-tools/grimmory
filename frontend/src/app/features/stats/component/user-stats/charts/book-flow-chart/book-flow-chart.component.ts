@@ -94,11 +94,6 @@ export class BookFlowChartComponent {
     return new Set(known.length <= ALL_YEARS_UP_TO ? known : known.slice(-RECENT_YEARS));
   });
 
-  private readonly years = computed(() => {
-    const present = new Set(this.data().byYear.map(({year}) => this.yearKey(year)));
-    return [EARLIER_YEARS, ...[...this.shownYears()].map(String), UNKNOWN_YEAR].filter((key) => present.has(key));
-  });
-
   private readonly flows = computed(() => {
     const flows = new Map<string, FlowLink>();
     const add = (source: string, target: string, value: number) => {
@@ -114,16 +109,16 @@ export class BookFlowChartComponent {
     const {t} = this.text;
     const flows = this.flows();
     const used = new Set(flows.flatMap(({source, target}) => [source, target]));
-    const column = <Id extends string>(column: FlowColumn, ids: readonly Id[], label: (id: Id) => string, colors?: Readonly<Record<Id, string>>): FlowNode[] =>
+    const columnNodes = <Id extends string>(column: FlowColumn, ids: readonly Id[], label: (id: Id) => string, colors?: Readonly<Record<Id, string>>): FlowNode[] =>
       statsChartColors(ids.map((id) => ({id, key: `${column}:${id}`})), ({key}) => NEUTRAL_NODES.has(key))
         .filter(([{key}]) => used.has(key))
         .map(([entry, color]) => ({key: entry.key, column, label: label(entry.id), color: colors?.[entry.id] ?? color}));
+    const yearLabels = new Map([[EARLIER_YEARS, t('earlierYears')], [UNKNOWN_YEAR, t('unknownYear')]]);
 
     return [
-      ...column('added', this.years(), (id) =>
-        id === EARLIER_YEARS ? t('earlierYears') : id === UNKNOWN_YEAR ? t('unknownYear') : id),
-      ...column('status', FLOW_STATUSES, (id) => t(STATUS_LABEL_KEYS[id]), STATUS_COLORS),
-      ...column('rating', FLOW_RATINGS, (id) => t(RATING_LABEL_KEYS[id])),
+      ...columnNodes('added', [EARLIER_YEARS, ...[...this.shownYears()].map(String), UNKNOWN_YEAR], (id) => yearLabels.get(id) ?? id),
+      ...columnNodes('status', FLOW_STATUSES, (id) => t(STATUS_LABEL_KEYS[id]), STATUS_COLORS),
+      ...columnNodes('rating', FLOW_RATINGS, (id) => t(RATING_LABEL_KEYS[id])),
     ];
   });
 

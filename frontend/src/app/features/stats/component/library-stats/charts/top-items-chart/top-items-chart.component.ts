@@ -1,5 +1,5 @@
 import {Component, computed, input} from '@angular/core';
-import {barX, defineChart, stack} from '@tanstack/charts';
+import {barX, defaultChartTheme, defineChart, stack} from '@tanstack/charts';
 import {scaleLinear} from '@tanstack/charts/scales/linear';
 
 import {type KnownBookReadStatus} from '../../../../../book/data/book-response.models';
@@ -9,7 +9,6 @@ import {
   countTicks,
   shorten,
   STATS_CHART_OTHER,
-  STATS_CHART_PALETTE,
   STATS_STATUS_COLORS,
   statsAxis,
   statsBar,
@@ -88,6 +87,7 @@ export class TopItemsChartComponent {
         })
       : rows.map((row) => ({name: row.name, status: null, value: by === 'rating' ? (row.rating ?? 0) / 2 : row.books}));
     const value = (bar: TopBar) => (by === 'rating' ? stars(bar.value) : number(bar.value));
+    const totalLabel = t(by === 'rating' ? 'averageRating' : 'axisNumberOfBooks');
 
     return {
       ariaLabel: t(`chartLabels.${by}`, {kind}),
@@ -96,7 +96,7 @@ export class TopItemsChartComponent {
           marks: [
             by === 'read'
               ? barX(bars, {id: 'top-read', x: 'value', y: 'name', z: 'status', layout: stack({order: statuses}), ...statsBar(width, true)})
-              : barX(bars, {id: `top-${by}`, x: 'value', y: 'name', fill: STATS_CHART_PALETTE[0], ...statsBar(width)}),
+              : barX(bars, {id: `top-${by}`, x: 'value', y: 'name', fill: defaultChartTheme.palette[0], ...statsBar(width)}),
           ],
           scales: {
             x: by === 'rating'
@@ -113,7 +113,7 @@ export class TopItemsChartComponent {
         tooltip: statsTooltip<TopBar>((points) => ({
           title: points[0].datum.name,
           rows: points.map(({datum: bar, color}) => ({
-            label: bar.status ? this.statusName(bar.status) : t(by === 'rating' ? 'averageRating' : 'axisNumberOfBooks'),
+            label: bar.status ? this.statusName(bar.status) : totalLabel,
             value: value(bar),
             color: bar.status ? color : undefined,
           })),

@@ -10,7 +10,7 @@ export type StatsChartRowLayout = 'single-small' | 'full' | 'halves' | 'thirds' 
 const VALID_ROWS = new Set(['small,small', 'medium,small', 'medium,medium', 'small,wide', 'small,small,small']);
 
 export function isValidStatsChartRow(charts: readonly StatsPageChartConfig[]): boolean {
-  return charts.length <= 1 || VALID_ROWS.has(charts.map(({size}) => size).sort().join(','));
+  return charts.length <= 1 || VALID_ROWS.has(charts.map(({size}) => size).sort((left, right) => left.localeCompare(right)).join(','));
 }
 
 export function statsChartColumnClass(row: readonly StatsPageChartConfig[], chart: StatsPageChartConfig): string {

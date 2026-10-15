@@ -1,9 +1,9 @@
 import {Component, computed, input} from '@angular/core';
-import {barY, defineChart} from '@tanstack/charts';
+import {barY, defaultChartTheme, defineChart} from '@tanstack/charts';
 import {scaleLinear} from '@tanstack/charts/scales/linear';
 
 import {type StatsSlots} from '../../../../data/stats-response.models';
-import {countTicks, STATS_CHART_PALETTE, statsAxis, statsBar, statsBarBand, statsTooltip} from '../../../shared/stats-chart-style';
+import {countTicks, statsAxis, statsBar, statsBarBand, statsTooltip} from '../../../shared/stats-chart-style';
 import {StatsChartPlotComponent} from '../../../shared/stats-chart-plot.component';
 import {injectStatsText, STATS_CHART_HOST_CLASS} from '../../../shared/stats-chart-text';
 
@@ -25,27 +25,29 @@ export class FavoriteDaysChartComponent {
 
   readonly data = input.required<FavoriteDaysData>();
 
-  private readonly days = computed(() => {
-    const {rows, days} = this.data();
-    return WEEKDAYS.map((weekday) => {
-      const seconds = rows.filter((slot) => slot.weekday === weekday).reduce((sum, slot) => sum + slot.seconds, 0);
-      const count = days[weekday - 1] ?? 0;
-      return {weekday, days: count, minutes: count > 0 ? seconds / 60 / count : 0};
-    });
+  private readonly period = computed(() => {
+    const {t, date} = this.text;
+    const {year, month} = this.data();
+    if (year === null) return t('allTime');
+    if (month === null) return `${year}`;
+    return date(`${year}-${String(month).padStart(2, '0')}`, {month: 'long', year: 'numeric'});
   });
 
   readonly chart = computed(() => {
-    const {t, number, weekday, date, duration} = this.text;
-    const {year, month} = this.data();
-    const days = this.days().map((day) => ({...day, name: weekday(day.weekday)}));
-    const period = year === null ? t('allTime') : month === null ? `${year}` : date(`${year}-${String(month).padStart(2, '0')}`, {month: 'long', year: 'numeric'});
+    const {t, number, weekday, duration} = this.text;
+    const {rows, days: counts} = this.data();
+    const days = WEEKDAYS.map((day) => {
+      const seconds = rows.filter((slot) => slot.weekday === day).reduce((sum, slot) => sum + slot.seconds, 0);
+      const count = counts[day - 1];
+      return {name: weekday(day), days: count, minutes: count > 0 ? seconds / 60 / count : 0};
+    });
     const most = Math.max(1, ...days.map(({minutes}) => minutes));
 
     return {
-      ariaLabel: t('chartLabel', {period}),
+      ariaLabel: t('chartLabel', {period: this.period()}),
       definition: defineChart({
         chart: ({width}) => ({
-          marks: [barY(days, {x: 'name', y: 'minutes', fill: STATS_CHART_PALETTE[0], ...statsBar(width)})],
+          marks: [barY(days, {x: 'name', y: 'minutes', fill: defaultChartTheme.palette[0], ...statsBar(width)})],
           scales: {
             x: {scale: statsBarBand(days.map(({name}) => name)), axis: statsAxis(t('axisDayOfWeek'))},
             y: {

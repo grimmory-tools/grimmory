@@ -1,11 +1,10 @@
 import {Component, computed, input} from '@angular/core';
-import {defineChart, dot, lineY, rect, text} from '@tanstack/charts';
+import {defaultChartTheme, defineChart, dot, lineY, rect, text} from '@tanstack/charts';
 import {decorative} from '@tanstack/charts/mark/decorative';
 import {scaleLinear} from '@tanstack/charts/scales/linear';
 
 import {type StatsDecadeCell, type StatsLengthCell} from '../../../../data/stats-response.models';
 import {
-  STATS_CHART_PALETTE,
   STATS_CHART_TEXT,
   STATS_COMPACT_WIDTH,
   STATS_PAGE_BAND_LABELS,
@@ -37,7 +36,6 @@ const CHARTS = {
   decade: {prefix: 'ratingsByDecade', axis: 'axisDecade', insight: 'bestDecade', detail: 'bestDecadeDetail', countWidth: 64, wordedWidth: 96},
 };
 const MINIMUM_BOOKS = 5;
-const BUBBLE_COLOR = STATS_CHART_PALETTE[0];
 const AVERAGE_COLOR = 'var(--color-text-strong)';
 const HIGHLIGHT_COLOR = 'color-mix(in oklab, var(--stats-chart-other) 25%, transparent)';
 const BUBBLE_DOMAIN = [-0.4, 5.35] as const;
@@ -117,8 +115,11 @@ export class BookRatingChartComponent {
       definition: defineChart({
         chart: ({width}) => {
           const space = width / labels.length;
-          const shown = space >= countWidth ? columns.map(({books}) => space >= wordedWidth
-            ? t(`${prefix}.${books === 1 ? 'bookCount' : 'booksCount'}`, {count: number(books)}) : number(books)) : [];
+          const bookLabel = (books: number) => {
+            if (space < wordedWidth) return number(books);
+            return t(`${prefix}.${books === 1 ? 'bookCount' : 'booksCount'}`, {count: number(books)});
+          };
+          const shown = space >= countWidth ? columns.map(({books}) => bookLabel(books)) : [];
           const domain = shown.length > 0 ? BUBBLE_DOMAIN : RATING_DOMAIN;
           return {
             marks: [
@@ -136,7 +137,7 @@ export class BookRatingChartComponent {
                 key: (cell) => `${cell.column}:${cell.rating}`,
                 r: 'books',
                 rScale: (books: number) => statsBubbleRadius(books, most),
-                fill: BUBBLE_COLOR,
+                fill: defaultChartTheme.palette[0],
                 fillOpacity: 0.75,
                 stroke: 'var(--color-page)',
                 strokeWidth: 1.25,

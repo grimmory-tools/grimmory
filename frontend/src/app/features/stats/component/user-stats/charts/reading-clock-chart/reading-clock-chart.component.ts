@@ -1,12 +1,12 @@
 import {Component, computed, input} from '@angular/core';
-import {defineChart} from '@tanstack/charts';
+import {defaultChartTheme, defineChart} from '@tanstack/charts';
 import {angleGrid, polar, radialBarRadius, radialGrid} from '@tanstack/charts/polar';
 import {scaleBand} from '@tanstack/charts/scales/band';
 import {scaleLinear} from '@tanstack/charts/scales/linear';
 import {groupBy} from '@tanstack/charts/transform/group';
 
 import {type StatsSlot} from '../../../../data/stats-response.models';
-import {STATS_BAR_FOCUS, STATS_CHART_PALETTE, STATS_POLAR_GRID, statsTooltip} from '../../../shared/stats-chart-style';
+import {STATS_BAR_FOCUS, STATS_POLAR_GRID, statsTooltip} from '../../../shared/stats-chart-style';
 import {firstMaximum} from '../../../shared/stats-chart-data';
 import {StatsChartPlotComponent} from '../../../shared/stats-chart-plot.component';
 import {injectStatsText, STATS_CHART_HOST_CLASS} from '../../../shared/stats-chart-text';
@@ -67,7 +67,7 @@ export class ReadingClockChartComponent {
             startAngle: -halfStep,
             endAngle: 2 * Math.PI - halfStep,
             scales: {
-              angle: {scale: scaleBand<string>().domain(labels).paddingInner(0.08).paddingOuter(0.04)},
+              angle: {scale: scaleBand().domain(labels).paddingInner(0.08).paddingOuter(0.04)},
               radius: {scale: scaleLinear().domain([0, this.longest()])},
             },
             guides: [
@@ -75,7 +75,7 @@ export class ReadingClockChartComponent {
               angleGrid({values: labels.filter((_, hour) => hour % 3 === 0), labelOffset: 10, ...STATS_POLAR_GRID}),
             ],
             marks: [
-              radialBarRadius(hours, {angle: 'hour', radius: 'minutes', fill: STATS_CHART_PALETTE[0], cornerRadius: 2, states: STATS_BAR_FOCUS}),
+              radialBarRadius(hours, {angle: 'hour', radius: 'minutes', fill: defaultChartTheme.palette[0], cornerRadius: 2, states: STATS_BAR_FOCUS}),
             ],
           }),
         ],

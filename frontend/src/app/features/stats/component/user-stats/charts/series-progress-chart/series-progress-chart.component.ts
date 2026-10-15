@@ -211,7 +211,7 @@ export class SeriesProgressChartComponent {
     ...this.stats.series(
       this.context.scope(),
       {search: this.search(), state: this.filter(), sort: this.sort(), page: this.page()},
-    ),
+    ).options,
     placeholderData: keepPreviousData,
   }));
   readonly totalPages = computed(() => Math.max(this.page() + 1, Math.ceil((this.tableQuery.data()?.matching ?? 0) / PAGE_SIZE)));

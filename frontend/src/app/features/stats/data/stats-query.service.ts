@@ -144,12 +144,14 @@ export class StatsQueryService {
     const scope = normalizeStatsScope(scopeParams);
     const params = toCollectionHttpParams(scope).appendAll({tz: scope.tz, ...extra});
 
-    return queryOptions({
-      queryKey: statsQueryKeys.endpoint(path, scope, extra),
-      queryFn: ({signal}) => toAbortablePromise(this.http.get<T>(`${this.baseUrl}/${path}`, {params}), signal),
-      meta: {empty},
-      ...QUERY_DEFAULTS,
-    });
+    return {
+      options: queryOptions({
+        queryKey: statsQueryKeys.endpoint(path, scope, extra),
+        queryFn: ({signal}) => toAbortablePromise(this.http.get<T>(`${this.baseUrl}/${path}`, {params}), signal),
+        ...QUERY_DEFAULTS,
+      }),
+      empty,
+    };
   }
 }
 
