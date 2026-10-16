@@ -37,6 +37,12 @@ updates:
           - "semantic-release"
           - "@semantic-release/*"
           - "conventional-changelog*"
+      eslint:
+        patterns:
+          - "eslint"
+          - "@eslint/*"
+          - "typescript-eslint"
+          - "angular-eslint"
       angular:
         patterns:
           - "@angular/*"
