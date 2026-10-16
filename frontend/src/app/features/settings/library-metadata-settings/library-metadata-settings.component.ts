@@ -198,7 +198,7 @@ export class LibraryMetadataSettingsComponent {
     const settings = this.appSettingsService.appSettings();
     return settings?.libraryMetadataRefreshOptions?.find(
       option => option.libraryId === libraryId
-    ) || null;
+    ) ?? null;
   }
 
   private getDefaultMetadataOptions(): MetadataRefreshOptions {

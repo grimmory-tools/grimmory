@@ -76,7 +76,7 @@ export class ReaderSelectionService {
     this.currentSelection = detail;
     this._overlappingAnnotationId = this.findOverlappingAnnotation(detail.cfi);
     this._visible = true;
-    this._position = popupPosition || { x: 0, y: 0 };
+    this._position = popupPosition ?? { x: 0, y: 0 };
     this._showBelow = popupPosition?.showBelow || false;
 
     this.emitState();

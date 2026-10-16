@@ -90,7 +90,7 @@ export class ReaderSidebarService {
     this._bookInfo.set({
       id: book.id,
       title: book.metadata?.title || '',
-      authors: (book.metadata?.authors || []).join(', '),
+      authors: (book.metadata?.authors ?? []).join(', '),
       coverUrl: this.urlHelper.getThumbnailUrl(book.id, book.metadata?.coverUpdatedOn)
     });
 
@@ -104,9 +104,7 @@ export class ReaderSidebarService {
   }
 
   private subscribeToAnnotationChanges(): void {
-    if (!this.selectionService) {
-      this.selectionService = this.injector.get(ReaderSelectionService);
-    }
+    this.selectionService ??= this.injector.get(ReaderSelectionService);
 
     this.selectionService.annotationsChanged$
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -120,9 +118,7 @@ export class ReaderSidebarService {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(annotations => {
         this._annotations.set(annotations);
-        if (!this.selectionService) {
-          this.selectionService = this.injector.get(ReaderSelectionService);
-        }
+        this.selectionService ??= this.injector.get(ReaderSelectionService);
         this.selectionService.setAnnotations(annotations);
         if (annotations.length > 0) {
           const viewAnnotations = this.annotationService.toViewAnnotations(annotations);

@@ -78,7 +78,7 @@ export class BookFileService {
       tap(() => {
         patchBookInCacheWith(this.queryClient, bookId, book => {
           if (isPrimary) {
-            const remaining = book.alternativeFormats?.filter(f => f.id !== fileId) || [];
+            const remaining = book.alternativeFormats?.filter(f => f.id !== fileId) ?? [];
             const [newPrimary, ...rest] = remaining;
             return {...book, primaryFile: newPrimary, alternativeFormats: rest};
           }
@@ -140,9 +140,9 @@ export class BookFileService {
       .pipe(tap(newFile => {
         patchBookInCacheWith(this.queryClient, bookId, book => {
           if (fileType === AdditionalFileType.ALTERNATIVE_FORMAT) {
-            return {...book, alternativeFormats: [...(book.alternativeFormats || []), newFile]};
+            return {...book, alternativeFormats: [...(book.alternativeFormats ?? []), newFile]};
           }
-          return {...book, supplementaryFiles: [...(book.supplementaryFiles || []), newFile]};
+          return {...book, supplementaryFiles: [...(book.supplementaryFiles ?? []), newFile]};
         });
         this.messageService.add({
           severity: 'success',
@@ -163,8 +163,8 @@ export class BookFileService {
 
   downloadAdditionalFile(book: Book, fileId: number): void {
     const additionalFile = [
-      ...(book.alternativeFormats || []),
-      ...(book.supplementaryFiles || [])
+      ...(book.alternativeFormats ?? []),
+      ...(book.supplementaryFiles ?? [])
     ].find((f: AdditionalFile) => f.id === fileId);
     const downloadUrl = `${this.url}/${book.id}/files/${fileId}/download`;
     this.fileDownloadService.downloadFile(downloadUrl, additionalFile?.fileName ?? 'file');

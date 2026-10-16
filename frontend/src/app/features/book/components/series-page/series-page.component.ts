@@ -299,7 +299,7 @@ export class SeriesPageComponent implements AfterViewChecked {
       book.readStatus === ReadStatus.RE_READING ||
       book.readStatus === ReadStatus.PAUSED
     );
-    const target = reading || books.find(book => book.readStatus === ReadStatus.UNREAD || !book.readStatus);
+    const target = reading ?? books.find(book => book.readStatus === ReadStatus.UNREAD || !book.readStatus);
     if (!target) return null;
 
     const isAudiobook = target.primaryFile?.bookType === 'AUDIOBOOK';

@@ -292,7 +292,7 @@ export class FileMoverComponent implements OnDestroy {
 
     const libraries = this.libraryService.libraries();
     const library = libraries.find((lib: Library) => lib.id === libraryId);
-    return library?.paths || [];
+    return library?.paths ?? [];
   }
 
   private getLibraryPathById(libraryId: number | null): string {

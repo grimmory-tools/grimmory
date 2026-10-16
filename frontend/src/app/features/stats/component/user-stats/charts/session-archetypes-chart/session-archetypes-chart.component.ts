@@ -121,7 +121,7 @@ export class SessionArchetypesChartComponent implements OnInit, OnDestroy {
     const quadrants = {morning: 0, afternoon: 0, evening: 0, night: 0};
 
     for (const s of filtered) {
-      const points = byDay.get(s.dayOfWeek) || [];
+      const points = byDay.get(s.dayOfWeek) ?? [];
       points.push({x: s.hourOfDay, y: s.durationMinutes});
       byDay.set(s.dayOfWeek, points);
 
@@ -138,7 +138,7 @@ export class SessionArchetypesChartComponent implements OnInit, OnDestroy {
       const dayNum = i + 1;
       return {
         label: name,
-        data: byDay.get(dayNum) || [],
+        data: byDay.get(dayNum) ?? [],
         backgroundColor: DAY_COLORS[i] + 'AA',
         borderColor: DAY_COLORS[i],
         borderWidth: 1,

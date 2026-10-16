@@ -257,7 +257,7 @@ export class AuthorUniverseChartComponent {
 
       stats.completionRate = (stats.readCount / stats.bookCount) * 100;
       stats.avgRating = stats.ratingCount > 0 ? stats.ratingSum / stats.ratingCount : 0;
-      stats.categories = Array.from(categorySet.get(name) || []).slice(0, 5); // Limit to 5 categories
+      stats.categories = Array.from(categorySet.get(name) ?? []).slice(0, 5); // Limit to 5 categories
 
       results.push(stats);
     }

@@ -55,7 +55,7 @@ export class SeriesDataService {
         .filter((t): t is string => !!t)
         .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0] || null;
 
-      const nextUnread = sorted.find(b => b.readStatus !== ReadStatus.READ) || null;
+      const nextUnread = sorted.find(b => b.readStatus !== ReadStatus.READ) ?? null;
 
       summaries.push({
         seriesName: displayName,

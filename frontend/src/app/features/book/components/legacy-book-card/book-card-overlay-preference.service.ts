@@ -88,9 +88,7 @@ export class BookCardOverlayPreferenceService {
       overrides: []
     });
 
-    if (!prefs.overrides) {
-      prefs.overrides = [];
-    }
+    prefs.overrides ??= [];
 
     if (this.currentContext) {
       let override = prefs.overrides.find(o =>

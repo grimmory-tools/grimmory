@@ -393,15 +393,15 @@ export class TopItemsChartComponent implements OnInit {
 
     switch (dataType) {
       case 'authors':
-        return metadata.authors || [];
+        return metadata.authors ?? [];
       case 'categories':
-        return metadata.categories || [];
+        return metadata.categories ?? [];
       case 'publishers':
         return metadata.publisher ? [metadata.publisher] : [];
       case 'tags':
-        return metadata.tags || [];
+        return metadata.tags ?? [];
       case 'moods':
-        return metadata.moods || [];
+        return metadata.moods ?? [];
       case 'series':
         return metadata.seriesName ? [metadata.seriesName] : [];
       default:

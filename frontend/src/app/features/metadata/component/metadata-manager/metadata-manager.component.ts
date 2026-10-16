@@ -497,7 +497,7 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
   }
 
   toggleAll(type: MetadataType, checked: boolean, filteredItems?: MetadataItem[]) {
-    const itemsToToggle = filteredItems || this[type];
+    const itemsToToggle = filteredItems ?? this[type];
     itemsToToggle.forEach(item => item.selected = checked);
     this.updateSelectAllState(type);
   }

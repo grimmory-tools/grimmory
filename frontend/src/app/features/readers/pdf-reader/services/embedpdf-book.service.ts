@@ -538,7 +538,7 @@ export class EmbedPdfBookService {
       return {
         title: String(entry.title || ''),
         pageIndex: pageIndex,
-        children: this.convertBookmarks(entry.children || []),
+        children: this.convertBookmarks(entry.children ?? []),
       };
     });
   }

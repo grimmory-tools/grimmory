@@ -83,7 +83,7 @@ export class CbxSidebarService {
     this._bookInfo.set({
       id: book.id,
       title: book.metadata?.title || book.fileName || this.t.translate('readerCbx.sidebar.untitled'),
-      authors: (book.metadata?.authors || []).join(', '),
+      authors: (book.metadata?.authors ?? []).join(', '),
       coverUrl: this.urlHelper.getThumbnailUrl(book.id, book.metadata?.coverUpdatedOn)
     });
 

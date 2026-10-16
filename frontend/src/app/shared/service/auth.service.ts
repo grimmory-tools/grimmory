@@ -227,9 +227,7 @@ export class AuthService {
   }
 
   getRxStompService(): RxStompService {
-    if (!this.rxStompService) {
-      this.rxStompService = this.injector.get(RxStompService);
-    }
+    this.rxStompService ??= this.injector.get(RxStompService);
     return this.rxStompService;
   }
 

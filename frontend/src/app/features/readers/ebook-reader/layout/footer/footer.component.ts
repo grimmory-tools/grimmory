@@ -30,7 +30,7 @@ export class ReaderNavbarComponent {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
-    const clickedInside = target.closest('.location-popover') || target.closest('.location-btn');
+    const clickedInside = target.closest('.location-popover') ?? target.closest('.location-btn');
     if (!clickedInside && this.showLocationPopover) {
       this.showLocationPopover = false;
     }

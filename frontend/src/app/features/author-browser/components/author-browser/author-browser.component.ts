@@ -443,7 +443,7 @@ export class AuthorBrowserComponent implements OnInit {
     }
 
     return authors.map(author => {
-      const authorBooks = booksByAuthor.get(author.name.toLowerCase()) || [];
+      const authorBooks = booksByAuthor.get(author.name.toLowerCase()) ?? [];
 
       const libraryIds = new Set<number>();
       const libraryNameSet = new Set<string>();

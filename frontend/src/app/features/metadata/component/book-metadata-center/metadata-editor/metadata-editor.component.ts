@@ -1016,12 +1016,12 @@ export class MetadataEditorComponent implements OnInit {
     if (book.isPhysical) {
       return true;
     }
-    const allFiles = [book.primaryFile, ...(book.alternativeFormats || [])].filter(f => f?.bookType);
+    const allFiles = [book.primaryFile, ...(book.alternativeFormats ?? [])].filter(f => f?.bookType);
     return allFiles.some(f => f!.bookType !== 'AUDIOBOOK');
   }
 
   hasAudiobookFormat(book: Book): boolean {
-    const allFiles = [book.primaryFile, ...(book.alternativeFormats || [])].filter(f => f?.bookType);
+    const allFiles = [book.primaryFile, ...(book.alternativeFormats ?? [])].filter(f => f?.bookType);
     return allFiles.some(f => f!.bookType === 'AUDIOBOOK');
   }
 

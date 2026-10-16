@@ -319,7 +319,7 @@ export class BookReviewsComponent implements OnInit, OnChanges {
   }
 
   private updateSpoilerState(): void {
-    const spoilerReviews = this.reviews?.filter(r => r.spoiler) || [];
+    const spoilerReviews = this.reviews?.filter(r => r.spoiler) ?? [];
     const revealedSpoilerReviews = spoilerReviews.filter(r => r.id && this.revealedSpoilers.has(r.id));
     this.allSpoilersRevealed = spoilerReviews.length > 0 && spoilerReviews.length === revealedSpoilerReviews.length;
   }

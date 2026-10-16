@@ -244,7 +244,7 @@ export class ReadingSessionTimelineComponent implements OnInit {
     const displayOrder = [1, 2, 3, 4, 5, 6, 0];
     for (let i = 0; i < 7; i++) {
       const dayOfWeek = displayOrder[i];
-      const sessionsForDay = dayMap.get(dayOfWeek) || [];
+      const sessionsForDay = dayMap.get(dayOfWeek) ?? [];
       const timelineSessions = this.layoutSessionsForDay(sessionsForDay);
 
       this.timelineData.push({

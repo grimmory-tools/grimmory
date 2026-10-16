@@ -198,7 +198,7 @@ export class BookMetadataManageService {
   }
 
   supportsDualCovers(book: Book): boolean {
-    const allFiles = [book.primaryFile, ...(book.alternativeFormats || [])].filter(f => f?.bookType);
+    const allFiles = [book.primaryFile, ...(book.alternativeFormats ?? [])].filter(f => f?.bookType);
     const hasAudiobook = allFiles.some(f => f!.bookType === 'AUDIOBOOK');
     const hasEbook = allFiles.some(f => f!.bookType !== 'AUDIOBOOK');
     return hasAudiobook && hasEbook;

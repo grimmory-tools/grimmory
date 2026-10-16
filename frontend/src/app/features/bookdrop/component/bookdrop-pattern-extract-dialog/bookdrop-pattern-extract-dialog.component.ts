@@ -184,7 +184,7 @@ export class BookdropPatternExtractDialogComponent implements OnInit {
         this.previewResults = result.results.map(r => ({
           fileName: r.fileName,
           success: r.success,
-          preview: r.extractedMetadata || {},
+          preview: r.extractedMetadata ?? {},
           errorMessage: r.errorMessage
         }));
       },

@@ -112,7 +112,7 @@ export class UserManagementComponent implements OnInit {
   toggleEdit(user: UserWithEditing) {
     user.isEditing = !user.isEditing;
     if (user.isEditing) {
-      this.editingLibraryIds = [...(user.selectedLibraryIds || [])];
+      this.editingLibraryIds = [...(user.selectedLibraryIds ?? [])];
     } else {
       user.libraryNames =
         user.assignedLibraries
