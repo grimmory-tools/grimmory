@@ -1,102 +1,51 @@
-import {
-  Component,
-  computed,
-  input,
-  output,
-  signal,
-} from '@angular/core';
+import {Component, computed, inject, input, output, signal} from '@angular/core';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {
   LucideChevronDown,
   LucideChevronUp,
   LucideDynamicIcon,
-  LucideEllipsis,
-  LucideFunnel,
-  LucideLayoutGrid,
   LucideListOrdered,
-  LucideMinus,
-  LucidePlus,
-  LucideTableProperties,
   type LucideIconData,
 } from '@lucide/angular';
+import {take} from 'rxjs/operators';
 
-import {type GridDensityDirection} from '../util/grid-density.util';
-import {DEFAULT_BOOK_SORT_TERMS, type BookSortTerm, type SortDirection} from '../../features/book/data/book-query-params';
+import {type BrowseSortDirection, type BrowseSortTerm} from '../../core/data/browse.models';
+import {DialogLauncherService} from '../services/dialog-launcher.service';
 import {AppButtonComponent} from '../ui/button/app-button.component';
 import {connectedGroupClass, connectedItemClass} from '../ui/connected-group';
-import {AppRadioGroupComponent} from '../ui/radio-group/app-radio-group.component';
 import {AppMenuComponent} from '../ui/menu/app-menu.component';
-import {AppMenuCheckboxComponent} from '../ui/menu/app-menu-checkbox.component';
 import {AppMenuItemComponent} from '../ui/menu/app-menu-item.component';
-import {AppMenuRadioComponent} from '../ui/menu/app-menu-radio.component';
-import {AppMenuRadioGroupComponent} from '../ui/menu/app-menu-radio-group.component';
-import {AppMenuSectionComponent} from '../ui/menu/app-menu-section.component';
 import {AppMenuSeparatorComponent} from '../ui/menu/app-menu-separator.component';
 import {AppMenuTriggerDirective} from '../ui/menu/app-menu-trigger.directive';
-import {
-  bookColumnSections,
-  type BookBrowseColumnVisibilityChange,
-  type BookColumnOption,
-  type BookColumnSection,
-} from '../../features/book/browse/book-browse-columns';
-import {bookSortDirectionIcon, bookSortField, type BookSortOption} from '../../features/book/browse/book-browse-sort';
-import {type BookBrowseViewMode} from './url-state';
-import {BookBrowseFilterMenuItemsComponent} from './filter-menu-items.component';
-import {type LibraryShelfMenuTarget} from '../layout/navigation/library-shelf-menu-target.model';
-import {LibraryShelfMenuItemsComponent} from '../../features/book/components/library-shelf-menu/library-shelf-menu-items.component';
+import {type BrowseMultiSortDialogResult} from './multi-sort-dialog.component';
+import {browseSortDirectionIcon, type BrowseSortField, type BrowseSortOption} from './sort';
 
 @Component({
-  selector: 'app-book-browse-toolbar',
+  selector: 'app-browse-sort-control',
   imports: [
     TranslocoPipe,
     AppButtonComponent,
-    AppRadioGroupComponent,
     AppMenuComponent,
-    AppMenuCheckboxComponent,
     AppMenuItemComponent,
-    AppMenuRadioComponent,
-    AppMenuRadioGroupComponent,
-    AppMenuSectionComponent,
     AppMenuSeparatorComponent,
     AppMenuTriggerDirective,
-    LibraryShelfMenuItemsComponent,
-    BookBrowseFilterMenuItemsComponent,
     LucideDynamicIcon,
-    LucideEllipsis,
-    LucideFunnel,
   ],
   host: {class: 'contents'},
   templateUrl: './sort-control.component.html',
 })
-export class BookBrowseToolbarComponent {
-  readonly sortOptions = input.required<readonly BookSortOption[]>();
-  readonly sortTerms = input.required<readonly BookSortTerm[]>();
-  readonly viewMode = input.required<BookBrowseViewMode>();
-  readonly columnOptions = input.required<readonly BookColumnOption[]>();
-  readonly densitySmallerDisabled = input.required<boolean>();
-  readonly densityLargerDisabled = input.required<boolean>();
-  readonly filtersOpen = input.required<boolean>();
-  readonly matchAll = input.required<boolean>();
-  readonly excludeOnTick = input.required<boolean>();
-  readonly actionTarget = input.required<LibraryShelfMenuTarget | null>();
+export class BrowseSortControlComponent<Key extends string> {
+  private readonly dialogLauncher = inject(DialogLauncherService);
 
-  readonly sortChange = output<BookSortTerm>();
-  readonly sortDirectionChange = output<BookSortTerm>();
-  readonly randomSortRequested = output();
-  readonly multiSortRequested = output();
-  readonly viewModeChange = output<BookBrowseViewMode>();
-  readonly columnVisibilityChange = output<BookBrowseColumnVisibilityChange>();
-  readonly columnsReset = output();
-  readonly densityChange = output<GridDensityDirection>();
-  readonly filtersToggle = output();
-  readonly matchAllChange = output<boolean>();
-  readonly excludeOnTickChange = output<boolean>();
-  readonly mobileSelectToggle = output();
+  readonly sortOptions = input.required<readonly BrowseSortOption<Key>[]>();
+  readonly sortTerms = input.required<readonly BrowseSortTerm<Key>[]>();
+  readonly sortField = input.required<(key: Key) => BrowseSortField>();
+  readonly saveDefaultFor = input<string>();
 
-  protected readonly stepperItemClass =
-    'w-10! flex-none justify-center px-0! text-text-muted pointer-coarse:w-12! [&_[data-menu-label]]:hidden';
-  protected readonly smallerIcon: LucideIconData = LucideMinus.icon;
-  protected readonly largerIcon: LucideIconData = LucidePlus.icon;
+  readonly sortTermsChange = output<readonly BrowseSortTerm<Key>[]>();
+  readonly shuffleRequested = output();
+  readonly sortDefaultSaved = output<readonly BrowseSortTerm<Key>[]>();
+
   protected readonly sortGroupClass = connectedGroupClass;
   protected readonly sortFieldButtonClass = computed(() => connectedItemClass({
     first: true,
@@ -114,21 +63,14 @@ export class BookBrowseToolbarComponent {
   protected readonly moreSortsExpanded = signal(false);
   protected readonly moreSortsToggleIcon = computed<LucideIconData>(() =>
     this.moreSortsExpanded() ? LucideChevronUp.icon : LucideChevronDown.icon);
-
-  protected onSortMenuOpened(): void {
-    this.moreSortsExpanded.set(this.moreOptions().some(option => option.id === this.activeId()));
-  }
-
-  protected readonly gridIcon: LucideIconData = LucideLayoutGrid.icon;
-  protected readonly tableIcon: LucideIconData = LucideTableProperties.icon;
   protected readonly multiSortIcon: LucideIconData = LucideListOrdered.icon;
 
-  private readonly primaryTerm = computed<BookSortTerm>(() => this.sortTerms()[0] ?? DEFAULT_BOOK_SORT_TERMS[0]);
+  private readonly primaryTerm = computed<BrowseSortTerm<Key>>(() => this.sortTerms()[0]);
   protected readonly activeId = computed(() => this.primaryTerm().key);
   private readonly activeDirection = computed(() => this.primaryTerm().direction);
   private readonly activeOption = computed(() =>
     this.sortOptions().find(option => option.id === this.activeId()));
-  protected readonly activeField = computed(() => this.activeOption() ?? bookSortField(this.activeId()));
+  protected readonly activeField = computed(() => this.activeOption() ?? this.sortField()(this.activeId()));
   private readonly activeSortIsRandom = computed(() => this.activeField().kind === 'random');
   protected readonly activeSortCanToggle = computed(() =>
     this.sortOptions().length === 0 || (this.activeOption()?.directions.length ?? 0) > 1);
@@ -143,22 +85,13 @@ export class BookBrowseToolbarComponent {
       : 'browse.toolbar.sortAscending';
   });
   protected readonly activeSortIcon = computed(() =>
-    bookSortDirectionIcon(this.activeId(), this.activeDirection()));
-  protected readonly columnSections = computed<readonly BookColumnSection[]>(() => {
-    return bookColumnSections(this.columnOptions());
-  });
+    browseSortDirectionIcon(this.activeField().kind, this.activeDirection()));
 
-  protected selectView(viewMode: BookBrowseViewMode): void {
-    if (viewMode !== this.viewMode()) {
-      this.viewModeChange.emit(viewMode);
-    }
+  protected onSortMenuOpened(): void {
+    this.moreSortsExpanded.set(this.moreOptions().some(option => option.id === this.activeId()));
   }
 
-  protected onViewModeValue(viewMode: string | null): void {
-    if (viewMode === 'grid' || viewMode === 'table') this.selectView(viewMode);
-  }
-
-  protected sortRankFor(option: BookSortOption): string {
+  protected sortRankFor(option: BrowseSortOption<Key>): string {
     if (!this.multiSortActive()) {
       return '';
     }
@@ -166,33 +99,51 @@ export class BookBrowseToolbarComponent {
     return index === -1 ? '' : `${index + 1}`;
   }
 
-  protected directionIconFor(option: BookSortOption): LucideIconData | undefined {
+  protected directionIconFor(option: BrowseSortOption<Key>): LucideIconData | undefined {
     if (this.multiSortActive() || option.id !== this.activeId()) {
       return undefined;
     }
     return this.activeSortIcon();
   }
 
-  protected onSelect(option: BookSortOption): void {
+  protected onSelect(option: BrowseSortOption<Key>): void {
     const reselected = !this.multiSortActive() && option.id === this.activeId();
     const direction = reselected
       ? this.otherDirection(option) ?? option.defaultDirection
       : option.defaultDirection;
-    this.sortChange.emit({key: option.id, direction});
+    this.sortTermsChange.emit([{key: option.id, direction}]);
   }
 
   protected activateSecondarySortAction(): void {
     if (this.activeSortIsRandom()) {
-      this.randomSortRequested.emit();
+      this.shuffleRequested.emit();
       return;
     }
     const nextDirection = this.otherDirection(this.activeOption());
     if (nextDirection) {
-      this.sortDirectionChange.emit({key: this.activeId(), direction: nextDirection});
+      this.sortTermsChange.emit([{key: this.activeId(), direction: nextDirection}, ...this.sortTerms().slice(1)]);
     }
   }
 
-  private otherDirection(option: BookSortOption | undefined): SortDirection | undefined {
+  protected async openMultiSort(): Promise<void> {
+    const ref = await this.dialogLauncher.openMultiSortDialog({
+      terms: this.sortTerms(),
+      options: this.sortOptions(),
+      sortField: this.sortField(),
+      saveDefaultFor: this.saveDefaultFor(),
+    });
+    ref?.onClose.pipe(take(1)).subscribe((result?: BrowseMultiSortDialogResult<Key>) => {
+      if (!result) {
+        return;
+      }
+      this.sortTermsChange.emit(result.terms);
+      if (result.saveAsDefault) {
+        this.sortDefaultSaved.emit(result.terms);
+      }
+    });
+  }
+
+  private otherDirection(option: BrowseSortOption<Key> | undefined): BrowseSortDirection | undefined {
     return option?.directions.find(direction => direction !== this.activeDirection());
   }
 }

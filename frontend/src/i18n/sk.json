@@ -3265,9 +3265,6 @@
         "failedDetail": ""
       }
     },
-    "sorting": {
-      "saveAsDefault": ""
-    },
     "fileAttacher": {
       "title": "",
       "titleBulk": "",
@@ -3293,7 +3290,6 @@
     },
     "searcher": {
       "placeholder": "",
-      "clearSearch": "",
       "bookCoverAlt": "",
       "byPrefix": "",
       "noResults": "",
@@ -5142,6 +5138,12 @@
     }
   },
   "browse": {
+    "sort": {
+      "saveAsDefault": ""
+    },
+    "rail": {
+      "clearSearch": ""
+    },
     "toolbar": {
       "viewMode": "Pohľad"
     }

@@ -1,6 +1,12 @@
 import {HttpParams} from '@angular/common/http';
 
-import {browseFacetValues, type BrowseFacetKey, type BrowseFacetSelection} from '../../shared/browse/facets';
+import {
+  browseFacetSelectionKeys,
+  browseFacetValues,
+  unmarkedBrowseFacetKey,
+  type BrowseFacetKey,
+  type BrowseFacetSelection,
+} from '../../shared/browse/facets';
 import {BrowseSortTerm} from './browse.models';
 
 export interface BrowseCollectionFilterParams<FacetKey extends string> {
@@ -91,7 +97,7 @@ function normalizeFacetSelection<FacetKey extends string>(
   facets: BrowseFacetSelection<FacetKey>,
 ): BrowseFacetSelection<FacetKey> {
   const normalized: Partial<Record<BrowseFacetKey<FacetKey>, readonly string[]>> = {};
-  for (const key of (Object.keys(facets) as BrowseFacetKey<FacetKey>[]).sort(compareCodeUnits)) {
+  for (const key of browseFacetSelectionKeys(facets).sort(compareCodeUnits)) {
     const values = [...new Set(browseFacetValues(facets, key)
       .map(value => value.trim())
       .filter(Boolean))].sort(compareCodeUnits);
@@ -103,16 +109,78 @@ function normalizeFacetSelection<FacetKey extends string>(
   return normalized;
 }
 
+function facetTokens<FacetKey extends string>(facets: BrowseFacetSelection<FacetKey>): string[] {
+  return Object.entries<readonly string[] | undefined>(facets)
+    .flatMap(([key, values = []]) => values.map(value => `${key}:${value}`));
+}
+
 function appendFacetParams<FacetKey extends string>(
   httpParams: HttpParams,
   facets: BrowseFacetSelection<FacetKey>,
 ): HttpParams {
-  let result = httpParams;
-  for (const [key, values = []] of Object.entries<readonly string[] | undefined>(facets)) {
-    for (const value of values) {
-      result = result.append('facet', `${key}:${value}`);
+  return facetTokens(facets).reduce((result, token) => result.append('facet', token), httpParams);
+}
+
+export function facetQueryParams<FacetKey extends string>(facets: BrowseFacetSelection<FacetKey>) {
+  const tokens = facetTokens(facets);
+  return {facet: tokens.length > 0 ? tokens : null};
+}
+
+function isMarkedFacetKey<FacetKey extends string>(
+  value: string,
+  isFacetKey: (key: string) => key is FacetKey,
+): value is BrowseFacetKey<FacetKey> {
+  return isFacetKey(unmarkedBrowseFacetKey(value));
+}
+
+export function parseFacetParams<FacetKey extends string>(
+  tokens: readonly string[],
+  isFacetKey: (key: string) => key is FacetKey,
+): BrowseFacetSelection<FacetKey> {
+  const facets: Partial<Record<BrowseFacetKey<FacetKey>, string[]>> = {};
+  for (const token of tokens) {
+    const separator = token.indexOf(':');
+    if (separator <= 0) {
+      continue;
+    }
+    const key = token.slice(0, separator);
+    if (!isMarkedFacetKey(key, isFacetKey)) {
+      continue;
+    }
+    const value = token.slice(separator + 1).trim();
+    const values = facets[key] ?? [];
+    if (value && !values.includes(value)) {
+      values.push(value);
+    }
+    if (values.length > 0) {
+      facets[key] = values;
     }
   }
+  return facets;
+}
 
-  return result;
+export function parseSortTermsToken<SortKey extends string>(
+  token: string | null,
+  isSortKey: (key: string) => key is SortKey,
+): BrowseSortTerm<SortKey>[] {
+  if (!token) {
+    return [];
+  }
+
+  const seen = new Set<string>();
+  const terms: BrowseSortTerm<SortKey>[] = [];
+  for (const rawTerm of token.split(',')) {
+    const term = rawTerm.trim();
+    if (!term) {
+      continue;
+    }
+    const descending = term.startsWith('-');
+    const key = (descending ? term.slice(1) : term).trim();
+    if (!isSortKey(key) || seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    terms.push({key, direction: descending ? 'desc' : 'asc'});
+  }
+  return terms;
 }

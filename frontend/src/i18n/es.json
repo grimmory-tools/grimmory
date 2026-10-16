@@ -32,7 +32,8 @@
     "on": "Encendido",
     "off": "Apagado",
     "moreActionsFor": "Más acciones para {{label}}",
-    "dialogLoadError": "Se produjo un error al cargar la ventana. Inténtalo de nuevo."
+    "dialogLoadError": "Se produjo un error al cargar la ventana. Inténtalo de nuevo.",
+    "metadata": "Metadatos"
   },
   "auth": {
     "oidc": {
@@ -2812,7 +2813,6 @@
       "quickSend": "Envío rápido",
       "customSend": "Envío personalizado",
       "download": "Descargar",
-      "metadata": "Metadatos",
       "editMetadata": "Editar metadatos",
       "more": "Más",
       "organizeFile": "Organizar archivo",
@@ -3318,9 +3318,6 @@
         "failedDetail": "Se produjo un error al actualizar los estados de bloqueo de campos."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Guardar como predeterminado"
-    },
     "fileAttacher": {
       "title": "Adjuntar archivo a otro libro",
       "titleBulk": "Adjuntar archivos a otro libro",
@@ -3346,7 +3343,6 @@
     },
     "searcher": {
       "placeholder": "Título, autor, serie, género o ISBN...",
-      "clearSearch": "Borrar búsqueda",
       "bookCoverAlt": "Portada del libro",
       "byPrefix": "por",
       "noResults": "No se encontraron resultados",
@@ -5201,9 +5197,11 @@
     "showAll": "Mostrar todos",
     "moreActions": "Más acciones",
     "sort": {
-      "apply": "Aplicar"
+      "apply": "Aplicar",
+      "saveAsDefault": "Guardar como predeterminado"
     },
     "rail": {
+      "clearSearch": "Borrar búsqueda",
       "noMatches": "Sin coincidencias"
     },
     "toolbar": {

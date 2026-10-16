@@ -3,7 +3,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   inject,
   input,
   output,
@@ -33,17 +32,23 @@ import {AppTooltipDirective} from '../../../../shared/ui/tooltip/app-tooltip.dir
 import {cn} from '../../../../shared/ui/cn';
 import {contextMenuRequest, type ContextMenuRequest} from '../../../../shared/ui/menu/app-menu.component';
 import {isContextMenuGesture, isPlainLeftClick} from '../../../../shared/util/pointer-gestures';
+import {CardMenuDirective} from '../../../../shared/components/cards/card-menu.directive';
 import {CardSelectionComponent} from '../../../../shared/components/cards/card-selection.component';
+import {
+  cardArtworkClass,
+  CARD_META_LINE_CLASS,
+  CARD_META_TITLE_CLASS,
+  CARD_OVERLAY_BUTTON_CLASS,
+  CARD_OVERLAY_REVEAL_CLASS,
+} from '../../../../shared/components/cards/card.layout';
 import {bookCardAspectClass, BOOK_CARD_RADIUS_CLASS} from './book-card.layout';
 
-const LONG_PRESS_MS = 500;
-const LONG_PRESS_TOLERANCE_PX = 10;
-const BOOK_CARD_READ_ACTION_LABEL_KEYS: Readonly<Record<BookReadAction, string>> = {
+const BOOK_CARD_READ_ACTION_LABEL_KEYS = {
   read: 'book.readAction.read.short',
   continueReading: 'book.readAction.continueReading.short',
   play: 'book.readAction.play.short',
   continueListening: 'book.readAction.continueListening.short',
-};
+} as const satisfies Readonly<Record<BookReadAction, string>>;
 
 export function bookCardCoverSrc(
   book: BookSummary,
@@ -62,6 +67,7 @@ export function bookCardCoverSrc(
     TranslocoPipe,
     CoverComponent,
     AppTooltipDirective,
+    CardMenuDirective,
     CardSelectionComponent,
     LucideDynamicIcon,
     LucideEllipsisVertical,
@@ -70,11 +76,6 @@ export function bookCardCoverSrc(
   templateUrl: './book-card.component.html',
 })
 export class BookCardComponent {
-  private readonly urlHelper = inject(UrlHelperService);
-  private readonly transloco = inject(TranslocoService);
-  private readonly router = inject(Router);
-  private readonly locationStrategy = inject(LocationStrategy);
-  private readonly destroyRef = inject(DestroyRef);
   readonly book = input.required<BookSummary>();
   readonly squareCovers = input(false, {transform: booleanAttribute});
   readonly showBadge = input(true, {transform: booleanAttribute});
@@ -94,6 +95,11 @@ export class BookCardComponent {
   readonly action = output<void>();
   readonly menuRequested = output<ContextMenuRequest>();
   readonly detailRequested = output<void>();
+
+  private readonly urlHelper = inject(UrlHelperService);
+  private readonly transloco = inject(TranslocoService);
+  private readonly router = inject(Router);
+  private readonly locationStrategy = inject(LocationStrategy);
   private readonly activeLang = toSignal(this.transloco.langChanges$, {
     initialValue: this.transloco.getActiveLang(),
   });
@@ -184,16 +190,6 @@ export class BookCardComponent {
     () => this.showBadge() && this.seriesNumber() !== null,
   );
 
-  private pressTimer: number | null = null;
-  private pressOrigin: {x: number; y: number} | null = null;
-  private pressTarget: HTMLElement | null = null;
-  private readonly onPressMove = (event: PointerEvent): void => this.cancelLongPressAfterMove(event);
-  private longPressFired = false;
-
-  constructor() {
-    this.destroyRef.onDestroy(() => this.cancelLongPress());
-  }
-
   protected readonly rootClass = computed(() =>
     cn(
       `group/card relative block min-w-0 cursor-pointer ${BOOK_CARD_RADIUS_CLASS}`,
@@ -208,12 +204,7 @@ export class BookCardComponent {
     cn('flex flex-col justify-end', bookCardAspectClass(this.squareCovers())),
   );
   protected readonly coverClass = computed(() =>
-    cn(
-      `relative w-full overflow-hidden ${BOOK_CARD_RADIUS_CLASS} transition-[box-shadow,scale] duration-100 ease-out motion-reduce:transition-none`,
-      'shadow-card group-hover/card:shadow-card-hover group-data-[active=true]/card:shadow-card-hover',
-      bookCardAspectClass(this.coverSquare()),
-      this.selected() && 'scale-[0.93] outline-2 outline-offset-2 outline-primary',
-    ),
+    cn(cardArtworkClass(this.selected()), 'overflow-hidden', BOOK_CARD_RADIUS_CLASS, bookCardAspectClass(this.coverSquare())),
   );
   protected readonly badgeClass =
     'absolute right-2 top-2 z-10 rounded-md bg-black/55 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-white';
@@ -227,18 +218,12 @@ export class BookCardComponent {
         'transition-opacity group-hover/card:opacity-0 group-has-[:focus-visible]/card:opacity-0 group-data-[active=true]/card:opacity-0 motion-reduce:transition-none',
     ),
   );
-  protected readonly overlayClass =
-    'pointer-events-none absolute inset-x-0 bottom-0 z-20 flex translate-y-1 gap-1 p-1 opacity-0 transition-[opacity,translate] duration-150 group-hover/card:pointer-events-auto group-hover/card:translate-y-0 group-hover/card:opacity-100 group-has-[:focus-visible]/card:pointer-events-auto group-has-[:focus-visible]/card:translate-y-0 group-has-[:focus-visible]/card:opacity-100 pointer-fine:group-data-[active=true]/card:pointer-events-auto pointer-fine:group-data-[active=true]/card:translate-y-0 pointer-fine:group-data-[active=true]/card:opacity-100 motion-reduce:transition-none';
-  protected readonly actionClass =
-    'inline-flex items-center justify-center gap-1.5 rounded-md bg-black text-xs font-[550] text-white/90 ring-1 ring-inset ring-white/20 hover:text-white active:translate-y-px pointer-coarse:active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary';
-  protected readonly metaTitleClass = 'min-h-[17px] truncate text-[13px]/[17px] font-[550] text-text';
-  protected readonly metaSecondaryClass = 'min-h-[15px] truncate text-xs/[15px] text-text-secondary';
+  protected readonly overlayClass = `absolute inset-x-0 bottom-0 z-20 flex gap-1 p-1 ${CARD_OVERLAY_REVEAL_CLASS}`;
+  protected readonly actionClass = CARD_OVERLAY_BUTTON_CLASS;
+  protected readonly metaTitleClass = CARD_META_TITLE_CLASS;
+  protected readonly metaSecondaryClass = CARD_META_LINE_CLASS;
 
   protected openDetails(event: MouseEvent): void {
-    if (this.consumeLongPress()) {
-      event.preventDefault();
-      return;
-    }
     if (isContextMenuGesture(event)) {
       event.preventDefault();
       return;
@@ -262,38 +247,6 @@ export class BookCardComponent {
     this.toggleSelect.emit({shiftKey: event.shiftKey});
   }
 
-  protected startLongPress(event: PointerEvent): void {
-    this.cancelLongPress();
-    this.longPressFired = false;
-    if (event.pointerType === 'mouse' || !this.overlays() || this.selectionActive()) {
-      return;
-    }
-    const request = contextMenuRequest(event);
-    this.pressOrigin = {x: event.clientX, y: event.clientY};
-    this.pressTarget = event.currentTarget as HTMLElement;
-    this.pressTarget.addEventListener('pointermove', this.onPressMove, {passive: true});
-    this.pressTimer = window.setTimeout(() => {
-      this.pressTimer = null;
-      this.longPressFired = true;
-      this.menuRequested.emit(request);
-    }, LONG_PRESS_MS);
-  }
-
-  private cancelLongPressAfterMove(event: PointerEvent): void {
-    const origin = this.pressOrigin;
-    if (this.pressTimer === null || !origin) {
-      return;
-    }
-    const moved = Math.hypot(event.clientX - origin.x, event.clientY - origin.y);
-    if (moved > LONG_PRESS_TOLERANCE_PX) {
-      this.cancelLongPress();
-    }
-  }
-
-  protected endLongPress(): void {
-    this.cancelLongPress();
-  }
-
   protected onAction(event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
@@ -304,35 +257,5 @@ export class BookCardComponent {
     event.preventDefault();
     event.stopPropagation();
     this.menuRequested.emit(contextMenuRequest(event));
-  }
-
-  protected requestContextMenu(event: MouseEvent): void {
-    this.cancelLongPress();
-    if (!this.overlays()) {
-      return;
-    }
-    event.preventDefault();
-    if (this.longPressFired) {
-      return;
-    }
-    this.menuRequested.emit(contextMenuRequest(event));
-  }
-
-  private cancelLongPress(): void {
-    if (this.pressTimer !== null) {
-      clearTimeout(this.pressTimer);
-      this.pressTimer = null;
-    }
-    this.pressTarget?.removeEventListener('pointermove', this.onPressMove);
-    this.pressTarget = null;
-    this.pressOrigin = null;
-  }
-
-  private consumeLongPress(): boolean {
-    if (!this.longPressFired) {
-      return false;
-    }
-    this.longPressFired = false;
-    return true;
   }
 }

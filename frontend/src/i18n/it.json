@@ -32,7 +32,8 @@
     "on": "",
     "off": "",
     "moreActionsFor": "",
-    "dialogLoadError": ""
+    "dialogLoadError": "",
+    "metadata": "Metadati"
   },
   "auth": {
     "oidc": {
@@ -2812,7 +2813,6 @@
       "quickSend": "Invio rapido",
       "customSend": "Invio personalizzato",
       "download": "Scarica",
-      "metadata": "Metadati",
       "editMetadata": "Modificare metadati",
       "more": "Altro",
       "organizeFile": "Organizza file",
@@ -3310,9 +3310,6 @@
         "failedDetail": "Si è verificato un errore durante l'aggiornamento degli stati di blocco dei campi."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Salva come predefinito"
-    },
     "fileAttacher": {
       "title": "Allega file ad un altro libro",
       "titleBulk": "Allega file ad un altro libro",
@@ -3338,7 +3335,6 @@
     },
     "searcher": {
       "placeholder": "Titolo, Autore, Serie, Genere o ISBN...",
-      "clearSearch": "Cancella ricerca",
       "bookCoverAlt": "Copertina libro",
       "byPrefix": "di",
       "noResults": "Nessun risultato trovato",
@@ -5196,6 +5192,12 @@
   "browse": {
     "showAll": "Mostra tutti",
     "moreActions": "Altre azioni",
+    "sort": {
+      "saveAsDefault": "Salva come predefinito"
+    },
+    "rail": {
+      "clearSearch": "Cancella ricerca"
+    },
     "toolbar": {
       "columnGroups": {
         "ratings": "Valutazioni"

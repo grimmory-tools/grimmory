@@ -22,13 +22,15 @@ import {browseSortCriteria} from '../../../../shared/browse/sort';
 import {
   DEFAULT_BOOK_SORT_TERMS,
   EMPTY_FACET_SELECTION,
+  type BookQuerySortKey,
   type BookSortTerm,
 } from '../../../book/data/book-query-params';
 import {BookQueryService} from '../../../book/data/book-query.service';
 import {bookSortOptions, bookSortTermsFromCriteria} from '../../../book/browse/book-browse-sort';
 import {entityViewSortCriteria, entityViewSortPatch} from '../../user-management/entity-view-preferences';
-import {type BookBrowseMultiSortDialogResult} from '../../../../shared/browse/multi-sort-dialog.component';
-import {BookBrowseMultiSortEditorComponent} from '../../../../shared/browse/multi-sort-editor.component';
+import {type BrowseMultiSortDialogResult} from '../../../../shared/browse/multi-sort-dialog.component';
+import {BrowseMultiSortEditorComponent} from '../../../../shared/browse/multi-sort-editor.component';
+import {BOOK_FIELDS} from '../../../book/browse/book-browse-fields';
 
 @Component({
   selector: 'app-view-preferences',
@@ -41,7 +43,7 @@ import {BookBrowseMultiSortEditorComponent} from '../../../../shared/browse/mult
     Tooltip,
     ToggleSwitch,
     TranslocoDirective,
-    BookBrowseMultiSortEditorComponent
+    BrowseMultiSortEditorComponent
   ],
   templateUrl: './view-preferences.component.html',
   styleUrl: './view-preferences.component.scss'
@@ -84,6 +86,7 @@ export class ViewPreferencesComponent implements OnInit {
   globalSortTerms: readonly BookSortTerm[] = [];
   private readonly sortTokensQuery = injectQuery(() =>
     this.bookQuery.facetIndex({facets: EMPTY_FACET_SELECTION}));
+  readonly bookSortField = BOOK_FIELDS.sortField;
   readonly editorSortOptions = computed(() =>
     bookSortOptions(this.sortTokensQuery.data()?.sortTokens ?? []));
 
@@ -197,8 +200,9 @@ export class ViewPreferencesComponent implements OnInit {
     const ref = await this.dialogLauncher.openMultiSortDialog({
       terms: this.overrides[index].sortTerms,
       options: this.editorSortOptions(),
+      sortField: this.bookSortField,
     });
-    ref?.onClose.pipe(take(1)).subscribe((result?: BookBrowseMultiSortDialogResult) => {
+    ref?.onClose.pipe(take(1)).subscribe((result?: BrowseMultiSortDialogResult<BookQuerySortKey>) => {
       if (!result) {
         return;
       }

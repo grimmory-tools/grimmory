@@ -1,7 +1,6 @@
 import {DestroyRef, inject, Service} from '@angular/core';
 import {QueryClient} from '@tanstack/angular-query-experimental';
 
-import {invalidateBookRecommendations} from '../data/book-query-cache';
 import {TaskProgressPayload, TaskStatus} from '../../settings/task-management/task.service';
 import {Book} from '../model/book.model';
 import {
@@ -58,10 +57,7 @@ export class BookSocketService {
     if (payload.taskType !== 'UPDATE_BOOK_RECOMMENDATIONS' || payload.taskStatus !== TaskStatus.COMPLETED) {
       return;
     }
-    void Promise.all([
-      invalidateBookRecommendations(this.queryClient),
-      invalidateLegacyBookRecommendations(this.queryClient),
-    ]);
+    void invalidateLegacyBookRecommendations(this.queryClient);
   }
 
   handleReconnect(): void {

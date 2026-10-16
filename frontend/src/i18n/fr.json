@@ -32,7 +32,8 @@
     "on": "",
     "off": "",
     "moreActionsFor": "",
-    "dialogLoadError": ""
+    "dialogLoadError": "",
+    "metadata": "Métadonnées"
   },
   "auth": {
     "oidc": {
@@ -2812,7 +2813,6 @@
       "quickSend": "Envoi rapide",
       "customSend": "Envoi personnalisé",
       "download": "Télécharger",
-      "metadata": "Métadonnées",
       "editMetadata": "Modifier les métadonnées",
       "more": "Plus",
       "organizeFile": "Organiser le fichier",
@@ -3314,9 +3314,6 @@
         "failedDetail": "Une erreur est survenue lors de la mise à jour des statuts de verrouillage."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Enregistrer par défaut"
-    },
     "fileAttacher": {
       "title": "Joindre le fichier à un autre livre",
       "titleBulk": "Joindre les fichiers à un autre livre",
@@ -3342,7 +3339,6 @@
     },
     "searcher": {
       "placeholder": "Titre, auteur, série, genre ou ISBN...",
-      "clearSearch": "Effacer la recherche",
       "bookCoverAlt": "Couverture du livre",
       "byPrefix": "par",
       "noResults": "Aucun résultat trouvé",
@@ -5200,7 +5196,11 @@
   "browse": {
     "showAll": "Tout afficher",
     "moreActions": "Plus d'actions",
+    "sort": {
+      "saveAsDefault": "Enregistrer par défaut"
+    },
     "rail": {
+      "clearSearch": "Effacer la recherche",
       "noMatches": "Aucun résultat"
     },
     "bulk": {

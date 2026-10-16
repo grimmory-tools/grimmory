@@ -32,7 +32,8 @@
     "on": "",
     "off": "",
     "moreActionsFor": "",
-    "dialogLoadError": ""
+    "dialogLoadError": "",
+    "metadata": "元数据"
   },
   "auth": {
     "oidc": {
@@ -2812,7 +2813,6 @@
       "quickSend": "快速发送",
       "customSend": "自定义发送",
       "download": "下载",
-      "metadata": "元数据",
       "editMetadata": "编辑元数据",
       "more": "更多",
       "organizeFile": "整理文件",
@@ -3310,9 +3310,6 @@
         "failedDetail": "更新字段锁定状态时发生错误。"
       }
     },
-    "sorting": {
-      "saveAsDefault": "保存为默认"
-    },
     "fileAttacher": {
       "title": "将文件附加到其他图书",
       "titleBulk": "将文件附加到其他图书",
@@ -3338,7 +3335,6 @@
     },
     "searcher": {
       "placeholder": "标题、作者、系列、类型或 ISBN...",
-      "clearSearch": "清除搜索",
       "bookCoverAlt": "图书封面",
       "byPrefix": "作者",
       "noResults": "未找到结果",
@@ -5196,6 +5192,12 @@
   "browse": {
     "showAll": "全部显示",
     "moreActions": "更多操作",
+    "sort": {
+      "saveAsDefault": "保存为默认"
+    },
+    "rail": {
+      "clearSearch": "清除搜索"
+    },
     "bulk": {
       "organizeFiles": "整理文件",
       "updateReadStatus": "更新阅读状态",

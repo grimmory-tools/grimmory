@@ -1,0 +1,95 @@
+<app-browse-page
+  [page]="page"
+  [title]="labels.title()"
+  [viewMode]="preferences.viewMode()"
+  [estimateItemHeight]="estimateItemHeight"
+  [messages]="messages"
+  [searchHint]="labels.searchHintKey()">
+  <ng-template appBrowsePageToolbar>
+    <app-book-browse-toolbar
+      [sortOptions]="page.sortOptions()"
+      [sortTerms]="page.sortTerms()"
+      [viewMode]="preferences.viewMode()"
+      [columnOptions]="preferences.columnOptions()"
+      [densitySmallerDisabled]="page.density.smallerDisabled()"
+      [densityLargerDisabled]="page.density.largerDisabled()"
+      [filtersOpen]="page.rail.visible()"
+      [matchAll]="page.filterSettings.matchAll()"
+      [excludeOnTick]="page.filterSettings.excludeOnTick()"
+      [actionTarget]="labels.actionTarget()"
+      [saveDefaultFor]="labels.title()"
+      (sortTermsChange)="page.setSortTerms($event)"
+      (shuffleRequested)="page.shuffle()"
+      (sortDefaultSaved)="preferences.saveSortDefault($event)"
+      (viewModeChange)="urlState.setView($event)"
+      (columnVisibilityChange)="preferences.setColumnVisibility($event)"
+      (columnsReset)="preferences.resetColumns()"
+      (densityChange)="page.density.adjust($event)"
+      (filtersToggle)="page.rail.toggle()"
+      (matchAllChange)="page.filterSettings.setMatchAll($event)"
+      (excludeOnTickChange)="page.filterSettings.setExcludeOnTick($event)"
+      (mobileSelectToggle)="page.toggleMobileSelect()" />
+  </ng-template>
+
+  <app-book-menu
+    openInNewTab
+    [books]="books()"
+    (deleted)="page.selection.pruneDeleted($event)" />
+
+  <app-book-browse-bulk-bar
+    [selection]="page.selection"
+    [books]="books()"
+    [total]="page.results.total()"
+    [fetchIds]="page.fetchMatchingIds" />
+
+  <ng-template appBrowsePageTable let-emptyState="emptyState">
+    <app-book-browse-table
+      [books]="books()"
+      [status]="page.results.status()"
+      [hasNextPage]="page.results.shownHasNextPage()"
+      [nextPageError]="page.results.nextPageError()"
+      [initialErrorMessage]="messages.loadError | transloco"
+      [nextPageErrorMessage]="messages.pageError | transloco"
+      [useSquareCovers]="squareCovers()"
+      [pendingDeletionIds]="pendingDeletions()"
+      [visibleColumns]="preferences.visibleColumns()"
+      [sortTerms]="page.sortTerms()"
+      [sortOptions]="page.sortOptions()"
+      [mobile]="page.isMobile()"
+      [selection]="page.selectionEnabled() ? page.selection : null"
+      [selectMode]="page.mobileSelectMode()"
+      [openMenuBookId]="menuOpenBookId()"
+      (sortTermsChange)="page.setSortTerms($event)"
+      (facetRequested)="page.toggleFacet({key: $event.key, value: $event.value, state: 'included'})"
+      (menuRequested)="bookMenu()?.openFor($event.book, $event.request)"
+      (detailRequested)="onBookDetailRequested($event)"
+      (retryInitial)="page.results.retryInitial()"
+      (retryNextPage)="page.results.retryNextPage()">
+      <ng-template appBrowseEmpty>
+        <ng-container *ngTemplateOutlet="emptyState" />
+      </ng-template>
+    </app-book-browse-table>
+  </ng-template>
+
+  <ng-template [appBrowseGridItemOf]="books()" let-book let-index="index">
+    <app-book-card
+      [class.opacity-50]="pendingDeletions().has(book.id)"
+      [book]="book"
+      [showFormatPill]="preferences.formatPill()"
+      [squareCovers]="squareCovers()"
+      [detailLine]="detailLineFor(book)"
+      [selectable]="page.selectionEnabled()"
+      [selected]="page.isSelected(book.id)"
+      [selectionActive]="page.selectionActive()"
+      [detailMode]="'request'"
+      [menuOpen]="menuOpenBookId() === book.id"
+      (toggleSelect)="page.selection.toggle(book, index, $event.shiftKey)"
+      (action)="bookNavigation.readBook(book)"
+      (detailRequested)="onBookDetailRequested(book)"
+      (menuRequested)="bookMenu()?.openFor(book, $event)" />
+  </ng-template>
+
+  <ng-template appBrowseGridSkeleton>
+    <app-book-card-skeleton [squareCovers]="squareCovers()" [metaLines]="metaLines()" />
+  </ng-template>
+</app-browse-page>

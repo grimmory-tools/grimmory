@@ -3265,9 +3265,6 @@
         "failedDetail": ""
       }
     },
-    "sorting": {
-      "saveAsDefault": ""
-    },
     "fileAttacher": {
       "title": "",
       "titleBulk": "",
@@ -3293,7 +3290,6 @@
     },
     "searcher": {
       "placeholder": "",
-      "clearSearch": "",
       "bookCoverAlt": "",
       "byPrefix": "",
       "noResults": "",
@@ -5162,6 +5158,12 @@
   },
   "browse": {
     "moreActions": "Tindakan lain",
+    "sort": {
+      "saveAsDefault": ""
+    },
+    "rail": {
+      "clearSearch": ""
+    },
     "toolbar": {
       "columnGroups": {
         "file": "Berkas",

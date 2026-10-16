@@ -32,7 +32,8 @@
     "on": "",
     "off": "",
     "moreActionsFor": "",
-    "dialogLoadError": ""
+    "dialogLoadError": "",
+    "metadata": "Metadaten"
   },
   "auth": {
     "oidc": {
@@ -2812,7 +2813,6 @@
       "quickSend": "Schnellversand",
       "customSend": "Benutzerdefinierter Versand",
       "download": "Herunterladen",
-      "metadata": "Metadaten",
       "editMetadata": "Metadaten bearbeiten",
       "more": "Mehr",
       "organizeFile": "Datei organisieren",
@@ -3313,9 +3313,6 @@
         "failedDetail": "Beim Aktualisieren der Feldsperren ist ein Fehler aufgetreten."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Als Standard speichern"
-    },
     "fileAttacher": {
       "title": "Datei an ein anderes Buch anhängen",
       "titleBulk": "Dateien an ein anderes Buch anhängen",
@@ -3341,7 +3338,6 @@
     },
     "searcher": {
       "placeholder": "Titel, Autor, Serie, Genre oder ISBN...",
-      "clearSearch": "Suche löschen",
       "bookCoverAlt": "Buchcover",
       "byPrefix": "von",
       "noResults": "Keine Ergebnisse gefunden",
@@ -5214,7 +5210,11 @@
       "lockUnlockMetadata": "Metadaten sperren/entsperren"
     },
     "sort": {
-      "apply": "Anwenden"
+      "apply": "Anwenden",
+      "saveAsDefault": "Als Standard speichern"
+    },
+    "rail": {
+      "clearSearch": "Suche löschen"
     }
   }
 }

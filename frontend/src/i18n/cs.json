@@ -3265,9 +3265,6 @@
         "failedDetail": ""
       }
     },
-    "sorting": {
-      "saveAsDefault": ""
-    },
     "fileAttacher": {
       "title": "",
       "titleBulk": "",
@@ -3293,7 +3290,6 @@
     },
     "searcher": {
       "placeholder": "",
-      "clearSearch": "",
       "bookCoverAlt": "",
       "byPrefix": "",
       "noResults": "",
@@ -5141,5 +5137,12 @@
       }
     }
   },
-  "browse": {}
+  "browse": {
+    "sort": {
+      "saveAsDefault": ""
+    },
+    "rail": {
+      "clearSearch": ""
+    }
+  }
 }

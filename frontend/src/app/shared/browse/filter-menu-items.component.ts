@@ -9,7 +9,7 @@ import {AppMenuRadioGroupComponent} from '../ui/menu/app-menu-radio-group.compon
 import {AppMenuSectionComponent} from '../ui/menu/app-menu-section.component';
 
 @Component({
-  selector: 'app-book-browse-filter-menu-items',
+  selector: 'app-browse-filter-menu-items',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {class: 'contents'},
   imports: [
@@ -44,7 +44,7 @@ import {AppMenuSectionComponent} from '../ui/menu/app-menu-section.component';
     </app-menu>
   `,
 })
-export class BookBrowseFilterMenuItemsComponent {
+export class BrowseFilterMenuItemsComponent {
   readonly matchAll = input.required<boolean>();
   readonly excludeOnTick = input.required<boolean>();
   readonly matchAllChange = output<boolean>();

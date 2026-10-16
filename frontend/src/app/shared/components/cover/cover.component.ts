@@ -3,8 +3,6 @@ import {Image} from '@openng/optimus-ui/image';
 
 import {ArtworkRevealGroupDirective} from './artwork-reveal-group.directive';
 
-const COVER_HUES = [20, 155, 185, 205, 235, 265, 290, 320, 350];
-
 function hashString(str: string): number {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -12,10 +10,6 @@ function hashString(str: string): number {
     hash |= 0;
   }
   return hash;
-}
-
-function coverHueFor(title: string, author: string): number {
-  return COVER_HUES[Math.abs(hashString(title + author)) % COVER_HUES.length];
 }
 
 type CoverSize = 'sm' | 'md' | 'lg';
@@ -55,7 +49,6 @@ export class CoverComponent {
     const authors = this.authors();
     return Array.isArray(authors) ? authors.join(', ') : authors ?? '';
   });
-  protected readonly hue = computed(() => coverHueFor(this.title() ?? '', this.authorsLabel()));
   protected readonly titleOnly = computed(
     () => !this.authorsLabel() || (hashString((this.title() ?? '') + this.authorsLabel()) & 1) === 0,
   );

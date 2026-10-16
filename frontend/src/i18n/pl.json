@@ -32,7 +32,8 @@
     "on": "",
     "off": "",
     "moreActionsFor": "",
-    "dialogLoadError": ""
+    "dialogLoadError": "",
+    "metadata": "Metadane"
   },
   "auth": {
     "oidc": {
@@ -2812,7 +2813,6 @@
       "quickSend": "Szybkie wysyłanie",
       "customSend": "Wysyłanie niestandardowe",
       "download": "Pobierz",
-      "metadata": "Metadane",
       "editMetadata": "Edytuj metadane",
       "more": "Więcej",
       "organizeFile": "Organizuj plik",
@@ -3310,9 +3310,6 @@
         "failedDetail": "Wystąpił błąd podczas aktualizacji statusów blokad pól."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Zapisz jako domyślne"
-    },
     "fileAttacher": {
       "title": "Dołącz plik do innej książki",
       "titleBulk": "Dołącz pliki do innej książki",
@@ -3338,7 +3335,6 @@
     },
     "searcher": {
       "placeholder": "Tytuł, autor, seria, gatunek lub ISBN...",
-      "clearSearch": "Wyczyść wyszukiwanie",
       "bookCoverAlt": "Okładka książki",
       "byPrefix": "autor:",
       "noResults": "Nie znaleziono wyników",
@@ -5196,6 +5192,12 @@
   "browse": {
     "showAll": "Pokaż wszystkie",
     "moreActions": "Więcej akcji",
+    "sort": {
+      "saveAsDefault": "Zapisz jako domyślne"
+    },
+    "rail": {
+      "clearSearch": "Wyczyść wyszukiwanie"
+    },
     "bulk": {
       "organizeFiles": "Organizuj pliki",
       "updateReadStatus": "Zaktualizuj status czytania",

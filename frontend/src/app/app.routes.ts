@@ -17,9 +17,9 @@ import {EditMetadataGuard} from './core/security/guards/edit-metdata.guard';
 import {validBookBrowseScope, type BookBrowseRouteData} from './features/book/browse/book-browse-scope';
 
 const loadBookBrowsePage = () =>
-  import('./shared/browse/browse-page.component').then(m => m.BookBrowsePageComponent);
+  import('./features/book/browse/book-browse-page.component').then(m => m.BookBrowsePageComponent);
 const loadBookBrowseFilterPage = () =>
-  import('./shared/browse/filter-page.component').then(m => m.BookBrowseFilterPageComponent);
+  import('./features/book/browse/book-browse-filter-page.component').then(m => m.BookBrowseFilterPageComponent);
 
 const bookBrowseRoutes = (data: BookBrowseRouteData = {}) => [
   {path: '', loadComponent: loadBookBrowsePage, ...(data.browseScope ? {data} : {})},

@@ -32,7 +32,8 @@
     "on": "",
     "off": "",
     "moreActionsFor": "",
-    "dialogLoadError": ""
+    "dialogLoadError": "",
+    "metadata": "Metapodatki"
   },
   "auth": {
     "oidc": {
@@ -2812,7 +2813,6 @@
       "quickSend": "Hitro pošiljanje",
       "customSend": "Pošiljanje po meri",
       "download": "Prenesi",
-      "metadata": "Metapodatki",
       "editMetadata": "Urejanje metapodatkov",
       "more": "Več",
       "organizeFile": "Organiziraj datoteko",
@@ -3313,9 +3313,6 @@
         "failedDetail": "Prišlo je do napake pri posodabljanju statusov zaklepa."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Shrani kot privzeto"
-    },
     "fileAttacher": {
       "title": "Pripni datoteko k drugi knjigi",
       "titleBulk": "Pripni datoteke k drugi knjigi",
@@ -3341,7 +3338,6 @@
     },
     "searcher": {
       "placeholder": "Naslov, avtor, zbirka, žanr ali ISBN...",
-      "clearSearch": "Počisti iskanje",
       "bookCoverAlt": "Naslovnica knjige",
       "byPrefix": "od",
       "noResults": "Ni najdenih rezultatov",
@@ -5200,7 +5196,11 @@
     "showAll": "Pokaži vse",
     "moreActions": "Več dejanj",
     "sort": {
-      "apply": "Uporabi"
+      "apply": "Uporabi",
+      "saveAsDefault": "Shrani kot privzeto"
+    },
+    "rail": {
+      "clearSearch": "Počisti iskanje"
     },
     "bulk": {
       "organizeFiles": "Organiziraj datoteke",

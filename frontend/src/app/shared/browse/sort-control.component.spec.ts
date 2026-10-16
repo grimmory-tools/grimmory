@@ -1,52 +1,55 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {beforeEach, describe, expect, it} from 'vitest';
+import {of} from 'rxjs';
+import {beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {getTranslocoModule} from '../../core/testing/transloco-testing';
-import {bookSortOptions} from '../../features/book/browse/book-browse-sort';
-import {BookBrowseToolbarComponent} from './sort-control.component';
-import {LibraryShelfMenuService} from '../../features/book/service/library-shelf-menu.service';
+import {DialogLauncherService} from '../services/dialog-launcher.service';
+import {BrowseSortControlComponent} from './sort-control.component';
+import {type BrowseSortField, type BrowseSortOption} from './sort';
 
-describe('BookBrowseToolbarComponent', () => {
-  let fixture: ComponentFixture<BookBrowseToolbarComponent>;
+type Key = 'title' | 'pageCount';
+
+const FIELDS: Record<Key, BrowseSortField> = {
+  title: {labelKey: 'book.fields.title', group: 'common', defaultDirection: 'asc', kind: 'alphabetical'},
+  pageCount: {labelKey: 'book.fields.pageCount', group: 'common', defaultDirection: 'desc', kind: 'numeric'},
+};
+const OPTIONS: BrowseSortOption<Key>[] = (['title', 'pageCount'] as const).map(id => ({
+  ...FIELDS[id],
+  id,
+  directions: ['asc', 'desc'],
+}));
+
+describe('BrowseSortControlComponent', () => {
+  let fixture: ComponentFixture<BrowseSortControlComponent<Key>>;
+  let openMultiSortDialog: ReturnType<typeof vi.fn>;
   const host = (): HTMLElement => fixture.nativeElement as HTMLElement;
 
-
   beforeEach(async () => {
+    openMultiSortDialog = vi.fn();
     await TestBed.configureTestingModule({
-      imports: [BookBrowseToolbarComponent, getTranslocoModule()],
-      providers: [
-        {provide: LibraryShelfMenuService, useValue: {}},
-      ],
+      imports: [BrowseSortControlComponent, getTranslocoModule()],
+      providers: [{provide: DialogLauncherService, useValue: {openMultiSortDialog}}],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(BookBrowseToolbarComponent);
-    fixture.componentRef.setInput(
-      'sortOptions',
-      bookSortOptions(['title', '-title', 'pageCount', '-pageCount']),
-    );
+    fixture = TestBed.createComponent(BrowseSortControlComponent<Key>);
+    fixture.componentRef.setInput('sortOptions', OPTIONS);
     fixture.componentRef.setInput('sortTerms', [{key: 'title', direction: 'asc'}]);
-    fixture.componentRef.setInput('viewMode', 'grid');
-    fixture.componentRef.setInput('columnOptions', []);
-    fixture.componentRef.setInput('densitySmallerDisabled', false);
-    fixture.componentRef.setInput('densityLargerDisabled', false);
-    fixture.componentRef.setInput('filtersOpen', false);
-    fixture.componentRef.setInput('matchAll', false);
-    fixture.componentRef.setInput('excludeOnTick', true);
-    fixture.componentRef.setInput('actionTarget', null);
+    fixture.componentRef.setInput('sortField', (key: Key) => FIELDS[key]);
     await fixture.whenStable();
   });
 
-  it('routes the direction toggle through sortDirectionChange, not sortChange', async () => {
-    const sortChanges: unknown[] = [];
-    const directionChanges: unknown[] = [];
-    fixture.componentInstance.sortChange.subscribe(change => sortChanges.push(change));
-    fixture.componentInstance.sortDirectionChange.subscribe(change => directionChanges.push(change));
+  it('flips only the primary term on a direction toggle and keeps the rest', async () => {
+    fixture.componentRef.setInput('sortTerms', [
+      {key: 'title', direction: 'asc'},
+      {key: 'pageCount', direction: 'desc'},
+    ]);
+    const changes: unknown[] = [];
+    fixture.componentInstance.sortTermsChange.subscribe(change => changes.push(change));
     await fixture.whenStable();
 
     buttonByLabel('Sort Descending').click();
 
-    expect(sortChanges).toEqual([]);
-    expect(directionChanges).toEqual([{key: 'title', direction: 'desc'}]);
+    expect(changes).toEqual([[{key: 'title', direction: 'desc'}, {key: 'pageCount', direction: 'desc'}]]);
   });
 
   it('marks no simple option active during multi-sort and treats picks as fresh sorts', async () => {
@@ -55,7 +58,7 @@ describe('BookBrowseToolbarComponent', () => {
       {key: 'pageCount', direction: 'desc'},
     ]);
     const changes: unknown[] = [];
-    fixture.componentInstance.sortChange.subscribe(change => changes.push(change));
+    fixture.componentInstance.sortTermsChange.subscribe(change => changes.push(change));
     await fixture.whenStable();
 
     buttonByText('Title +1').click();
@@ -66,7 +69,25 @@ describe('BookBrowseToolbarComponent', () => {
     expect(titleItem.textContent).toContain('1');
 
     titleItem.click();
-    expect(changes).toEqual([{key: 'title', direction: 'asc'}]);
+    expect(changes).toEqual([[{key: 'title', direction: 'asc'}]]);
+  });
+
+  it('applies the multi-sort result before asking to save it as the default', async () => {
+    const terms = [{key: 'pageCount', direction: 'desc'}, {key: 'title', direction: 'asc'}];
+    openMultiSortDialog.mockResolvedValue({onClose: of({terms, saveAsDefault: true})});
+    fixture.componentRef.setInput('saveDefaultFor', 'All Books');
+    const events: unknown[] = [];
+    fixture.componentInstance.sortTermsChange.subscribe(change => events.push(['apply', change]));
+    fixture.componentInstance.sortDefaultSaved.subscribe(change => events.push(['save', change]));
+    await fixture.whenStable();
+
+    buttonByText('Title').click();
+    await fixture.whenStable();
+    menuItemByText('Multi-Sort').click();
+    await fixture.whenStable();
+
+    expect(openMultiSortDialog).toHaveBeenCalledWith(expect.objectContaining({saveDefaultFor: 'All Books'}));
+    expect(events).toEqual([['apply', terms], ['save', terms]]);
   });
 
   function optionalButtonByLabel(label: string): HTMLButtonElement | null {

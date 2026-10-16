@@ -26,10 +26,11 @@
 
         <div class="multi-sort-editor">
           <span class="multi-sort-label">{{ t('sortOrderLabel') }}</span>
-          <app-book-browse-multi-sort-editor
+          <app-browse-multi-sort-editor
             class="block max-w-96"
             [terms]="globalSortTerms"
             [options]="editorSortOptions()"
+            [sortField]="bookSortField"
             (termsChange)="onGlobalSortTermsChange($event)" />
         </div>
         <div class="format-overlay-editor">

@@ -32,7 +32,8 @@
     "on": "",
     "off": "",
     "moreActionsFor": "",
-    "dialogLoadError": ""
+    "dialogLoadError": "",
+    "metadata": "Метаданные"
   },
   "auth": {
     "oidc": {
@@ -2812,7 +2813,6 @@
       "quickSend": "Быстрая отправка",
       "customSend": "Настраиваемая отправка",
       "download": "Скачать",
-      "metadata": "Метаданные",
       "editMetadata": "Редактирование метаданных",
       "more": "Ещё",
       "organizeFile": "Организовать файл",
@@ -3310,9 +3310,6 @@
         "failedDetail": "Произошла ошибка при обновлении статусов блокировки полей."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Сохранить по умолчанию"
-    },
     "fileAttacher": {
       "title": "Прикрепить файл к другой книге",
       "titleBulk": "Прикрепить файлы к другой книге",
@@ -3338,7 +3335,6 @@
     },
     "searcher": {
       "placeholder": "Название, автор, серия, жанр или ISBN...",
-      "clearSearch": "Очистить поиск",
       "bookCoverAlt": "Обложка книги",
       "byPrefix": "автор",
       "noResults": "Результаты не найдены",
@@ -5196,6 +5192,12 @@
   "browse": {
     "showAll": "Показать все",
     "moreActions": "Дополнительные действия",
+    "sort": {
+      "saveAsDefault": "Сохранить по умолчанию"
+    },
+    "rail": {
+      "clearSearch": "Очистить поиск"
+    },
     "bulk": {
       "organizeFiles": "Организовать файлы",
       "updateReadStatus": "Обновить статус чтения",

@@ -32,7 +32,8 @@
     "on": "",
     "off": "",
     "moreActionsFor": "",
-    "dialogLoadError": ""
+    "dialogLoadError": "",
+    "metadata": "Метадані"
   },
   "auth": {
     "oidc": {
@@ -2812,7 +2813,6 @@
       "quickSend": "Швидка відправка",
       "customSend": "Налаштована відправка",
       "download": "Завантажити",
-      "metadata": "Метадані",
       "editMetadata": "Редагувати метадані",
       "more": "Більше",
       "organizeFile": "Організувати файл",
@@ -3313,9 +3313,6 @@
         "failedDetail": "Під час оновлення статусів блокування полів сталася помилка."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Зберегти як значення за замовчуванням"
-    },
     "fileAttacher": {
       "title": "Прикріпити файл до іншої книги",
       "titleBulk": "Прикріпити файли до іншої книги",
@@ -3341,7 +3338,6 @@
     },
     "searcher": {
       "placeholder": "Назва, автор, серія, жанр або ISBN...",
-      "clearSearch": "Очистити пошук",
       "bookCoverAlt": "Обкладинка книги",
       "byPrefix": "від",
       "noResults": "Нічого не знайдено",
@@ -5200,7 +5196,11 @@
     "showAll": "Показати все",
     "moreActions": "Додаткові дії",
     "sort": {
-      "apply": "Застосувати"
+      "apply": "Застосувати",
+      "saveAsDefault": "Зберегти як значення за замовчуванням"
+    },
+    "rail": {
+      "clearSearch": "Очистити пошук"
     },
     "toolbar": {
       "columnGroups": {

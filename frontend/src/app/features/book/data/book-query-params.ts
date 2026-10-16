@@ -1,14 +1,7 @@
-import {unmarkedBrowseFacetKey, type BrowseFacetKey, type BrowseFacetSelection} from '../../../shared/browse/facets';
+import {type BrowseFacetSelection} from '../../../shared/browse/facets';
 
-import {
-  BrowseSortDirection,
-  BrowseSortTerm,
-} from '../../../core/data/browse.models';
-import {
-  BrowseCollectionFilterParams,
-  BrowsePageParams,
-  BrowseQueryParams,
-} from '../../../core/data/browse-query-params';
+import {BrowseSortTerm} from '../../../core/data/browse.models';
+import {BrowsePageParams} from '../../../core/data/browse-query-params';
 export const BOOK_QUERY_FACET_KEYS = [
   'author',
   'genre',
@@ -79,14 +72,11 @@ export const BOOK_QUERY_SORT_KEYS = [
 export type BookQueryFacetKey = typeof BOOK_QUERY_FACET_KEYS[number];
 export type BookQuerySortKey = typeof BOOK_QUERY_SORT_KEYS[number];
 export type FacetValueMap = BrowseFacetSelection<BookQueryFacetKey>;
-export type SortDirection = BrowseSortDirection;
 
 export const EMPTY_FACET_SELECTION: FacetValueMap = {};
 
 export type BookSortTerm = BrowseSortTerm<BookQuerySortKey>;
 
-export type BookCollectionFilterParams = BrowseCollectionFilterParams<BookQueryFacetKey>;
-export type BookQueryParams = BrowseQueryParams<BookQueryFacetKey, BookQuerySortKey>;
 export type BookPageParams = BrowsePageParams<BookQueryFacetKey, BookQuerySortKey>;
 
 export interface BookDescriptionOptions {
@@ -103,59 +93,4 @@ export function isBookQueryFacetKey(value: string): value is BookQueryFacetKey {
 
 export function isBookQuerySortKey(value: string): value is BookQuerySortKey {
   return BOOK_QUERY_SORT_KEY_SET.has(value);
-}
-
-function isMarkedBookQueryFacetKey(value: string): value is BrowseFacetKey<BookQueryFacetKey> {
-  return isBookQueryFacetKey(unmarkedBrowseFacetKey(value));
-}
-
-export function parseFacetParams(tokens: readonly string[]): FacetValueMap {
-  const facets = new Map<BrowseFacetKey<BookQueryFacetKey>, string[]>();
-  for (const token of tokens) {
-    const separator = token.indexOf(':');
-    if (separator <= 0) {
-      continue;
-    }
-    const key = token.slice(0, separator);
-    if (!isMarkedBookQueryFacetKey(key)) {
-      continue;
-    }
-    const value = token.slice(separator + 1).trim();
-    const values = facets.get(key) ?? [];
-    if (value && !values.includes(value)) {
-      values.push(value);
-    }
-    facets.set(key, values);
-  }
-  return Object.fromEntries([...facets].filter(([, values]) => values.length > 0));
-}
-
-export function bookFacetQueryParams(facets: FacetValueMap) {
-  const tokens = Object.entries(facets).flatMap(([key, values]) =>
-    values.map(value => `${key}:${value}`),
-  );
-  return {facet: tokens.length > 0 ? tokens : null};
-}
-
-export function parseSortTermsToken(token: string | null): BookSortTerm[] {
-  if (!token) {
-    return [];
-  }
-
-  const seen = new Set<string>();
-  const terms: BookSortTerm[] = [];
-  for (const rawTerm of token.split(',')) {
-    const term = rawTerm.trim();
-    if (!term) {
-      continue;
-    }
-    const descending = term.startsWith('-');
-    const key = (descending ? term.slice(1) : term).trim();
-    if (!isBookQuerySortKey(key) || seen.has(key)) {
-      continue;
-    }
-    seen.add(key);
-    terms.push({key, direction: descending ? 'desc' : 'asc'});
-  }
-  return terms;
 }

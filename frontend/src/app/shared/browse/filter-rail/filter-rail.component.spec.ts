@@ -12,7 +12,7 @@ import {
 } from '../facets';
 
 function railValue(label: string): BrowseFilterValue {
-  return {value: label.toLowerCase().replace(/\s+/g, '-'), label, count: 3, state: null};
+  return {facetKey: 'author', value: label.toLowerCase().replace(/\s+/g, '-'), label, count: 3, state: null};
 }
 
 function authorGroup(count: number): BrowseFilterGroup {

@@ -1,0 +1,114 @@
+<app-radio-group
+  class="hidden sm:block"
+  variant="segmented"
+  size="md"
+  [ariaLabel]="'browse.toolbar.viewMode' | transloco"
+  [options]="[
+    {value: 'grid', label: ('book.viewMode.grid' | transloco), icon: gridIcon},
+    {value: 'table', label: ('book.viewMode.table' | transloco), icon: tableIcon}
+  ]"
+  [value]="viewMode()"
+  (valueChange)="onViewModeValue($event)" />
+
+<app-browse-sort-control
+  [sortOptions]="sortOptions()"
+  [sortTerms]="sortTerms()"
+  [sortField]="sortField"
+  [saveDefaultFor]="saveDefaultFor()"
+  (sortTermsChange)="sortTermsChange.emit($event)"
+  (shuffleRequested)="shuffleRequested.emit()"
+  (sortDefaultSaved)="sortDefaultSaved.emit($event)" />
+
+<app-button
+  class="sm:hidden"
+  variant="soft"
+  [label]="'browse.filter' | transloco"
+  [ariaExpanded]="filtersOpen()"
+  (clicked)="filtersToggle.emit()">
+  <svg
+    lucideFunnel
+    [attr.fill]="filtersOpen() ? 'currentColor' : 'none'"
+    aria-hidden="true"></svg>
+</app-button>
+
+<app-button
+  class="sm:hidden"
+  variant="soft"
+  [label]="'common.select' | transloco"
+  (clicked)="mobileSelectToggle.emit()" />
+
+<span class="hidden h-6 w-px bg-border sm:block" aria-hidden="true"></span>
+<app-button
+  class="ml-auto sm:ml-0"
+  variant="ghost"
+  iconOnly
+  [ariaLabel]="'browse.moreActions' | transloco"
+  [appMenuTriggerFor]="moreMenu">
+  <svg lucideEllipsis aria-hidden="true"></svg>
+</app-button>
+<app-menu #moreMenu [ariaLabel]="'browse.moreActions' | transloco">
+  <app-menu-section class="hidden sm:block">{{ 'browse.toolbar.viewMode' | transloco }}</app-menu-section>
+  @if (viewMode() === 'grid') {
+    <app-browse-density-menu-items
+      [smallerDisabled]="densitySmallerDisabled()"
+      [largerDisabled]="densityLargerDisabled()"
+      (densityChange)="densityChange.emit($event)" />
+    <app-menu-separator />
+  }
+  <div class="contents sm:hidden">
+    <app-menu-radio-group [value]="viewMode()" (valueSelected)="selectView($event)">
+      <app-menu-radio value="grid">{{ 'book.viewMode.grid' | transloco }}</app-menu-radio>
+      <app-menu-radio value="table">{{ 'book.viewMode.table' | transloco }}</app-menu-radio>
+    </app-menu-radio-group>
+  </div>
+  @if (viewMode() !== 'grid') {
+    <app-menu-separator class="sm:hidden" />
+    <app-menu-item value="columns" [submenu]="columnsMenu">{{ 'browse.toolbar.columns' | transloco }}</app-menu-item>
+  }
+  <div class="hidden sm:contents">
+    <app-browse-filter-menu-items
+      [matchAll]="matchAll()"
+      [excludeOnTick]="excludeOnTick()"
+      (matchAllChange)="matchAllChange.emit($event)"
+      (excludeOnTickChange)="excludeOnTickChange.emit($event)">
+      <app-menu-checkbox
+        value="show-filters"
+        [checked]="filtersOpen()"
+        (selected)="filtersToggle.emit()">
+        {{ 'browse.toolbar.showFilters' | transloco }}
+      </app-menu-checkbox>
+    </app-browse-filter-menu-items>
+  </div>
+  @if (actionTarget(); as target) {
+    <app-menu-separator />
+    <app-menu-section>{{ target.entity.name }}</app-menu-section>
+    <app-library-shelf-menu-items [target]="target" />
+  }
+</app-menu>
+
+<app-menu
+  #columnsMenu="ngMenu"
+  menuClass="w-[34rem] max-w-[calc(100vw-1rem)]"
+  [ariaLabel]="'browse.toolbar.columns' | transloco">
+  <div class="columns-1 gap-3 sm:max-h-[min(32rem,calc(100vh-2rem))] sm:overflow-y-auto sm:columns-2">
+    @for (section of columnSections(); track section.id) {
+      <div class="min-w-0 break-inside-avoid">
+        <app-menu-section>{{ 'browse.toolbar.columnGroups.' + section.id | transloco }}</app-menu-section>
+        @for (column of section.columns; track column.field) {
+          <app-menu-checkbox
+            [value]="column.field"
+            [checked]="!column.hideable || column.visible"
+            [disabled]="!column.hideable"
+            [closeOnSelect]="false"
+            (selected)="columnVisibilityChange.emit({field: column.field, visible: $event})">
+            {{ column.labelKey | transloco }}
+          </app-menu-checkbox>
+        }
+      </div>
+    }
+  </div>
+  <app-menu-separator />
+  <app-menu-item value="reset-columns" (selected)="columnsReset.emit()">
+    {{ 'browse.toolbar.resetColumns' | transloco }}
+  </app-menu-item>
+</app-menu>

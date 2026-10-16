@@ -32,7 +32,8 @@
     "on": "",
     "off": "",
     "moreActionsFor": "",
-    "dialogLoadError": ""
+    "dialogLoadError": "",
+    "metadata": "メタデータ"
   },
   "auth": {
     "oidc": {
@@ -2812,7 +2813,6 @@
       "quickSend": "クイック送信",
       "customSend": "カスタム送信",
       "download": "ダウンロード",
-      "metadata": "メタデータ",
       "editMetadata": "メタデータを編集",
       "more": "その他",
       "organizeFile": "ファイルを整理",
@@ -3311,9 +3311,6 @@
         "failedDetail": "フィールドロック状態の更新中にエラーが発生しました。"
       }
     },
-    "sorting": {
-      "saveAsDefault": "デフォルトとして保存"
-    },
     "fileAttacher": {
       "title": "ファイルを別の本に添付",
       "titleBulk": "ファイルを別の本に添付",
@@ -3339,7 +3336,6 @@
     },
     "searcher": {
       "placeholder": "タイトル、著者、シリーズ、ジャンル、またはISBN...",
-      "clearSearch": "検索をクリア",
       "bookCoverAlt": "ブックカバー",
       "byPrefix": "著者：",
       "noResults": "結果が見つかりません",
@@ -5197,6 +5193,12 @@
   "browse": {
     "showAll": "すべて表示",
     "moreActions": "その他の操作",
+    "sort": {
+      "saveAsDefault": "デフォルトとして保存"
+    },
+    "rail": {
+      "clearSearch": "検索をクリア"
+    },
     "bulk": {
       "organizeFiles": "ファイルを整理",
       "updateReadStatus": "読書状態を更新",

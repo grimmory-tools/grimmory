@@ -14,8 +14,8 @@ import {
 import {AuthService} from '../../../shared/service/auth.service';
 import {bookQueryKeys} from './book-query-keys';
 import {BookPageParams} from './book-query-params';
-import {BookPage} from './book-query.models';
-import {BookDetail, BookRecommendation} from './book-response.models';
+import {BrowsePage} from '../../../core/data/browse.models';
+import {BookDetail, BookSummary} from './book-response.models';
 import {retryTransientQueryError} from '../../../core/data/query-transport';
 import {BookQueryService} from './book-query.service';
 
@@ -26,7 +26,7 @@ const PARAMS: BookPageParams = {
   size: 20,
 };
 
-function page(ids: number[]): BookPage {
+function page(ids: number[]): BrowsePage<BookSummary> {
   return {
     content: ids.map(id => ({id, libraryId: 1, libraryName: 'Library'})),
     page: {
@@ -255,22 +255,6 @@ describe('BookQueryService', () => {
       id: 42,
       metadata: {description: 'Desert power.'},
     });
-  });
-
-  it('fetches recommendations and preserves similarity order', async () => {
-    const resultPromise = queryClient.fetchQuery(service.recommendations(42, 2));
-    expectTypeOf(resultPromise).toEqualTypeOf<Promise<BookRecommendation[]>>();
-    const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/42/recommendations?limit=2`);
-    const response: BookRecommendation[] = [
-      {book: {id: 8, libraryId: 1, libraryName: 'Library'}, similarityScore: 0.4},
-      {book: {id: 5, libraryId: 1, libraryName: 'Library'}, similarityScore: 0.9},
-    ];
-    request.flush(response);
-
-    await expect(resultPromise).resolves.toMatchObject([
-      {book: {id: 8}, similarityScore: 0.4},
-      {book: {id: 5}, similarityScore: 0.9},
-    ]);
   });
 
   it('cancels an active HTTP request through the query signal', async () => {

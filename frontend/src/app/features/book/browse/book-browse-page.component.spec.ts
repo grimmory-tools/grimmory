@@ -29,8 +29,8 @@ import {BookDialogHelperService} from '../service/book-dialog-helper.service';
 import {UserService} from '../../settings/user-management/user.service';
 import {EmailService} from '../../settings/email-v2/email.service';
 import {type BookSortTerm} from '../data/book-query-params';
-import {BookBrowsePageComponent} from '../../../shared/browse/browse-page.component';
-import {BookBrowseFilterPageComponent} from '../../../shared/browse/filter-page.component';
+import {BookBrowsePageComponent} from './book-browse-page.component';
+import {BookBrowseFilterPageComponent} from './book-browse-filter-page.component';
 
 const PAGE_URL = `${API_CONFIG.BASE_URL}/api/v1/books/page`;
 const FACETS_URL = `${API_CONFIG.BASE_URL}/api/v1/books/facets`;
@@ -47,15 +47,11 @@ function bookPage(ids: number[], totalElements = ids.length, links: BrowseLink[]
 }
 
 interface PageHarness {
-  detailLineFor(book: BookSummary): string | null;
-  selection: {
-    count(): number;
-    toggle(book: BookSummary, index: number, shiftKey: boolean): void;
+  page: {
+    setSortTerms(terms: readonly BookSortTerm[]): void;
+    searchDraft: {set(value: string): void};
+    clearQuery(): void;
   };
-  preferences: {setSortTerms(terms: readonly BookSortTerm[]): void};
-  searchDraft: {set(value: string): void};
-  onSortDirectionChange(term: BookSortTerm): void;
-  onClearQuery(): void;
 }
 
 const GLOBAL_PREFERENCE = {
@@ -125,6 +121,11 @@ describe('BookBrowsePageComponent', () => {
   }
 
   beforeEach(() => {
+    vi.stubGlobal('ResizeObserver', class {
+      observe = vi.fn();
+      unobserve = vi.fn();
+      disconnect = vi.fn();
+    });
     const harness = createQueryClientHarness();
     queryClient = harness.queryClient;
     queryClient.setDefaultOptions({queries: {retry: false}});
@@ -183,6 +184,7 @@ describe('BookBrowsePageComponent', () => {
   afterEach(() => {
     http.verify();
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
     TestBed.resetTestingModule();
     history.replaceState({}, '', '/');
   });
@@ -304,6 +306,28 @@ describe('BookBrowsePageComponent', () => {
     await flushQueryAsync();
   });
 
+  it('falls back to the saved default sort when the sort is cleared', async () => {
+    fixture = TestBed.createComponent(BookBrowsePageComponent);
+    currentUser.set(userFixture({}, undefined, {sortCriteria: [{field: 'pageCount', direction: 'ASC'}]}));
+    await TestBed.inject(Router).navigate([], {queryParams: {sort: 'title'}});
+    fixture.detectChanges();
+    flushFacetRegistry();
+    http.expectOne(request =>
+      request.url === PAGE_URL && request.params.get('sort') === 'title',
+    ).flush(bookPage([1], 1));
+    await flushQueryAsync();
+
+    page().page.setSortTerms([]);
+    await fixture.whenStable();
+    await flushQueryAsync(1);
+
+    expect(TestBed.inject(Router).routerState.snapshot.root.queryParamMap.has('sort')).toBe(false);
+    http.expectOne(request =>
+      request.url === PAGE_URL && request.params.get('sort') === 'pageCount',
+    ).flush(bookPage([1], 1));
+    await flushQueryAsync();
+  });
+
   it('ignores reselecting the active sort and flips only the primary term on a direction toggle', async () => {
     fixture = TestBed.createComponent(BookBrowsePageComponent);
     await TestBed.inject(Router).navigate([], {queryParams: {sort: 'pageCount'}});
@@ -314,7 +338,7 @@ describe('BookBrowsePageComponent', () => {
     ).flush(bookPage([1], 1));
     await flushQueryAsync();
 
-    page().preferences.setSortTerms([{key: 'pageCount', direction: 'asc'}]);
+    page().page.setSortTerms([{key: 'pageCount', direction: 'asc'}]);
     await fixture.whenStable();
     await flushQueryAsync(1);
     http.expectNone(candidate => candidate.url === PAGE_URL);
@@ -326,13 +350,46 @@ describe('BookBrowsePageComponent', () => {
     ).flush(bookPage([1], 1));
     await flushQueryAsync();
 
-    page().onSortDirectionChange({key: 'title', direction: 'asc'});
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('button[aria-label="Sort Ascending"]')!.click();
     await fixture.whenStable();
     await flushQueryAsync(1);
     http.expectOne(request =>
       request.url === PAGE_URL && request.params.get('sort') === 'title,pageCount',
     ).flush(bookPage([1], 1));
     await flushQueryAsync();
+  });
+
+  it('renders the toolbar and the shared empty state in the table view', async () => {
+    await TestBed.inject(Router).navigate([], {queryParams: {view: 'table'}});
+    fixture = TestBed.createComponent(BookBrowsePageComponent);
+    fixture.detectChanges();
+    expectInitialPageRequest().flush(bookPage([], 0));
+    await flushQueryAsync();
+    await fixture.whenStable();
+
+    expect(fixture.debugElement.query(By.css('app-page-header app-book-browse-toolbar'))).not.toBeNull();
+    expect(fixture.debugElement.query(By.css('app-book-browse-table')).nativeElement.textContent)
+      .toContain('No books here yet.');
+  });
+
+  it('scrolls the grid to the top for a new list after starting in the table view', async () => {
+    const scrollToTop = vi.spyOn(BrowseGridComponent.prototype, 'scrollToTop');
+    await TestBed.inject(Router).navigate([], {queryParams: {view: 'table'}});
+    fixture = TestBed.createComponent(BookBrowsePageComponent);
+    fixture.detectChanges();
+    expectInitialPageRequest().flush(bookPage([1], 1));
+    await flushQueryAsync();
+
+    await TestBed.inject(Router).navigate([], {queryParams: {view: 'grid'}});
+    await fixture.whenStable();
+    page().page.setSortTerms([{key: 'pageCount', direction: 'asc'}]);
+    await fixture.whenStable();
+    await flushQueryAsync(1);
+    http.expectOne(request =>
+      request.url === PAGE_URL && request.params.get('sort') === 'pageCount',
+    ).flush(bookPage([2], 1));
+
+    await vi.waitFor(() => expect(scrollToTop).toHaveBeenCalled());
   });
 
   it('debounces typed text into one replaceUrl navigation and clears immediately', () => {
@@ -343,8 +400,8 @@ describe('BookBrowsePageComponent', () => {
       expectInitialPageRequest().flush(bookPage([1], 1));
       const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 
-      page().searchDraft.set('the war');
-      page().searchDraft.set('the warden ');
+      page().page.searchDraft.set('the war');
+      page().page.searchDraft.set('the warden ');
       TestBed.flushEffects();
       vi.advanceTimersByTime(SEARCH_DEBOUNCE_MS - 1);
       expect(navigate).not.toHaveBeenCalled();
@@ -357,9 +414,9 @@ describe('BookBrowsePageComponent', () => {
       }));
 
       navigate.mockClear();
-      page().searchDraft.set('the wardens');
+      page().page.searchDraft.set('the wardens');
       TestBed.flushEffects();
-      page().onClearQuery();
+      page().page.clearQuery();
       expect(navigate).toHaveBeenCalledExactlyOnceWith([], expect.objectContaining({
         queryParams: {query: null},
         queryParamsHandling: 'merge',

@@ -4,7 +4,7 @@
     <app-menu-separator />
   }
   @if (openInNewTab() && book(); as menuBook) {
-    <app-menu-item value="open-details-new-tab" [link]="['/book', menuBook.id]" target="_blank" [trailingIcon]="newTabIcon">{{ 'book.menu.openInNewTab' | transloco }}</app-menu-item>
+    <app-menu-item value="open-details-new-tab" [link]="['/book', menuBook.id]" target="_blank" [trailingIcon]="newTabIcon">{{ 'common.openInNewTab' | transloco }}</app-menu-item>
     <app-menu-separator />
   }
   <app-menu-item value="add-to-shelf" [submenu]="shelfMenu.ariaMenu()">{{ 'book.menu.addToShelf' | transloco }}</app-menu-item>
@@ -20,7 +20,7 @@
     }
   }
   @if (actionPermissions().canEditMetadata) {
-    <app-menu-item value="metadata" [submenu]="metadataMenu">{{ 'book.menu.metadata' | transloco }}</app-menu-item>
+    <app-menu-item value="metadata" [submenu]="metadataMenu">{{ 'common.metadata' | transloco }}</app-menu-item>
   }
   @if (hasMoreActions()) {
     <app-menu-item value="more" [submenu]="moreMenu">{{ 'book.menu.more' | transloco }}</app-menu-item>
@@ -105,7 +105,7 @@
   <app-menu-item value="custom-send" (selected)="onCustomSend()">{{ 'book.menu.customSend' | transloco }}</app-menu-item>
 </app-menu>
 
-<app-menu #metadataMenu="ngMenu" [ariaLabel]="'book.menu.metadata' | transloco">
+<app-menu #metadataMenu="ngMenu" [ariaLabel]="'common.metadata' | transloco">
   <app-menu-item value="edit-metadata" (selected)="onEditMetadata()">{{ 'book.menu.editMetadata' | transloco }}</app-menu-item>
   <app-menu-separator />
   <app-menu-item value="refresh-metadata" (selected)="onFetchMetadata()">{{ 'book.menu.fetchMetadata' | transloco }}</app-menu-item>

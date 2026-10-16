@@ -32,7 +32,8 @@
     "on": "Be",
     "off": "Ki",
     "moreActionsFor": "Több müvelet ehhez: {{ label }}",
-    "dialogLoadError": "Hiba lépett fel a párbeszédablak betöltésekor. Kérlek próbáld újra."
+    "dialogLoadError": "Hiba lépett fel a párbeszédablak betöltésekor. Kérlek próbáld újra.",
+    "metadata": "Metaadat"
   },
   "auth": {
     "oidc": {
@@ -3269,9 +3270,6 @@
         "failedDetail": ""
       }
     },
-    "sorting": {
-      "saveAsDefault": ""
-    },
     "fileAttacher": {
       "title": "",
       "titleBulk": "",
@@ -3297,7 +3295,6 @@
     },
     "searcher": {
       "placeholder": "",
-      "clearSearch": "",
       "bookCoverAlt": "",
       "byPrefix": "",
       "noResults": "",
@@ -3447,7 +3444,6 @@
       "quickSend": "Gyors küldés",
       "customSend": "Egyedi küldés",
       "download": "Letöltés",
-      "metadata": "Metaadat",
       "organizeFile": "Fájl rendszerezése",
       "resetGrimmoryProgress": "Grimmory előrehaladás nullázása",
       "resetKoreaderProgress": "KOReader előrehaladás nullázása",
@@ -5173,6 +5169,12 @@
   },
   "browse": {
     "moreActions": "További lehetőségek",
+    "sort": {
+      "saveAsDefault": ""
+    },
+    "rail": {
+      "clearSearch": ""
+    },
     "toolbar": {
       "viewMode": "Nézet",
       "resetColumns": "Visszaállítás Alapértelmezettre"
