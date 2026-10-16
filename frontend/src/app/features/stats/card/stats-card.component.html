@@ -1,0 +1,175 @@
+<article
+  class="flex h-full min-w-0 flex-col rounded-xl text-text ring-1 ring-inset ring-border transition-[background-color,box-shadow] duration-200 ease-out motion-reduce:transition-none"
+  [class.bg-page]="!editing()"
+  [class.bg-card]="!!editing()"
+  [class.shadow-control]="!!editing()"
+  [attr.aria-labelledby]="headingId">
+  <header [class]="headerClass()">
+    <div class="flex min-w-0 flex-[1_1_12rem] items-stretch gap-2">
+      @if (editing()) {
+        <span
+          class="flex w-5 shrink-0 items-center justify-center rounded-sm text-text-muted"
+          aria-hidden="true">
+          <svg lucideGripVertical class="size-5" aria-hidden="true"></svg>
+        </span>
+      }
+      <div class="min-w-0">
+        <h2 [id]="headingId" class="m-0 text-base font-semibold leading-6 text-text-strong">
+          {{ definition().titleKey | transloco: titleParams() }}
+        </h2>
+        @if (description(); as description) {
+          <p class="mt-0.5 text-sm leading-5 text-text-secondary">
+            {{ description }}
+          </p>
+        }
+      </div>
+    </div>
+
+    <div [class]="actionsClass()">
+      @if (editing(); as edit) {
+        <div class="relative z-20 flex items-center gap-1">
+          <app-button
+            variant="ghost"
+            iconOnly
+            [attr.data-chart-move-earlier]="definition().id"
+            [disabled]="!edit.canMoveEarlier"
+            [ariaLabel]="'stats.config.moveChartEarlier' | transloco: {name: definition().nameKey | transloco}"
+            [title]="'stats.config.moveChartEarlier' | transloco: {name: definition().nameKey | transloco}"
+            (clicked)="moved.emit(-1)">
+            <svg lucideChevronUp aria-hidden="true"></svg>
+          </app-button>
+          <app-button
+            variant="ghost"
+            iconOnly
+            [attr.data-chart-move-later]="definition().id"
+            [disabled]="!edit.canMoveLater"
+            [ariaLabel]="'stats.config.moveChartLater' | transloco: {name: definition().nameKey | transloco}"
+            [title]="'stats.config.moveChartLater' | transloco: {name: definition().nameKey | transloco}"
+            (clicked)="moved.emit(1)">
+            <svg lucideChevronDown aria-hidden="true"></svg>
+          </app-button>
+          <app-button
+            tone="danger"
+            variant="ghost"
+            iconOnly
+            [ariaLabel]="'stats.config.removeChart' | transloco: {name: definition().nameKey | transloco}"
+            [title]="'stats.config.removeChart' | transloco: {name: definition().nameKey | transloco}"
+            (clicked)="removed.emit()">
+            <svg lucideX aria-hidden="true"></svg>
+          </app-button>
+        </div>
+      } @else {
+        @let filter = definition().filter;
+        @if (filter === 'year' || filter === 'yearMonth' || filter === 'yearWeekday') {
+          <div [class]="filter === 'year' ? 'flex shrink-0 items-center' : 'flex min-w-0 flex-wrap items-center gap-2'">
+            <div>
+              <app-select
+                size="sm"
+                [styleClass]="filter === 'year' ? 'min-w-24' : 'min-w-28'"
+                [showClear]="filter !== 'year'"
+                [options]="yearOptions"
+                [value]="period().year"
+                [placeholder]="filter === 'year' ? '' : ('stats.filter.allYears' | transloco)"
+                [ariaLabel]="'stats.filter.selectYear' | transloco"
+                (valueChange)="selectYear($event)" />
+            </div>
+            @if (filter === 'yearMonth') {
+              <div>
+                <app-select
+                  size="sm"
+                  styleClass="min-w-32"
+                  [showClear]="true"
+                  [options]="monthOptions()"
+                  [value]="period().month"
+                  [disabled]="period().year === null"
+                  [placeholder]="'stats.filter.allMonths' | transloco"
+                  [ariaLabel]="'stats.filter.selectMonth' | transloco"
+                  (valueChange)="selectMonth($event)" />
+              </div>
+            }
+            @if (filter === 'yearWeekday') {
+              <div>
+                <app-select
+                  size="sm"
+                  styleClass="min-w-32"
+                  [showClear]="true"
+                  [options]="weekdayOptions()"
+                  [value]="period().weekday"
+                  [placeholder]="'stats.filter.allDays' | transloco"
+                  [ariaLabel]="'stats.filter.selectDay' | transloco"
+                  (valueChange)="selectWeekday($event)" />
+              </div>
+            }
+          </div>
+        }
+        @if (filter === 'week') {
+          <div class="flex shrink-0 items-center gap-1">
+            <app-button
+              variant="ghost"
+              size="sm"
+              iconOnly
+              [ariaLabel]="'stats.filter.previousWeek' | transloco"
+              [title]="'stats.filter.previousWeek' | transloco"
+              (clicked)="stepWeek(-1)">
+              <svg lucideChevronLeft aria-hidden="true"></svg>
+            </app-button>
+            <div class="flex min-w-28 flex-col items-center leading-tight">
+              <span class="text-xs font-medium whitespace-nowrap text-text-secondary">
+                {{ 'stats.filter.week' | transloco: {number: period().week} }}
+              </span>
+              <span class="text-xs whitespace-nowrap tabular-nums text-text-muted">{{ weekRangeLabel() }}</span>
+            </div>
+            <app-button
+              variant="ghost"
+              size="sm"
+              iconOnly
+              [ariaLabel]="'stats.filter.nextWeek' | transloco"
+              [title]="'stats.filter.nextWeek' | transloco"
+              (clicked)="stepWeek(1)">
+              <svg lucideChevronRight aria-hidden="true"></svg>
+            </app-button>
+          </div>
+        } @else if (filter === 'item') {
+          <div class="flex min-w-0 flex-wrap items-center gap-2">
+            <div>
+              <app-select
+                size="sm"
+                styleClass="min-w-36"
+                [options]="itemOptions()"
+                [value]="item()"
+                [ariaLabel]="'stats.filter.kindSelectorLabel' | transloco"
+                (valueChange)="item.set($event ?? 'author')" />
+            </div>
+            <div>
+              <app-select
+                size="sm"
+                styleClass="min-w-36"
+                [options]="measureOptions()"
+                [value]="measure()"
+                [ariaLabel]="'stats.filter.measureSelectorLabel' | transloco"
+                (valueChange)="measure.set($event ?? 'books')" />
+            </div>
+          </div>
+        }
+      }
+    </div>
+
+    @if (sectioned()) {
+      <span
+        class="pointer-events-none absolute inset-x-4 bottom-0 border-b border-border md:inset-x-5"
+        aria-hidden="true"></span>
+    }
+  </header>
+
+  <div [class]="contentClass()" [class.invisible]="contentHidden()" [attr.inert]="editing() ? '' : null">
+    @if (state() === 'error') {
+      <div class="flex min-h-(--stats-plot-height) flex-1 items-center justify-center px-4">
+        <app-message color="red" styleClass="max-w-md">
+          {{ 'stats.card.loadError' | transloco }}
+        </app-message>
+      </div>
+    } @else {
+      <ng-container *ngComponentOutlet="definition().chart; inputs: chartInputs()" />
+    }
+  </div>
+</article>

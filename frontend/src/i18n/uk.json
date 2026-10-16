@@ -4032,47 +4032,28 @@
       "publicationTimeline": "Хронологія публікацій"
     },
     "bookFormats": {
-      "title": "Формати книг",
-      "description": "Розподіл типів файлів у вашій бібліотеці"
+      "title": "Формати книг"
     },
-    "language": {
-      "title": "Мови",
-      "description": "Мови, представлені у вашій колекції"
+    "languages": {
+      "title": "Мови"
     },
     "metadataScore": {
-      "title": "Оцінка метаданих",
-      "description": "Якість метаданих книг у вашій бібліотеці",
-      "excellent": "Відмінно (90-100%)",
-      "good": "Добре (70-89%)",
-      "fair": "Задовільно (50-69%)",
-      "poor": "Погано (25-49%)",
-      "veryPoor": "Дуже погано (0-24%)"
+      "title": "Оцінка метаданих"
     },
     "pageCount": {
-      "title": "Розподіл кількості сторінок",
-      "description": "Розподіл довжини книг у вашій бібліотеці",
       "tooltipTitle": "{{ label }} сторінок",
       "axisPageCount": "Кількість сторінок",
       "axisBooks": "Книги"
     },
     "publicationTimeline": {
       "title": "Хронологія публікацій",
-      "description": "Коли ваші книги були вперше опубліковані?",
       "axisNumberOfBooks": "Кількість книг",
       "insightOldest": "Найстаріша",
       "insightNewest": "Найновіша",
-      "insightPeakDecadeBooks": "{{ count }} книг"
+      "booksCount": "{{ count }} книг"
     },
     "topItems": {
-      "axisNumberOfBooks": "Кількість книг",
-      "dataTypes": {
-        "authors": "Автори",
-        "categories": "Категорії",
-        "series": "Серії",
-        "publishers": "Видавці",
-        "tags": "Теги",
-        "moods": "Настрої"
-      }
+      "axisNumberOfBooks": "Кількість книг"
     },
     "libraryFilter": {
       "allLibraries": "Усі бібліотеки"
@@ -4085,68 +4066,37 @@
     },
     "chartNames": {
       "favoriteDays": "Улюблені дні читання",
-      "timeline": "Хронологія сеансів читання",
-      "readingHeatmap": "Теплова карта активності читання",
-      "personalRating": "Розподіл особистих оцінок",
-      "readStatus": "Розподіл статусів читання",
+      "sessionTimeline": "Хронологія сеансів читання",
       "readingClock": "Годинник читання",
-      "readingSurvival": "Крива виживання читання",
-      "bookLength": "Оптимальна довжина книги",
-      "ratingTaste": "Порівняння смаку оцінювання",
-      "seriesProgress": "Трекер прогресу серій",
-      "readingDna": "Профіль Reading DNA",
-      "readingHabits": "Аналіз звичок читання",
-      "bookFlow": "Потік книг",
-      "publicationEra": "Епоха публікації vs рейтинг"
+      "bookFlow": "Потік книг"
     },
-    "sessionHeatmap": {
+    "sessionActivity": {
       "title": "Активність сеансів читання",
-      "description": "Щоденний огляд ваших сеансів читання протягом року",
       "currentStreak": "Поточна серія",
       "longestStreak": "Найдовша серія",
       "readingSessions": "Сеанси читання"
     },
     "sessionTimeline": {
       "title": "Хронологія сеансів читання",
-      "description": "Щотижневий огляд ваших сеансів читання та патернів",
-      "previousWeek": "Попередній тиждень",
-      "nextWeek": "Наступний тиждень",
-      "week": "Тиждень {{ number }}",
-      "readingSession": "Сеанс читання",
-      "tooltipTime": "Час:",
-      "tooltipDuration": "Тривалість:",
-      "tooltipFormat": "Формат:"
+      "readingSession": "Сеанс читання"
     },
-    "genreStats": {
+    "readingByGenre": {
       "title": "Читання за жанрами",
-      "description": "Топ жанрів за загальним часом читання",
       "axisGenres": "Жанри",
-      "axisTimeRead": "Час читання",
       "readingTime": "Час читання"
     },
     "favoriteDays": {
       "title": "Улюблені дні читання",
-      "selectYear": "Виберіть рік",
-      "selectMonth": "Виберіть місяць",
-      "allYears": "Усі роки",
-      "allMonths": "Усі місяці",
       "axisDayOfWeek": "День тижня"
     },
     "personalRating": {
-      "title": "Розподіл особистих оцінок",
       "axisPersonalRating": "Особиста оцінка",
       "axisNumberOfBooks": "Кількість книг",
       "tooltipTitle": "Особиста оцінка: {{ label }}"
     },
-    "readStatus": {
-      "title": "Розподіл статусів читання",
-      "description": "Книги за їхнім статусом читання"
-    },
+    "readStatus": {},
     "readingDna": {
-      "title": "Профіль Reading DNA",
-      "description": "Ваша унікальна читацька особистість у 8 вимірах",
       "tooltipPersonality": "Риса {{ label }}",
-      "tooltipScore": "Оцінка: {{ score }}/100",
       "traits": {
         "adventurous": "Схильний до пригод",
         "perfectionist": "Перфекціоніст",
@@ -4201,10 +4151,7 @@
       }
     },
     "readingHabits": {
-      "title": "Аналіз звичок читання",
-      "description": "Ваші поведінкові читацькі патерни у 8 вимірах",
       "tooltipHabit": "Звичка {{ label }}",
-      "tooltipScore": "Оцінка: {{ score }}/100",
       "habits": {
         "consistency": "Послідовність",
         "multitasking": "Багатозадачність",
@@ -4253,20 +4200,19 @@
         }
       }
     },
-    "readingHeatmap": {
-      "title": "Теплова карта активності читання",
-      "booksRead": "Книги прочитано"
+    "booksFinished": {},
+    "booksAddedVsFinished": {
+      "axisMonth": "Місяць",
+      "axisCumulativeBooks": "Накопичена кількість книг",
+      "legendBooksAdded": "Книги додано",
+      "legendBooksFinished": "Книги завершено",
+      "insightCurrentBacklog": "Поточний беклог"
     },
-    "ratingTaste": {
-      "title": "Порівняння смаку оцінювання",
-      "description": "Порівняйте свої особисті оцінки із зовнішніми рейтингами (Goodreads, Amazon тощо)"
-    },
+    "ratingComparison": {},
     "seriesProgress": {
-      "title": "Трекер прогресу серій",
       "seriesBreakdown": "Розподіл серій",
       "ofTotal": "{{ filtered }} із {{ total }}",
       "searchSeries": "Пошук серій...",
-      "allStatus": "Усі статуси",
       "inProgress": "У процесі",
       "completed": "Завершено",
       "notStarted": "Не розпочато",
@@ -4281,44 +4227,30 @@
       "abandoned": "Покинуто",
       "wontRead": "Не читатиму",
       "unread": "Непрочитано",
-      "booksRead": "{{ read }}/{{ owned }} прочитано",
       "next": "Далі:",
-      "tooltipRead": "Прочитано: {{ read }}/{{ owned }} у власності",
       "noMatchingSearch": "Немає серій, що відповідають \"{{ term }}\"",
       "pageInfo": "Сторінка {{ current }} із {{ total }}"
     },
-    "readingSurvival": {
-      "title": "Крива виживання читання",
+    "readingDropOff": {
       "completionRate": "Рівень завершення",
-      "survivalRate": "Рівень виживання",
-      "axisProgressThreshold": "Поріг прогресу",
-      "axisBooksSurviving": "% книг, що дійшли далі",
       "tooltipProgress": "{{ label }} прогресу"
     },
     "readingClock": {
       "title": "Годинник читання",
-      "description": "Коли ви читаєте протягом дня",
-      "peakHour": "Пікова година",
-      "totalRead": "Усього прочитано"
+      "peakHour": "Пікова година"
     },
-    "bookLength": {
-      "title": "Оптимальна довжина книги",
-      "description": "Як довжина книги пов'язана з вашими особистими оцінками",
-      "sweetSpot": "Оптимальна зона",
+    "ratingsByLength": {
       "axisPageCount": "Кількість сторінок",
       "axisPersonalRating": "Особиста оцінка"
     },
     "bookFlow": {
       "title": "Потік книг",
-      "description": "Як книги проходять шлях від додавання до статусу й оцінки",
       "totalBooks": "Усього книг",
       "colAdded": "Додано",
       "colStatus": "Статус",
       "colRating": "Оцінка"
     },
-    "publicationEra": {
-      "title": "Епоха публікації vs рейтинг",
-      "description": "Які десятиліття публікацій ви оцінюєте найвище",
+    "ratingsByDecade": {
       "bestDecade": "Найкраще десятиліття"
     }
   },
@@ -4763,6 +4695,28 @@
       "organizeFiles": "Організувати файли",
       "updateReadStatus": "Оновити статус читання",
       "lockUnlockMetadata": "Заблокувати/Розблокувати метадані"
+    }
+  },
+  "stats": {
+    "config": {
+      "title": "Налаштування графіків",
+      "resetOrder": "Скинути порядок"
+    },
+    "filter": {
+      "allYears": "Усі роки",
+      "selectYear": "Виберіть рік",
+      "allMonths": "Усі місяці",
+      "selectMonth": "Виберіть місяць",
+      "week": "Тиждень {{ number }}",
+      "previousWeek": "Попередній тиждень",
+      "nextWeek": "Наступний тиждень",
+      "dataTypes": {
+        "authors": "Автори",
+        "series": "Серії",
+        "publishers": "Видавці",
+        "tags": "Теги",
+        "moods": "Настрої"
+      }
     }
   }
 }
