@@ -105,7 +105,7 @@ public class BookController {
         return ResponseEntity.ok(bookBrowseService.wrapLegacy(bookService.getBookDTOsPaged(pageable), pageable));
     }
 
-    @Operation(summary = "Get book facets", description = "Available facet values and counts for the current user, scoped by the same facet, facet_logic, and query parameters as the page endpoint. Each facet omits its own selections from its counts.")
+    @Operation(summary = "Get book facets", description = "The facets that have values for the current user, without their values, scoped by the same facet, facet_logic, and query parameters as the page endpoint, plus the sort options. Load a facet's values from /facets/{facetName}.")
     @ApiResponse(responseCode = "200", description = "Facet groups returned successfully")
     @GetMapping("/facets")
     public ResponseEntity<FacetGroupsResponse> getBookFacets(
