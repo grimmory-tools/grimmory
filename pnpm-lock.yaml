@@ -218,10 +218,10 @@ importers:
         version: 2.0.2
       '@stomp/rx-stomp':
         specifier: ^2.4.0
-        version: 2.4.0(@stomp/stompjs@7.3.0)(rxjs@7.8.2)(uuid@14.0.2)
+        version: 2.4.0(@stomp/stompjs@7.4.0)(rxjs@7.8.2)(uuid@14.0.2)
       '@stomp/stompjs':
-        specifier: ^7.3.0
-        version: 7.3.0
+        specifier: ^7.4.0
+        version: 7.4.0
       '@tanstack/angular-query-experimental':
         specifier: 5.102.8
         version: 5.102.8(@angular/common@22.2.2(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))
@@ -2317,8 +2317,8 @@ packages:
       rxjs: ^7.2.0
       uuid: '>=9.0.0 <15.0.0'
 
-  '@stomp/stompjs@7.3.0':
-    resolution: {integrity: sha512-nKMLoFfJhrQAqkvvKd1vLq/cVBGCMwPRCD0LqW7UT1fecRx9C3GoKEIR2CYwVuErGeZu8w0kFkl2rlhPlqHVgQ==}
+  '@stomp/stompjs@7.4.0':
+    resolution: {integrity: sha512-JSyT230gT3g8v9MPLb/OukN46M+omkUR79ixg6L31em41RaHud6DqBTiooeP7rpcKyzKkpgZ72HDUjFqGKYJvg==}
 
   '@sveltejs/acorn-typescript@1.0.11':
     resolution: {integrity: sha512-LFuZUkjJ9iF7JZye/aG5XM0SFcQ5VyL0oVX4WJ9dc0Va3R3s0OauX1BESVCb+YN/ol8TAfqGDDAQsTG627Y5kw==}
@@ -6207,13 +6207,13 @@ snapshots:
 
   '@standard-schema/spec@1.1.0': {}
 
-  '@stomp/rx-stomp@2.4.0(@stomp/stompjs@7.3.0)(rxjs@7.8.2)(uuid@14.0.2)':
+  '@stomp/rx-stomp@2.4.0(@stomp/stompjs@7.4.0)(rxjs@7.8.2)(uuid@14.0.2)':
     dependencies:
-      '@stomp/stompjs': 7.3.0
+      '@stomp/stompjs': 7.4.0
       rxjs: 7.8.2
       uuid: 14.0.2
 
-  '@stomp/stompjs@7.3.0': {}
+  '@stomp/stompjs@7.4.0': {}
 
   '@sveltejs/acorn-typescript@1.0.11(acorn@8.18.0)':
     dependencies:
