@@ -205,8 +205,8 @@ importers:
         specifier: ^8.4.0
         version: 8.4.0(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))(rxjs@7.8.2)(typescript@6.0.3)
       '@lucide/angular':
-        specifier: ^1.31.0
-        version: 1.31.0(@angular/common@22.2.2(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))
+        specifier: ^1.56.0
+        version: 1.56.0(@angular/common@22.2.2(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))
       '@openng/icons':
         specifier: ^1.0.0
         version: 1.0.0
@@ -1641,8 +1641,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@lucide/angular@1.31.0':
-    resolution: {integrity: sha512-SBTjhWgQR0GFseAPqJiumesM5g4zdMFiQ+E4VUjwqcI8nfDowwUqNDY30gwNs5xgtCpNFaRNYoVKW7UqbPtnkg==}
+  '@lucide/angular@1.56.0':
+    resolution: {integrity: sha512-8m/Sv5HWQKE3ZDOaN1oo/AWPaBU4PjPKu2jQnEhTQAR7OFrMmzyPvmZwdRerTRuOqUF2/vpZYKY1KO1mTdZRZQ==}
     peerDependencies:
       '@angular/common': '>=17.0.0'
       '@angular/core': '>=17.0.0'
@@ -5797,7 +5797,7 @@ snapshots:
   '@lmdb/lmdb-win32-x64@3.5.6':
     optional: true
 
-  '@lucide/angular@1.31.0(@angular/common@22.2.2(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))':
+  '@lucide/angular@1.56.0(@angular/common@22.2.2(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))':
     dependencies:
       '@angular/common': 22.2.2(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))(rxjs@7.8.2)
       '@angular/core': 22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2)
