@@ -1,6 +1,6 @@
-import {inject, signal, type Signal} from '@angular/core';
+import {inject, type Signal} from '@angular/core';
 import {TranslocoService} from '@jsverse/transloco';
-import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
+import {ConfirmationService} from '@openng/optimus-ui/api';
 import {type DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {injectMutation} from '@tanstack/angular-query-experimental';
 import {take} from 'rxjs/operators';
@@ -18,7 +18,8 @@ import {MetadataRefreshSubmissionService} from '../../metadata/data/metadata-ref
 import {type BookFileAttacherSourceBook} from '../components/book-file-attacher/book-file-attacher.component';
 import {BookDialogHelperService} from '../service/book-dialog-helper.service';
 import {legacyBookCachePatches, withLegacyBookCache} from '../service/book-command-legacy-adapter';
-import {resolveSelectedIds, type BrowseSelection} from '../../../shared/browse/selection';
+import {injectSelectedIds} from '../../../shared/browse/selected-ids';
+import {type BrowseSelection} from '../../../shared/browse/selection';
 
 type FetchMatchingIds = () => Promise<readonly number[]>;
 
@@ -34,7 +35,6 @@ export function createBookBrowseBulkCommands({selection, books, fetchIds}: BookB
   const metadataRefresh = inject(MetadataRefreshSubmissionService);
   const backgroundSubmission = inject(BookBackgroundSubmissionService);
   const confirmationService = inject(ConfirmationService);
-  const messageService = inject(MessageService);
   const bookCommands = inject(BookCommandService);
   const shelfCommands = inject(BookShelfCommandService);
 
@@ -51,38 +51,10 @@ export function createBookBrowseBulkCommands({selection, books, fetchIds}: BookB
     bookCommands.setAllMetadataLocks(), legacyBookCachePatches.metadataAllLocks));
   const changeCoversMutation = injectMutation(() => backgroundSubmission.changeCovers());
 
-  const isResolving = signal(false);
-
-  async function withSelectedBookIds(run: (bookIds: readonly number[]) => void): Promise<void> {
-    if (isResolving()) {
-      return;
-    }
-    isResolving.set(true);
-    let bookIds: readonly number[];
-    try {
-      bookIds = await resolveSelectedIds(selection().state(), fetchIds());
-    } catch {
-      messageService.add({
-        severity: 'error',
-        summary: transloco.translate('browse.bulk.selectionLoadError'),
-      });
-      return;
-    } finally {
-      isResolving.set(false);
-    }
-    if (bookIds.length === 0) {
-      selection().clear();
-      messageService.add({
-        severity: 'info',
-        summary: transloco.translate('browse.bulk.selectionEmpty'),
-      });
-      return;
-    }
-    run(bookIds);
-  }
+  const {isResolving, withSelectedIds} = injectSelectedIds(selection, fetchIds);
 
   function openThenClear(open: (bookIds: Set<number>) => Promise<DynamicDialogRef | null>): void {
-    void withSelectedBookIds(bookIds => void open(new Set(bookIds))
+    void withSelectedIds(bookIds => void open(new Set(bookIds))
       .then(ref => ref?.onClose.pipe(take(1)).subscribe(() => selection().clear())));
   }
 
@@ -91,10 +63,10 @@ export function createBookBrowseBulkCommands({selection, books, fetchIds}: BookB
   }
 
   return {
-    isResolving: isResolving.asReadonly(),
+    isResolving,
 
     toggleShelf(shelfId: number, checked: boolean): void {
-      void withSelectedBookIds(bookIds =>
+      void withSelectedIds(bookIds =>
         shelfMembershipMutation.mutate({
           bookIds: [...bookIds],
           assignShelfIds: checked ? [shelfId] : [],
@@ -106,7 +78,7 @@ export function createBookBrowseBulkCommands({selection, books, fetchIds}: BookB
       if (shelfIds.length === 0) {
         return;
       }
-      void withSelectedBookIds(bookIds =>
+      void withSelectedIds(bookIds =>
         shelfMembershipMutation.mutate({
           bookIds: [...bookIds],
           assignShelfIds: [],
@@ -127,7 +99,7 @@ export function createBookBrowseBulkCommands({selection, books, fetchIds}: BookB
     },
 
     organizeFiles(): void {
-      void withSelectedBookIds(bookIds => void dialogHelper.openFileMoverDialog(new Set(bookIds)));
+      void withSelectedIds(bookIds => void dialogHelper.openFileMoverDialog(new Set(bookIds)));
     },
 
     createShelf(): void {
@@ -146,11 +118,11 @@ export function createBookBrowseBulkCommands({selection, books, fetchIds}: BookB
     },
 
     resetProgress(source: BookProgressSource): void {
-      void withSelectedBookIds(bookIds => resetProgressMutation.mutate({bookIds: [...bookIds], source}));
+      void withSelectedIds(bookIds => resetProgressMutation.mutate({bookIds: [...bookIds], source}));
     },
 
     setMetadataLocks(locked: boolean): void {
-      void withSelectedBookIds(bookIds => metadataLocksMutation.mutate({bookIds: [...bookIds], locked}));
+      void withSelectedIds(bookIds => metadataLocksMutation.mutate({bookIds: [...bookIds], locked}));
     },
 
     changeCovers(kind: 'regenerate' | 'generate'): void {
@@ -166,17 +138,17 @@ export function createBookBrowseBulkCommands({selection, books, fetchIds}: BookB
         acceptLabel: transloco.translate('common.confirm'),
         rejectLabel: transloco.translate('common.cancel'),
         accept: () => {
-          void withSelectedBookIds(bookIds => changeCoversMutation.mutate({kind, bookIds: [...bookIds]}));
+          void withSelectedIds(bookIds => changeCoversMutation.mutate({kind, bookIds: [...bookIds]}));
         },
       });
     },
 
     fetchMetadata(): void {
-      void withSelectedBookIds(bookIds => refreshMetadataMutation.mutate({bookIds: [...bookIds]}));
+      void withSelectedIds(bookIds => refreshMetadataMutation.mutate({bookIds: [...bookIds]}));
     },
 
     fetchMetadataWithOptions(): void {
-      void withSelectedBookIds(bookIds => void dialogHelper.openMetadataRefreshDialog(new Set(bookIds)));
+      void withSelectedIds(bookIds => void dialogHelper.openMetadataRefreshDialog(new Set(bookIds)));
     },
 
     delete(): void {
@@ -188,7 +160,7 @@ export function createBookBrowseBulkCommands({selection, books, fetchIds}: BookB
         acceptButtonStyleClass: 'p-button-danger',
         rejectButtonStyleClass: 'p-button-outlined',
         accept: () => {
-          void withSelectedBookIds(bookIds =>
+          void withSelectedIds(bookIds =>
             deleteBooksMutation.mutate({bookIds: [...bookIds]}, {
               onSuccess: result => selection().pruneDeleted(result.removedBookIds),
               onError: error => {
@@ -211,7 +183,7 @@ export function createBookBrowseBulkCommands({selection, books, fetchIds}: BookB
         acceptLabel: transloco.translate('common.confirm'),
         rejectLabel: transloco.translate('common.cancel'),
         accept: () => {
-          void withSelectedBookIds(bookIds => readStatusMutation.mutate({bookIds: [...bookIds], status}));
+          void withSelectedIds(bookIds => readStatusMutation.mutate({bookIds: [...bookIds], status}));
         },
       });
     },

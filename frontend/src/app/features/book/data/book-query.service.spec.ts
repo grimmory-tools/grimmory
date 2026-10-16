@@ -14,8 +14,8 @@ import {
 import {AuthService} from '../../../shared/service/auth.service';
 import {bookQueryKeys} from './book-query-keys';
 import {BookPageParams} from './book-query-params';
-import {BookPage} from './book-query.models';
-import {BookDetail, BookRecommendation} from './book-response.models';
+import {BrowsePage} from '../../../core/data/browse.models';
+import {BookDetail, BookRecommendation, BookSummary} from './book-response.models';
 import {retryTransientQueryError} from '../../../core/data/query-transport';
 import {BookQueryService} from './book-query.service';
 
@@ -26,7 +26,7 @@ const PARAMS: BookPageParams = {
   size: 20,
 };
 
-function page(ids: number[]): BookPage {
+function page(ids: number[]): BrowsePage<BookSummary> {
   return {
     content: ids.map(id => ({id, libraryId: 1, libraryName: 'Library'})),
     page: {

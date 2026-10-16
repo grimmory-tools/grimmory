@@ -1,64 +1,45 @@
-import {Component, computed, inject, signal} from '@angular/core';
+import {Component, computed, inject, input} from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {ActivatedRoute} from '@angular/router';
 import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
-import {injectQuery} from '@tanstack/angular-query-experimental';
 
-import {BrowseFilterRailComponent} from './filter-rail/filter-rail.component';
-import {
-  countBrowseFacetValues,
-  type BrowseFilterMatchAll,
-  type BrowseFilterRangeCommit,
-  type BrowseFilterToggle,
-} from './facets';
-
-import {AppButtonComponent} from '../ui/button/app-button.component';
-import {BrowseSearchInputComponent} from './search-input/search-input.component';
-import {debouncedSignal} from '../util/debounced-signal';
-import {SEARCH_DEBOUNCE_MS} from '../util/search-terms';
 import {AppPageHeaderComponent} from '../layout/page-header/app.page-header.component';
 import {type PageHeader} from '../layout/page-header/page-header.service';
-import {
-  EMPTY_FACET_SELECTION,
-  type BookQueryFacetKey,
-  type FacetValueMap,
-} from '../../features/book/data/book-query-params';
-import {type BookPage} from '../../features/book/data/book-query.models';
-import {BookQueryService} from '../../features/book/data/book-query.service';
-import {bookBrowseScope} from '../../features/book/browse/book-browse-scope';
-import {createBookBrowseQueries} from './facet-queries';
-import {createBookBrowseUrlState} from './url-state';
+import {AppButtonComponent} from '../ui/button/app-button.component';
+import {type BrowseFilterPage} from './filter-page';
+import {BrowseFilterRailComponent} from './filter-rail/filter-rail.component';
+import {BrowseSearchInputComponent} from './search-input/search-input.component';
 
 @Component({
-  selector: 'app-book-browse-filter-page',
+  selector: 'app-browse-filter-page',
   imports: [TranslocoPipe, AppButtonComponent, AppPageHeaderComponent, BrowseFilterRailComponent, BrowseSearchInputComponent],
   template: `
     <div class="app-page pb-0!">
       <app-page-header [pageHeader]="pageHeader()">
         <div class="w-full">
           <app-browse-search-input
-            [value]="stagedQuery()"
-            [placeholder]="searchHint()"
-            [ariaLabel]="searchHint()"
-            [clearLabel]="'book.searcher.clearSearch' | transloco"
-            (valueChange)="stagedQuery.set($event)"
-            (cleared)="stagedQuery.set('')"
-            (entered)="onCommit()" />
+            [value]="page().stagedQuery()"
+            [placeholder]="searchHint() | transloco"
+            [ariaLabel]="searchHint() | transloco"
+            [clearLabel]="'browse.rail.clearSearch' | transloco"
+            (valueChange)="page().stagedQuery.set($event)"
+            (cleared)="page().stagedQuery.set('')"
+            (entered)="page().commit()" />
         </div>
       </app-page-header>
 
       <div class="-mx-1.5 pb-28">
-        @if (!queries.pending()) {
+        @if (page().queries.ready()) {
           <app-browse-filter-rail
             alwaysShowBoxes
-            [groups]="railGroups()"
-            [openKeys]="queries.openKeys()"
-            [searchTerms]="queries.searchTerms()"
-            (toggleValue)="onToggle($event)"
-            (matchAllChange)="onMatchAll($event)"
-            (commitRange)="onCommitRange($event)"
-            (openChange)="queries.setOpen($event)"
-            (searchChange)="queries.setSearch($event)" />
+            [groups]="page().queries.railGroups()"
+            [openKeys]="page().queries.openKeys()"
+            [searchTerms]="page().queries.searchTerms()"
+            (toggleValue)="page().toggle($event)"
+            (matchAllChange)="page().setMatchAll($event)"
+            (commitRange)="page().commitRange($event)"
+            (openChange)="page().queries.setOpen($event)"
+            (searchChange)="page().queries.setSearch($event)" />
         }
       </div>
 
@@ -67,87 +48,42 @@ import {createBookBrowseUrlState} from './url-state';
         <app-button
           variant="ghost"
           [label]="'browse.clearFilters' | transloco"
-          [disabled]="!hasActiveFilters()"
-          (clicked)="onClear()" />
+          [disabled]="!page().hasActiveFilters()"
+          (clicked)="page().clear()" />
         <app-button
           tone="primary"
           fluid
-          [label]="'browse.filterPage.show' | transloco: {count: previewTotal() ?? '…'}"
-          [loading]="previewLoading()"
-          (clicked)="onCommit()" />
+          [label]="showLabelKey() | transloco: {count: page().previewTotal() ?? '…'}"
+          [loading]="page().previewLoading()"
+          (clicked)="page().commit()" />
       </div>
     </div>
   `,
 })
-export class BookBrowseFilterPageComponent {
+export class BrowseFilterPageComponent<Item extends {id: number}, FacetKey extends string, SortKey extends string> {
   private readonly route = inject(ActivatedRoute);
-  private readonly bookQuery = inject(BookQueryService);
   private readonly transloco = inject(TranslocoService);
-  private readonly urlState = createBookBrowseUrlState();
-
-  protected readonly staged = signal<FacetValueMap>(this.urlState.facets());
-  protected readonly stagedQuery = signal(this.urlState.query());
-  private readonly debouncedQuery = debouncedSignal(
-    computed(() => this.stagedQuery().trim()), SEARCH_DEBOUNCE_MS,
-  );
-  protected readonly hasActiveFilters = computed(() =>
-    countBrowseFacetValues(this.staged()) > 0 || this.stagedQuery().trim().length > 0);
-
-  private readonly scope = computed(() =>
-    bookBrowseScope(this.route.snapshot.paramMap, this.route.snapshot.data),
-  );
-  protected readonly queries = createBookBrowseQueries({
-    selection: this.staged,
-    query: this.debouncedQuery,
-    scope: this.scope,
-  });
-  protected readonly railGroups = this.queries.railGroups;
-  protected readonly searchHint = this.queries.searchHint;
-
-  private readonly previewQuery = injectQuery(() => ({
-    ...this.bookQuery.page({...this.queries.collectionParams(), size: 1, sort: []}),
-    placeholderData: (previous: BookPage | undefined) => previous,
-  }));
-  protected readonly previewTotal = computed(() => this.previewQuery.data()?.page.totalElements ?? null);
-  protected readonly previewLoading = computed(() =>
-    this.previewQuery.isPending() || this.previewQuery.isPlaceholderData());
-
   private readonly activeLang = toSignal(this.transloco.langChanges$, {
     initialValue: this.transloco.getActiveLang(),
   });
+
+  readonly page = input.required<BrowseFilterPage<Item, FacetKey, SortKey>>();
+  readonly title = input.required<string>();
+  readonly searchHint = input.required<string>();
+  readonly showLabelKey = input.required<string>();
+
   protected readonly pageHeader = computed<PageHeader>(() => {
     this.activeLang();
     return {
       title: this.transloco.translate('browse.filter'),
       breadcrumbs: [
         {
-          label: this.queries.title(),
-          commands: ['/', ...this.route.parent!.snapshot.url.map(segment => segment.path)],
+          label: this.title(),
+          commands: ['/', ...this.route.snapshot.pathFromRoot.slice(0, -1).flatMap(route => route.url).map(segment => segment.path)],
           queryParamsHandling: 'preserve',
         },
         {label: this.transloco.translate('browse.filter')},
       ],
     };
   });
-
-  protected onToggle(toggle: BrowseFilterToggle<BookQueryFacetKey>): void {
-    this.staged.set(this.queries.withState(toggle));
-  }
-
-  protected onMatchAll(change: BrowseFilterMatchAll<BookQueryFacetKey>): void {
-    this.staged.set(this.queries.chooseMatchAll(change));
-  }
-
-  protected onCommitRange(commit: BrowseFilterRangeCommit<BookQueryFacetKey>): void {
-    this.staged.set(this.queries.withRange(commit));
-  }
-
-  protected onClear(): void {
-    this.staged.set(EMPTY_FACET_SELECTION);
-    this.stagedQuery.set('');
-  }
-
-  protected onCommit(): void {
-    this.urlState.applyFilters(this.staged(), this.stagedQuery().trim());
-  }
 }

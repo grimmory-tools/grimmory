@@ -33,7 +33,8 @@
     "on": "Uključeno",
     "off": "Isključeno",
     "moreActionsFor": "Više radnji za {{label}}",
-    "dialogLoadError": "Došlo je do pogreške prilikom učitavanja dijaloga. Pokušajte ponovno."
+    "dialogLoadError": "Došlo je do pogreške prilikom učitavanja dijaloga. Pokušajte ponovno.",
+    "metadata": "Metapodaci"
   },
   "auth": {
     "oidc": {
@@ -2845,7 +2846,6 @@
       "quickSend": "Brzo slanje",
       "customSend": "Prilagođeno slanje",
       "download": "Preuzmi",
-      "metadata": "Metapodaci",
       "editMetadata": "Uređivanje metapodataka",
       "fetchMetadata": "",
       "fetchMetadataWithOptions": "",
@@ -3361,9 +3361,6 @@
         "failedDetail": "Došlo je do pogreške prilikom ažuriranja statusa zaključavanja polja."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Spremi kao zadano"
-    },
     "fileAttacher": {
       "title": "Priloži datoteku drugoj knjizi",
       "titleBulk": "Priloži datoteke drugoj knjizi",
@@ -3389,7 +3386,6 @@
     },
     "searcher": {
       "placeholder": "Naslov, autor, serijal, žanr ili ISBN...",
-      "clearSearch": "Očisti pretragu",
       "bookCoverAlt": "Naslovnica knjige",
       "byPrefix": "od",
       "noResults": "Nema pronađenih rezultata",
@@ -5251,6 +5247,7 @@
       "multiSort": "",
       "addField": "",
       "apply": "Primijeni",
+      "saveAsDefault": "Spremi kao zadano",
       "moveUp": "",
       "moveDown": "",
       "flipDirection": ""
@@ -5259,6 +5256,7 @@
       "removeSearch": ""
     },
     "rail": {
+      "clearSearch": "Očisti pretragu",
       "searchValues": "",
       "searchFields": "",
       "searchScope": {

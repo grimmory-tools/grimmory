@@ -2,30 +2,34 @@ import {computed, inject} from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router, type Params} from '@angular/router';
 
-import {
-  bookFacetQueryParams,
-  parseFacetParams,
-  parseSortTermsToken,
-  type BookSortTerm,
-  type FacetValueMap,
-} from '../../features/book/data/book-query-params';
+import {type BrowseSortTerm} from '../../core/data/browse.models';
+import {facetQueryParams, parseFacetParams, parseSortTermsToken} from '../../core/data/browse-query-params';
+import {type BrowseFacetSelection} from './facets';
 
-export type BookBrowseViewMode = 'grid' | 'table';
+export type BrowseViewMode = 'grid' | 'table';
 
-export type BookBrowseUrlState = ReturnType<typeof createBookBrowseUrlState>;
+export interface BrowseUrlKeys<FacetKey extends string, SortKey extends string> {
+  readonly isFacetKey: (key: string) => key is FacetKey;
+  readonly isSortKey: (key: string) => key is SortKey;
+}
 
-export function createBookBrowseUrlState() {
+export type BrowseUrlState<FacetKey extends string, SortKey extends string> =
+  ReturnType<typeof createBrowseUrlState<FacetKey, SortKey>>;
+
+export function createBrowseUrlState<FacetKey extends string, SortKey extends string>(
+  {isFacetKey, isSortKey}: BrowseUrlKeys<FacetKey, SortKey>,
+) {
   const route = inject(ActivatedRoute);
   const router = inject(Router);
   const queryParamMap = toSignal(route.queryParamMap, {
     initialValue: route.snapshot.queryParamMap,
   });
 
-  const facets = computed(() => parseFacetParams(queryParamMap().getAll('facet')));
+  const facets = computed(() => parseFacetParams(queryParamMap().getAll('facet'), isFacetKey));
   const query = computed(() => (queryParamMap().get('query') ?? '').trim());
-  const sortTerms = computed<readonly BookSortTerm[]>(() =>
-    parseSortTermsToken(queryParamMap().get('sort')));
-  const view = computed<BookBrowseViewMode | null>(() => {
+  const sortTerms = computed<readonly BrowseSortTerm<SortKey>[]>(() =>
+    parseSortTermsToken(queryParamMap().get('sort'), isSortKey));
+  const view = computed<BrowseViewMode | null>(() => {
     const requested = queryParamMap().get('view');
     return requested === 'grid' || requested === 'table' ? requested : null;
   });
@@ -45,12 +49,12 @@ export function createBookBrowseUrlState() {
     sortTerms,
     view,
 
-    setFacets(next: FacetValueMap): void {
-      merge(bookFacetQueryParams(next), false);
+    setFacets(next: BrowseFacetSelection<FacetKey>): void {
+      merge(facetQueryParams(next), false);
     },
 
-    setFacetRange(next: FacetValueMap): void {
-      merge(bookFacetQueryParams(next), true);
+    setFacetRange(next: BrowseFacetSelection<FacetKey>): void {
+      merge(facetQueryParams(next), true);
     },
 
     setQuery(term: string): void {
@@ -65,7 +69,7 @@ export function createBookBrowseUrlState() {
       merge({facet: null, query: null}, false);
     },
 
-    setView(next: BookBrowseViewMode): void {
+    setView(next: BrowseViewMode): void {
       merge({view: next}, true);
     },
 
@@ -77,11 +81,11 @@ export function createBookBrowseUrlState() {
       void router.navigate(['filter'], {relativeTo: route, queryParamsHandling: 'preserve'});
     },
 
-    applyFilters(nextFacets: FacetValueMap, nextQuery: string): void {
+    applyFilters(nextFacets: BrowseFacetSelection<FacetKey>, nextQuery: string): void {
       void router.navigate(['..'], {
         relativeTo: route,
         queryParams: {
-          ...bookFacetQueryParams(nextFacets),
+          ...facetQueryParams(nextFacets),
           query: nextQuery || null,
         },
         queryParamsHandling: 'merge',

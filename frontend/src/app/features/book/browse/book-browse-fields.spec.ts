@@ -2,7 +2,7 @@ import {describe, expect, it} from 'vitest';
 
 import {browseFilterGroups, withBrowseFacetRange} from '../../../shared/browse/facets';
 import {type BrowseFacetGroup} from '../../../core/data/browse.models';
-import {bookFacetDefinitions} from './book-browse-facet-definitions';
+import {BOOK_FIELDS} from './book-browse-fields';
 
 function group(key: string, values: [string, number][], complete = true): BrowseFacetGroup {
   return {
@@ -12,7 +12,7 @@ function group(key: string, values: [string, number][], complete = true): Browse
   };
 }
 
-const definitions = bookFacetDefinitions({
+const definitions = BOOK_FIELDS.facetDefinitions({
   shelf: () => undefined,
   library: () => undefined,
   translate: (key: string) => key,

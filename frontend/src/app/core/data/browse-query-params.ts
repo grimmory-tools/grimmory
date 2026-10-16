@@ -1,12 +1,12 @@
 import {HttpParams} from '@angular/common/http';
 
-import {browseFacetEntries, withBrowseFacetValues, type BrowseFacetSelection} from '../../shared/browse/facets';
+import {browseFacetEntries, withBrowseFacetValues, type BrowseFacetSelection, type BrowseScope} from '../../shared/browse/facets';
 import {BrowseSortTerm} from './browse.models';
 
 export interface BrowseCollectionFilterParams<FacetKey extends string> {
   query?: string;
   facets: BrowseFacetSelection<FacetKey>;
-  scope?: {readonly facetKey: FacetKey; readonly facetValue: string};
+  scope?: BrowseScope<FacetKey>;
 }
 
 export interface BrowseQueryParams<FacetKey extends string, SortKey extends string>
@@ -89,7 +89,7 @@ export function toCollectionHttpParams<FacetKey extends string>(
   return [...scope, ...facetTokens(params.facets)].reduce((result, token) => result.append('facet', token), httpParams);
 }
 
-export function facetTokens(facets: BrowseFacetSelection): string[] {
+function facetTokens(facets: BrowseFacetSelection): string[] {
   return Object.entries(facets).flatMap(([key, values]) => values ? [
     ...values.include.map(value => `${values.matchAll ? '+' : ''}${key}:${value}`),
     ...values.exclude.map(value => `-${key}:${value}`),
@@ -113,4 +113,60 @@ function normalizeFacetSelection<FacetKey extends string>(
     include: normalizeValues(values.include),
     exclude: normalizeValues(values.exclude),
   }), facets);
+}
+
+export function facetQueryParams(facets: BrowseFacetSelection) {
+  const tokens = facetTokens(facets);
+  return {facet: tokens.length > 0 ? tokens : null};
+}
+
+export function parseFacetParams<FacetKey extends string>(
+  tokens: readonly string[],
+  isFacetKey: (key: string) => key is FacetKey,
+): BrowseFacetSelection<FacetKey> {
+  const facets: Partial<Record<FacetKey, {include: string[]; exclude: string[]; matchAll?: true}>> = {};
+  for (const token of tokens) {
+    const separator = token.indexOf(':');
+    const mark = token.startsWith('+') || token.startsWith('-') ? token[0] : '';
+    const key = token.slice(mark.length, separator);
+    const value = token.slice(separator + 1).trim();
+    if (separator <= mark.length || !value || !isFacetKey(key)) {
+      continue;
+    }
+    const facet = facets[key] ??= {include: [], exclude: []};
+    const values = mark === '-' ? facet.exclude : facet.include;
+    if (!values.includes(value)) {
+      values.push(value);
+    }
+    if (mark === '+') {
+      facet.matchAll = true;
+    }
+  }
+  return facets;
+}
+
+export function parseSortTermsToken<SortKey extends string>(
+  token: string | null,
+  isSortKey: (key: string) => key is SortKey,
+): BrowseSortTerm<SortKey>[] {
+  if (!token) {
+    return [];
+  }
+
+  const seen = new Set<string>();
+  const terms: BrowseSortTerm<SortKey>[] = [];
+  for (const rawTerm of token.split(',')) {
+    const term = rawTerm.trim();
+    if (!term) {
+      continue;
+    }
+    const descending = term.startsWith('-');
+    const key = (descending ? term.slice(1) : term).trim();
+    if (!isSortKey(key) || seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    terms.push({key, direction: descending ? 'desc' : 'asc'});
+  }
+  return terms;
 }

@@ -65,6 +65,8 @@ function isBookLeafKey(
   prefix: readonly string[],
   bookIds: ReadonlySet<number>,
 ): boolean {
+  const bookId = queryKey[prefix.length];
   return prefix.every((part, index) => queryKey[index] === part)
-    && bookIds.has(queryKey[prefix.length] as number);
+    && typeof bookId === 'number'
+    && bookIds.has(bookId);
 }

@@ -3361,9 +3361,6 @@
         "failedDetail": ""
       }
     },
-    "sorting": {
-      "saveAsDefault": ""
-    },
     "fileAttacher": {
       "title": "",
       "titleBulk": "",
@@ -3389,7 +3386,6 @@
     },
     "searcher": {
       "placeholder": "",
-      "clearSearch": "",
       "bookCoverAlt": "",
       "byPrefix": "",
       "noResults": "",
@@ -5248,6 +5244,7 @@
     "filter": "",
     "moreActions": "Meer acties",
     "sort": {
+      "saveAsDefault": "",
       "multiSort": "",
       "addField": "",
       "apply": "",
@@ -5259,6 +5256,7 @@
       "removeSearch": ""
     },
     "rail": {
+      "clearSearch": "",
       "searchValues": "",
       "searchFields": "",
       "searchScope": {

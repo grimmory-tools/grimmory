@@ -5,10 +5,11 @@ import {QueryClient} from '@tanstack/angular-query-experimental';
 import {catchError, from, map, of, switchMap} from 'rxjs';
 
 import {SEARCH_DEBOUNCE_MS} from '../../../shared/util/search-terms';
-import {type BookCollectionFilterParams, type BookQueryFacetKey, EMPTY_FACET_SELECTION} from '../data/book-query-params';
+import {type BrowseCollectionFilterParams} from '../../../core/data/browse-query-params';
+import {type BookQueryFacetKey, EMPTY_FACET_SELECTION} from '../data/book-query-params';
 import {BookQueryService} from '../data/book-query.service';
 
-const ALL_BOOKS: BookCollectionFilterParams = {facets: EMPTY_FACET_SELECTION, facetLogic: 'or'};
+const ALL_BOOKS: BrowseCollectionFilterParams<BookQueryFacetKey> = {facets: EMPTY_FACET_SELECTION, facetLogic: 'or'};
 
 @Directive({selector: '[appFacetSuggestions]'})
 export class FacetSuggestionsDirective {
