@@ -7,8 +7,8 @@ import {
   invalidateBookCollections,
   applyBookQueryChangeSet,
 } from './book-query-cache';
-import {bookQueryKeys} from './book-query-keys';
-import {normalizeBookPageParams} from './book-query-params';
+import {bookQueryKeys} from '../../../core/data/browse-query-keys';
+import {normalizeBookPageParams} from '../../../core/data/browse-query-params';
 
 const firstBook = {id: 1};
 const secondBook = {id: 2};

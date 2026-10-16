@@ -28,7 +28,7 @@ import {ShelfDefinitionQueryService} from '../data/shelf-definition-query.servic
 import {BookDialogHelperService} from '../service/book-dialog-helper.service';
 import {UserService} from '../../settings/user-management/user.service';
 import {EmailService} from '../../settings/email-v2/email.service';
-import {type BookSortTerm} from '../data/book-query-params';
+import {type BookSortTerm} from '../../../core/data/browse-query-params';
 import {BookBrowsePageComponent} from './book-browse-page.component';
 import {BookBrowseFilterPageComponent} from './book-browse-filter-page.component';
 

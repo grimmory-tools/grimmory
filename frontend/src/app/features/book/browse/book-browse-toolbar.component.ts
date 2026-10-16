@@ -21,7 +21,7 @@ import {
 } from '@lucide/angular';
 
 import {type GridDensityDirection} from '../../../shared/util/grid-density.util';
-import {DEFAULT_BOOK_SORT_TERMS, type BookSortTerm, type SortDirection} from '../data/book-query-params';
+import {DEFAULT_BOOK_SORT_TERMS, type BookSortTerm, type SortDirection} from '../../../core/data/browse-query-params';
 import {AppButtonComponent} from '../../../shared/ui/button/app-button.component';
 import {connectedGroupClass, connectedItemClass} from '../../../shared/ui/connected-group';
 import {AppRadioGroupComponent} from '../../../shared/ui/radio-group/app-radio-group.component';

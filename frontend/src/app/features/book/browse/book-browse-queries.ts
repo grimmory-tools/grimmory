@@ -13,8 +13,8 @@ import {
   type BookCollectionFilterParams,
   type BookQueryFacetKey,
   type FacetValueMap,
-} from '../data/book-query-params';
-import {BookQueryService} from '../data/book-query.service';
+} from '../../../core/data/browse-query-params';
+import {BookQueryService} from '../../../core/data/browse-query.service';
 import {ShelfDefinitionQueryService} from '../data/shelf-definition-query.service';
 import {LibraryService} from '../service/library.service';
 import {UserService} from '../../settings/user-management/user.service';

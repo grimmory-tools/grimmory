@@ -5,7 +5,7 @@ import {QueryClient} from '@tanstack/angular-query-experimental';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {API_CONFIG} from '../../core/config/api-config';
-import {bookQueryKeys} from '../../features/book/data/book-query-keys';
+import {bookQueryKeys} from '../../core/data/browse-query-keys';
 import {BOOKS_QUERY_KEY} from '../../features/book/service/book-query-keys';
 import {MetadataMatchWeightsService} from './metadata-match-weights.service';
 

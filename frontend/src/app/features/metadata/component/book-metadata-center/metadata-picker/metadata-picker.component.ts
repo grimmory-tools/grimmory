@@ -8,7 +8,7 @@ import {InputText} from '@openng/optimus-ui/inputtext';
 import {forkJoin, Observable} from 'rxjs';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
-import {type BookQueryFacetKey} from '../../../../book/data/book-query-params';
+import {type BookQueryFacetKey} from '../../../../../core/data/browse-query-params';
 import {FacetSuggestionsDirective} from '../../../../book/components/facet-suggestions.directive';
 import {BookMetadataManageService} from '../../../../book/service/book-metadata-manage.service';
 import {Textarea} from '@openng/optimus-ui/textarea';

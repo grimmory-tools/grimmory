@@ -6,8 +6,8 @@ import {
   BookQueryParams,
   normalizeBookCollectionFilterParams,
   normalizeBookQueryParams,
-} from './book-query-params';
-import {BookDuplicateRequest} from './book-query.models';
+} from './browse-query-params';
+import {BookDuplicateRequest} from '../../features/book/data/book-query.models';
 
 export const bookQueryKeys = {
   all: () => ['books', 'query'] as const,

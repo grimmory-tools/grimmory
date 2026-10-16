@@ -4,7 +4,7 @@ import {TranslocoPipe} from '@jsverse/transloco';
 
 import {AppButtonComponent} from '../../../shared/ui/button/app-button.component';
 import {AppCheckboxComponent} from '../../../shared/ui/checkbox/app-checkbox.component';
-import {type BookSortTerm} from '../data/book-query-params';
+import {type BookSortTerm} from '../../../core/data/browse-query-params';
 import {BookBrowseMultiSortEditorComponent} from './book-browse-multi-sort-editor.component';
 import {type BookSortOption} from './book-browse-sort';
 

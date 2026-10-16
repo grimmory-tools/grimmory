@@ -9,7 +9,7 @@ import {AppSettingsService} from '../../../../shared/service/app-settings.servic
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {DeleteBooksPartialError} from '../../data/book-command.models';
 import {BookCommandService} from '../../data/book-command.service';
-import {BookQueryService} from '../../data/book-query.service';
+import {BookQueryService} from '../../../../core/data/browse-query.service';
 import {BookDetail} from '../../data/book-response.models';
 import {DuplicateMergerComponent} from './duplicate-merger.component';
 

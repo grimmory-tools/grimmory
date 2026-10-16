@@ -6,9 +6,9 @@ import { TranslocoService } from '@jsverse/transloco';
 import { injectQuery, QueryClient } from '@tanstack/angular-query-experimental';
 
 import { BookDialogHelperService } from '../book/service/book-dialog-helper.service';
-import { BookPageParams, EMPTY_FACET_SELECTION } from '../book/data/book-query-params';
+import { BookPageParams, EMPTY_FACET_SELECTION } from '../../core/data/browse-query-params';
 import { BookSummary } from '../book/data/book-response.models';
-import { BookQueryService } from '../book/data/book-query.service';
+import { BookQueryService } from '../../core/data/browse-query.service';
 import { LibraryService } from '../book/service/library.service';
 import { ShelfService } from '../book/service/shelf.service';
 import { MagicShelfService } from '../magic-shelf/service/magic-shelf.service';

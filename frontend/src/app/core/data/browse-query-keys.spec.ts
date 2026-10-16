@@ -5,8 +5,8 @@ import {
   normalizeBookQueryParams,
   normalizeBookPageParams,
   type BookPageParams,
-} from './book-query-params';
-import {bookCollectionKeys, bookQueryKeys} from './book-query-keys';
+} from './browse-query-params';
+import {bookCollectionKeys, bookQueryKeys} from './browse-query-keys';
 
 describe('book query keys', () => {
   const query = {

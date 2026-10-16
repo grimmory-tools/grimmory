@@ -21,7 +21,7 @@ import {
   sortTermsToken,
   type BookQuerySortKey,
   type BookSortTerm,
-} from '../data/book-query-params';
+} from '../../../core/data/browse-query-params';
 import {
   bookColumnOptions,
   bookVisibleColumnOptions,
