@@ -9,7 +9,7 @@
   },
   "src/app/app.component.ts": {
     "@angular-eslint/inject-at-top": {
-      "count": 16
+      "count": 15
     },
     "@angular-eslint/prefer-signals": {
       "count": 2
@@ -63,39 +63,7 @@
       "count": 1
     }
   },
-  "src/app/features/author-browser/components/author-browser/author-browser.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 2
-    },
-    "@angular-eslint/template/prefer-at-else": {
-      "count": 1
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 16
-    }
-  },
-  "src/app/features/author-browser/components/author-browser/author-browser.component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 12
-    }
-  },
-  "src/app/features/author-browser/components/author-card/author-card.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 3
-    }
-  },
-  "src/app/features/author-browser/components/author-card/author-card.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 4
-    },
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 7
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 7
-    }
-  },
-  "src/app/features/author-browser/components/author-detail/author-detail.component.html": {
+  "src/app/features/author/detail/author-detail/author-detail.component.html": {
     "@angular-eslint/template/prefer-class-binding": {
       "count": 1
     },
@@ -103,12 +71,12 @@
       "count": 8
     }
   },
-  "src/app/features/author-browser/components/author-detail/author-detail.component.ts": {
+  "src/app/features/author/detail/author-detail/author-detail.component.ts": {
     "@angular-eslint/prefer-signals": {
-      "count": 3
+      "count": 1
     }
   },
-  "src/app/features/author-browser/components/author-editor/author-editor.component.html": {
+  "src/app/features/author/detail/author-editor/author-editor.component.html": {
     "@angular-eslint/template/prefer-at-else": {
       "count": 4
     },
@@ -116,23 +84,7 @@
       "count": 16
     }
   },
-  "src/app/features/author-browser/components/author-editor/author-editor.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 4
-    },
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 4
-    }
-  },
-  "src/app/features/author-browser/components/author-match/author-match.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 4
-    }
-  },
-  "src/app/features/author-browser/components/author-match/author-match.component.ts": {
+  "src/app/features/author/detail/author-editor/author-editor.component.ts": {
     "@angular-eslint/inject-at-top": {
       "count": 3
     },
@@ -140,30 +92,33 @@
       "count": 1
     },
     "@angular-eslint/prefer-signals": {
-      "count": 10
+      "count": 4
     }
   },
-  "src/app/features/author-browser/components/author-photo-search/author-photo-search.component.html": {
+  "src/app/features/author/detail/author-match/author-match.component.html": {
+    "@angular-eslint/template/prefer-self-closing-tags": {
+      "count": 4
+    }
+  },
+  "src/app/features/author/detail/author-match/author-match.component.ts": {
+    "@angular-eslint/inject-at-top": {
+      "count": 2
+    },
+    "@angular-eslint/prefer-output-emitter-ref": {
+      "count": 1
+    },
+    "@angular-eslint/prefer-signals": {
+      "count": 6
+    }
+  },
+  "src/app/features/author/detail/author-photo-search/author-photo-search.component.html": {
     "@angular-eslint/template/prefer-self-closing-tags": {
       "count": 5
     }
   },
-  "src/app/features/author-browser/components/author-photo-search/author-photo-search.component.ts": {
+  "src/app/features/author/detail/author-photo-search/author-photo-search.component.ts": {
     "@angular-eslint/inject-at-top": {
-      "count": 6
-    }
-  },
-  "src/app/features/author-browser/service/author-selection.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/author-browser/service/author.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 2
+      "count": 5
     }
   },
   "src/app/features/book/browse/book-browse-bulk-bar.component.ts": {
@@ -174,16 +129,6 @@
   "src/app/features/book/browse/book-browse-column-width-preference.service.ts": {
     "@angular-eslint/prefer-service-decorator": {
       "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-detail-line.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-table.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 8
     }
   },
   "src/app/features/book/components/add-physical-book-dialog/add-physical-book-dialog.component.html": {
@@ -302,7 +247,7 @@
   },
   "src/app/features/book/components/cards/book-card.component.ts": {
     "@angular-eslint/inject-at-top": {
-      "count": 5
+      "count": 4
     }
   },
   "src/app/features/book/components/duplicate-merger/duplicate-merger.component.html": {
@@ -387,7 +332,7 @@
   },
   "src/app/features/book/components/series-page/series-page.component.ts": {
     "@angular-eslint/inject-at-top": {
-      "count": 18
+      "count": 17
     },
     "@angular-eslint/prefer-signals": {
       "count": 18
@@ -417,11 +362,6 @@
     }
   },
   "src/app/features/book/data/book-command.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/data/book-query.service.ts": {
     "@angular-eslint/prefer-service-decorator": {
       "count": 1
     }
@@ -800,7 +740,7 @@
   },
   "src/app/features/metadata/component/book-metadata-center/metadata-viewer/metadata-viewer.component.ts": {
     "@angular-eslint/inject-at-top": {
-      "count": 19
+      "count": 18
     },
     "@angular-eslint/prefer-signals": {
       "count": 4
@@ -2014,11 +1954,6 @@
       "count": 1
     }
   },
-  "src/app/shared/browse/filter-rail/filter-section.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    }
-  },
   "src/app/shared/browse/grid/grid-item.component.ts": {
     "@angular-eslint/template/require-switch-default": {
       "count": 1
@@ -2048,11 +1983,6 @@
   "src/app/shared/components/change-password/change-password.component.ts": {
     "@angular-eslint/inject-at-top": {
       "count": 4
-    }
-  },
-  "src/app/shared/components/cover/cover.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
     }
   },
   "src/app/shared/components/directory-picker/directory-picker.component.ts": {

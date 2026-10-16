@@ -23,6 +23,14 @@ export class ScalePreference {
     this.lastPersistedScale = initialScale;
   }
 
+  get minScale(): number {
+    return this.config.minScale;
+  }
+
+  get maxScale(): number {
+    return this.config.maxScale;
+  }
+
   setScale(scale: number): void {
     const normalizedScale = this.clampScale(scale);
     this._scaleFactor.set(normalizedScale);

@@ -5,7 +5,6 @@ import {QueryClient} from '@tanstack/angular-query-experimental';
 
 import {API_CONFIG} from '../../../core/config/api-config';
 import {invalidateAllBookCaches, invalidateBooksById} from '../../book/service/legacy-book-cache';
-import {invalidateAuthorsQuery} from '../../author-browser/service/author-query-cache';
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +22,6 @@ export class SidecarService {
     return this.http.post<{message: string}>(`${this.apiUrl}/books/${bookId}/sidecar/import`, {}).pipe(
       tap(() => {
         invalidateBooksById(this.queryClient, [bookId]);
-        invalidateAuthorsQuery(this.queryClient);
       })
     );
   }
@@ -40,7 +38,6 @@ export class SidecarService {
     ).pipe(
       tap(() => {
         invalidateAllBookCaches(this.queryClient);
-        invalidateAuthorsQuery(this.queryClient);
       })
     );
   }

@@ -14,7 +14,7 @@ export class CoverScalePreferenceService {
   private readonly MAX_SCALE = 1.5;
 
   private readonly localStorageService = inject(LocalStorageService);
-  private readonly scalePreference = new ScalePreference(this.localStorageService, {
+  readonly scalePreference = new ScalePreference(this.localStorageService, {
     storageKey: this.STORAGE_KEY,
     minScale: this.MIN_SCALE,
     maxScale: this.MAX_SCALE,

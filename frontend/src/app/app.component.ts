@@ -19,7 +19,6 @@ import {AuthService} from './shared/service/auth.service';
 import {CommandPaletteComponent} from './features/command-palette/command-palette.component';
 import {CommandPaletteService} from './features/command-palette/command-palette.service';
 import {LibraryImportProgressService} from './shared/service/library-import-progress.service';
-import {AuthorService} from './features/author-browser/service/author.service';
 import {MetadataRefreshSubmissionService} from './features/metadata/data/metadata-refresh-submission.service';
 import {RxStompState} from '@stomp/rx-stomp';
 
@@ -40,7 +39,6 @@ export class AppComponent implements OnInit, OnDestroy {
   private appThemeService = inject(AppThemeService); // DO NOT REMOVE: Used to initialize app theme on startup
   private authInit = inject(AuthInitializationService);
   private bookService = inject(BookService);
-  private authorService = inject(AuthorService);
   private rxStompService = inject(RxStompService);
   private notificationEventService = inject(NotificationEventService);
   private metadataProgressService = inject(MetadataProgressService);
@@ -117,7 +115,6 @@ export class AppComponent implements OnInit, OnDestroy {
         }
         if (hasConnected) {
           this.bookService.handleReconnect();
-          this.authorService.invalidateAuthors();
           return;
         }
         hasConnected = true;
@@ -128,7 +125,6 @@ export class AppComponent implements OnInit, OnDestroy {
         const book = JSON.parse(msg.body);
         this.libraryImportProgressService.recordBookAdded(book.metadata?.title || this.translocoService.translate('book.unknownTitle'));
         this.bookService.handleNewlyCreatedBook(book);
-        this.authorService.handleNewlyCreatedBook(book);
       })
     );
     this.subscriptions.push(

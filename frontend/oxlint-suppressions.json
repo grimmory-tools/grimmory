@@ -7,7 +7,7 @@
       "count": 1
     },
     "typescript/no-unsafe-argument": {
-      "count": 7
+      "count": 6
     },
     "typescript/no-unsafe-assignment": {
       "count": 1
@@ -16,7 +16,7 @@
       "count": 1
     },
     "typescript/prefer-readonly": {
-      "count": 18
+      "count": 17
     }
   },
   "src/app/core/config/transloco-loader.spec.ts": {
@@ -27,11 +27,6 @@
   "src/app/core/config/transloco-loader.ts": {
     "typescript/no-unnecessary-condition": {
       "count": 4
-    }
-  },
-  "src/app/core/data/query-transport.ts": {
-    "typescript/only-throw-error": {
-      "count": 1
     }
   },
   "src/app/core/data/sse.ts": {
@@ -132,43 +127,15 @@
       "count": 3
     }
   },
-  "src/app/features/author-browser/components/author-browser/author-browser.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    },
+  "src/app/features/author/detail/author-detail/author-detail.component.ts": {
     "typescript/no-unnecessary-condition": {
-      "count": 5
-    },
-    "typescript/prefer-nullish-coalescing": {
-      "count": 1
-    },
-    "typescript/prefer-readonly": {
-      "count": 14
-    }
-  },
-  "src/app/features/author-browser/components/author-card/author-card.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 3
-    },
-    "typescript/no-unnecessary-condition": {
-      "count": 2
-    },
-    "typescript/no-unsafe-assignment": {
-      "count": 1
     },
     "typescript/prefer-readonly": {
       "count": 4
     }
   },
-  "src/app/features/author-browser/components/author-detail/author-detail.component.ts": {
-    "typescript/no-unnecessary-condition": {
-      "count": 3
-    },
-    "typescript/prefer-readonly": {
-      "count": 8
-    }
-  },
-  "src/app/features/author-browser/components/author-editor/author-editor.component.ts": {
+  "src/app/features/author/detail/author-editor/author-editor.component.ts": {
     "typescript/no-unnecessary-condition": {
       "count": 1
     },
@@ -182,81 +149,27 @@
       "count": 7
     },
     "typescript/prefer-readonly": {
-      "count": 4
+      "count": 3
     }
   },
-  "src/app/features/author-browser/components/author-match/author-match.component.ts": {
+  "src/app/features/author/detail/author-match/author-match.component.ts": {
     "typescript/prefer-readonly": {
-      "count": 3
+      "count": 2
     }
   },
-  "src/app/features/author-browser/components/author-photo-search/author-photo-search.component.ts": {
-    "typescript/no-unsafe-argument": {
-      "count": 1
-    },
+  "src/app/features/author/detail/author-photo-search/author-photo-search.component.ts": {
     "typescript/no-unsafe-assignment": {
-      "count": 3
+      "count": 4
     },
     "typescript/no-unsafe-member-access": {
       "count": 3
     },
     "typescript/prefer-readonly": {
-      "count": 5
-    }
-  },
-  "src/app/features/author-browser/service/author-selection.service.ts": {
-    "typescript/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "src/app/features/author-browser/service/author.service.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 6
-    },
-    "typescript/no-unsafe-argument": {
-      "count": 2
-    },
-    "typescript/prefer-readonly": {
-      "count": 6
+      "count": 4
     }
   },
   "src/app/features/book/browse/book-browse-column-width-preference.service.ts": {
     "anti-slop/no-unsafe-dictionary-type": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-columns.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-facet-definitions.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-fields.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-filter-page.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-multi-sort-dialog.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-preferences.ts": {
-    "typescript/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-sort.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 1
     }
   },
@@ -391,11 +304,6 @@
       "count": 6
     }
   },
-  "src/app/features/book/components/cards/book-card.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
   "src/app/features/book/components/duplicate-merger/duplicate-merger.component.ts": {
     "typescript/no-deprecated": {
       "count": 2
@@ -495,7 +403,7 @@
       "count": 1
     },
     "typescript/prefer-readonly": {
-      "count": 15
+      "count": 14
     }
   },
   "src/app/features/book/components/shelf-assigner/shelf-assigner.component.ts": {
@@ -561,19 +469,6 @@
   },
   "src/app/features/book/data/book-command.service.ts": {
     "anti-slop/no-unsafe-dictionary-type": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/data/book-query-cache.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/data/book-query.service.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    },
-    "typescript/no-unnecessary-type-parameters": {
       "count": 1
     }
   },
@@ -1056,7 +951,7 @@
       "count": 3
     },
     "typescript/prefer-readonly": {
-      "count": 18
+      "count": 17
     }
   },
   "src/app/features/metadata/component/book-metadata-center/sidecar-viewer/sidecar-viewer.component.ts": {
@@ -2401,11 +2296,6 @@
   },
   "src/app/features/stats/component/user-stats/user-stats.component.ts": {
     "typescript/prefer-readonly": {
-      "count": 2
-    }
-  },
-  "src/app/shared/browse/results.ts": {
-    "anti-slop/no-unknown-returns": {
       "count": 2
     }
   },

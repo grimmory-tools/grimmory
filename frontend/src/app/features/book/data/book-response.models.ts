@@ -135,6 +135,8 @@ interface BookMetadataFields {
   lubimyczytacRating?: number;
   audibleRating?: number;
   audibleReviewCount?: number;
+  applebooksRating?: number;
+  applebooksReviewCount?: number;
   coverUpdatedOn?: string;
   audiobookCoverUpdatedOn?: string;
   authors?: string[];
@@ -252,8 +254,6 @@ export interface BookDetailMetadata extends BookMetadataFields {
   audibleRating?: number;
   audibleReviewCount?: number;
   applebooksId?: string;
-  applebooksRating?: number;
-  applebooksReviewCount?: number;
   abridged?: boolean;
   audiobookMetadata?: BookDetailAudiobookMetadata;
   comicMetadata?: BookDetailComicMetadata;
@@ -314,9 +314,4 @@ export interface BookDetailMetadata extends BookMetadataFields {
 
 export interface BookDetail extends BookRecord<BookDetailMetadata> {
   libraryPath?: BookLibraryPath;
-}
-
-export interface BookRecommendation {
-  book: BookDetail;
-  similarityScore: number;
 }
