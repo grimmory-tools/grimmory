@@ -7,11 +7,11 @@ import {TranslocoService} from '@jsverse/transloco';
 
 @Injectable()
 export class PdfBookmarkService {
-  private bookMarkService = inject(BookMarkService);
-  private messageService = inject(MessageService);
+  private readonly bookMarkService = inject(BookMarkService);
+  private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
 
-  private bookmarks = new Map<number, BookMark>();
+  private readonly bookmarks = new Map<number, BookMark>();
   private bookId!: number;
 
   initialize(bookId: number): void {

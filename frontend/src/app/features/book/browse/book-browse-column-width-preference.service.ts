@@ -1,10 +1,10 @@
-import {Injectable, inject} from '@angular/core';
+import {Service, inject} from '@angular/core';
 
 import {LocalStorageService} from '../../../shared/service/local-storage.service';
 
 const STORAGE_KEY = 'browseTableColumnWidths';
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class BookBrowseColumnWidthPreferenceService {
   private readonly localStorage = inject(LocalStorageService);
 

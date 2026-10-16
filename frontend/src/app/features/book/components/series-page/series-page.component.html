@@ -1,8 +1,7 @@
 <ng-container *transloco="let t; prefix: 'book.seriesPage'">
 @if (isBooksLoading()) {
   <div class="loading-state">
-    <p-progressSpinner strokeWidth="4" fill="transparent" animationDuration=".8s">
-    </p-progressSpinner>
+    <p-progressSpinner strokeWidth="4" fill="transparent" animationDuration=".8s" />
     <p style="color: var(--primary-color);">
       {{ t('loadingSeriesDetails') }}
     </p>
@@ -207,8 +206,7 @@
                                 <p-progressBar
                                   [value]="nextUp.progressPercent"
                                   [showValue]="false"
-                                  class="next-up-progress">
-                                </p-progressBar>
+                                  class="next-up-progress" />
                                 <span class="next-up-percent">{{ nextUp.progressPercent }}%</span>
                               </div>
                             }
@@ -295,8 +293,7 @@
                       (checkboxClick)="onCheckboxClicked($event)"
                       [isSelected]="isBookSelected(book)"
                       [useSquareCovers]="seriesCardsUseSquareCovers"
-                      [overlayPreferenceService]="bookCardOverlayPreferenceService">
-                    </app-legacy-book-card>
+                      [overlayPreferenceService]="bookCardOverlayPreferenceService" />
                   }
                 </div>
 
@@ -389,7 +386,7 @@
               </div>
             </div>
           }
-          @if (books.length === 0) {
+          @empty {
             <div class="empty-state">{{ t('noBooksFound') }}</div>
           }
         </div>
@@ -418,8 +415,7 @@
                     tooltipPosition="top"
                     outlined="true"
                     severity="info"
-                    icon="pi pi-database">
-                  </p-button>
+                    icon="pi pi-database" />
                 }
                 <p-button
                   icon="pi pi-bookmark-fill"
@@ -427,8 +423,7 @@
                   severity="info"
                   (onClick)="openShelfAssigner()"
                   [pTooltip]="t('tooltip.assignToShelf')"
-                  tooltipPosition="top">
-                </p-button>
+                  tooltipPosition="top" />
                 @if (user.permissions.canBulkLockUnlockMetadata) {
                   <p-button
                     outlined="true"
@@ -436,8 +431,7 @@
                     severity="info"
                   (click)="lockUnlockMetadata()"
                   [pTooltip]="t('tooltip.lockUnlockMetadata')"
-                  tooltipPosition="top">
-                  </p-button>
+                  tooltipPosition="top" />
                 }
                 @if (user.permissions.canMoveOrganizeFiles && appSettings()?.diskType === 'LOCAL') {
                   <p-button
@@ -446,8 +440,7 @@
                     severity="info"
                     (click)="moveFiles()"
                     [pTooltip]="t('tooltip.organizeFiles')"
-                    tooltipPosition="top">
-                  </p-button>
+                    tooltipPosition="top" />
                 }
                 @if (hasMoreActionsItems) {
                   <div class="more-actions-wrapper">
@@ -457,13 +450,12 @@
                       tooltipPosition="top"
                       outlined="true"
                       severity="info"
-                      icon="pi pi-ellipsis-v">
-                    </p-button>
+                      icon="pi pi-ellipsis-v" />
                     <p-tieredMenu #moreActionsMenu [model]="moreActionsMenuItems()" [popup]="true" appendTo="body"/>
                   </div>
                 }
               </div>
-            <p-divider layout="vertical"></p-divider>
+            <p-divider layout="vertical" />
             <div class="footer-action-group">
               <p-button
                 outlined="true"
@@ -471,27 +463,24 @@
                 severity="success"
                 (click)="selectAllBooks()"
                 [pTooltip]="t('tooltip.selectAll')"
-                tooltipPosition="top">
-              </p-button>
+                tooltipPosition="top" />
               <p-button
                 outlined="true"
                 icon="pi pi-times"
                 severity="warn"
                 (click)="deselectAllBooks()"
                 [pTooltip]="t('tooltip.deselectAll')"
-                tooltipPosition="top">
-              </p-button>
+                tooltipPosition="top" />
             </div>
             @if (user.permissions.admin || user.permissions.canDeleteBook) {
-              <p-divider layout="vertical"></p-divider>
+              <p-divider layout="vertical" />
               <p-button
                 outlined="true"
                 icon="pi pi-trash"
                 severity="danger"
                 (click)="confirmDeleteBooks()"
                 [pTooltip]="t('tooltip.deleteSelected')"
-                tooltipPosition="top">
-              </p-button>
+                tooltipPosition="top" />
             }
           </div>
           <div class="footer-right"></div>

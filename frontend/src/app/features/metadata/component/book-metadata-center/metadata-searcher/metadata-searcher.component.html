@@ -3,8 +3,7 @@
     <app-metadata-picker
       [fetchedMetadata]="selectedMetadata"
       [book]="book()"
-      (goBack)="onGoBack()">
-    </app-metadata-picker>
+      (goBack)="onGoBack()" />
   </div>
 } @else {
   <div class="searcher-container" *transloco="let t; prefix: 'metadata.searcher'">
@@ -24,8 +23,7 @@
             optionValue="id"
             formControlName="providers"
             [placeholder]="t('selectProviders')"
-            class="'custom-multiselect'">
-          </p-multiselect>
+            class="'custom-multiselect'" />
         </div>
 
         <div class="search-field">
@@ -79,8 +77,7 @@
             type="submit"
             [disabled]="!isSearchEnabled || loading()"
             icon="pi pi-search"
-            class="'custom-search-button'">
-          </p-button>
+            class="'custom-search-button'" />
         </div>
       </div>
     </form>
@@ -131,7 +128,7 @@
       </div>
     }
 
-    @if (!hasSearched()) {
+    @else {
       <div class="empty-state">
         <div class="empty-icon">
           <i class="pi pi-search"></i>

@@ -16,13 +16,13 @@ export interface NoteDialogState {
 
 @Injectable()
 export class ReaderNoteService {
-  private bookNoteV2Service = inject(BookNoteV2Service);
-  private messageService = inject(MessageService);
+  private readonly bookNoteV2Service = inject(BookNoteV2Service);
+  private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
-  private selectionService = inject(ReaderSelectionService);
-  private progressService = inject(ReaderProgressService);
-  private leftSidebarService = inject(ReaderLeftSidebarService);
-  private viewManager = inject(ReaderViewManagerService);
+  private readonly selectionService = inject(ReaderSelectionService);
+  private readonly progressService = inject(ReaderProgressService);
+  private readonly leftSidebarService = inject(ReaderLeftSidebarService);
+  private readonly viewManager = inject(ReaderViewManagerService);
 
   private readonly destroyRef = inject(DestroyRef);
   private bookId!: number;

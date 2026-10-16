@@ -34,9 +34,9 @@ export class ViewPreferencesParentComponent {
   readonly SIDEBAR_MIN_WIDTH = SIDEBAR_MIN_WIDTH;
   readonly SIDEBAR_MAX_WIDTH = SIDEBAR_MAX_WIDTH;
 
-  private layoutService = inject(LayoutService);
-  private messageService = inject(MessageService);
-  private t = inject(TranslocoService);
+  private readonly layoutService = inject(LayoutService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
 
   get sidebarWidth(): number {
     return this.layoutService.sidebarWidth();

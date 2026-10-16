@@ -19,7 +19,7 @@
             @for (provider of configurableProviders(); track provider.id) {
               <div class="setting-item">
                 <div class="setting-header">
-                  <p-toggleswitch [(ngModel)]="enabled[provider.id]" [disabled]="isToggleDisabled(provider.id)"></p-toggleswitch>
+                  <p-toggleswitch [(ngModel)]="enabled[provider.id]" [disabled]="isToggleDisabled(provider.id)" />
                   <span class="setting-label">{{ provider.labelKey | transloco }}</span>
                 </div>
                 @switch (provider.id) {
@@ -32,13 +32,12 @@
                             [options]="amazonDomains"
                             [(ngModel)]="selectedAmazonDomain"
                             [placeholder]="t('selectDomain')"
-                            class="config-select">
-                          </p-select>
+                            class="config-select" />
                         </div>
                         <div class="config-field">
                           <div class="config-label-row">
                             <span class="config-label">{{ t('cookieLabel') }}</span>
-                            <app-external-doc-link docType="amazonCookie"></app-external-doc-link>
+                            <app-external-doc-link docType="amazonCookie" />
                           </div>
                           <p class="config-description">{{ t('cookieDesc') }}</p>
                           <input
@@ -61,8 +60,7 @@
                             [(ngModel)]="selectedGoogleLanguage"
                             [showClear]="!!selectedGoogleLanguage"
                             [placeholder]="t('selectLanguage')"
-                            class="config-select">
-                          </p-select>
+                            class="config-select" />
                         </div>
                       }
                       <div class="config-field">
@@ -83,7 +81,7 @@
                       <div class="config-field">
                         <div class="config-label-row">
                           <span class="config-label">{{ t('apiToken') }}</span>
-                          <app-external-doc-link docType="hardcover"></app-external-doc-link>
+                          <app-external-doc-link docType="hardcover" />
                         </div>
                         <input
                           type="text"
@@ -114,7 +112,7 @@
                       <div class="setting-options">
                         <div class="config-field">
                           <div class="config-label-row">
-                            <p-toggleswitch [(ngModel)]="ranobedbPreferRomaji"></p-toggleswitch>
+                            <p-toggleswitch [(ngModel)]="ranobedbPreferRomaji" />
                             <span class="config-label">{{ t('ranobedbPreferRomajiLabel') }}</span>
                           </div>
                           <p class="config-description">{{ t('ranobedbPreferRomajiDesc') }}</p>
@@ -131,8 +129,7 @@
                             [options]="audibleDomains"
                             [(ngModel)]="selectedAudibleDomain"
                             [placeholder]="t('selectDomain')"
-                            class="config-select">
-                          </p-select>
+                            class="config-select" />
                         </div>
                       </div>
                     }
@@ -146,8 +143,7 @@
                             [options]="appleBooksCountries"
                             [(ngModel)]="selectedAppleBooksCountry"
                             [placeholder]="t('selectCountry')"
-                            class="config-select">
-                          </p-select>
+                            class="config-select" />
                         </div>
                       </div>
                     }
@@ -165,7 +161,7 @@
             @for (provider of simpleProviders(); track provider.id) {
               <div class="setting-item simple-provider">
                 <div class="setting-header">
-                  <p-toggleswitch [(ngModel)]="enabled[provider.id]"></p-toggleswitch>
+                  <p-toggleswitch [(ngModel)]="enabled[provider.id]" />
                   <span class="setting-label">{{ provider.labelKey | transloco }}</span>
                 </div>
               </div>
@@ -174,7 +170,7 @@
         </div>
 
         <div class="setting-actions">
-          <p-button [label]="t('saveConfigurations')" icon="pi pi-save" severity="success" [outlined]="true" (click)="saveSettings()"></p-button>
+          <p-button [label]="t('saveConfigurations')" icon="pi pi-save" severity="success" [outlined]="true" (click)="saveSettings()" />
         </div>
       </div>
     </div>

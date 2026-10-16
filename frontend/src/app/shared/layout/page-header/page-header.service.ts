@@ -1,4 +1,4 @@
-import {computed, Injectable, type Signal, signal} from '@angular/core';
+import {computed, Service, type Signal, signal} from '@angular/core';
 import {type QueryParamsHandling} from '@angular/router';
 import {type TabItem} from '../../ui/tabs/app-tabs.component';
 
@@ -31,7 +31,7 @@ export type PageHeaderHandle = Signal<PageHeader | null>;
 
 const EMPTY: PageHeaderHandle = signal(null);
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class PageHeaderService {
   private readonly source = signal<PageHeaderHandle>(EMPTY);
   private readonly leadVisibleSource = signal(true);

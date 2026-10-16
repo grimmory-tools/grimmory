@@ -11,9 +11,9 @@ import {AuthService} from '../../../shared/service/auth.service';
   imports: [TranslocoPipe]
 })
 export class OidcCallbackComponent implements OnInit {
-  private router = inject(Router);
-  private oidcService = inject(OidcService);
-  private authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly oidcService = inject(OidcService);
+  private readonly authService = inject(AuthService);
 
   ngOnInit(): void {
     const params = new URLSearchParams(window.location.search);

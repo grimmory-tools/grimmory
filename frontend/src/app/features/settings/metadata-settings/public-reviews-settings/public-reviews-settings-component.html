@@ -15,8 +15,7 @@
         <div class="setting-header">
           <p-toggleswitch
             [formControl]="form.controls.downloadEnabled"
-            (onChange)="onPublicReviewsToggle($event.checked)">
-          </p-toggleswitch>
+            (onChange)="onPublicReviewsToggle($event.checked)" />
           <span class="setting-label">{{ t('downloadLabel') }}</span>
         </div>
       </div>
@@ -26,8 +25,7 @@
           <div class="setting-header">
             <p-toggleswitch
               [formControl]="form.controls.autoDownloadEnabled"
-              (onChange)="onAutoDownloadToggle($event.checked)">
-            </p-toggleswitch>
+              (onChange)="onAutoDownloadToggle($event.checked)" />
             <span class="setting-label">{{ t('autoDownloadLabel') }}</span>
           </div>
           <p class="setting-description">{{ t('autoDownloadDesc') }}</p>
@@ -46,8 +44,7 @@
                     <div class="provider-row">
                       <p-toggleswitch
                         [formControl]="provider.controls.enabled"
-                        (onChange)="onProviderToggle(provider.controls.provider.value, $event.checked)">
-                      </p-toggleswitch>
+                        (onChange)="onProviderToggle(provider.controls.provider.value, $event.checked)" />
                       @let descriptor = catalog.provider(provider.controls.provider.value);
                       <span class="provider-label">{{ descriptor ? (descriptor.labelKey | transloco) : provider.controls.provider.value }}</span>
                     </div>

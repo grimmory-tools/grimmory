@@ -26,11 +26,11 @@ export class MetadataReviewDialogComponent implements OnInit {
   @ViewChild(MetadataPickerComponent)
   pickerComponent!: MetadataPickerComponent;
 
-  private config = inject(DynamicDialogConfig);
-  private dialogRef = inject(DynamicDialogRef);
-  private metadataTaskService = inject(MetadataTaskService);
-  private bookService = inject(BookService);
-  private progressService = inject(MetadataProgressService);
+  private readonly config = inject(DynamicDialogConfig);
+  private readonly dialogRef = inject(DynamicDialogRef);
+  private readonly metadataTaskService = inject(MetadataTaskService);
+  private readonly bookService = inject(BookService);
+  private readonly progressService = inject(MetadataProgressService);
 
   readonly proposals = signal<FetchedProposal[]>([]);
   readonly currentIndex = signal(0);

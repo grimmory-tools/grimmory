@@ -60,29 +60,29 @@ type ImportPhase = 'upload' | 'processing' | 'summary';
   styleUrl: './bulk-isbn-import-dialog.component.scss',
 })
 export class BulkIsbnImportDialogComponent {
-  private dynamicDialogRef = inject(DynamicDialogRef);
-  private dialogConfig = inject(DynamicDialogConfig);
-  private bookService = inject(BookService);
-  private queryClient = inject(QueryClient);
-  private sources = inject(MetadataSourceQueryService);
-  private libraryService = inject(LibraryService);
+  private readonly dynamicDialogRef = inject(DynamicDialogRef);
+  private readonly dialogConfig = inject(DynamicDialogConfig);
+  private readonly bookService = inject(BookService);
+  private readonly queryClient = inject(QueryClient);
+  private readonly sources = inject(MetadataSourceQueryService);
+  private readonly libraryService = inject(LibraryService);
 
   selectedLibraryId: number | null = null;
 
-  phase: WritableSignal<ImportPhase> = signal('upload');
+  readonly phase: WritableSignal<ImportPhase> = signal('upload');
   pasteText = '';
-  entries: WritableSignal<IsbnEntry[]> = signal([]);
-  skipped: WritableSignal<SkippedEntry[]> = signal([]);
-  duplicatesRemoved = signal(0);
+  readonly entries: WritableSignal<IsbnEntry[]> = signal([]);
+  readonly skipped: WritableSignal<SkippedEntry[]> = signal([]);
+  readonly duplicatesRemoved = signal(0);
   showSkipped = false;
 
-  processedCount = signal(0);
-  createdCount = signal(0);
-  noMetadataCount = signal(0);
-  failedCount = signal(0);
+  readonly processedCount = signal(0);
+  readonly createdCount = signal(0);
+  readonly noMetadataCount = signal(0);
+  readonly failedCount = signal(0);
   cancelled = false;
 
-  parseError = signal('');
+  readonly parseError = signal('');
   readonly maxIsbnCount = MAX_ISBN_COUNT;
   private readonly initializeSelectedLibraryEffect = effect(() => {
     const libraries = this.libraries;
@@ -218,7 +218,7 @@ export class BulkIsbnImportDialogComponent {
     this.dynamicDialogRef.close();
   }
 
-  progressPercent = computed(
+  readonly progressPercent = computed(
     () => this.entries().length > 0 ? Math.round((this.processedCount() / this.entries().length) * 100) : 0
   );
 

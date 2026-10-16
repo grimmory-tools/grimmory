@@ -410,7 +410,7 @@ export class AppMenuComponent {
     this.pushReturnParent = null;
     this.pushReturnNext = null;
     if (!parent) return;
-    if (next && next.parentNode === parent) {
+    if (next?.parentNode === parent) {
       parent.insertBefore(this.host.nativeElement, next);
     } else {
       parent.appendChild(this.host.nativeElement);

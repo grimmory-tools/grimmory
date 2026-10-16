@@ -26,7 +26,7 @@ import {themes} from '../../../readers/ebook-reader/state/themes.constant';
 })
 export class EpubReaderPreferencesComponent {
 
-  userSettings = input.required<UserSettings>();
+  readonly userSettings = input.required<UserSettings>();
 
   private readonly readerPreferencesService = inject(ReaderPreferencesService);
   private readonly customFontService = inject(CustomFontService);

@@ -63,25 +63,25 @@ export class LegacyBookCardComponent {
   private menuBookId: number | undefined;
   private menuInitialized = false;
 
-  private bookService = inject(BookService);
-  private bookFileService = inject(BookFileService);
-  private bookMetadataManageService = inject(BookMetadataManageService);
-  private taskHelperService = inject(TaskHelperService);
-  private userService = inject(UserService);
-  private emailService = inject(EmailService);
-  private messageService = inject(MessageService);
-  private router = inject(Router);
-  private urlHelper = inject(UrlHelperService);
-  private confirmationService = inject(ConfirmationService);
-  private bookDialogHelperService = inject(BookDialogHelperService);
-  private bookNavigationService = inject(BookNavigationService);
-  private appSettingsService = inject(AppSettingsService);
+  private readonly bookService = inject(BookService);
+  private readonly bookFileService = inject(BookFileService);
+  private readonly bookMetadataManageService = inject(BookMetadataManageService);
+  private readonly taskHelperService = inject(TaskHelperService);
+  private readonly userService = inject(UserService);
+  private readonly emailService = inject(EmailService);
+  private readonly messageService = inject(MessageService);
+  private readonly router = inject(Router);
+  private readonly urlHelper = inject(UrlHelperService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly bookDialogHelperService = inject(BookDialogHelperService);
+  private readonly bookNavigationService = inject(BookNavigationService);
+  private readonly appSettingsService = inject(AppSettingsService);
   private readonly t = inject(TranslocoService);
-  private queryClient = inject(QueryClient);
+  private readonly queryClient = inject(QueryClient);
   protected readStatusHelper = inject(ReadStatusHelper);
 
   private readonly currentUser = computed(() => this.userService.currentUser());
-  private readonly metadataCenterViewMode = computed(() => this.currentUser()?.userSettings?.metadataCenterViewMode ?? 'route' as 'route' | 'dialog');
+  private readonly metadataCenterViewMode = computed(() => this.currentUser()?.userSettings?.metadataCenterViewMode ?? 'route');
   private readonly diskType = computed(() => this.appSettingsService.appSettings()?.diskType ?? 'LOCAL');
 
 
@@ -629,7 +629,7 @@ export class LegacyBookCardComponent {
     const items: MenuItem[] = [];
 
     items.push({
-      label: `${b.fileName || 'Book File'}`,
+      label: b.fileName || 'Book File',
       icon: 'pi pi-file',
       command: () => this.bookFileService.downloadFile(this.book())
     });

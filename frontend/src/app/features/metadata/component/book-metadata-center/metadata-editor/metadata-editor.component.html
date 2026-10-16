@@ -4,7 +4,7 @@
       <div class="loading-overlay"></div>
     }
     @if (isLoading) {
-      <p-progressSpinner class="loading-spinner"></p-progressSpinner>
+      <p-progressSpinner class="loading-spinner" />
     }
     <div class="form-content">
       <div class="main-section">
@@ -26,7 +26,7 @@
                 [preview]="true"
                 [alt]="t('ebookCover')" />
               @if (isUploading) {
-                <p-progressSpinner class="upload-spinner"></p-progressSpinner>
+                <p-progressSpinner class="upload-spinner" />
               }
               <div class="cover-actions">
                 @if (!book.isPhysical) {
@@ -38,8 +38,7 @@
                     [outlined]="true"
                     severity="warn"
                     size="small"
-                    [disabled]="book.metadata!['coverLocked']">
-                  </p-button>
+                    [disabled]="book.metadata!['coverLocked']" />
                 }
                 <p-button
                   icon="pi pi-palette"
@@ -50,8 +49,7 @@
                   severity="help"
                   size="small"
                   [loading]="isGeneratingCover"
-                  [disabled]="book.metadata!['coverLocked'] || isGeneratingCover">
-                </p-button>
+                  [disabled]="book.metadata!['coverLocked'] || isGeneratingCover" />
                 <p-button
                   [disabled]="book.metadata!['coverLocked']"
                   outlined
@@ -60,8 +58,7 @@
                   (onClick)="openCoverSearch()"
                   [pTooltip]="t('searchCoverTooltip')"
                   tooltipPosition="top"
-                  severity="info">
-                </p-button>
+                  severity="info" />
                 <p-fileupload
                   [chooseStyleClass]="'p-button-sm p-button-outlined p-button-danger'"
                   [pTooltip]="t('uploadCoverTooltip')"
@@ -75,13 +72,12 @@
                   (onUpload)="onUpload($event)"
                   (onError)="onUploadError($event)"
                   [auto]="true"
-                  (onBeforeUpload)="onBeforeSend()">
-                </p-fileupload>
+                  (onBeforeUpload)="onBeforeSend()" />
                 @if (!book.metadata!['coverLocked']) {
-                  <p-button [pTooltip]="t('lockCoverTooltip')" tooltipPosition="top" size="small" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('thumbnailUrl')" severity="success"></p-button>
+                  <p-button [pTooltip]="t('lockCoverTooltip')" tooltipPosition="top" size="small" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('thumbnailUrl')" severity="success" />
                 }
-                @if (book.metadata!['coverLocked']) {
-                  <p-button [pTooltip]="t('unlockCoverTooltip')" tooltipPosition="top" size="small" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('thumbnailUrl')" severity="warn"></p-button>
+                @else {
+                  <p-button [pTooltip]="t('unlockCoverTooltip')" tooltipPosition="top" size="small" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('thumbnailUrl')" severity="warn" />
                 }
               </div>
             </div>
@@ -103,7 +99,7 @@
                 [preview]="true"
                 [alt]="t('audiobookCover')" />
               @if (isUploading) {
-                <p-progressSpinner class="upload-spinner"></p-progressSpinner>
+                <p-progressSpinner class="upload-spinner" />
               }
               <div class="cover-actions">
                 <p-button
@@ -114,8 +110,7 @@
                   [outlined]="true"
                   severity="warn"
                   size="small"
-                  [disabled]="book.metadata!['audiobookCoverLocked']">
-                </p-button>
+                  [disabled]="book.metadata!['audiobookCoverLocked']" />
                 <p-button
                   icon="pi pi-palette"
                   (onClick)="generateCustomAudiobookCover(book.id)"
@@ -125,8 +120,7 @@
                   severity="help"
                   size="small"
                   [loading]="isGeneratingAudiobookCover"
-                  [disabled]="book.metadata!['audiobookCoverLocked'] || isGeneratingAudiobookCover">
-                </p-button>
+                  [disabled]="book.metadata!['audiobookCoverLocked'] || isGeneratingAudiobookCover" />
                 <p-button
                   [disabled]="book.metadata!['audiobookCoverLocked']"
                   outlined
@@ -135,8 +129,7 @@
                   (onClick)="openAudiobookCoverSearch()"
                   [pTooltip]="t('searchAudiobookCoverTooltip')"
                   tooltipPosition="top"
-                  severity="info">
-                </p-button>
+                  severity="info" />
                 <p-fileupload
                   [chooseStyleClass]="'p-button-sm p-button-outlined p-button-danger'"
                   [pTooltip]="t('uploadAudiobookCoverTooltip')"
@@ -150,13 +143,12 @@
                   (onUpload)="onAudiobookCoverUpload($event)"
                   (onError)="onUploadError($event)"
                   [auto]="true"
-                  (onBeforeUpload)="onBeforeSend()">
-                </p-fileupload>
+                  (onBeforeUpload)="onBeforeSend()" />
                 @if (!book.metadata!['audiobookCoverLocked']) {
-                  <p-button [pTooltip]="t('lockCoverTooltip')" tooltipPosition="top" size="small" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('audiobookCover')" severity="success"></p-button>
+                  <p-button [pTooltip]="t('lockCoverTooltip')" tooltipPosition="top" size="small" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('audiobookCover')" severity="success" />
                 }
-                @if (book.metadata!['audiobookCoverLocked']) {
-                  <p-button [pTooltip]="t('unlockCoverTooltip')" tooltipPosition="top" size="small" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('audiobookCover')" severity="warn"></p-button>
+                @else {
+                  <p-button [pTooltip]="t('unlockCoverTooltip')" tooltipPosition="top" size="small" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('audiobookCover')" severity="warn" />
                 }
               </div>
             </div>
@@ -170,10 +162,10 @@
               <div class="field-with-lock">
                 <input pInputText id="title" formControlName="title"/>
                 @if (!book.metadata!['titleLocked']) {
-                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('title')" severity="success"></p-button>
+                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('title')" severity="success" />
                 }
-                @if (book.metadata!['titleLocked']) {
-                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('title')" severity="warn"></p-button>
+                @else {
+                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('title')" severity="warn" />
                 }
               </div>
             </div>
@@ -183,10 +175,10 @@
               <div class="field-with-lock">
                 <input pInputText id="subtitle" formControlName="subtitle"/>
                 @if (!book.metadata!['subtitleLocked']) {
-                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('subtitle')" severity="success"></p-button>
+                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('subtitle')" severity="success" />
                 }
-                @if (book.metadata!['subtitleLocked']) {
-                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('subtitle')" severity="warn"></p-button>
+                @else {
+                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('subtitle')" severity="warn" />
                 }
               </div>
             </div>
@@ -196,10 +188,10 @@
               <div class="field-with-lock">
                 <input pInputText id="language" formControlName="language"/>
                 @if (!book.metadata!['languageLocked']) {
-                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('language')" severity="success"></p-button>
+                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('language')" severity="success" />
                 }
-                @if (book.metadata!['languageLocked']) {
-                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('language')" severity="warn"></p-button>
+                @else {
+                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('language')" severity="warn" />
                 }
               </div>
             </div>
@@ -243,10 +235,10 @@
                   }
                 </div>
                 @if (!book.metadata!['authorsLocked']) {
-                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('authors')" severity="success"></p-button>
+                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('authors')" severity="success" />
                 }
-                @if (book.metadata!['authorsLocked']) {
-                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('authors')" severity="warn"></p-button>
+                @else {
+                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('authors')" severity="warn" />
                 }
               </div>
             </div>
@@ -262,13 +254,12 @@
                   [suggestions]="filteredPublishers"
                   [forceSelection]="false"
                   [showClear]="false"
-                  (completeMethod)="filterPublishers($event)">
-                </p-autoComplete>
+                  (completeMethod)="filterPublishers($event)" />
                 @if (!book.metadata!['publisherLocked']) {
-                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('publisher')" severity="success"></p-button>
+                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('publisher')" severity="success" />
                 }
-                @if (book.metadata!['publisherLocked']) {
-                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('publisher')" severity="warn"></p-button>
+                @else {
+                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('publisher')" severity="warn" />
                 }
               </div>
             </div>
@@ -284,13 +275,12 @@
                   [showIcon]="false"
                   [iconDisplay]="'input'"
                   fluid="true"
-                  appendTo="body">
-                </p-datepicker>
+                  appendTo="body" />
                 @if (!book.metadata!['publishedDateLocked']) {
-                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('publishedDate')" severity="success"></p-button>
+                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('publishedDate')" severity="success" />
                 }
-                @if (book.metadata!['publishedDateLocked']) {
-                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('publishedDate')" severity="warn"></p-button>
+                @else {
+                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('publishedDate')" severity="warn" />
                 }
               </div>
             </div>
@@ -310,14 +300,13 @@
                     [showClear]="true"
                     (completeMethod)="filterCategories($event)"
                     (onKeyUp)="onAutoCompleteKeyUp('categories', $event)"
-                    (onSelect)="onAutoCompleteSelect('categories', $event)">
-                  </p-autoComplete>
+                    (onSelect)="onAutoCompleteSelect('categories', $event)" />
                 </div>
                 @if (!book.metadata!['categoriesLocked']) {
-                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('categories')" severity="success"></p-button>
+                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('categories')" severity="success" />
                 }
-                @if (book.metadata!['categoriesLocked']) {
-                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('categories')" severity="warn"></p-button>
+                @else {
+                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('categories')" severity="warn" />
                 }
               </div>
             </div>
@@ -337,14 +326,13 @@
                     [showClear]="true"
                     (completeMethod)="filterMoods($event)"
                     (onKeyUp)="onAutoCompleteKeyUp('moods', $event)"
-                    (onSelect)="onAutoCompleteSelect('moods', $event)">
-                  </p-autoComplete>
+                    (onSelect)="onAutoCompleteSelect('moods', $event)" />
                 </div>
                 @if (!book.metadata!['moodsLocked']) {
-                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('moods')" severity="success"></p-button>
+                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('moods')" severity="success" />
                 }
-                @if (book.metadata!['moodsLocked']) {
-                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('moods')" severity="warn"></p-button>
+                @else {
+                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('moods')" severity="warn" />
                 }
               </div>
             </div>
@@ -361,14 +349,13 @@
                     [showClear]="true"
                     (completeMethod)="filterTags($event)"
                     (onKeyUp)="onAutoCompleteKeyUp('tags', $event)"
-                    (onSelect)="onAutoCompleteSelect('tags', $event)">
-                  </p-autoComplete>
+                    (onSelect)="onAutoCompleteSelect('tags', $event)" />
                 </div>
                 @if (!book.metadata!['tagsLocked']) {
-                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('tags')" severity="success"></p-button>
+                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('tags')" severity="success" />
                 }
-                @if (book.metadata!['tagsLocked']) {
-                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('tags')" severity="warn"></p-button>
+                @else {
+                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('tags')" severity="warn" />
                 }
               </div>
             </div>
@@ -387,13 +374,12 @@
                   [suggestions]="filteredSeries"
                   [forceSelection]="false"
                   [showClear]="false"
-                  (completeMethod)="filterSeries($event)">
-                </p-autoComplete>
+                  (completeMethod)="filterSeries($event)" />
                 @if (!book.metadata!['seriesNameLocked']) {
-                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('seriesName')" severity="success"></p-button>
+                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('seriesName')" severity="success" />
                 }
-                @if (book.metadata!['seriesNameLocked']) {
-                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('seriesName')" severity="warn"></p-button>
+                @else {
+                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('seriesName')" severity="warn" />
                 }
               </div>
             </div>
@@ -403,10 +389,10 @@
               <div class="field-with-lock">
                 <input pInputText id="seriesNumber" formControlName="seriesNumber"/>
                 @if (!book.metadata!['seriesNumberLocked']) {
-                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('seriesNumber')" severity="success"></p-button>
+                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('seriesNumber')" severity="success" />
                 }
-                @if (book.metadata!['seriesNumberLocked']) {
-                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('seriesNumber')" severity="warn"></p-button>
+                @else {
+                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('seriesNumber')" severity="warn" />
                 }
               </div>
             </div>
@@ -416,10 +402,10 @@
               <div class="field-with-lock">
                 <input pInputText id="seriesTotal" formControlName="seriesTotal"/>
                 @if (!book.metadata!['seriesTotalLocked']) {
-                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('seriesTotal')" severity="success"></p-button>
+                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('seriesTotal')" severity="success" />
                 }
-                @if (book.metadata!['seriesTotalLocked']) {
-                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('seriesTotal')" severity="warn"></p-button>
+                @else {
+                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('seriesTotal')" severity="warn" />
                 }
               </div>
             </div>
@@ -428,10 +414,10 @@
               <div class="field-with-lock">
                 <input pSize="small" pInputText [disabled]="true" [value]="t('noValue')"/>
                 @if (!book.metadata!['reviewsLocked']) {
-                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('reviews')" severity="success"></p-button>
+                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('reviews')" severity="success" />
                 }
-                @if (book.metadata!['reviewsLocked']) {
-                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('reviews')" severity="warn"></p-button>
+                @else {
+                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('reviews')" severity="warn" />
                 }
               </div>
             </div>
@@ -443,10 +429,10 @@
               <div class="field-with-lock">
                 <input pInputText id="isbn10" formControlName="isbn10"/>
                 @if (!book.metadata!['isbn10Locked']) {
-                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('isbn10')" severity="success"></p-button>
+                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('isbn10')" severity="success" />
                 }
-                @if (book.metadata!['isbn10Locked']) {
-                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('isbn10')" severity="warn"></p-button>
+                @else {
+                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('isbn10')" severity="warn" />
                 }
               </div>
             </div>
@@ -455,10 +441,10 @@
               <div class="field-with-lock">
                 <input pInputText id="isbn13" formControlName="isbn13"/>
                 @if (!book.metadata!['isbn13Locked']) {
-                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('isbn13')" severity="success"></p-button>
+                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('isbn13')" severity="success" />
                 }
-                @if (book.metadata!['isbn13Locked']) {
-                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('isbn13')" severity="warn"></p-button>
+                @else {
+                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('isbn13')" severity="warn" />
                 }
               </div>
             </div>
@@ -473,13 +459,12 @@
                   optionValue="value"
                   [placeholder]="t('selectPlaceholder')"
                   [showClear]="true"
-                  appendTo="body">
-                </p-select>
+                  appendTo="body" />
                 @if (!book.metadata!['ageRatingLocked']) {
-                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('ageRating')" severity="success"></p-button>
+                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('ageRating')" severity="success" />
                 }
-                @if (book.metadata!['ageRatingLocked']) {
-                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('ageRating')" severity="warn"></p-button>
+                @else {
+                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('ageRating')" severity="warn" />
                 }
               </div>
             </div>
@@ -494,13 +479,12 @@
                   optionValue="value"
                   [placeholder]="t('selectPlaceholder')"
                   [showClear]="true"
-                  appendTo="body">
-                </p-select>
+                  appendTo="body" />
                 @if (!book.metadata!['contentRatingLocked']) {
-                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('contentRating')" severity="success"></p-button>
+                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('contentRating')" severity="success" />
                 }
-                @if (book.metadata!['contentRatingLocked']) {
-                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('contentRating')" severity="warn"></p-button>
+                @else {
+                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('contentRating')" severity="warn" />
                 }
               </div>
             </div>
@@ -509,10 +493,10 @@
               <div class="field-with-lock">
                 <input pInputText id="pageCount" formControlName="pageCount"/>
                 @if (!book.metadata!['pageCountLocked']) {
-                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('pageCount')" severity="success"></p-button>
+                  <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('pageCount')" severity="success" />
                 }
-                @if (book.metadata!['pageCountLocked']) {
-                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('pageCount')" severity="warn"></p-button>
+                @else {
+                  <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('pageCount')" severity="warn" />
                 }
               </div>
             </div>
@@ -542,15 +526,15 @@
                     <span>{{ field.label }} @if (isEmbeddable(field.controlName, book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</span>
                     <div class="field-with-lock">
                       @if (field.type === 'boolean') {
-                        <p-select [formControlName]="field.controlName" [options]="booleanOptions" optionLabel="label" optionValue="value" appendTo="body"></p-select>
+                        <p-select [formControlName]="field.controlName" [options]="booleanOptions" optionLabel="label" optionValue="value" appendTo="body" />
                       } @else {
                         <input pInputText [formControlName]="field.controlName"/>
                       }
                       @if (!metadataForm.get(field.lockedKey)?.value) {
-                        <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock(field.controlName)" severity="success"></p-button>
+                        <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock(field.controlName)" severity="success" />
                       }
-                      @if (metadataForm.get(field.lockedKey)?.value) {
-                        <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock(field.controlName)" severity="warn"></p-button>
+                      @else {
+                        <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock(field.controlName)" severity="warn" />
                       }
                     </div>
                   </div>
@@ -583,15 +567,15 @@
                     <span>{{ field.label }} @if (isEmbeddable(field.controlName, book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</span>
                     <div class="field-with-lock">
                       @if (field.type === 'boolean') {
-                        <p-select [formControlName]="field.controlName" [options]="booleanOptions" optionLabel="label" optionValue="value" size="small" appendTo="body"></p-select>
+                        <p-select [formControlName]="field.controlName" [options]="booleanOptions" optionLabel="label" optionValue="value" size="small" appendTo="body" />
                       } @else {
                         <input pSize="small" pInputText [formControlName]="field.controlName"/>
                       }
                       @if (!metadataForm.get(field.lockedKey)?.value) {
-                        <p-button size="small" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock(field.controlName)" severity="success"></p-button>
+                        <p-button size="small" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock(field.controlName)" severity="success" />
                       }
-                      @if (metadataForm.get(field.lockedKey)?.value) {
-                        <p-button size="small" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock(field.controlName)" severity="warn"></p-button>
+                      @else {
+                        <p-button size="small" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock(field.controlName)" severity="warn" />
                       }
                     </div>
                   </div>
@@ -613,14 +597,13 @@
                           [forceSelection]="false"
                           [showClear]="true"
                           (onKeyUp)="onAutoCompleteKeyUp(field.controlName, $event)"
-                          (onSelect)="onAutoCompleteSelect(field.controlName, $event)">
-                        </p-autoComplete>
+                          (onSelect)="onAutoCompleteSelect(field.controlName, $event)" />
                       </div>
                       @if (!metadataForm.get(field.lockedKey)?.value) {
-                        <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock(field.controlName)" severity="success"></p-button>
+                        <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock(field.controlName)" severity="success" />
                       }
-                      @if (metadataForm.get(field.lockedKey)?.value) {
-                        <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock(field.controlName)" severity="warn"></p-button>
+                      @else {
+                        <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock(field.controlName)" severity="warn" />
                       }
                     </div>
                   </div>
@@ -635,10 +618,10 @@
                     <div class="field-with-lock description-with-lock">
                       <textarea pTextarea [formControlName]="field.controlName" rows="4"></textarea>
                       @if (!metadataForm.get(field.lockedKey)?.value) {
-                        <p-button size="small" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock(field.controlName)" severity="success"></p-button>
+                        <p-button size="small" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock(field.controlName)" severity="success" />
                       }
-                      @if (metadataForm.get(field.lockedKey)?.value) {
-                        <p-button size="small" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock(field.controlName)" severity="warn"></p-button>
+                      @else {
+                        <p-button size="small" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock(field.controlName)" severity="warn" />
                       }
                     </div>
                   </div>
@@ -671,10 +654,10 @@
                     <div class="field-with-lock">
                       <input pSize="small" pInputText [id]="field.name" [formControlName]="field.name"/>
                       @if (!book.metadata![field.lockName]) {
-                        <p-button size="small" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock(field.name)" severity="success"></p-button>
+                        <p-button size="small" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock(field.name)" severity="success" />
                       }
-                      @if (book.metadata![field.lockName]) {
-                        <p-button size="small" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock(field.name)" severity="warn"></p-button>
+                      @else {
+                        <p-button size="small" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock(field.name)" severity="warn" />
                       }
                     </div>
                   </div>
@@ -696,27 +679,27 @@
                   rows="10">
                 </textarea>
             @if (!book.metadata!['descriptionLocked']) {
-              <p-button size="small" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('description')" severity="success"></p-button>
+              <p-button size="small" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('description')" severity="success" />
             }
-            @if (book.metadata!['descriptionLocked']) {
-              <p-button size="small" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('description')" severity="warn"></p-button>
+            @else {
+              <p-button size="small" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('description')" severity="warn" />
             }
           </div>
         </div>
       </div>
     </div>
     <div class="form-footer">
-      <p-divider></p-divider>
+      <p-divider />
       <div class="footer-actions">
 
         <!-- Desktop Buttons -->
         <div class="desktop-actions">
           @if (showNavigationButtons) {
             <div class="navigation-left">
-              <p-button [label]="t('closeBtn')" icon="pi pi-times" [outlined]="true" severity="danger" (onClick)="closeDialog()"></p-button>
+              <p-button [label]="t('closeBtn')" icon="pi pi-times" [outlined]="true" severity="danger" (onClick)="closeDialog()" />
               <p-divider layout="vertical"/>
-              <p-button [label]="t('previousBookBtn')" [disabled]="disablePrevious" icon="pi pi-arrow-left" [outlined]="true" severity="info" (onClick)="onPrevious()"></p-button>
-              <p-button [label]="t('nextBookBtn')" [disabled]="disableNext" icon="pi pi-arrow-right" iconPos="right" [outlined]="true" severity="info" (onClick)="onNext()"></p-button>
+              <p-button [label]="t('previousBookBtn')" [disabled]="disablePrevious" icon="pi pi-arrow-left" [outlined]="true" severity="info" (onClick)="onPrevious()" />
+              <p-button [label]="t('nextBookBtn')" [disabled]="disableNext" icon="pi pi-arrow-right" iconPos="right" [outlined]="true" severity="info" (onClick)="onNext()" />
             </div>
           }
 
@@ -730,8 +713,7 @@
                 outlined
                 severity="info"
                 [pTooltip]="t('previousBookTooltip')"
-                tooltipPosition="bottom">
-              </p-button>
+                tooltipPosition="bottom" />
               <span class="navigation-position">
                   {{ navigationPosition() }}
                 </span>
@@ -744,8 +726,7 @@
                 rounded
                 outlined
                 [pTooltip]="t('nextBookTooltip')"
-                tooltipPosition="bottom">
-              </p-button>
+                tooltipPosition="bottom" />
             </div>
           }
 
@@ -759,8 +740,7 @@
                 (onClick)="fetchFromFile(book.id)"
                 [disabled]="isFetchingFromFile"
                 [pTooltip]="t('fetchFromFileTooltip')"
-                tooltipPosition="top">
-              </p-button>
+                tooltipPosition="top" />
             }
             <p-button
               [label]="isAutoFetching ? t('fetchingBtn') : t('autoFetchBtn')"
@@ -770,13 +750,12 @@
               (onClick)="autoFetch(book.id)"
               [disabled]="isAutoFetching"
               [pTooltip]="t('autoFetchTooltip')"
-              tooltipPosition="top">
-            </p-button>
+              tooltipPosition="top" />
             <p-divider layout="vertical"/>
-            <p-button [label]="t('unlockAllBtn')" icon="pi pi-lock-open" [outlined]="true" severity="success" (onClick)="unlockAll()" [pTooltip]="t('unlockAllTooltip')" tooltipPosition="top"></p-button>
-            <p-button [label]="t('lockAllBtn')" icon="pi pi-lock" [outlined]="true" severity="warn" (onClick)="lockAll()" [pTooltip]="t('lockAllTooltip')" tooltipPosition="top"></p-button>
+            <p-button [label]="t('unlockAllBtn')" icon="pi pi-lock-open" [outlined]="true" severity="success" (onClick)="unlockAll()" [pTooltip]="t('unlockAllTooltip')" tooltipPosition="top" />
+            <p-button [label]="t('lockAllBtn')" icon="pi pi-lock" [outlined]="true" severity="warn" (onClick)="lockAll()" [pTooltip]="t('lockAllTooltip')" tooltipPosition="top" />
             <p-divider layout="vertical"/>
-            <p-button [label]="t('saveBtn')" icon="pi pi-check" [loading]="isSaving" [disabled]="isSaving" (onClick)="onSave()"></p-button>
+            <p-button [label]="t('saveBtn')" icon="pi pi-check" [loading]="isSaving" [disabled]="isSaving" (onClick)="onSave()" />
           </div>
         </div>
 
@@ -784,9 +763,9 @@
         <div class="mobile-actions">
           @if (showNavigationButtons) {
             <div class="mobile-nav-buttons">
-              <p-button size="small" icon="pi pi-times" [outlined]="true" severity="danger" (onClick)="closeDialog()" [pTooltip]="t('closeBtn')" tooltipPosition="top"></p-button>
-              <p-button size="small" icon="pi pi-arrow-left" [disabled]="disablePrevious" [outlined]="true" severity="info" (onClick)="onPrevious()" [pTooltip]="t('previousBookBtn')" tooltipPosition="top"></p-button>
-              <p-button size="small" icon="pi pi-arrow-right" [disabled]="disableNext" iconPos="right" [outlined]="true" severity="info" (onClick)="onNext()" [pTooltip]="t('nextBookBtn')" tooltipPosition="top"></p-button>
+              <p-button size="small" icon="pi pi-times" [outlined]="true" severity="danger" (onClick)="closeDialog()" [pTooltip]="t('closeBtn')" tooltipPosition="top" />
+              <p-button size="small" icon="pi pi-arrow-left" [disabled]="disablePrevious" [outlined]="true" severity="info" (onClick)="onPrevious()" [pTooltip]="t('previousBookBtn')" tooltipPosition="top" />
+              <p-button size="small" icon="pi pi-arrow-right" [disabled]="disableNext" iconPos="right" [outlined]="true" severity="info" (onClick)="onNext()" [pTooltip]="t('nextBookBtn')" tooltipPosition="top" />
             </div>
           }
 
@@ -801,8 +780,7 @@
                   outlined
                   severity="info"
                   [pTooltip]="t('previousBookTooltip')"
-                  tooltipPosition="bottom">
-                </p-button>
+                  tooltipPosition="bottom" />
                 <span class="navigation-position">
                   {{ navigationPosition() }}
                 </span>
@@ -815,8 +793,7 @@
                   rounded
                   outlined
                   [pTooltip]="t('nextBookTooltip')"
-                  tooltipPosition="bottom">
-                </p-button>
+                  tooltipPosition="bottom" />
               </div>
             }
             <div class="mobile-lock-actions">
@@ -828,8 +805,7 @@
                   (onClick)="fetchFromFile(book.id)"
                   [disabled]="isFetchingFromFile"
                   [pTooltip]="t('fetchFromFileBtn')"
-                  tooltipPosition="top">
-                </p-button>
+                  tooltipPosition="top" />
               }
               <p-button
                 icon="pi pi-bolt"
@@ -838,8 +814,7 @@
                 (onClick)="autoFetch(book.id)"
                 [disabled]="isAutoFetching"
                 [pTooltip]="t('autoFetchBtn')"
-                tooltipPosition="top">
-              </p-button>
+                tooltipPosition="top" />
 
               <p-button
                 icon="pi pi-lock-open"
@@ -847,8 +822,7 @@
                 severity="success"
                 (onClick)="unlockAll()"
                 [pTooltip]="t('unlockAllBtn')"
-                tooltipPosition="top">
-              </p-button>
+                tooltipPosition="top" />
 
               <p-button
                 icon="pi pi-lock"
@@ -856,8 +830,7 @@
                 severity="warn"
                 (onClick)="lockAll()"
                 [pTooltip]="t('lockAllBtn')"
-                tooltipPosition="top">
-              </p-button>
+                tooltipPosition="top" />
             </div>
 
             <div class="mobile-save-action">
@@ -866,8 +839,7 @@
                 icon="pi pi-check"
                 [loading]="isSaving"
                 [disabled]="isSaving"
-                (onClick)="onSave()">
-              </p-button>
+                (onClick)="onSave()" />
             </div>
           </div>
         </div>

@@ -1,10 +1,8 @@
-import {Injectable} from '@angular/core';
+import {Service} from '@angular/core';
 import {defer, from, Observable, of} from 'rxjs';
 import {switchMap} from 'rxjs/operators';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class ReaderLoaderService {
   private scriptLoaded = false;
 

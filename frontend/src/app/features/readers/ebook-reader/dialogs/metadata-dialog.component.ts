@@ -17,7 +17,7 @@ export class ReaderBookMetadataDialogComponent {
   @Input() book: Book | null = null;
   @Output() closed = new EventEmitter<void>();
 
-  private urlHelperService = inject(UrlHelperService);
+  private readonly urlHelperService = inject(UrlHelperService);
   private readonly t = inject(TranslocoService);
   protected readonly catalog = inject(MetadataCatalogService);
   protected readonly languageResolver = inject(LanguageResolverService);

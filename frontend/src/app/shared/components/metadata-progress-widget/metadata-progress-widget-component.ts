@@ -26,15 +26,15 @@ export class MetadataProgressWidgetComponent implements OnInit, OnDestroy {
   activeTasks: Record<string, MetadataBatchProgressNotification> = {};
 
   private readonly destroyRef = inject(DestroyRef);
-  private dialogLauncherService = inject(DialogLauncherService);
-  private metadataProgressService = inject(MetadataProgressService);
-  private metadataTaskService = inject(MetadataTaskService);
-  private taskService = inject(TaskService);
-  private messageService = inject(MessageService);
+  private readonly dialogLauncherService = inject(DialogLauncherService);
+  private readonly metadataProgressService = inject(MetadataProgressService);
+  private readonly metadataTaskService = inject(MetadataTaskService);
+  private readonly taskService = inject(TaskService);
+  private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
 
-  private lastUpdateMap = new Map<string, number>();
-  private timeoutHandles = new Map<string, ReturnType<typeof setTimeout>>();
+  private readonly lastUpdateMap = new Map<string, number>();
+  private readonly timeoutHandles = new Map<string, ReturnType<typeof setTimeout>>();
   private readonly TASK_STALL_TIMEOUT_MS = 60 * 1000; // 1 minute
 
   ngOnInit(): void {

@@ -19,10 +19,10 @@ export type CbxSidebarTab = 'pages' | 'bookmarks' | 'notes';
 
 @Injectable()
 export class CbxSidebarService {
-  private urlHelper = inject(UrlHelperService);
-  private cbxReaderService = inject(CbxReaderService);
-  private bookMarkService = inject(BookMarkService);
-  private bookNoteV2Service = inject(BookNoteV2Service);
+  private readonly urlHelper = inject(UrlHelperService);
+  private readonly cbxReaderService = inject(CbxReaderService);
+  private readonly bookMarkService = inject(BookMarkService);
+  private readonly bookNoteV2Service = inject(BookNoteV2Service);
   private readonly t = inject(TranslocoService);
 
   private readonly destroyRef = inject(DestroyRef);
@@ -71,8 +71,8 @@ export class CbxSidebarService {
     );
   });
 
-  private _navigateToPage = new Subject<number>();
-  private _editNote = new Subject<BookNoteV2>();
+  private readonly _navigateToPage = new Subject<number>();
+  private readonly _editNote = new Subject<BookNoteV2>();
   navigateToPage$ = this._navigateToPage.asObservable();
   editNote$ = this._editNote.asObservable();
 

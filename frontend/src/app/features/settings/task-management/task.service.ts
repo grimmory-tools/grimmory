@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {API_CONFIG} from '../../../core/config/api-config';
@@ -113,18 +113,16 @@ export interface TaskProgressPayload {
   taskStatus: TaskStatus;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class TaskService {
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
   private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/tasks`;
 
-  private taskProgressSubject = new BehaviorSubject<TaskProgressPayload | null>(null);
+  private readonly taskProgressSubject = new BehaviorSubject<TaskProgressPayload | null>(null);
   public taskProgress$ = this.taskProgressSubject.asObservable();
 
   getAvailableTasks(): Observable<TaskInfo[]> {
-    return this.http.get<TaskInfo[]>(`${this.baseUrl}`);
+    return this.http.get<TaskInfo[]>((this.baseUrl));
   }
 
   startTask(request: TaskCreateRequest): Observable<TaskCreateResponse> {

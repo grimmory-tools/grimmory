@@ -1,10 +1,8 @@
-import {computed, inject, Injectable} from '@angular/core';
+import {computed, inject, Service} from '@angular/core';
 import {LocalStorageService} from './local-storage.service';
 import {ScalePreference} from '../util/scale-preference.util';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class CoverScalePreferenceService {
 
   private readonly BASE_WIDTH = 135;

@@ -48,8 +48,8 @@ export class BookUploaderComponent {
   @ViewChild(FileUpload) fileUpload!: FileUpload;
 
   files: UploadingFile[] = [];
-  isUploading = signal(false);
-  uploadCompleted = signal(false);
+  readonly isUploading = signal(false);
+  readonly uploadCompleted = signal(false);
   _selectedLibrary: Library | null = null;
   selectedPath: LibraryPath | null = null;
 

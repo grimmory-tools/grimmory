@@ -28,9 +28,9 @@ export interface SelectionDetail {
 
 @Injectable()
 export class ReaderSelectionService {
-  private viewManager = inject(ReaderViewManagerService);
-  private annotationService = inject(ReaderAnnotationHttpService);
-  private leftSidebarService = inject(ReaderLeftSidebarService);
+  private readonly viewManager = inject(ReaderViewManagerService);
+  private readonly annotationService = inject(ReaderAnnotationHttpService);
+  private readonly leftSidebarService = inject(ReaderLeftSidebarService);
 
   private readonly destroyRef = inject(DestroyRef);
   private bookId!: number;
@@ -58,7 +58,7 @@ export class ReaderSelectionService {
   private readonly _state = signal<SelectionState>(this.defaultState);
   readonly state = this._state.asReadonly();
 
-  private annotationsChangedSubject = new Subject<Annotation[]>();
+  private readonly annotationsChangedSubject = new Subject<Annotation[]>();
   public annotationsChanged$ = this.annotationsChangedSubject.asObservable();
 
   initialize(bookId: number): void {

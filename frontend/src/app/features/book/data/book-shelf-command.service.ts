@@ -1,5 +1,5 @@
 import {HttpClient} from '@angular/common/http';
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {lastValueFrom} from 'rxjs';
 
 import {API_CONFIG} from '../../../core/config/api-config';
@@ -14,7 +14,7 @@ import {BookShelf} from './book-response.models';
 import {applyBookQueryChangeSet} from './book-query-cache';
 import {invalidateShelfDefinitions} from './shelf-definition-query-cache';
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class BookShelfCommandService {
   private readonly http = inject(HttpClient);
   private readonly membershipUrl = `${API_CONFIG.BASE_URL}/api/v1/books/shelves`;

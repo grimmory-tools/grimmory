@@ -1,5 +1,5 @@
 import {HttpClient} from '@angular/common/http';
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {mutationOptions} from '@tanstack/angular-query-experimental';
 import {lastValueFrom} from 'rxjs';
 
@@ -7,7 +7,7 @@ import {API_CONFIG} from '../../../core/config/api-config';
 import {bookBackgroundSubmissionKeys} from './book-background-submission-keys';
 import {ChangeCoversVariables, QuickSendBookVariables} from './book-background-submission.models';
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class BookBackgroundSubmissionService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/books`;

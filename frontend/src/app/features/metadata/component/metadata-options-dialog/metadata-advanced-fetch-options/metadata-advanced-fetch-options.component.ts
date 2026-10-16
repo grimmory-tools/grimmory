@@ -27,7 +27,7 @@ import {MetadataSourceQueryService} from '../../../sources/metadata-source-query
 })
 export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
 
-  private messageService = inject(MessageService);
+  private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
   private readonly sources = inject(MetadataSourceQueryService);
   private readonly providerFields = inject(MetadataProviderFieldsService);

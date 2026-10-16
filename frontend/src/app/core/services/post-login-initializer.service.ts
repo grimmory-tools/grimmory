@@ -1,10 +1,8 @@
-import {Injectable, inject, Injector} from '@angular/core';
+import {Service, inject, Injector} from '@angular/core';
 import {defer, from, Observable} from 'rxjs';
 import {StartupService} from '../../shared/service/startup.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class PostLoginInitializerService {
   private readonly injector = inject(Injector);
 

@@ -22,7 +22,7 @@ import {TranslocoDirective} from '@jsverse/transloco';
   styleUrls: ['./email-v2.component.scss'],
 })
 export class EmailV2Component {
-  private userService = inject(UserService);
+  private readonly userService = inject(UserService);
 
   readonly hasPermission = computed(() => {
     const user = this.userService.currentUser();

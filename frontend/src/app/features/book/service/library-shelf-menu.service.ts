@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {Router} from '@angular/router';
 import {TranslocoService} from '@jsverse/transloco';
 import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
@@ -15,7 +15,7 @@ import {ShelfService} from './shelf.service';
 
 type LibraryShelfActionTarget = Readonly<{id: number; name: string}>;
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class LibraryShelfMenuService {
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);

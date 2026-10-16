@@ -1,12 +1,12 @@
 <ng-container *transloco="let t; prefix: 'settingsDevice'">
-<p-toast position="top-right"></p-toast>
+<p-toast position="top-right" />
 
 <div class="main-container">
   <div class="settings-header">
     <h2 class="settings-title">
       <i class="pi pi-mobile"></i>
       {{ t('koreader.title') }}
-      <app-external-doc-link docType="koReader"></app-external-doc-link>
+      <app-external-doc-link docType="koReader" />
     </h2>
     <p class="settings-description">
       {{ t('koreader.description') }}
@@ -37,8 +37,7 @@
                     [ngModel]="koReaderSyncEnabled()"
                     (ngModelChange)="onToggleEnabled($event)"
                     inputId="syncEnabled"
-                    [disabled]="!credentialsSaved()">
-                  </p-toggle-switch>
+                    [disabled]="!credentialsSaved()" />
                 </div>
                 <p class="setting-description">
                   {{ t('koreader.enableSyncDesc') }}
@@ -63,8 +62,7 @@
                       severity="info"
                       size="small"
                       (onClick)="copyText(koreaderEndpoint, 'API Path')"
-                      [disabled]="!koreaderEndpoint">
-                    </p-button>
+                      [disabled]="!koreaderEndpoint" />
                   </div>
                 </div>
                 <p class="setting-description">
@@ -96,8 +94,7 @@
                       severity="info"
                       size="small"
                       (onClick)="copyText(koReaderUsername(), t('koreader.username'))"
-                      [disabled]="!koReaderUsername()">
-                    </p-button>
+                      [disabled]="!koReaderUsername()" />
                   </div>
                 </div>
                 <p class="setting-description">
@@ -136,16 +133,14 @@
                       severity="info"
                       size="small"
                       (onClick)="copyText(koReaderPassword(), t('koreader.password'))"
-                      [disabled]="!koReaderPassword()">
-                    </p-button>
+                      [disabled]="!koReaderPassword()" />
                     <p-button
                       [icon]="showPassword() ? 'pi pi-eye-slash' : 'pi pi-eye'"
                       outlined="true"
                       severity="info"
                       size="small"
                       (onClick)="toggleShowPassword()"
-                      [disabled]="!koReaderPassword()">
-                    </p-button>
+                      [disabled]="!koReaderPassword()" />
                   </div>
                 </div>
                 <p class="setting-description">
@@ -170,8 +165,7 @@
                     [label]="!editMode() ? ('common.save' | transloco) : ('common.edit' | transloco)"
                     size="small"
                     (onClick)="onEditSave()"
-                    [disabled]="!editMode() && !canSave()">
-                  </p-button>
+                    [disabled]="!editMode() && !canSave()" />
                 </div>
                 <p class="setting-description">
                   {{ t('koreader.settingsManagementDesc') }}

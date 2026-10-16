@@ -30,13 +30,13 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 })
 export class KoboSyncSettingsComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
-  private koboService = inject(KoboService);
-  private messageService = inject(MessageService);
-  private confirmationService = inject(ConfirmationService);
+  private readonly koboService = inject(KoboService);
+  private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
   protected userService = inject(UserService);
   protected appSettingsService = inject(AppSettingsService);
   protected settingsHelperService = inject(SettingsHelperService);
-  private shelfService = inject(ShelfService);
+  private readonly shelfService = inject(ShelfService);
   private readonly t = inject(TranslocoService);
 
   private readonly destroyRef = inject(DestroyRef);

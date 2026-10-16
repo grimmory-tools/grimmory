@@ -14,8 +14,8 @@ interface ReaderSearchSubitem {
 
 @Injectable()
 export class ReaderLeftSidebarService {
-  private viewManager = inject(ReaderViewManagerService);
-  private bookNoteV2Service = inject(BookNoteV2Service);
+  private readonly viewManager = inject(ReaderViewManagerService);
+  private readonly bookNoteV2Service = inject(BookNoteV2Service);
 
   private readonly destroyRef = inject(DestroyRef);
   private bookId!: number;
@@ -55,7 +55,7 @@ export class ReaderLeftSidebarService {
   readonly searchState = this._searchState.asReadonly();
   private searchAbortController: AbortController | null = null;
 
-  private _editNote = new Subject<BookNoteV2>();
+  private readonly _editNote = new Subject<BookNoteV2>();
   editNote$ = this._editNote.asObservable();
 
   initialize(bookId: number): void {

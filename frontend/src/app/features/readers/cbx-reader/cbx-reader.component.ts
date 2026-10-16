@@ -87,157 +87,157 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private static readonly INFINITE_SCROLL_MAX_DOM_PAGES = 18;
 
   private readonly destroyRef = inject(DestroyRef);
-  private progressSaveSubject$ = new Subject<void>();
+  private readonly progressSaveSubject$ = new Subject<void>();
 
-  bookType = signal<BookType | null>(null);
-  bookId = signal<number | null>(null);
-  bookFileId = signal<number | null>(null);
-  altBookType = signal<string | undefined>(undefined);
-  pages = signal<number[]>([]);
-  currentPage = signal(0);
-  isLoading = signal(true);
+  readonly bookType = signal<BookType | null>(null);
+  readonly bookId = signal<number | null>(null);
+  readonly bookFileId = signal<number | null>(null);
+  readonly altBookType = signal<string | undefined>(undefined);
+  readonly pages = signal<number[]>([]);
+  readonly currentPage = signal(0);
+  readonly isLoading = signal(true);
 
-  pageSpread = signal<CbxPageSpread>(CbxPageSpread.EVEN);
-  pageViewMode = signal<CbxPageViewMode>(CbxPageViewMode.SINGLE_PAGE);
-  backgroundColor = signal<CbxBackgroundColor>(CbxBackgroundColor.GRAY);
-  fitMode = signal<CbxFitMode>(CbxFitMode.FIT_PAGE);
-  scrollMode = signal<CbxScrollMode>(CbxScrollMode.PAGINATED);
+  readonly pageSpread = signal<CbxPageSpread>(CbxPageSpread.EVEN);
+  readonly pageViewMode = signal<CbxPageViewMode>(CbxPageViewMode.SINGLE_PAGE);
+  readonly backgroundColor = signal<CbxBackgroundColor>(CbxBackgroundColor.GRAY);
+  readonly fitMode = signal<CbxFitMode>(CbxFitMode.FIT_PAGE);
+  readonly scrollMode = signal<CbxScrollMode>(CbxScrollMode.PAGINATED);
 
   private touchStartX = 0;
   private touchEndX = 0;
 
-  currentBook = signal<Book | null>(null);
-  nextBookInSeries = signal<Book | null>(null);
-  previousBookInSeries = signal<Book | null>(null);
+  readonly currentBook = signal<Book | null>(null);
+  readonly nextBookInSeries = signal<Book | null>(null);
+  readonly previousBookInSeries = signal<Book | null>(null);
 
-  infiniteScrollPages = signal<number[]>([]);
+  readonly infiniteScrollPages = signal<number[]>([]);
   preloadCount: number = CbxReaderComponent.PRELOAD_PAGE_WINDOW;
   /** True while a chunk of pages is being prepended/appended (does not block scroll UX). */
-  isLoadingMore = signal(false);
+  readonly isLoadingMore = signal(false);
   private infiniteScrollPageDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   // Long-strip state (Kavita-inspired webtoon reader)
-  longStripImages = signal<{ src: string; page: number }[]>([]);
-  private longStripLoadedPages = new Set<number>();
+  readonly longStripImages = signal<{ src: string; page: number }[]>([]);
+  private readonly longStripLoadedPages = new Set<number>();
   private longStripIntersectionObserver: IntersectionObserver | null = null;
   private longStripScrollHandler: (() => void) | null = null;
   private longStripScrollEndHandler: (() => void) | null = null;
   private longStripScrollDebounceTimer: ReturnType<typeof setTimeout> | null = null;
   private longStripScrollEndDebounceTimer: ReturnType<typeof setTimeout> | null = null;
-  private longStripIsScrolling = signal(false);
-  private longStripAllImagesLoaded = signal(false);
-  private longStripInitFinished = signal(false);
+  private readonly longStripIsScrolling = signal(false);
+  private readonly longStripAllImagesLoaded = signal(false);
+  private readonly longStripInitFinished = signal(false);
   private longStripPrevScrollTop = 0;
 
-  private preloadedImages = new Map<string, HTMLImageElement>();
-  previousImageUrls = signal<string[]>([]);
-  currentImageUrls = signal<string[]>([]);
-  isPageTransitioning = signal(false);
-  imagesLoaded = signal(false);
+  private readonly preloadedImages = new Map<string, HTMLImageElement>();
+  readonly previousImageUrls = signal<string[]>([]);
+  readonly currentImageUrls = signal<string[]>([]);
+  readonly isPageTransitioning = signal(false);
+  readonly imagesLoaded = signal(false);
 
   private visibilityManager!: ReaderHeaderFooterVisibilityManager;
 
-  isCurrentPageBookmarked = signal(false);
-  currentPageHasNotes = signal(false);
-  showNoteDialog = signal(false);
-  noteDialogData = signal<CbxNoteDialogData | null>(null);
-  private editingNote = signal<BookNoteV2 | null>(null);
+  readonly isCurrentPageBookmarked = signal(false);
+  readonly currentPageHasNotes = signal(false);
+  readonly showNoteDialog = signal(false);
+  readonly noteDialogData = signal<CbxNoteDialogData | null>(null);
+  private readonly editingNote = signal<BookNoteV2 | null>(null);
 
   // Fullscreen state
-  isFullscreen = signal(false);
+  readonly isFullscreen = signal(false);
 
   // Reading direction
-  readingDirection = signal<CbxReadingDirection>(CbxReadingDirection.LTR);
+  readonly readingDirection = signal<CbxReadingDirection>(CbxReadingDirection.LTR);
 
   // Slideshow state
-  isSlideshowActive = signal(false);
-  slideshowInterval = signal<CbxSlideshowInterval>(CbxSlideshowInterval.FIVE_SECONDS);
+  readonly isSlideshowActive = signal(false);
+  readonly slideshowInterval = signal<CbxSlideshowInterval>(CbxSlideshowInterval.FIVE_SECONDS);
   private slideshowTimer: ReturnType<typeof setInterval> | null = null;
 
   // Double-tap zoom
-  private lastTapTime = 0;
+  private readonly lastTapTime = 0;
   private originalFitMode: CbxFitMode | null = null;
 
   // Shortcuts help dialog
-  showShortcutsHelp = signal(false);
+  readonly showShortcutsHelp = signal(false);
 
   // Magnifier
-  isMagnifierActive = signal(false);
-  private magnifierLensRef = viewChild<ElementRef<HTMLDivElement>>('magnifierLens');
-  private imageScrollHostRef = viewChild<ElementRef<HTMLElement>>('imageScrollHost');
-  magnifierZoom = signal<CbxMagnifierZoom>(CbxMagnifierZoom.ZOOM_3X);
-  magnifierLensSize = signal<CbxMagnifierLensSize>(CbxMagnifierLensSize.MEDIUM);
+  readonly isMagnifierActive = signal(false);
+  private readonly magnifierLensRef = viewChild<ElementRef<HTMLDivElement>>('magnifierLens');
+  private readonly imageScrollHostRef = viewChild<ElementRef<HTMLElement>>('imageScrollHost');
+  readonly magnifierZoom = signal<CbxMagnifierZoom>(CbxMagnifierZoom.ZOOM_3X);
+  readonly magnifierLensSize = signal<CbxMagnifierLensSize>(CbxMagnifierLensSize.MEDIUM);
   private lastMouseEvent: MouseEvent | null = null;
 
   // Page split option for wide pages
-  pageSplitOption = signal<CbxPageSplitOption>(CbxPageSplitOption.NO_SPLIT);
+  readonly pageSplitOption = signal<CbxPageSplitOption>(CbxPageSplitOption.NO_SPLIT);
 
   // Brightness filter (0-100, default 100)
-  brightness = signal(100);
+  readonly brightness = signal(100);
 
   /** 50–100: max width of strip column (infinite / long strip). */
-  stripMaxWidthPercent = signal(100);
+  readonly stripMaxWidthPercent = signal(100);
 
   /** Kavita-style hint when archive looks like vertical webtoon strips. */
-  showWebtoonSuggestion = signal(false);
+  readonly showWebtoonSuggestion = signal(false);
 
   /** Near bottom of strip + next in series: show subtle continuation hint. */
-  continuationHintVisible = signal(false);
+  readonly continuationHintVisible = signal(false);
 
-  private cbxSettingsUsesGlobal = signal(true);
-  private readerLayoutGraceUntilMs = signal(0);
+  private readonly cbxSettingsUsesGlobal = signal(true);
+  private readonly readerLayoutGraceUntilMs = signal(0);
   /** Invalidates delayed scroll/layout work after book or scroll-mode changes. */
-  private readerLayoutGeneration = signal(0);
+  private readonly readerLayoutGeneration = signal(0);
   /** Avoid continuation hint flicker when scroll height changes (hysteresis). */
-  private continuationHintLatched = signal(false);
+  private readonly continuationHintLatched = signal(false);
 
   // Emulate book mode (spine shadow in two-page view)
-  emulateBook = signal(false);
+  readonly emulateBook = signal(false);
 
   // Click-to-paginate overlay
-  clickToPaginate = signal(false);
+  readonly clickToPaginate = signal(false);
 
   // Auto-close menu after interaction
-  autoCloseMenu = signal(false);
+  readonly autoCloseMenu = signal(false);
   private autoCloseMenuTimer: ReturnType<typeof setTimeout> | null = null;
 
   // Page dimensions from backend
-  pageDimensions = signal<CbxPageDimension[]>([]);
+  readonly pageDimensions = signal<CbxPageDimension[]>([]);
   // Double page detection (fallback cache for pages without backend dims)
-  private pageDimensionsCache = new Map<number, { width: number, height: number }>();
+  private readonly pageDimensionsCache = new Map<number, { width: number, height: number }>();
 
   // Swipe double-action prevention
-  private hasHitRightScroll = signal(false);
-  private hasHitZeroScroll = signal(false);
+  private readonly hasHitRightScroll = signal(false);
+  private readonly hasHitZeroScroll = signal(false);
   private touchMoveCount = 0;
 
   // Canvas split state
-  canvasSplitState = signal<'NO_SPLIT' | 'LEFT_PART' | 'RIGHT_PART'>('NO_SPLIT');
+  readonly canvasSplitState = signal<'NO_SPLIT' | 'LEFT_PART' | 'RIGHT_PART'>('NO_SPLIT');
 
   protected readonly CbxReadingDirection = CbxReadingDirection;
   protected readonly CbxSlideshowInterval = CbxSlideshowInterval;
   protected readonly CbxPageSplitOption = CbxPageSplitOption;
 
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private cbxReaderService = inject(CbxReaderService);
-  private bookService = inject(BookService);
-  private bookQuery = inject(BookQueryService);
-  private queryClient = inject(QueryClient);
-  private userService = inject(UserService);
-  private messageService = inject(MessageService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly cbxReaderService = inject(CbxReaderService);
+  private readonly bookService = inject(BookService);
+  private readonly bookQuery = inject(BookQueryService);
+  private readonly queryClient = inject(QueryClient);
+  private readonly userService = inject(UserService);
+  private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
-  private pageTitle = inject(PageTitleService);
-  private readingSessionService = inject(ReadingSessionService);
-  private headerService = inject(CbxHeaderService);
-  private sidebarService = inject(CbxSidebarService);
-  private footerService = inject(CbxFooterService);
-  private quickSettingsService = inject(CbxQuickSettingsService);
+  private readonly pageTitle = inject(PageTitleService);
+  private readonly readingSessionService = inject(ReadingSessionService);
+  private readonly headerService = inject(CbxHeaderService);
+  private readonly sidebarService = inject(CbxSidebarService);
+  private readonly footerService = inject(CbxFooterService);
+  private readonly quickSettingsService = inject(CbxQuickSettingsService);
   /** Template reads this signal so strip width tracks the slider (same source as quick settings panel). */
   protected readonly cbxQuickSettingsState = this.quickSettingsService.state;
-  private pageDimensionService = inject(CbxPageDimensionService);
-  private wakeLockService = inject(WakeLockService);
-  private readerPreferencesService = inject(ReaderPreferencesService);
+  private readonly pageDimensionService = inject(CbxPageDimensionService);
+  private readonly wakeLockService = inject(WakeLockService);
+  private readonly readerPreferencesService = inject(ReaderPreferencesService);
 
   protected readonly CbxScrollMode = CbxScrollMode;
   protected readonly CbxFitMode = CbxFitMode;
@@ -248,11 +248,11 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private static readonly TYPE_CBX = 'CBX';
   private static readonly SETTING_GLOBAL = 'Global';
 
-  isTwoPageView = computed(() => this.pageViewMode() === this.CbxPageViewMode.TWO_PAGE);
+  readonly isTwoPageView = computed(() => this.pageViewMode() === this.CbxPageViewMode.TWO_PAGE);
 
-  hasSeries = computed(() => !!this.currentBook()?.metadata?.seriesName);
+  readonly hasSeries = computed(() => !!this.currentBook()?.metadata?.seriesName);
 
-  isFooterVisible = computed(() => this.footerService.forceVisible());
+  readonly isFooterVisible = computed(() => this.footerService.forceVisible());
 
   private static readonly PAGE_COLORS: Record<CbxBackgroundColor, string> = {
     [CbxBackgroundColor.BLACK]: '#000',
@@ -260,22 +260,22 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     [CbxBackgroundColor.WHITE]: '#fff',
   };
 
-  pageColor = computed(() => CbxReaderComponent.PAGE_COLORS[this.backgroundColor()]);
+  readonly pageColor = computed(() => CbxReaderComponent.PAGE_COLORS[this.backgroundColor()]);
 
-  stripColor = computed(() => this.brightness() < 100
+  readonly stripColor = computed(() => this.brightness() < 100
     ? `color-mix(in srgb, ${this.pageColor()} ${this.brightness()}%, black)`
     : this.pageColor());
 
-  topBarColor = computed(() => this.headerService.forceVisible() ? 'var(--reader-chrome-bg)' : this.stripColor());
+  readonly topBarColor = computed(() => this.headerService.forceVisible() ? 'var(--reader-chrome-bg)' : this.stripColor());
 
-  bottomBarColor = computed(() => this.isFooterVisible() ? 'var(--reader-chrome-bg)' : this.stripColor());
+  readonly bottomBarColor = computed(() => this.isFooterVisible() ? 'var(--reader-chrome-bg)' : this.stripColor());
 
-  showQuickSettings = computed(() => this.quickSettingsService.visible());
+  readonly showQuickSettings = computed(() => this.quickSettingsService.visible());
 
-  isAtLastPage = computed(() => this.currentPage() >= this.pages().length - 1);
+  readonly isAtLastPage = computed(() => this.currentPage() >= this.pages().length - 1);
 
   /** Last loaded long-strip page is the archive's final page (show next-book CTA when in series). */
-  isAtEndOfLongStrip = computed(() => {
+  readonly isAtEndOfLongStrip = computed(() => {
     const images = this.longStripImages();
     if (images.length === 0) return false;
     const last = images[images.length - 1];
@@ -283,7 +283,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   });
 
   /** Last loaded infinite-scroll index is the archive's final page (show next-book CTA when in series). */
-  isAtEndOfInfiniteScroll = computed(() => {
+  readonly isAtEndOfInfiniteScroll = computed(() => {
     const pages = this.infiniteScrollPages();
     if (pages.length === 0) return false;
     const lastIdx = pages[pages.length - 1];
@@ -663,12 +663,12 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     this.quickSettingsService.stripMaxWidthChange$
       .pipe(
         tap((value) => {
-          this.stripMaxWidthPercent.set(value as number);
+          this.stripMaxWidthPercent.set(value);
         }),
         debounceTime(CbxReaderComponent.STRIP_WIDTH_PERSIST_DEBOUNCE_MS),
         takeUntilDestroyed(this.destroyRef)
       )
-      .subscribe((value) => this.persistStripMaxWidth(value as number));
+      .subscribe((value) => this.persistStripMaxWidth(value));
   }
 
   private updateServiceStates(): void {
@@ -2113,20 +2113,20 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private cycleMagnifierZoom(direction: 1 | -1): void {
     const values = Object.values(CbxMagnifierZoom).filter(v => typeof v === 'number') as number[];
     values.sort((a, b) => a - b);
-    const currentIndex = values.indexOf(this.magnifierZoom() as number);
+    const currentIndex = values.indexOf(this.magnifierZoom());
     const newIndex = currentIndex + direction;
     if (newIndex >= 0 && newIndex < values.length) {
-      this.onMagnifierZoomChange(values[newIndex] as CbxMagnifierZoom);
+      this.onMagnifierZoomChange(values[newIndex]);
     }
   }
 
   private cycleMagnifierLensSize(direction: 1 | -1): void {
     const values = Object.values(CbxMagnifierLensSize).filter(v => typeof v === 'number') as number[];
     values.sort((a, b) => a - b);
-    const currentIndex = values.indexOf(this.magnifierLensSize() as number);
+    const currentIndex = values.indexOf(this.magnifierLensSize());
     const newIndex = currentIndex + direction;
     if (newIndex >= 0 && newIndex < values.length) {
-      this.onMagnifierLensSizeChange(values[newIndex] as CbxMagnifierLensSize);
+      this.onMagnifierLensSizeChange(values[newIndex]);
     }
   }
 
@@ -2138,7 +2138,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       this.onFitModeChange(CbxFitMode.ACTUAL_SIZE);
     } else {
       // Restore original fit mode
-      this.onFitModeChange(this.originalFitMode as CbxFitMode);
+      this.onFitModeChange(this.originalFitMode);
       this.originalFitMode = null;
     }
   }

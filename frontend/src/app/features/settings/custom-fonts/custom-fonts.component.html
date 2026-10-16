@@ -8,7 +8,7 @@
           size="large"
           (click)="openUploadDialog()"
           [disabled]="customFonts.length >= maxFonts"
-        ></p-button>
+        />
       </div>
       @if (customFonts.length === 0 && !isLoading) {
         <div class="preferences-section">
@@ -55,7 +55,7 @@
                     (click)="deleteFont(font)"
                     [pTooltip]="t('deleteFont')"
                     tooltipPosition="left"
-                  ></p-button>
+                  />
                 </div>
 
                 <div class="font-preview-area">
@@ -65,12 +65,12 @@
                   </span>
                   @if (!fontsLoadedInBrowser) {
                     <div class="font-preview-skeleton">
-                      <p-skeleton width="100%" height="0.875rem"></p-skeleton>
-                      <p-skeleton width="100%" height="0.875rem"></p-skeleton>
-                      <p-skeleton width="85%" height="0.875rem"></p-skeleton>
-                      <p-skeleton width="60%" height="0.875rem"></p-skeleton>
-                      <p-skeleton width="85%" height="0.875rem"></p-skeleton>
-                      <p-skeleton width="95%" height="0.7656rem"></p-skeleton>
+                      <p-skeleton width="100%" height="0.875rem" />
+                      <p-skeleton width="100%" height="0.875rem" />
+                      <p-skeleton width="85%" height="0.875rem" />
+                      <p-skeleton width="60%" height="0.875rem" />
+                      <p-skeleton width="85%" height="0.875rem" />
+                      <p-skeleton width="95%" height="0.7656rem" />
                     </div>
                   } @else {
                     <div class="font-preview" [style.font-family]="font.fontName">
@@ -109,5 +109,5 @@
     </div>
   </div>
 
-  <p-confirmDialog></p-confirmDialog>
+  <p-confirmDialog />
 </ng-container>

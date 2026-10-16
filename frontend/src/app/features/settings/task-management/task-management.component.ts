@@ -46,9 +46,9 @@ import {NgClass} from '@angular/common';
 })
 export class TaskManagementComponent implements OnInit {
   // Services
-  private messageService = inject(MessageService);
-  private taskService = inject(TaskService);
-  private t = inject(TranslocoService);
+  private readonly messageService = inject(MessageService);
+  private readonly taskService = inject(TaskService);
+  private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
 
   // State

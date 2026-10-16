@@ -9,8 +9,7 @@
         <p class="panel-description">{{ isBulkMode ? t('descriptionBulk') : t('description') }}</p>
       </div>
       <p-button icon="pi pi-times" [rounded]="true" [text]="true" severity="secondary" (click)="closeDialog()"
-        class="close-button">
-      </p-button>
+        class="close-button" />
     </div>
 
     <div class="dialog-content">
@@ -61,8 +60,7 @@
 
       <!-- Options -->
       <div class="delete-option">
-        <p-checkbox [(ngModel)]="moveFiles" [binary]="true" inputId="moveFiles" [disabled]="isAttaching">
-        </p-checkbox>
+        <p-checkbox [(ngModel)]="moveFiles" [binary]="true" inputId="moveFiles" [disabled]="isAttaching" />
         <label for="moveFiles" class="delete-label">
           {{ t('moveFilesLabel') }}
         </label>
@@ -84,11 +82,9 @@
       <!-- Action Buttons -->
       <div class="action-buttons">
         <p-button [label]="'common.cancel' | transloco" [outlined]="true" severity="secondary" (click)="closeDialog()"
-          [disabled]="isAttaching">
-        </p-button>
+          [disabled]="isAttaching" />
         <p-button [label]="isBulkMode ? t('attachFilesBulk') : t('attachFile')" icon="pi pi-link" (click)="attach()"
-          [disabled]="!canAttach()" [loading]="isAttaching">
-        </p-button>
+          [disabled]="!canAttach()" [loading]="isAttaching" />
       </div>
     </div>
   </div>

@@ -35,19 +35,19 @@ export class AuthorMatchComponent implements OnInit {
   @Input({required: true}) authorName!: string;
   @Output() authorMatched = new EventEmitter<AuthorDetails>();
 
-  private authorService = inject(AuthorService);
-  private messageService = inject(MessageService);
-  private t = inject(TranslocoService);
+  private readonly authorService = inject(AuthorService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
 
-  searchQuery = signal('');
-  asinQuery = signal('');
-  selectedRegion = signal('us');
-  searching = signal(false);
-  matching = signal(false);
-  results = signal<AuthorSearchResult[]>([]);
-  hasSearched = signal(false);
+  readonly searchQuery = signal('');
+  readonly asinQuery = signal('');
+  readonly selectedRegion = signal('us');
+  readonly searching = signal(false);
+  readonly matching = signal(false);
+  readonly results = signal<AuthorSearchResult[]>([]);
+  readonly hasSearched = signal(false);
 
-  canSearch = computed(() => !!this.searchQuery().trim() || !!this.asinQuery().trim());
+  readonly canSearch = computed(() => !!this.searchQuery().trim() || !!this.asinQuery().trim());
 
   regionOptions: RegionOption[] = [
     {label: 'US', value: 'us'},

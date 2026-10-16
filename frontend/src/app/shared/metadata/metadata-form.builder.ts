@@ -1,10 +1,8 @@
-import {Injectable} from '@angular/core';
+import {Service} from '@angular/core';
 import {FormControl, FormGroup} from '@angular/forms';
 import {ALL_COMIC_METADATA_FIELDS, AUDIOBOOK_METADATA_FIELDS, MetadataFieldConfig} from './metadata-field.config';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class MetadataFormBuilder {
 
   buildForm(

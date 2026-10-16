@@ -17,8 +17,7 @@
           severity="success"
           size="small"
           [outlined]="true"
-          (onClick)="openAddRecipientDialog()">
-        </p-button>
+          (onClick)="openAddRecipientDialog()" />
       </div>
     </div>
 
@@ -44,8 +43,7 @@
                     name="defaultRecipient"
                     [value]="recipient.id"
                     [(ngModel)]="defaultRecipientId"
-                    (onClick)="setDefaultRecipient(recipient)">
-                  </p-radioButton>
+                    (onClick)="setDefaultRecipient(recipient)" />
                 </div>
 
                 <div class="recipient-info">
@@ -94,8 +92,7 @@
                       [outlined]="true"
                       [rounded]="true"
                       (onClick)="toggleEditRecipient(recipient)"
-                      [pTooltip]="t('editRecipient')">
-                    </p-button>
+                      [pTooltip]="t('editRecipient')" />
                     <p-button
                       icon="pi pi-trash"
                       severity="danger"
@@ -103,8 +100,7 @@
                       [outlined]="true"
                       [rounded]="true"
                       (onClick)="deleteRecipient(recipient)"
-                      [pTooltip]="t('deleteRecipient')">
-                    </p-button>
+                      [pTooltip]="t('deleteRecipient')" />
                   } @else {
                     <p-button
                       icon="pi pi-check"
@@ -113,8 +109,7 @@
                       [outlined]="true"
                       [rounded]="true"
                       (onClick)="saveRecipient(recipient)"
-                      [pTooltip]="t('saveChanges')">
-                    </p-button>
+                      [pTooltip]="t('saveChanges')" />
                     <p-button
                       icon="pi pi-times"
                       severity="secondary"
@@ -122,8 +117,7 @@
                       [outlined]="true"
                       [rounded]="true"
                       (onClick)="toggleEditRecipient(recipient)"
-                      [pTooltip]="'common.cancel' | transloco">
-                    </p-button>
+                      [pTooltip]="'common.cancel' | transloco" />
                   }
                 </div>
               </div>

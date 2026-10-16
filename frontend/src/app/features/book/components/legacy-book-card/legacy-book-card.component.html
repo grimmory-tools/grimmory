@@ -59,8 +59,7 @@
         class="select-checkbox"
         (click)="captureMouseEvent($event)"
         [ngModel]="isSelected()"
-        (onChange)="toggleSelection($event)">
-      </p-checkbox>
+        (onChange)="toggleSelection($event)" />
     }
 
     @if (hasProgress()) {
@@ -97,13 +96,13 @@
            [attr.aria-label]="'book.card.alt.readStatusMenu' | transloco">
         <i [class]="readStatusIcon()" style="font-size: 0.9rem"></i>
       </div>
-      <p-tieredmenu #readStatusMenu [model]="readStatusMenuItems()" [popup]="true" appendTo="body"></p-tieredmenu>
+      <p-tieredmenu #readStatusMenu [model]="readStatusMenuItems()" [popup]="true" appendTo="body" />
       <h4 class="book-title"
           tooltipPosition="bottom"
           [pTooltip]="titleTooltip()">
         {{ displayTitle() }}
       </h4>
-      <p-tieredmenu #menu [model]="items()" [popup]="true" appendTo="body" (onShow)="onMenuShow()" (onHide)="onMenuHide()"></p-tieredmenu>
+      <p-tieredmenu #menu [model]="items()" [popup]="true" appendTo="body" (onShow)="onMenuShow()" (onHide)="onMenuHide()" />
       <button pButton type="button"
         class="p-button p-component p-button-text p-button-sm custom-button-padding"
         (click)="onMenuToggle($event, menu)"

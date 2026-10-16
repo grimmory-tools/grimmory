@@ -21,13 +21,13 @@ import {TranslocoDirective} from '@jsverse/transloco';
 })
 export class VersionChangelogDialogComponent implements OnInit {
 
-  private versionService = inject(VersionService);
+  private readonly versionService = inject(VersionService);
   dialogRef = inject(DynamicDialogRef);
 
   changelog: ReleaseNote[] = [];
-  loading = signal(true);
+  readonly loading = signal(true);
 
-  private markdown = new MarkdownIt({ html: true });
+  private readonly markdown = new MarkdownIt({ html: true });
 
   ngOnInit(): void {
     this.versionService.getChangelog().subscribe({

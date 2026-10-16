@@ -100,26 +100,26 @@ export class SeriesPageComponent implements AfterViewChecked {
   private readonly DESKTOP_SERIES_GRID_GAP = 21;
   private readonly MOBILE_SERIES_GRID_GAP = 8;
   private readonly MOBILE_GRID_COLUMNS = 2;
-  private route = inject(ActivatedRoute);
-  private bookService = inject(BookService);
-  private languageResolver = inject(LanguageResolverService);
-  private bookMetadataManageService = inject(BookMetadataManageService);
-  private metadataCenterViewMode: "route" | "dialog" = "route";
+  private readonly route = inject(ActivatedRoute);
+  private readonly bookService = inject(BookService);
+  private readonly languageResolver = inject(LanguageResolverService);
+  private readonly bookMetadataManageService = inject(BookMetadataManageService);
+  private readonly metadataCenterViewMode: "route" | "dialog" = "route";
   private dialogRef?: DynamicDialogRef | null;
-  private router = inject(Router);
+  private readonly router = inject(Router);
   protected userService = inject(UserService);
-  private bookMenuService = inject(BookMenuService);
+  private readonly bookMenuService = inject(BookMenuService);
   protected confirmationService = inject(ConfirmationService);
-  private loadingService = inject(LoadingService);
-  private dialogHelperService = inject(BookDialogHelperService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly dialogHelperService = inject(BookDialogHelperService);
   protected taskHelperService = inject(TaskHelperService);
-  private messageService = inject(MessageService);
+  private readonly messageService = inject(MessageService);
   protected bookCardOverlayPreferenceService = inject(BookCardOverlayPreferenceService);
   protected appSettingsService = inject(AppSettingsService);
   private readonly t = inject(TranslocoService);
   protected urlHelper = inject(UrlHelperService);
-  private authorService = inject(AuthorService);
-  private layoutService = inject(LayoutService);
+  private readonly authorService = inject(AuthorService);
+  private readonly layoutService = inject(LayoutService);
 
   private readonly descriptionContentRef = viewChild<ElementRef<HTMLElement>>('descriptionContent');
   private readonly seriesGridElement = viewChild<ElementRef<HTMLElement>>('seriesGrid');
@@ -143,11 +143,11 @@ export class SeriesPageComponent implements AfterViewChecked {
   protected readonly seriesCardsUseSquareCovers = false;
   protected readonly onSeriesBookCardSelect = this.handleBookSelect.bind(this);
 
-  private seriesParam = toSignal(this.route.paramMap.pipe(
+  private readonly seriesParam = toSignal(this.route.paramMap.pipe(
     map((params) => params.get("seriesName") || ""),
   ), {initialValue: ""});
 
-  filteredBooks = computed(() => {
+  readonly filteredBooks = computed(() => {
     const seriesName = this.seriesParam().trim().toLowerCase();
     const inSeries = this.bookService.books().filter(
       (book) => book.metadata?.seriesName?.trim().toLowerCase() === seriesName
@@ -177,16 +177,16 @@ export class SeriesPageComponent implements AfterViewChecked {
     this.seriesCardSizeForWidth(this.seriesGridCardWidth()).height
   );
 
-  coverBook = computed(() => this.filteredBooks()[0] ?? null);
-  private firstBookId = computed(() => this.coverBook()?.id ?? null);
-  private firstBookDetailQuery = injectQuery(() => ({
+  readonly coverBook = computed(() => this.filteredBooks()[0] ?? null);
+  private readonly firstBookId = computed(() => this.coverBook()?.id ?? null);
+  private readonly firstBookDetailQuery = injectQuery(() => ({
     ...this.bookService.bookDetailQueryOptions(this.firstBookId() ?? -1, true),
     enabled: this.firstBookId() != null,
   }));
 
-  seriesTitle = computed(() => this.filteredBooks()[0]?.metadata?.seriesName || this.seriesParam());
+  readonly seriesTitle = computed(() => this.filteredBooks()[0]?.metadata?.seriesName || this.seriesParam());
 
-  yearsRange = computed(() => {
+  readonly yearsRange = computed(() => {
     const years = this.filteredBooks()
       .map((book) => book.metadata?.publishedDate)
       .filter((date): date is string => !!date)
@@ -202,18 +202,18 @@ export class SeriesPageComponent implements AfterViewChecked {
     return min === max ? String(min) : `${min}-${max}`;
   });
 
-  firstBookWithDesc = computed(() => this.firstBookDetailQuery.data() ?? null);
-  firstDescription = computed(() => this.firstBookWithDesc()?.metadata?.description || "");
+  readonly firstBookWithDesc = computed(() => this.firstBookDetailQuery.data() ?? null);
+  readonly firstDescription = computed(() => this.firstBookWithDesc()?.metadata?.description || "");
 
-  seriesReadStatus = computed(() => computeSeriesReadStatus(this.filteredBooks()));
+  readonly seriesReadStatus = computed(() => computeSeriesReadStatus(this.filteredBooks()));
 
-  seriesReadProgress = computed(() => {
+  readonly seriesReadProgress = computed(() => {
     const books = this.filteredBooks();
     const readCount = books.filter((book) => book.readStatus === ReadStatus.READ).length;
     return `${readCount}/${books.length}`;
   });
 
-  allAuthors = computed(() => {
+  readonly allAuthors = computed(() => {
     const authors = new Set<string>();
     for (const book of this.filteredBooks()) {
       book.metadata?.authors?.forEach((author) => authors.add(author));
@@ -221,7 +221,7 @@ export class SeriesPageComponent implements AfterViewChecked {
     return Array.from(authors);
   });
 
-  allCategories = computed(() => {
+  readonly allCategories = computed(() => {
     const categories = new Set<string>();
     for (const book of this.filteredBooks()) {
       book.metadata?.categories?.forEach((category) => categories.add(category));
@@ -229,7 +229,7 @@ export class SeriesPageComponent implements AfterViewChecked {
     return Array.from(categories);
   });
 
-  allPublishers = computed(() => {
+  readonly allPublishers = computed(() => {
     const publishers = new Set<string>();
     for (const book of this.filteredBooks()) {
       if (book.metadata?.publisher) {
@@ -239,7 +239,7 @@ export class SeriesPageComponent implements AfterViewChecked {
     return Array.from(publishers);
   });
 
-  allLanguages = computed(() => {
+  readonly allLanguages = computed(() => {
     const languages = new Set<string>();
     for (const book of this.filteredBooks()) {
       if (book.metadata?.language) {
@@ -249,7 +249,7 @@ export class SeriesPageComponent implements AfterViewChecked {
     return Array.from(languages);
   });
 
-  seriesCompletion = computed<SeriesCompletion | null>(() => {
+  readonly seriesCompletion = computed<SeriesCompletion | null>(() => {
     const totals = this.filteredBooks()
       .map((book) => book.metadata?.seriesTotal)
       .filter((total): total is number => total != null && total > 0);
@@ -276,7 +276,7 @@ export class SeriesPageComponent implements AfterViewChecked {
     };
   });
 
-  readStatusBreakdown = computed(() => {
+  readonly readStatusBreakdown = computed(() => {
     const books = this.filteredBooks();
     if (books.length === 0) return [];
 
@@ -294,7 +294,7 @@ export class SeriesPageComponent implements AfterViewChecked {
     return segments;
   });
 
-  nextUp = computed<NextUpBook | null>(() => {
+  readonly nextUp = computed<NextUpBook | null>(() => {
     const books = this.filteredBooks();
     const reading = books.find(book =>
       book.readStatus === ReadStatus.READING ||
@@ -330,7 +330,7 @@ export class SeriesPageComponent implements AfterViewChecked {
     return {book: target, thumbnailUrl, isReading, progressPercent};
   });
 
-  seriesStats = computed<SeriesStats>(() => {
+  readonly seriesStats = computed<SeriesStats>(() => {
     let totalPages = 0;
     const personalRatings: number[] = [];
     const goodreadsRatings: number[] = [];

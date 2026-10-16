@@ -13,8 +13,7 @@
       [text]="true"
       severity="secondary"
       (click)="close()"
-      class="close-button">
-    </p-button>
+      class="close-button" />
   </div>
 
   @if (!loading()) {
@@ -24,8 +23,7 @@
           [fetchedMetadata]="proposed"
           [book]="currentBook()"
           (goBack)="close()"
-          [reviewMode]="true">
-        </app-metadata-picker>
+          [reviewMode]="true" />
       }
     </div>
 
@@ -35,8 +33,7 @@
           <p-progressBar
             [value]="((currentIndex() + 1) / proposals().length) * 100"
             class="progress-bar"
-            showValue="false">
-          </p-progressBar>
+            showValue="false" />
           <span class="progress-text">
             Book {{ currentIndex() + 1 }} / {{ proposals().length }}
           </span>
@@ -49,8 +46,7 @@
           icon="pi pi-times-circle"
           severity="secondary"
           [outlined]="true"
-          (click)="close()">
-        </p-button>
+          (click)="close()" />
 
         <p-divider layout="vertical"/>
 
@@ -59,16 +55,14 @@
           icon="pi pi-lock"
           severity="warn"
           [outlined]="true"
-          (click)="lockAllMetadata()">
-        </p-button>
+          (click)="lockAllMetadata()" />
 
         <p-button
           label="Unlock All"
           icon="pi pi-lock-open"
           severity="success"
           [outlined]="true"
-          (click)="unlockAllMetadata()">
-        </p-button>
+          (click)="unlockAllMetadata()" />
 
         <p-divider layout="vertical"/>
 
@@ -78,8 +72,7 @@
           iconPos="right"
           severity="success"
           [outlined]="true"
-          (click)="onSave()">
-        </p-button>
+          (click)="onSave()" />
 
         <p-divider layout="vertical"/>
 
@@ -89,13 +82,12 @@
           iconPos="right"
           severity="info"
           [outlined]="true"
-          (click)="onNext()">
-        </p-button>
+          (click)="onNext()" />
       </div>
     </div>
   } @else {
     <div class="dialog-content loading-state">
-      <p-progressSpinner class="spinner" strokeWidth="4"></p-progressSpinner>
+      <p-progressSpinner class="spinner" strokeWidth="4" />
     </div>
   }
 </div>

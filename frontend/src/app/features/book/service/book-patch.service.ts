@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable, Subject} from 'rxjs';
 import {distinctUntilChanged, exhaustMap, share, tap} from 'rxjs/operators';
@@ -32,18 +32,16 @@ function getResetProgressFields(type: ResetProgressType): Partial<Book> {
   };
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class BookPatchService {
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/books`;
 
-  private http = inject(HttpClient);
-  private queryClient = inject(QueryClient);
+  private readonly http = inject(HttpClient);
+  private readonly queryClient = inject(QueryClient);
 
-  private epubProgressSubject = new Subject<{ bookId: number; cfi: string; href: string; percentage: number; bookFileId?: number }>();
+  private readonly epubProgressSubject = new Subject<{ bookId: number; cfi: string; href: string; percentage: number; bookFileId?: number }>();
 
-  private epubProgress$ = this.epubProgressSubject.pipe(
+  private readonly epubProgress$ = this.epubProgressSubject.pipe(
     distinctUntilChanged((prev, curr) =>
       prev.bookId === curr.bookId &&
       prev.cfi === curr.cfi &&

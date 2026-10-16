@@ -1,4 +1,4 @@
-import {Injectable, inject} from '@angular/core';
+import {Service, inject} from '@angular/core';
 import {TranslocoService} from '@jsverse/transloco';
 import {firstValueFrom} from 'rxjs';
 import {AVAILABLE_LANGS} from '../../core/config/transloco-loader';
@@ -6,9 +6,9 @@ import {AVAILABLE_LANGS} from '../../core/config/transloco-loader';
 const DEFAULT_LOCALE = 'en';
 const STORAGE_KEY = 'appLocale';
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class AppLocaleService {
-  private translocoService = inject(TranslocoService);
+  private readonly translocoService = inject(TranslocoService);
 
   getDisplayLocale(): string {
     const locale = localStorage.getItem(STORAGE_KEY);

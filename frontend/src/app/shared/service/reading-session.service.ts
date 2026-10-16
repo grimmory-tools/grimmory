@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { fromEvent, merge, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
@@ -21,9 +21,7 @@ export interface ReadingSession {
   progressDelta?: number;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class ReadingSessionService {
   private readonly apiService = inject(ReadingSessionApiService);
 

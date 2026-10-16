@@ -30,12 +30,12 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
   styleUrls: ['./koreader-settings-component.scss']
 })
 export class KoreaderSettingsComponent {
-  editMode = signal(true);
-  showPassword = signal(false);
-  koReaderSyncEnabled = signal(false);
-  koReaderUsername = signal('');
-  koReaderPassword = signal('');
-  credentialsSaved = signal(false);
+  readonly editMode = signal(true);
+  readonly showPassword = signal(false);
+  readonly koReaderSyncEnabled = signal(false);
+  readonly koReaderUsername = signal('');
+  readonly koReaderPassword = signal('');
+  readonly credentialsSaved = signal(false);
   readonly koreaderEndpoint = `${window.location.origin}/api/koreader`;
 
   private readonly messageService = inject(MessageService);

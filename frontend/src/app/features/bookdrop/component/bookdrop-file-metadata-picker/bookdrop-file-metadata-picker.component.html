@@ -55,7 +55,7 @@
                   [ngClass]="{
                     'changed': isValueCopied('thumbnailUrl'),
                   }"
-                ></p-image>
+                />
               }
               @else {
                 <div class="thumbnail no-cover-text">{{ t('noCoverImage') }}</div>
@@ -80,7 +80,7 @@
                 appendTo="body"
                 lazyLoad
                 [preview]="true"
-                ></p-image>
+                />
               }
               @else {
                 <div class="thumbnail no-cover-text">{{ t('coverImageNotFound') }}</div>
@@ -149,8 +149,7 @@
                 class="dest"
                 [ngClass]="{
                   'changed': isValueChanged(field.controlName),
-                }">
-              </p-datepicker>
+                }" />
               <p-button
                 size="small"
                 [icon]="isValueSaved(field.controlName) ? 'pi pi-check' : (isValueChanged(field.controlName) || !fetchedMetadata[field.fetchedKey] ? 'pi pi-refresh' : 'pi pi-angle-left')"
@@ -359,7 +358,7 @@
           [pTooltip]="t('resetAllTooltip')"
           tooltipPosition="left"
           (onClick)="confirmReset()"
-        ></p-button>
+        />
       </div>
       <div class="metabody">
         <div class="editor-thumbnail-wrapper">
@@ -418,8 +417,7 @@
                   class="full-width"
                   [ngClass]="{
                     'changed': isValueChanged(field.controlName),
-                  }">
-                </p-datepicker>
+                  }" />
                 <p-button
                   size="small"
                   icon="pi pi-refresh"

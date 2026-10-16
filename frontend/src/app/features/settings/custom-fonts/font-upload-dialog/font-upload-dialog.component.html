@@ -121,14 +121,14 @@
       [outlined]="true"
       (click)="cancel()"
       [disabled]="isUploading"
-    ></p-button>
+    />
     <p-button
       [label]="t('uploadBtn')"
       icon="pi pi-upload"
       (click)="uploadFont()"
       [disabled]="isUploading || !selectedFile || !uploadedFontName.trim()"
       [loading]="isUploading"
-    ></p-button>
+    />
   </div>
 </div>
 </ng-container>

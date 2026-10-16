@@ -1,16 +1,14 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {Observable} from 'rxjs';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {API_CONFIG} from '../../../core/config/api-config';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class UtilityService {
 
-  private pathUrl = `${API_CONFIG.BASE_URL}/api/v1/path`;
+  private readonly pathUrl = `${API_CONFIG.BASE_URL}/api/v1/path`;
 
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
   getFolders(path: string): Observable<string[]> {
     const params = new HttpParams().set('path', path);

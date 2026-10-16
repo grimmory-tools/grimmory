@@ -14,8 +14,7 @@
       [text]="true"
       severity="secondary"
       (click)="dialogRef.close()"
-      class="close-button">
-    </p-button>
+      class="close-button" />
   </div>
 
   <div class="dialog-content">
@@ -29,7 +28,7 @@
             [icon]="getLockIcon(field)"
             [severity]="fieldLocks[field] === true ? 'danger' : fieldLocks[field] === false ? 'success' : 'secondary'"
             (click)="cycleLockState(field)"
-          ></p-button>
+          />
         </div>
       }
     </div>
@@ -37,13 +36,13 @@
 
   <div class="dialog-footer">
     <div class="footer-actions">
-      <p-button icon="pi pi-refresh" [label]="t('reset')" outlined="true" severity="warn" (onClick)="resetFieldLocks()"></p-button>
+      <p-button icon="pi pi-refresh" [label]="t('reset')" outlined="true" severity="warn" (onClick)="resetFieldLocks()" />
     </div>
     <div class="footer-actions">
-      <p-button icon="pi pi-lock" [label]="t('lockAll')" outlined="true" severity="danger" (onClick)="toggleLockAll('LOCK')"></p-button>
-      <p-button icon="pi pi-lock-open" [label]="t('unlockAll')" outlined="true" severity="success" (onClick)="toggleLockAll('UNLOCK')"></p-button>
-      <p-divider layout="vertical"></p-divider>
-      <p-button [label]="isSaving ? t('saving') : t('save')" [outlined]="true" icon="pi pi-check" severity="info" (onClick)="applyFieldLocks()" [disabled]="bookIds.size === 0 || isSaving"></p-button>
+      <p-button icon="pi pi-lock" [label]="t('lockAll')" outlined="true" severity="danger" (onClick)="toggleLockAll('LOCK')" />
+      <p-button icon="pi pi-lock-open" [label]="t('unlockAll')" outlined="true" severity="success" (onClick)="toggleLockAll('UNLOCK')" />
+      <p-divider layout="vertical" />
+      <p-button [label]="isSaving ? t('saving') : t('save')" [outlined]="true" icon="pi pi-check" severity="info" (onClick)="applyFieldLocks()" [disabled]="bookIds.size === 0 || isSaving" />
     </div>
   </div>
 </div>

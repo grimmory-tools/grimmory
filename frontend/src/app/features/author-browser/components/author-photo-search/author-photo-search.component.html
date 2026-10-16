@@ -21,8 +21,7 @@
               [label]="t('searchBtn')"
               icon="pi pi-search"
               [loading]="searching"
-              [disabled]="searchForm.invalid">
-            </p-button>
+              [disabled]="searchForm.invalid" />
             <p-button
               type="button"
               icon="pi pi-refresh"
@@ -31,8 +30,7 @@
               severity="secondary"
               (click)="onClear()"
               [pTooltip]="t('resetTooltip')"
-              tooltipPosition="top">
-            </p-button>
+              tooltipPosition="top" />
           </div>
         </div>
       </form>
@@ -49,7 +47,7 @@
         </div>
       } @else if (searching) {
         <div class="loading-state">
-          <p-progressSpinner strokeWidth="3" animationDuration="1s"></p-progressSpinner>
+          <p-progressSpinner strokeWidth="3" animationDuration="1s" />
           <p>{{ t('searching') }}</p>
         </div>
       } @else if (photos.length === 0) {
@@ -76,8 +74,7 @@
                   [src]="photo.url"
                   [alt]="t('photoAlt', { index: i + 1 })"
                   appendTo="body"
-                  [preview]="true">
-                </p-image>
+                  [preview]="true" />
                 @if (photo.width && photo.height) {
                   <div class="resolution-badge">
                     {{ photo.width }} x {{ photo.height }}
@@ -88,8 +85,7 @@
                     (click)="selectAndUploadPhoto(photo)"
                     [label]="t('selectBtn')"
                     icon="pi pi-check"
-                    size="small">
-                  </p-button>
+                    size="small" />
                 </div>
               </div>
             </div>

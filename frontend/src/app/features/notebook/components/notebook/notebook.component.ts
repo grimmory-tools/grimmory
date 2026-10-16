@@ -62,7 +62,7 @@ export class NotebookComponent implements OnInit {
 
   filteredGroups: BookGroup[] = [];
   totalEntries = 0;
-  loading = signal(true);
+  readonly loading = signal(true);
   exporting = false;
 
   searchQuery = '';
@@ -78,7 +78,7 @@ export class NotebookComponent implements OnInit {
   pageSize = 50;
   first = 0;
 
-  private collapsedGroups = new Set<number>();
+  private readonly collapsedGroups = new Set<number>();
 
   ngOnInit(): void {
     this.pageTitle.setPageTitle(this.t.translate('notebook.pageTitle'));

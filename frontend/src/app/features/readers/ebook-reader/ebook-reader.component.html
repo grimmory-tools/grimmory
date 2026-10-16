@@ -27,7 +27,7 @@
   }
 
   <app-reader-header
-    (hoverChange)="onHeaderHovered($event)"></app-reader-header>
+    (hoverChange)="onHeaderHovered($event)" />
 
   <div class="reader-content" style="position: relative;">
     @if (isCurrentCfiBookmarked()) {
@@ -45,19 +45,17 @@
     [forceVisible]="forceNavbarVisible()"
     [sectionFractions]="sectionFractions()"
     (progressChange)="onProgressChange($event)"
-    (hoverChange)="onFooterHovered($event)">
-  </app-reader-navbar>
+    (hoverChange)="onFooterHovered($event)" />
 
-  <app-reader-sidebar></app-reader-sidebar>
-  <app-reader-left-sidebar></app-reader-left-sidebar>
+  <app-reader-sidebar />
+  <app-reader-left-sidebar />
 
   @if (showQuickSettings()) {
     <app-reader-quick-settings
       [stateService]="stateService"
       [bookId]="bookId"
       (closed)="showQuickSettings.set(false)"
-      (openFullSettings)="showControls.set(true)">
-    </app-reader-quick-settings>
+      (openFullSettings)="showControls.set(true)" />
   }
 
   @if (showControls()) {
@@ -65,15 +63,14 @@
       [stateService]="stateService"
       [viewManager]="viewManager"
       [bookId]="bookId"
-      (closed)="showControls.set(false)">
-    </app-settings-dialog>
+      (closed)="showControls.set(false)" />
   }
 
   @if (showMetadata()) {
     <app-reader-book-metadata-dialog
       [book]="book()"
       (closed)="showMetadata.set(false)"
-    ></app-reader-book-metadata-dialog>
+    />
   }
 
   <app-text-selection-popup
@@ -84,17 +81,17 @@
     [selectedText]="selectionState().selectedText"
     [linkUrl]="selectionState().linkUrl"
     (action)="handleSelectionAction($event)"
-  ></app-text-selection-popup>
+  />
 
   @if (noteDialogState().visible) {
     <app-reader-note-dialog
       [data]="noteDialogState().data"
       (saved)="onNoteSave($event)"
       (cancelled)="onNoteCancel()"
-    ></app-reader-note-dialog>
+    />
   }
 
   @if (showShortcutsHelp()) {
-    <app-ebook-shortcuts-help (closed)="showShortcutsHelp.set(false)"></app-ebook-shortcuts-help>
+    <app-ebook-shortcuts-help (closed)="showShortcutsHelp.set(false)" />
   }
 </div>

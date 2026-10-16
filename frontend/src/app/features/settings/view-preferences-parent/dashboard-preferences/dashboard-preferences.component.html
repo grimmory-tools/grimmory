@@ -16,7 +16,7 @@
           <div class="scroller-item">
             <div class="scroller-content">
               <div class="scroller-controls-left">
-                <p-checkbox [(ngModel)]="scroller.enabled" [binary]="true"></p-checkbox>
+                <p-checkbox [(ngModel)]="scroller.enabled" [binary]="true" />
               </div>
 
               <div class="scroller-fields">
@@ -29,8 +29,7 @@
                     [(ngModel)]="scroller.type"
                     (onChange)="onScrollerTypeChange(scroller)"
                     [placeholder]="t('selectType')"
-                    appendTo="body">
-                  </p-select>
+                    appendTo="body" />
                 </div>
 
                 @if (scroller.type === ScrollerType.MAGIC_SHELF) {
@@ -42,8 +41,7 @@
                       [options]="magicShelves()"
                       [(ngModel)]="scroller.magicShelfId"
                       [placeholder]="t('selectMagicShelf')"
-                      appendTo="body">
-                    </p-select>
+                      appendTo="body" />
                   </div>
 
                   <div class="scroller-field">
@@ -54,8 +52,7 @@
                       [options]="sortFieldOptions()"
                       [(ngModel)]="scroller.sortField"
                       [placeholder]="t('selectField')"
-                      appendTo="body">
-                    </p-select>
+                      appendTo="body" />
                   </div>
 
                   <div class="scroller-field">
@@ -66,8 +63,7 @@
                       [options]="sortDirectionOptions()"
                       [(ngModel)]="scroller.sortDirection"
                       [placeholder]="t('selectDirection')"
-                      appendTo="body">
-                    </p-select>
+                      appendTo="body" />
                   </div>
                 }
               </div>
@@ -80,8 +76,7 @@
                   [(ngModel)]="scroller.maxItems"
                   [min]="MIN_ITEMS"
                   [max]="MAX_ITEMS"
-                  [showButtons]="true">
-                </p-inputNumber>
+                  [showButtons]="true" />
               </div>
 
               <div class="scroller-controls-right">
@@ -92,8 +87,7 @@
                   severity="info"
                   size="small"
                   [disabled]="i === 0"
-                  (onClick)="moveUp(i)">
-                </p-button>
+                  (onClick)="moveUp(i)" />
                 <p-button
                   icon="pi pi-arrow-down"
                   outlined
@@ -101,8 +95,7 @@
                   severity="info"
                   size="small"
                   [disabled]="i === config.scrollers.length - 1"
-                  (onClick)="moveDown(i)">
-                </p-button>
+                  (onClick)="moveDown(i)" />
                 <p-button
                   icon="pi pi-trash"
                   outlined
@@ -110,8 +103,7 @@
                   size="small"
                   severity="danger"
                   (onClick)="removeScroller(i)"
-                  [disabled]="config.scrollers.length === 1">
-                </p-button>
+                  [disabled]="config.scrollers.length === 1" />
               </div>
             </div>
           </div>
@@ -127,24 +119,21 @@
             outlined
             size="small"
             (onClick)="addScroller()"
-            [disabled]="config.scrollers.length >= MAX_SCROLLERS">
-          </p-button>
+            [disabled]="config.scrollers.length >= MAX_SCROLLERS" />
           <p-button
             [label]="t('resetToDefault')"
             icon="pi pi-refresh"
             severity="secondary"
             text
             size="small"
-            (onClick)="resetToDefault()">
-          </p-button>
+            (onClick)="resetToDefault()" />
         </div>
         <p-button
           [label]="t('saveSettings')"
           icon="pi pi-save"
           outlined
           severity="success"
-          (onClick)="save()">
-        </p-button>
+          (onClick)="save()" />
       </div>
     </div>
   </div>

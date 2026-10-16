@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {Observable, of} from 'rxjs';
 import {HttpClient, HttpEventType, HttpParams, HttpRequest} from '@angular/common/http';
 import {catchError, filter, map, tap, mergeMap} from 'rxjs/operators';
@@ -10,16 +10,14 @@ import {QueryClient} from '@tanstack/angular-query-experimental';
 import {invalidateAllBookCaches, invalidateBooksById, patchBookMetadataInCache, patchBooksInCacheWith} from './legacy-book-cache';
 import {mitigateWebkitUploadBug} from '../../../shared/util/mitigate-webkit-upload-bug';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class BookMetadataManageService {
 
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/books`;
 
-  private http = inject(HttpClient);
-  private messageService = inject(MessageService);
-  private queryClient = inject(QueryClient);
+  private readonly http = inject(HttpClient);
+  private readonly messageService = inject(MessageService);
+  private readonly queryClient = inject(QueryClient);
   private readonly t = inject(TranslocoService);
 
   updateBookMetadata(bookId: number | undefined, wrapper: MetadataUpdateWrapper, mergeCategories: boolean, replaceMode: 'REPLACE_ALL' | 'REPLACE_WHEN_PROVIDED' = 'REPLACE_ALL'): Observable<BookMetadata> {

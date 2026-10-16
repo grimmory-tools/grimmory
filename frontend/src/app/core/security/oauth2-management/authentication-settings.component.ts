@@ -128,11 +128,11 @@ export class AuthenticationSettingsComponent {
     }
   };
 
-  private appSettingsService = inject(AppSettingsService);
-  private messageService = inject(MessageService);
-  private libraryService = inject(LibraryService);
-  private groupMappingService = inject(OidcGroupMappingService);
-  private t = inject(TranslocoService);
+  private readonly appSettingsService = inject(AppSettingsService);
+  private readonly messageService = inject(MessageService);
+  private readonly libraryService = inject(LibraryService);
+  private readonly groupMappingService = inject(OidcGroupMappingService);
+  private readonly t = inject(TranslocoService);
   get allLibraries() { return this.libraryService.libraries(); }
 
   private readonly loadSettingsEffect = effect(() => {

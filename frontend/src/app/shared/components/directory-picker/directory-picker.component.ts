@@ -42,12 +42,12 @@ export class DirectoryPickerComponent implements OnInit {
   selectedFolders: string[] = [];
   selectedFoldersMap: Record<string, boolean> = {};
   searchQuery: string = '';
-  isLoading = signal(false);
+  readonly isLoading = signal(false);
   breadcrumbItems: MenuItem[] = [];
   home: MenuItem = {icon: 'pi pi-home', command: () => this.navigateToRoot()};
 
-  private utilityService = inject(UtilityService);
-  private dynamicDialogRef = inject(DynamicDialogRef);
+  private readonly utilityService = inject(UtilityService);
+  private readonly dynamicDialogRef = inject(DynamicDialogRef);
 
   ngOnInit() {
     const initialPath = '/';

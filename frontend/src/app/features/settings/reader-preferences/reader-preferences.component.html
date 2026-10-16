@@ -11,7 +11,7 @@
     </div>
 
     <div class="settings-content">
-      <app-settings-application-mode [userSettings]="userSettings"></app-settings-application-mode>
+      <app-settings-application-mode [userSettings]="userSettings" />
       <app-local-settings/>
 
       <div class="preferences-section">
@@ -27,8 +27,7 @@
 
         <div class="settings-card">
           <app-epub-reader-preferences-component
-            [userSettings]="userSettings">
-          </app-epub-reader-preferences-component>
+            [userSettings]="userSettings" />
         </div>
       </div>
 
@@ -45,8 +44,7 @@
 
         <div class="settings-card">
           <app-pdf-reader-preferences-component
-            [userSettings]="userSettings">
-          </app-pdf-reader-preferences-component>
+            [userSettings]="userSettings" />
         </div>
       </div>
 
@@ -63,8 +61,7 @@
 
         <div class="settings-card">
           <app-cbx-reader-preferences-component
-            [userSettings]="userSettings">
-          </app-cbx-reader-preferences-component>
+            [userSettings]="userSettings" />
         </div>
       </div>
 
@@ -80,7 +77,7 @@
             </p>
           </div>
           <div class="settings-card">
-            <app-custom-fonts></app-custom-fonts>
+            <app-custom-fonts />
           </div>
         </div>
       }

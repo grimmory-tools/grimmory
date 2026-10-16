@@ -69,8 +69,8 @@ import {PageTitleService} from '../../../../shared/service/page-title.service';
   styleUrls: ['./user-stats.component.scss']
 })
 export class UserStatsComponent implements OnInit {
-  private userService = inject(UserService);
-  private chartConfigService = inject(UserChartConfigService);
+  private readonly userService = inject(UserService);
+  private readonly chartConfigService = inject(UserChartConfigService);
   private readonly chartTheme = inject(StatsChartThemeService);
   private readonly pageTitle = inject(PageTitleService);
   private readonly t = inject(TranslocoService);

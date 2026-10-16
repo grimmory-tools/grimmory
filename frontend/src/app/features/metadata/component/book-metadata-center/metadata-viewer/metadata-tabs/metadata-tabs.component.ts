@@ -97,10 +97,10 @@ export class MetadataTabsComponent {
   readonly recommendedBooks = input<BookRecommendation[]>([]);
 
   protected urlHelper = inject(UrlHelperService);
-  private bookMetadataManageService = inject(BookMetadataManageService);
-  private audiobookService = inject(AudiobookService);
-  private t = inject(TranslocoService);
-  private destroyRef = inject(DestroyRef);
+  private readonly bookMetadataManageService = inject(BookMetadataManageService);
+  private readonly audiobookService = inject(AudiobookService);
+  private readonly t = inject(TranslocoService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly audiobookInfo = linkedSignal<number, AudiobookInfo | null>({
     source: () => this.book().id,

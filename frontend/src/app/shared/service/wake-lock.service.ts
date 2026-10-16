@@ -1,6 +1,6 @@
-import {Injectable, OnDestroy} from '@angular/core';
+import {Service, OnDestroy} from '@angular/core';
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class WakeLockService implements OnDestroy {
   private wakeLock: WakeLockSentinel | null = null;
   private enabled = false;
@@ -42,7 +42,7 @@ export class WakeLockService implements OnDestroy {
     }
   }
 
-  private onVisibilityChange = async (): Promise<void> => {
+  private readonly onVisibilityChange = async (): Promise<void> => {
     if (this.enabled && document.visibilityState === 'visible') {
       await this.requestWakeLock();
     }

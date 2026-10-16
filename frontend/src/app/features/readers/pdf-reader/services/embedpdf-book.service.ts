@@ -65,7 +65,7 @@ export const PDF_PAGE_COLOR = {dark: '#1a1a1a', light: '#f5f5f5'};
 
 @Injectable()
 export class EmbedPdfBookService {
-  private zone = inject(NgZone);
+  private readonly zone = inject(NgZone);
 
   private container: EmbedPdfContainer | null = null;
   private registry: PluginRegistry | null = null;
@@ -91,7 +91,7 @@ export class EmbedPdfBookService {
 
 
   private getMutableWindow(): Window & typeof globalThis & GrimmoryWindowState {
-    return window as Window & typeof globalThis & GrimmoryWindowState;
+    return window;
   }
 
   pageChange$ = new Subject<PageChangeEvent>();
@@ -609,7 +609,7 @@ export class EmbedPdfBookService {
     w.__grimmoryOrigBlob = OrigBlob;
     const PatchedBlob = function (parts: BlobPart[], opts?: BlobPropertyBag): Blob {
       if (parts?.length >= 1 && typeof parts[0] === 'string') {
-        const src = parts[0] as string;
+        const src = parts[0];
         if (src.includes('wasmInit') && src.includes('runner.prepare()')) {
           let patched = src;
           patched = patched.replace(

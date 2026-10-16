@@ -1,4 +1,4 @@
-import {computed, effect, inject, Injectable} from '@angular/core';
+import {computed, effect, inject, Service} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {lastValueFrom, Observable} from 'rxjs';
 import {map, switchMap} from 'rxjs/operators';
@@ -15,27 +15,27 @@ export interface PublicAppSettings {
   oidcForceOnlyMode: boolean;
 }
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class AppSettingsService {
-  private http = inject(HttpClient);
-  private queryClient = inject(QueryClient);
-  private authService = inject(AuthService);
+  private readonly http = inject(HttpClient);
+  private readonly queryClient = inject(QueryClient);
+  private readonly authService = inject(AuthService);
   private readonly token = this.authService.token;
 
   private readonly apiUrl = `${API_CONFIG.BASE_URL}/api/v1/settings`;
   private readonly publicApiUrl = `${API_CONFIG.BASE_URL}/api/v1/public-settings`;
 
-  private publicSettingsQuery = injectQuery(() => ({
+  private readonly publicSettingsQuery = injectQuery(() => ({
     ...this.getPublicSettingsQueryOptions(),
   }));
 
-  private appSettingsQuery = injectQuery(() => ({
+  private readonly appSettingsQuery = injectQuery(() => ({
     ...this.getAppSettingsQueryOptions(),
     enabled: !!this.token(),
   }));
 
-  appSettings = computed(() => this.appSettingsQuery.data() ?? null);
-  publicAppSettings = computed(() => this.publicSettingsQuery.data() ?? null);
+  readonly appSettings = computed(() => this.appSettingsQuery.data() ?? null);
+  readonly publicAppSettings = computed(() => this.publicSettingsQuery.data() ?? null);
 
   constructor() {
     effect(() => {

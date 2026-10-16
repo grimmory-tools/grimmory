@@ -1,11 +1,11 @@
-import {computed, inject, Injectable} from '@angular/core';
+import {computed, inject, Service} from '@angular/core';
 import {TranslocoService} from '@jsverse/transloco';
 
 import {MetadataCatalogService} from './metadata-catalog.service';
 import {providerFieldsOf, providerScoreFieldsOf} from './metadata-provider-fields';
 import type {MetadataProviderFieldName} from './metadata-providers';
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class MetadataProviderFieldsService {
   private readonly catalog = inject(MetadataCatalogService);
   private readonly t = inject(TranslocoService);

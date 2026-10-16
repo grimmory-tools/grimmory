@@ -56,12 +56,12 @@ export class DuplicateMergerComponent implements OnInit, OnDestroy {
   matchByDirectory = false;
   matchByFilename = false;
 
-  isScanning = signal(false);
-  isMerging = signal(false);
-  hasScanned = signal(false);
+  readonly isScanning = signal(false);
+  readonly isMerging = signal(false);
+  readonly hasScanned = signal(false);
   moveFiles = false;
-  mergeProgress = signal(0);
-  mergeTotal = signal(0);
+  readonly mergeProgress = signal(0);
+  readonly mergeTotal = signal(0);
 
   groups: DisplayGroup[] = [];
   presetOptions: { label: string; value: PresetMode }[] = [];
@@ -69,7 +69,7 @@ export class DuplicateMergerComponent implements OnInit, OnDestroy {
   pageFirst = 0;
   pageSize = 20;
 
-  private destroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
   private readonly bookFileService = inject(BookFileService);
   private readonly bookService = inject(BookService);
   private readonly messageService = inject(MessageService);

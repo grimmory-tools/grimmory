@@ -1,4 +1,4 @@
-import {computed, inject, Injectable, signal} from '@angular/core';
+import {computed, inject, Service, signal} from '@angular/core';
 import {Router} from '@angular/router';
 
 import {UserService} from '../../settings/user-management/user.service';
@@ -10,9 +10,7 @@ export interface BookNavigationState {
   currentIndex: number;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class BookNavigationService {
   private readonly router = inject(Router);
   private readonly userService = inject(UserService);

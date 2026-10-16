@@ -34,12 +34,12 @@ import {TranslocoDirective} from '@jsverse/transloco';
   styleUrl: './add-physical-book-dialog.component.scss',
 })
 export class AddPhysicalBookDialogComponent {
-  private dynamicDialogRef = inject(DynamicDialogRef);
-  private dialogConfig = inject(DynamicDialogConfig);
-  private bookService = inject(BookService);
-  private queryClient = inject(QueryClient);
-  private sources = inject(MetadataSourceQueryService);
-  private libraryService = inject(LibraryService);
+  private readonly dynamicDialogRef = inject(DynamicDialogRef);
+  private readonly dialogConfig = inject(DynamicDialogConfig);
+  private readonly bookService = inject(BookService);
+  private readonly queryClient = inject(QueryClient);
+  private readonly sources = inject(MetadataSourceQueryService);
+  private readonly libraryService = inject(LibraryService);
 
   selectedLibraryId: number | null = null;
   title: string = '';
@@ -59,8 +59,8 @@ export class AddPhysicalBookDialogComponent {
   filteredCategories: string[] = [];
 
   coverUrl: string | null = null;
-  isLoading = signal(false);
-  isFetchingMetadata = signal(false);
+  readonly isLoading = signal(false);
+  readonly isFetchingMetadata = signal(false);
   readonly metadataLookupMessage = signal<'metadataNotFound' | 'metadataLookupFailed' | null>(null);
   private readonly initializeSelectedLibraryEffect = effect(() => {
     const libraries = this.libraries;

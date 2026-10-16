@@ -107,16 +107,16 @@ export class IconPickerComponent implements OnInit {
   svgContent: string = '';
   svgName: string = '';
   svgPreview: string | null = null;
-  errorMessage: WritableSignal<string> = signal('');
+  readonly errorMessage: WritableSignal<string> = signal('');
 
-  svgEntries: WritableSignal<SvgEntry[]> = signal([]);
-  isSavingBatch: WritableSignal<boolean> = signal(false);
-  batchErrorMessage: WritableSignal<string> = signal('');
+  readonly svgEntries: WritableSignal<SvgEntry[]> = signal([]);
+  readonly isSavingBatch: WritableSignal<boolean> = signal(false);
+  readonly batchErrorMessage: WritableSignal<string> = signal('');
 
-  svgIcons: WritableSignal<string[]> = signal([]);
-  svgSearchText: WritableSignal<string> = signal('');
-  isLoadingSvgIcons: WritableSignal<boolean> = signal(false);
-  svgIconsError: WritableSignal<string> = signal('');
+  readonly svgIcons: WritableSignal<string[]> = signal([]);
+  readonly svgSearchText: WritableSignal<string> = signal('');
+  readonly isLoadingSvgIcons: WritableSignal<boolean> = signal(false);
+  readonly svgIconsError: WritableSignal<string> = signal('');
   selectedSvgIcon: string | null = null;
 
   draggedSvgIcon: string | null = null;

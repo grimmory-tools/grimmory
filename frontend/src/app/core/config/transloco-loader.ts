@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Service} from '@angular/core';
 import {Translation, TranslocoLoader} from '@jsverse/transloco';
 import {from, of, Observable} from 'rxjs';
 import en from '../../../i18n/en.json';
@@ -68,7 +68,7 @@ function deepMerge(base: Record<string, Translation>, override: Record<string, T
   return result;
 }
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class TranslocoInlineLoader implements TranslocoLoader {
   getTranslation(lang: string): Observable<Translation> {
     if (lang === 'en') {

@@ -1,13 +1,11 @@
-import {Injectable, inject} from '@angular/core';
+import {Service, inject} from '@angular/core';
 import {of} from 'rxjs';
 import {AppSettingsService} from './app-settings.service';
 import {MessageService} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
 import {catchError, map} from 'rxjs/operators';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class SettingsHelperService {
 
   private readonly appSettingsService = inject(AppSettingsService);

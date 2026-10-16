@@ -1,13 +1,13 @@
 <ng-container *transloco="let t; prefix: 'settingsDevice'">
-<p-toast position="top-right"></p-toast>
-<p-confirmDialog></p-confirmDialog>
+<p-toast position="top-right" />
+<p-confirmDialog />
 
 <div class="main-container">
   <div class="settings-header">
     <h2 class="settings-title">
       <i class="pi pi-tablet"></i>
       {{ t('kobo.title') }}
-      <app-external-doc-link docType="kobo"></app-external-doc-link>
+      <app-external-doc-link docType="kobo" />
     </h2>
     <p class="settings-description">
       {{ t('kobo.description') }}
@@ -35,8 +35,7 @@
                 <p-toggle-switch
                   inputId="koboSyncEnabled"
                   formControlName="syncEnabled"
-                  (onChange)="onSyncToggle($event.checked)">
-                </p-toggle-switch>
+                  (onChange)="onSyncToggle($event.checked)" />
               </div>
               <p class="setting-description">
                 {{ t('kobo.enableSyncDesc') }}
@@ -83,24 +82,21 @@
                       severity="info"
                       size="small"
                       (onClick)="copyText(syncForm.controls.token.value, 'Token')"
-                      [disabled]="!syncForm.controls.token.value">
-                    </p-button>
+                      [disabled]="!syncForm.controls.token.value" />
                     <p-button
                       [icon]="showToken ? 'pi pi-eye-slash' : 'pi pi-eye'"
                       outlined="true"
                       severity="info"
                       size="small"
                       (onClick)="toggleShowToken()"
-                      [disabled]="!syncForm.controls.token.value">
-                    </p-button>
+                      [disabled]="!syncForm.controls.token.value" />
                     <p-button
                       icon="pi pi-refresh"
                       outlined="true"
                       severity="warn"
                       size="small"
                       (onClick)="confirmRegenerateToken()"
-                      [disabled]="!credentialsSaved">
-                    </p-button>
+                      [disabled]="!credentialsSaved" />
                   </div>
                 </div>
                 <p class="setting-description">
@@ -130,8 +126,7 @@
                       size="small"
                       [ariaLabel]="t('kobo.apiPath')"
                       (onClick)="copyText(koboApiPath, t('kobo.apiPath'))"
-                      [disabled]="!koboApiPath">
-                    </p-button>
+                      [disabled]="!koboApiPath" />
                   </div>
                 </div>
                 <p class="setting-description">
@@ -151,8 +146,7 @@
                       [min]="1"
                       [max]="10"
                       [step]="1"
-                      (onChange)="onProgressThresholdsChange()">
-                    </p-slider>
+                      (onChange)="onProgressThresholdsChange()" />
                   </div>
                 </div>
                 <p class="setting-description">
@@ -174,8 +168,7 @@
                       [min]="90"
                       [max]="100"
                       [step]="1"
-                      (onChange)="onProgressThresholdsChange()">
-                    </p-slider>
+                      (onChange)="onProgressThresholdsChange()" />
                   </div>
                 </div>
                 <p class="setting-description">
@@ -193,8 +186,7 @@
                   <p-toggle-switch
                     inputId="koboAutoAddToShelf"
                     formControlName="autoAddToShelf"
-                    (onChange)="onAutoAddToggle($event.checked)">
-                  </p-toggle-switch>
+                    (onChange)="onAutoAddToggle($event.checked)" />
                 </div>
                 <p class="setting-description">
                   {{ t('kobo.autoAddDesc') }}
@@ -225,8 +217,7 @@
                   <p-toggle-switch
                     id="convertToKepub"
                     [(ngModel)]="koboSettings.convertToKepub"
-                    (ngModelChange)="onToggleChange()">
-                  </p-toggle-switch>
+                    (ngModelChange)="onToggleChange()" />
                 </div>
                 <p class="setting-description">
                   <strong>{{ t('kobo.pros') }}</strong> {{ t('kobo.convertKepubPros') }}
@@ -247,8 +238,7 @@
                       [min]="1"
                       [max]="250"
                       [step]="1"
-                      (ngModelChange)="onSliderChange()">
-                    </p-slider>
+                      (ngModelChange)="onSliderChange()" />
                   </div>
                 </div>
                 <p class="setting-description">
@@ -266,15 +256,14 @@
                   <p-toggle-switch
                     id="forceEnableHyphenation"
                     [(ngModel)]="koboSettings.forceEnableHyphenation"
-                    (ngModelChange)="onToggleChange()">
-                  </p-toggle-switch>
+                    (ngModelChange)="onToggleChange()" />
                 </div>
                 <p class="setting-description" [innerHTML]="t('kobo.forceHyphenationDesc')">
                 </p>
               </div>
             </div>
 
-            <p-divider></p-divider>
+            <p-divider />
 
             <div class="setting-item">
               <div class="setting-info">
@@ -283,8 +272,7 @@
                   <p-toggle-switch
                     id="convertCbxToEpub"
                     [(ngModel)]="koboSettings.convertCbxToEpub"
-                    (ngModelChange)="onToggleChange()">
-                  </p-toggle-switch>
+                    (ngModelChange)="onToggleChange()" />
                 </div>
                 <p class="setting-description">
                   {{ t('kobo.convertCbxDesc') }}
@@ -302,8 +290,7 @@
                   [min]="1"
                   [max]="100"
                   [step]="1"
-                  (ngModelChange)="onSliderChange()">
-                </p-slider>
+                  (ngModelChange)="onSliderChange()" />
               </div>
             </div>
                 <p class="setting-description">
@@ -322,8 +309,7 @@
                       [min]="1"
                       [max]="500"
                       [step]="1"
-                      (ngModelChange)="onSliderChange()">
-                    </p-slider>
+                      (ngModelChange)="onSliderChange()" />
                   </div>
                 </div>
                 <p class="setting-description">
@@ -334,7 +320,7 @@
               </div>
             </div>
 
-            <p-divider></p-divider>
+            <p-divider />
 
             <div class="setting-item">
               <div class="setting-info">
@@ -343,8 +329,7 @@
                   <p-toggle-switch
                     id="forwardToKoboStore"
                     [(ngModel)]="koboSettings.forwardToKoboStore"
-                    (ngModelChange)="onToggleChange()">
-                  </p-toggle-switch>
+                    (ngModelChange)="onToggleChange()" />
                 </div>
                 <p class="setting-description">
                   {{ t('kobo.forwardToKoboStoreDesc') }}

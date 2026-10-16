@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {API_CONFIG} from '../../../core/config/api-config';
@@ -26,9 +26,7 @@ export interface PageableResponse<T> {
   };
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class AuditLogService {
   private readonly http = inject(HttpClient);
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/audit-logs`;

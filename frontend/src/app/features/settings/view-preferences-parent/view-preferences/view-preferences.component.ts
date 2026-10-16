@@ -47,7 +47,7 @@ import {BookBrowseMultiSortEditorComponent} from '../../../book/browse/book-brow
   styleUrl: './view-preferences.component.scss'
 })
 export class ViewPreferencesComponent implements OnInit {
-  private t = inject(TranslocoService);
+  private readonly t = inject(TranslocoService);
 
   entityTypeOptions: {label: string; value: string; translationKey: string}[] = [];
 
@@ -91,11 +91,11 @@ export class ViewPreferencesComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
 
-  private libraryService = inject(LibraryService);
-  private shelfService = inject(ShelfService);
-  private magicShelfService = inject(MagicShelfService);
-  private userService = inject(UserService);
-  private messageService = inject(MessageService);
+  private readonly libraryService = inject(LibraryService);
+  private readonly shelfService = inject(ShelfService);
+  private readonly magicShelfService = inject(MagicShelfService);
+  private readonly userService = inject(UserService);
+  private readonly messageService = inject(MessageService);
   private readonly dialogLauncher = inject(DialogLauncherService);
   private readonly currentUser = this.userService.currentUser;
   private hasInitializedPreferences = false;

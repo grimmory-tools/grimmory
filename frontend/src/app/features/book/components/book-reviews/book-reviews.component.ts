@@ -30,13 +30,13 @@ export class BookReviewsComponent implements OnInit, OnChanges {
   @Input() active: boolean = false;
   @Input() reviewsLocked = false;
 
-  private reviewService = inject(BookReviewService);
-  private bookMetadataManageService = inject(BookMetadataManageService);
-  private confirmationService = inject(ConfirmationService);
-  private messageService = inject(MessageService);
-  private userService = inject(UserService);
-  private appSettingsService = inject(AppSettingsService);
-  private destroyRef = inject(DestroyRef);
+  private readonly reviewService = inject(BookReviewService);
+  private readonly bookMetadataManageService = inject(BookMetadataManageService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly messageService = inject(MessageService);
+  private readonly userService = inject(UserService);
+  private readonly appSettingsService = inject(AppSettingsService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly t = inject(TranslocoService);
   protected readonly catalog = inject(MetadataCatalogService);
   private loadingBookId: number | null = null;
@@ -45,7 +45,7 @@ export class BookReviewsComponent implements OnInit, OnChanges {
 
 
 
-  loading = signal(false);
+  readonly loading = signal(false);
   hasPermission = false;
   revealedSpoilers = new Set<number>();
   sortAscending = false;
@@ -58,7 +58,7 @@ export class BookReviewsComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['bookId'] && changes['bookId'].currentValue) {
+    if (changes['bookId']?.currentValue) {
       this.loadReviews();
     }
   }

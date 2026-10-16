@@ -1,12 +1,10 @@
-import {Injectable, inject} from '@angular/core';
+import {Service, inject} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {NotebookBookOption, NotebookEntry, NotebookPage} from '../model/notebook.model';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class NotebookService {
 
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/notebook`;

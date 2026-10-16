@@ -1,4 +1,4 @@
-import {computed, inject, Injectable} from '@angular/core';
+import {computed, inject, Service} from '@angular/core';
 import {LibraryFilterService} from './library-filter.service';
 import {BookService} from '../../../../book/service/book.service';
 
@@ -10,12 +10,10 @@ export interface BooksSummary {
   totalPublishers: number;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class LibrariesSummaryService {
-  private bookService = inject(BookService);
-  private libraryFilterService = inject(LibraryFilterService);
+  private readonly bookService = inject(BookService);
+  private readonly libraryFilterService = inject(LibraryFilterService);
   readonly booksSummary = computed<BooksSummary>(() => {
     const books = this.bookService.books();
     const selectedLibraryId = this.libraryFilterService.selectedLibrary();

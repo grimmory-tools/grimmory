@@ -126,8 +126,8 @@ describe('MetadataUtilsService', () => {
     service.resetField('title', form, original, copiedFields, hoveredFields);
 
     expect(form.get('title')?.value).toBe('Original Title');
-    expect(copiedFields['title']).toBe(false);
-    expect(hoveredFields['title']).toBe(false);
+    expect(copiedFields.title).toBe(false);
+    expect(hoveredFields.title).toBe(false);
   });
 
   it('patches metadata arrays as sorted values and applies lock defaults', () => {

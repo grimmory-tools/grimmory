@@ -13,8 +13,7 @@
       [text]="true"
       severity="secondary"
       (click)="ref.close()"
-      class="close-button">
-    </p-button>
+      class="close-button" />
   </div>
 
   <div class="dialog-content">
@@ -38,12 +37,12 @@
               (previousBookClicked)="handlePreviousBook()"
               (closeDialogButtonClicked)="handleCloseDialogButton()"
               [showNavigationButtons]="true"
-            ></app-metadata-editor>
+            />
           </p-tabpanel>
         }
         @if (admin || canEditMetadata) {
           <p-tabpanel value="match">
-            <app-metadata-searcher [book]="currentBook()"></app-metadata-searcher>
+            <app-metadata-searcher [book]="currentBook()" />
           </p-tabpanel>
         }
       </p-tabpanels>

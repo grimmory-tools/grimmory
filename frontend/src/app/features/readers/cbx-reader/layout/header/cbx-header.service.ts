@@ -17,8 +17,8 @@ export class CbxHeaderService {
     isMagnifierActive: false
   };
 
-  private sidebarService = inject(CbxSidebarService);
-  private location = inject(Location);
+  private readonly sidebarService = inject(CbxSidebarService);
+  private readonly location = inject(Location);
 
   private readonly _bookTitle = signal('');
   readonly bookTitle = this._bookTitle.asReadonly();
@@ -29,25 +29,25 @@ export class CbxHeaderService {
   private readonly _state = signal<CbxHeaderState>(this.defaultState);
   readonly state = this._state.asReadonly();
 
-  private _showQuickSettings = new Subject<void>();
+  private readonly _showQuickSettings = new Subject<void>();
   showQuickSettings$ = this._showQuickSettings.asObservable();
 
-  private _toggleBookmark = new Subject<void>();
+  private readonly _toggleBookmark = new Subject<void>();
   toggleBookmark$ = this._toggleBookmark.asObservable();
 
-  private _openNoteDialog = new Subject<void>();
+  private readonly _openNoteDialog = new Subject<void>();
   openNoteDialog$ = this._openNoteDialog.asObservable();
 
-  private _toggleFullscreen = new Subject<void>();
+  private readonly _toggleFullscreen = new Subject<void>();
   toggleFullscreen$ = this._toggleFullscreen.asObservable();
 
-  private _toggleSlideshow = new Subject<void>();
+  private readonly _toggleSlideshow = new Subject<void>();
   toggleSlideshow$ = this._toggleSlideshow.asObservable();
 
-  private _toggleMagnifier = new Subject<void>();
+  private readonly _toggleMagnifier = new Subject<void>();
   toggleMagnifier$ = this._toggleMagnifier.asObservable();
 
-  private _showShortcutsHelp = new Subject<void>();
+  private readonly _showShortcutsHelp = new Subject<void>();
   showShortcutsHelp$ = this._showShortcutsHelp.asObservable();
 
   initialize(title: string | undefined): void {

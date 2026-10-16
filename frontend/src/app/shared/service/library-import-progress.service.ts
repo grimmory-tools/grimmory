@@ -1,4 +1,4 @@
-import {computed, Injectable, signal} from '@angular/core';
+import {computed, Service, signal} from '@angular/core';
 
 export type LibraryImportProgressStatus = 'IN_PROGRESS' | 'COMPLETED' | 'ERROR';
 
@@ -20,7 +20,7 @@ const EMPTY_STATE: LibraryImportProgressState = {
   status: 'COMPLETED',
 };
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class LibraryImportProgressService {
   private readonly stateSignal = signal<LibraryImportProgressState>(EMPTY_STATE);
 

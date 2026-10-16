@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {defer, from, Observable, of, throwError, timer} from 'rxjs';
 import {catchError, map, switchMap} from 'rxjs/operators';
 import {ReaderAnnotationService, Annotation} from '../features/annotations/annotation-renderer.service';
@@ -103,14 +103,12 @@ interface StreamingBookFactoryWindow extends Window {
   ) => Promise<object>;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class ReaderViewManagerService {
-  private annotationService = inject(ReaderAnnotationService);
-  private eventService = inject(ReaderEventService);
-  private epubStreamingService = inject(EpubStreamingService);
-  private readerStateService = inject(ReaderStateService);
+  private readonly annotationService = inject(ReaderAnnotationService);
+  private readonly eventService = inject(ReaderEventService);
+  private readonly epubStreamingService = inject(EpubStreamingService);
+  private readonly readerStateService = inject(ReaderStateService);
   private view: FoliateViewElement | null = null;
 
   public get events$(): Observable<ViewEvent> {
@@ -151,7 +149,7 @@ export class ReaderViewManagerService {
         const file = new File([blob], epubPath.split('/').pop() || 'book.epub', {
           type: 'application/epub+zip'
         });
-        return from(view.open(file) as Promise<void>);
+        return from(view.open(file));
       }),
       map(() => undefined),
       catchError(err => throwError(() => err))
@@ -198,7 +196,7 @@ export class ReaderViewManagerService {
     }
     const view = this.view;
     return defer(() =>
-      from(view.goTo(resolvedTarget) as Promise<void>)
+      from(view.goTo(resolvedTarget))
     ).pipe(
       map(() => undefined)
     );
@@ -213,7 +211,7 @@ export class ReaderViewManagerService {
       return of(undefined);
     }
     const view = this.view;
-    return defer(() => from(view.goToFraction(fraction) as Promise<void>)).pipe(
+    return defer(() => from(view.goToFraction(fraction))).pipe(
       map(() => undefined)
     );
   }
@@ -320,7 +318,7 @@ export class ReaderViewManagerService {
     const book = this.view.book;
     return defer(() => {
       const coverPromise = book.getCover?.();
-      return coverPromise ? from(coverPromise as Promise<Blob | null>) : of(null);
+      return coverPromise ? from(coverPromise) : of(null);
     });
   }
 

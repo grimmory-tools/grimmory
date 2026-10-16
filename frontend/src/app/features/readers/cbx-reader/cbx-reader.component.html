@@ -10,9 +10,9 @@
 
   <app-cbx-header [isCurrentPageBookmarked]="isCurrentPageBookmarked()"
     [currentPageHasNotes]="currentPageHasNotes()"
-    (hoverChange)="onHeaderHovered($event)"></app-cbx-header>
+    (hoverChange)="onHeaderHovered($event)" />
 
-  <app-cbx-sidebar></app-cbx-sidebar>
+  <app-cbx-sidebar />
 
   @if (showWebtoonSuggestion()) {
   <div class="webtoon-suggestion-banner" role="region" [attr.aria-label]="'readerCbx.webtoonHint.regionLabel' | transloco">
@@ -32,7 +32,7 @@
   }
 
   @if (showQuickSettings()) {
-  <app-cbx-quick-settings></app-cbx-quick-settings>
+  <app-cbx-quick-settings />
   }
 
   @if (isCurrentPageBookmarked()) {
@@ -45,11 +45,11 @@
 
   @if (showNoteDialog()) {
   <app-cbx-note-dialog [data]="noteDialogData()" (saved)="onNoteSave($event)"
-    (cancelled)="onNoteCancel()"></app-cbx-note-dialog>
+    (cancelled)="onNoteCancel()" />
   }
 
   @if (showShortcutsHelp()) {
-  <app-cbx-shortcuts-help (closed)="onShortcutsHelpClose()"></app-cbx-shortcuts-help>
+  <app-cbx-shortcuts-help (closed)="onShortcutsHelpClose()" />
   }
 
   @if (isSlideshowActive()) {
@@ -84,8 +84,7 @@
         [class.single-page-layer]="isSinglePageLayer()">
         @if (shouldUseCanvasRenderer()) {
         <app-canvas-renderer [imageUrl]="currentImageUrls()[0]" [splitState]="canvasSplitState()"
-          [splitOption]="pageSplitOption()">
-        </app-canvas-renderer>
+          [splitOption]="pageSplitOption()" />
         } @else {
         @for (url of currentImageUrls(); track url; let i = $index) {
         <img [src]="url" alt="Page Image" class="page-image" (load)="onPageImageLoad($event, currentPage() + i)" />
@@ -139,7 +138,7 @@
         }
         @if (isLoadingMore()) {
         <div class="loading-more">
-          <p-progressSpinner class="small-spinner"></p-progressSpinner>
+          <p-progressSpinner class="small-spinner" />
         </div>
         }
         @if (nextBookInSeries()) {
@@ -193,5 +192,5 @@
   </div>
 
   <app-cbx-footer
-    (hoverChange)="onFooterHovered($event)"></app-cbx-footer>
+    (hoverChange)="onFooterHovered($event)" />
 </div>

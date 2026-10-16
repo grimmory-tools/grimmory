@@ -22,8 +22,7 @@
             optionLabel="label"
             optionValue="value"
             appendTo="body"
-            class="w-72 max-w-full">
-          </p-select>
+            class="w-72 max-w-full" />
         </div>
 
         @if (showOledDarkModeToggle()) {
@@ -31,8 +30,7 @@
             <p-toggleswitch
               inputId="oled-dark-mode"
               [ngModel]="oledDarkMode()"
-              (ngModelChange)="updateOledDarkMode($event)">
-            </p-toggleswitch>
+              (ngModelChange)="updateOledDarkMode($event)" />
             <label class="text-sm font-medium text-text" for="oled-dark-mode">{{ t('theme.oledDarkMode') }}</label>
           </div>
         }
@@ -102,8 +100,7 @@
           <p-toggleswitch
             inputId="theme-sync"
             [ngModel]="selectedThemeSyncEnabled()"
-            (ngModelChange)="updateThemeSyncEnabled($event)">
-          </p-toggleswitch>
+            (ngModelChange)="updateThemeSyncEnabled($event)" />
           <label class="text-sm font-medium text-text" for="theme-sync">{{ 'layout.theme.syncAcrossDevices' | transloco }}</label>
         </div>
       </section>
@@ -116,8 +113,7 @@
           <p-toggleswitch
             inputId="interface-font"
             [ngModel]="useAccessibleUiFont()"
-            (ngModelChange)="updateAccessibleUiFont($event)">
-          </p-toggleswitch>
+            (ngModelChange)="updateAccessibleUiFont($event)" />
           <label class="text-sm font-medium text-text" for="interface-font">{{ t('uiFont.accessibleLabel') }}</label>
         </div>
       </section>
@@ -135,8 +131,7 @@
             optionLabel="label"
             optionValue="value"
             appendTo="body"
-            class="w-72 max-w-full">
-          </p-select>
+            class="w-72 max-w-full" />
         </div>
       </section>
 

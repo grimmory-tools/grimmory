@@ -45,46 +45,46 @@ export class CbxQuickSettingsService {
   private readonly _visible = signal(false);
   readonly visible = this._visible.asReadonly();
 
-  private _fitModeChange = new Subject<CbxFitMode>();
+  private readonly _fitModeChange = new Subject<CbxFitMode>();
   fitModeChange$ = this._fitModeChange.asObservable();
 
-  private _scrollModeChange = new Subject<CbxScrollMode>();
+  private readonly _scrollModeChange = new Subject<CbxScrollMode>();
   scrollModeChange$ = this._scrollModeChange.asObservable();
 
-  private _pageViewModeChange = new Subject<CbxPageViewMode>();
+  private readonly _pageViewModeChange = new Subject<CbxPageViewMode>();
   pageViewModeChange$ = this._pageViewModeChange.asObservable();
 
-  private _pageSpreadChange = new Subject<CbxPageSpread>();
+  private readonly _pageSpreadChange = new Subject<CbxPageSpread>();
   pageSpreadChange$ = this._pageSpreadChange.asObservable();
 
-  private _backgroundColorChange = new Subject<CbxBackgroundColor>();
+  private readonly _backgroundColorChange = new Subject<CbxBackgroundColor>();
   backgroundColorChange$ = this._backgroundColorChange.asObservable();
 
-  private _readingDirectionChange = new Subject<CbxReadingDirection>();
+  private readonly _readingDirectionChange = new Subject<CbxReadingDirection>();
   readingDirectionChange$ = this._readingDirectionChange.asObservable();
 
-  private _slideshowIntervalChange = new Subject<CbxSlideshowInterval>();
+  private readonly _slideshowIntervalChange = new Subject<CbxSlideshowInterval>();
   slideshowIntervalChange$ = this._slideshowIntervalChange.asObservable();
 
-  private _magnifierZoomChange = new Subject<CbxMagnifierZoom>();
+  private readonly _magnifierZoomChange = new Subject<CbxMagnifierZoom>();
   magnifierZoomChange$ = this._magnifierZoomChange.asObservable();
 
-  private _magnifierLensSizeChange = new Subject<CbxMagnifierLensSize>();
+  private readonly _magnifierLensSizeChange = new Subject<CbxMagnifierLensSize>();
   magnifierLensSizeChange$ = this._magnifierLensSizeChange.asObservable();
 
-  private _brightnessChange = new Subject<number>();
+  private readonly _brightnessChange = new Subject<number>();
   brightnessChange$ = this._brightnessChange.asObservable();
 
-  private _emulateBookChange = new Subject<boolean>();
+  private readonly _emulateBookChange = new Subject<boolean>();
   emulateBookChange$ = this._emulateBookChange.asObservable();
 
-  private _clickToPaginateChange = new Subject<boolean>();
+  private readonly _clickToPaginateChange = new Subject<boolean>();
   clickToPaginateChange$ = this._clickToPaginateChange.asObservable();
 
-  private _autoCloseMenuChange = new Subject<boolean>();
+  private readonly _autoCloseMenuChange = new Subject<boolean>();
   autoCloseMenuChange$ = this._autoCloseMenuChange.asObservable();
 
-  private _stripMaxWidthChange = new Subject<number>();
+  private readonly _stripMaxWidthChange = new Subject<number>();
   stripMaxWidthChange$ = this._stripMaxWidthChange.asObservable();
 
   show(): void {

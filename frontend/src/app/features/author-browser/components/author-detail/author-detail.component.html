@@ -1,8 +1,7 @@
 <ng-container *transloco="let t; prefix: 'authorBrowser.detail'">
   @if (loading()) {
     <div class="loading-state">
-      <p-progressSpinner strokeWidth="4" fill="transparent" animationDuration=".8s">
-      </p-progressSpinner>
+      <p-progressSpinner strokeWidth="4" fill="transparent" animationDuration=".8s" />
       <p style="color: var(--primary-color);">{{ t('loading') }}</p>
     </div>
   }
@@ -50,13 +49,13 @@
                        target="_blank"
                        rel="noopener noreferrer"
                        class="asin-link">
-                      <p-tag [value]="'ASIN: ' + author.asin" severity="info"></p-tag>
+                      <p-tag [value]="'ASIN: ' + author.asin" severity="info" />
                     </a>
                     <a [href]="'https://www.audible.com/author/' + author.asin"
                        target="_blank"
                        rel="noopener noreferrer"
                        class="asin-link">
-                      <p-tag value="Audible" severity="warn"></p-tag>
+                      <p-tag value="Audible" severity="warn" />
                     </a>
                   }
                   @if (canEditMetadata) {
@@ -68,8 +67,7 @@
                       [disabled]="quickMatching"
                       (onClick)="quickMatch()"
                       [pTooltip]="t('quickMatchTooltip')"
-                      tooltipPosition="top">
-                    </p-button>
+                      tooltipPosition="top" />
                   }
                 </div>
 
@@ -87,8 +85,7 @@
                         iconPos="right"
                         size="small"
                         text
-                        (click)="toggleExpand()">
-                      </p-button>
+                        (click)="toggleExpand()" />
                     }
                   </div>
                 }
@@ -120,8 +117,7 @@
                                 [index]="virtualItem.index"
                                 [book]="book"
                                 [isSeriesCollapsed]="false"
-                                [overlayPreferenceService]="bookCardOverlayPreferenceService">
-                              </app-legacy-book-card>
+                                [overlayPreferenceService]="bookCardOverlayPreferenceService" />
                             </div>
                           </div>
                         }
@@ -138,15 +134,13 @@
               <app-author-editor
                 [authorId]="author.id"
                 [author]="author"
-                (authorUpdated)="onAuthorUpdated($event)">
-              </app-author-editor>
+                (authorUpdated)="onAuthorUpdated($event)" />
             </p-tabpanel>
             <p-tabpanel value="match">
               <app-author-match
                 [authorId]="author.id"
                 [authorName]="author.name"
-                (authorMatched)="onAuthorUpdated($event)">
-              </app-author-match>
+                (authorMatched)="onAuthorUpdated($event)" />
             </p-tabpanel>
           }
         </p-tabpanels>

@@ -26,12 +26,12 @@ export class BookCardLiteComponent {
   @Input() isActive: boolean = false;
   @Input() showSeriesNumber: boolean = false;
 
-  private router = inject(Router);
+  private readonly router = inject(Router);
   protected urlHelper = inject(UrlHelperService);
-  private userService = inject(UserService);
-  private bookMetadataHostService = inject(BookMetadataHostService);
+  private readonly userService = inject(UserService);
+  private readonly bookMetadataHostService = inject(BookMetadataHostService);
 
-  private metadataCenterViewMode = computed(() =>
+  private readonly metadataCenterViewMode = computed(() =>
     this.userService.currentUser()?.userSettings.metadataCenterViewMode ?? 'route'
   );
   isHovered: boolean = false;

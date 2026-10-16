@@ -40,14 +40,14 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
   @Input({required: true}) author!: AuthorDetails;
   @Output() authorUpdated = new EventEmitter<AuthorDetails>();
 
-  private authorService = inject(AuthorService);
-  private messageService = inject(MessageService);
-  private dialogService = inject(DialogService);
-  private t = inject(TranslocoService);
+  private readonly authorService = inject(AuthorService);
+  private readonly messageService = inject(MessageService);
+  private readonly dialogService = inject(DialogService);
+  private readonly t = inject(TranslocoService);
 
   form!: FormGroup;
-  isSaving = signal(false);
-  isUploading = signal(false);
+  readonly isSaving = signal(false);
+  readonly isUploading = signal(false);
   hasPhoto = true;
   photoTimestamp = Date.now();
 

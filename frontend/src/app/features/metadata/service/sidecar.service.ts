@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable, tap} from 'rxjs';
 import {QueryClient} from '@tanstack/angular-query-experimental';
@@ -7,12 +7,10 @@ import {API_CONFIG} from '../../../core/config/api-config';
 import {invalidateAllBookCaches, invalidateBooksById} from '../../book/service/legacy-book-cache';
 import {invalidateAuthorsQuery} from '../../author-browser/service/author-query-cache';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class SidecarService {
-  private http = inject(HttpClient);
-  private queryClient = inject(QueryClient);
+  private readonly http = inject(HttpClient);
+  private readonly queryClient = inject(QueryClient);
   private readonly apiUrl = `${API_CONFIG.BASE_URL}/api/v1`;
 
   exportToSidecar(bookId: number): Observable<{message: string}> {

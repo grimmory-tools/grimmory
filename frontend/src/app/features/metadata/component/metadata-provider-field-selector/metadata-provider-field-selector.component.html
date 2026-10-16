@@ -24,8 +24,7 @@
                   <p-toggleswitch
                     [inputId]="field.name"
                     [ngModel]="selectedFields.includes(field.name)"
-                    (ngModelChange)="toggleField(field.name, $event)">
-                  </p-toggleswitch>
+                    (ngModelChange)="toggleField(field.name, $event)" />
                   <label [for]="field.name">{{ field.label }}</label>
                 </div>
               }

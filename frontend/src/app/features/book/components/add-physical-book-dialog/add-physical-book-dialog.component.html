@@ -112,8 +112,7 @@
               [placeholder]="t('authorsPlaceholder')"
               (completeMethod)="filterAuthors($event)"
               (onKeyUp)="onAutoCompleteKeyUp('authors', $event)"
-              (onSelect)="onAutoCompleteSelect('authors', $event)">
-            </p-autoComplete>
+              (onSelect)="onAutoCompleteSelect('authors', $event)" />
           </div>
         </div>
       </div>
@@ -192,8 +191,7 @@
           [(ngModel)]="pageCount"
           [useGrouping]="false"
           [placeholder]="t('pageCountPlaceholder')"
-          class="input-full">
-        </p-inputnumber>
+          class="input-full" />
       </div>
     </div>
 
@@ -217,8 +215,7 @@
           [placeholder]="t('categoriesPlaceholder')"
           (completeMethod)="filterCategories($event)"
           (onKeyUp)="onAutoCompleteKeyUp('categories', $event)"
-          (onSelect)="onAutoCompleteSelect('categories', $event)">
-        </p-autoComplete>
+          (onSelect)="onAutoCompleteSelect('categories', $event)" />
       </div>
     </div>
   </div>

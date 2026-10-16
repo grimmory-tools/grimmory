@@ -98,14 +98,14 @@ export class MetadataPickerComponent {
   isSaving = false;
   hoveredFields: Record<string, boolean> = {};
 
-  private messageService = inject(MessageService);
-  private bookService = inject(BookService);
-  private bookMetadataManageService = inject(BookMetadataManageService);
+  private readonly messageService = inject(MessageService);
+  private readonly bookService = inject(BookService);
+  private readonly bookMetadataManageService = inject(BookMetadataManageService);
   protected urlHelper = inject(UrlHelperService);
-  private destroyRef = inject(DestroyRef);
-  private appSettingsService = inject(AppSettingsService);
-  private formBuilder = inject(MetadataFormBuilder);
-  private metadataUtils = inject(MetadataUtilsService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly appSettingsService = inject(AppSettingsService);
+  private readonly formBuilder = inject(MetadataFormBuilder);
+  private readonly metadataUtils = inject(MetadataUtilsService);
   private readonly t = inject(TranslocoService);
   protected readonly providerFields = inject(MetadataProviderFieldsService);
   private readonly uniqueMetadata = computed(() => this.bookService.uniqueMetadata());
@@ -500,7 +500,7 @@ export class MetadataPickerComponent {
       }
     }
 
-    return flags as MetadataClearFlags;
+    return flags;
   }
 
   getThumbnail(): string | null {

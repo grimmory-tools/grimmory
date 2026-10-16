@@ -41,13 +41,13 @@ const LARGE_FILE_THRESHOLD_KB = 25 * 1024; // 25MB
 })
 export class BookSenderComponent implements OnInit {
 
-  private emailProviderService = inject(EmailV2ProviderService);
-  private emailRecipientService = inject(EmailV2RecipientService);
-  private emailService = inject(EmailService);
-  private messageService = inject(MessageService);
+  private readonly emailProviderService = inject(EmailV2ProviderService);
+  private readonly emailRecipientService = inject(EmailV2RecipientService);
+  private readonly emailService = inject(EmailService);
+  private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
   dynamicDialogRef = inject(DynamicDialogRef);
-  private dynamicDialogConfig = inject(DynamicDialogConfig);
+  private readonly dynamicDialogConfig = inject(DynamicDialogConfig);
 
   book: BookSenderSource = this.dynamicDialogConfig.data.book;
 

@@ -3,7 +3,7 @@ import {
   ElementRef,
   effect,
   inject,
-  Injectable,
+  Service,
   input,
   Renderer2,
   Signal,
@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import DOMPurify from 'dompurify';
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class LucideIconService {
   private readonly cache = new Map<string, WritableSignal<SVGSVGElement | null>>();
 

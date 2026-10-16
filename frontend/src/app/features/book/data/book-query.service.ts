@@ -1,5 +1,5 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {effect, inject, Injectable} from '@angular/core';
+import {effect, inject, Service} from '@angular/core';
 import {
   type InfiniteData,
   infiniteQueryOptions,
@@ -30,7 +30,7 @@ import {BookDetail, BookRecommendation, BookSummary} from './book-response.model
 import {abortSignal, QUERY_DEFAULTS} from '../../../core/data/query-transport';
 import {AuthService} from '../../../shared/service/auth.service';
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class BookQueryService {
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);

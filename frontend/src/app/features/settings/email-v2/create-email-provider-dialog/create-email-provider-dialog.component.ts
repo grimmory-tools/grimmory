@@ -25,10 +25,10 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
 export class CreateEmailProviderDialogComponent implements OnInit {
   emailProviderForm!: FormGroup;
 
-  private fb = inject(FormBuilder);
-  private emailProviderService = inject(EmailV2ProviderService);
-  private messageService = inject(MessageService);
-  private ref = inject(DynamicDialogRef);
+  private readonly fb = inject(FormBuilder);
+  private readonly emailProviderService = inject(EmailV2ProviderService);
+  private readonly messageService = inject(MessageService);
+  private readonly ref = inject(DynamicDialogRef);
   private readonly t = inject(TranslocoService);
 
   ngOnInit() {

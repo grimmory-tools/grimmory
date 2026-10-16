@@ -93,18 +93,18 @@ export class MetadataEditorComponent implements OnInit {
   @Input() disablePrevious = false;
   @Input() showNavigationButtons = false;
 
-  private messageService = inject(MessageService);
-  private bookService = inject(BookService);
-  private bookMetadataManageService = inject(BookMetadataManageService);
-  private taskHelperService = inject(TaskHelperService);
+  private readonly messageService = inject(MessageService);
+  private readonly bookService = inject(BookService);
+  private readonly bookMetadataManageService = inject(BookMetadataManageService);
+  private readonly taskHelperService = inject(TaskHelperService);
   protected urlHelper = inject(UrlHelperService);
-  private bookDialogHelperService = inject(BookDialogHelperService);
-  private bookNavigationService = inject(BookNavigationService);
-  private metadataHostService = inject(BookMetadataHostService);
-  private router = inject(Router);
-  private userService = inject(UserService);
-  private destroyRef = inject(DestroyRef);
-  private appSettingsService = inject(AppSettingsService);
+  private readonly bookDialogHelperService = inject(BookDialogHelperService);
+  private readonly bookNavigationService = inject(BookNavigationService);
+  private readonly metadataHostService = inject(BookMetadataHostService);
+  private readonly router = inject(Router);
+  private readonly userService = inject(UserService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly appSettingsService = inject(AppSettingsService);
   private readonly t = inject(TranslocoService);
   private readonly queryClient = inject(QueryClient);
   private readonly sources = inject(MetadataSourceQueryService);
@@ -687,13 +687,13 @@ export class MetadataEditorComponent implements OnInit {
     for (const [modelKey, value] of Object.entries(lockGroups)) {
       comicMetadata[modelKey] = value;
     }
-    metadata.comicMetadata = comicMetadata as ComicMetadata;
+    metadata.comicMetadata = comicMetadata;
 
     const original = this.originalMetadata;
 
     const wasCleared = (key: keyof BookMetadata): boolean => {
-      const current = (metadata[key] as unknown) ?? null;
-      const prev = (original[key] as unknown) ?? null;
+      const current = (metadata[key]) ?? null;
+      const prev = (original[key]) ?? null;
 
       const isEmpty = (val: unknown): boolean =>
         val === null || val === "" || (Array.isArray(val) && val.length === 0);
@@ -773,7 +773,7 @@ export class MetadataEditorComponent implements OnInit {
   onUpload(event: FileUploadEvent): void {
     const response: HttpResponse<unknown> =
       event.originalEvent as HttpResponse<unknown>;
-    if (response && response.status === 200) {
+    if (response?.status === 200) {
       this.isUploading = false;
       this.bookService.handleBookMetadataUpdate(this.currentBookId);
     } else {
@@ -1062,7 +1062,7 @@ export class MetadataEditorComponent implements OnInit {
   onAudiobookCoverUpload(event: FileUploadEvent): void {
     const response: HttpResponse<unknown> =
       event.originalEvent as HttpResponse<unknown>;
-    if (response && response.status === 200) {
+    if (response?.status === 200) {
       this.isUploading = false;
       this.bookService.handleBookMetadataUpdate(this.currentBookId);
     } else {

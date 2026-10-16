@@ -1,5 +1,5 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { computed, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
+import { computed, inject, Service, PLATFORM_ID, signal } from '@angular/core';
 import { FaviconService } from '../layout/theme/favicon-service';
 import {applyOptimusTheme, optimusThemeTokenPalettes} from '../layout/theme/theme-palette-extend';
 import {
@@ -29,9 +29,7 @@ interface LoadedAppState {
   shouldPersist: boolean;
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class AppThemeService {
   private readonly STORAGE_KEY = 'appConfigState';
   readonly themes = APP_THEME_OPTIONS;

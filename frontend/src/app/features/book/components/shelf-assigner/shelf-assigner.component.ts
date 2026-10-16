@@ -37,18 +37,18 @@ import {IconSelection, toIconSelection} from '../../../../shared/icons/icon-sele
 })
 export class ShelfAssignerComponent {
 
-  private shelfService = inject(ShelfService);
-  private dynamicDialogConfig = inject(DynamicDialogConfig);
-  private dynamicDialogRef = inject(DynamicDialogRef);
-  private messageService = inject(MessageService);
-  private bookService = inject(BookService);
-  private bookDialogHelper = inject(BookDialogHelperService);
-  private loadingService = inject(LoadingService);
-  private userService = inject(UserService);
+  private readonly shelfService = inject(ShelfService);
+  private readonly dynamicDialogConfig = inject(DynamicDialogConfig);
+  private readonly dynamicDialogRef = inject(DynamicDialogRef);
+  private readonly messageService = inject(MessageService);
+  private readonly bookService = inject(BookService);
+  private readonly bookDialogHelper = inject(BookDialogHelperService);
+  private readonly loadingService = inject(LoadingService);
+  private readonly userService = inject(UserService);
   private readonly t = inject(TranslocoService);
 
   searchQuery = '';
-  private currentUser = this.userService.currentUser;
+  private readonly currentUser = this.userService.currentUser;
 
   book: Book = this.dynamicDialogConfig.data.book;
   selectedShelves: Shelf[] = [];

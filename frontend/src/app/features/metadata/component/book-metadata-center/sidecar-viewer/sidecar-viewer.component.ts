@@ -31,7 +31,7 @@ export class SidecarViewerComponent implements OnDestroy {
   private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
   private readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
-  private destroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
 
   private readonly statusQuery = injectQuery(() => ({
     ...this.sources.sidecarStatus(this.currentBookId() ?? 0),

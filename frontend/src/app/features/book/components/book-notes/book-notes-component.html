@@ -16,8 +16,7 @@
             (click)="openCreateDialog()"
             pTooltip="Add New Note"
             tooltipPosition="top"
-            class="action-btn floating-btn">
-          </p-button>
+            class="action-btn floating-btn" />
         </div>
         <p class="empty-state-title">No notes yet for this book</p>
         <p class="empty-state-subtitle">
@@ -55,8 +54,7 @@
                       (onClick)="openEditDialog(note)"
                       pTooltip="Edit note"
                       tooltipPosition="top"
-                      class="action-btn-hover">
-                    </p-button>
+                      class="action-btn-hover" />
                     <p-button
                       icon="pi pi-trash"
                       size="small"
@@ -65,8 +63,7 @@
                       (onClick)="deleteNote(note)"
                       pTooltip="Delete note"
                       tooltipPosition="top"
-                      class="action-btn-hover">
-                    </p-button>
+                      class="action-btn-hover" />
                   </div>
                 </div>
               </div>
@@ -91,8 +88,7 @@
         severity="success"
         (click)="openCreateDialog()"
         pTooltip="Add New Note"
-        tooltipPosition="left">
-      </p-button>
+        tooltipPosition="left" />
     </div>
   }
 
@@ -136,15 +132,13 @@
           label="Cancel"
           severity="secondary"
           outlined
-          (onClick)="cancelCreate()">
-        </p-button>
+          (onClick)="cancelCreate()" />
         <p-button
           outlined
           severity="success"
           label="Save Note"
           icon="pi pi-save"
-          (onClick)="createNote()">
-        </p-button>
+          (onClick)="createNote()" />
       </div>
     </ng-template>
   </p-dialog>
@@ -189,18 +183,16 @@
           label="Cancel"
           severity="secondary"
           outlined
-          (onClick)="cancelEdit()">
-        </p-button>
+          (onClick)="cancelEdit()" />
         <p-button
           outlined
           severity="success"
           label="Update Note"
           icon="pi pi-save"
-          (onClick)="updateNote()">
-        </p-button>
+          (onClick)="updateNote()" />
       </div>
     </ng-template>
   </p-dialog>
 
-  <p-confirmDialog key="deleteNote"></p-confirmDialog>
+  <p-confirmDialog key="deleteNote" />
 </div>

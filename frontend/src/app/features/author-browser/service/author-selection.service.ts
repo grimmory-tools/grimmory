@@ -1,4 +1,4 @@
-import {computed, Injectable, signal} from '@angular/core';
+import {computed, Service, signal} from '@angular/core';
 import {AuthorSummary} from '../model/author.model';
 
 export interface AuthorCheckboxClickEvent {
@@ -8,7 +8,7 @@ export interface AuthorCheckboxClickEvent {
   shiftKey: boolean;
 }
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class AuthorSelectionService {
   private readonly _selectedAuthors = signal<Set<number>>(new Set());
   readonly selectedAuthors = this._selectedAuthors.asReadonly();

@@ -29,8 +29,7 @@
             <span class="setting-description">Store data locally in your browser for faster access</span>
           </div>
           <div class="setting-control">
-            <p-checkbox [(ngModel)]="settings.cacheStorageEnabled" [binary]="true" (onChange)="onSettingChange()">
-            </p-checkbox>
+            <p-checkbox [(ngModel)]="settings.cacheStorageEnabled" [binary]="true" (onChange)="onSettingChange()" />
           </div>
         </div>
 
@@ -42,8 +41,7 @@
           <div class="setting-control action-buttons">
             <span class="setting-value">{{ cacheStorageUsageMb() | number: '1.2-2' }} MB</span>
             <p-button type="button" label="Refresh" icon="pi pi-refresh" severity="secondary" [outlined]="true"
-              [disabled]="isLoadingCacheStorageUsage()" [loading]="isLoadingCacheStorageUsage()" (onClick)="loadCacheStorageUsage()">
-            </p-button>
+              [disabled]="isLoadingCacheStorageUsage()" [loading]="isLoadingCacheStorageUsage()" (onClick)="loadCacheStorageUsage()" />
           </div>
         </div>
 
@@ -54,8 +52,7 @@
           </div>
           <div class="setting-control">
             <p-button type="button" label="Clear Cache" icon="pi pi-trash" severity="danger" [outlined]="true"
-              [disabled]="isClearingCacheStorage()" [loading]="isClearingCacheStorage()" (onClick)="clearCacheStorage()">
-            </p-button>
+              [disabled]="isClearingCacheStorage()" [loading]="isClearingCacheStorage()" (onClick)="clearCacheStorage()" />
           </div>
         </div>
       </div>

@@ -6,12 +6,11 @@
         [style]="{'width': '60px', 'height': '60px'}"
         strokeWidth="3"
         fill="transparent"
-        animationDuration="1.5s">
-      </p-progressSpinner>
+        animationDuration="1.5s" />
     </div>
   }
 
-  @if (!isBooksLoading()) {
+  @else {
     <div class="browse-header">
       <h2 class="browse-title">{{ t('browseAllSeries') }}</h2>
 
@@ -35,8 +34,7 @@
             (ngModelChange)="onStatusFilterChange($event)"
             optionLabel="label"
             optionValue="value"
-            class="filter-dropdown">
-          </p-select>
+            class="filter-dropdown" />
 
           <p-select
             [options]="sortOptions"
@@ -44,8 +42,7 @@
             (ngModelChange)="onSortChange($event)"
             optionLabel="label"
             optionValue="value"
-            class="sort-dropdown">
-          </p-select>
+            class="sort-dropdown" />
 
           <button
             type="button"
@@ -87,8 +84,7 @@
                   <app-series-card
                     [series]="series"
                     [style.--card-scale]="currentCardScale()"
-                    (cardClick)="navigateToSeries($event)">
-                  </app-series-card>
+                    (cardClick)="navigateToSeries($event)" />
                 </div>
               }
             }

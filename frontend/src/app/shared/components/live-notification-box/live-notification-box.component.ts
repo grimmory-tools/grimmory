@@ -26,7 +26,7 @@ export class LiveNotificationBoxComponent implements OnDestroy {
   latestNotification: LogNotification = {message: this.t.translate('shared.liveNotification.defaultMessage')};
   private hasReceivedNotification = false;
 
-  private notificationService = inject(NotificationEventService);
+  private readonly notificationService = inject(NotificationEventService);
 
   constructor() {
     this.notificationService.latestNotification$.pipe(takeUntil(this.destroy$)).subscribe(notification => {

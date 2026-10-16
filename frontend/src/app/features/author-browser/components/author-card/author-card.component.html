@@ -28,8 +28,7 @@
         class="select-checkbox"
         (click)="captureMouseEvent($event)"
         [ngModel]="isSelected"
-        (onChange)="toggleSelection($event)">
-      </p-checkbox>
+        (onChange)="toggleSelection($event)" />
     }
 
     <div class="card-overlay">
@@ -38,14 +37,13 @@
       }
       <h4 class="author-name" [pTooltip]="author.name" tooltipPosition="bottom">{{ author.name }}</h4>
       <div class="menu-button-container">
-        <p-tieredmenu #menu [model]="items" [popup]="true" appendTo="body" (onShow)="onMenuShow()" (onHide)="onMenuHide()"></p-tieredmenu>
+        <p-tieredmenu #menu [model]="items" [popup]="true" appendTo="body" (onShow)="onMenuShow()" (onHide)="onMenuHide()" />
         <p-button
           class="card-menu-btn"
           size="small"
           [text]="true"
           (click)="onMenuToggle($event, menu)"
-          icon="pi pi-ellipsis-v">
-        </p-button>
+          icon="pi pi-ellipsis-v" />
       </div>
     </div>
   </div>

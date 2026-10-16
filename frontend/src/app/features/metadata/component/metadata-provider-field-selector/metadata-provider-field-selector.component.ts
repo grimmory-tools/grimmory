@@ -18,10 +18,10 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 export class MetadataProviderFieldSelectorComponent {
   @Input() selectedFields: string[] = [];
 
-  private appSettingsService = inject(AppSettingsService);
-  private t = inject(TranslocoService);
-  private catalog = inject(MetadataCatalogService);
-  private providerFields = inject(MetadataProviderFieldsService);
+  private readonly appSettingsService = inject(AppSettingsService);
+  private readonly t = inject(TranslocoService);
+  private readonly catalog = inject(MetadataCatalogService);
+  private readonly providerFields = inject(MetadataProviderFieldsService);
   private readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
 
   readonly providerGroups = computed(() => {

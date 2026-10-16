@@ -4,7 +4,7 @@
       <h2 class="settings-title">
         <i class="pi pi-envelope"></i>
         {{ t('title') }}
-        <app-external-doc-link docType="email"></app-external-doc-link>
+        <app-external-doc-link docType="email" />
       </h2>
       <p class="settings-description">
         {{ t('description') }}
@@ -12,9 +12,9 @@
     </div>
 
     @if (hasPermission()) {
-      <app-email-v2-provider></app-email-v2-provider>
+      <app-email-v2-provider />
       <div class="section-divider"><hr></div>
-      <app-email-v2-recipient></app-email-v2-recipient>
+      <app-email-v2-recipient />
     } @else {
       <div class="access-denied-card">
         <i class="pi pi-lock"></i>

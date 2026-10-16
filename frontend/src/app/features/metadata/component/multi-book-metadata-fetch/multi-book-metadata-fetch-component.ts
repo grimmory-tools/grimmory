@@ -28,9 +28,9 @@ export class MultiBookMetadataFetchComponent implements OnInit, OnChanges {
   metadataRefreshType: MetadataRefreshType = MetadataRefreshType.BOOKS;
   currentMetadataOptions!: MetadataRefreshOptions;
 
-  private dynamicDialogConfig = inject(DynamicDialogConfig);
+  private readonly dynamicDialogConfig = inject(DynamicDialogConfig);
   dialogRef = inject(DynamicDialogRef);
-  private appSettingsService = inject(AppSettingsService);
+  private readonly appSettingsService = inject(AppSettingsService);
   expanded = false;
 
   constructor() {

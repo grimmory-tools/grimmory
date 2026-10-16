@@ -44,16 +44,16 @@ export class BookFileAttacherComponent implements OnInit, AfterViewInit, OnDestr
   filteredBooks: Book[] = [];
   autocomplePanelStyle: Record<string, string> = {};
 
-  private destroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
   private allBooks: Signal<Book[]> = signal([]);
 
   private readonly t = inject(TranslocoService);
   private readonly appSettingsService = inject(AppSettingsService);
-  private dialogRef = inject(DynamicDialogRef);
-  private config = inject(DynamicDialogConfig);
-  private bookService = inject(BookService);
-  private bookFileService = inject(BookFileService);
-  private messageService = inject(MessageService);
+  private readonly dialogRef = inject(DynamicDialogRef);
+  private readonly config = inject(DynamicDialogConfig);
+  private readonly bookService = inject(BookService);
+  private readonly bookFileService = inject(BookFileService);
+  private readonly messageService = inject(MessageService);
 
   ngAfterViewInit(): void {
     setTimeout(() => {

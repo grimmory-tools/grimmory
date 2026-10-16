@@ -85,20 +85,20 @@ export class EbookReaderComponent implements OnInit {
   private static readonly MAX_CHAPTER_PROGRESS_PERCENT = 99.9;
   private static readonly INITIAL_CHAPTER_RESTORE_RETRY_MS = 100;
   private static readonly INITIAL_CHAPTER_RESTORE_MAX_ATTEMPTS = 15;
-  private loaderService = inject(ReaderLoaderService);
-  private styleService = inject(ReaderStyleService);
-  private bookService = inject(BookService);
-  private bookFileService = inject(BookFileService);
-  private route = inject(ActivatedRoute);
-  private epubCustomFontService = inject(EpubCustomFontService);
-  private annotationService = inject(ReaderAnnotationHttpService);
-  private progressService = inject(ReaderProgressService);
-  private selectionService = inject(ReaderSelectionService);
-  private headerService = inject(ReaderHeaderService);
-  private noteService = inject(ReaderNoteService);
-  private wakeLockService = inject(WakeLockService);
-  private messageService = inject(MessageService);
-  private pageTitle = inject(PageTitleService);
+  private readonly loaderService = inject(ReaderLoaderService);
+  private readonly styleService = inject(ReaderStyleService);
+  private readonly bookService = inject(BookService);
+  private readonly bookFileService = inject(BookFileService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly epubCustomFontService = inject(EpubCustomFontService);
+  private readonly annotationService = inject(ReaderAnnotationHttpService);
+  private readonly progressService = inject(ReaderProgressService);
+  private readonly selectionService = inject(ReaderSelectionService);
+  private readonly headerService = inject(ReaderHeaderService);
+  private readonly noteService = inject(ReaderNoteService);
+  private readonly wakeLockService = inject(WakeLockService);
+  private readonly messageService = inject(MessageService);
+  private readonly pageTitle = inject(PageTitleService);
 
   public sidebarService = inject(ReaderSidebarService);
   public leftSidebarService = inject(ReaderLeftSidebarService);
@@ -117,21 +117,21 @@ export class EbookReaderComponent implements OnInit {
   private pendingInitialChapterRestoreTimeout?: ReturnType<typeof setTimeout>;
 
   @ViewChild(TextSelectionPopupComponent, {static: true})
-  private selectionPopup!: TextSelectionPopupComponent;
+  private readonly selectionPopup!: TextSelectionPopupComponent;
 
-  isLoading = signal(true);
-  showQuickSettings = signal(false);
-  showControls = signal(false);
-  showMetadata = signal(false);
-  forceNavbarVisible = signal(false);
-  headerVisible = signal(false);
-  book = signal<Book | null>(null);
-  sectionFractions = signal<number[]>([]);
-  isFullscreen = signal(false);
-  showShortcutsHelp = signal(false);
-  immersiveMode = signal(false);
+  readonly isLoading = signal(true);
+  readonly showQuickSettings = signal(false);
+  readonly showControls = signal(false);
+  readonly showMetadata = signal(false);
+  readonly forceNavbarVisible = signal(false);
+  readonly headerVisible = signal(false);
+  readonly book = signal<Book | null>(null);
+  readonly sectionFractions = signal<number[]>([]);
+  readonly isFullscreen = signal(false);
+  readonly showShortcutsHelp = signal(false);
+  readonly immersiveMode = signal(false);
   private immersiveAutoHideTimer?: ReturnType<typeof setTimeout>;
-  protected progressData = signal<RelocateProgressData | null>(null);
+  protected readonly progressData = signal<RelocateProgressData | null>(null);
 
   readonly readerState = this.stateService.state;
   private readonly requestAutoFullscreen = setupReaderEdges(() => this.readerState().theme.bg ?? '');

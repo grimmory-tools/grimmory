@@ -25,10 +25,10 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
 })
 export class CreateEmailRecipientDialogComponent {
   emailRecipientForm: FormGroup;
-  private fb = inject(FormBuilder);
-  private emailRecipientService = inject(EmailV2RecipientService);
-  private messageService = inject(MessageService);
-  private ref = inject(DynamicDialogRef);
+  private readonly fb = inject(FormBuilder);
+  private readonly emailRecipientService = inject(EmailV2RecipientService);
+  private readonly messageService = inject(MessageService);
+  private readonly ref = inject(DynamicDialogRef);
   private readonly t = inject(TranslocoService);
 
   constructor() {

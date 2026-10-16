@@ -1,4 +1,4 @@
-import {inject, Injectable, signal} from '@angular/core';
+import {inject, Service, signal} from '@angular/core';
 import {forkJoin, Observable} from 'rxjs';
 import {map, tap} from 'rxjs/operators';
 import {Theme, themes} from './themes.constant';
@@ -26,13 +26,11 @@ interface LegacyViewerSetting {
   customFontId?: string | number | null;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class ReaderStateService {
-  private bookService = inject(BookService);
-  private userService = inject(UserService);
-  private epubCustomFontService = inject(EpubCustomFontService);
+  private readonly bookService = inject(BookService);
+  private readonly userService = inject(UserService);
+  private readonly epubCustomFontService = inject(EpubCustomFontService);
 
   private readonly BASE_FONTS = [
     {name: 'Publisher\'s', value: null},

@@ -31,12 +31,12 @@ import {IconSelection, toIconSelection} from '../../../../shared/icons/icon-sele
 })
 export class ShelfEditDialogComponent implements OnInit {
 
-  private shelfService = inject(ShelfService);
-  private dynamicDialogConfig = inject(DynamicDialogConfig);
-  private dynamicDialogRef = inject(DynamicDialogRef);
-  private messageService = inject(MessageService);
-  private iconPickerService = inject(IconPickerService);
-  private userService = inject(UserService);
+  private readonly shelfService = inject(ShelfService);
+  private readonly dynamicDialogConfig = inject(DynamicDialogConfig);
+  private readonly dynamicDialogRef = inject(DynamicDialogRef);
+  private readonly messageService = inject(MessageService);
+  private readonly iconPickerService = inject(IconPickerService);
+  private readonly userService = inject(UserService);
   private readonly t = inject(TranslocoService);
   private readonly injector = inject(Injector);
   private shelfInitialized = false;

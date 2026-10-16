@@ -9,8 +9,8 @@ import { map } from 'rxjs/operators';
   pure: true
 })
 export class SecurePipe implements PipeTransform {
-  private http = inject(HttpClient);
-  private sanitizer = inject(DomSanitizer);
+  private readonly http = inject(HttpClient);
+  private readonly sanitizer = inject(DomSanitizer);
 
   transform(url: string): Observable<SafeUrl> {
     return this.http.get(url, { responseType: 'blob' }).pipe(

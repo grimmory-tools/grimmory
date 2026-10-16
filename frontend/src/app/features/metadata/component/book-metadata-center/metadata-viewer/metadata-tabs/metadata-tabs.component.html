@@ -21,7 +21,7 @@
               @for (bookInSeriesItem of seriesBooks; track bookInSeriesItem.id) {
                 @if (bookInSeriesItem.id !== currentBook.id) {
                   <div class="dashboard-scroller-card">
-                    <app-book-card-lite-component [book]="bookInSeriesItem" [showSeriesNumber]="true" [isActive]="bookInSeriesItem.id === currentBook.id"></app-book-card-lite-component>
+                    <app-book-card-lite-component [book]="bookInSeriesItem" [showSeriesNumber]="true" [isActive]="bookInSeriesItem.id === currentBook.id" />
                   </div>
                 }
               }
@@ -37,7 +37,7 @@
             <div class="dashboard-scroller-infinite" infiniteScroll [infiniteScrollDistance]="2" [infiniteScrollThrottle]="50" [horizontal]="true">
               @for (recBook of recommendations; track recBook.book.id) {
                 <div class="dashboard-scroller-card">
-                  <app-book-card-lite-component [book]="recBook.book"></app-book-card-lite-component>
+                  <app-book-card-lite-component [book]="recBook.book" />
                 </div>
               }
             </div>
@@ -82,17 +82,17 @@
     </p-tabpanel>
     <p-tabpanel value="notes">
       <ng-template #content>
-        <app-book-notes-component [bookId]="currentBook.id"></app-book-notes-component>
+        <app-book-notes-component [bookId]="currentBook.id" />
       </ng-template>
     </p-tabpanel>
     <p-tabpanel value="sessions">
       <ng-template #content>
-        <app-book-reading-sessions [bookId]="currentBook.id"></app-book-reading-sessions>
+        <app-book-reading-sessions [bookId]="currentBook.id" />
       </ng-template>
     </p-tabpanel>
     <p-tabpanel value="reviews">
       <ng-template #content>
-        <app-book-reviews [bookId]="currentBook.id" [reviewsLocked]="currentBook.metadata?.reviewsLocked ?? false"></app-book-reviews>
+        <app-book-reviews [bookId]="currentBook.id" [reviewsLocked]="currentBook.metadata?.reviewsLocked ?? false" />
       </ng-template>
     </p-tabpanel>
     <p-tabpanel value="chapters">
@@ -199,8 +199,7 @@
                   outlined
                   (onClick)="downloadAll(currentBook)"
                   [pTooltip]="t('downloadAllTooltip')"
-                  tooltipPosition="top">
-                </p-button>
+                  tooltipPosition="top" />
               </div>
             }
             @if (currentBook.primaryFile) {
@@ -224,8 +223,7 @@
                           severity="primary"
                           [pTooltip]="t('readTooltip')"
                           tooltipPosition="top"
-                          (onClick)="read(currentBook.id)">
-                        </p-button>
+                          (onClick)="read(currentBook.id)" />
                         <p-button
                           icon="pi pi-play"
                           size="small"
@@ -233,8 +231,7 @@
                           severity="info"
                           [pTooltip]="t('streamingReaderTooltip')"
                           tooltipPosition="top"
-                          (onClick)="read(currentBook.id, 'epub-streaming')">
-                        </p-button>
+                          (onClick)="read(currentBook.id, 'epub-streaming')" />
                       } @else if (currentBook.primaryFile.bookType && ['PDF', 'FB2', 'MOBI', 'AZW3', 'CBX'].includes(currentBook.primaryFile.bookType)) {
                         <p-button
                           icon="pi pi-book"
@@ -243,8 +240,7 @@
                           severity="primary"
                           [pTooltip]="t('readTooltip')"
                           tooltipPosition="top"
-                          (onClick)="read(currentBook.id)">
-                        </p-button>
+                          (onClick)="read(currentBook.id)" />
                       } @else if (currentBook.primaryFile.bookType === 'AUDIOBOOK') {
                         <p-button
                           icon="pi pi-play"
@@ -253,8 +249,7 @@
                           severity="primary"
                           [pTooltip]="t('playTooltip')"
                           tooltipPosition="top"
-                          (onClick)="read(currentBook.id)">
-                        </p-button>
+                          (onClick)="read(currentBook.id)" />
                       }
                       <p-button
                         icon="pi pi-download"
@@ -263,8 +258,7 @@
                         severity="success"
                         [pTooltip]="t('downloadTooltip')"
                         tooltipPosition="top"
-                        (onClick)="download(currentBook)">
-                      </p-button>
+                        (onClick)="download(currentBook)" />
                       @if (currentFileState.canDetach) {
                         <p-button
                           icon="pi pi-external-link"
@@ -273,8 +267,7 @@
                           severity="warn"
                           [pTooltip]="t('detachTooltip')"
                           tooltipPosition="top"
-                          (onClick)="detachFile(currentBook, currentBook.primaryFile!.id, currentBook.primaryFile!.fileName || 'file')">
-                        </p-button>
+                          (onClick)="detachFile(currentBook, currentBook.primaryFile!.id, currentBook.primaryFile!.fileName || 'file')" />
                       }
                       <p-button
                         icon="pi pi-trash"
@@ -283,8 +276,7 @@
                         severity="danger"
                         [pTooltip]="t('deleteTooltip')"
                         tooltipPosition="top"
-                        (onClick)="deleteFile(currentBook, currentBook.primaryFile!.id, currentBook.primaryFile!.fileName || 'file', true)">
-                      </p-button>
+                        (onClick)="deleteFile(currentBook, currentBook.primaryFile!.id, currentBook.primaryFile!.fileName || 'file', true)" />
                     </div>
                   </div>
                 </div>
@@ -312,8 +304,7 @@
                             severity="primary"
                             [pTooltip]="t('readTooltip')"
                             tooltipPosition="top"
-                            (onClick)="read(currentBook.id, undefined, format.bookType)">
-                          </p-button>
+                            (onClick)="read(currentBook.id, undefined, format.bookType)" />
                           <p-button
                             icon="pi pi-play"
                             size="small"
@@ -321,8 +312,7 @@
                             severity="info"
                             [pTooltip]="t('streamingReaderTooltip')"
                             tooltipPosition="top"
-                            (onClick)="read(currentBook.id, 'epub-streaming', format.bookType)">
-                          </p-button>
+                            (onClick)="read(currentBook.id, 'epub-streaming', format.bookType)" />
                         } @else if (format.bookType && ['PDF', 'FB2', 'MOBI', 'AZW3', 'CBX'].includes(format.bookType)) {
                           <p-button
                             icon="pi pi-book"
@@ -331,8 +321,7 @@
                             severity="primary"
                             [pTooltip]="t('readTooltip')"
                             tooltipPosition="top"
-                            (onClick)="read(currentBook.id, undefined, format.bookType)">
-                          </p-button>
+                            (onClick)="read(currentBook.id, undefined, format.bookType)" />
                         } @else if (format.bookType === 'AUDIOBOOK') {
                           <p-button
                             icon="pi pi-play"
@@ -341,8 +330,7 @@
                             severity="primary"
                             [pTooltip]="t('playTooltip')"
                             tooltipPosition="top"
-                            (onClick)="read(currentBook.id, undefined, format.bookType)">
-                          </p-button>
+                            (onClick)="read(currentBook.id, undefined, format.bookType)" />
                         }
                         <p-button
                           icon="pi pi-download"
@@ -351,8 +339,7 @@
                           severity="success"
                           [pTooltip]="t('downloadTooltip')"
                           tooltipPosition="top"
-                          (onClick)="downloadAdditionalFile(currentBook, format.id)">
-                        </p-button>
+                          (onClick)="downloadAdditionalFile(currentBook, format.id)" />
                         @if (currentFileState.canDetach) {
                           <p-button
                             icon="pi pi-external-link"
@@ -361,8 +348,7 @@
                             severity="warn"
                             [pTooltip]="t('detachTooltip')"
                             tooltipPosition="top"
-                            (onClick)="detachFile(currentBook, format.id, format.fileName || 'file')">
-                          </p-button>
+                            (onClick)="detachFile(currentBook, format.id, format.fileName || 'file')" />
                         }
                         <p-button
                           icon="pi pi-trash"
@@ -371,8 +357,7 @@
                           severity="danger"
                           [pTooltip]="t('deleteTooltip')"
                           tooltipPosition="top"
-                          (onClick)="deleteFile(currentBook, format.id, format.fileName || 'file', false)">
-                        </p-button>
+                          (onClick)="deleteFile(currentBook, format.id, format.fileName || 'file', false)" />
                       </div>
                     </div>
                   }
@@ -398,8 +383,7 @@
                           severity="success"
                           [pTooltip]="t('downloadTooltip')"
                           tooltipPosition="top"
-                          (onClick)="downloadAdditionalFile(currentBook, file.id)">
-                        </p-button>
+                          (onClick)="downloadAdditionalFile(currentBook, file.id)" />
                         @if (currentFileState.canDetach) {
                           <p-button
                             icon="pi pi-external-link"
@@ -408,8 +392,7 @@
                             severity="warn"
                             [pTooltip]="t('detachTooltip')"
                             tooltipPosition="top"
-                            (onClick)="detachFile(currentBook, file.id, file.fileName || 'file')">
-                          </p-button>
+                            (onClick)="detachFile(currentBook, file.id, file.fileName || 'file')" />
                         }
                         <p-button
                           icon="pi pi-trash"
@@ -418,8 +401,7 @@
                           severity="danger"
                           [pTooltip]="t('deleteTooltip')"
                           tooltipPosition="top"
-                          (onClick)="deleteSupplementary(currentBook.id, file.id, file.fileName || 'file')">
-                        </p-button>
+                          (onClick)="deleteSupplementary(currentBook.id, file.id, file.fileName || 'file')" />
                       </div>
                     </div>
                   }

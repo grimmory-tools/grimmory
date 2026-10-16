@@ -26,7 +26,7 @@ export class BookReadingSessionsComponent implements OnInit, OnChanges {
 
   sessions: ReadingSessionResponse[] = [];
   rows = 5;
-  loading = signal(false);
+  readonly loading = signal(false);
 
   get pageReportTemplate(): string {
     return this.t.translate('metadata.readingSessions.pageReport');
@@ -87,7 +87,7 @@ export class BookReadingSessionsComponent implements OnInit, OnChanges {
     
     if (Math.abs(actualDuration - storedDuration) > 1) {
       // Discrepancy detected - show both values
-      return `${this.formatDuration(actualDuration)}`;
+      return this.formatDuration(actualDuration);
     }
     
     return this.formatDuration(actualDuration);

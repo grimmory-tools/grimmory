@@ -33,7 +33,7 @@
                   'progress-complete': progress === 100,
                   'progress-incomplete': progress < 100
                 }"
-              ></p-progressBar>
+              />
             }
 
             @if (getKoProgressPercent(book) !== null) {
@@ -44,8 +44,7 @@
                 [ngClass]="[
                   getKoProgressPercent(book) === 100 ? 'progress-complete-ko' : 'progress-incomplete-ko'
                 ]"
-              >
-              </p-progressBar>
+              />
             }
 
             @if (getKoboProgressPercent(book) !== null) {
@@ -56,8 +55,7 @@
                 [ngClass]="[
                   getKoboProgressPercent(book) === 100 ? 'progress-complete-kobo' : 'progress-incomplete-kobo'
                 ]"
-              >
-              </p-progressBar>
+              />
             }
           </div>
         </div>
@@ -72,8 +70,7 @@
               outlined
               severity="info"
               [pTooltip]="t('goToPreviousBook')"
-              tooltipPosition="bottom">
-            </p-button>
+              tooltipPosition="bottom" />
             <span class="navigation-position">
               {{ navigationPosition() }}
             </span>
@@ -86,8 +83,7 @@
               rounded
               outlined
               [pTooltip]="t('goToNextBook')"
-              tooltipPosition="bottom">
-            </p-button>
+              tooltipPosition="bottom" />
           </div>
         }
       </div>
@@ -169,8 +165,7 @@
                   [ngModel]="book?.personalRating"
                   (onRate)="onPersonalRatingChange(book, $event)"
                   stars="10"
-                  [style.--p-rating-icon-active-color]="getStarColorScaled(book?.personalRating, 10)">
-                </p-rating>
+                  [style.--p-rating-icon-active-color]="getStarColorScaled(book?.personalRating, 10)" />
               </div>
               <p-button
                 text
@@ -180,8 +175,7 @@
                 (onClick)="resetPersonalRating(book)"
                 [pTooltip]="t('resetRating')"
                 tooltipPosition="top"
-                class="reset-button">
-              </p-button>
+                class="reset-button" />
             </div>
 
             @if (providerBadges().length > 0) {
@@ -325,8 +319,7 @@
                     severity="danger"
                     text
                     class="inline-action-button"
-                    (onClick)="resetProgress(book, ResetProgressTypes.GRIMMORY)">
-                  </p-button>
+                    (onClick)="resetProgress(book, ResetProgressTypes.GRIMMORY)" />
                 }
               </span>
             </div>
@@ -368,7 +361,7 @@
                   </app-tag>
                 </span>
                 <i class="pi pi-pencil edit-icon" role="button" tabindex="0" (click)="menu.toggle($event)" (keydown.enter)="menu.toggle($event)"></i>
-                <p-menu #menu [popup]="true" [model]="readStatusMenuItems"></p-menu>
+                <p-menu #menu [popup]="true" [model]="readStatusMenuItems" />
               </span>
             </div>
 
@@ -387,8 +380,7 @@
                     severity="danger"
                     text
                     class="inline-action-button"
-                    (onClick)="resetProgress(book, ResetProgressTypes.KOREADER)">
-                  </p-button>
+                    (onClick)="resetProgress(book, ResetProgressTypes.KOREADER)" />
                 </span>
               </div>
             }
@@ -408,8 +400,7 @@
                     severity="danger"
                     text
                     class="inline-action-button"
-                    (onClick)="resetProgress(book, ResetProgressTypes.KOBO)">
-                  </p-button>
+                    (onClick)="resetProgress(book, ResetProgressTypes.KOBO)" />
                 </span>
               </div>
             }
@@ -432,10 +423,9 @@
                         [showIcon]="true"
                         [iconDisplay]="'input'"
                         appendTo="body"
-                        [style]="{ 'width': '125px', 'font-size': '12px' }">
-                      </p-datepicker>
-                      <p-button rounded icon="pi pi-check" size="small" severity="success" text (onClick)="saveDateFinished(book)" [pTooltip]="t('saveDate')"></p-button>
-                      <p-button rounded icon="pi pi-times" size="small" severity="danger" text (onClick)="cancelDateFinishedEdit()" [pTooltip]="'common.cancel' | transloco"></p-button>
+                        [style]="{ 'width': '125px', 'font-size': '12px' }" />
+                      <p-button rounded icon="pi pi-check" size="small" severity="success" text (onClick)="saveDateFinished(book)" [pTooltip]="t('saveDate')" />
+                      <p-button rounded icon="pi pi-times" size="small" severity="danger" text (onClick)="cancelDateFinishedEdit()" [pTooltip]="'common.cancel' | transloco" />
                     </span>
                   }
                 }
@@ -542,8 +532,7 @@
                     outlined
                     severity="secondary"
                     [pTooltip]="t('goToPreviousBook')"
-                    tooltipPosition="bottom">
-                  </p-button>
+                    tooltipPosition="bottom" />
                   <span class="navigation-position">
                     {{ navigationPosition() }}
                   </span>
@@ -555,8 +544,7 @@
                     severity="secondary"
                     outlined
                     [pTooltip]="t('goToNextBook')"
-                    tooltipPosition="bottom">
-                  </p-button>
+                    tooltipPosition="bottom" />
                 </div>
               }
               @if (hasDigitalFile(book)) {
@@ -573,7 +561,7 @@
                   @if ((book!.alternativeFormats && book!.alternativeFormats.length > 0) || (book!.supplementaryFiles && book!.supplementaryFiles.length > 0)) {
                     <p-splitbutton [label]="(getDisplayFormat(book.primaryFile) ?? 'File') + ' · ' + formatFileSize(book.primaryFile)" icon="pi pi-download" [model]="downloadMenuItems()" (onClick)="download(book)" severity="success" outlined class="mobile-icon-only"/>
                   } @else {
-                    <p-button [label]="(getDisplayFormat(book.primaryFile) ?? 'File') + ' · ' + formatFileSize(book.primaryFile)" icon="pi pi-download" severity="success" outlined (onClick)="download(book)" class="mobile-icon-only"></p-button>
+                    <p-button [label]="(getDisplayFormat(book.primaryFile) ?? 'File') + ' · ' + formatFileSize(book.primaryFile)" icon="pi pi-download" severity="success" outlined (onClick)="download(book)" class="mobile-icon-only" />
                   }
                 }
                 @if (currentUser.permissions.canEditMetadata || currentUser.permissions.admin) {
@@ -586,12 +574,11 @@
                     [disabled]="isAutoFetching"
                     [pTooltip]="t('fetchMetadataTooltip')"
                     tooltipPosition="top"
-                    class="mobile-icon-only">
-                  </p-button>
+                    class="mobile-icon-only" />
                 }
                 @if (otherItems().length > 0) {
-                  <p-button icon="pi pi-ellipsis-v" severity="info" outlined (click)="entitymenu.toggle($event)"></p-button>
-                  <p-tieredMenu #entitymenu [model]="otherItems()" [popup]="true" appendTo="body"></p-tieredMenu>
+                  <p-button icon="pi pi-ellipsis-v" severity="info" outlined (click)="entitymenu.toggle($event)" />
+                  <p-tieredMenu #entitymenu [model]="otherItems()" [popup]="true" appendTo="body" />
                 }
               </div>
             </div>
@@ -856,8 +843,7 @@
       (downloadAllFiles)="onDownloadAllFiles($event)"
       (deleteBookFile)="onDeleteBookFile($event)"
       (deleteSupplementaryFile)="onDeleteSupplementaryFile($event)"
-      (detachBookFile)="onDetachBookFile($event)">
-    </app-metadata-tabs>
+      (detachBookFile)="onDetachBookFile($event)" />
 
     <p-dialog
       [header]="t('confirm.detachFileHeader')"
@@ -872,8 +858,7 @@
           <p-checkbox
             [(ngModel)]="detachCopyMetadata"
             [binary]="true"
-            inputId="copyMetadata">
-          </p-checkbox>
+            inputId="copyMetadata" />
           <label for="copyMetadata">{{ t('confirm.detachFileCopyMetadata') }}</label>
         </div>
       </div>
@@ -881,20 +866,18 @@
         <p-button
           [label]="'common.cancel' | transloco"
           severity="secondary"
-          (onClick)="showDetachDialog = false">
-        </p-button>
+          (onClick)="showDetachDialog = false" />
         <p-button
           [label]="t('confirm.detachFileBtn')"
           severity="warn"
           icon="pi pi-external-link"
-          (onClick)="confirmDetach()">
-        </p-button>
+          (onClick)="confirmDetach()" />
       </ng-template>
     </p-dialog>
   </div>
 } @else {
   <div class="loading-state" *transloco="let t; prefix: 'metadata.viewer'">
-    <p-progressSpinner strokeWidth="4" fill="transparent" animationDuration=".8s"></p-progressSpinner>
+    <p-progressSpinner strokeWidth="4" fill="transparent" animationDuration=".8s" />
     <p class="loading-text">{{ t('loadingBookDetails') }}</p>
   </div>
 }

@@ -1,11 +1,11 @@
 import {DOCUMENT, isPlatformBrowser} from '@angular/common';
-import {inject, Injectable, PLATFORM_ID, signal} from '@angular/core';
+import {inject, Service, PLATFORM_ID, signal} from '@angular/core';
 
 import {DEFAULT_UI_FONT, normalizeUiFont, type UiFontPreference} from '../model/ui-font.model';
 
 const STORAGE_KEY = 'appUiFont';
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class AppUiFontService {
   private readonly document = inject(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);

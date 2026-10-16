@@ -1,12 +1,12 @@
-import {inject, Injectable} from "@angular/core";
+import {inject, Service} from "@angular/core";
 import {Title} from "@angular/platform-browser";
 import {Book} from "../../features/book/model/book.model";
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class PageTitleService {
     protected titleService = inject(Title)
 
-    private appName = 'Grimmory'
+    private readonly appName = 'Grimmory'
 
     setBookPageTitle(book: Book) {
         const title = [

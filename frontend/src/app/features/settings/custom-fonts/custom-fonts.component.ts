@@ -29,12 +29,12 @@ export class CustomFontsComponent implements OnInit {
 
   readonly maxFonts = 10;
 
-  private customFontService = inject(CustomFontService);
-  private messageService = inject(MessageService);
-  private confirmationService = inject(ConfirmationService);
-  private dialogService = inject(DialogService);
-  private t = inject(TranslocoService);
-  private destroyRef = inject(DestroyRef);
+  private readonly customFontService = inject(CustomFontService);
+  private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly dialogService = inject(DialogService);
+  private readonly t = inject(TranslocoService);
+  private readonly destroyRef = inject(DestroyRef);
 
   get customFonts(): CustomFont[] { return this.customFontService.fonts(); }
   get isLoading(): boolean { return this.customFontService.isFontsLoading(); }

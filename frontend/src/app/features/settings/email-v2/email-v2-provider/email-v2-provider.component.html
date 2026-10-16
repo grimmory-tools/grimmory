@@ -17,8 +17,7 @@
           severity="success"
           size="small"
           [outlined]="true"
-          (onClick)="openCreateProviderDialog()">
-        </p-button>
+          (onClick)="openCreateProviderDialog()" />
       </div>
     </div>
 
@@ -45,8 +44,7 @@
                       name="defaultProvider"
                       [value]="provider.id"
                       [(ngModel)]="defaultProviderId"
-                      (onClick)="setDefaultProvider(provider)">
-                    </p-radioButton>
+                      (onClick)="setDefaultProvider(provider)" />
                     @if (provider.isEditing) {
                       <input type="text" pInputText [(ngModel)]="provider.name" [placeholder]="t('providerNamePlaceholder')" class="name-input"/>
                     } @else {
@@ -73,8 +71,7 @@
                       [disabled]="!canModifyProvider(provider)"
                       (onClick)="canModifyProvider(provider) && toggleEdit(provider)"
                       [pTooltip]="canModifyProvider(provider) ? t('editProvider') : t('cannotEditShared')"
-                      tooltipPosition="left">
-                    </p-button>
+                      tooltipPosition="left" />
                     <p-button
                       [icon]="canModifyProvider(provider) ? 'pi pi-trash' : 'pi pi-lock'"
                       [severity]="canModifyProvider(provider) ? 'danger' : 'secondary'"
@@ -84,8 +81,7 @@
                       [disabled]="!canModifyProvider(provider)"
                       (onClick)="canModifyProvider(provider) && deleteProvider(provider)"
                       [pTooltip]="canModifyProvider(provider) ? t('deleteProvider') : t('cannotDeleteShared')"
-                      tooltipPosition="left">
-                    </p-button>
+                      tooltipPosition="left" />
                   } @else {
                     <p-button
                       icon="pi pi-check"
@@ -94,8 +90,7 @@
                       [outlined]="true"
                       [rounded]="true"
                       (onClick)="saveProvider(provider)"
-                      [pTooltip]="t('saveChanges')">
-                    </p-button>
+                      [pTooltip]="t('saveChanges')" />
                     <p-button
                       icon="pi pi-times"
                       severity="secondary"
@@ -103,8 +98,7 @@
                       [outlined]="true"
                       [rounded]="true"
                       (onClick)="toggleEdit(provider)"
-                      [pTooltip]="'common.cancel' | transloco">
-                    </p-button>
+                      [pTooltip]="'common.cancel' | transloco" />
                   }
                 </div>
               </div>
@@ -178,8 +172,7 @@
                       [(ngModel)]="provider.auth"
                       [binary]="true"
                       [disabled]="!provider.isEditing"
-                      inputId="auth-{{provider.id}}">
-                    </p-checkbox>
+                      inputId="auth-{{provider.id}}" />
                     <label [for]="'auth-' + provider.id" class="toggle-label">{{ t('authentication') }}</label>
                   </div>
 
@@ -188,8 +181,7 @@
                       [(ngModel)]="provider.startTls"
                       [binary]="true"
                       [disabled]="!provider.isEditing"
-                      inputId="starttls-{{provider.id}}">
-                    </p-checkbox>
+                      inputId="starttls-{{provider.id}}" />
                     <label [for]="'starttls-' + provider.id" class="toggle-label">{{ t('startTls') }}</label>
                   </div>
 
@@ -200,8 +192,7 @@
                         [binary]="true"
                         (onChange)="toggleShared(provider)"
                         inputId="shared-{{provider.id}}"
-                        [pTooltip]="t('shareTooltip')">
-                      </p-checkbox>
+                        [pTooltip]="t('shareTooltip')" />
                       <label [for]="'shared-' + provider.id" class="toggle-label">{{ t('shared') }}</label>
                     </div>
                   }

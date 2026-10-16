@@ -27,8 +27,7 @@
         [value]="progressPercent"
         [showValue]="false"
         class="series-progress-bar"
-        [ngClass]="progressPercent === 100 ? 'progress-complete' : 'progress-incomplete'">
-      </p-progressBar>
+        [ngClass]="progressPercent === 100 ? 'progress-complete' : 'progress-incomplete'" />
       <span class="progress-label">{{ series.readCount }}/{{ series.bookCount }}</span>
     </div>
 
@@ -42,8 +41,7 @@
           tooltipPosition="bottom"
           severity="info"
           [text]="true"
-          (click)="readNext($event)">
-        </p-button>
+          (click)="readNext($event)" />
       </div>
     }
   </div>

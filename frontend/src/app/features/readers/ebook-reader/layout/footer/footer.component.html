@@ -2,7 +2,7 @@
 <div class="reader-navbar" [class.is-visible]="navbarVisible"
   (mouseenter)="hoverChange.emit(true)" (mouseleave)="hoverChange.emit(false)">
   <button class="icon-btn" [title]="t('previousSection')" [disabled]="!canGoPrevious" (click)="onPreviousSection()">
-    <app-reader-icon name="chevron-left"></app-reader-icon>
+    <app-reader-icon name="chevron-left" />
   </button>
 
   <div class="progress-section">
@@ -28,7 +28,7 @@
   </div>
 
   <button class="icon-btn" [title]="t('nextSection')" [disabled]="!canGoNext" (click)="onNextSection()">
-    <app-reader-icon name="chevron-right"></app-reader-icon>
+    <app-reader-icon name="chevron-right" />
   </button>
 </div>
 
@@ -81,19 +81,19 @@
         </div>
         <div class="section-navigation">
         <button class="nav-btn" [title]="t('firstSection')" (click)="onFirstSection()">
-          <app-reader-icon name="chevron-first" [size]="20"></app-reader-icon>
+          <app-reader-icon name="chevron-first" [size]="20" />
         </button>
         <button class="nav-btn" [title]="t('previousSection')" (click)="onPreviousSection()">
-          <app-reader-icon name="chevron-left" [size]="20"></app-reader-icon>
+          <app-reader-icon name="chevron-left" [size]="20" />
         </button>
         <button class="nav-btn" [title]="t('jumpTo')">
-          <app-reader-icon name="dots-vertical" [size]="20"></app-reader-icon>
+          <app-reader-icon name="dots-vertical" [size]="20" />
         </button>
         <button class="nav-btn" [title]="t('nextSection')" (click)="onNextSection()">
-          <app-reader-icon name="chevron-right" [size]="20"></app-reader-icon>
+          <app-reader-icon name="chevron-right" [size]="20" />
         </button>
         <button class="nav-btn" [title]="t('lastSection')" (click)="onLastSection()">
-          <app-reader-icon name="chevron-last" [size]="20"></app-reader-icon>
+          <app-reader-icon name="chevron-last" [size]="20" />
         </button>
       </div>
       </div>

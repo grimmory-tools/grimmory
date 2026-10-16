@@ -30,11 +30,11 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
   styleUrl: './shelf-creator.component.scss',
 })
 export class ShelfCreatorComponent {
-  private shelfService = inject(ShelfService);
-  private dynamicDialogRef = inject(DynamicDialogRef);
-  private messageService = inject(MessageService);
-  private iconPickerService = inject(IconPickerService);
-  private userService = inject(UserService);
+  private readonly shelfService = inject(ShelfService);
+  private readonly dynamicDialogRef = inject(DynamicDialogRef);
+  private readonly messageService = inject(MessageService);
+  private readonly iconPickerService = inject(IconPickerService);
+  private readonly userService = inject(UserService);
   private readonly t = inject(TranslocoService);
 
   shelfName: string = '';

@@ -19,8 +19,7 @@
             (ngModelChange)="selectedRegion.set($event)"
             optionLabel="label"
             optionValue="value"
-            class="region-dropdown">
-          </p-select>
+            class="region-dropdown" />
         </div>
         <div class="field search-btn-field">
           <p-button
@@ -28,8 +27,7 @@
             icon="pi pi-search"
             (onClick)="search()"
             [loading]="searching()"
-            [disabled]="!canSearch()">
-          </p-button>
+            [disabled]="!canSearch()" />
         </div>
       </div>
     </div>
@@ -40,8 +38,7 @@
           [style]="{'width': '40px', 'height': '40px'}"
           strokeWidth="3"
           fill="transparent"
-          animationDuration="1.5s">
-        </p-progressSpinner>
+          animationDuration="1.5s" />
         <span>{{ t('searching') }}</span>
       </div>
     }
@@ -91,8 +88,7 @@
                 icon="pi pi-link"
                 severity="success"
                 [loading]="matching()"
-                (onClick)="matchAuthor(result)">
-              </p-button>
+                (onClick)="matchAuthor(result)" />
             </div>
           </div>
         }

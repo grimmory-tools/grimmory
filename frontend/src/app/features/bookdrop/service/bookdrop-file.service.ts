@@ -1,4 +1,4 @@
-import {computed, effect, inject, Injectable, signal} from '@angular/core';
+import {computed, effect, inject, Service, signal} from '@angular/core';
 import {BookdropFileApiService} from './bookdrop-file-api.service';
 import {AuthService} from '../../../shared/service/auth.service';
 import {UserService} from '../../settings/user-management/user.service';
@@ -9,9 +9,7 @@ export interface BookdropFileNotification {
   lastUpdatedAt?: string;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class BookdropFileService {
   private readonly summaryState = signal<BookdropFileNotification>({
     pendingCount: 0,

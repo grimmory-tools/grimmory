@@ -1,5 +1,5 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {lastValueFrom} from 'rxjs';
 
 import {API_CONFIG} from '../../../core/config/api-config';
@@ -34,7 +34,7 @@ const RESET_PROGRESS_BACKEND_TYPES = {
   KOBO: 'KOBO',
 } as const satisfies Record<BookProgressSource, string>;
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class BookCommandService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/books`;

@@ -19,7 +19,7 @@ export class ReaderQuickSettingsComponent {
   @Output() closed = new EventEmitter<void>();
   @Output() openFullSettings = new EventEmitter<void>();
 
-  private bookService = inject(BookService);
+  private readonly bookService = inject(BookService);
 
   get state() {
     return this.stateService.state();

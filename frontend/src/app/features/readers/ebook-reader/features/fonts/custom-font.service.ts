@@ -1,17 +1,15 @@
-import {Injectable, inject, Renderer2} from '@angular/core';
+import {Service, inject, Renderer2} from '@angular/core';
 import {CustomFontService} from '../../../../../shared/service/custom-font.service';
 import {CustomFont} from '../../../../../shared/model/custom-font.model';
 import {Observable, forkJoin, of, from} from 'rxjs';
 import {map, switchMap, tap, catchError} from 'rxjs/operators';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class EpubCustomFontService {
-  private customFontService = inject(CustomFontService);
+  private readonly customFontService = inject(CustomFontService);
 
   private customFonts: CustomFont[] = [];
-  private customFontBlobUrls = new Map<number, string>();
+  private readonly customFontBlobUrls = new Map<number, string>();
 
   loadAndCacheFonts(): Observable<CustomFont[]> {
     return from(this.customFontService.ensureFonts()).pipe(

@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {DialogLauncherService, DialogSize, DialogStyle} from '../../../shared/services/dialog-launcher.service';
 import {MetadataRefreshType} from '../../metadata/model/request/metadata-refresh-type.enum';
@@ -12,10 +12,10 @@ interface MetadataRefreshDialogContext {
   libraryId?: number;
 }
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class BookDialogHelperService {
 
-  private dialogLauncherService = inject(DialogLauncherService);
+  private readonly dialogLauncherService = inject(DialogLauncherService);
 
   private openDialog(component: unknown, options: object): DynamicDialogRef | null {
     return this.dialogLauncherService.openDialog(component, options);

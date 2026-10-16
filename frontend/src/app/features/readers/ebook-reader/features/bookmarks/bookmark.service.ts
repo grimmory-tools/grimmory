@@ -10,8 +10,8 @@ export class ReaderBookmarkService {
   private currentCFI: string | null = null;
   private currentChapterName: string | null = null;
 
-  private bookMarkService = inject(BookMarkService);
-  private messageService = inject(MessageService);
+  private readonly bookMarkService = inject(BookMarkService);
+  private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
 
 

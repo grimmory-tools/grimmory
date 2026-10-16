@@ -25,7 +25,7 @@ export class ReaderNavbarComponent {
   @Output() progressChange = new EventEmitter<number>();
   @Output() hoverChange = new EventEmitter<boolean>();
 
-  private managerService = inject(ReaderViewManagerService);
+  private readonly managerService = inject(ReaderViewManagerService);
   showLocationPopover = false;
 
   @HostListener('document:click', ['$event'])

@@ -1,11 +1,9 @@
-import {effect, inject, Injectable, signal} from '@angular/core';
+import {effect, inject, Service, signal} from '@angular/core';
 import {DashboardConfig, DEFAULT_DASHBOARD_CONFIG, ScrollerType} from '../models/dashboard-config.model';
 import {UserService} from '../../settings/user-management/user.service';
 import {MagicShelfService} from '../../magic-shelf/service/magic-shelf.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class DashboardConfigService {
   private readonly userService = inject(UserService);
   private readonly magicShelfService = inject(MagicShelfService);

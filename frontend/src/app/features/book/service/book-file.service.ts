@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {Observable, throwError, from} from 'rxjs';
 import {HttpClient, HttpEventType, HttpRequest} from '@angular/common/http';
 import {catchError, filter, map, tap} from 'rxjs/operators';
@@ -13,19 +13,17 @@ import {QueryClient} from '@tanstack/angular-query-experimental';
 import {patchAttachedBookFilesInCache, patchBookInCacheWith, upsertBooksInCache} from './legacy-book-cache';
 import {mitigateWebkitUploadBug} from '../../../shared/util/mitigate-webkit-upload-bug';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class BookFileService {
 
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/books`;
 
-  private http = inject(HttpClient);
-  private messageService = inject(MessageService);
-  private fileDownloadService = inject(FileDownloadService);
-  private queryClient = inject(QueryClient);
-  private cacheStorageService = inject(CacheStorageService);
-  private localSettingsService = inject(LocalSettingsService);
+  private readonly http = inject(HttpClient);
+  private readonly messageService = inject(MessageService);
+  private readonly fileDownloadService = inject(FileDownloadService);
+  private readonly queryClient = inject(QueryClient);
+  private readonly cacheStorageService = inject(CacheStorageService);
+  private readonly localSettingsService = inject(LocalSettingsService);
   private readonly t = inject(TranslocoService);
 
   getFileContent(bookId: number, bookType?: string): Observable<Blob> {

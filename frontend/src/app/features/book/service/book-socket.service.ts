@@ -1,4 +1,4 @@
-import {DestroyRef, inject, Injectable} from '@angular/core';
+import {DestroyRef, inject, Service} from '@angular/core';
 import {QueryClient} from '@tanstack/angular-query-experimental';
 
 import {invalidateBookRecommendations} from '../data/book-query-cache';
@@ -17,7 +17,7 @@ import {
 function isBookIdArray(payload: Book | readonly number[]): payload is readonly number[] {
   return Array.isArray(payload);
 }
-@Injectable({providedIn: 'root'})
+@Service()
 export class BookSocketService {
   private readonly queryClient = inject(QueryClient);
   private readonly destroyRef = inject(DestroyRef);

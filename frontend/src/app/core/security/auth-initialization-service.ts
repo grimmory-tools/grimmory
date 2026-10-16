@@ -1,6 +1,6 @@
-import {Injectable, signal} from '@angular/core';
+import {Service, signal} from '@angular/core';
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class AuthInitializationService {
   private readonly _initialized = signal(false);
   readonly initialized = this._initialized.asReadonly();

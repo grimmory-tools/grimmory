@@ -23,7 +23,7 @@ export class SeriesCardComponent {
   @Output() cardClick = new EventEmitter<SeriesSummary>();
 
   protected urlHelper = inject(UrlHelperService);
-  private bookService = inject(BookService);
+  private readonly bookService = inject(BookService);
 
   get progressPercent(): number {
     return Math.round(this.series.progress * 100);

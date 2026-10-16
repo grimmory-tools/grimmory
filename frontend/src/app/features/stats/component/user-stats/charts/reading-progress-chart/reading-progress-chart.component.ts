@@ -104,7 +104,7 @@ export class ReadingProgressChartComponent {
           title: (context) => context[0].label,
           label: (context) => {
             const value = context.parsed;
-            const total = (context.dataset.data as number[]).reduce((a, b) => a + b, 0);
+            const total = (context.dataset.data).reduce((a, b) => a + b, 0);
             const percentage = ((value / total) * 100).toFixed(1);
             const label = context.label;
             const rangeInfo = PROGRESS_RANGES.find(r => r.range === label);

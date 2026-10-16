@@ -30,10 +30,10 @@ export class MetadataFetchOptionsComponent implements OnInit, OnChanges {
   metadataRefreshType: MetadataRefreshType = MetadataRefreshType.BOOKS;
   currentMetadataOptions!: MetadataRefreshOptions;
 
-  private dynamicDialogConfig = inject(DynamicDialogConfig);
+  private readonly dynamicDialogConfig = inject(DynamicDialogConfig);
   dynamicDialogRef = inject(DynamicDialogRef);
-  private taskHelperService = inject(TaskHelperService);
-  private appSettingsService = inject(AppSettingsService);
+  private readonly taskHelperService = inject(TaskHelperService);
+  private readonly appSettingsService = inject(AppSettingsService);
 
   constructor() {
     const settings = this.appSettingsService.appSettings();

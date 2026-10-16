@@ -63,17 +63,17 @@ export enum SettingsTab {
 })
 export class SettingsComponent implements OnInit {
   protected userService = inject(UserService);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private pageTitle = inject(PageTitleService);
-  private destroyRef = inject(DestroyRef);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly pageTitle = inject(PageTitleService);
+  private readonly destroyRef = inject(DestroyRef);
 
   SettingsTab = SettingsTab;
 
-  private validTabs = Object.values(SettingsTab);
-  private _activeTab = signal<SettingsTab>(SettingsTab.ViewPreferences);
+  private readonly validTabs = Object.values(SettingsTab);
+  private readonly _activeTab = signal<SettingsTab>(SettingsTab.ViewPreferences);
 
-  visitedTabs = signal<Set<SettingsTab>>(new Set([
+  readonly visitedTabs = signal<Set<SettingsTab>>(new Set([
     SettingsTab.UserManagement,
     SettingsTab.EmailSettingsV2
   ]));

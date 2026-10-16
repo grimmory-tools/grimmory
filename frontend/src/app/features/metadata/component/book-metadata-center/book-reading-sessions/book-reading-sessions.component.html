@@ -1,7 +1,7 @@
 <div class="reading-sessions-container" *transloco="let t; prefix: 'metadata.readingSessions'">
   @if (loading() && sessions.length === 0) {
     <div class="loading-state">
-      <p-progressSpinner strokeWidth="4" fill="transparent" animationDuration=".8s"></p-progressSpinner>
+      <p-progressSpinner strokeWidth="4" fill="transparent" animationDuration=".8s" />
       <p class="loading-text">{{ t('loading') }}</p>
     </div>
   } @else if (sessions.length === 0) {

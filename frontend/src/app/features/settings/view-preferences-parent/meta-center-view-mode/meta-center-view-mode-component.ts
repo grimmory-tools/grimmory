@@ -17,9 +17,9 @@ export class MetaCenterViewModeComponent {
   viewMode: 'route' | 'dialog' = 'route';
   seriesViewMode: boolean = false;
 
-  private userService = inject(UserService);
-  private messageService = inject(MessageService);
-  private t = inject(TranslocoService);
+  private readonly userService = inject(UserService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
   private hasInitialized = false;
 
   constructor() {

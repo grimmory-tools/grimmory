@@ -26,10 +26,10 @@ export class PdfSidebarComponent {
   private readonly destroyRef = inject(DestroyRef);
   private closeAnimationTimeout: ReturnType<typeof setTimeout> | null = null;
 
-  isOpen = input.required<boolean>();
-  outline = input<PdfOutlineItem[]>([]);
-  bookmarks = input<BookMark[]>([]);
-  annotations = input<PdfAnnotationListItem[]>([]);
+  readonly isOpen = input.required<boolean>();
+  readonly outline = input<PdfOutlineItem[]>([]);
+  readonly bookmarks = input<BookMark[]>([]);
+  readonly annotations = input<PdfAnnotationListItem[]>([]);
 
   closed = output<void>();
   navigateToPage = output<number>();

@@ -34,12 +34,12 @@ export class LoginComponent implements OnInit {
   isOidcLoginInProgress = false;
   showLocalLogin = true;
   private oidcOnlyAutoRedirect = false;
-  private authService = inject(AuthService);
-  private oidcService = inject(OidcService);
-  private appSettingsService = inject(AppSettingsService);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  private translocoService = inject(TranslocoService);
+  private readonly authService = inject(AuthService);
+  private readonly oidcService = inject(OidcService);
+  private readonly appSettingsService = inject(AppSettingsService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly translocoService = inject(TranslocoService);
 
   private readonly initPublicSettingsEffect = effect(() => {
     const publicSettings = this.appSettingsService.publicAppSettings();

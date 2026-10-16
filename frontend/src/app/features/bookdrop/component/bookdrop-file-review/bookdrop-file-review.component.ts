@@ -88,7 +88,7 @@ export class BookdropFileReviewComponent implements OnInit {
   bookdropFileUis: BookdropFileUI[] = [];
   fileUiCache: Record<number, BookdropFileUI> = {};
   copiedFlags: Record<number, boolean> = {};
-  loading = signal(true);
+  readonly loading = signal(true);
   saving = false;
   includeCoversOnCopy = true;
 
@@ -124,7 +124,7 @@ export class BookdropFileReviewComponent implements OnInit {
 
     const selected = this.libraries.find((lib) => lib?.id && String(lib.id) === value)
 
-    if (selected && selected.paths.length === 1) {
+    if (selected?.paths.length === 1) {
       this.defaultPathId = String(selected.paths[0].id)
     }
   }

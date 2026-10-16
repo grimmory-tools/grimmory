@@ -33,10 +33,10 @@ export class AuthorCardComponent implements OnChanges {
   @Input() index = 0;
   @Input() cacheBuster = 0;
 
-  private authorService = inject(AuthorService);
-  private messageService = inject(MessageService);
-  private t = inject(TranslocoService);
-  private cdr = inject(ChangeDetectorRef);
+  private readonly authorService = inject(AuthorService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
+  private readonly cdr = inject(ChangeDetectorRef);
   private lastShiftKey = false;
 
   hasPhoto = false;

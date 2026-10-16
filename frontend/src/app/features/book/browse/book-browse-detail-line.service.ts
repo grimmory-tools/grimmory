@@ -1,4 +1,4 @@
-import {Injectable, inject} from '@angular/core';
+import {Service, inject} from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {TranslocoService} from '@jsverse/transloco';
 
@@ -7,7 +7,7 @@ import {type BookSummary} from '../data/book-response.models';
 import {formatBookValue} from './book-browse-columns';
 import {type BookColumnKind, type BookColumnValue, type BookDetailLineSortKey} from './book-browse-fields';
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class BookBrowseDetailLineService {
   private readonly transloco = inject(TranslocoService);
   private readonly activeLang = toSignal(this.transloco.langChanges$, {

@@ -10,15 +10,15 @@
       </p>
     </div>
 
-    <app-display-preferences></app-display-preferences>
+    <app-display-preferences />
     <div class="section-divider"><hr></div>
-    <app-dashboard-preferences></app-dashboard-preferences>
+    <app-dashboard-preferences />
     <div class="section-divider"><hr></div>
-    <app-view-preferences></app-view-preferences>
+    <app-view-preferences />
     <div class="section-divider"><hr></div>
-    <app-sidebar-sorting-preferences></app-sidebar-sorting-preferences>
+    <app-sidebar-sorting-preferences />
     <div class="section-divider"><hr></div>
-    <app-meta-center-view-mode-component></app-meta-center-view-mode-component>
+    <app-meta-center-view-mode-component />
     <div class="section-divider"><hr></div>
 
     <div class="preferences-section">
@@ -40,8 +40,7 @@
                   [min]="SIDEBAR_MIN_WIDTH"
                   [max]="SIDEBAR_MAX_WIDTH"
                   [step]="1"
-                  (onSlideEnd)="saveSidebarWidth()">
-                </p-slider>
+                  (onSlideEnd)="saveSidebarWidth()" />
               </div>
             </div>
             <p class="setting-description">

@@ -8,28 +8,28 @@
        [style.top.px]="position.y">
 
     <button class="action-btn" (click)="onSelect()" [title]="t('copyText')">
-      <app-reader-icon name="copy" [size]="16"></app-reader-icon>
+      <app-reader-icon name="copy" [size]="16" />
     </button>
 
     @if (linkUrl) {
       <div class="divider"></div>
       <button class="action-btn" (click)="onGoToLink()" [title]="t('goToLink')">
-        <app-reader-icon name="link" [size]="16"></app-reader-icon>
+        <app-reader-icon name="link" [size]="16" />
       </button>
     }
 
     <div class="divider"></div>
 
     <button class="action-btn" (click)="onSearch()" [title]="t('searchInBook')">
-      <app-reader-icon name="search" [size]="16"></app-reader-icon>
+      <app-reader-icon name="search" [size]="16" />
     </button>
 
     <div class="divider"></div>
 
     <div class="annotation-container">
       <button class="action-btn" [class.active]="showAnnotationOptions" (click)="toggleAnnotationOptions()" [title]="t('annotate')">
-        <app-reader-icon name="edit" [size]="16"></app-reader-icon>
-        <app-reader-icon name="chevron-down" class="chevron" [class.open]="showAnnotationOptions" [size]="10"></app-reader-icon>
+        <app-reader-icon name="edit" [size]="16" />
+        <app-reader-icon name="chevron-down" class="chevron" [class.open]="showAnnotationOptions" [size]="10" />
       </button>
 
       @if (showAnnotationOptions) {
@@ -67,13 +67,13 @@
     <div class="divider"></div>
 
     <button class="action-btn" (click)="onNote()" [title]="t('addNote')">
-      <app-reader-icon name="note" [size]="16"></app-reader-icon>
+      <app-reader-icon name="note" [size]="16" />
     </button>
 
     @if (overlappingAnnotationId) {
       <div class="divider"></div>
       <button class="action-btn delete-btn" (click)="onDelete()" [title]="t('deleteAnnotation')">
-        <app-reader-icon name="trash" [size]="16"></app-reader-icon>
+        <app-reader-icon name="trash" [size]="16" />
       </button>
     }
   </div>

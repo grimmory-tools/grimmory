@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Service, signal } from '@angular/core';
 import { MessageService } from '@openng/optimus-ui/api';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
@@ -39,7 +39,7 @@ interface CommandPaletteOverlayController {
 const BOOK_RESULT_LIMIT = 50;
 const MIN_BOOK_SEARCH_LENGTH = 2;
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class CommandPaletteService {
   private readonly router = inject(Router);
   private readonly t = inject(TranslocoService);
