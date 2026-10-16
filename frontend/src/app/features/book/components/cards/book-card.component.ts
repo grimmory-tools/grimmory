@@ -33,7 +33,7 @@ import {AppTooltipDirective} from '../../../../shared/ui/tooltip/app-tooltip.dir
 import {cn} from '../../../../shared/ui/cn';
 import {contextMenuRequest, type ContextMenuRequest} from '../../../../shared/ui/menu/app-menu.component';
 import {isContextMenuGesture, isPlainLeftClick} from '../../../../shared/util/pointer-gestures';
-import {CardSelectionComponent} from './card-selection.component';
+import {CardSelectionComponent} from '../../../../shared/components/cards/card-selection.component';
 import {bookCardAspectClass, BOOK_CARD_RADIUS_CLASS} from './book-card.layout';
 
 const LONG_PRESS_MS = 500;

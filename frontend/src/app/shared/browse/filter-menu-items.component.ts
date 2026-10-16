@@ -1,12 +1,12 @@
 import {ChangeDetectionStrategy, Component, input, output} from '@angular/core';
 import {TranslocoPipe} from '@jsverse/transloco';
 
-import {AppMenuComponent} from '../../../shared/ui/menu/app-menu.component';
-import {AppMenuCheckboxComponent} from '../../../shared/ui/menu/app-menu-checkbox.component';
-import {AppMenuItemComponent} from '../../../shared/ui/menu/app-menu-item.component';
-import {AppMenuRadioComponent} from '../../../shared/ui/menu/app-menu-radio.component';
-import {AppMenuRadioGroupComponent} from '../../../shared/ui/menu/app-menu-radio-group.component';
-import {AppMenuSectionComponent} from '../../../shared/ui/menu/app-menu-section.component';
+import {AppMenuComponent} from '../ui/menu/app-menu.component';
+import {AppMenuCheckboxComponent} from '../ui/menu/app-menu-checkbox.component';
+import {AppMenuItemComponent} from '../ui/menu/app-menu-item.component';
+import {AppMenuRadioComponent} from '../ui/menu/app-menu-radio.component';
+import {AppMenuRadioGroupComponent} from '../ui/menu/app-menu-radio-group.component';
+import {AppMenuSectionComponent} from '../ui/menu/app-menu-section.component';
 
 @Component({
   selector: 'app-book-browse-filter-menu-items',

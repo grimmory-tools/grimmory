@@ -29,7 +29,7 @@ import {
   type BookBrowseColumnVisibilityChange,
 } from './book-browse-columns';
 import {bookSortTermsFromCriteria} from './book-browse-sort';
-import {type BookBrowseUrlState, type BookBrowseViewMode} from './book-browse-url-state';
+import {type BookBrowseUrlState, type BookBrowseViewMode} from '../../../shared/browse/url-state';
 
 export interface BookBrowsePreferencesOptions {
   readonly context: Signal<EntityViewPreferenceContext | null>;

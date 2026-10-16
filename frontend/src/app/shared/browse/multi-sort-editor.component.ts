@@ -4,11 +4,11 @@ import {toSignal} from '@angular/core/rxjs-interop';
 import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {LucideChevronDown, LucideChevronUp, LucideDynamicIcon, LucideGripVertical, LucideX} from '@lucide/angular';
 
-import {AppButtonComponent} from '../../../shared/ui/button/app-button.component';
-import {AppSelectComponent} from '../../../shared/ui/select/app-select.component';
-import {type SelectOption} from '../../../shared/ui/select/app-select.options';
-import {type BookSortTerm} from '../data/book-query-params';
-import {bookSortDirectionIcon, bookSortField, type BookSortOption} from './book-browse-sort';
+import {AppButtonComponent} from '../ui/button/app-button.component';
+import {AppSelectComponent} from '../ui/select/app-select.component';
+import {type SelectOption} from '../ui/select/app-select.options';
+import {type BookSortTerm} from '../../features/book/data/book-query-params';
+import {bookSortDirectionIcon, bookSortField, type BookSortOption} from '../../features/book/browse/book-browse-sort';
 
 @Component({
   selector: 'app-book-browse-multi-sort-editor',

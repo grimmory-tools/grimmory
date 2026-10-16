@@ -20,30 +20,30 @@ import {
   type LucideIconData,
 } from '@lucide/angular';
 
-import {type GridDensityDirection} from '../../../shared/util/grid-density.util';
-import {DEFAULT_BOOK_SORT_TERMS, type BookSortTerm, type SortDirection} from '../data/book-query-params';
-import {AppButtonComponent} from '../../../shared/ui/button/app-button.component';
-import {connectedGroupClass, connectedItemClass} from '../../../shared/ui/connected-group';
-import {AppRadioGroupComponent} from '../../../shared/ui/radio-group/app-radio-group.component';
-import {AppMenuComponent} from '../../../shared/ui/menu/app-menu.component';
-import {AppMenuCheckboxComponent} from '../../../shared/ui/menu/app-menu-checkbox.component';
-import {AppMenuItemComponent} from '../../../shared/ui/menu/app-menu-item.component';
-import {AppMenuRadioComponent} from '../../../shared/ui/menu/app-menu-radio.component';
-import {AppMenuRadioGroupComponent} from '../../../shared/ui/menu/app-menu-radio-group.component';
-import {AppMenuSectionComponent} from '../../../shared/ui/menu/app-menu-section.component';
-import {AppMenuSeparatorComponent} from '../../../shared/ui/menu/app-menu-separator.component';
-import {AppMenuTriggerDirective} from '../../../shared/ui/menu/app-menu-trigger.directive';
+import {type GridDensityDirection} from '../util/grid-density.util';
+import {DEFAULT_BOOK_SORT_TERMS, type BookSortTerm, type SortDirection} from '../../features/book/data/book-query-params';
+import {AppButtonComponent} from '../ui/button/app-button.component';
+import {connectedGroupClass, connectedItemClass} from '../ui/connected-group';
+import {AppRadioGroupComponent} from '../ui/radio-group/app-radio-group.component';
+import {AppMenuComponent} from '../ui/menu/app-menu.component';
+import {AppMenuCheckboxComponent} from '../ui/menu/app-menu-checkbox.component';
+import {AppMenuItemComponent} from '../ui/menu/app-menu-item.component';
+import {AppMenuRadioComponent} from '../ui/menu/app-menu-radio.component';
+import {AppMenuRadioGroupComponent} from '../ui/menu/app-menu-radio-group.component';
+import {AppMenuSectionComponent} from '../ui/menu/app-menu-section.component';
+import {AppMenuSeparatorComponent} from '../ui/menu/app-menu-separator.component';
+import {AppMenuTriggerDirective} from '../ui/menu/app-menu-trigger.directive';
 import {
   bookColumnSections,
   type BookBrowseColumnVisibilityChange,
   type BookColumnOption,
   type BookColumnSection,
-} from './book-browse-columns';
-import {bookSortDirectionIcon, bookSortField, type BookSortOption} from './book-browse-sort';
-import {type BookBrowseViewMode} from './book-browse-url-state';
-import {BookBrowseFilterMenuItemsComponent} from './book-browse-filter-menu-items.component';
-import {type LibraryShelfMenuTarget} from '../../../shared/layout/navigation/library-shelf-menu-target.model';
-import {LibraryShelfMenuItemsComponent} from '../components/library-shelf-menu/library-shelf-menu-items.component';
+} from '../../features/book/browse/book-browse-columns';
+import {bookSortDirectionIcon, bookSortField, type BookSortOption} from '../../features/book/browse/book-browse-sort';
+import {type BookBrowseViewMode} from './url-state';
+import {BookBrowseFilterMenuItemsComponent} from './filter-menu-items.component';
+import {type LibraryShelfMenuTarget} from '../layout/navigation/library-shelf-menu-target.model';
+import {LibraryShelfMenuItemsComponent} from '../../features/book/components/library-shelf-menu/library-shelf-menu-items.component';
 
 @Component({
   selector: 'app-book-browse-toolbar',
@@ -66,7 +66,7 @@ import {LibraryShelfMenuItemsComponent} from '../components/library-shelf-menu/l
     LucideFunnel,
   ],
   host: {class: 'contents'},
-  templateUrl: './book-browse-toolbar.component.html',
+  templateUrl: './sort-control.component.html',
 })
 export class BookBrowseToolbarComponent {
   readonly sortOptions = input.required<readonly BookSortOption[]>();

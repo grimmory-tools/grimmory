@@ -6,74 +6,74 @@ import {TranslocoPipe} from '@jsverse/transloco';
 import {injectInfiniteQuery, QueryClient} from '@tanstack/angular-query-experimental';
 import {take} from 'rxjs/operators';
 
-import {BrowseGridComponent} from '../../../shared/browse/grid/grid.component';
+import {BrowseGridComponent} from './grid/grid.component';
 import {
   BrowseEmptyDef,
   BrowseGridItemDef,
   BrowseGridSkeletonDef,
-} from '../../../shared/browse/grid/grid.directives';
-import {bookCardHeightForWidth} from '../components/cards/book-card.layout';
-import {BookCardComponent, bookCardCoverSrc} from '../components/cards/book-card.component';
-import {UrlHelperService} from '../../../shared/service/url-helper.service';
-import {BookMenuComponent} from '../components/book-menu/book-menu.component';
-import {BookCardSkeletonComponent} from '../components/cards/book-card-skeleton.component';
-import {ArtworkRevealGroupDirective} from '../../../shared/components/cover/artwork-reveal-group.directive';
-import {AppPageHeaderComponent} from '../../../shared/layout/page-header/app.page-header.component';
-import {type PageHeader} from '../../../shared/layout/page-header/page-header.service';
-import {LayoutService} from '../../../shared/layout/layout.service';
-import {LocalStorageService} from '../../../shared/service/local-storage.service';
-import {PageTitleService} from '../../../shared/service/page-title.service';
-import {createGridDensity, type GridDensityDirection} from '../../../shared/util/grid-density.util';
-import {CoverScalePreferenceService} from '../../../shared/service/cover-scale-preference.service';
-import {LibraryService} from '../service/library.service';
-import {BookNavigationService} from '../service/book-navigation.service';
-import {DialogLauncherService} from '../../../shared/services/dialog-launcher.service';
+} from './grid/grid.directives';
+import {bookCardHeightForWidth} from '../../features/book/components/cards/book-card.layout';
+import {BookCardComponent, bookCardCoverSrc} from '../../features/book/components/cards/book-card.component';
+import {UrlHelperService} from '../service/url-helper.service';
+import {BookMenuComponent} from '../../features/book/components/book-menu/book-menu.component';
+import {BookCardSkeletonComponent} from '../../features/book/components/cards/book-card-skeleton.component';
+import {ArtworkRevealGroupDirective} from '../components/cover/artwork-reveal-group.directive';
+import {AppPageHeaderComponent} from '../layout/page-header/app.page-header.component';
+import {type PageHeader} from '../layout/page-header/page-header.service';
+import {LayoutService} from '../layout/layout.service';
+import {LocalStorageService} from '../service/local-storage.service';
+import {PageTitleService} from '../service/page-title.service';
+import {createGridDensity, type GridDensityDirection} from '../util/grid-density.util';
+import {CoverScalePreferenceService} from '../service/cover-scale-preference.service';
+import {LibraryService} from '../../features/book/service/library.service';
+import {BookNavigationService} from '../../features/book/service/book-navigation.service';
+import {DialogLauncherService} from '../services/dialog-launcher.service';
 import {
   type BookPageParams,
   type BookQuerySortKey,
   type BookSortTerm,
   type BookQueryFacetKey,
-} from '../data/book-query-params';
-import {browseCollectionKeys} from '../../../core/data/browse-query-keys';
-import {bookBrowseScope, bookBrowseScopePreferenceContext} from './book-browse-scope';
-import {createBookBrowseQueries} from './book-browse-queries';
-import {createBookBrowseFilterSettings} from './book-browse-filter-settings';
-import {createBookBrowsePreferences} from './book-browse-preferences';
-import {createBookBrowseUrlState} from './book-browse-url-state';
-import {type BookBrowseMultiSortDialogResult} from './book-browse-multi-sort-dialog.component';
-import {type BookDetailLineSortKey} from './book-browse-fields';
-import {bookSortHasDetailLine, bookSortOptions} from './book-browse-sort';
-import {BookBrowseDetailLineService} from './book-browse-detail-line.service';
-import {cn} from '../../../shared/ui/cn';
-import {AppButtonComponent} from '../../../shared/ui/button/app-button.component';
-import {BrowseSearchInputComponent} from '../../../shared/browse/search-input/search-input.component';
-import {BrowseFilterRailComponent} from '../../../shared/browse/filter-rail/filter-rail.component';
+} from '../../features/book/data/book-query-params';
+import {browseCollectionKeys} from '../../core/data/browse-query-keys';
+import {bookBrowseScope, bookBrowseScopePreferenceContext} from '../../features/book/browse/book-browse-scope';
+import {createBookBrowseQueries} from './facet-queries';
+import {createBookBrowseFilterSettings} from './filter-settings';
+import {createBookBrowsePreferences} from '../../features/book/browse/book-browse-preferences';
+import {createBookBrowseUrlState} from './url-state';
+import {type BookBrowseMultiSortDialogResult} from './multi-sort-dialog.component';
+import {type BookDetailLineSortKey} from '../../features/book/browse/book-browse-fields';
+import {bookSortHasDetailLine, bookSortOptions} from '../../features/book/browse/book-browse-sort';
+import {BookBrowseDetailLineService} from '../../features/book/browse/book-browse-detail-line.service';
+import {cn} from '../ui/cn';
+import {AppButtonComponent} from '../ui/button/app-button.component';
+import {BrowseSearchInputComponent} from './search-input/search-input.component';
+import {BrowseFilterRailComponent} from './filter-rail/filter-rail.component';
 import {
   countBrowseFacetValues,
   setBrowseFacetValue,
   type BrowseFilterChip,
   type BrowseFilterRangeCommit,
   type BrowseFilterToggle,
-} from '../../../shared/browse/facets';
-import {BookBrowseToolbarComponent} from './book-browse-toolbar.component';
-import {BookBrowseBulkBarComponent} from './book-browse-bulk-bar.component';
-import {BrowseSelectModeControlsComponent} from '../../../shared/browse/bulk-actions/select-mode-controls.component';
-import {BookQueryService} from '../data/book-query.service';
-import {type BookSummary} from '../data/book-response.models';
+} from './facets';
+import {BookBrowseToolbarComponent} from './sort-control.component';
+import {BookBrowseBulkBarComponent} from '../../features/book/browse/book-browse-bulk-bar.component';
+import {BrowseSelectModeControlsComponent} from './bulk-actions/select-mode-controls.component';
+import {BookQueryService} from '../../features/book/data/book-query.service';
+import {type BookSummary} from '../../features/book/data/book-response.models';
 import {
   injectPendingBookDeletions,
   injectPendingBookProgressResets,
   injectPendingBookReadStatuses,
   overlayPendingBookState,
   type PendingBookOverlay,
-} from '../data/book-command-pending-state';
-import {createBrowseSelection} from '../../../shared/browse/selection';
-import {createBrowseResults} from '../../../shared/browse/results';
-import {heldSignal} from '../../../shared/util/held-signal';
-import {createBrowseSearchDraft} from '../../../shared/browse/search-draft';
-import {installBrowseSelectionShortcuts} from '../../../shared/browse/selection-shortcuts';
-import {BrowseFilterChipsComponent} from '../../../shared/browse/filter-chips/filter-chips.component';
-import {BookBrowseTableComponent} from './book-browse-table.component';
+} from '../../features/book/data/book-command-pending-state';
+import {createBrowseSelection} from './selection';
+import {createBrowseResults} from './results';
+import {heldSignal} from '../util/held-signal';
+import {createBrowseSearchDraft} from './search-draft';
+import {installBrowseSelectionShortcuts} from './selection-shortcuts';
+import {BrowseFilterChipsComponent} from './filter-chips/filter-chips.component';
+import {BookBrowseTableComponent} from '../../features/book/browse/book-browse-table.component';
 
 const SELECTION_CLICK_AWAY_EXEMPT =
   'app-book-card, app-browse-bulk-actions-bar, app-menu, app-page-header, aside, ' +
@@ -123,7 +123,7 @@ const MAX_MOBILE_COLUMNS = 4;
     BrowseSearchInputComponent,
     AppButtonComponent,
   ],
-  templateUrl: './book-browse-page.component.html',
+  templateUrl: './browse-page.component.html',
 })
 export class BookBrowsePageComponent {
   private readonly bookQuery = inject(BookQueryService);

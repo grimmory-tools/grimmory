@@ -2,11 +2,11 @@ import {Component, inject, signal} from '@angular/core';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {TranslocoPipe} from '@jsverse/transloco';
 
-import {AppButtonComponent} from '../../../shared/ui/button/app-button.component';
-import {AppCheckboxComponent} from '../../../shared/ui/checkbox/app-checkbox.component';
-import {type BookSortTerm} from '../data/book-query-params';
-import {BookBrowseMultiSortEditorComponent} from './book-browse-multi-sort-editor.component';
-import {type BookSortOption} from './book-browse-sort';
+import {AppButtonComponent} from '../ui/button/app-button.component';
+import {AppCheckboxComponent} from '../ui/checkbox/app-checkbox.component';
+import {type BookSortTerm} from '../../features/book/data/book-query-params';
+import {BookBrowseMultiSortEditorComponent} from './multi-sort-editor.component';
+import {type BookSortOption} from '../../features/book/browse/book-browse-sort';
 
 export interface BookBrowseMultiSortDialogData {
   readonly terms: readonly BookSortTerm[];

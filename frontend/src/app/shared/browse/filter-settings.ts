@@ -2,9 +2,9 @@ import {inject, linkedSignal} from '@angular/core';
 import {TranslocoService} from '@jsverse/transloco';
 import {MessageService} from '@openng/optimus-ui/api';
 
-import {browseFacetMatchAll, withBrowseFacetMatchAll} from '../../../shared/browse/facets';
-import {UserService} from '../../settings/user-management/user.service';
-import {type BookBrowseUrlState} from './book-browse-url-state';
+import {browseFacetMatchAll, withBrowseFacetMatchAll} from './facets';
+import {UserService} from '../../features/settings/user-management/user.service';
+import {type BookBrowseUrlState} from './url-state';
 
 export function createBookBrowseFilterSettings(urlState: BookBrowseUrlState) {
   const userService = inject(UserService);

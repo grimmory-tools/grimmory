@@ -3,23 +3,23 @@ import {toSignal} from '@angular/core/rxjs-interop';
 import {TranslocoService} from '@jsverse/transloco';
 import {injectQuery, keepPreviousData} from '@tanstack/angular-query-experimental';
 
-import {debouncedSignal} from '../../../shared/util/debounced-signal';
-import {heldSignal} from '../../../shared/util/held-signal';
-import {normalizeRemoteSearchTerm, SEARCH_DEBOUNCE_MS} from '../../../shared/util/search-terms';
-import {MagicShelfService} from '../../magic-shelf/service/magic-shelf.service';
+import {debouncedSignal} from '../util/debounced-signal';
+import {heldSignal} from '../util/held-signal';
+import {normalizeRemoteSearchTerm, SEARCH_DEBOUNCE_MS} from '../util/search-terms';
+import {MagicShelfService} from '../../features/magic-shelf/service/magic-shelf.service';
 import {
   BOOK_QUERY_FACET_KEYS,
   EMPTY_FACET_SELECTION,
   type BookCollectionFilterParams,
   type BookQueryFacetKey,
   type FacetValueMap,
-} from '../data/book-query-params';
-import {BookQueryService} from '../data/book-query.service';
-import {ShelfDefinitionQueryService} from '../data/shelf-definition-query.service';
-import {LibraryService} from '../service/library.service';
-import {UserService} from '../../settings/user-management/user.service';
-import {type LibraryShelfMenuTarget} from '../../../shared/layout/navigation/library-shelf-menu-target.model';
-import {libraryShelfMenuAvailable} from '../components/library-shelf-menu/library-shelf-menu-items.component';
+} from '../../features/book/data/book-query-params';
+import {BookQueryService} from '../../features/book/data/book-query.service';
+import {ShelfDefinitionQueryService} from '../../features/book/data/shelf-definition-query.service';
+import {LibraryService} from '../../features/book/service/library.service';
+import {UserService} from '../../features/settings/user-management/user.service';
+import {type LibraryShelfMenuTarget} from '../layout/navigation/library-shelf-menu-target.model';
+import {libraryShelfMenuAvailable} from '../../features/book/components/library-shelf-menu/library-shelf-menu-items.component';
 import {
   browseFilterGroups,
   browseFilterChips,
@@ -32,15 +32,15 @@ import {
   type BrowseFilterOpen,
   type BrowseFilterRangeCommit,
   type BrowseFilterSearch,
-} from '../../../shared/browse/facets';
-import {bookFacetDefinitions, bookFacetLabelDeps} from './book-browse-facet-definitions';
-import {FACET_FIELDS, OPEN_RAIL_FACETS} from './book-browse-fields';
+} from './facets';
+import {bookFacetDefinitions, bookFacetLabelDeps} from '../../features/book/browse/book-browse-facet-definitions';
+import {FACET_FIELDS, OPEN_RAIL_FACETS} from '../../features/book/browse/book-browse-fields';
 import {
   bookBrowseScopeMenuTarget,
   bookBrowseScopeTitle,
   scopedFacetSelection,
   type BookBrowseScope,
-} from './book-browse-scope';
+} from '../../features/book/browse/book-browse-scope';
 
 export interface BookBrowseQueriesOptions {
   readonly selection: Signal<FacetValueMap>;
