@@ -32,6 +32,10 @@ updates:
     commit-message:
       prefix: "chore(deps)"
     groups:
+      lucide:
+        patterns:
+          - "lucide-static"
+          - "@lucide/*"
       release-tooling:
         patterns:
           - "semantic-release"
