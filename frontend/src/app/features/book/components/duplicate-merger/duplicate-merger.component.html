@@ -212,7 +212,7 @@
                       @if (book.primaryFile?.fileName) {
                         <div class="book-file-path" [title]="getBookFilePath(book)">
                           <i class="pi pi-file"></i>
-                          {{ getBookFilePath(book) }}
+                          {{ t('currentPath', {path: getBookFilePath(book)}) }}
                         </div>
                       }
                     </div>
