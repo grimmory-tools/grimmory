@@ -49,60 +49,11 @@
             </p-toggleswitch>
           </div>
 
-          <div class="toggle-item border-l-(--p-content-border-color) [&.is-active]:border-l-emerald-500 dark:[&.is-active]:border-l-emerald-300" [class.is-active]="komgaApiEnabled">
-            <div class="toggle-content">
-              <div class="toggle-header">
-                <div class="toggle-icon">
-                  <i class="pi pi-box"></i>
-                </div>
-                <div class="toggle-info">
-                  <span class="toggle-label">{{ t('server.komgaLabel') }}</span>
-                  <span class="toggle-status text-(--p-text-muted-color) [&.active]:text-emerald-700 dark:[&.active]:text-emerald-300" [class.active]="komgaApiEnabled">
-                    {{ komgaApiEnabled ? t('server.enabled') : t('server.disabled') }}
-                  </span>
-                </div>
-              </div>
-              <p class="toggle-description">
-                {{ t('server.komgaDesc') }}
-              </p>
-            </div>
-            <p-toggleswitch
-              [(ngModel)]="komgaApiEnabled"
-              [disabled]="loading()"
-              (onChange)="toggleKomgaApi()">
-            </p-toggleswitch>
-          </div>
-
-          @if (komgaApiEnabled) {
-            <div class="toggle-item sub-item border-l-orange-500 dark:border-l-orange-400 [&.is-active]:border-l-emerald-500 dark:[&.is-active]:border-l-emerald-300" [class.is-active]="komgaGroupUnknown">
-              <div class="toggle-content">
-                <div class="toggle-header">
-                  <div class="toggle-icon sub-icon">
-                    <i class="pi pi-folder"></i>
-                  </div>
-                  <div class="toggle-info">
-                    <span class="toggle-label">{{ t('server.groupUnknownLabel') }}</span>
-                    <span class="toggle-status text-(--p-text-muted-color) [&.active]:text-emerald-700 dark:[&.active]:text-emerald-300" [class.active]="komgaGroupUnknown">
-                      {{ komgaGroupUnknown ? t('server.grouped') : t('server.individual') }}
-                    </span>
-                  </div>
-                </div>
-                <p class="toggle-description">
-                  {{ t('server.groupUnknownDesc') }}
-                </p>
-              </div>
-              <p-toggleswitch
-                [(ngModel)]="komgaGroupUnknown"
-                [disabled]="loading()"
-                (onChange)="toggleKomgaGroupUnknown()">
-              </p-toggleswitch>
-            </div>
-          }
         </div>
       </div>
     </div>
 
-    @if (opdsEnabled || komgaApiEnabled) {
+    @if (opdsEnabled) {
       <div class="settings-card">
         <div class="section-header">
           <h3 class="section-title">
@@ -141,37 +92,6 @@
                     [outlined]="true"
                     size="small"
                     (onClick)="copyEndpoint()"
-                    [pTooltip]="t('endpoints.copyUrl')">
-                  </p-button>
-                </div>
-              </div>
-            }
-
-            @if (komgaApiEnabled) {
-              <div class="endpoint-item">
-                <div class="endpoint-header">
-                  <div class="endpoint-icon">
-                    <i class="pi pi-box"></i>
-                  </div>
-                  <div class="endpoint-info">
-                    <span class="endpoint-label">{{ t('endpoints.komgaBase') }}</span>
-                    <span class="endpoint-hint">{{ t('endpoints.komgaHint') }}</span>
-                  </div>
-                </div>
-                <div class="endpoint-url-row">
-                  <input
-                    id="komga-endpoint-url"
-                    class="endpoint-input"
-                    type="text"
-                    pInputText
-                    [value]="komgaEndpoint"
-                    readonly/>
-                  <p-button
-                    icon="pi pi-copy"
-                    severity="info"
-                    [outlined]="true"
-                    size="small"
-                    (onClick)="copyKomgaEndpoint()"
                     [pTooltip]="t('endpoints.copyUrl')">
                   </p-button>
                 </div>

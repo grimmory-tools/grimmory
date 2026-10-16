@@ -38,8 +38,6 @@ function buildAppSettings(overrides: Partial<AppSettings> = {}): AppSettings {
     libraryMetadataRefreshOptions: [],
     uploadPattern: '{Title}',
     opdsServerEnabled: true,
-    komgaApiEnabled: false,
-    komgaGroupUnknown: false,
     remoteAuthEnabled: publicSettings.remoteAuthEnabled,
     oidcEnabled: publicSettings.oidcEnabled,
     oidcProviderDetails: publicSettings.oidcProviderDetails,

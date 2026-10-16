@@ -339,8 +339,6 @@ public class AppSettingService {
         builder.uploadPattern(getValue(permissions, settingsMap, AppSettingKey.UPLOAD_FILE_PATTERN, "{authors}/<{series}/><{seriesIndex} - >{title}/{title}< - {authors}>< ({year})>"));
         builder.similarBookRecommendation(getBooleanValue(permissions, settingsMap, AppSettingKey.SIMILAR_BOOK_RECOMMENDATION, true));
         builder.opdsServerEnabled(getBooleanValue(permissions, settingsMap, AppSettingKey.OPDS_SERVER_ENABLED, false));
-        builder.komgaApiEnabled(getBooleanValue(permissions, settingsMap, AppSettingKey.KOMGA_API_ENABLED, false));
-        builder.komgaGroupUnknown(getBooleanValue(permissions, settingsMap, AppSettingKey.KOMGA_GROUP_UNKNOWN, true));
         builder.pdfCacheSizeInMb(getValue(permissions, settingsMap, AppSettingKey.PDF_CACHE_SIZE_IN_MB, 5120, Integer::parseInt));
         builder.maxFileUploadSizeInMb(getValue(permissions, settingsMap, AppSettingKey.MAX_FILE_UPLOAD_SIZE_IN_MB, 100, Integer::parseInt));
         builder.metadataDownloadOnBookdrop(getBooleanValue(permissions, settingsMap, AppSettingKey.METADATA_DOWNLOAD_ON_BOOKDROP, true));

@@ -101,28 +101,6 @@ public class SecurityConfig {
     }
 
     @Bean
-    @Order(2)
-    public SecurityFilterChain komgaBasicAuthSecurityChain(HttpSecurity http) throws Exception {
-        http
-                .securityMatcher("/komga/api/v1/**", "/komga/api/v2/**")
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().authenticated()
-                )
-                .httpBasic(basic -> basic
-                        .realmName("Grimmory Komga API")
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            response.setHeader("WWW-Authenticate", "Basic realm=\"Grimmory Komga API\"");
-                            response.getWriter().write("HTTP Status 401 - " + authException.getMessage());
-                        })
-                );
-
-        return http.build();
-    }
-
-    @Bean
     @Order(3)
     public SecurityFilterChain koreaderSecurityChain(HttpSecurity http, KoreaderAuthFilter koreaderAuthFilter) throws Exception {
         http
@@ -259,8 +237,7 @@ public class SecurityConfig {
     public SecurityFilterChain jwtApiSecurityChain(HttpSecurity http) throws Exception {
         var parser = new PathPatternParser();
         final List<PathPattern> matchPatterns = Stream.of(
-                "/api/**",
-                "/komga/**"
+                "/api/**"
         ).map(parser::parse).toList();
         final List<PathPattern> whitelistedPatterns = Stream.concat(
                 Arrays.stream(COMMON_PUBLIC_ENDPOINTS),

@@ -47,7 +47,6 @@ export function createLoginAndBooksScenario(): LoginAndBooksScenario {
       oidcProviderDetails: null,
       oidcForceOnlyMode: false,
       opdsServerEnabled: false,
-      komgaApiEnabled: false,
       metadataProviderSettings: {},
       metadataMatchWeights: {},
       maxFileUploadSizeInMb: 128,
