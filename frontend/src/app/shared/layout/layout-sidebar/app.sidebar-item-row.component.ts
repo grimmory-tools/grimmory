@@ -17,8 +17,7 @@ import {LibraryShelfMenuComponent} from '../../../features/book/components/libra
 import {AppMenuTriggerDirective} from '../../ui/menu/app-menu-trigger.directive';
 
 @Component({
-  // Attribute selector so the row renders into its host <li> inside a <ul>.
-  // eslint-disable-next-line @angular-eslint/component-selector
+  // eslint-disable-next-line @angular-eslint/component-selector -- SAFETY: attribute selector so the row renders into its host <li> inside a <ul>.
   selector: '[appSidebarItemRow]',
   templateUrl: './app.sidebar-item-row.component.html',
   styleUrls: ['./app.sidebar-item-row.component.scss'],

@@ -6,8 +6,7 @@ import { SidebarLeaf, SidebarSection } from '../navigation/nav-item.model';
 import { LucideChevronDown, LucideChevronUp } from '@lucide/angular';
 
 @Component({
-  // Attribute selector so the section renders into its host <li> inside a <ul>.
-  // eslint-disable-next-line @angular-eslint/component-selector
+  // eslint-disable-next-line @angular-eslint/component-selector -- SAFETY: attribute selector so the section renders into its host <li> inside a <ul>.
   selector: '[appSidebarSection]',
   templateUrl: './app.sidebar-section.component.html',
   styleUrls: ['./app.sidebar-section.component.scss'],

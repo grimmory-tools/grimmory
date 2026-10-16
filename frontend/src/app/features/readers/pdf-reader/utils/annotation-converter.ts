@@ -281,7 +281,6 @@ function restoreArrayBuffers(item: SerializableAnnotationTransferItem): Annotati
   }
 
   if (next.ctx?._dataEncoding === 'base64' && typeof next.ctx.data === 'string') {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const {_dataEncoding: _, ...rest} = next.ctx;
     return toAnnotationTransferItem({
       ...next,

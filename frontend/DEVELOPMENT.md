@@ -20,7 +20,7 @@ production image.
 - Optimus UI + OpenNG Icons
 - Transloco for i18n
 - Vitest for unit tests
-- Angular ESLint
+- Oxlint + Angular ESLint
 - SCSS
 
 ## Preferred Command Surface
@@ -37,6 +37,7 @@ just coverage        # Run tests with coverage output
 just check           # Run the standard local verification pass
 just ci-check        # Run the stricter CI-style verification pass
 just lint            # Run the frontend linter
+just lint-prune      # Remove fixed findings from the lint baselines
 just build           # Build the production bundle
 ```
 
@@ -76,6 +77,9 @@ just coverage
 just check
 just lint
 ```
+
+Existing lint findings are recorded in `oxlint-suppressions.json` and `eslint-suppressions.json`. After
+fixing recorded findings, run `just lint-prune` and commit the updated baseline files.
 
 The production output is written to `dist/grimmory/`. The backend packaging flow consumes that bundle
 when building the all-in-one production image.

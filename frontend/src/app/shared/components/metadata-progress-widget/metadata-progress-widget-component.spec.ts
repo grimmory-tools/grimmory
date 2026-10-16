@@ -157,12 +157,10 @@ describe('MetadataProgressWidgetComponent', () => {
       translocoService.translate('shared.metadataProgress.statusError')
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect((component as any).timeoutHandles.size).toBe(1);
 
     component.ngOnDestroy();
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect((component as any).timeoutHandles.size).toBe(0);
     expect(component.activeTasks[task.taskId]).toEqual(task);
   });
