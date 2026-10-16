@@ -14,6 +14,13 @@ updates:
       - "backend"
     commit-message:
       prefix: "chore(deps)"
+    groups:
+      twelvemonkeys:
+        patterns:
+          - "com.twelvemonkeys.imageio:*"
+      mapstruct:
+        patterns:
+          - "org.mapstruct:*"
 
   # JavaScript – pnpm workspace (frontend + release tooling)
   - package-ecosystem: "npm"
@@ -50,9 +57,17 @@ updates:
       angular:
         patterns:
           - "@angular/*"
+          - "@angular-devkit/*"
       openng:
         patterns:
           - "@openng/*"
+      embedpdf:
+        patterns:
+          - "@embedpdf/*"
+      tailwind:
+        patterns:
+          - "tailwindcss"
+          - "@tailwindcss/*"
       vitest:
         patterns:
           - "vitest"
