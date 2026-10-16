@@ -196,8 +196,8 @@ importers:
         specifier: ^22.2.2
         version: 22.2.2(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))(rxjs@7.8.2)
       '@embedpdf/pdfium':
-        specifier: 2.15.0
-        version: 2.15.0
+        specifier: 2.15.1
+        version: 2.15.1
       '@embedpdf/snippet':
         specifier: 2.15.1
         version: 2.15.1(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(svelte@5.55.9(@typescript-eslint/types@8.70.1))(vue@3.5.34(typescript@6.0.3))
@@ -866,9 +866,6 @@ packages:
 
   '@embedpdf/models@2.15.1':
     resolution: {integrity: sha512-UWjKnbmxnyD1wi5p4UeeY/M3tnjyfXmr76IJh4gY8Ffm/z7UrvS02Lr9tyACqf6RDbrFV25mw5gRjQFs/9pKXg==}
-
-  '@embedpdf/pdfium@2.15.0':
-    resolution: {integrity: sha512-KgpRND2MYcdbhzb2EMb4WzWcJYrR0A6JXvhMv4WthEHKt6qmNo2v/MC68bpYvpveYT9GNnUnY/+TG5MpXY3pRw==}
 
   '@embedpdf/pdfium@2.15.1':
     resolution: {integrity: sha512-qDH4gEkGSQT0iM+07Hpm3LyvoB7PEFbW3Qyk6+LPkEYLJYfHagkHM1OzYlDq2EDOhJRguykTkzdMOT3/w27x5Q==}
@@ -5147,8 +5144,6 @@ snapshots:
   '@embedpdf/fonts-tc@1.0.0': {}
 
   '@embedpdf/models@2.15.1': {}
-
-  '@embedpdf/pdfium@2.15.0': {}
 
   '@embedpdf/pdfium@2.15.1': {}
 
