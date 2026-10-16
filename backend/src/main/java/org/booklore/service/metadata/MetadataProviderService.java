@@ -2,11 +2,9 @@ package org.booklore.service.metadata;
 
 import lombok.RequiredArgsConstructor;
 import org.booklore.exception.ApiError;
-import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.MetadataProviderDto;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.metadata.parser.BookParser;
-import org.booklore.service.metadata.parser.DetailedMetadataProvider;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,19 +21,6 @@ public class MetadataProviderService {
                 .stream()
                 .map(e -> new MetadataProviderDto(e.getKey(), e.getValue().isEnabled()))
                 .toList();
-    }
-
-    public BookMetadata getDetailedMetadata(MetadataProvider provider, String providerItemId) {
-        BookParser parser = getParser(provider);
-
-        if (!parser.isEnabled()) {
-            return null;
-        }
-
-        if (parser instanceof DetailedMetadataProvider detailedProvider) {
-            return detailedProvider.fetchDetailedMetadata(providerItemId);
-        }
-        return null;
     }
 
     private BookParser getParser(MetadataProvider provider) {

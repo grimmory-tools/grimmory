@@ -29,7 +29,6 @@ import org.booklore.service.book.BookQueryService;
 import org.booklore.service.metadata.extractor.CbxMetadataExtractor;
 import org.booklore.service.metadata.extractor.MetadataExtractorFactory;
 import org.booklore.service.metadata.parser.BookParser;
-import org.booklore.service.metadata.parser.DetailedMetadataProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -37,8 +36,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.*;
 
@@ -120,57 +117,6 @@ class BookMetadataServiceTest {
             assertThatThrownBy(() -> service.fetchMetadataListFromAProvider(MetadataProvider.Amazon, Book.builder().build(), FetchMetadataRequest.builder().build()))
                     .isInstanceOf(APIException.class);
         }
-    }
-
-    @Nested
-    class GetDetailedProviderMetadata {
-
-        @Test
-        void returnsDetailedMetadataWhenParserImplementsDetailedProvider() {
-            DetailedBookParser parser = mock(DetailedBookParser.class);
-            parserMap.put(MetadataProvider.Google, parser);
-            BookMetadata expected = BookMetadata.builder().title("Detailed").build();
-            when(parser.fetchDetailedMetadata("item-123")).thenReturn(expected);
-            when(parser.isEnabled()).thenReturn(true);
-
-            BookMetadata result = service.getDetailedProviderMetadata(MetadataProvider.Google, "item-123");
-
-            assertThat(result).isEqualTo(expected);
-        }
-
-        @Test
-        void returnsNullWhenParserDoesNotImplementDetailedProvider() {
-            BookParser parser = mock(BookParser.class);
-
-            when(parser.isEnabled()).thenReturn(true);
-
-            parserMap.put(MetadataProvider.Google, parser);
-
-            BookMetadata result = service.getDetailedProviderMetadata(MetadataProvider.Google, "item-123");
-
-            assertThat(result).isNull();
-        }
-
-        @Test
-        void returnsNullWhenParserIsNotEnabled() {
-            DetailedBookParser parser = mock(DetailedBookParser.class);
-            when(parser.isEnabled()).thenReturn(false);
-
-            parserMap.put(MetadataProvider.Google, parser);
-
-            BookMetadata result = service.getDetailedProviderMetadata(MetadataProvider.Google, "item-123");
-
-            assertThat(result).isNull();
-            verify(parser, never()).fetchDetailedMetadata(anyString());
-        }
-
-        @Test
-        void throwsWhenProviderNotFound() {
-            assertThatThrownBy(() -> service.getDetailedProviderMetadata(MetadataProvider.Amazon, "item-123"))
-                    .isInstanceOf(APIException.class);
-        }
-
-        interface DetailedBookParser extends BookParser, DetailedMetadataProvider {}
     }
 
     @Nested
