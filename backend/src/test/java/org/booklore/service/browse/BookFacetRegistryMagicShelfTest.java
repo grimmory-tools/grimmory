@@ -1,6 +1,5 @@
 package org.booklore.service.browse;
 
-import org.booklore.browse.FacetLogic;
 import org.booklore.exception.APIException;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.service.opds.MagicShelfBookService;
@@ -36,40 +35,40 @@ class BookFacetRegistryMagicShelfTest {
         Specification<BookEntity> magicSpec = mock(Specification.class);
         when(magicShelfBookService.toSpecification(7L, 42L)).thenReturn(magicSpec);
 
-        registry.toSpecification("shelf", List.of("magic:42"), FacetLogic.OR, 7L);
+        registry.matching("shelf", List.of("magic:42"), 7L);
 
         verify(magicShelfBookService).toSpecification(7L, 42L);
     }
 
     @Test
     void regularShelfValueDoesNotTouchMagicShelfService() {
-        registry.toSpecification("shelf", List.of("3"), FacetLogic.OR, 7L);
+        registry.matching("shelf", List.of("3"), 7L);
         verifyNoInteractions(magicShelfBookService);
     }
 
     @Test
     void unknownFacetThrows() {
-        assertThatThrownBy(() -> registry.toSpecification("bogus", List.of("x"), FacetLogic.AND, 1L))
+        assertThatThrownBy(() -> registry.matching("bogus", List.of("x"), 1L))
                 .isInstanceOf(APIException.class);
     }
 
     @Test
     void malformedMagicShelfIdThrows() {
-        assertThatThrownBy(() -> registry.toSpecification("shelf", List.of("magic:not-a-number"), FacetLogic.AND, 1L))
+        assertThatThrownBy(() -> registry.matching("shelf", List.of("magic:not-a-number"), 1L))
                 .isInstanceOf(APIException.class);
-        assertThatThrownBy(() -> registry.toSpecification("shelf", List.of("magic:"), FacetLogic.AND, 1L))
+        assertThatThrownBy(() -> registry.matching("shelf", List.of("magic:"), 1L))
                 .isInstanceOf(APIException.class);
     }
 
     @Test
     void emptyShelfValuesDoesNotThrow() {
-        assertThatCode(() -> registry.toSpecification("shelf", List.of(), FacetLogic.AND, 1L))
+        assertThatCode(() -> registry.matching("shelf", List.of(), 1L))
                 .doesNotThrowAnyException();
     }
 
     @Test
     void blankAndNullShelfTokensAreIgnored() {
-        assertThatCode(() -> registry.toSpecification("shelf", Arrays.asList(null, "", "   "), FacetLogic.AND, 1L))
+        assertThatCode(() -> registry.matching("shelf", Arrays.asList(null, "", "   "), 1L))
                 .doesNotThrowAnyException();
         verifyNoInteractions(magicShelfBookService);
     }

@@ -20,6 +20,7 @@ import {BrowseFilterSectionComponent} from './filter-section.component';
         [open]="openKeys().has(group.key)"
         [search]="searchTerms()[group.key] ?? ''"
         [alwaysShowBoxes]="alwaysShowBoxes()"
+        [excludable]="excludable()"
         (openChange)="openChange.emit({key: group.key, open: $event})"
         (searchChange)="searchChange.emit({key: group.key, term: $event})"
         (toggleValue)="toggleValue.emit($event)"
@@ -32,6 +33,7 @@ export class BrowseFilterRailComponent<K extends string = string> {
   readonly openKeys = input.required<ReadonlySet<K>>();
   readonly searchTerms = input.required<Readonly<Partial<Record<K, string>>>>();
   readonly alwaysShowBoxes = input(false, {transform: booleanAttribute});
+  readonly excludable = input(true);
   readonly toggleValue = output<BrowseFilterToggle<K>>();
   readonly commitRange = output<BrowseFilterRangeCommit<K>>();
   readonly openChange = output<BrowseFilterOpen<K>>();

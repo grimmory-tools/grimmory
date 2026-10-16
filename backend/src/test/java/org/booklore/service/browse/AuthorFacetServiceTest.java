@@ -204,7 +204,7 @@ class AuthorFacetServiceTest {
         book("B", List.of(unmatched), List.of("Romance", "Horror"), "fr");
         em.flush();
 
-        FacetGroupsResponse response = facetService.getFacets(null, null, null);
+        FacetGroupsResponse response = facetService.getFacets(null, null);
 
         FacetGroup sort = group(response, "sort");
         assertThat(sort.metadata().rel()).isEqualTo("sort");
@@ -240,7 +240,7 @@ class AuthorFacetServiceTest {
         Files.createDirectories(thumbnail.getParent());
         Files.write(thumbnail, new byte[]{1});
 
-        FacetGroupsResponse response = facetService.getFacets(null, null, null);
+        FacetGroupsResponse response = facetService.getFacets(null, null);
         assertThat(count(group(response, "has_photo"), "true")).isEqualTo(1);
         assertThat(count(group(response, "has_photo"), "false")).isEqualTo(1);
     }
@@ -254,7 +254,7 @@ class AuthorFacetServiceTest {
         book("B", List.of(unmatched), List.of("Romance"), null);
         em.flush();
 
-        FacetGroupsResponse response = facetService.getFacets(List.of("has_asin:true"), null, null);
+        FacetGroupsResponse response = facetService.getFacets(List.of("has_asin:true"), null);
 
         assertThat(count(group(response, "has_asin"), "false")).isEqualTo(1);
         assertThat(count(group(response, "genre"), "Horror")).isEqualTo(1);
@@ -268,7 +268,7 @@ class AuthorFacetServiceTest {
         book("A", List.of(unmatched), null, null);
         em.flush();
 
-        FacetGroupsResponse response = facetService.getFacets(null, null, null);
+        FacetGroupsResponse response = facetService.getFacets(null, null);
         assertThat(group(response, "has_asin").links().stream().map(FacetLink::value))
                 .containsExactly("false");
     }
@@ -282,7 +282,7 @@ class AuthorFacetServiceTest {
         book("B", List.of(unmatched), null, null);
         em.flush();
 
-        FacetGroupsResponse response = facetService.getFacets(List.of("has_asin:true"), null, null);
+        FacetGroupsResponse response = facetService.getFacets(List.of("has_asin:true"), null);
         FacetLink active = group(response, "has_asin").links().stream()
                 .filter(l -> l.value().equals("true"))
                 .findFirst().orElseThrow();

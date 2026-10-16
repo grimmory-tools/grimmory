@@ -12,7 +12,6 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
-import org.booklore.browse.FacetLogic;
 import org.booklore.browse.ParamsHash;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.model.dto.BookLoreUser;
@@ -61,25 +60,24 @@ public class AuthorFacetService {
             .maximumSize(200)
             .build();
 
-    public FacetGroupsResponse getFacets(List<String> facet, String facetLogicParam, String query) {
+    public FacetGroupsResponse getFacets(List<String> facet, String query) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         BrowseScope scope = scopeFactory.from(user);
 
         Map<String, List<String>> facets = BrowseParams.parseFacets(facet);
-        FacetLogic facetLogic = FacetLogic.from(facetLogicParam);
 
-        String cacheKey = scope.userId() + ":" + ParamsHash.compute(query, facets, facetLogic);
+        String cacheKey = scope.userId() + ":" + ParamsHash.compute(query, facets);
         return cache.get(cacheKey, key -> {
-            String preserved = BrowseParams.preserved(facet, facetLogicParam, query);
+            String preserved = BrowseParams.preserved(facet, query);
             FacetResponseBuilder builder = new FacetResponseBuilder(PAGE_PATH, FACET_PATH, preserved, facet);
             List<FacetGroup> groups = new ArrayList<>();
             groups.add(builder.sortGroup(sortRegistry.registry(scope).keys()));
             for (ValueFacetDef def : VALUE_FACETS) {
-                Specification<AuthorEntity> base = filterSpecifications.base(query, facets, facetLogic, scope, def.key());
+                Specification<AuthorEntity> base = filterSpecifications.base(query, facets, scope, def.key());
                 groups.add(builder.group(def.key(), def.title(), valueCounts(def, base, scope)));
             }
             for (GroupByFacetDef def : GROUP_BY_FACETS) {
-                Specification<AuthorEntity> base = filterSpecifications.base(query, facets, facetLogic, scope, def.key());
+                Specification<AuthorEntity> base = filterSpecifications.base(query, facets, scope, def.key());
                 groups.add(builder.group(def.key(), def.title(), groupByCounts(def, base, scope)));
             }
             return new FacetGroupsResponse(builder.selfLinks(), groups);

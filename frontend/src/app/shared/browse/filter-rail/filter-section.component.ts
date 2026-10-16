@@ -1,7 +1,7 @@
 import {NgTemplateOutlet} from '@angular/common';
-import {Component, Injector, afterNextRender, booleanAttribute, computed, ElementRef, inject, input, linkedSignal, model, output, signal} from '@angular/core';
+import {Component, Injector, afterNextRender, booleanAttribute, computed, ElementRef, inject, input, linkedSignal, model, output, signal, untracked} from '@angular/core';
 import {TranslocoPipe} from '@jsverse/transloco';
-import {LucideCheck, LucideChevronDown, LucideSearch, LucideX} from '@lucide/angular';
+import {LucideCheck, LucideChevronDown, LucideMinus, LucideSearch, LucideX} from '@lucide/angular';
 
 import {cn} from '../../ui/cn';
 import {IconDisplayComponent} from '../../components/icon-display/icon-display.component';
@@ -13,10 +13,12 @@ import {normalizeLocalSearchTerm} from '../../util/search-terms';
 import {
   checkIndicatorBaseClass,
   checkIndicatorCheckedClass,
+  checkIndicatorExcludedClass,
   checkIndicatorIconClass,
   checkIndicatorUncheckedClass,
 } from '../../ui/checkbox/check-indicator.styles';
 import {
+  type BrowseFacetState,
   type BrowseFilterGroup,
   type BrowseFilterRangeCommit,
   type BrowseFilterToggle,
@@ -40,6 +42,7 @@ const REVEAL_CLASS = 'grid transition-[grid-template-rows] duration-200 ease-out
     BrowseFacetRangeInputsComponent,
     LucideCheck,
     LucideChevronDown,
+    LucideMinus,
     LucideSearch,
     LucideX,
   ],
@@ -51,6 +54,7 @@ export class BrowseFilterSectionComponent<K extends string = string> {
   readonly open = model(false);
   readonly search = model('');
   readonly alwaysShowBoxes = input(false, {transform: booleanAttribute});
+  readonly excludable = input(true);
   readonly toggleValue = output<BrowseFilterToggle<K>>();
   readonly commitRange = output<BrowseFilterRangeCommit<K>>();
 
@@ -67,6 +71,7 @@ export class BrowseFilterSectionComponent<K extends string = string> {
     computation: (term, previous) => (previous?.value ?? false) || term !== '',
   });
   protected readonly revealed = computed(() => this.open() && !this.group().loading);
+  protected readonly excludedLabelId = computed(() => `${this.group().key}-excluded`);
 
   protected readonly checkIconClass = checkIndicatorIconClass;
   protected readonly expandRowClass =
@@ -81,7 +86,7 @@ export class BrowseFilterSectionComponent<K extends string = string> {
 
   protected readonly selectedCount = computed(() => {
     const group = this.group();
-    return group.values.filter(item => this.isSelected(item)).length + (rangeActive(group) ? 1 : 0);
+    return group.values.filter(item => this.state(item)).length + (rangeActive(group) ? 1 : 0);
   });
 
   protected revealClass(open: boolean): string {
@@ -99,13 +104,36 @@ export class BrowseFilterSectionComponent<K extends string = string> {
       ? ''
       : 'min-h-[calc(8*1.75rem+1.875rem)] pointer-coarse:min-h-[calc(8*2.75rem+2.875rem)]');
 
-  protected readonly visibleValues = computed(() => {
-    const group = this.group();
-    if (this.expanded()) {
-      return group.values;
-    }
-    return foldValues(group.values, this.foldLimit(), item => this.isSelected(item));
+  private readonly clicked = signal<{value: string; slot: number; from: BrowseFilterValue[]} | null>(null);
+  private readonly values = computed(() => this.group().values);
+  private readonly appliedClick = linkedSignal<BrowseFilterValue[], {value: string; slot: number} | null>({
+    source: this.values,
+    computation: (_values, previous) => {
+      const click = untracked(this.clicked);
+      return click && click.from === previous?.source ? click : null;
+    },
   });
+
+  protected readonly visibleValues = computed(() => {
+    const query = this.activeQuery();
+    const values = query ? this.matches(query) : this.group().values;
+    const limit = query ? Infinity : this.foldLimit();
+    const click = this.appliedClick();
+    const item = click ? values.find(candidate => candidate.value === click.value) : undefined;
+    if (!click || !item) {
+      return this.fold(values, limit);
+    }
+    const shown = this.fold(values.filter(candidate => candidate !== item), limit - 1);
+    shown.splice(Math.min(click.slot, shown.length), 0, item);
+    return shown;
+  });
+
+  private fold(values: BrowseFilterValue[], limit: number): BrowseFilterValue[] {
+    if (this.expanded()) {
+      return [...values];
+    }
+    return foldValues(values, limit, item => this.state(item) !== null);
+  }
 
   protected onExpandToggle(): void {
     this.expanded.update(expanded => !expanded);
@@ -128,21 +156,34 @@ export class BrowseFilterSectionComponent<K extends string = string> {
 
   protected readonly activeQuery = computed(() => this.search().trim());
 
-  protected matches(query: string): BrowseFilterValue[] {
+  private matches(query: string): BrowseFilterValue[] {
     const needle = normalizeLocalSearchTerm(query);
     return this.group().values.filter(item => normalizeLocalSearchTerm(item.label).includes(needle));
   }
 
-  protected isSelected(item: BrowseFilterValue): boolean {
-    return this.group().picks?.has(item.value) ?? item.selected;
+  protected state(item: BrowseFilterValue): BrowseFacetState | null {
+    const picks = this.group().picks;
+    return picks ? picks.get(item.value) ?? null : item.state;
+  }
+
+  private nextState(item: BrowseFilterValue): BrowseFacetState | null {
+    const current = this.state(item);
+    if (current === null) {
+      return 'included';
+    }
+    if (current === 'included' && this.excludable()) {
+      return 'excluded';
+    }
+    return null;
   }
 
   protected onRowToggle(item: BrowseFilterValue): void {
-    this.toggleValue.emit({key: this.group().key, value: item.value, selected: !this.isSelected(item)});
+    this.clicked.set({value: item.value, slot: this.visibleValues().indexOf(item), from: this.values()});
+    this.toggleValue.emit({key: this.group().key, value: item.value, state: this.nextState(item)});
   }
 
   protected isZero(item: BrowseFilterValue): boolean {
-    return item.count === 0 && !item.selected && !this.isSelected(item);
+    return item.count === 0 && item.state === null && !this.state(item);
   }
 
   protected rowClass(item: BrowseFilterValue): string {
@@ -155,20 +196,30 @@ export class BrowseFilterSectionComponent<K extends string = string> {
   }
 
   protected boxClass(item: BrowseFilterValue): string {
+    const state = this.state(item);
     return cn(
       checkIndicatorBaseClass,
-      this.isSelected(item) ? checkIndicatorCheckedClass : checkIndicatorUncheckedClass,
-      !this.alwaysShowBoxes() && (this.isSelected(item) ? 'opacity-100' : 'opacity-0 group-hover/frow:opacity-100'),
+      boxStateClass(state),
+      !this.alwaysShowBoxes() && (state ? 'opacity-100' : 'opacity-0 group-hover/frow:opacity-100'),
     );
   }
 
   protected labelClass(item: BrowseFilterValue): string {
+    const state = this.state(item);
     return cn(
       'min-w-0 flex-1 truncate',
       item.stars && 'flex items-center',
-      this.isSelected(item) && 'font-[550] text-text',
+      state && 'font-[550] text-text',
+      state === 'excluded' && 'line-through',
     );
   }
+}
+
+function boxStateClass(state: BrowseFacetState | null): string {
+  if (state === 'excluded') {
+    return checkIndicatorExcludedClass;
+  }
+  return state === 'included' ? checkIndicatorCheckedClass : checkIndicatorUncheckedClass;
 }
 
 function foldValues<T>(values: readonly T[], limit: number, kept: (item: T) => boolean): T[] {
