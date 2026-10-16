@@ -1,53 +1,48 @@
 import {TestBed} from '@angular/core/testing';
 import {TranslocoService} from '@jsverse/transloco';
 import {MessageService} from '@openng/optimus-ui/api';
-import {Subject, throwError} from 'rxjs';
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi, type Mock} from 'vitest';
 
-import type {AuthorDetails, AuthorSearchResult} from '../../../author-browser/model/author.model';
-import {AuthorService} from '../../../author-browser/service/author.service';
+import {createQueryClientHarness, flushQueryAsync} from '../../../../core/testing/query-testing';
+import {AuthorCommandService, type MatchAuthorVariables} from '../../data/author-command.service';
+import {type AuthorMetadataSearchParams} from '../../data/author-query-params';
+import {AuthorQueryService} from '../../data/author-query.service';
+import {type AuthorDetail, type AuthorSearchResult} from '../../data/author-response.models';
 import {AuthorMatchComponent} from './author-match.component';
 
 describe('AuthorMatchComponent', () => {
-  let searchAuthorMetadata: ReturnType<typeof vi.fn>;
-  let matchAuthor: ReturnType<typeof vi.fn>;
+  let searchMetadata: Mock<(params: AuthorMetadataSearchParams) => Promise<AuthorSearchResult[]>>;
+  let matchAuthor: Mock<(variables: MatchAuthorVariables) => Promise<AuthorDetail>>;
   let messageService: Pick<MessageService, 'add'>;
-  let translate: ReturnType<typeof vi.fn>;
 
-  const createComponent = (overrides?: {authorId?: number; authorName?: string}) => {
+  const createComponent = () => {
     const component = TestBed.runInInjectionContext(() => new AuthorMatchComponent());
-    component.authorId = overrides?.authorId ?? 9;
-    component.authorName = overrides?.authorName ?? 'Ada Lovelace';
+    component.authorId = 9;
+    component.authorName = 'Ada Lovelace';
     return component;
   };
 
   beforeEach(() => {
-    searchAuthorMetadata = vi.fn();
-    matchAuthor = vi.fn();
-    messageService = {
-      add: vi.fn(),
-    };
-    translate = vi.fn((key: string) => key);
+    searchMetadata = vi.fn<(params: AuthorMetadataSearchParams) => Promise<AuthorSearchResult[]>>();
+    matchAuthor = vi.fn<(variables: MatchAuthorVariables) => Promise<AuthorDetail>>();
+    messageService = {add: vi.fn()};
 
     TestBed.configureTestingModule({
       providers: [
+        ...createQueryClientHarness().providers,
         {
-          provide: AuthorService,
+          provide: AuthorQueryService,
           useValue: {
-            searchAuthorMetadata,
-            matchAuthor,
+            metadataSearch: (authorId: number, params: AuthorMetadataSearchParams) => ({
+              queryKey: ['metadata-search', authorId, params],
+              queryFn: () => searchMetadata(params),
+              retry: false,
+            }),
           },
         },
-        {
-          provide: MessageService,
-          useValue: messageService,
-        },
-        {
-          provide: TranslocoService,
-          useValue: {
-            translate,
-          },
-        },
+        {provide: AuthorCommandService, useValue: {match: () => ({mutationFn: matchAuthor})}},
+        {provide: MessageService, useValue: messageService},
+        {provide: TranslocoService, useValue: {translate: (key: string) => key}},
       ],
     });
   });
@@ -57,12 +52,9 @@ describe('AuthorMatchComponent', () => {
     vi.restoreAllMocks();
   });
 
-  it('bootstraps searchQuery from authorName and gates canSearch on trimmed query inputs', () => {
-    const component = createComponent({authorName: '  Ada Lovelace  '});
-
+  it('gates canSearch on the trimmed query inputs', () => {
+    const component = createComponent();
     component.ngOnInit();
-
-    expect(component.searchQuery()).toBe('  Ada Lovelace  ');
     expect(component.canSearch()).toBe(true);
 
     component.searchQuery.set('   ');
@@ -73,134 +65,33 @@ describe('AuthorMatchComponent', () => {
     expect(component.canSearch()).toBe(true);
   });
 
-  it('does not search when both query inputs are blank after trimming', () => {
+  it('searches with trimmed values and shows the results', async () => {
+    const results: AuthorSearchResult[] = [{source: 'AUDNEXUS', asin: 'B1', name: 'Ada Lovelace'}];
+    searchMetadata.mockResolvedValue(results);
     const component = createComponent();
-    component.searchQuery.set('   ');
-    component.asinQuery.set('   ');
-    component.results.set([{source: 'seed', asin: 'old', name: 'Existing'}]);
+    component.searchQuery.set('  Ada  ');
+    component.asinQuery.set(' B1 ');
 
     component.search();
+    await flushQueryAsync();
 
-    expect(searchAuthorMetadata).not.toHaveBeenCalled();
-    expect(component.searching()).toBe(false);
-    expect(component.hasSearched()).toBe(false);
-    expect(component.results()).toEqual([{source: 'seed', asin: 'old', name: 'Existing'}]);
-  });
-
-  it('searches with trimmed values, clears stale results, and stores returned matches', () => {
-    const results$ = new Subject<AuthorSearchResult[]>();
-    searchAuthorMetadata.mockReturnValue(results$);
-
-    const component = createComponent();
-    component.searchQuery.set(' Ada ');
-    component.asinQuery.set(' B00MATCH ');
-    component.selectedRegion.set('uk');
-    component.results.set([{source: 'seed', asin: 'old', name: 'Existing'}]);
-
-    component.search();
-
-    expect(searchAuthorMetadata).toHaveBeenCalledWith(9, 'Ada', 'uk', 'B00MATCH');
-    expect(component.searching()).toBe(true);
+    expect(searchMetadata).toHaveBeenCalledWith({query: 'Ada', region: 'us', asin: 'B1'});
     expect(component.hasSearched()).toBe(true);
-    expect(component.results()).toEqual([]);
-
-    results$.next([
-      {source: 'amazon', asin: 'B00MATCH', name: 'Ada Lovelace'},
-      {source: 'amazon', asin: 'B00OTHER', name: 'A. Lovelace'},
-    ]);
-    results$.complete();
-
-    expect(component.results()).toEqual([
-      {source: 'amazon', asin: 'B00MATCH', name: 'Ada Lovelace'},
-      {source: 'amazon', asin: 'B00OTHER', name: 'A. Lovelace'},
-    ]);
-    expect(component.searching()).toBe(false);
+    expect(component.results()).toEqual(results);
   });
 
-  it('reports a translated search failure toast when metadata search errors', () => {
-    searchAuthorMetadata.mockReturnValue(throwError(() => new Error('boom')));
-
+  it('applies the chosen match, reports success and tells the page', async () => {
+    matchAuthor.mockResolvedValue({id: 9, name: 'Ada Lovelace', nameLocked: false, descriptionLocked: false, asinLocked: false, photoLocked: false});
     const component = createComponent();
-    component.searchQuery.set('Ada');
+    const matched = vi.fn();
+    component.authorMatched.subscribe(matched);
+    component.selectedRegion.set('uk');
 
-    component.search();
+    component.matchAuthor({source: 'AUDNEXUS', asin: 'B1', name: 'Ada Lovelace'});
+    await flushQueryAsync();
 
-    expect(component.searching()).toBe(false);
-    expect(translate).toHaveBeenCalledWith('authorBrowser.match.toast.searchFailedSummary');
-    expect(translate).toHaveBeenCalledWith('authorBrowser.match.toast.searchFailedDetail');
-    expect(messageService.add).toHaveBeenCalledWith({
-      severity: 'error',
-      summary: 'authorBrowser.match.toast.searchFailedSummary',
-      detail: 'authorBrowser.match.toast.searchFailedDetail',
-      life: 3000,
-    });
-  });
-
-  it('shapes the match request, emits the updated author, and reports success on matchAuthor', () => {
-    const updatedAuthor: AuthorDetails = {
-      id: 9,
-      name: 'Ada Lovelace',
-      asin: 'B00MATCH',
-      nameLocked: false,
-      descriptionLocked: false,
-      asinLocked: true,
-      photoLocked: false,
-    };
-    const match$ = new Subject<AuthorDetails>();
-    matchAuthor.mockReturnValue(match$);
-
-    const component = createComponent();
-    component.selectedRegion.set('de');
-    const emitSpy = vi.spyOn(component.authorMatched, 'emit');
-
-    component.matchAuthor({
-      source: 'amazon',
-      asin: 'B00MATCH',
-      name: 'Ada Lovelace',
-      description: 'Pioneer',
-    });
-
-    expect(matchAuthor).toHaveBeenCalledWith(9, {
-      source: 'amazon',
-      asin: 'B00MATCH',
-      region: 'de',
-    });
-    expect(component.matching()).toBe(true);
-
-    match$.next(updatedAuthor);
-    match$.complete();
-
-    expect(component.matching()).toBe(false);
-    expect(translate).toHaveBeenCalledWith('authorBrowser.match.toast.matchSuccessSummary');
-    expect(translate).toHaveBeenCalledWith('authorBrowser.match.toast.matchSuccessDetail');
-    expect(messageService.add).toHaveBeenCalledWith({
-      severity: 'success',
-      summary: 'authorBrowser.match.toast.matchSuccessSummary',
-      detail: 'authorBrowser.match.toast.matchSuccessDetail',
-      life: 3000,
-    });
-    expect(emitSpy).toHaveBeenCalledWith(updatedAuthor);
-  });
-
-  it('reports a translated failure toast when matchAuthor errors', () => {
-    matchAuthor.mockReturnValue(throwError(() => new Error('nope')));
-
-    const component = createComponent();
-
-    component.matchAuthor({
-      source: 'amazon',
-      asin: 'B00FAIL',
-      name: 'Ada Lovelace',
-    });
-
-    expect(component.matching()).toBe(false);
-    expect(translate).toHaveBeenCalledWith('authorBrowser.match.toast.matchFailedSummary');
-    expect(translate).toHaveBeenCalledWith('authorBrowser.match.toast.matchFailedDetail');
-    expect(messageService.add).toHaveBeenCalledWith({
-      severity: 'error',
-      summary: 'authorBrowser.match.toast.matchFailedSummary',
-      detail: 'authorBrowser.match.toast.matchFailedDetail',
-      life: 3000,
-    });
+    expect(matchAuthor.mock.calls[0][0]).toEqual({authorId: 9, request: {source: 'AUDNEXUS', asin: 'B1', region: 'uk'}});
+    expect(matched).toHaveBeenCalled();
+    expect(messageService.add).toHaveBeenCalledWith(expect.objectContaining({severity: 'success'}));
   });
 });

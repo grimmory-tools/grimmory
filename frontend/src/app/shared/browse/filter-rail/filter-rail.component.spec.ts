@@ -15,6 +15,10 @@ function railValue(label: string): BrowseFilterValue {
   return {facetKey: 'author', value: label.toLowerCase().replace(/\s+/g, '-'), label, count: 3};
 }
 
+function flagValue(facetKey: string, labelKey: string): BrowseFilterValue {
+  return {facetKey, value: 'true', label: 'true', labelKey, count: 3};
+}
+
 function authorGroup(count: number): BrowseFilterGroup {
   return {
     key: 'author',
@@ -37,7 +41,7 @@ function authorGroup(count: number): BrowseFilterGroup {
 })
 class HostComponent {
   readonly groups = signal<readonly BrowseFilterGroup[]>([authorGroup(20)]);
-  readonly openKeys: ReadonlySet<string> = new Set(['author', 'file_size']);
+  readonly openKeys: ReadonlySet<string> = new Set(['author', 'file_size', 'has_photo']);
   readonly searchTerms: Readonly<Record<string, string>> = {};
   readonly toggles: BrowseFilterToggle[] = [];
   readonly commits: BrowseFilterRangeCommit[] = [];
@@ -72,6 +76,24 @@ describe('BrowseFilterRailComponent', () => {
 
     expect(fixture.componentInstance.toggles.map(toggle => toggle.state)).toEqual([null, 'excluded', 'included', null, 'excluded']);
     expect(excludeButtons()[1].getAttribute('aria-label')).toBe('Exclude Author 2');
+  });
+
+  it('ticks and excludes each Metadata row under its own facet key', () => {
+    const values = [flagValue('has_photo', 'author.fields.hasPhoto'), flagValue('has_asin', 'author.fields.hasAsin')];
+    const metadata: BrowseFilterGroup = {key: 'has_photo', labelKey: 'common.metadata', multiValued: false, showAllValues: true, values};
+    fixture.componentInstance.groups.set([metadata]);
+    fixture.detectChanges();
+    expect(includeButtons().map(row => row.title)).toEqual(['Photo', 'ASIN']);
+
+    includeButtons()[1].click();
+    fixture.componentInstance.groups.set([{...metadata, picks: new Map([['has_asin', new Map([['true', 'included']])]])}]);
+    fixture.detectChanges();
+    excludeButtons()[1].click();
+
+    expect(fixture.componentInstance.toggles).toEqual([
+      {key: 'has_asin', value: 'true', state: 'included'},
+      {key: 'has_asin', value: 'true', state: 'excluded'},
+    ]);
   });
 
   it('commits file size ranges in KB from the unit the user picked', () => {

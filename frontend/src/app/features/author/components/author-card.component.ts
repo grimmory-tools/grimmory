@@ -1,176 +1,127 @@
-import {ChangeDetectorRef, Component, inject, Input, OnChanges, output, SimpleChanges} from '@angular/core';
-import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
-import {Tooltip} from '@openng/optimus-ui/tooltip';
-import {CheckboxChangeEvent, Checkbox} from '@openng/optimus-ui/checkbox';
-import {FormsModule} from '@angular/forms';
-import {TieredMenu} from '@openng/optimus-ui/tieredmenu';
-import {Button} from '@openng/optimus-ui/button';
-import {MenuItem, MessageService} from '@openng/optimus-ui/api';
-import {AuthorSummary} from '../../author-browser/model/author.model';
-import {AuthorService} from '../../author-browser/service/author.service';
+import {booleanAttribute, ChangeDetectionStrategy, Component, computed, inject, input, output} from '@angular/core';
+import {RouterLink} from '@angular/router';
+import {TranslocoPipe} from '@jsverse/transloco';
+import {LucideEllipsisVertical} from '@lucide/angular';
+
+import {CardMenuDirective} from '../../../shared/components/cards/card-menu.directive';
+import {CardSelectionComponent} from '../../../shared/components/cards/card-selection.component';
+import {
+  cardArtworkClass,
+  CARD_META_LINE_CLASS,
+  CARD_META_TITLE_CLASS,
+  CARD_OVERLAY_BUTTON_CLASS,
+  CARD_OVERLAY_REVEAL_CLASS,
+} from '../../../shared/components/cards/card.layout';
+import {CoverComponent} from '../../../shared/components/cover/cover.component';
+import {UrlHelperService} from '../../../shared/service/url-helper.service';
+import {cn} from '../../../shared/ui/cn';
+import {contextMenuRequest, type ContextMenuRequest} from '../../../shared/ui/menu/app-menu.component';
+import {isContextMenuGesture} from '../../../shared/util/pointer-gestures';
+import {type AuthorSummary} from '../data/author-response.models';
+import {AUTHOR_CARD_PHOTO_CLASS} from './author-card.layout';
+
+export function authorCardPhotoSrc(author: AuthorSummary, urlHelper: UrlHelperService): string | null {
+  return urlHelper.getAuthorThumbnailUrl(author.id, author.photoUpdatedOn);
+}
 
 @Component({
   selector: 'app-author-card',
-  standalone: true,
-  templateUrl: './author-card.component.html',
-  styleUrls: ['./author-card.component.scss'],
-  imports: [TranslocoPipe, Tooltip, Checkbox, FormsModule, TieredMenu, Button]
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RouterLink, TranslocoPipe, LucideEllipsisVertical, CardMenuDirective, CardSelectionComponent, CoverComponent],
+  host: {class: 'block'},
+  template: `
+    <div
+      class="group/card relative min-w-0 cursor-pointer text-center"
+      [attr.data-active]="menuPinned() ? 'true' : null"
+      appCardMenu
+      [appCardMenuLongPress]="!selectionActive()"
+      (cardMenuRequested)="menuRequested.emit($event)"
+    >
+      <div [class]="photoClass()">
+        <app-cover
+          class="absolute inset-0 h-full w-full overflow-hidden rounded-full"
+          placeholder="initials"
+          [src]="photoSrc()"
+          [title]="author().name"
+          [alt]="'author.card.photoAlt' | transloco: {name: author().name}"
+        />
+        @if (!selectionActive()) {
+          <button
+            type="button"
+            [class]="menuButtonClass"
+            aria-haspopup="menu"
+            [attr.aria-expanded]="menuOpen()"
+            [attr.aria-label]="'author.card.menu' | transloco: {name: author().name}"
+            (click)="onMenu($event)"
+          >
+            <svg lucideEllipsisVertical class="size-3.5"></svg>
+          </button>
+        }
+        @if (selectable()) {
+          <app-card-selection
+            [selected]="selected()"
+            [selectionMode]="selectionActive()"
+            [ariaLabel]="'author.card.select' | transloco: {name: author().name}"
+            (selectionToggled)="toggleSelect.emit($event)"
+          />
+        }
+      </div>
+
+      <div class="px-0.5 pt-2">
+        <div [class]="nameClass" [attr.title]="author().name">{{ author().name }}</div>
+        <div [class]="countClass">
+          {{ (author().bookCount === 1 ? 'author.card.book' : 'author.card.books') | transloco: {count: author().bookCount} }}
+        </div>
+      </div>
+
+      @if (!selectionActive()) {
+        <a [class]="linkClass" [routerLink]="['/author', author().id]" [attr.aria-label]="author().name"></a>
+      } @else {
+        <button
+          type="button"
+          [class]="linkClass"
+          [attr.aria-pressed]="selected()"
+          [attr.aria-label]="'author.card.select' | transloco: {name: author().name}"
+          (click)="onSelect($event)"
+        ></button>
+      }
+    </div>
+  `,
 })
-export class AuthorCardComponent implements OnChanges {
-  private readonly authorService = inject(AuthorService);
-  private readonly messageService = inject(MessageService);
-  private readonly t = inject(TranslocoService);
-  private readonly cdr = inject(ChangeDetectorRef);
+export class AuthorCardComponent {
+  private readonly urlHelper = inject(UrlHelperService);
 
-  @Input({required: true}) author!: AuthorSummary;
-  @Input() canQuickMatch = false;
-  @Input() canDelete = false;
-  @Input() isCheckboxEnabled = false;
-  @Input() isSelected = false;
-  readonly cardClick = output<AuthorSummary>();
-  readonly quickMatched = output<AuthorSummary>();
-  readonly checkboxClick = output<{ index: number; author: AuthorSummary; selected: boolean; shiftKey: boolean }>();
-  readonly viewAuthor = output<AuthorSummary>();
-  readonly editAuthor = output<AuthorSummary>();
-  readonly deleteAuthor = output<AuthorSummary>();
-  readonly menuToggled = output<boolean>();
-  @Input() index = 0;
-  @Input() cacheBuster = 0;
-  private lastShiftKey = false;
+  readonly author = input.required<AuthorSummary>();
+  readonly selectable = input(false, {transform: booleanAttribute});
+  readonly selected = input(false, {transform: booleanAttribute});
+  readonly selectionActive = input(false, {transform: booleanAttribute});
+  readonly menuOpen = input(false, {transform: booleanAttribute});
 
-  hasPhoto = false;
-  quickMatching = false;
+  readonly toggleSelect = output<{shiftKey: boolean}>();
+  readonly menuRequested = output<ContextMenuRequest>();
 
-  items: MenuItem[] = [];
-  private menuInitialized = false;
+  protected readonly menuPinned = computed(() => this.menuOpen() && !this.selectionActive());
+  protected readonly photoSrc = computed(() => authorCardPhotoSrc(this.author(), this.urlHelper));
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['author']) {
-      const prev = changes['author'].previousValue as AuthorSummary | undefined;
-      const curr = changes['author'].currentValue as AuthorSummary;
-      if (!prev || prev.id !== curr.id || prev.hasPhoto !== curr.hasPhoto || prev.asin !== curr.asin) {
-        this.hasPhoto = curr.hasPhoto;
-      }
-    }
-    if (changes['cacheBuster'] && !changes['cacheBuster'].firstChange) {
-      this.hasPhoto = true;
-    }
+  protected readonly photoClass = computed(() => cn(cardArtworkClass(this.selected()), AUTHOR_CARD_PHOTO_CLASS));
+  protected readonly menuButtonClass =
+    cn(CARD_OVERLAY_BUTTON_CLASS, CARD_OVERLAY_REVEAL_CLASS, 'absolute right-[4%] bottom-[4%] z-20 size-7 rounded-full');
+  protected readonly linkClass =
+    'absolute inset-0 z-10 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary';
+  protected readonly nameClass = CARD_META_TITLE_CLASS;
+  protected readonly countClass = CARD_META_LINE_CLASS;
+
+  protected onMenu(event: MouseEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.menuRequested.emit(contextMenuRequest(event));
   }
 
-  get thumbnailUrl(): string {
-    return this.authorService.getAuthorThumbnailUrl(this.author.id, this.cacheBuster || undefined);
-  }
-
-  get isMatched(): boolean {
-    return !!this.author.asin;
-  }
-
-  onCardClick(event: Event): void {
-    const target = event.target as HTMLElement;
-    if (target.closest('.menu-button-container')) {
-      return;
-    }
-    const isModifierClick = (event instanceof MouseEvent || event instanceof KeyboardEvent) && (event.ctrlKey || event.metaKey);
-    if (isModifierClick) {
+  protected onSelect(event: MouseEvent): void {
+    if (isContextMenuGesture(event)) {
       event.preventDefault();
-      event.stopPropagation();
-      this.toggleCardSelection(!this.isSelected);
       return;
     }
-    event.stopPropagation();
-    this.cardClick.emit(this.author);
-  }
-
-
-  onPhotoError(): void {
-    this.hasPhoto = false;
-  }
-
-  captureMouseEvent(event: MouseEvent): void {
-    event.stopPropagation();
-    this.lastShiftKey = event.shiftKey;
-  }
-
-  toggleSelection(event: CheckboxChangeEvent): void {
-    this.checkboxClick.emit({index: this.index, author: this.author, selected: event.checked, shiftKey: this.lastShiftKey});
-  }
-
-  toggleCardSelection(selected: boolean): void {
-    this.checkboxClick.emit({index: this.index, author: this.author, selected, shiftKey: false});
-  }
-
-  onMenuToggle(event: Event, menu: TieredMenu): void {
-    if (!this.menuInitialized) {
-      this.menuInitialized = true;
-      this.initMenu();
-      this.cdr.markForCheck();
-    }
-    menu.toggle(event);
-  }
-
-  onMenuShow(): void {
-    this.menuToggled.emit(true);
-  }
-
-  onMenuHide(): void {
-    this.menuToggled.emit(false);
-  }
-
-  private initMenu(): void {
-    this.items = [
-      {
-        label: this.t.translate('authorBrowser.card.menu.viewAuthor'),
-        icon: 'pi pi-user',
-        command: () => this.viewAuthor.emit(this.author)
-      },
-      ...(this.canQuickMatch ? [
-        {
-          label: this.t.translate('authorBrowser.card.menu.editAuthor'),
-          icon: 'pi pi-pencil',
-          command: () => this.editAuthor.emit(this.author)
-        },
-        {
-          label: this.t.translate('authorBrowser.card.menu.quickMatch'),
-          icon: this.quickMatching ? 'pi pi-spin pi-spinner' : 'pi pi-bolt',
-          disabled: this.quickMatching,
-          command: () => this.onQuickMatch()
-        }
-      ] : []),
-      ...(this.canDelete ? [
-        {
-          label: this.t.translate('authorBrowser.card.menu.deleteAuthor'),
-          icon: 'pi pi-trash',
-          command: () => this.deleteAuthor.emit(this.author)
-        }
-      ] : [])
-    ];
-  }
-
-  private onQuickMatch(): void {
-    if (this.quickMatching) return;
-
-    this.quickMatching = true;
-    this.authorService.quickMatchAuthor(this.author.id).subscribe({
-      next: (updated) => {
-        this.quickMatching = false;
-        this.author = {...this.author, asin: updated.asin, hasPhoto: true};
-        this.hasPhoto = true;
-        this.menuInitialized = false;
-        this.quickMatched.emit(this.author);
-        this.messageService.add({
-          severity: 'success',
-          summary: this.t.translate('authorBrowser.toast.quickMatchSuccessSummary'),
-          detail: this.t.translate('authorBrowser.toast.quickMatchSuccessDetail')
-        });
-      },
-      error: () => {
-        this.quickMatching = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: this.t.translate('authorBrowser.toast.quickMatchFailedSummary'),
-          detail: this.t.translate('authorBrowser.toast.quickMatchFailedDetail')
-        });
-      }
-    });
+    this.toggleSelect.emit({shiftKey: event.shiftKey});
   }
 }

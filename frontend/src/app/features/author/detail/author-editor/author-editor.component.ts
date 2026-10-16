@@ -1,4 +1,5 @@
-import {Component, inject, Input, OnChanges, OnInit, output, signal, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, signal, SimpleChanges} from '@angular/core';
+import {injectMutation, QueryClient} from '@tanstack/angular-query-experimental';
 import {FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {Button} from '@openng/optimus-ui/button';
@@ -11,8 +12,10 @@ import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
 import {Divider} from '@openng/optimus-ui/divider';
 import {MessageService} from '@openng/optimus-ui/api';
 import {DialogService} from '@openng/optimus-ui/dynamicdialog';
-import {AuthorService} from '../../../author-browser/service/author.service';
-import {AuthorDetails} from '../../../author-browser/model/author.model';
+import {UrlHelperService} from '../../../../shared/service/url-helper.service';
+import {AuthorCommandService} from '../../data/author-command.service';
+import {invalidateAuthorCollections} from '../../data/author-query-cache';
+import {type AuthorDetail} from '../../data/author-response.models';
 import {AuthorPhotoSearchComponent} from '../author-photo-search/author-photo-search.component';
 
 @Component({
@@ -35,33 +38,36 @@ import {AuthorPhotoSearchComponent} from '../author-photo-search/author-photo-se
   providers: [DialogService]
 })
 export class AuthorEditorComponent implements OnInit, OnChanges {
-  private readonly authorService = inject(AuthorService);
-  private readonly messageService = inject(MessageService);
-  private readonly dialogService = inject(DialogService);
-  private readonly t = inject(TranslocoService);
+  private readonly urlHelper = inject(UrlHelperService);
+  private readonly authorCommands = inject(AuthorCommandService);
+  private readonly queryClient = inject(QueryClient);
 
   @Input({required: true}) authorId!: number;
-  @Input({required: true}) author!: AuthorDetails;
-  readonly authorUpdated = output<AuthorDetails>();
+  @Input({required: true}) author!: AuthorDetail;
+  @Input({required: true}) photoTimestamp!: number;
+  @Output() authorUpdated = new EventEmitter<void>();
+
+  private messageService = inject(MessageService);
+  private dialogService = inject(DialogService);
+  private t = inject(TranslocoService);
 
   form!: FormGroup;
-  readonly isSaving = signal(false);
-  readonly isUploading = signal(false);
+  private readonly updateMutation = injectMutation(() => this.authorCommands.update());
+  readonly isSaving = this.updateMutation.isPending;
+  isUploading = signal(false);
   hasPhoto = true;
-  photoTimestamp = Date.now();
 
   get photoUrl(): string {
-    return this.authorService.getAuthorPhotoUrl(this.authorId) + '&t=' + this.photoTimestamp;
+    return this.urlHelper.getAuthorPhotoUrl(this.authorId, this.photoTimestamp);
   }
 
   get uploadUrl(): string {
-    return this.authorService.getUploadAuthorPhotoUrl(this.authorId);
+    return this.authorCommands.photoUploadUrl(this.authorId);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['author'] && !changes['author'].firstChange) {
+    if (changes['photoTimestamp'] && !changes['photoTimestamp'].firstChange) {
       this.hasPhoto = true;
-      this.photoTimestamp = Date.now();
     }
   }
 
@@ -139,9 +145,7 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
     });
     ref?.onClose.subscribe((result: boolean) => {
       if (result) {
-        this.photoTimestamp = Date.now();
-        this.hasPhoto = true;
-        this.authorUpdated.emit(this.author);
+        this.authorUpdated.emit();
       }
     });
   }
@@ -156,9 +160,8 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
 
   onUpload(): void {
     this.isUploading.set(false);
-    this.photoTimestamp = Date.now();
-    this.hasPhoto = true;
-    this.authorUpdated.emit(this.author);
+    void invalidateAuthorCollections(this.queryClient);
+    this.authorUpdated.emit();
     this.messageService.add({
       severity: 'success',
       summary: this.t.translate('authorBrowser.editor.toast.photoUploadedSummary'),
@@ -177,7 +180,6 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
 
   private saveMetadata(): void {
     if (this.isSaving()) return;
-    this.isSaving.set(true);
 
     const formValue = this.form.getRawValue();
     const request = {
@@ -190,25 +192,23 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
       photoLocked: formValue.photoLocked
     };
 
-    this.authorService.updateAuthor(this.authorId, request).subscribe({
-      next: (updated) => {
-        this.isSaving.set(false);
-        this.authorUpdated.emit(updated);
+    this.updateMutation.mutateAsync({authorId: this.authorId, request}).then(
+      () => {
+        this.authorUpdated.emit();
         this.messageService.add({
           severity: 'success',
           summary: this.t.translate('authorBrowser.editor.toast.successSummary'),
           detail: this.t.translate('authorBrowser.editor.toast.successDetail')
         });
       },
-      error: () => {
-        this.isSaving.set(false);
+      () => {
         this.messageService.add({
           severity: 'error',
           summary: this.t.translate('authorBrowser.editor.toast.errorSummary'),
           detail: this.t.translate('authorBrowser.editor.toast.errorDetail')
         });
       }
-    });
+    );
   }
 
   private applyLockStates(): void {
