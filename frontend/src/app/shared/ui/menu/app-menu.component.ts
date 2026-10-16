@@ -109,18 +109,17 @@ const submenuOverlayPositions: ConnectedPosition[] = [
   `,
 })
 export class AppMenuComponent {
-  readonly ariaLabel = input.required<string>();
-  readonly menuClass = input('');
-
-  readonly opened = output<void>();
-  readonly closed = output<void>();
-
   readonly menu = inject(Menu);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly overlay = inject(Overlay);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
   private readonly layout = inject(LayoutService);
+  readonly ariaLabel = input.required<string>();
+  readonly menuClass = input('');
+
+  readonly opened = output<void>();
+  readonly closed = output<void>();
   private readonly lazyContent = contentChild(AppMenuContentDirective);
   private readonly items = contentChildren(AppMenuAriaItemDirective, { descendants: true });
 

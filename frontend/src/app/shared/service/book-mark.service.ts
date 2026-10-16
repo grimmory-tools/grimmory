@@ -39,9 +39,9 @@ export interface UpdateBookMarkRequest {
 
 @Service()
 export class BookMarkService {
+  private readonly http = inject(HttpClient);
 
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/bookmarks`;
-  private readonly http = inject(HttpClient);
 
   getBookmarksForBook(bookId: number): Observable<BookMark[]> {
     return this.http.get<BookMark[]>(`${this.url}/book/${bookId}`);

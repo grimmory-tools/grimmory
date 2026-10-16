@@ -22,15 +22,14 @@ import {retryTransientQueryError} from '../../../../core/data/query-transport';
     DecimalPipe,MetadataPickerComponent, ProgressSpinner, Button, Divider, ProgressBar, Tooltip],
 })
 export class MetadataReviewDialogComponent implements OnInit {
-
-  @ViewChild(MetadataPickerComponent)
-  pickerComponent!: MetadataPickerComponent;
-
   private readonly config = inject(DynamicDialogConfig);
   private readonly dialogRef = inject(DynamicDialogRef);
   private readonly metadataTaskService = inject(MetadataTaskService);
   private readonly bookService = inject(BookService);
   private readonly progressService = inject(MetadataProgressService);
+
+  @ViewChild(MetadataPickerComponent)
+  pickerComponent!: MetadataPickerComponent;
 
   readonly proposals = signal<FetchedProposal[]>([]);
   readonly currentIndex = signal(0);

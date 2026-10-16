@@ -24,17 +24,16 @@ import {DatePipe} from '@angular/common';
   providers: [ConfirmationService, DialogService]
 })
 export class CustomFontsComponent implements OnInit {
-  fontsLoadedInBrowser = false;
-  uploadDialogRef: DynamicDialogRef | null = null;
-
-  readonly maxFonts = 10;
-
   private readonly customFontService = inject(CustomFontService);
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly dialogService = inject(DialogService);
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
+  fontsLoadedInBrowser = false;
+  uploadDialogRef: DynamicDialogRef | null = null;
+
+  readonly maxFonts = 10;
 
   get customFonts(): CustomFont[] { return this.customFontService.fonts(); }
   get isLoading(): boolean { return this.customFontService.isFontsLoading(); }

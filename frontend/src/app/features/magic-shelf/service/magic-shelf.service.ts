@@ -22,11 +22,10 @@ const MAGIC_SHELVES_QUERY_KEY = ['magicShelves'] as const;
 
 @Service()
 export class MagicShelfService {
-  private readonly url = `${API_CONFIG.BASE_URL}/api/magic-shelves`;
-
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
   private readonly queryClient = inject(QueryClient);
+  private readonly url = `${API_CONFIG.BASE_URL}/api/magic-shelves`;
   private readonly token = this.authService.token;
 
   private readonly shelvesQuery = injectQuery(() => ({

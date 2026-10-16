@@ -12,10 +12,9 @@ export interface KoreaderUser {
 
 @Service()
 export class KoreaderService {
+  private readonly http = inject(HttpClient);
 
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/koreader-users`;
-
-  private readonly http = inject(HttpClient);
 
   createUser(username: string, password: string): Observable<KoreaderUser> {
     const payload: unknown = {username, password};

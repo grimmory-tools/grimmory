@@ -46,10 +46,9 @@ export class BrowseBulkActionsDividerComponent {
   },
 })
 export class BrowseBulkActionsItemDirective {
-  readonly id = input.required<string>({alias: 'appBrowseBulkActionsItem'});
   readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
-
   private readonly bar = inject(BrowseBulkActionsBarComponent);
+  readonly id = input.required<string>({alias: 'appBrowseBulkActionsItem'});
   protected readonly overflowed = computed(() => this.bar.overflowed().has(this.id()));
 }
 
@@ -112,6 +111,7 @@ export class BrowseBulkActionsItemDirective {
   `,
 })
 export class BrowseBulkActionsBarComponent {
+  private readonly layout = inject(LayoutService);
   readonly count = input.required<number>();
   readonly total = input<number | null>(null);
   readonly moreMenu = input<AppMenuComponent | null>(null);
@@ -123,8 +123,6 @@ export class BrowseBulkActionsBarComponent {
 
   private readonly overflowedIds = signal<ReadonlySet<string>>(new Set(), {equal: sameIds});
   readonly overflowed = this.overflowedIds.asReadonly();
-
-  private readonly layout = inject(LayoutService);
   private readonly strip = viewChild.required<ElementRef<HTMLElement>>('strip');
   private readonly leading = viewChild<ElementRef<HTMLElement>>('leading');
   private readonly items = contentChildren(BrowseBulkActionsItemDirective);

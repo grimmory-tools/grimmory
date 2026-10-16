@@ -25,19 +25,19 @@
     @if (isDocViewerInfoVisible()) {
     <div class="doc-viewer-info">
       <span>{{ 'readerPdf.docViewer.changesSavedInfo' | transloco }}</span>
-      <button class="dismiss-btn" [attr.aria-label]="'readerPdf.docViewer.dismiss' | transloco" (click)="dismissDocViewerInfo()">
+      <button type="button" class="dismiss-btn" [attr.aria-label]="'readerPdf.docViewer.dismiss' | transloco" (click)="dismissDocViewerInfo()">
         <app-reader-icon name="close" [size]="14" />
       </button>
     </div>
     }
 
     <div class="embed-header-actions">
-      <button class="embed-action-btn save-btn" [title]="'readerPdf.docViewer.saveDocument' | transloco" [attr.aria-label]="'readerPdf.docViewer.saveDocument' | transloco"
+      <button type="button" class="embed-action-btn save-btn" [title]="'readerPdf.docViewer.saveDocument' | transloco" [attr.aria-label]="'readerPdf.docViewer.saveDocument' | transloco"
         [disabled]="isSavingDocument() || isClosingReader()" [attr.aria-busy]="isSavingDocument()"
         (click)="saveDocument()">
         <app-reader-icon name="save" [size]="18" />
       </button>
-      <button class="embed-action-btn close-btn" [title]="'readerPdf.toolbar.closePdfReader' | transloco" [attr.aria-label]="'readerPdf.toolbar.closePdfReader' | transloco"
+      <button type="button" class="embed-action-btn close-btn" [title]="'readerPdf.toolbar.closePdfReader' | transloco" [attr.aria-label]="'readerPdf.toolbar.closePdfReader' | transloco"
         [disabled]="isClosingReader()" (pointerdown)="onCloseReaderPointerDown($event)" (click)="onCloseReaderClick($event)">
         <app-reader-icon name="close" [size]="18" />
       </button>
@@ -74,13 +74,13 @@
 
         <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'zoomOut' }" />
         <div class="zoom-menu-wrapper">
-          <button class="icon-btn zoom-label-btn" [attr.aria-label]="'readerPdf.toolbar.zoomPreset' | transloco" (click)="toggleZoomMenu()">
+          <button type="button" class="icon-btn zoom-label-btn" [attr.aria-label]="'readerPdf.toolbar.zoomPreset' | transloco" (click)="toggleZoomMenu()">
             <span class="zoom-label">{{ zoom() }}</span>
           </button>
           @if (isZoomMenuOpen()) {
           <div class="zoom-dropdown">
             @for (preset of zoomPresets; track preset.value) {
-            <button class="zoom-option" [class.active]="zoom() === preset.value" (click)="setZoomPreset(preset.value)">
+            <button type="button" class="zoom-option" [class.active]="zoom() === preset.value" (click)="setZoomPreset(preset.value)">
               {{ preset.label }}
             </button>
             }
@@ -107,7 +107,7 @@
       </div>
 
       <!-- Close button (always visible) -->
-      <button class="icon-btn close-btn" [title]="'readerPdf.toolbar.closePdfReader' | transloco" [attr.aria-label]="'readerPdf.toolbar.closePdfReader' | transloco"
+      <button type="button" class="icon-btn close-btn" [title]="'readerPdf.toolbar.closePdfReader' | transloco" [attr.aria-label]="'readerPdf.toolbar.closePdfReader' | transloco"
         [disabled]="isClosingReader()" (pointerdown)="onCloseReaderPointerDown($event)" (click)="onCloseReaderClick($event)">
         <app-reader-icon name="close" [size]="20" />
       </button>
@@ -130,7 +130,7 @@
     <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'spreadMode', isOverflow: true }" />
     <div class="overflow-divider"></div>
     @for (preset of zoomPresets; track preset.value) {
-    <button class="overflow-item" [class.active]="zoom() === preset.value" (click)="setZoomPreset(preset.value); closeToolbarOverflow()">
+    <button type="button" class="overflow-item" [class.active]="zoom() === preset.value" (click)="setZoomPreset(preset.value); closeToolbarOverflow()">
       <app-reader-icon name="magnifier" [size]="18" />
       <span>{{ preset.label }}</span>
     </button>
@@ -141,7 +141,7 @@
     <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'zoomIn', isOverflow: true }" />
     <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'zoomOut', isOverflow: true }" />
     <ng-container *ngTemplateOutlet="actionBtn; context: { id: 'fullscreen', isOverflow: true }" />
-    <button class="overflow-item" [disabled]="isClosingReader()" (click)="onCloseReaderClick($event); closeToolbarOverflow()">
+    <button type="button" class="overflow-item" [disabled]="isClosingReader()" (click)="onCloseReaderClick($event); closeToolbarOverflow()">
       <app-reader-icon name="close" [size]="18" />
       <span>{{ 'readerPdf.toolbar.closePdfReader' | transloco }}</span>
     </button>
@@ -160,13 +160,13 @@
         (keyup.enter)="onSearchNext()"
         (keyup.escape)="closeSearch()" />
     </div>
-    <button class="icon-btn search-nav-btn" [title]="'readerPdf.toolbar.searchPrevious' | transloco" [attr.aria-label]="'readerPdf.toolbar.searchPrevious' | transloco" (click)="onSearchPrevious()">
+    <button type="button" class="icon-btn search-nav-btn" [title]="'readerPdf.toolbar.searchPrevious' | transloco" [attr.aria-label]="'readerPdf.toolbar.searchPrevious' | transloco" (click)="onSearchPrevious()">
       <app-reader-icon name="chevron-left" [size]="14" />
     </button>
-    <button class="icon-btn search-nav-btn" [title]="'readerPdf.toolbar.searchNext' | transloco" [attr.aria-label]="'readerPdf.toolbar.searchNext' | transloco" (click)="onSearchNext()">
+    <button type="button" class="icon-btn search-nav-btn" [title]="'readerPdf.toolbar.searchNext' | transloco" [attr.aria-label]="'readerPdf.toolbar.searchNext' | transloco" (click)="onSearchNext()">
       <app-reader-icon name="chevron-right" [size]="14" />
     </button>
-    <button class="icon-btn search-close" [attr.aria-label]="'readerPdf.toolbar.closeSearch' | transloco" (click)="closeSearch()">
+    <button type="button" class="icon-btn search-close" [attr.aria-label]="'readerPdf.toolbar.closeSearch' | transloco" (click)="closeSearch()">
       <app-reader-icon name="close" [size]="14" />
     </button>
   </div>
@@ -192,11 +192,11 @@
   <!-- Footer (shared across both viewer modes) -->
   <div class="pdf-footer" [class.is-visible]="footerShown()" (mouseenter)="visibilityManager.setFooterHovered(true)" (mouseleave)="visibilityManager.setFooterHovered(false)">
     <div class="page-nav-left">
-      <button class="nav-btn" (click)="goToFirstPage()" [disabled]="page() <= 1"
+      <button type="button" class="nav-btn" (click)="goToFirstPage()" [disabled]="page() <= 1"
         [title]="'readerPdf.footer.firstPage' | transloco" [attr.aria-label]="'readerPdf.footer.firstPage' | transloco">
         <app-reader-icon name="chevron-first" [size]="16" />
       </button>
-      <button class="nav-btn" (click)="goToPreviousPage()" [disabled]="page() <= 1"
+      <button type="button" class="nav-btn" (click)="goToPreviousPage()" [disabled]="page() <= 1"
         [title]="'readerPdf.footer.previousPage' | transloco" [attr.aria-label]="'readerPdf.footer.previousPage' | transloco">
         <app-reader-icon name="chevron-left" [size]="16" />
       </button>
@@ -204,11 +204,11 @@
         <span class="current">{{ page() }}</span>
         <span class="total"> {{ 'readerPdf.footer.of' | transloco }} {{ totalPages() }}</span>
       </div>
-      <button class="nav-btn" (click)="goToNextPage()" [disabled]="page() >= totalPages()"
+      <button type="button" class="nav-btn" (click)="goToNextPage()" [disabled]="page() >= totalPages()"
         [title]="'readerPdf.footer.nextPage' | transloco" [attr.aria-label]="'readerPdf.footer.nextPage' | transloco">
         <app-reader-icon name="chevron-right" [size]="16" />
       </button>
-      <button class="nav-btn" (click)="goToLastPage()" [disabled]="page() >= totalPages()"
+      <button type="button" class="nav-btn" (click)="goToLastPage()" [disabled]="page() >= totalPages()"
         [title]="'readerPdf.footer.lastPage' | transloco" [attr.aria-label]="'readerPdf.footer.lastPage' | transloco">
         <app-reader-icon name="chevron-last" [size]="16" />
       </button>
@@ -232,7 +232,7 @@
           [placeholder]="'readerPdf.footer.pagePlaceholder' | transloco" class="page-input"
           aria-label="{{ 'readerPdf.footer.pagePlaceholder' | transloco }}"
           (keyup.enter)="onGoToPage()" />
-        <button class="go-btn" (click)="onGoToPage()"
+        <button type="button" class="go-btn" (click)="onGoToPage()"
           [disabled]="goToPageInput() === null || goToPageInput()! < 1 || goToPageInput()! > totalPages()">
           {{ 'readerPdf.footer.go' | transloco }}
         </button>
@@ -242,10 +242,10 @@
     <div class="footer-spacer"></div>
 
     <div class="viewer-mode-toggle">
-      <button class="toggle-btn toggle-book" [class.active]="viewerMode() === 'book'" (click)="setViewerMode('book')">
+      <button type="button" class="toggle-btn toggle-book" [class.active]="viewerMode() === 'book'" (click)="setViewerMode('book')">
         <i class="pi pi-book"></i><span>{{ 'readerPdf.footer.bookViewer' | transloco }}</span>
       </button>
-      <button class="toggle-btn toggle-doc" [class.active]="viewerMode() === 'document'" (click)="setViewerMode('document')">
+      <button type="button" class="toggle-btn toggle-doc" [class.active]="viewerMode() === 'document'" (click)="setViewerMode('document')">
         <i class="pi pi-file"></i><span>{{ 'readerPdf.footer.docViewer' | transloco }}</span>
       </button>
     </div>
@@ -413,12 +413,12 @@
 
 <ng-template #btnBase let-id="id" let-icon="icon" let-title="title" let-active="active" let-pressed="pressed" let-className="className" let-isOverflow="isOverflow" let-size="size">
   @if (isOverflow) {
-    <button class="overflow-item" [class.active]="active" (click)="performAction(id); closeToolbarOverflow()">
+    <button type="button" class="overflow-item" [class.active]="active" (click)="performAction(id); closeToolbarOverflow()">
       <app-reader-icon [name]="icon" [size]="18" />
       <span>{{ title | transloco }}</span>
     </button>
   } @else {
-    <button class="icon-btn" [class]="className" [class.active]="active" [class.bookmarked]="icon === 'bookmark' && active"
+    <button type="button" class="icon-btn" [class]="className" [class.active]="active" [class.bookmarked]="icon === 'bookmark' && active"
       [title]="title | transloco" [attr.aria-label]="title | transloco"
       [attr.aria-pressed]="pressed" (click)="performAction(id)">
       <app-reader-icon [name]="icon" [size]="size" />

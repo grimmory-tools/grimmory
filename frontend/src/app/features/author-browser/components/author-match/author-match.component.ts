@@ -30,14 +30,13 @@ interface RegionOption {
   ]
 })
 export class AuthorMatchComponent implements OnInit {
+  private readonly authorService = inject(AuthorService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
 
   @Input({required: true}) authorId!: number;
   @Input({required: true}) authorName!: string;
   @Output() authorMatched = new EventEmitter<AuthorDetails>();
-
-  private readonly authorService = inject(AuthorService);
-  private readonly messageService = inject(MessageService);
-  private readonly t = inject(TranslocoService);
 
   readonly searchQuery = signal('');
   readonly asinQuery = signal('');

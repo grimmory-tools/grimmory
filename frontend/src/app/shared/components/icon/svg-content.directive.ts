@@ -5,10 +5,9 @@ import {Directive, ElementRef, Renderer2, effect, inject, input} from '@angular/
   standalone: true,
 })
 export class SvgContentDirective {
-  readonly appSvgContent = input<string | null>(null);
-
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly renderer = inject(Renderer2);
+  readonly appSvgContent = input<string | null>(null);
 
   constructor() {
     effect(() => {

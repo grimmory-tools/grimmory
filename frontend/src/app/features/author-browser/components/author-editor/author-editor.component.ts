@@ -35,15 +35,14 @@ import {AuthorPhotoSearchComponent} from '../author-photo-search/author-photo-se
   providers: [DialogService]
 })
 export class AuthorEditorComponent implements OnInit, OnChanges {
-
-  @Input({required: true}) authorId!: number;
-  @Input({required: true}) author!: AuthorDetails;
-  @Output() authorUpdated = new EventEmitter<AuthorDetails>();
-
   private readonly authorService = inject(AuthorService);
   private readonly messageService = inject(MessageService);
   private readonly dialogService = inject(DialogService);
   private readonly t = inject(TranslocoService);
+
+  @Input({required: true}) authorId!: number;
+  @Input({required: true}) author!: AuthorDetails;
+  @Output() authorUpdated = new EventEmitter<AuthorDetails>();
 
   form!: FormGroup;
   readonly isSaving = signal(false);

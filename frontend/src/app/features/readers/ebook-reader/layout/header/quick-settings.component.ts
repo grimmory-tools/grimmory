@@ -14,12 +14,11 @@ import {EbookViewerSetting} from '../../../../book/model/book.model';
   styleUrls: ['./quick-settings.component.scss']
 })
 export class ReaderQuickSettingsComponent {
+  private readonly bookService = inject(BookService);
   @Input() stateService!: ReaderStateService;
   @Input() bookId!: number;
   @Output() closed = new EventEmitter<void>();
   @Output() openFullSettings = new EventEmitter<void>();
-
-  private readonly bookService = inject(BookService);
 
   get state() {
     return this.stateService.state();

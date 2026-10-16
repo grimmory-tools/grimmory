@@ -33,9 +33,9 @@ export interface UpdateBookNoteV2Request {
 
 @Service()
 export class BookNoteV2Service {
+  private readonly http = inject(HttpClient);
 
   private readonly url = `${API_CONFIG.BASE_URL}/api/v2/book-notes`;
-  private readonly http = inject(HttpClient);
 
   getNotesForBook(bookId: number): Observable<BookNoteV2[]> {
     return this.http.get<BookNoteV2[]>(`${this.url}/book/${bookId}`);

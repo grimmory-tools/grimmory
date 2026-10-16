@@ -49,6 +49,25 @@ type EmbedPdfMessage =
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PdfReaderComponent implements OnInit, OnDestroy {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
+  private readonly bookService = inject(BookService);
+  private readonly userService = inject(UserService);
+  private readonly authService = inject(AuthService);
+  private readonly messageService = inject(MessageService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly pageTitle = inject(PageTitleService);
+  private readonly readingSessionService = inject(ReadingSessionService);
+  private readonly location = inject(Location);
+  private readonly router = inject(Router);
+  private readonly pdfAnnotationService = inject(PdfAnnotationService);
+  private readonly cacheStorageService = inject(CacheStorageService);
+  private readonly localSettingsService = inject(LocalSettingsService);
+  private readonly t = inject(TranslocoService);
+  private readonly wakeLockService = inject(WakeLockService);
+  readonly embedPdfBook = inject(EmbedPdfBookService);
+  readonly pdfBookmarkService = inject(PdfBookmarkService);
+  private readonly ngZone = inject(NgZone);
 
   // --- Template-bound signals ---
   readonly isLoading = signal(true);
@@ -179,26 +198,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   private lastAnnotationData: string | null = null;
   private annotationsDirty = false;
   private pdfBlobUrl: string | null = null;
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly injector = inject(Injector);
-
-  private readonly bookService = inject(BookService);
-  private readonly userService = inject(UserService);
-  private readonly authService = inject(AuthService);
-  private readonly messageService = inject(MessageService);
-  private readonly route = inject(ActivatedRoute);
-  private readonly pageTitle = inject(PageTitleService);
-  private readonly readingSessionService = inject(ReadingSessionService);
-  private readonly location = inject(Location);
-  private readonly router = inject(Router);
-  private readonly pdfAnnotationService = inject(PdfAnnotationService);
-  private readonly cacheStorageService = inject(CacheStorageService);
-  private readonly localSettingsService = inject(LocalSettingsService);
-  private readonly t = inject(TranslocoService);
-  private readonly wakeLockService = inject(WakeLockService);
-  readonly embedPdfBook = inject(EmbedPdfBookService);
-  readonly pdfBookmarkService = inject(PdfBookmarkService);
-  private readonly ngZone = inject(NgZone);
   private userPanPreferred = false;
 
   constructor() {
@@ -1598,7 +1597,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
           this.annotationsDirty = true;
           console.error('[PDF Annotations] Save failed:', res.status);
         }
-      }).catch(err => {
+      }).catch((err: unknown) => {
         this.annotationsDirty = true;
         console.error('[PDF Annotations] Failed to save annotations:', err);
       });
@@ -1627,7 +1626,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       credentials: 'include',
       body: JSON.stringify({ data: this.lastAnnotationData }),
       keepalive: true,
-    }).catch((err) => { console.error('[PDF Annotations Sync] Sync save failed:', err); });
+    }).catch((err: unknown) => { console.error('[PDF Annotations Sync] Sync save failed:', err); });
   }
 
   private cacheAnnotationData(): void {

@@ -134,7 +134,7 @@ export class HardcoverSettingsComponent {
         summary: this.t.translate('settingsDevice.copied'),
         detail: this.t.translate('settingsDevice.copiedDetail', {label})
       });
-    }).catch(err => {
+    }).catch((err: unknown) => {
       console.error('Copy failed', err);
       this.messageService.add({
         severity: 'error',

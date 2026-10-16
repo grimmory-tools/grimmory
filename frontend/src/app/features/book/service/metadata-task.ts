@@ -37,9 +37,9 @@ export interface MetadataFetchTask {
 
 @Service()
 export class MetadataTaskService {
+  private readonly http = inject(HttpClient);
 
   private readonly url = `${API_CONFIG.BASE_URL}/api/metadata/tasks`;
-  private readonly http = inject(HttpClient);
 
   getTaskWithProposals(taskId: string): Observable<MetadataFetchTask> {
     return this.http.get<{ task: MetadataFetchTask }>(`${this.url}/${taskId}`)

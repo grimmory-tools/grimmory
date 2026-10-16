@@ -25,11 +25,6 @@ import {MetadataCatalogService} from '../../../../shared/metadata/metadata-catal
   styleUrl: './book-reviews.component.scss'
 })
 export class BookReviewsComponent implements OnInit, OnChanges {
-  @Input() bookId!: number;
-  @Input() reviews: BookReview[] | undefined = [];
-  @Input() active: boolean = false;
-  @Input() reviewsLocked = false;
-
   private readonly reviewService = inject(BookReviewService);
   private readonly bookMetadataManageService = inject(BookMetadataManageService);
   private readonly confirmationService = inject(ConfirmationService);
@@ -39,6 +34,10 @@ export class BookReviewsComponent implements OnInit, OnChanges {
   private readonly destroyRef = inject(DestroyRef);
   private readonly t = inject(TranslocoService);
   protected readonly catalog = inject(MetadataCatalogService);
+  @Input() bookId!: number;
+  @Input() reviews: BookReview[] | undefined = [];
+  @Input() active: boolean = false;
+  @Input() reviewsLocked = false;
   private loadingBookId: number | null = null;
   private loadingRequestSeq = 0;
   private activeLoadingRequestSeq: number | null = null;

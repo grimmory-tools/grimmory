@@ -6,6 +6,8 @@ import {UserService} from '../../features/settings/user-management/user.service'
 
 @Service()
 export class MetadataProgressService implements OnDestroy {
+  private readonly metadataTaskService = inject(MetadataTaskService);
+  private readonly userService = inject(UserService);
   private readonly progressMap = new Map<string, BehaviorSubject<MetadataBatchProgressNotification>>();
 
   private readonly progressUpdatesSubject = new Subject<MetadataBatchProgressNotification>();
@@ -13,9 +15,6 @@ export class MetadataProgressService implements OnDestroy {
 
   private readonly activeTasksSubject = new BehaviorSubject<Record<string, MetadataBatchProgressNotification>>({});
   activeTasks$ = this.activeTasksSubject.asObservable();
-
-  private readonly metadataTaskService = inject(MetadataTaskService);
-  private readonly userService = inject(UserService);
 
   private readonly subscriptions = new Subscription();
   private hasInitialized = false;

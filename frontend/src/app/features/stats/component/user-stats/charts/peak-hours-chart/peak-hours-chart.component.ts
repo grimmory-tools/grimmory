@@ -22,13 +22,12 @@ type PeakHoursChartData = ChartData<'line', number[], string>;
   styleUrls: ['./peak-hours-chart.component.scss']
 })
 export class PeakHoursChartComponent implements OnInit {
-  public readonly chartType = 'line' as const;
-  public readonly chartData$: Observable<PeakHoursChartData>;
-  public readonly chartOptions: ChartConfiguration['options'];
-
   private readonly userStatsService = inject(UserStatsService);
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
+  public readonly chartType = 'line' as const;
+  public readonly chartData$: Observable<PeakHoursChartData>;
+  public readonly chartOptions: ChartConfiguration['options'];
   private readonly chartDataSubject: BehaviorSubject<PeakHoursChartData>;
 
   public selectedYear: number | null = null;

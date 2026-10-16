@@ -18,16 +18,15 @@ import {SortPref} from '../../../../shared/layout/sidebar-sort-preferences';
   styleUrl: './sidebar-sorting-preferences.component.scss'
 })
 export class SidebarSortingPreferencesComponent {
+  private readonly layoutService = inject(LayoutService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
   private readonly sortingOptionDefs = [
     {value: {field: 'name', order: 'asc'}, translationKey: 'nameAsc'},
     {value: {field: 'name', order: 'desc'}, translationKey: 'nameDesc'},
     {value: {field: 'id', order: 'asc'}, translationKey: 'creationAsc'},
     {value: {field: 'id', order: 'desc'}, translationKey: 'creationDesc'},
   ] satisfies {value: SortPref; translationKey: string}[];
-
-  private readonly layoutService = inject(LayoutService);
-  private readonly messageService = inject(MessageService);
-  private readonly t = inject(TranslocoService);
   private readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
 
   readonly selectedLibrarySorting = this.layoutService.librarySort;

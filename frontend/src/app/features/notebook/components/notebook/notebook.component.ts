@@ -52,13 +52,13 @@ const EMPTY_PAGE: NotebookPage = {
 })
 export class NotebookComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
-  private readonly searchSubject = new Subject<void>();
-  private readonly loadTrigger$ = new Subject<void>();
-  private readonly bookFilterSubject = new Subject<string>();
   private readonly notebookService = inject(NotebookService);
   private readonly urlHelper = inject(UrlHelperService);
   private readonly pageTitle = inject(PageTitleService);
   private readonly t = inject(TranslocoService);
+  private readonly searchSubject = new Subject<void>();
+  private readonly loadTrigger$ = new Subject<void>();
+  private readonly bookFilterSubject = new Subject<string>();
 
   filteredGroups: BookGroup[] = [];
   totalEntries = 0;

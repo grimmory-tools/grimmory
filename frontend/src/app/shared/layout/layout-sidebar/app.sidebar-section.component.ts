@@ -14,6 +14,7 @@ import { LucideChevronDown, LucideChevronUp } from '@lucide/angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppSidebarSectionComponent {
+  readonly layoutService = inject(LayoutService);
   readonly item = input.required<SidebarSection>();
 
   // Applied on the <li> host so global styles in assets/layout/styles/layout/_sidebar.scss
@@ -21,8 +22,6 @@ export class AppSidebarSectionComponent {
   @HostBinding('class.layout-sidebar-root-item') readonly isRoot = true;
 
   readonly key = computed(() => this.item().menuKey);
-
-  readonly layoutService = inject(LayoutService);
 
   get isExpandable(): boolean {
     const item = this.item();

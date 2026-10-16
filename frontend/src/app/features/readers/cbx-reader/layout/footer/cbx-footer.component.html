@@ -2,7 +2,7 @@
   (mouseenter)="hoverChange.emit(true)" (mouseleave)="hoverChange.emit(false)">
 
   @if (state().hasSeries) {
-    <button
+    <button type="button"
       class="nav-btn series-btn"
       (click)="onPreviousBook()"
       [disabled]="!state().previousBookInSeries"
@@ -13,10 +13,10 @@
   }
 
   <div class="page-nav-left">
-    <button class="nav-btn" (click)="onFirstPage()" [disabled]="!canGoPrevious" [title]="'readerCbx.footer.firstPage' | transloco">
+    <button type="button" class="nav-btn" (click)="onFirstPage()" [disabled]="!canGoPrevious" [title]="'readerCbx.footer.firstPage' | transloco">
       <app-reader-icon name="chevron-first" [size]="16" />
     </button>
-    <button class="nav-btn" (click)="onPreviousPage()" [disabled]="!canGoPrevious" [title]="'readerCbx.footer.previousPage' | transloco">
+    <button type="button" class="nav-btn" (click)="onPreviousPage()" [disabled]="!canGoPrevious" [title]="'readerCbx.footer.previousPage' | transloco">
       <app-reader-icon name="chevron-left" [size]="16" />
     </button>
     <div class="page-info">
@@ -27,10 +27,10 @@
       <span class="total"> {{ 'readerCbx.footer.of' | transloco }} {{ state().totalPages }}</span>
     </div>
 
-    <button class="nav-btn" (click)="onNextPage()" [disabled]="!canGoNext" [title]="'readerCbx.footer.nextPage' | transloco">
+    <button type="button" class="nav-btn" (click)="onNextPage()" [disabled]="!canGoNext" [title]="'readerCbx.footer.nextPage' | transloco">
       <app-reader-icon name="chevron-right" [size]="16" />
     </button>
-    <button class="nav-btn" (click)="onLastPage()" [disabled]="!canGoNext" [title]="'readerCbx.footer.lastPage' | transloco">
+    <button type="button" class="nav-btn" (click)="onLastPage()" [disabled]="!canGoNext" [title]="'readerCbx.footer.lastPage' | transloco">
       <app-reader-icon name="chevron-last" [size]="16" />
     </button>
   </div>
@@ -66,7 +66,7 @@
           aria-label="{{ 'readerCbx.footer.pagePlaceholder' | transloco }}"
           (keyup.enter)="onGoToPage()"
         />
-        <button
+        <button type="button"
           class="go-btn"
           (click)="onGoToPage()"
           [disabled]="goToPageInput === null || goToPageInput < 1 || goToPageInput > state().totalPages">
@@ -81,7 +81,7 @@
   </div>
 
   @if (state().hasSeries) {
-    <button
+    <button type="button"
       class="nav-btn series-btn"
       (click)="onNextBook()"
       [disabled]="!state().nextBookInSeries"

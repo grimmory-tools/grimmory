@@ -15,7 +15,7 @@
 
       <!-- Tab navigation -->
       <nav class="tabs">
-        <button
+        <button type="button"
           class="tab"
           [class.active]="activeTab() === 'search'"
           (click)="setActiveTab('search')">
@@ -25,7 +25,7 @@
             <span class="badge">{{ searchState().results.length }}</span>
           }
         </button>
-        <button
+        <button type="button"
           class="tab"
           [class.active]="activeTab() === 'notes'"
           (click)="setActiveTab('notes')">
@@ -53,7 +53,7 @@
                   aria-label="{{ t('searchPlaceholder') }}"
                 />
                 @if (searchQuery) {
-                  <button class="clear-btn" (click)="clearSearch()" [attr.aria-label]="t('clearSearch')">
+                  <button type="button" class="clear-btn" (click)="clearSearch()" [attr.aria-label]="t('clearSearch')">
                     <app-reader-icon name="close" [size]="14" />
                   </button>
                 }
@@ -66,7 +66,7 @@
                   </div>
                   <div class="progress-info">
                     <span class="progress-text">{{ t('searching') }} {{ (searchState().progress * 100) | number:'1.0-0' }}%</span>
-                    <button class="cancel-search-btn" (click)="onCancelSearch()" [title]="t('cancelSearch')">
+                    <button type="button" class="cancel-search-btn" (click)="onCancelSearch()" [title]="t('cancelSearch')">
                       <app-reader-icon name="close" [size]="14" />
                     </button>
                   </div>
@@ -123,7 +123,7 @@
                     aria-label="{{ t('searchNotes') }}"
                   />
                   @if (notesSearchQuery()) {
-                    <button class="clear-btn" (click)="clearNotesSearch()" [attr.aria-label]="t('clearSearch')">
+                    <button type="button" class="clear-btn" (click)="clearNotesSearch()" [attr.aria-label]="t('clearSearch')">
                       <app-reader-icon name="close" [size]="14" />
                     </button>
                   }
@@ -146,10 +146,10 @@
                         <span class="item-meta">{{ note.createdAt | date: 'MMM d, y' }}</span>
                       </div>
                       <div class="action-buttons">
-                        <button class="edit-btn" (click)="onEditNote($event, note)" [attr.aria-label]="t('editNote')">
+                        <button type="button" class="edit-btn" (click)="onEditNote($event, note)" [attr.aria-label]="t('editNote')">
                           <app-reader-icon name="edit" [size]="16" />
                         </button>
-                        <button class="delete-btn" (click)="onDeleteNote($event, note.id)" [attr.aria-label]="t('deleteNote')">
+                        <button type="button" class="delete-btn" (click)="onDeleteNote($event, note.id)" [attr.aria-label]="t('deleteNote')">
                           <app-reader-icon name="trash" [size]="16" />
                         </button>
                       </div>

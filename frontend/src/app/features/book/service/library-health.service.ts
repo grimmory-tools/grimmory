@@ -10,11 +10,11 @@ const LIBRARY_HEALTH_QUERY_KEY = ['libraryHealth'] as const;
 
 @Service()
 export class LibraryHealthService {
-  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/libraries/health`;
   private readonly http = inject(HttpClient);
   private readonly rxStompService = inject(RxStompService);
   private readonly queryClient = inject(QueryClient);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/libraries/health`;
 
   private socketInitialized = false;
 

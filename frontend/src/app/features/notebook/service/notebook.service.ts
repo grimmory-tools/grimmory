@@ -6,9 +6,9 @@ import {NotebookBookOption, NotebookEntry, NotebookPage} from '../model/notebook
 
 @Service()
 export class NotebookService {
+  private readonly http = inject(HttpClient);
 
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/notebook`;
-  private readonly http = inject(HttpClient);
 
   getNotebookEntries(page: number, size: number, types: string[], bookId: number | null,
                      search: string, sort: string): Observable<NotebookPage> {

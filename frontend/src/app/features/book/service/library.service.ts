@@ -15,10 +15,10 @@ import {SHELVES_QUERY_KEY} from './shelf-query-keys';
 
 @Service()
 export class LibraryService {
-  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/libraries`;
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
   private readonly queryClient = inject(QueryClient);
+  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/libraries`;
   private readonly token = this.authService.token;
 
   private readonly librariesQuery = injectQuery(() => ({

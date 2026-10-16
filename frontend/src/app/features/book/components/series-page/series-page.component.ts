@@ -94,18 +94,10 @@ interface SeriesStats {
   ],
 })
 export class SeriesPageComponent implements AfterViewChecked {
-
-  private readonly DEFAULT_SERIES_CARD_WIDTH = 135;
-  private readonly DEFAULT_SERIES_CARD_HEIGHT = 220;
-  private readonly DESKTOP_SERIES_GRID_GAP = 21;
-  private readonly MOBILE_SERIES_GRID_GAP = 8;
-  private readonly MOBILE_GRID_COLUMNS = 2;
   private readonly route = inject(ActivatedRoute);
   private readonly bookService = inject(BookService);
   private readonly languageResolver = inject(LanguageResolverService);
   private readonly bookMetadataManageService = inject(BookMetadataManageService);
-  private readonly metadataCenterViewMode: "route" | "dialog" = "route";
-  private dialogRef?: DynamicDialogRef | null;
   private readonly router = inject(Router);
   protected userService = inject(UserService);
   private readonly bookMenuService = inject(BookMenuService);
@@ -120,6 +112,14 @@ export class SeriesPageComponent implements AfterViewChecked {
   protected urlHelper = inject(UrlHelperService);
   private readonly authorService = inject(AuthorService);
   private readonly layoutService = inject(LayoutService);
+
+  private readonly DEFAULT_SERIES_CARD_WIDTH = 135;
+  private readonly DEFAULT_SERIES_CARD_HEIGHT = 220;
+  private readonly DESKTOP_SERIES_GRID_GAP = 21;
+  private readonly MOBILE_SERIES_GRID_GAP = 8;
+  private readonly MOBILE_GRID_COLUMNS = 2;
+  private readonly metadataCenterViewMode: "route" | "dialog" = "route";
+  private dialogRef?: DynamicDialogRef | null;
 
   private readonly descriptionContentRef = viewChild<ElementRef<HTMLElement>>('descriptionContent');
   private readonly seriesGridElement = viewChild<ElementRef<HTMLElement>>('seriesGrid');

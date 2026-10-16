@@ -246,6 +246,15 @@ export class MagicShelfComponent implements OnInit {
   private readonly t = inject(TranslocoService);
   private readonly providerFields = inject(MetadataProviderFieldsService);
   private readonly injector = inject(Injector);
+  libraryService = inject(LibraryService);
+  shelfService = inject(ShelfService);
+  bookService = inject(BookService);
+  magicShelfService = inject(MagicShelfService);
+  ref = inject(DynamicDialogRef);
+  messageService = inject(MessageService);
+  config = inject(DynamicDialogConfig);
+  userService = inject(UserService);
+  private readonly iconPicker = inject(IconPickerService);
   private readonly controlIds = new WeakMap<AbstractControl, string>();
   private controlIdCounter = 0;
 
@@ -461,16 +470,6 @@ export class MagicShelfComponent implements OnInit {
   editMode!: boolean;
   showImportPanel = false;
   importJson = '';
-
-  libraryService = inject(LibraryService);
-  shelfService = inject(ShelfService);
-  bookService = inject(BookService);
-  magicShelfService = inject(MagicShelfService);
-  ref = inject(DynamicDialogRef);
-  messageService = inject(MessageService);
-  config = inject(DynamicDialogConfig);
-  userService = inject(UserService);
-  private readonly iconPicker = inject(IconPickerService);
 
   selectedIcon: IconSelection | null = null;
   private formInitializedFromShelf = false;

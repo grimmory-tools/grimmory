@@ -42,14 +42,12 @@ const REVEAL_CLASS = 'grid transition-[grid-template-rows] duration-200 ease-out
   templateUrl: './filter-section.component.html',
 })
 export class BrowseFilterSectionComponent<K extends string = string> implements OnInit {
+  private readonly injector = inject(Injector);
+  private readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   readonly group = input.required<BrowseFilterGroup<K>>();
   readonly alwaysShowBoxes = input(false, {transform: booleanAttribute});
   readonly toggleValue = output<BrowseFilterToggle<K>>();
   readonly commitRange = output<BrowseFilterRangeCommit<K>>();
-
-  private readonly injector = inject(Injector);
-
-  private readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   protected readonly disclosure = signal<'unopened' | 'open' | 'closed'>('unopened');
   protected readonly expanded = signal(false);
   protected readonly searching = signal(false);

@@ -20,10 +20,9 @@ const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   styleUrls: ['./session-archetypes-chart.component.scss']
 })
 export class SessionArchetypesChartComponent implements OnInit, OnDestroy {
-  @Input() initialYear = new Date().getFullYear();
-
   private readonly userStatsService = inject(UserStatsService);
   private readonly t = inject(TranslocoService);
+  @Input() initialYear = new Date().getFullYear();
   private readonly destroy$ = new Subject<void>();
 
   public readonly chartType = 'scatter' as const;

@@ -6,8 +6,8 @@ import {ContentRestriction} from './content-restriction.model';
 
 @Service()
 export class ContentRestrictionService {
-  private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/users`;
   private readonly http = inject(HttpClient);
+  private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/users`;
 
   getUserRestrictions(userId: number): Observable<ContentRestriction[]> {
     return this.http.get<ContentRestriction[]>(`${this.baseUrl}/${userId}/content-restrictions`);

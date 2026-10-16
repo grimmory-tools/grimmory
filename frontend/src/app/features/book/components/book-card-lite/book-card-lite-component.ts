@@ -22,14 +22,13 @@ import {Tooltip} from '@openng/optimus-ui/tooltip';
   styleUrl: './book-card-lite-component.scss'
 })
 export class BookCardLiteComponent {
-  @Input() book!: Book;
-  @Input() isActive: boolean = false;
-  @Input() showSeriesNumber: boolean = false;
-
   private readonly router = inject(Router);
   protected urlHelper = inject(UrlHelperService);
   private readonly userService = inject(UserService);
   private readonly bookMetadataHostService = inject(BookMetadataHostService);
+  @Input() book!: Book;
+  @Input() isActive: boolean = false;
+  @Input() showSeriesNumber: boolean = false;
 
   private readonly metadataCenterViewMode = computed(() =>
     this.userService.currentUser()?.userSettings.metadataCenterViewMode ?? 'route'

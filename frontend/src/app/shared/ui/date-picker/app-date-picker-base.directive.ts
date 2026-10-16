@@ -215,6 +215,9 @@ export const DATE_PICKER_TEMPLATE = `
 
 @Directive()
 export abstract class AppDatePickerBaseDirective {
+  private readonly fieldContext = inject(APP_FIELD, { optional: true });
+  private readonly localeId = inject(LOCALE_ID);
+  private readonly overlayService = inject(Overlay);
   readonly disabled = input(false, { transform: booleanAttribute });
   readonly required = input(false, { transform: booleanAttribute });
   readonly invalid = input(false, { transform: booleanAttribute });
@@ -241,10 +244,6 @@ export abstract class AppDatePickerBaseDirective {
   protected abstract pickDay(day: DayCell): void;
   protected abstract anchorIso(): string;
   protected abstract pickingEnd(): boolean;
-
-  private readonly fieldContext = inject(APP_FIELD, { optional: true });
-  private readonly localeId = inject(LOCALE_ID);
-  private readonly overlayService = inject(Overlay);
   private readonly originRef = viewChild<ElementRef<HTMLElement>>('origin');
   private readonly triggerRef = viewChild<ElementRef<HTMLInputElement>>('trigger');
   private readonly overlay = viewChild(CdkConnectedOverlay);

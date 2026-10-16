@@ -101,11 +101,6 @@ const BOOK_MENU_READ_ACTION_LABEL_KEYS: Readonly<Record<BookReadAction, string>>
   templateUrl: './book-menu.component.html',
 })
 export class BookMenuComponent {
-  readonly books = input<readonly BookSummary[]>([]);
-  readonly openInNewTab = input(false, {transform: booleanAttribute});
-
-  readonly deleted = output<readonly number[]>();
-
   private readonly userService = inject(UserService);
   private readonly appSettingsService = inject(AppSettingsService);
   private readonly fileDownload = inject(FileDownloadService);
@@ -119,6 +114,10 @@ export class BookMenuComponent {
   private readonly confirmationService = inject(ConfirmationService);
   private readonly transloco = inject(TranslocoService);
   private readonly router = inject(Router);
+  readonly books = input<readonly BookSummary[]>([]);
+  readonly openInNewTab = input(false, {transform: booleanAttribute});
+
+  readonly deleted = output<readonly number[]>();
 
   private readonly rootMenu = viewChild.required(AppMenuComponent);
   private readonly bookSnapshot = signal<BookSummary | null>(null);

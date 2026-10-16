@@ -78,8 +78,8 @@ export interface SessionScatterResponse {
 
 @Service()
 export class UserStatsService {
-  private readonly readingSessionsUrl = `${API_CONFIG.BASE_URL}/api/v1/user-stats`;
   private readonly http = inject(HttpClient);
+  private readonly readingSessionsUrl = `${API_CONFIG.BASE_URL}/api/v1/user-stats`;
 
   getHeatmapForYear(year: number): Observable<ReadingSessionHeatmapResponse[]> {
     return this.http.get<ReadingSessionHeatmapResponse[]>(

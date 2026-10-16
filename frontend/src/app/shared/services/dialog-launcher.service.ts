@@ -51,7 +51,7 @@ export class DialogLauncherService {
   }
 
   launchLazyDialog(dialogFn: () => Promise<DynamicDialogRef | null>): Promise<DynamicDialogRef | null> {
-    return dialogFn().catch(err => {
+    return dialogFn().catch((err: unknown) => {
       console.error('Failed to load dialog', err);
       this.messageService.add({
         severity: 'error',

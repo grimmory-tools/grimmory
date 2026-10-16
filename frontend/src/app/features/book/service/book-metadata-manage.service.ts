@@ -12,13 +12,12 @@ import {mitigateWebkitUploadBug} from '../../../shared/util/mitigate-webkit-uplo
 
 @Service()
 export class BookMetadataManageService {
-
-  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/books`;
-
   private readonly http = inject(HttpClient);
   private readonly messageService = inject(MessageService);
   private readonly queryClient = inject(QueryClient);
   private readonly t = inject(TranslocoService);
+
+  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/books`;
 
   updateBookMetadata(bookId: number | undefined, wrapper: MetadataUpdateWrapper, mergeCategories: boolean, replaceMode: 'REPLACE_ALL' | 'REPLACE_WHEN_PROVIDED' = 'REPLACE_ALL'): Observable<BookMetadata> {
     const params = new HttpParams().set('mergeCategories', mergeCategories.toString()).set('replaceMode', replaceMode);

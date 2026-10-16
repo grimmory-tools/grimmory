@@ -37,6 +37,12 @@ import {Select} from '@openng/optimus-ui/select';
   styleUrl: './bulk-metadata-update-component.scss'
 })
 export class BulkMetadataUpdateComponent implements OnInit {
+  private readonly config = inject(DynamicDialogConfig);
+  readonly ref = inject(DynamicDialogRef);
+  private readonly fb = inject(FormBuilder);
+  private readonly bookService = inject(BookService);
+  private readonly bookMetadataManageService = inject(BookMetadataManageService);
+  private readonly messageService = inject(MessageService);
   metadataForm!: FormGroup;
   bookIds: number[] = [];
   mergeCategories = true;
@@ -62,13 +68,6 @@ export class BulkMetadataUpdateComponent implements OnInit {
   readonly ageRatingOptions = AGE_RATING_OPTIONS.map(({id, label}) => ({label, value: id}));
   readonly contentRatingOptions = Object.entries(CONTENT_RATING_LABELS)
     .map(([value, label]) => ({label, value}));
-
-  private readonly config = inject(DynamicDialogConfig);
-  readonly ref = inject(DynamicDialogRef);
-  private readonly fb = inject(FormBuilder);
-  private readonly bookService = inject(BookService);
-  private readonly bookMetadataManageService = inject(BookMetadataManageService);
-  private readonly messageService = inject(MessageService);
   private readonly uniqueMetadata = computed(() => this.bookService.uniqueMetadata());
 
   get allAuthors(): string[] { return this.uniqueMetadata().authors; }

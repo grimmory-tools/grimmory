@@ -14,12 +14,11 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
   styleUrl: './meta-center-view-mode-component.scss'
 })
 export class MetaCenterViewModeComponent {
-  viewMode: 'route' | 'dialog' = 'route';
-  seriesViewMode: boolean = false;
-
   private readonly userService = inject(UserService);
   private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
+  viewMode: 'route' | 'dialog' = 'route';
+  seriesViewMode: boolean = false;
   private hasInitialized = false;
 
   constructor() {

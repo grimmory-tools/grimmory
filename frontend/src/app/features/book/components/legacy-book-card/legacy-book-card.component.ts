@@ -36,33 +36,7 @@ import {ButtonDirective} from '@openng/optimus-ui/button';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LegacyBookCardComponent {
-
-  // --- Inputs ---
-  readonly book = input.required<Book>();
-  readonly index = input.required<number>();
-  readonly isCheckboxEnabled = input(false);
-  readonly onBookSelect = input<((book: Book, selected: boolean) => void) | undefined>();
-  readonly isSelected = input(false);
-  readonly bottomBarHidden = input(false);
-  readonly seriesViewEnabled = input(false);
-  readonly isSeriesCollapsed = input(false);
-  readonly overlayPreferenceService = input<BookCardOverlayPreferenceService | undefined>();
   private readonly overlayService = inject(BookCardOverlayPreferenceService);
-  readonly showBookTypePill = computed(() => (this.overlayPreferenceService() ?? this.overlayService).showBookTypePill());
-  readonly forceEbookMode = input(false);
-  readonly useSquareCovers = input(false);
-
-  readonly checkboxClick = output<{ index: number; book: Book; selected: boolean; shiftKey: boolean }>();
-  readonly menuToggled = output<boolean>();
-
-  readonly items = signal<MenuItem[] | undefined>(undefined);
-  readonly readStatusMenuItems = signal<MenuItem[]>([]);
-  readonly isSubMenuLoading = signal(false);
-  private readonly additionalFilesLoaded = signal(false);
-  /** Tracks the book id for which the menu was last built, to auto-rebuild on virtual-scroller reuse. */
-  private menuBookId: number | undefined;
-  private menuInitialized = false;
-
   private readonly bookService = inject(BookService);
   private readonly bookFileService = inject(BookFileService);
   private readonly bookMetadataManageService = inject(BookMetadataManageService);
@@ -79,6 +53,31 @@ export class LegacyBookCardComponent {
   private readonly t = inject(TranslocoService);
   private readonly queryClient = inject(QueryClient);
   protected readStatusHelper = inject(ReadStatusHelper);
+
+  // --- Inputs ---
+  readonly book = input.required<Book>();
+  readonly index = input.required<number>();
+  readonly isCheckboxEnabled = input(false);
+  readonly onBookSelect = input<((book: Book, selected: boolean) => void) | undefined>();
+  readonly isSelected = input(false);
+  readonly bottomBarHidden = input(false);
+  readonly seriesViewEnabled = input(false);
+  readonly isSeriesCollapsed = input(false);
+  readonly overlayPreferenceService = input<BookCardOverlayPreferenceService | undefined>();
+  readonly showBookTypePill = computed(() => (this.overlayPreferenceService() ?? this.overlayService).showBookTypePill());
+  readonly forceEbookMode = input(false);
+  readonly useSquareCovers = input(false);
+
+  readonly checkboxClick = output<{ index: number; book: Book; selected: boolean; shiftKey: boolean }>();
+  readonly menuToggled = output<boolean>();
+
+  readonly items = signal<MenuItem[] | undefined>(undefined);
+  readonly readStatusMenuItems = signal<MenuItem[]>([]);
+  readonly isSubMenuLoading = signal(false);
+  private readonly additionalFilesLoaded = signal(false);
+  /** Tracks the book id for which the menu was last built, to auto-rebuild on virtual-scroller reuse. */
+  private menuBookId: number | undefined;
+  private menuInitialized = false;
 
   private readonly currentUser = computed(() => this.userService.currentUser());
   private readonly metadataCenterViewMode = computed(() => this.currentUser()?.userSettings?.metadataCenterViewMode ?? 'route');

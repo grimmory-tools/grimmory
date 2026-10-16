@@ -26,14 +26,13 @@ import {libraryShelfMenuAvailable, LibraryShelfMenuItemsComponent} from './libra
   `,
 })
 export class LibraryShelfMenuComponent {
+  private readonly currentUser = inject(UserService).currentUser;
   readonly target = input.required<LibraryShelfMenuTarget>();
   readonly ariaLabel = input.required<string>();
 
   readonly opened = output<void>();
   readonly closed = output<void>();
   readonly menu = viewChild.required(AppMenuComponent);
-
-  private readonly currentUser = inject(UserService).currentUser;
 
   readonly available = computed(
     () => libraryShelfMenuAvailable(this.target(), this.currentUser()),

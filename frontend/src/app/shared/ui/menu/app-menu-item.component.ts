@@ -92,6 +92,8 @@ import {
   `,
 })
 export class AppMenuItemComponent {
+  protected readonly menuItem = inject(AppMenuAriaItemDirective);
+  private readonly owner = inject(AppMenuComponent);
   readonly icon = input<LucideIconData | undefined>(undefined);
   readonly trailingIcon = input<LucideIconData | undefined>(undefined);
   readonly badge = input('');
@@ -107,9 +109,6 @@ export class AppMenuItemComponent {
   readonly searchLabel = input('');
 
   readonly selected = output<void>();
-
-  protected readonly menuItem = inject(AppMenuAriaItemDirective);
-  private readonly owner = inject(AppMenuComponent);
   private readonly anchor = viewChild<ElementRef<HTMLAnchorElement>>('anchor');
   private suppressClick = false;
 

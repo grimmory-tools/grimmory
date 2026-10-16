@@ -27,17 +27,16 @@ import {AuthorPhotoResult} from '../../model/author.model';
   ]
 })
 export class AuthorPhotoSearchComponent implements OnInit {
-  searchForm: FormGroup;
-  photos: AuthorPhotoResult[] = [];
-  searching = false;
-  hasSearched = false;
-
   private readonly fb = inject(FormBuilder);
   private readonly authorService = inject(AuthorService);
   private readonly dynamicDialogConfig = inject(DynamicDialogConfig);
   protected dynamicDialogRef = inject(DynamicDialogRef);
   private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
+  searchForm: FormGroup;
+  photos: AuthorPhotoResult[] = [];
+  searching = false;
+  hasSearched = false;
 
   private authorId!: number;
 

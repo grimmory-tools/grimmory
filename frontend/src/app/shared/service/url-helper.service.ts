@@ -6,10 +6,10 @@ import {Book, BookType} from '../../features/book/model/book.model';
 
 @Service()
 export class UrlHelperService {
-  private readonly baseUrl = API_CONFIG.BASE_URL;
-  private readonly mediaBaseUrl = `${this.baseUrl}/api/v1/media`;
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly baseUrl = API_CONFIG.BASE_URL;
+  private readonly mediaBaseUrl = `${this.baseUrl}/api/v1/media`;
 
   private getToken(): string | null {
     return this.authService.getInternalAccessToken();

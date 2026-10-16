@@ -53,8 +53,6 @@ import {API_CONFIG} from '../../../core/config/api-config';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AudiobookPlayerComponent implements OnInit, OnDestroy {
-  @ViewChild('audioElement') audioElement!: ElementRef<HTMLAudioElement>;
-
   private readonly destroyRef = inject(DestroyRef);
   private readonly audiobookService = inject(AudiobookService);
   private readonly bookService = inject(BookService);
@@ -67,6 +65,7 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
   private readonly pageTitle = inject(PageTitleService);
   private readonly t = inject(TranslocoService);
   private readonly cdr = inject(ChangeDetectorRef);
+  @ViewChild('audioElement') audioElement!: ElementRef<HTMLAudioElement>;
 
   private loadRequestId = 0;
   isLoading = true;

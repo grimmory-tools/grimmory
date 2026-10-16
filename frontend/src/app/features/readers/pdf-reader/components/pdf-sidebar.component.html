@@ -6,21 +6,21 @@
       <!-- Sidebar Header -->
       <header class="sidebar-header">
         <h2 class="sidebar-title">{{ t('title') }}</h2>
-        <button class="sidebar-close-btn" (click)="closed.emit()" [attr.aria-label]="t('close')">
+        <button type="button" class="sidebar-close-btn" (click)="closed.emit()" [attr.aria-label]="t('close')">
           <app-reader-icon name="close" [size]="18" />
         </button>
       </header>
 
       <!-- Tab navigation -->
       <nav class="tabs">
-        <button
+        <button type="button"
           class="tab"
           [class.active]="activeTab() === 'contents'"
           (click)="setActiveTab('contents')">
           <app-reader-icon name="book" class="tab-icon" />
           <span>{{ t('contentsTab') }}</span>
         </button>
-        <button
+        <button type="button"
           class="tab"
           [class.active]="activeTab() === 'bookmarks'"
           (click)="setActiveTab('bookmarks')">
@@ -30,7 +30,7 @@
             <span class="badge">{{ bookmarks().length }}</span>
           }
         </button>
-        <button
+        <button type="button"
           class="tab"
           [class.active]="activeTab() === 'annotations'"
           (click)="setActiveTab('annotations')">
@@ -55,7 +55,7 @@
 
               <ng-template #outlineItem let-item let-depth="depth">
                 <li role="treeitem" [attr.aria-selected]="false">
-                  <button
+                  <button type="button"
                     class="chapter-row"
                     [style.--depth]="depth"
                     (click)="onOutlineClick(item)">
@@ -88,7 +88,7 @@
                       <span class="item-title">{{ bookmark.title }}</span>
                       <span class="item-meta">{{ t('page') }} {{ bookmark.pageNumber }}</span>
                     </div>
-                    <button class="delete-btn" (click)="onDeleteBookmark($event, bookmark.id)" [attr.aria-label]="t('deleteBookmark')">
+                    <button type="button" class="delete-btn" (click)="onDeleteBookmark($event, bookmark.id)" [attr.aria-label]="t('deleteBookmark')">
                       <app-reader-icon name="trash" [size]="16" />
                     </button>
                   </li>
@@ -119,7 +119,7 @@
                         <p class="highlight-text">"{{ annotation.text }}"</p>
                       }
                     </div>
-                    <button class="delete-btn" (click)="onDeleteAnnotation($event, annotation.id)" [attr.aria-label]="t('deleteAnnotation')">
+                    <button type="button" class="delete-btn" (click)="onDeleteAnnotation($event, annotation.id)" [attr.aria-label]="t('deleteAnnotation')">
                       <app-reader-icon name="trash" [size]="14" />
                     </button>
                   </li>

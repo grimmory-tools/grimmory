@@ -6,7 +6,7 @@
         <i class="pi pi-chart-line"></i>
         <h2>{{ t('main.title', { name: userName() }) }}</h2>
       </div>
-      <button class="config-toggle-btn" (click)="toggleConfigPanel()">
+      <button type="button" class="config-toggle-btn" (click)="toggleConfigPanel()">
         <i class="pi pi-cog"></i>
         <span>{{ t('main.customizeLayout') }}</span>
       </button>
@@ -31,7 +31,7 @@
               <i class="pi pi-bars"></i>
             </div>
             <span class="chart-title">{{ t(chartNameKey(chart.id)) }}</span>
-            <button
+            <button type="button"
               class="visibility-toggle"
               (click)="toggleChart(chart.id)"
               [class.disabled]="!chart.enabled">

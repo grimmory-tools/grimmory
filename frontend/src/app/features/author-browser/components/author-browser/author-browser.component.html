@@ -36,11 +36,11 @@
             optionValue="value"
             class="sort-dropdown" />
 
-          <button class="sort-direction-btn" (click)="toggleSortDirection()">
+          <button type="button" class="sort-direction-btn" (click)="toggleSortDirection()">
             <i class="pi" [class.pi-arrow-up]="sortDirection() === 'asc'" [class.pi-arrow-down]="sortDirection() === 'desc'"></i>
           </button>
 
-          <button class="filter-btn" (click)="filterPopover.toggle($event)">
+          <button type="button" class="filter-btn" (click)="filterPopover.toggle($event)">
             <i class="pi pi-filter"></i>
             @if (activeFilterCount() > 0) {
               <span class="filter-badge"></span>

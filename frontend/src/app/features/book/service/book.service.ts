@@ -28,9 +28,6 @@ import {
 
 @Service()
 export class BookService {
-
-  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/books`;
-
   private readonly http = inject(HttpClient);
   private readonly messageService = inject(MessageService);
   private readonly authService = inject(AuthService);
@@ -39,6 +36,8 @@ export class BookService {
   private readonly bookPatchService = inject(BookPatchService);
   private readonly queryClient = inject(QueryClient);
   private readonly t = inject(TranslocoService);
+
+  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/books`;
   private readonly token = this.authService.token;
 
   private readonly booksQuery = injectQuery(() => ({

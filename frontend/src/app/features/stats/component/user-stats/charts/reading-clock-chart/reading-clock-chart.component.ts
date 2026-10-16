@@ -109,7 +109,7 @@ export class ReadingClockChartComponent implements OnInit, OnDestroy {
     this.hasData = true;
 
     // Build 24-hour array
-    const hourMinutes = new Array(24).fill(0);
+    const hourMinutes = Array.from({length: 24}, () => 0);
     let totalSeconds = 0;
     let peakIdx = 0;
     let peakVal = 0;

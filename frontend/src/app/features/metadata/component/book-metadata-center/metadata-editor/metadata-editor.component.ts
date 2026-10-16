@@ -62,6 +62,22 @@ import {MetadataSourceQueryService} from '../../../sources/metadata-source-query
   ],
 })
 export class MetadataEditorComponent implements OnInit {
+  private readonly messageService = inject(MessageService);
+  private readonly bookService = inject(BookService);
+  private readonly bookMetadataManageService = inject(BookMetadataManageService);
+  private readonly taskHelperService = inject(TaskHelperService);
+  protected urlHelper = inject(UrlHelperService);
+  private readonly bookDialogHelperService = inject(BookDialogHelperService);
+  private readonly bookNavigationService = inject(BookNavigationService);
+  private readonly metadataHostService = inject(BookMetadataHostService);
+  private readonly router = inject(Router);
+  private readonly userService = inject(UserService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly appSettingsService = inject(AppSettingsService);
+  private readonly t = inject(TranslocoService);
+  private readonly queryClient = inject(QueryClient);
+  private readonly sources = inject(MetadataSourceQueryService);
+  protected readonly providerFields = inject(MetadataProviderFieldsService);
   private currentBook: Book | null = null;
 
   @Input()
@@ -92,23 +108,6 @@ export class MetadataEditorComponent implements OnInit {
   @Input() disableNext = false;
   @Input() disablePrevious = false;
   @Input() showNavigationButtons = false;
-
-  private readonly messageService = inject(MessageService);
-  private readonly bookService = inject(BookService);
-  private readonly bookMetadataManageService = inject(BookMetadataManageService);
-  private readonly taskHelperService = inject(TaskHelperService);
-  protected urlHelper = inject(UrlHelperService);
-  private readonly bookDialogHelperService = inject(BookDialogHelperService);
-  private readonly bookNavigationService = inject(BookNavigationService);
-  private readonly metadataHostService = inject(BookMetadataHostService);
-  private readonly router = inject(Router);
-  private readonly userService = inject(UserService);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly appSettingsService = inject(AppSettingsService);
-  private readonly t = inject(TranslocoService);
-  private readonly queryClient = inject(QueryClient);
-  private readonly sources = inject(MetadataSourceQueryService);
-  protected readonly providerFields = inject(MetadataProviderFieldsService);
   private readonly uniqueMetadata = computed(() => this.bookService.uniqueMetadata());
 
   metadataForm: FormGroup;

@@ -25,14 +25,14 @@
 
       <!-- Tab navigation -->
       <nav class="tabs">
-        <button
+        <button type="button"
           class="tab"
           [class.active]="activeTab() === 'chapters'"
           (click)="setActiveTab('chapters')">
           <app-reader-icon name="book" class="tab-icon" />
           <span>{{ t('contentsTab') }}</span>
         </button>
-        <button
+        <button type="button"
           class="tab"
           [class.active]="activeTab() === 'bookmarks'"
           (click)="setActiveTab('bookmarks')">
@@ -42,7 +42,7 @@
             <span class="badge">{{ bookmarks().length }}</span>
           }
         </button>
-        <button
+        <button type="button"
           class="tab"
           [class.active]="activeTab() === 'highlights'"
           (click)="setActiveTab('highlights')">
@@ -68,7 +68,7 @@
               <li
                 role="treeitem"
                 [attr.aria-selected]="isChapterActive(chapter.href)">
-                <button
+                <button type="button"
                   class="chapter-row"
                   [class.active]="isChapterActive(chapter.href)"
                   [class.expandable]="chapter.subitems?.length"
@@ -103,7 +103,7 @@
                       <span class="item-title">{{ bookmark.title }}</span>
                       <span class="item-meta">{{ bookmark.createdAt | date: 'MMM d, y' }}</span>
                     </div>
-                    <button class="delete-btn" (click)="onDeleteBookmark($event, bookmark.id)" [attr.aria-label]="t('deleteBookmark')">
+                    <button type="button" class="delete-btn" (click)="onDeleteBookmark($event, bookmark.id)" [attr.aria-label]="t('deleteBookmark')">
                       <app-reader-icon name="trash" [size]="16" />
                     </button>
                   </li>
@@ -131,7 +131,7 @@
                       }
                       <span class="item-meta">{{ annotation.createdAt | date: 'MMM d, y' }}</span>
                     </div>
-                    <button class="delete-btn" (click)="onDeleteAnnotation($event, annotation.id)" [attr.aria-label]="t('deleteHighlight')">
+                    <button type="button" class="delete-btn" (click)="onDeleteAnnotation($event, annotation.id)" [attr.aria-label]="t('deleteHighlight')">
                       <app-reader-icon name="trash" [size]="16" />
                     </button>
                   </li>

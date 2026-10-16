@@ -29,12 +29,11 @@ const SIDEBAR_KEYBOARD_PAGE_STEP = 48;
 })
 export class AppLayoutComponent {
   readonly layoutService = inject(LayoutService);
-  readonly sidebarMinWidth = SIDEBAR_MIN_WIDTH;
-  readonly sidebarMaxWidth = SIDEBAR_MAX_WIDTH;
-
   private readonly router = inject(Router);
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
+  readonly sidebarMinWidth = SIDEBAR_MIN_WIDTH;
+  readonly sidebarMaxWidth = SIDEBAR_MAX_WIDTH;
 
   private resizeStartX = 0;
   private resizeStartWidth = 0;

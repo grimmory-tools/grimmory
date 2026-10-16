@@ -6,9 +6,8 @@ import {EmailRecipient} from '../email-recipient.model';
 
 @Service()
 export class EmailV2RecipientService {
-  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/email/recipients`;
-
   private readonly http = inject(HttpClient);
+  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/email/recipients`;
 
   getRecipients(): Observable<EmailRecipient[]> {
     return this.http.get<EmailRecipient[]>(this.url);

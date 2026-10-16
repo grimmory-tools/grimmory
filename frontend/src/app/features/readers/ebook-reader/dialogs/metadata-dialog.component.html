@@ -3,7 +3,7 @@
   <div class="dialog" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
     <div class="dialog-header">
       <h2>{{ t('title') }}</h2>
-      <button class="close-btn" (click)="closed.emit()">&#10005;</button>
+      <button type="button" class="close-btn" (click)="closed.emit()">&#10005;</button>
     </div>
 
     <div class="dialog-body">

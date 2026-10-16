@@ -34,10 +34,9 @@ function getResetProgressFields(type: ResetProgressType): Partial<Book> {
 
 @Service()
 export class BookPatchService {
-  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/books`;
-
   private readonly http = inject(HttpClient);
   private readonly queryClient = inject(QueryClient);
+  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/books`;
 
   private readonly epubProgressSubject = new Subject<{ bookId: number; cfi: string; href: string; percentage: number; bookFileId?: number }>();
 

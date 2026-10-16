@@ -12,6 +12,7 @@ import {RelocateProgressData} from '../../state/progress.service';
   styleUrls: ['./footer.component.scss']
 })
 export class ReaderNavbarComponent {
+  private readonly managerService = inject(ReaderViewManagerService);
   @Input() progressData: RelocateProgressData | null = null;
   @Input() forceVisible = false;
   @Input() set sectionFractions(value: number[]) {
@@ -24,8 +25,6 @@ export class ReaderNavbarComponent {
   }
   @Output() progressChange = new EventEmitter<number>();
   @Output() hoverChange = new EventEmitter<boolean>();
-
-  private readonly managerService = inject(ReaderViewManagerService);
   showLocationPopover = false;
 
   @HostListener('document:click', ['$event'])

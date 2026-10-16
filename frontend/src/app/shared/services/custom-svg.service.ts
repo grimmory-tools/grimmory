@@ -26,12 +26,11 @@ interface SvgIconBatchResponse {
 
 @Service()
 export class CustomSvgService {
+  private readonly http = inject(HttpClient);
+  private readonly customSvgCache = inject(CustomSvgCacheService);
 
   private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/icons`;
   private readonly requestCache = new Map<string, Observable<string>>();
-
-  private readonly http = inject(HttpClient);
-  private readonly customSvgCache = inject(CustomSvgCacheService);
 
   private sanitizeSvgContent(content: string): string {
     return DOMPurify.sanitize(content, {

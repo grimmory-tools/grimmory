@@ -120,6 +120,14 @@ const BODY_CELL_CLASS =
   },
 })
 export class BookBrowseTableComponent {
+  private readonly transloco = inject(TranslocoService);
+  private readonly urlHelper = inject(UrlHelperService);
+  private readonly router = inject(Router);
+  private readonly locationStrategy = inject(LocationStrategy);
+  private readonly route = inject(ActivatedRoute);
+  private readonly scrollPosition = inject(RouteScrollPositionService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly columnWidthPreference = inject(BookBrowseColumnWidthPreferenceService);
   readonly books = input.required<readonly BookSummary[]>();
   readonly status = input.required<BrowseStatus>();
   readonly hasNextPage = input.required<boolean>();
@@ -145,15 +153,6 @@ export class BookBrowseTableComponent {
   readonly retryNextPage = output();
 
   readonly emptyDef = contentChild.required(BrowseEmptyDef);
-
-  private readonly transloco = inject(TranslocoService);
-  private readonly urlHelper = inject(UrlHelperService);
-  private readonly router = inject(Router);
-  private readonly locationStrategy = inject(LocationStrategy);
-  private readonly route = inject(ActivatedRoute);
-  private readonly scrollPosition = inject(RouteScrollPositionService);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly columnWidthPreference = inject(BookBrowseColumnWidthPreferenceService);
 
   private readonly initialColumnSizing: ColumnSizingState = this.columnWidthPreference.load();
   private readonly selectColumnVisible = computed(() => this.selection() !== null);

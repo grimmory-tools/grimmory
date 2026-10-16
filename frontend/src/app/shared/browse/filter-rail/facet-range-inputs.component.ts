@@ -69,11 +69,10 @@ const SIDES: readonly {side: RangeSide; labelKey: string; unitLabelKey: string}[
   `,
 })
 export class BrowseFacetRangeInputsComponent<K extends string = string> {
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   readonly facetKey = input.required<K>();
   readonly range = input.required<BrowseFilterRange>();
   readonly commit = output<BrowseFilterRangeCommit<K>>();
-
-  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly drafts = linkedSignal<BrowseFilterRange, Partial<Record<RangeSide, number | null>>>({
     source: this.range,
     computation: () => ({}),

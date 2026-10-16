@@ -70,6 +70,7 @@ let nextFieldId = 0;
   `,
 })
 export class AppFieldComponent implements AppFieldContext {
+  private readonly transloco = inject(TranslocoService);
   readonly field = input<AppFieldLike | undefined>(undefined);
   readonly label = input('');
   readonly hint = input('');
@@ -77,8 +78,6 @@ export class AppFieldComponent implements AppFieldContext {
   readonly required = input(false, { transform: booleanAttribute });
   readonly fieldId = input('');
   readonly styleClass = input('');
-
-  private readonly transloco = inject(TranslocoService);
   private readonly activeLang = toSignal(this.transloco.langChanges$, { initialValue: this.transloco.getActiveLang() });
   private readonly generatedId = `app-field-${++nextFieldId}`;
   protected readonly editing = signal(false);

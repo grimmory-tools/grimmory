@@ -47,13 +47,13 @@ export interface UserWithEditing extends User {
   styleUrls: ['./user-management.component.scss'],
 })
 export class UserManagementComponent implements OnInit {
-  ref: DynamicDialogRef | undefined | null;
   private readonly dialogLauncherService = inject(DialogLauncherService);
   private readonly userService = inject(UserService);
   private readonly libraryService = inject(LibraryService);
   private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
+  ref: DynamicDialogRef | undefined | null;
   get allLibraries() { return this.libraryService.libraries(); }
 
   readonly users: WritableSignal<UserWithEditing[]> = signal([]);

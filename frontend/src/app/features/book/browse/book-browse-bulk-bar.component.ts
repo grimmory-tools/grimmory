@@ -60,14 +60,13 @@ const NO_OVERFLOW: ReadonlySet<string> = new Set();
   templateUrl: './book-browse-bulk-bar.component.html',
 })
 export class BookBrowseBulkBarComponent {
+  private readonly userService = inject(UserService);
+  private readonly appSettingsService = inject(AppSettingsService);
+  private readonly shelfDefinitionQuery = inject(ShelfDefinitionQueryService);
   readonly selection = input.required<BrowseSelection>();
   readonly books = input.required<readonly BookSummary[]>();
   readonly total = input.required<number | null>();
   readonly fetchIds = input.required<() => Promise<readonly number[]>>();
-
-  private readonly userService = inject(UserService);
-  private readonly appSettingsService = inject(AppSettingsService);
-  private readonly shelfDefinitionQuery = inject(ShelfDefinitionQueryService);
   protected readonly commands = createBookBrowseBulkCommands({
     selection: this.selection,
     books: this.books,

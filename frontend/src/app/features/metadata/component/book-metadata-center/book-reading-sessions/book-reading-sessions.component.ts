@@ -16,12 +16,11 @@ import {NgClass} from '@angular/common';
   styleUrls: ['./book-reading-sessions.component.scss']
 })
 export class BookReadingSessionsComponent implements OnInit, OnChanges {
-  @Input() bookId!: number;
-
   private readonly readingSessionService = inject(ReadingSessionApiService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly cancelLoad$ = new Subject<void>();
   private readonly t = inject(TranslocoService);
+  @Input() bookId!: number;
+  private readonly cancelLoad$ = new Subject<void>();
 
 
   sessions: ReadingSessionResponse[] = [];

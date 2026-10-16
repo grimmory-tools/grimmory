@@ -315,12 +315,11 @@ export interface UserProfileUpdateRequest {
 
 @Service()
 export class UserService {
-  private readonly apiUrl = `${API_CONFIG.BASE_URL}/api/v1/auth/register`;
-  private readonly userUrl = `${API_CONFIG.BASE_URL}/api/v1/users`;
-
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
   private readonly queryClient = inject(QueryClient);
+  private readonly apiUrl = `${API_CONFIG.BASE_URL}/api/v1/auth/register`;
+  private readonly userUrl = `${API_CONFIG.BASE_URL}/api/v1/users`;
   private readonly token = this.authService.token;
 
   private readonly userQuery = injectQuery(() => ({

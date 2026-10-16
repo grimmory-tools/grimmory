@@ -117,6 +117,7 @@ const LOAD_MORE_PREFETCH_PX = 240;
   `,
 })
 export class AppAutocompletePopupComponent {
+  private readonly overlayService = inject(Overlay);
   readonly combobox = input.required<Combobox>();
   readonly origin = input.required<ElementRef<HTMLElement> | HTMLElement>();
   readonly open = input(false);
@@ -138,7 +139,6 @@ export class AppAutocompletePopupComponent {
   private readonly optionRefs = viewChildren<Option<string>>(Option);
   private readonly listRef = viewChild<ElementRef<HTMLElement>>('list');
   private readonly sentinelRef = viewChild<ElementRef<HTMLElement>>('sentinel');
-  private readonly overlayService = inject(Overlay);
 
   protected readonly overlayPositions: ConnectedPosition[] = connectedOverlayPositions;
   protected readonly overlayScrollStrategy: ScrollStrategy = connectedOverlayScrollStrategy(this.overlayService);

@@ -263,7 +263,7 @@
                         [innerHTML]="firstDescription() || t('noDescription')"></div>
                     </div>
                     @if (isExpanded() || isOverflowing()) {
-                      <button class="expand-toggle" (click)="toggleExpand()">
+                      <button type="button" class="expand-toggle" (click)="toggleExpand()">
                         {{ isExpanded() ? t('showLess') : t('showMore') }}
                         <i class="pi" [ngClass]="isExpanded() ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
                       </button>
@@ -374,11 +374,11 @@
                   }
                 </div>
                 <div class="list-actions">
-                  <button class="list-action-btn btn-read" (click)="readBook(book.id); $event.stopPropagation()"
+                  <button type="button" class="list-action-btn btn-read" (click)="readBook(book.id); $event.stopPropagation()"
                     [pTooltip]="t('readButton')" tooltipPosition="top">
                     <i class="pi pi-book"></i>
                   </button>
-                  <button class="list-action-btn btn-details" (click)="viewBookDetails(book.id); $event.stopPropagation()"
+                  <button type="button" class="list-action-btn btn-details" (click)="viewBookDetails(book.id); $event.stopPropagation()"
                     [pTooltip]="t('viewDetails')" tooltipPosition="top">
                     <i class="pi pi-info-circle"></i>
                   </button>

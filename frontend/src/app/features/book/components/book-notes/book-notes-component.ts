@@ -29,13 +29,12 @@ import {BookNote, BookNoteService, CreateBookNoteRequest} from '../../../../shar
   styleUrl: './book-notes-component.scss'
 })
 export class BookNotesComponent implements OnInit, OnChanges {
-  @Input() bookId!: number;
-
   private readonly bookNoteService = inject(BookNoteService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly t = inject(TranslocoService);
+  @Input() bookId!: number;
 
   notes: BookNote[] = [];
   readonly loading = signal(false);

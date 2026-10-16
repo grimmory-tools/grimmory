@@ -6,9 +6,8 @@ import {EmailProvider} from '../email-provider.model';
 
 @Service()
 export class EmailV2ProviderService {
-  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/email/providers`;
-
   private readonly http = inject(HttpClient);
+  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/email/providers`;
 
   getEmailProviders(): Observable<EmailProvider[]> {
     return this.http.get<EmailProvider[]>(this.url);

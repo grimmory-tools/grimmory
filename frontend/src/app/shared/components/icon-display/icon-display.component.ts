@@ -75,17 +75,16 @@ const ERROR_SVG = [
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class IconDisplayComponent implements OnInit, OnChanges {
+  private readonly customSvgCache = inject(CustomSvgCacheService);
+  private readonly customSvgService = inject(CustomSvgService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
   @Input() icon: IconSelection | null = null;
   @Input() iconClass: string = 'icon';
   @Input() iconStyle: Record<string, string> = {};
   @Input() size: string = '16px';
   @Input() alt: string = 'Icon';
   @Input() displayEmpty: boolean = false;
-
-  private readonly customSvgCache = inject(CustomSvgCacheService);
-  private readonly customSvgService = inject(CustomSvgService);
-  private readonly cdr = inject(ChangeDetectorRef);
-  private readonly destroyRef = inject(DestroyRef);
   private lastLoadedIconName: string | null = null;
 
   ngOnInit(): void {

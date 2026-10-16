@@ -35,6 +35,8 @@ import {TranslocoDirective, TranslocoPipe} from '@jsverse/transloco';
   styleUrls: ['./directory-picker.component.scss']
 })
 export class DirectoryPickerComponent implements OnInit {
+  private readonly utilityService = inject(UtilityService);
+  private readonly dynamicDialogRef = inject(DynamicDialogRef);
   value: unknown;
   paths: string[] = [];
   filteredPaths: string[] = [];
@@ -45,9 +47,6 @@ export class DirectoryPickerComponent implements OnInit {
   readonly isLoading = signal(false);
   breadcrumbItems: MenuItem[] = [];
   home: MenuItem = {icon: 'pi pi-home', command: () => this.navigateToRoot()};
-
-  private readonly utilityService = inject(UtilityService);
-  private readonly dynamicDialogRef = inject(DynamicDialogRef);
 
   ngOnInit() {
     const initialPath = '/';

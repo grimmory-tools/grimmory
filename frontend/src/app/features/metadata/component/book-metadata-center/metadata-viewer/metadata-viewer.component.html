@@ -597,7 +597,7 @@
           <div class="description-html" [innerHTML]="sanitizeDescription(book.metadata!.description)"></div>
         </div>
         @if (isExpanded || isOverflowing) {
-          <button class="expand-toggle" (click)="toggleExpand()">
+          <button type="button" class="expand-toggle" (click)="toggleExpand()">
             {{ isExpanded ? t('showLess') : t('showMore') }}
             <i class="pi" [ngClass]="isExpanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
           </button>

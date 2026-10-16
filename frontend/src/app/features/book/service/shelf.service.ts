@@ -18,11 +18,11 @@ const KOBO_SHELF_ICON = 'pi pi-tablet';
 
 @Service()
 export class ShelfService {
-  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/shelves`;
   private readonly http = inject(HttpClient);
   private readonly bookService = inject(BookService);
   private readonly authService = inject(AuthService);
   private readonly queryClient = inject(QueryClient);
+  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/shelves`;
   private readonly token = this.authService.token;
 
   private readonly shelvesQuery = injectQuery(() => ({

@@ -10,10 +10,9 @@ export interface SetupPayload {
 
 @Service()
 export class SetupService {
+  private readonly http = inject(HttpClient);
 
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/setup`;
-
-  private readonly http = inject(HttpClient);
 
   createAdmin(payload: SetupPayload): Observable<void> {
     return this.http.post<void>(this.url, payload);

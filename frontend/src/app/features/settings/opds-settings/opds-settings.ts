@@ -42,19 +42,19 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
   styleUrl: './opds-settings.scss'
 })
 export class OpdsSettings implements OnInit {
-
-  opdsEndpoint = `${API_CONFIG.BASE_URL}/api/v1/opds`;
-  komgaEndpoint = `${API_CONFIG.BASE_URL}/komga`;
-  opdsEnabled = false;
-  komgaApiEnabled = false;
-  komgaGroupUnknown = true;
-
   private readonly opdsService = inject(OpdsService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
   private readonly userService = inject(UserService);
   private readonly appSettingsService = inject(AppSettingsService);
   private readonly t = inject(TranslocoService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  opdsEndpoint = `${API_CONFIG.BASE_URL}/api/v1/opds`;
+  komgaEndpoint = `${API_CONFIG.BASE_URL}/komga`;
+  opdsEnabled = false;
+  komgaApiEnabled = false;
+  komgaGroupUnknown = true;
 
   readonly users: WritableSignal<OpdsUserV2[]> = signal([]);
   readonly loading = signal(false);
@@ -65,8 +65,6 @@ export class OpdsSettings implements OnInit {
 
   editingUserId: number | null = null;
   editingSortOrder: OpdsSortOrder | null = null;
-
-  private readonly destroyRef = inject(DestroyRef);
   dummyPassword: string = "***********************";
 
   sortOrderOptions = [
@@ -142,7 +140,7 @@ export class OpdsSettings implements OnInit {
       })
     ).subscribe(users => {
       this.users.set([...users]);
-      this.passwordVisibility = new Array(users.length).fill(false);
+      this.passwordVisibility = Array.from({length: users.length}, () => false);
       this.loading.set(false);
     });
   }

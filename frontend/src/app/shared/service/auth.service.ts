@@ -23,6 +23,10 @@ export class StaleRefreshResponseError extends Error {
 
 @Service()
 export class AuthService {
+  private readonly http = inject(HttpClient);
+  private readonly injector = inject(Injector);
+  private readonly router = inject(Router);
+  private readonly postLoginInitializer = inject(PostLoginInitializerService);
 
   private readonly apiUrl = `${API_CONFIG.BASE_URL}/api/v1/auth`;
   private rxStompService?: RxStompService;
@@ -31,11 +35,6 @@ export class AuthService {
   private readonly _logoutInProgress = signal(false);
   readonly logoutInProgress = this._logoutInProgress.asReadonly();
   private refreshSessionRequest$?: Observable<AccessTokenResponse>;
-
-  private readonly http = inject(HttpClient);
-  private readonly injector = inject(Injector);
-  private readonly router = inject(Router);
-  private readonly postLoginInitializer = inject(PostLoginInitializerService);
 
   readonly token = signal<string | null>(this.getInternalAccessToken());
   readonly isAuthenticated = computed(() => !!this.token());

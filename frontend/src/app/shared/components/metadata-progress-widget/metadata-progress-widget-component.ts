@@ -23,8 +23,6 @@ import {DialogLauncherService} from '../../services/dialog-launcher.service';
   imports: [KeyValuePipe, ProgressBar, Button, Divider, Tooltip, Tag, TranslocoDirective]
 })
 export class MetadataProgressWidgetComponent implements OnInit, OnDestroy {
-  activeTasks: Record<string, MetadataBatchProgressNotification> = {};
-
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialogLauncherService = inject(DialogLauncherService);
   private readonly metadataProgressService = inject(MetadataProgressService);
@@ -32,6 +30,7 @@ export class MetadataProgressWidgetComponent implements OnInit, OnDestroy {
   private readonly taskService = inject(TaskService);
   private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
+  activeTasks: Record<string, MetadataBatchProgressNotification> = {};
 
   private readonly lastUpdateMap = new Map<string, number>();
   private readonly timeoutHandles = new Map<string, ReturnType<typeof setTimeout>>();

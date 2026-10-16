@@ -21,6 +21,10 @@ interface AnnotationColor {
   styleUrls: ['./settings-dialog.component.scss']
 })
 export class ReaderSettingsDialogComponent implements OnInit {
+  private readonly bookService = inject(BookService);
+  private readonly customFontService = inject(EpubCustomFontService);
+  private readonly renderer = inject(Renderer2);
+  private readonly document = inject(DOCUMENT);
   @Input() stateService!: ReaderStateService;
   @Input() viewManager!: ReaderViewManagerService;
   @Input() bookId!: number;
@@ -38,11 +42,6 @@ export class ReaderSettingsDialogComponent implements OnInit {
     {name: 'pink', value: '#FFB6C1', label: 'Pink'},
     {name: 'orange', value: '#FFD580', label: 'Orange'}
   ];
-
-  private readonly bookService = inject(BookService);
-  private readonly customFontService = inject(EpubCustomFontService);
-  private readonly renderer = inject(Renderer2);
-  private readonly document = inject(DOCUMENT);
 
   ngOnInit() {
     this.customFontService.injectCustomFontsStylesheet(this.renderer, this.document);

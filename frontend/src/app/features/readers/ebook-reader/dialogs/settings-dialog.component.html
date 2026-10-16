@@ -3,26 +3,26 @@
   <div class="dialog" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
     <div class="tabs-row">
       <div class="tabs">
-        <button
+        <button type="button"
           class="tab"
           [class.active]="activeTab === 'theme'"
           (click)="activeTab = 'theme'">
           {{ t('themeTab') }}
         </button>
-        <button
+        <button type="button"
           class="tab"
           [class.active]="activeTab === 'typography'"
           (click)="activeTab = 'typography'">
           {{ t('typographyTab') }}
         </button>
-        <button
+        <button type="button"
           class="tab"
           [class.active]="activeTab === 'layout'"
           (click)="activeTab = 'layout'">
           {{ t('layoutTab') }}
         </button>
       </div>
-      <button class="close-btn" (click)="closed.emit()">&#10005;</button>
+      <button type="button" class="close-btn" (click)="closed.emit()">&#10005;</button>
     </div>
 
     <div class="dialog-body">
@@ -32,7 +32,7 @@
             {{ t('darkMode') }}
             <span class="mode-switch-wrapper">
               <span class="mode-icon sun" [class.active]="!state.isDark">&#9728;&#65039;</span>
-              <button class="switch" [class.active]="state.isDark" (click)="toggleDarkMode()">
+              <button type="button" class="switch" [class.active]="state.isDark" (click)="toggleDarkMode()">
                 <span class="slider"></span>
               </button>
               <span class="mode-icon moon" [class.active]="state.isDark">&#127769;</span>
@@ -63,7 +63,7 @@
           <div class="section-header">{{ t('annotationHighlighter') }}</div>
           <div class="annotation-colors">
             @for (color of annotationColors; track color.name) {
-              <button
+              <button type="button"
                 class="color-picker-btn"
                 [class.active]="selectedAnnotationColor === color.value"
                 [style.background-color]="color.value"
@@ -86,9 +86,9 @@
             <span>{{ t('fontSize') }}</span>
             <div class="control-right">
               <div class="stepper">
-                <button (click)="decreaseFontSize()">&#8722;</button>
+                <button type="button" (click)="decreaseFontSize()">&#8722;</button>
                 <span>{{ state.fontSize }}</span>
-                <button (click)="increaseFontSize()">+</button>
+                <button type="button" (click)="increaseFontSize()">+</button>
               </div>
             </div>
           </div>
@@ -96,9 +96,9 @@
             <span>{{ t('lineHeight') }}</span>
             <div class="control-right">
               <div class="stepper">
-                <button (click)="decreaseLineHeight()">&#8722;</button>
+                <button type="button" (click)="decreaseLineHeight()">&#8722;</button>
                 <span>{{ state.lineHeight | number:'1.1-1' }}</span>
-                <button (click)="increaseLineHeight()">+</button>
+                <button type="button" (click)="increaseLineHeight()">+</button>
               </div>
             </div>
           </div>
@@ -106,7 +106,7 @@
           <div class="section-header">{{ t('fontFamily') }}</div>
           <div class="font-grid">
             @for (font of fonts; track font.value) {
-              <button
+              <button type="button"
                 class="font-option"
                 [class.active]="state.fontFamily === font.value"
                 [style.font-family]="font.value ? getFontFamilyForPreview(font.value) : 'inherit'"
@@ -155,9 +155,9 @@
             <span>{{ t('maxColumns') }}</span>
             <div class="control-right">
               <div class="stepper">
-                <button (click)="decreaseMaxColumnCount()">&#8722;</button>
+                <button type="button" (click)="decreaseMaxColumnCount()">&#8722;</button>
                 <span>{{ state.maxColumnCount }}</span>
-                <button (click)="increaseMaxColumnCount()">+</button>
+                <button type="button" (click)="increaseMaxColumnCount()">+</button>
               </div>
             </div>
           </div>
@@ -182,9 +182,9 @@
             <span>{{ t('maxWidth') }}</span>
             <div class="control-right">
               <div class="stepper">
-                <button (click)="decreaseMaxInlineSize()">&#8722;</button>
+                <button type="button" (click)="decreaseMaxInlineSize()">&#8722;</button>
                 <span>{{ state.maxInlineSize }}</span>
-                <button (click)="increaseMaxInlineSize()">+</button>
+                <button type="button" (click)="increaseMaxInlineSize()">+</button>
               </div>
             </div>
           </div>
@@ -193,9 +193,9 @@
             <span>{{ t('maxHeight') }}</span>
             <div class="control-right">
               <div class="stepper">
-                <button (click)="decreaseMaxBlockSize()">&#8722;</button>
+                <button type="button" (click)="decreaseMaxBlockSize()">&#8722;</button>
                 <span>{{ state.maxBlockSize }}</span>
-                <button (click)="increaseMaxBlockSize()">+</button>
+                <button type="button" (click)="increaseMaxBlockSize()">+</button>
               </div>
             </div>
           </div>
@@ -204,14 +204,14 @@
 
           <div class="toggle-control">
             <span>{{ t('justifyText') }}</span>
-            <button class="switch" [class.active]="state.justify" (click)="toggleJustify()">
+            <button type="button" class="switch" [class.active]="state.justify" (click)="toggleJustify()">
               <span class="slider"></span>
             </button>
           </div>
 
           <div class="toggle-control">
             <span>{{ t('hyphenate') }}</span>
-            <button class="switch" [class.active]="state.hyphenate" (click)="toggleHyphenate()">
+            <button type="button" class="switch" [class.active]="state.hyphenate" (click)="toggleHyphenate()">
               <span class="slider"></span>
             </button>
           </div>

@@ -91,16 +91,15 @@ const metadataTab = (value: MetadataTabValue, icon: string, labelKey: string): M
   styleUrl: './metadata-tabs.component.scss'
 })
 export class MetadataTabsComponent {
-  readonly book = input.required<Book>();
-  readonly bookInSeries = input<Book[]>([]);
-  readonly hasSeries = input(false);
-  readonly recommendedBooks = input<BookRecommendation[]>([]);
-
   protected urlHelper = inject(UrlHelperService);
   private readonly bookMetadataManageService = inject(BookMetadataManageService);
   private readonly audiobookService = inject(AudiobookService);
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
+  readonly book = input.required<Book>();
+  readonly bookInSeries = input<Book[]>([]);
+  readonly hasSeries = input(false);
+  readonly recommendedBooks = input<BookRecommendation[]>([]);
 
   readonly audiobookInfo = linkedSignal<number, AudiobookInfo | null>({
     source: () => this.book().id,

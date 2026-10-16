@@ -14,13 +14,12 @@ import {MetadataCatalogService} from '../../../../shared/metadata/metadata-catal
   styleUrls: ['./metadata-dialog.component.scss']
 })
 export class ReaderBookMetadataDialogComponent {
-  @Input() book: Book | null = null;
-  @Output() closed = new EventEmitter<void>();
-
   private readonly urlHelperService = inject(UrlHelperService);
   private readonly t = inject(TranslocoService);
   protected readonly catalog = inject(MetadataCatalogService);
   protected readonly languageResolver = inject(LanguageResolverService);
+  @Input() book: Book | null = null;
+  @Output() closed = new EventEmitter<void>();
 
   get metadata() {
     return this.book?.metadata;

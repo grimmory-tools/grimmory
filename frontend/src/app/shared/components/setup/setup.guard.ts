@@ -11,11 +11,10 @@ import {API_CONFIG} from '../../../core/config/api-config';
 
 @Service()
 export class SetupGuard implements CanActivate {
-
-  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/setup`;
-
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+
+  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/setup`;
 
   canActivate(): Observable<boolean | UrlTree> {
     return this.http.get<{ data: boolean }>(`${this.url}/status`).pipe(

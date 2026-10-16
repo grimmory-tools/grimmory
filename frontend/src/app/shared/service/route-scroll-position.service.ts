@@ -14,8 +14,8 @@ interface TrackRouteOptions {
 
 @Service()
 export class RouteScrollPositionService {
-  private readonly MAX_SCROLL_POSITIONS = 100;
   private readonly router = inject(Router);
+  private readonly MAX_SCROLL_POSITIONS = 100;
   private readonly scrollPositions = new Map<string, number>();
 
   savePosition(key: string, position: number): void {

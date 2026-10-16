@@ -37,9 +37,9 @@ export interface UpdateAnnotationRequest {
 
 @Service()
 export class AnnotationService {
+  private readonly http = inject(HttpClient);
 
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/annotations`;
-  private readonly http = inject(HttpClient);
 
   getAnnotationsForBook(bookId: number): Observable<Annotation[]> {
     return this.http.get<Annotation[]>(`${this.url}/book/${bookId}`);

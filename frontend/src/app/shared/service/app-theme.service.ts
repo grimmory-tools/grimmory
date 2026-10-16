@@ -31,6 +31,9 @@ interface LoadedAppState {
 
 @Service()
 export class AppThemeService {
+  document = inject(DOCUMENT);
+  platformId = inject(PLATFORM_ID);
+  faviconService = inject(FaviconService);
   private readonly STORAGE_KEY = 'appConfigState';
   readonly themes = APP_THEME_OPTIONS;
   private readonly appStateSignal = signal<AppState>(this.withDefaults({}));
@@ -42,9 +45,6 @@ export class AppThemeService {
   readonly themeSyncEnabled = computed(() => this.appStateSignal().themeSyncEnabled !== false);
   readonly oledDarkMode = computed(() => this.appStateSignal().oledDarkMode);
   readonly effectiveAppearance = this.effectiveAppearanceSignal.asReadonly();
-  document = inject(DOCUMENT);
-  platformId = inject(PLATFORM_ID);
-  faviconService = inject(FaviconService);
 
   constructor() {
     const initialState = this.loadAppState();

@@ -25,11 +25,11 @@ export class SetupComponent {
   private readonly fb = inject(FormBuilder);
   private readonly setupService = inject(SetupService);
   private readonly router = inject(Router);
+  private readonly t = inject(TranslocoService);
   setupForm: FormGroup;
   readonly loading = signal(false);
   error: string | null = null;
   success = false;
-  private readonly t = inject(TranslocoService);
 
   constructor() {
     this.setupForm = this.fb.group({

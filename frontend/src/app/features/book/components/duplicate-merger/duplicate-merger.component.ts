@@ -46,6 +46,16 @@ interface DisplayGroup extends DuplicateGroup {
   styleUrls: ['./duplicate-merger.component.scss']
 })
 export class DuplicateMergerComponent implements OnInit, OnDestroy {
+  private readonly bookFileService = inject(BookFileService);
+  private readonly bookService = inject(BookService);
+  private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly dialogRef = inject(DynamicDialogRef);
+  private readonly config = inject(DynamicDialogConfig);
+  private readonly t = inject(TranslocoService);
+  readonly urlHelper = inject(UrlHelperService);
+  private readonly appSettingsService = inject(AppSettingsService);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
   libraryId!: number;
   presetMode: PresetMode = 'balanced';
   showAdvanced = false;
@@ -70,16 +80,6 @@ export class DuplicateMergerComponent implements OnInit, OnDestroy {
   pageSize = 20;
 
   private readonly destroy$ = new Subject<void>();
-  private readonly bookFileService = inject(BookFileService);
-  private readonly bookService = inject(BookService);
-  private readonly messageService = inject(MessageService);
-  private readonly confirmationService = inject(ConfirmationService);
-  private readonly dialogRef = inject(DynamicDialogRef);
-  private readonly config = inject(DynamicDialogConfig);
-  private readonly t = inject(TranslocoService);
-  readonly urlHelper = inject(UrlHelperService);
-  private readonly appSettingsService = inject(AppSettingsService);
-  private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     this.libraryId = this.config.data.libraryId;

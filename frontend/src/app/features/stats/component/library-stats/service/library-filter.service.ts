@@ -10,6 +10,9 @@ export interface LibraryOption {
 
 @Service()
 export class LibraryFilterService {
+  private readonly bookService = inject(BookService);
+  private readonly libraryService = inject(LibraryService);
+  private readonly t = inject(TranslocoService);
   private readonly selectedLibraryId = signal<number | null>(null);
 
   readonly selectedLibrary = computed(() => {
@@ -22,10 +25,6 @@ export class LibraryFilterService {
   setSelectedLibrary(libraryId: number | null): void {
     this.selectedLibraryId.set(libraryId);
   }
-
-  private readonly bookService = inject(BookService);
-  private readonly libraryService = inject(LibraryService);
-  private readonly t = inject(TranslocoService);
   readonly libraryOptions = computed(() => {
     const books = this.bookService.books();
     const libraries = this.libraryService.libraries();

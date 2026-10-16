@@ -18,14 +18,14 @@
       </header>
 
       <nav class="tabs">
-        <button
+        <button type="button"
           class="tab"
           [class.active]="activeTab() === 'pages'"
           (click)="setActiveTab('pages')">
           <app-reader-icon name="book" class="tab-icon" />
           <span>{{ 'readerCbx.sidebar.contentTab' | transloco }}</span>
         </button>
-        <button
+        <button type="button"
           class="tab"
           [class.active]="activeTab() === 'bookmarks'"
           (click)="setActiveTab('bookmarks')">
@@ -35,7 +35,7 @@
             <span class="badge">{{ bookmarks().length }}</span>
           }
         </button>
-        <button
+        <button type="button"
           class="tab"
           [class.active]="activeTab() === 'notes'"
           (click)="setActiveTab('notes')">
@@ -53,7 +53,7 @@
             <ul class="page-list">
               @for (page of pages(); track page.pageNumber) {
                 <li>
-                  <button
+                  <button type="button"
                     class="page-row"
                     [class.active]="isPageActive(page.pageNumber)"
                     (click)="onPageClick(page.pageNumber)">
@@ -79,7 +79,7 @@
                       <span class="item-title">{{ bookmark.title }}</span>
                       <span class="item-meta">{{ bookmark.createdAt | date: 'MMM d, y' }}</span>
                     </div>
-                    <button class="delete-btn" (click)="onDeleteBookmark($event, bookmark.id)" [attr.aria-label]="'readerCbx.sidebar.deleteBookmark' | transloco">
+                    <button type="button" class="delete-btn" (click)="onDeleteBookmark($event, bookmark.id)" [attr.aria-label]="'readerCbx.sidebar.deleteBookmark' | transloco">
                       <app-reader-icon name="trash" [size]="16" />
                     </button>
                   </li>
@@ -107,7 +107,7 @@
                     aria-label="{{ 'readerCbx.sidebar.searchNotesPlaceholder' | transloco }}"
                   />
                   @if (notesSearchQuery()) {
-                    <button class="clear-btn" (click)="clearNotesSearch()" [attr.aria-label]="'readerCbx.sidebar.clearSearch' | transloco">
+                    <button type="button" class="clear-btn" (click)="clearNotesSearch()" [attr.aria-label]="'readerCbx.sidebar.clearSearch' | transloco">
                       <app-reader-icon name="close" [size]="14" />
                     </button>
                   }
@@ -127,10 +127,10 @@
                         <span class="item-meta">{{ note.createdAt | date: 'MMM d, y' }}</span>
                       </div>
                       <div class="action-buttons">
-                        <button class="edit-btn" (click)="onEditNote($event, note)" [attr.aria-label]="'readerCbx.sidebar.editNote' | transloco">
+                        <button type="button" class="edit-btn" (click)="onEditNote($event, note)" [attr.aria-label]="'readerCbx.sidebar.editNote' | transloco">
                           <app-reader-icon name="edit" [size]="16" />
                         </button>
-                        <button class="delete-btn" (click)="onDeleteNote($event, note.id)" [attr.aria-label]="'readerCbx.sidebar.deleteNote' | transloco">
+                        <button type="button" class="delete-btn" (click)="onDeleteNote($event, note.id)" [attr.aria-label]="'readerCbx.sidebar.deleteNote' | transloco">
                           <app-reader-icon name="trash" [size]="16" />
                         </button>
                       </div>

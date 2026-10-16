@@ -31,12 +31,6 @@ import {RxStompState} from '@stomp/rx-stomp';
   imports: [ConfirmDialog, Toast, RouterOutlet, TranslocoDirective, TranslocoPipe, CommandPaletteComponent]
 })
 export class AppComponent implements OnInit, OnDestroy {
-
-  readonly loading = signal(true);
-  readonly offline = signal(false);
-  private readonly subscriptions: Subscription[] = [];
-  private subscriptionsInitialized = false;
-
   private readonly appThemeService = inject(AppThemeService); // DO NOT REMOVE: Used to initialize app theme on startup
   private readonly authInit = inject(AuthInitializationService);
   private readonly bookService = inject(BookService);
@@ -53,6 +47,11 @@ export class AppComponent implements OnInit, OnDestroy {
   private readonly libraryImportProgressService = inject(LibraryImportProgressService);
   private readonly translocoService = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
+
+  readonly loading = signal(true);
+  readonly offline = signal(false);
+  private readonly subscriptions: Subscription[] = [];
+  private subscriptionsInitialized = false;
   private readonly syncAuthInitializationEffect = effect(() => {
     const ready = this.authInit.initialized();
     this.loading.set(!ready);

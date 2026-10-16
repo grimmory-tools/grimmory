@@ -33,16 +33,15 @@ import {AppMenuTriggerDirective} from '../../ui/menu/app-menu-trigger.directive'
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppSidebarItemRowComponent {
+  readonly layoutService = inject(LayoutService);
+  private readonly bookQuery = inject(BookQueryService);
+  private readonly authService = inject(AuthService);
   readonly item = input.required<SidebarLeaf>();
   readonly index = input.required<number>();
   readonly parentKey = input.required<string>();
 
   readonly menuOpen = signal(false);
   readonly key = computed(() => `${this.parentKey()}-${this.index()}`);
-
-  readonly layoutService = inject(LayoutService);
-  private readonly bookQuery = inject(BookQueryService);
-  private readonly authService = inject(AuthService);
   private readonly countFacets = computed<FacetValueMap | undefined>(() => {
     const scope = this.item().bookScope;
     return scope === undefined ? undefined : scopedFacetSelection(EMPTY_FACET_SELECTION, scope);

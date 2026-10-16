@@ -15,8 +15,8 @@ export interface KoboSyncSettings {
 
 @Service()
 export class KoboService {
-  private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/kobo-settings`;
   private readonly http = inject(HttpClient);
+  private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/kobo-settings`;
 
   getUser(): Observable<KoboSyncSettings> {
     return this.http.get<KoboSyncSettings>((this.baseUrl));

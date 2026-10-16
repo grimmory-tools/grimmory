@@ -16,12 +16,11 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
   styleUrl: './metadata-provider-field-selector.component.scss'
 })
 export class MetadataProviderFieldSelectorComponent {
-  @Input() selectedFields: string[] = [];
-
   private readonly appSettingsService = inject(AppSettingsService);
   private readonly t = inject(TranslocoService);
   private readonly catalog = inject(MetadataCatalogService);
   private readonly providerFields = inject(MetadataProviderFieldsService);
+  @Input() selectedFields: string[] = [];
   private readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
 
   readonly providerGroups = computed(() => {

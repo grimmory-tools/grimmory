@@ -99,8 +99,8 @@ export interface BulkEditResult {
 
 @Service()
 export class BookdropService {
-  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/bookdrop`;
   private readonly http = inject(HttpClient);
+  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/bookdrop`;
 
   getPendingFiles(page: number = 0, size: number = 50): Observable<Page<BookdropFile>> {
     return this.http.get<Page<BookdropFile>>(`${this.url}/files?status=pending&page=${page}&size=${size}`);

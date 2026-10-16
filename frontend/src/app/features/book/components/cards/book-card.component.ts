@@ -70,6 +70,11 @@ export function bookCardCoverSrc(
   templateUrl: './book-card.component.html',
 })
 export class BookCardComponent {
+  private readonly urlHelper = inject(UrlHelperService);
+  private readonly transloco = inject(TranslocoService);
+  private readonly router = inject(Router);
+  private readonly locationStrategy = inject(LocationStrategy);
+  private readonly destroyRef = inject(DestroyRef);
   readonly book = input.required<BookSummary>();
   readonly squareCovers = input(false, {transform: booleanAttribute});
   readonly showBadge = input(true, {transform: booleanAttribute});
@@ -89,12 +94,6 @@ export class BookCardComponent {
   readonly action = output<void>();
   readonly menuRequested = output<ContextMenuRequest>();
   readonly detailRequested = output<void>();
-
-  private readonly urlHelper = inject(UrlHelperService);
-  private readonly transloco = inject(TranslocoService);
-  private readonly router = inject(Router);
-  private readonly locationStrategy = inject(LocationStrategy);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly activeLang = toSignal(this.transloco.langChanges$, {
     initialValue: this.transloco.getActiveLang(),
   });

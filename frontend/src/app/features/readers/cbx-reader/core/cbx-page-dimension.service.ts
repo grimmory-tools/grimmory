@@ -14,10 +14,10 @@ export interface WebtoonDetectionResult {
 
 @Service()
 export class CbxPageDimensionService {
-
-  private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/cbx`;
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
+
+  private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/cbx`;
 
   private readonly dimensionCache = new Map<string, CbxPageDimension[]>();
 

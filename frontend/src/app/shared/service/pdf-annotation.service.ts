@@ -5,9 +5,9 @@ import {API_CONFIG} from '../../core/config/api-config';
 
 @Service()
 export class PdfAnnotationService {
+  private readonly http = inject(HttpClient);
 
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/pdf-annotations`;
-  private readonly http = inject(HttpClient);
 
   getAnnotations(bookId: number): Observable<{ data: string }> {
     return this.http.get<{ data: string }>(`${this.url}/book/${bookId}`);

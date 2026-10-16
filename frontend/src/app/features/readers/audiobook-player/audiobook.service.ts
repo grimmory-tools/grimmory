@@ -11,12 +11,11 @@ import { patchBookFieldsInCache } from '../../book/service/legacy-book-cache';
 
 @Service()
 export class AudiobookService {
-  private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/audiobooks`;
-  private readonly booksUrl = `${API_CONFIG.BASE_URL}/api/v1/books`;
-
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
   private readonly queryClient = inject(QueryClient);
+  private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/audiobooks`;
+  private readonly booksUrl = `${API_CONFIG.BASE_URL}/api/v1/books`;
 
   getAudiobookInfo(bookId: number, bookType?: string): Observable<AudiobookInfo> {
     const params: Record<string, string> = {};

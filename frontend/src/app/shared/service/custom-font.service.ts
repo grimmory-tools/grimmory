@@ -12,12 +12,12 @@ const CUSTOM_FONTS_QUERY_KEY = ['customFonts'] as const;
 
 @Service()
 export class CustomFontService {
-  private readonly apiUrl = `${API_CONFIG.BASE_URL}/api/v1/custom-fonts`;
-  private loadAllFontsRunId = 0;
-  private readonly loadedFonts = new Set<string>();
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
   private readonly queryClient = inject(QueryClient);
+  private readonly apiUrl = `${API_CONFIG.BASE_URL}/api/v1/custom-fonts`;
+  private loadAllFontsRunId = 0;
+  private readonly loadedFonts = new Set<string>();
   private readonly token = this.authService.token;
 
   private readonly fontsQuery = injectQuery(() => ({
@@ -71,7 +71,7 @@ export class CustomFontService {
           this.queryClient.setQueryData<CustomFont[]>(CUSTOM_FONTS_QUERY_KEY, current =>
             [...(current ?? []), font]
           );
-          this.loadFontFace(font).catch(err => {
+          this.loadFontFace(font).catch((err: unknown) => {
             console.error('Failed to load font after upload:', err);
           });
         })

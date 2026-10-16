@@ -14,9 +14,9 @@
       <p class="chart-description">{{ t('description') }}</p>
     </div>
     <div class="year-nav">
-      <button class="nav-btn" (click)="changeYear(-1)"><i class="pi pi-chevron-left"></i></button>
+      <button type="button" class="nav-btn" (click)="changeYear(-1)"><i class="pi pi-chevron-left"></i></button>
       <span class="year-label">{{ currentYear }}</span>
-      <button class="nav-btn" (click)="changeYear(1)"><i class="pi pi-chevron-right"></i></button>
+      <button type="button" class="nav-btn" (click)="changeYear(1)"><i class="pi pi-chevron-right"></i></button>
     </div>
   </div>
   @if (hasData) {

@@ -85,13 +85,12 @@ interface ViewCallbacks {
 
 @Service()
 export class ReaderEventService {
+  private readonly annotationService = inject(ReaderAnnotationService);
   private readonly DOUBLE_CLICK_INTERVAL_MS = 300;
   private readonly LONG_HOLD_THRESHOLD_MS = 500;
   private readonly LEFT_ZONE_PERCENT = 0.3;
   private readonly RIGHT_ZONE_PERCENT = 0.7;
   private readonly SWIPE_THRESHOLD_PX = 50;
-
-  private readonly annotationService = inject(ReaderAnnotationService);
 
   private view: EventServiceView | null = null;
   private viewCallbacks: ViewCallbacks | null = null;

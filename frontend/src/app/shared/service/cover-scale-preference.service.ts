@@ -4,14 +4,13 @@ import {ScalePreference} from '../util/scale-preference.util';
 
 @Service()
 export class CoverScalePreferenceService {
+  private readonly localStorageService = inject(LocalStorageService);
 
   private readonly BASE_WIDTH = 135;
   private readonly BASE_HEIGHT = 220;
   private readonly STORAGE_KEY = 'coverScalePreference';
   private readonly MIN_SCALE = 0.5;
   private readonly MAX_SCALE = 1.5;
-
-  private readonly localStorageService = inject(LocalStorageService);
   private readonly scalePreference = new ScalePreference(this.localStorageService, {
     storageKey: this.STORAGE_KEY,
     minScale: this.MIN_SCALE,

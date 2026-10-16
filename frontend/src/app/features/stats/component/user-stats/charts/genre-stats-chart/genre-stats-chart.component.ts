@@ -20,15 +20,14 @@ type GenreChartData = ChartData<'bar', number[], string>;
   styleUrls: ['./genre-stats-chart.component.scss']
 })
 export class GenreStatsChartComponent implements OnInit {
+  private readonly userStatsService = inject(UserStatsService);
+  private readonly t = inject(TranslocoService);
+  private readonly destroyRef = inject(DestroyRef);
   @Input() maxGenres: number = 35;
 
   public readonly chartType = 'bar' as const;
   public readonly chartData$: Observable<GenreChartData>;
   public readonly chartOptions: ChartConfiguration['options'];
-
-  private readonly userStatsService = inject(UserStatsService);
-  private readonly t = inject(TranslocoService);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly chartDataSubject: BehaviorSubject<GenreChartData>;
 
   constructor() {

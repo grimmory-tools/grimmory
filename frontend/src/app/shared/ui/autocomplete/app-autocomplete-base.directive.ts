@@ -24,6 +24,7 @@ import { autocompleteBoxVariants } from './app-autocomplete.variants';
 
 @Directive()
 export abstract class AppAutocompleteBaseDirective {
+  private readonly fieldContext = inject(APP_FIELD, { optional: true });
   readonly disabled = input(false, { transform: booleanAttribute });
   readonly required = input(false, { transform: booleanAttribute });
   readonly invalid = input(false, { transform: booleanAttribute });
@@ -48,8 +49,6 @@ export abstract class AppAutocompleteBaseDirective {
   readonly complete = output<string>();
   readonly opened = output<void>();
   readonly loadMore = output<void>();
-
-  private readonly fieldContext = inject(APP_FIELD, { optional: true });
   protected readonly combobox = viewChild(Combobox);
   private readonly input = viewChild<ElementRef<HTMLInputElement>>('input');
   protected readonly optionTemplate = contentChild(AppAutocompleteOptionTemplateDirective);

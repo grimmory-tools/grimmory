@@ -7,10 +7,9 @@ import { invalidateAllBookCaches } from '../../features/book/service/legacy-book
 
 @Service()
 export class MetadataMatchWeightsService {
-  private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1`;
-
   private readonly http = inject(HttpClient);
   private readonly queryClient = inject(QueryClient);
+  private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1`;
 
   recalculateAll(): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/books/metadata/recalculate-match-scores`, {}).pipe(

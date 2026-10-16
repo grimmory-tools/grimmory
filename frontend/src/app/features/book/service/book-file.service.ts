@@ -15,9 +15,6 @@ import {mitigateWebkitUploadBug} from '../../../shared/util/mitigate-webkit-uplo
 
 @Service()
 export class BookFileService {
-
-  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/books`;
-
   private readonly http = inject(HttpClient);
   private readonly messageService = inject(MessageService);
   private readonly fileDownloadService = inject(FileDownloadService);
@@ -25,6 +22,8 @@ export class BookFileService {
   private readonly cacheStorageService = inject(CacheStorageService);
   private readonly localSettingsService = inject(LocalSettingsService);
   private readonly t = inject(TranslocoService);
+
+  private readonly url = `${API_CONFIG.BASE_URL}/api/v1/books`;
 
   getFileContent(bookId: number, bookType?: string): Observable<Blob> {
     let url = `${this.url}/${bookId}/content`;

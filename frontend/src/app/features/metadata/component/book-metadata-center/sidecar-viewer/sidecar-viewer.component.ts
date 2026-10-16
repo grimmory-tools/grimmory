@@ -22,14 +22,13 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
   imports: [Button, Tag, Tooltip, JsonPipe, DatePipe, TranslocoDirective, TranslocoPipe]
 })
 export class SidecarViewerComponent implements OnDestroy {
-  readonly book = input<Book | null>(null);
-  readonly currentBookId = computed(() => this.book()?.id ?? null);
-
   private readonly sidecarService = inject(SidecarService);
   private readonly sources = inject(MetadataSourceQueryService);
   private readonly queryClient = inject(QueryClient);
   private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
+  readonly book = input<Book | null>(null);
+  readonly currentBookId = computed(() => this.book()?.id ?? null);
   private readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
   private readonly destroy$ = new Subject<void>();
 

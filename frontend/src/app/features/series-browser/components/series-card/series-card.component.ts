@@ -18,12 +18,11 @@ import {CoverComponent} from '../../../../shared/components/cover/cover.componen
   imports: [NgClass, ProgressBar, Button, Tooltip, TranslocoPipe, CoverComponent]
 })
 export class SeriesCardComponent {
+  protected urlHelper = inject(UrlHelperService);
+  private readonly bookService = inject(BookService);
 
   @Input({required: true}) series!: SeriesSummary;
   @Output() cardClick = new EventEmitter<SeriesSummary>();
-
-  protected urlHelper = inject(UrlHelperService);
-  private readonly bookService = inject(BookService);
 
   get progressPercent(): number {
     return Math.round(this.series.progress * 100);

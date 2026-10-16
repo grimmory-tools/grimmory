@@ -30,11 +30,10 @@ export class LockUnlockMetadataDialogComponent implements OnInit {
   private readonly messageService = inject(MessageService);
   private readonly loadingService = inject(LoadingService);
   private readonly t = inject(TranslocoService);
+  private readonly providerFields = inject(MetadataProviderFieldsService);
   fieldLocks: Record<string, boolean | undefined> = {};
 
   bookIds: Set<number> = this.dynamicDialogConfig.data.bookIds;
-
-  private readonly providerFields = inject(MetadataProviderFieldsService);
 
   lockableFields: string[] = [
     'titleLocked', 'subtitleLocked', 'publisherLocked', 'publishedDateLocked', 'descriptionLocked',

@@ -45,14 +45,6 @@ type FileRemoveCallback = (event: Event, index: number) => void;
   styleUrl: './book-uploader.component.scss'
 })
 export class BookUploaderComponent {
-  @ViewChild(FileUpload) fileUpload!: FileUpload;
-
-  files: UploadingFile[] = [];
-  readonly isUploading = signal(false);
-  readonly uploadCompleted = signal(false);
-  _selectedLibrary: Library | null = null;
-  selectedPath: LibraryPath | null = null;
-
   private readonly libraryService = inject(LibraryService);
   private readonly messageService = inject(MessageService);
   private readonly appSettingsService = inject(AppSettingsService);
@@ -60,6 +52,13 @@ export class BookUploaderComponent {
   private readonly ref = inject(DynamicDialogRef);
   private readonly t = inject(TranslocoService);
   private readonly cdr = inject(ChangeDetectorRef);
+  @ViewChild(FileUpload) fileUpload!: FileUpload;
+
+  files: UploadingFile[] = [];
+  readonly isUploading = signal(false);
+  readonly uploadCompleted = signal(false);
+  _selectedLibrary: Library | null = null;
+  selectedPath: LibraryPath | null = null;
 
   readonly libraries = this.libraryService.libraries;
   maxFileSizeBytes?: number;

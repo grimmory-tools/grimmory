@@ -48,6 +48,15 @@ import {BookBrowseMultiSortEditorComponent} from '../../../book/browse/book-brow
 })
 export class ViewPreferencesComponent implements OnInit {
   private readonly t = inject(TranslocoService);
+  private readonly bookQuery = inject(BookQueryService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
+  private readonly libraryService = inject(LibraryService);
+  private readonly shelfService = inject(ShelfService);
+  private readonly magicShelfService = inject(MagicShelfService);
+  private readonly userService = inject(UserService);
+  private readonly messageService = inject(MessageService);
+  private readonly dialogLauncher = inject(DialogLauncherService);
 
   entityTypeOptions: {label: string; value: string; translationKey: string}[] = [];
 
@@ -73,8 +82,6 @@ export class ViewPreferencesComponent implements OnInit {
   overlayBookType: boolean = true;
   autoSaveMetadata: boolean = false;
   globalSortTerms: readonly BookSortTerm[] = [];
-
-  private readonly bookQuery = inject(BookQueryService);
   private readonly sortTokensQuery = injectQuery(() =>
     this.bookQuery.facets({facets: EMPTY_FACET_SELECTION, facetLogic: 'or'}));
   readonly editorSortOptions = computed(() =>
@@ -88,15 +95,6 @@ export class ViewPreferencesComponent implements OnInit {
   }[] = [];
 
   private user: User | null = null;
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly injector = inject(Injector);
-
-  private readonly libraryService = inject(LibraryService);
-  private readonly shelfService = inject(ShelfService);
-  private readonly magicShelfService = inject(MagicShelfService);
-  private readonly userService = inject(UserService);
-  private readonly messageService = inject(MessageService);
-  private readonly dialogLauncher = inject(DialogLauncherService);
   private readonly currentUser = this.userService.currentUser;
   private hasInitializedPreferences = false;
 

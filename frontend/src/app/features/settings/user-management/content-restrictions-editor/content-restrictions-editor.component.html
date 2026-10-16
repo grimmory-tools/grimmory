@@ -83,7 +83,7 @@
                 <span class="chip-type">{{ getRestrictionTypeLabel(restriction.restrictionType) }}</span>
                 <span class="chip-value">{{ restriction.value }}</span>
                 @if (isEditing) {
-                  <button class="chip-remove" (click)="removeRestriction(restriction)">
+                  <button type="button" class="chip-remove" (click)="removeRestriction(restriction)">
                     <i class="pi pi-times"></i>
                   </button>
                 }
@@ -106,7 +106,7 @@
                 <span class="chip-type">{{ getRestrictionTypeLabel(restriction.restrictionType) }}</span>
                 <span class="chip-value">{{ restriction.value }}</span>
                 @if (isEditing) {
-                  <button class="chip-remove" (click)="removeRestriction(restriction)">
+                  <button type="button" class="chip-remove" (click)="removeRestriction(restriction)">
                     <i class="pi pi-times"></i>
                   </button>
                 }

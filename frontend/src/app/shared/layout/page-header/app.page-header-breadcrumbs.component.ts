@@ -114,12 +114,11 @@ const COLLAPSE_AFTER_ITEMS = 4;
   `,
 })
 export class AppPageHeaderBreadcrumbsComponent {
+  private readonly router = inject(Router);
   readonly breadcrumbs = input.required<readonly PageHeaderBreadcrumb[]>();
   readonly mobile = input(false);
   readonly dropCurrent = input(false);
   readonly touchTargetClass = "relative after:absolute after:inset-x-0 after:-inset-y-3 after:content-['']";
-
-  private readonly router = inject(Router);
   protected readonly hiddenBreadcrumbMenu = viewChild<AppMenuComponent>('hiddenBreadcrumbMenu');
 
   readonly backButton = computed(() => {

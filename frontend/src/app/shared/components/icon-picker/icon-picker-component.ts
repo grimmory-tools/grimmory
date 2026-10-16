@@ -56,6 +56,12 @@ const lucideIconNodes = iconNodes as unknown as Record<string, LucideIconNode[]>
   styleUrl: './icon-picker-component.scss'
 })
 export class IconPickerComponent implements OnInit {
+  ref = inject(DynamicDialogRef);
+  customSvgService = inject(CustomSvgService);
+  customSvgCache = inject(CustomSvgCacheService);
+  urlHelper = inject(UrlHelperService);
+  messageService = inject(MessageService);
+  userService = inject(UserService);
 
   private readonly hasLoadedSvgIcons: WritableSignal<boolean> = signal(false);
 
@@ -74,13 +80,6 @@ export class IconPickerComponent implements OnInit {
     LOAD_ICONS_ERROR: 'Failed to load SVG icons. Please try again.',
     DELETE_ERROR: 'Failed to delete icon. Please try again.'
   };
-
-  ref = inject(DynamicDialogRef);
-  customSvgService = inject(CustomSvgService);
-  customSvgCache = inject(CustomSvgCacheService);
-  urlHelper = inject(UrlHelperService);
-  messageService = inject(MessageService);
-  userService = inject(UserService);
 
   searchText: string = '';
   selectedIcon: string | null = null;

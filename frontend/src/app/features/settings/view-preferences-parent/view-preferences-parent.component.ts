@@ -30,13 +30,12 @@ import {LayoutService, SIDEBAR_MAX_WIDTH, SIDEBAR_MIN_WIDTH} from '../../../shar
   styleUrl: './view-preferences-parent.component.scss'
 })
 export class ViewPreferencesParentComponent {
-
-  readonly SIDEBAR_MIN_WIDTH = SIDEBAR_MIN_WIDTH;
-  readonly SIDEBAR_MAX_WIDTH = SIDEBAR_MAX_WIDTH;
-
   private readonly layoutService = inject(LayoutService);
   private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
+
+  readonly SIDEBAR_MIN_WIDTH = SIDEBAR_MIN_WIDTH;
+  readonly SIDEBAR_MAX_WIDTH = SIDEBAR_MAX_WIDTH;
 
   get sidebarWidth(): number {
     return this.layoutService.sidebarWidth();

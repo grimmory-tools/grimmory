@@ -48,7 +48,7 @@
 
         <div class="filters-right">
           <div class="type-filters">
-            <button
+            <button type="button"
               class="option-button"
               [class.selected]="showHighlights"
               (click)="showHighlights = !showHighlights; onFilterChange()"
@@ -56,7 +56,7 @@
               <i class="pi pi-highlighter"></i>
               <span class="option-text">{{ t('notebook.filterHighlights') }}</span>
             </button>
-            <button
+            <button type="button"
               class="option-button"
               [class.selected]="showNotes"
               (click)="showNotes = !showNotes; onFilterChange()"
@@ -64,7 +64,7 @@
               <i class="pi pi-file-edit"></i>
               <span class="option-text">{{ t('notebook.filterNotes') }}</span>
             </button>
-            <button
+            <button type="button"
               class="option-button"
               [class.selected]="showBookmarks"
               (click)="showBookmarks = !showBookmarks; onFilterChange()"

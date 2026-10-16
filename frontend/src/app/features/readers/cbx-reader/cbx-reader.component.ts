@@ -87,6 +87,24 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private static readonly INFINITE_SCROLL_MAX_DOM_PAGES = 18;
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly cbxReaderService = inject(CbxReaderService);
+  private readonly bookService = inject(BookService);
+  private readonly bookQuery = inject(BookQueryService);
+  private readonly queryClient = inject(QueryClient);
+  private readonly userService = inject(UserService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
+  private readonly pageTitle = inject(PageTitleService);
+  private readonly readingSessionService = inject(ReadingSessionService);
+  private readonly headerService = inject(CbxHeaderService);
+  private readonly sidebarService = inject(CbxSidebarService);
+  private readonly footerService = inject(CbxFooterService);
+  private readonly quickSettingsService = inject(CbxQuickSettingsService);
+  private readonly pageDimensionService = inject(CbxPageDimensionService);
+  private readonly wakeLockService = inject(WakeLockService);
+  private readonly readerPreferencesService = inject(ReaderPreferencesService);
   private readonly progressSaveSubject$ = new Subject<void>();
 
   readonly bookType = signal<BookType | null>(null);
@@ -217,27 +235,8 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   protected readonly CbxReadingDirection = CbxReadingDirection;
   protected readonly CbxSlideshowInterval = CbxSlideshowInterval;
   protected readonly CbxPageSplitOption = CbxPageSplitOption;
-
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
-  private readonly cbxReaderService = inject(CbxReaderService);
-  private readonly bookService = inject(BookService);
-  private readonly bookQuery = inject(BookQueryService);
-  private readonly queryClient = inject(QueryClient);
-  private readonly userService = inject(UserService);
-  private readonly messageService = inject(MessageService);
-  private readonly t = inject(TranslocoService);
-  private readonly pageTitle = inject(PageTitleService);
-  private readonly readingSessionService = inject(ReadingSessionService);
-  private readonly headerService = inject(CbxHeaderService);
-  private readonly sidebarService = inject(CbxSidebarService);
-  private readonly footerService = inject(CbxFooterService);
-  private readonly quickSettingsService = inject(CbxQuickSettingsService);
   /** Template reads this signal so strip width tracks the slider (same source as quick settings panel). */
   protected readonly cbxQuickSettingsState = this.quickSettingsService.state;
-  private readonly pageDimensionService = inject(CbxPageDimensionService);
-  private readonly wakeLockService = inject(WakeLockService);
-  private readonly readerPreferencesService = inject(ReaderPreferencesService);
 
   protected readonly CbxScrollMode = CbxScrollMode;
   protected readonly CbxFitMode = CbxFitMode;

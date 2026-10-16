@@ -17,6 +17,10 @@ import {AuthorService} from '../../service/author.service';
   imports: [TranslocoPipe, Tooltip, Checkbox, FormsModule, TieredMenu, Button]
 })
 export class AuthorCardComponent implements OnChanges {
+  private readonly authorService = inject(AuthorService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   @Input({required: true}) author!: AuthorSummary;
   @Input() canQuickMatch = false;
@@ -32,11 +36,6 @@ export class AuthorCardComponent implements OnChanges {
   @Output() menuToggled = new EventEmitter<boolean>();
   @Input() index = 0;
   @Input() cacheBuster = 0;
-
-  private readonly authorService = inject(AuthorService);
-  private readonly messageService = inject(MessageService);
-  private readonly t = inject(TranslocoService);
-  private readonly cdr = inject(ChangeDetectorRef);
   private lastShiftKey = false;
 
   hasPhoto = false;

@@ -37,9 +37,9 @@ export interface EpubBookInfo {
 
 @Service()
 export class EpubStreamingService {
-  private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/epub`;
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
+  private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/epub`;
 
   getBookInfo(bookId: number, bookType?: string): Observable<EpubBookInfo> {
     if (bookType) {

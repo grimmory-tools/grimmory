@@ -37,12 +37,11 @@ type ScrollerViewState = 'idle' | 'skeleton' | 'error' | 'empty' | 'books';
   standalone: true
 })
 export class DashboardScrollerComponent {
-
-  readonly config = input.required<ScrollerConfig>();
-
   private readonly bookQuery = inject(BookQueryService);
   private readonly userService = inject(UserService);
   protected readonly bookNavigation = inject(BookNavigationService);
+
+  readonly config = input.required<ScrollerConfig>();
   protected readonly bookMenu = viewChild(BookMenuComponent);
 
   private readonly params = computed(() => dashboardRowQueryParams(this.config()));

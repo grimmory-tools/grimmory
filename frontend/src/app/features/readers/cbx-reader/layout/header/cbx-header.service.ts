@@ -11,14 +11,13 @@ export interface CbxHeaderState {
 
 @Injectable()
 export class CbxHeaderService {
+  private readonly sidebarService = inject(CbxSidebarService);
+  private readonly location = inject(Location);
   private readonly defaultState: CbxHeaderState = {
     isFullscreen: false,
     isSlideshowActive: false,
     isMagnifierActive: false
   };
-
-  private readonly sidebarService = inject(CbxSidebarService);
-  private readonly location = inject(Location);
 
   private readonly _bookTitle = signal('');
   readonly bookTitle = this._bookTitle.asReadonly();

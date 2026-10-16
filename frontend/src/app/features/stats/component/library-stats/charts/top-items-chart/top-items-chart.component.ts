@@ -81,6 +81,9 @@ const READ_STATUS_ORDER: ReadStatus[] = [
   styleUrls: ['./top-items-chart.component.scss']
 })
 export class TopItemsChartComponent implements OnInit {
+  private readonly bookService = inject(BookService);
+  private readonly libraryFilterService = inject(LibraryFilterService);
+  private readonly t = inject(TranslocoService);
   @Input() initialDataType: DataType | null = null;
 
   public readonly chartType = 'bar' as const;
@@ -92,10 +95,6 @@ export class TopItemsChartComponent implements OnInit {
   public totalItems = 0;
   public totalBooks = 0;
   public insights: { icon: string; label: string; value: string }[] = [];
-
-  private readonly bookService = inject(BookService);
-  private readonly libraryFilterService = inject(LibraryFilterService);
-  private readonly t = inject(TranslocoService);
   private readonly syncChartEffect = effect(() => {
     if (this.bookService.isBooksLoading()) {
       return;

@@ -48,7 +48,7 @@
       </svg>
       <h1>{{ t('offline') }}</h1>
       <p>{{ t('connectionLost') }}</p>
-      <button class="retry-btn" (click)="reload()">{{ 'common.retry' | transloco }}</button>
+      <button type="button" class="retry-btn" (click)="reload()">{{ 'common.retry' | transloco }}</button>
     </div>
   </div>
 } @else {

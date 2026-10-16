@@ -32,15 +32,14 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
-  @Input() userId!: number;
-  @Input() isEditing = false;
-  @Output() restrictionsChanged = new EventEmitter<ContentRestriction[]>();
-
   private readonly contentRestrictionService = inject(ContentRestrictionService);
   private readonly bookService = inject(BookService);
   private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
+  @Input() userId!: number;
+  @Input() isEditing = false;
+  @Output() restrictionsChanged = new EventEmitter<ContentRestriction[]>();
   private readonly sortedMetadata = computed(() => {
     const md = this.bookService.uniqueMetadata();
     return {
