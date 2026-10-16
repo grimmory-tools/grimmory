@@ -35,7 +35,7 @@ updates:
     ignore:
       - dependency-name: "typescript"
         update-types: ["version-update:semver-major"]
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 10
     labels:
       - "dependencies"
       - "frontend"
@@ -94,3 +94,4 @@ updates:
       - "ci"
     commit-message:
       prefix: "chore(deps)"
+    open-pull-requests-limit: 10
