@@ -3,7 +3,7 @@ import {of, throwError} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {TranslocoService} from '@jsverse/transloco';
-import {AuthorService} from '../../service/author.service';
+import {AuthorService} from '../../../author-browser/service/author.service';
 import {AuthorPhotoSearchComponent} from './author-photo-search.component';
 import {
   createDynamicDialogHarness,

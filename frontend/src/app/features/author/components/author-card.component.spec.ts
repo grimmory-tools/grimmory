@@ -5,8 +5,8 @@ import {MessageService} from '@openng/optimus-ui/api';
 import {Subject, throwError} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
-import type {AuthorDetails, AuthorSummary} from '../../model/author.model';
-import {AuthorService} from '../../service/author.service';
+import type {AuthorDetails, AuthorSummary} from '../../author-browser/model/author.model';
+import {AuthorService} from '../../author-browser/service/author.service';
 import {AuthorCardComponent} from './author-card.component';
 
 describe('AuthorCardComponent', () => {

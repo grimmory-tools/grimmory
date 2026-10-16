@@ -9,8 +9,8 @@ import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicd
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {MessageService} from '@openng/optimus-ui/api';
 import {finalize} from 'rxjs/operators';
-import {AuthorService} from '../../service/author.service';
-import {AuthorPhotoResult} from '../../model/author.model';
+import {AuthorService} from '../../../author-browser/service/author.service';
+import {AuthorPhotoResult} from '../../../author-browser/model/author.model';
 
 @Component({
   selector: 'app-author-photo-search',
