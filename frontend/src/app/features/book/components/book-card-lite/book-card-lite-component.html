@@ -20,7 +20,7 @@
       [rounded]="true"
       [pTooltip]="book.metadata?.title"
       tooltipPosition="top"
-      [ngClass]="{ 'is-visible': isHovered }"
+      [class.is-visible]="isHovered"
       (onClick)="openBookInfo(book)" />
   }
 </div>

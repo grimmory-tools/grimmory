@@ -1,7 +1,6 @@
-import {Component, computed, effect, EventEmitter, inject, Input, Output, signal} from '@angular/core';
+import {Component, computed, effect, inject, Input, output, signal} from '@angular/core';
 import {FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {Button} from '@openng/optimus-ui/button';
-import {NgClass} from '@angular/common';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {InputText} from '@openng/optimus-ui/inputtext';
 import {BookMetadata} from '../../../book/model/book.model';
@@ -27,7 +26,6 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
     Button,
     Tooltip,
     InputText,
-    NgClass,
     FormsModule,
     Textarea,
     AutoComplete,
@@ -57,7 +55,7 @@ export class BookdropFileMetadataPickerComponent {
   @Input() savedFields: Record<string, boolean> = {};
   @Input() bookdropFileId!: number;
 
-  @Output() metadataCopied = new EventEmitter<boolean>();
+  readonly metadataCopied = output<boolean>();
 
   authorInputValue = '';
 

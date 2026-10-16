@@ -1,5 +1,5 @@
 import {HttpErrorResponse} from '@angular/common/http';
-import {Component, computed, DestroyRef, EventEmitter, inject, Input, OnInit, Output} from "@angular/core";
+import {Component, computed, DestroyRef, inject, Input, OnInit, output} from "@angular/core";
 import {InputText} from "@openng/optimus-ui/inputtext";
 import {Button} from "@openng/optimus-ui/button";
 import {Divider} from "@openng/optimus-ui/divider";
@@ -101,9 +101,9 @@ export class MetadataEditorComponent implements OnInit {
     return this.currentBook;
   }
 
-  @Output() nextBookClicked = new EventEmitter<void>();
-  @Output() previousBookClicked = new EventEmitter<void>();
-  @Output() closeDialogButtonClicked = new EventEmitter<void>();
+  readonly nextBookClicked = output<void>();
+  readonly previousBookClicked = output<void>();
+  readonly closeDialogButtonClicked = output<void>();
 
   @Input() disableNext = false;
   @Input() disablePrevious = false;

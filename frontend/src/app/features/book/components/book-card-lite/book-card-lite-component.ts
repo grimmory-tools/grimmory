@@ -5,7 +5,6 @@ import {CoverComponent} from '../../../../shared/components/cover/cover.componen
 import {Button} from '@openng/optimus-ui/button';
 import {UserService} from '../../../settings/user-management/user.service';
 import {Router} from '@angular/router';
-import {NgClass} from '@angular/common';
 import {BookMetadataHostService} from '../../../../shared/service/book-metadata-host.service';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 
@@ -14,7 +13,6 @@ import {Tooltip} from '@openng/optimus-ui/tooltip';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     Button,
-    NgClass,
     Tooltip,
     CoverComponent
   ],

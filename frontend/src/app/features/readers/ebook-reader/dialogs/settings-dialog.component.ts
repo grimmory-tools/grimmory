@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, Input, OnInit, Output, Renderer2} from '@angular/core';
+import {Component, inject, Input, OnInit, output, Renderer2} from '@angular/core';
 import {DecimalPipe, DOCUMENT} from '@angular/common';
 import {TranslocoDirective} from '@jsverse/transloco';
 import {ReaderStateService} from '../state/reader-state.service';
@@ -29,7 +29,7 @@ export class ReaderSettingsDialogComponent implements OnInit {
   @Input() viewManager!: ReaderViewManagerService;
   @Input() bookId!: number;
 
-  @Output() closed = new EventEmitter<void>();
+  readonly closed = output<void>();
 
   activeTab: 'theme' | 'typography' | 'layout' = 'theme';
 

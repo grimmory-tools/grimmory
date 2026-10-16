@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, EventEmitter, inject, Input, OnInit, Output, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, Input, OnInit, output, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {Button} from '@openng/optimus-ui/button';
 import {InputText} from '@openng/optimus-ui/inputtext';
@@ -36,7 +36,7 @@ export class AuthorMatchComponent implements OnInit {
 
   @Input({required: true}) authorId!: number;
   @Input({required: true}) authorName!: string;
-  @Output() authorMatched = new EventEmitter<AuthorDetails>();
+  readonly authorMatched = output<AuthorDetails>();
 
   readonly searchQuery = signal('');
   readonly asinQuery = signal('');

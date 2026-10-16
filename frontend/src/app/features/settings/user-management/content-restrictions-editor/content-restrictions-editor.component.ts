@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, DestroyRef, EventEmitter, inject, Input, OnChanges, OnInit, Output, signal, SimpleChanges} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, Input, OnChanges, OnInit, output, signal, SimpleChanges} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {Button} from '@openng/optimus-ui/button';
@@ -39,7 +39,7 @@ export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
   private readonly destroyRef = inject(DestroyRef);
   @Input() userId!: number;
   @Input() isEditing = false;
-  @Output() restrictionsChanged = new EventEmitter<ContentRestriction[]>();
+  readonly restrictionsChanged = output<ContentRestriction[]>();
   private readonly sortedMetadata = computed(() => {
     const md = this.bookService.uniqueMetadata();
     return {

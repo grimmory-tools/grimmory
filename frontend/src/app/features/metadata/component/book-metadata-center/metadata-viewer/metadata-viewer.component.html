@@ -29,7 +29,7 @@
                 [value]="progress"
                 [showValue]="false"
                 class="cover-progress-bar"
-                [ngClass]="{
+                [class]="{
                   'progress-complete': progress === 100,
                   'progress-incomplete': progress < 100
                 }"
@@ -593,7 +593,7 @@
         <span>{{ t('synopsisTitle') }}</span>
       </div>
       <div class="description-body">
-        <div #descriptionContent [ngClass]="{ 'description-content-collapsed': !isExpanded }" class="description-content">
+        <div #descriptionContent [class.description-content-collapsed]="!isExpanded" class="description-content">
           <div class="description-html" [innerHTML]="sanitizeDescription(book.metadata!.description)"></div>
         </div>
         @if (isExpanded || isOverflowing) {
@@ -615,7 +615,7 @@
           <i class="pi section-toggle-icon" [ngClass]="isComicSectionExpanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
         </div>
 
-        <div class="comic-metadata-content" [ngClass]="{'collapsed': !isComicSectionExpanded}">
+        <div class="comic-metadata-content" [class.collapsed]="!isComicSectionExpanded">
           @let comic = book.metadata!.comicMetadata!;
 
           <div class="comic-info-grid">

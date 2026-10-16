@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
+import {Component, inject, Input, output} from '@angular/core';
 import {DecimalPipe} from '@angular/common';
 import {TranslocoDirective} from '@jsverse/transloco';
 import {ReaderStateService} from '../../state/reader-state.service';
@@ -17,8 +17,8 @@ export class ReaderQuickSettingsComponent {
   private readonly bookService = inject(BookService);
   @Input() stateService!: ReaderStateService;
   @Input() bookId!: number;
-  @Output() closed = new EventEmitter<void>();
-  @Output() openFullSettings = new EventEmitter<void>();
+  readonly closed = output<void>();
+  readonly openFullSettings = output<void>();
 
   get state() {
     return this.stateService.state();

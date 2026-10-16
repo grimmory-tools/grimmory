@@ -1,4 +1,4 @@
-import {Component, computed, DestroyRef, effect, EventEmitter, inject, Input, Output, signal} from '@angular/core';
+import {Component, computed, DestroyRef, effect, inject, Input, output, signal} from '@angular/core';
 import {Book, BookMetadata, ComicMetadata, MetadataClearFlags, MetadataUpdateWrapper} from '../../../../book/model/book.model';
 import {MessageService} from '@openng/optimus-ui/api';
 import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/drag-drop';
@@ -92,7 +92,7 @@ export class MetadataPickerComponent {
     return this.currentBook;
   }
 
-  @Output() goBack = new EventEmitter<boolean>();
+  readonly goBack = output<boolean>();
 
   currentBook: Book | null = null;
 

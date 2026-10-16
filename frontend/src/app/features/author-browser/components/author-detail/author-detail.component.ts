@@ -1,6 +1,5 @@
 import { AfterViewChecked, Component, computed, ElementRef, inject, OnInit, signal, viewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgClass } from '@angular/common';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@openng/optimus-ui/tabs';
 import { ProgressSpinner } from '@openng/optimus-ui/progressspinner';
 import { Button } from '@openng/optimus-ui/button';
@@ -26,7 +25,6 @@ import { createVirtualGrid } from '../../../../shared/util/virtual-grid.util';
   templateUrl: './author-detail.component.html',
   styleUrls: ['./author-detail.component.scss'],
   imports: [
-    NgClass,
     Tabs,
     TabList,
     Tab,

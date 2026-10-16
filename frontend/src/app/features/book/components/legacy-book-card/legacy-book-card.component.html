@@ -5,7 +5,7 @@
      (click)="onCardClick($event)"
      (keydown.enter)="onCardClick($event)">
 
-  <div class="cover-container" [ngClass]="{ 'center-info-btn': isSeriesViewActive() || !hasDigitalFile(), 'audiobook-cover': isAudiobook(), 'square-library-cover': useSquareCovers() }">
+  <div class="cover-container" [class]="{ 'center-info-btn': isSeriesViewActive() || !hasDigitalFile(), 'audiobook-cover': isAudiobook(), 'square-library-cover': useSquareCovers() }">
     <app-cover
       class="book-cover"
       [class.square-cover]="isAudiobook() || useSquareCovers()"
@@ -65,7 +65,7 @@
     @if (hasProgress()) {
       <div class="cover-progress-bar-container" [pTooltip]="progressTooltip()" tooltipPosition="top">
         @if (progressPercentage() !== null) {
-          <div class="cover-progress-bar" [ngClass]="{ 'progress-complete': progressPercentage() === 100, 'progress-incomplete': progressPercentage()! < 100 }">
+          <div class="cover-progress-bar" [class]="{ 'progress-complete': progressPercentage() === 100, 'progress-incomplete': progressPercentage()! < 100 }">
             <div class="progress-fill" [style.width.%]="progressPercentage()!"></div>
           </div>
         }

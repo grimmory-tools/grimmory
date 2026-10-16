@@ -1,4 +1,4 @@
-import {Component, EventEmitter, HostListener, inject, Input, Output} from '@angular/core';
+import {Component, HostListener, inject, Input, output} from '@angular/core';
 import {TranslocoDirective} from '@jsverse/transloco';
 import {ReaderViewManagerService} from '../../core/view-manager.service';
 import {ReaderIconComponent} from '../../shared/icon.component';
@@ -23,8 +23,8 @@ export class ReaderNavbarComponent {
   get displaySectionFractions(): number[] {
     return this._sectionFractions;
   }
-  @Output() progressChange = new EventEmitter<number>();
-  @Output() hoverChange = new EventEmitter<boolean>();
+  readonly progressChange = output<number>();
+  readonly hoverChange = output<boolean>();
   showLocationPopover = false;
 
   @HostListener('document:click', ['$event'])

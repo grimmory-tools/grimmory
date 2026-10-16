@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, EventEmitter, inject, Input, Output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, Input, output} from '@angular/core';
 import {NgClass} from '@angular/common';
 import {ProgressBar} from '@openng/optimus-ui/progressbar';
 import {Button} from '@openng/optimus-ui/button';
@@ -22,7 +22,7 @@ export class SeriesCardComponent {
   private readonly bookService = inject(BookService);
 
   @Input({required: true}) series!: SeriesSummary;
-  @Output() cardClick = new EventEmitter<SeriesSummary>();
+  readonly cardClick = output<SeriesSummary>();
 
   get progressPercent(): number {
     return Math.round(this.series.progress * 100);

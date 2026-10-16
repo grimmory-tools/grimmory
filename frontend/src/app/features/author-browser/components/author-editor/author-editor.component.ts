@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, signal, SimpleChanges} from '@angular/core';
+import {Component, inject, Input, OnChanges, OnInit, output, signal, SimpleChanges} from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {Button} from '@openng/optimus-ui/button';
@@ -42,7 +42,7 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
 
   @Input({required: true}) authorId!: number;
   @Input({required: true}) author!: AuthorDetails;
-  @Output() authorUpdated = new EventEmitter<AuthorDetails>();
+  readonly authorUpdated = output<AuthorDetails>();
 
   form!: FormGroup;
   readonly isSaving = signal(false);

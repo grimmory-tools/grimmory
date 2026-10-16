@@ -221,7 +221,7 @@
                               <div class="read-progress-bar">
                                 @for (seg of segments; track seg.status) {
                                   <div class="read-progress-segment"
-                                    [ngStyle]="{'width': seg.percent + '%', 'background-color': getStatusColor(seg.status)}"
+                                    [style]="{'width': seg.percent + '%', 'background-color': getStatusColor(seg.status)}"
                                     [pTooltip]="getStatusLabel(seg.status) + ': ' + seg.count">
                                   </div>
                                 }
@@ -229,9 +229,9 @@
                               <div class="read-progress-legend">
                                 @for (seg of segments; track seg.status) {
                                   <span class="legend-item"
-                                    [ngStyle]="{'border-color': getStatusColor(seg.status)}">
+                                    [style.border-color]="getStatusColor(seg.status)">
                                     <span class="legend-dot"
-                                      [ngStyle]="{'background-color': getStatusColor(seg.status)}"></span>
+                                      [style.background-color]="getStatusColor(seg.status)"></span>
                                     {{ getStatusLabel(seg.status) }} ({{ seg.count }})
                                   </span>
                                 }
@@ -257,7 +257,7 @@
                     <span>{{ t('synopsis') }}</span>
                   </div>
                   <div class="description-body">
-                    <div #descriptionContent [ngClass]="{ 'description-content-collapsed': !isExpanded() }"
+                    <div #descriptionContent [class.description-content-collapsed]="!isExpanded()"
                       class="description-content">
                       <div class="description-html"
                         [innerHTML]="firstDescription() || t('noDescription')"></div>
@@ -342,7 +342,7 @@
                 @if (getBookProgress(book); as progress) {
                   <div class="list-progress-row">
                     <div class="list-progress-bar">
-                      <div class="list-progress-fill" [ngStyle]="{'width': progress + '%'}"></div>
+                      <div class="list-progress-fill" [style.width]="progress + '%'"></div>
                     </div>
                     <span class="list-progress-text">{{ progress }}%</span>
                   </div>
@@ -361,7 +361,7 @@
               <div class="list-right-col">
                 <div class="list-badges">
                   <span class="list-status-badge"
-                    [ngStyle]="{'background-color': getStatusColor(book.readStatus)}">
+                    [style.background-color]="getStatusColor(book.readStatus)">
                     {{ getStatusLabel(book.readStatus) }}
                   </span>
                   @if (book.primaryFile?.bookType; as bookType) {

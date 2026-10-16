@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output, OnChanges, SimpleChanges} from '@angular/core';
+import {Component, Input, output, OnChanges, SimpleChanges} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {TranslocoDirective, TranslocoPipe} from '@jsverse/transloco';
 import {ReaderIconComponent} from '../shared/icon.component';
@@ -26,8 +26,8 @@ export interface NoteDialogResult {
 })
 export class ReaderNoteDialogComponent implements OnChanges {
   @Input() data: NoteDialogData | null = null;
-  @Output() saved = new EventEmitter<NoteDialogResult>();
-  @Output() cancelled = new EventEmitter<void>();
+  readonly saved = output<NoteDialogResult>();
+  readonly cancelled = output<void>();
 
   noteContent = '';
   selectedColor = '#FFC107';

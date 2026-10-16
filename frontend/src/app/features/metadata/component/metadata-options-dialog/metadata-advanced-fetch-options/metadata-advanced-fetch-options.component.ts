@@ -1,4 +1,4 @@
-import {Component, computed, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {Component, computed, inject, Input, OnChanges, output, SimpleChanges} from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {Select} from '@openng/optimus-ui/select';
 import {FormsModule} from '@angular/forms';
@@ -33,7 +33,7 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
   private readonly providerFields = inject(MetadataProviderFieldsService);
   private readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
 
-  @Output() metadataOptionsSubmitted = new EventEmitter<MetadataRefreshOptions>();
+  readonly metadataOptionsSubmitted = output<MetadataRefreshOptions>();
   @Input() currentMetadataOptions!: MetadataRefreshOptions;
   @Input() submitButtonLabel!: string;
 
