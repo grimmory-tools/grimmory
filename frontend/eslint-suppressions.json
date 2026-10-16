@@ -1,207 +1,17 @@
 {
-  "src/app/app.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 1
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 2
-    }
-  },
-  "src/app/app.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 16
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 2
-    }
-  },
-  "src/app/core/config/transloco-loader.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/core/custom-reuse-strategy.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/core/security/auth-initialization-service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/core/security/oauth2-management/authentication-settings.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 23
-    },
-    "@angular-eslint/template/require-switch-default": {
-      "count": 1
-    }
-  },
-  "src/app/core/security/oauth2-management/authentication-settings.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 5
-    }
-  },
-  "src/app/core/security/oidc.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/core/services/loading.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/core/services/post-login-initializer.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/core/services/pwa-update.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/author-browser/components/author-browser/author-browser.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 2
-    },
-    "@angular-eslint/template/prefer-at-else": {
-      "count": 1
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 16
-    }
-  },
-  "src/app/features/author-browser/components/author-browser/author-browser.component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 12
-    }
-  },
-  "src/app/features/author-browser/components/author-card/author-card.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 3
-    }
-  },
   "src/app/features/author-browser/components/author-card/author-card.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 4
-    },
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 7
-    },
     "@angular-eslint/prefer-signals": {
       "count": 7
-    }
-  },
-  "src/app/features/author-browser/components/author-detail/author-detail.component.html": {
-    "@angular-eslint/template/prefer-class-binding": {
-      "count": 1
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 8
-    }
-  },
-  "src/app/features/author-browser/components/author-detail/author-detail.component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 3
-    }
-  },
-  "src/app/features/author-browser/components/author-editor/author-editor.component.html": {
-    "@angular-eslint/template/prefer-at-else": {
-      "count": 4
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 16
     }
   },
   "src/app/features/author-browser/components/author-editor/author-editor.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 4
-    },
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 1
-    },
     "@angular-eslint/prefer-signals": {
-      "count": 4
-    }
-  },
-  "src/app/features/author-browser/components/author-match/author-match.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 4
+      "count": 2
     }
   },
   "src/app/features/author-browser/components/author-match/author-match.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    },
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 10
-    }
-  },
-  "src/app/features/author-browser/components/author-photo-search/author-photo-search.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 5
-    }
-  },
-  "src/app/features/author-browser/components/author-photo-search/author-photo-search.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 6
-    }
-  },
-  "src/app/features/author-browser/service/author-selection.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/author-browser/service/author.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    },
     "@angular-eslint/prefer-signals": {
       "count": 2
-    }
-  },
-  "src/app/features/book/browse/book-browse-bulk-bar.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    }
-  },
-  "src/app/features/book/browse/book-browse-column-width-preference.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-detail-line.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-table.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 8
-    }
-  },
-  "src/app/features/book/components/add-physical-book-dialog/add-physical-book-dialog.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 3
-    }
-  },
-  "src/app/features/book/components/add-physical-book-dialog/add-physical-book-dialog.component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 2
-    }
-  },
-  "src/app/features/book/components/additional-file-uploader/additional-file-uploader.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 3
-    },
-    "@angular-eslint/template/require-switch-default": {
-      "count": 1
     }
   },
   "src/app/features/book/components/additional-file-uploader/additional-file-uploader.component.ts": {
@@ -209,90 +19,34 @@
       "count": 1
     }
   },
-  "src/app/features/book/components/book-card-lite/book-card-lite-component.html": {
-    "@angular-eslint/template/prefer-class-binding": {
-      "count": 1
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 1
-    }
-  },
   "src/app/features/book/components/book-card-lite/book-card-lite-component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 4
-    },
     "@angular-eslint/prefer-signals": {
-      "count": 4
-    }
-  },
-  "src/app/features/book/components/book-file-attacher/book-file-attacher.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 4
+      "count": 3
     }
   },
   "src/app/features/book/components/book-file-attacher/book-file-attacher.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 7
-    },
     "@angular-eslint/prefer-signals": {
       "count": 2
-    }
-  },
-  "src/app/features/book/components/book-menu/book-menu.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 13
-    }
-  },
-  "src/app/features/book/components/book-notes/book-notes-component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 9
     }
   },
   "src/app/features/book/components/book-notes/book-notes-component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 5
-    },
     "@angular-eslint/prefer-signals": {
-      "count": 2
-    }
-  },
-  "src/app/features/book/components/book-reviews/book-review-service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-service-decorator": {
       "count": 1
     }
   },
   "src/app/features/book/components/book-reviews/book-reviews.component.html": {
     "@angular-eslint/template/no-non-null-assertion": {
       "count": 5
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 1
     }
   },
   "src/app/features/book/components/book-reviews/book-reviews.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 9
-    },
     "@angular-eslint/prefer-signals": {
-      "count": 5
-    }
-  },
-  "src/app/features/book/components/book-sender/book-sender.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
       "count": 4
     }
   },
   "src/app/features/book/components/bulk-isbn-import-dialog/bulk-isbn-import-dialog.component.html": {
     "@angular-eslint/template/require-switch-default": {
-      "count": 2
-    }
-  },
-  "src/app/features/book/components/bulk-isbn-import-dialog/bulk-isbn-import-dialog.component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 10
+      "count": 1
     }
   },
   "src/app/features/book/components/cards/book-card.component.html": {
@@ -300,276 +54,27 @@
       "count": 1
     }
   },
-  "src/app/features/book/components/cards/book-card.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 5
-    }
-  },
-  "src/app/features/book/components/duplicate-merger/duplicate-merger.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 1
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 19
-    }
-  },
-  "src/app/features/book/components/duplicate-merger/duplicate-merger.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 10
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 5
-    }
-  },
-  "src/app/features/book/components/legacy-book-card/book-card-overlay-preference.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
   "src/app/features/book/components/legacy-book-card/legacy-book-card.component.html": {
     "@angular-eslint/template/no-non-null-assertion": {
       "count": 5
-    },
-    "@angular-eslint/template/prefer-class-binding": {
-      "count": 6
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 3
-    }
-  },
-  "src/app/features/book/components/legacy-book-card/legacy-book-card.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 17
     }
   },
   "src/app/features/book/components/library-shelf-menu/library-shelf-menu-items.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    },
     "@angular-eslint/template/require-switch-default": {
       "count": 1
     }
   },
-  "src/app/features/book/components/library-shelf-menu/library-shelf-menu.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/components/lock-unlock-metadata-dialog/lock-unlock-metadata-dialog.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 7
-    }
-  },
-  "src/app/features/book/components/lock-unlock-metadata-dialog/lock-unlock-metadata-dialog.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    }
-  },
   "src/app/features/book/components/series-page/series-page.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 3
-    },
     "@angular-eslint/template/no-non-null-assertion": {
       "count": 4
-    },
-    "@angular-eslint/template/prefer-at-empty": {
-      "count": 1
-    },
-    "@angular-eslint/template/prefer-class-binding": {
-      "count": 3
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 13
-    },
-    "@angular-eslint/template/prefer-style-binding": {
-      "count": 5
-    }
-  },
-  "src/app/features/book/components/series-page/series-page.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 18
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 18
-    }
-  },
-  "src/app/features/book/components/shelf-assigner/shelf-assigner.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/components/shelf-creator/shelf-creator.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/components/shelf-edit-dialog/shelf-edit-dialog.component.html": {
-    "@angular-eslint/template/prefer-at-else": {
-      "count": 1
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 4
-    }
-  },
-  "src/app/features/book/data/book-background-submission.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/data/book-command.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/data/book-query.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/data/book-shelf-command.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/data/shelf-definition-query.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/helpers/read-status.helper.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/service/book-dialog-helper.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/service/book-file.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 7
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/service/book-menu.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/service/book-metadata-manage.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 4
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/service/book-navigation.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/service/book-patch.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/service/book-socket.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/service/book.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 8
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 3
-    }
-  },
-  "src/app/features/book/service/cbx-reader.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/service/library-health.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 4
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/service/library-shelf-menu.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/service/library.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 3
-    }
-  },
-  "src/app/features/book/service/metadata-task.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/service/shelf.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 4
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 3
-    }
-  },
-  "src/app/features/bookdrop/component/bookdrop-bulk-edit-dialog/bookdrop-bulk-edit-dialog.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 11
     }
   },
   "src/app/features/bookdrop/component/bookdrop-file-metadata-picker/bookdrop-file-metadata-picker.component.html": {
     "@angular-eslint/template/no-non-null-assertion": {
       "count": 3
-    },
-    "@angular-eslint/template/prefer-class-binding": {
-      "count": 23
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 5
     }
   },
   "src/app/features/bookdrop/component/bookdrop-file-metadata-picker/bookdrop-file-metadata-picker.component.ts": {
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 1
-    },
     "@angular-eslint/prefer-signals": {
       "count": 6
     }
@@ -577,74 +82,15 @@
   "src/app/features/bookdrop/component/bookdrop-file-review/bookdrop-file-review.component.html": {
     "@angular-eslint/template/no-non-null-assertion": {
       "count": 1
-    },
-    "@angular-eslint/template/prefer-at-empty": {
-      "count": 1
-    },
-    "@angular-eslint/template/prefer-class-binding": {
-      "count": 2
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 20
     }
   },
   "src/app/features/bookdrop/component/bookdrop-file-review/bookdrop-file-review.component.ts": {
     "@angular-eslint/prefer-signals": {
-      "count": 2
-    }
-  },
-  "src/app/features/bookdrop/component/bookdrop-finalize-result-dialog/bookdrop-finalize-result-dialog.component.html": {
-    "@angular-eslint/template/prefer-class-binding": {
-      "count": 2
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
       "count": 1
-    }
-  },
-  "src/app/features/bookdrop/component/bookdrop-pattern-extract-dialog/bookdrop-pattern-extract-dialog.component.html": {
-    "@angular-eslint/template/prefer-class-binding": {
-      "count": 2
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 9
     }
   },
   "src/app/features/bookdrop/component/bookdrop-pattern-extract-dialog/bookdrop-pattern-extract-dialog.component.ts": {
     "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/features/bookdrop/service/bookdrop-file-api.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/bookdrop/service/bookdrop-file.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/bookdrop/service/bookdrop.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/command-palette/command-palette.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 1
-    }
-  },
-  "src/app/features/command-palette/command-palette.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
       "count": 1
     }
   },
@@ -653,91 +99,22 @@
       "count": 1
     }
   },
-  "src/app/features/dashboard/components/dashboard-scroller/dashboard-scroller.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    }
-  },
-  "src/app/features/dashboard/components/main-dashboard/main-dashboard.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 1
-    }
-  },
-  "src/app/features/dashboard/services/dashboard-config.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
   "src/app/features/design-system/design-system.component.html": {
     "@angular-eslint/template/no-any": {
       "count": 4
     }
   },
-  "src/app/features/magic-shelf/component/magic-shelf-component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 42
-    }
-  },
-  "src/app/features/magic-shelf/component/magic-shelf-component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 9
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 3
-    }
-  },
-  "src/app/features/magic-shelf/service/magic-shelf.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/metadata/component/book-metadata-center/book-metadata-center.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 5
-    }
-  },
-  "src/app/features/metadata/component/book-metadata-center/book-metadata-center.component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/features/metadata/component/book-metadata-center/book-reading-sessions/book-reading-sessions.component.html": {
-    "@angular-eslint/template/prefer-class-binding": {
-      "count": 2
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 1
-    }
-  },
   "src/app/features/metadata/component/book-metadata-center/book-reading-sessions/book-reading-sessions.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    },
     "@angular-eslint/prefer-signals": {
-      "count": 2
+      "count": 1
     }
   },
   "src/app/features/metadata/component/book-metadata-center/metadata-editor/metadata-editor.component.html": {
     "@angular-eslint/template/no-non-null-assertion": {
-      "count": 53
-    },
-    "@angular-eslint/template/prefer-at-else": {
-      "count": 26
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 95
+      "count": 31
     }
   },
   "src/app/features/metadata/component/book-metadata-center/metadata-editor/metadata-editor.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 16
-    },
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 3
-    },
     "@angular-eslint/prefer-signals": {
       "count": 4
     }
@@ -748,316 +125,68 @@
     }
   },
   "src/app/features/metadata/component/book-metadata-center/metadata-picker/metadata-picker.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 10
-    },
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 1
-    },
     "@angular-eslint/prefer-signals": {
       "count": 3
-    }
-  },
-  "src/app/features/metadata/component/book-metadata-center/metadata-searcher/metadata-searcher.component.html": {
-    "@angular-eslint/template/prefer-at-else": {
-      "count": 1
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 3
-    }
-  },
-  "src/app/features/metadata/component/book-metadata-center/metadata-searcher/metadata-searcher.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 6
     }
   },
   "src/app/features/metadata/component/book-metadata-center/metadata-viewer/metadata-tabs/metadata-tabs.component.html": {
     "@angular-eslint/template/no-non-null-assertion": {
       "count": 4
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 23
-    }
-  },
-  "src/app/features/metadata/component/book-metadata-center/metadata-viewer/metadata-tabs/metadata-tabs.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 5
     }
   },
   "src/app/features/metadata/component/book-metadata-center/metadata-viewer/metadata-viewer.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 1
-    },
     "@angular-eslint/template/no-non-null-assertion": {
       "count": 62
-    },
-    "@angular-eslint/template/prefer-class-binding": {
-      "count": 9
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 25
     }
   },
   "src/app/features/metadata/component/book-metadata-center/metadata-viewer/metadata-viewer.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 19
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 4
-    }
-  },
-  "src/app/features/metadata/component/book-metadata-center/sidecar-viewer/sidecar-viewer.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 5
-    }
-  },
-  "src/app/features/metadata/component/bulk-metadata-update/bulk-metadata-update-component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 11
-    }
-  },
-  "src/app/features/metadata/component/bulk-metadata-update/bulk-metadata-update-component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 6
-    }
-  },
-  "src/app/features/metadata/component/cover-search/cover-search.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 6
-    }
-  },
-  "src/app/features/metadata/component/metadata-manager/metadata-manager.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 17
-    }
-  },
-  "src/app/features/metadata/component/metadata-manager/metadata-manager.component.ts": {
     "@angular-eslint/prefer-signals": {
       "count": 3
     }
   },
-  "src/app/features/metadata/component/metadata-options-dialog/metadata-advanced-fetch-options/metadata-advanced-fetch-options.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 16
-    }
-  },
   "src/app/features/metadata/component/metadata-options-dialog/metadata-advanced-fetch-options/metadata-advanced-fetch-options.component.ts": {
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 1
-    },
     "@angular-eslint/prefer-signals": {
       "count": 2
     }
   },
-  "src/app/features/metadata/component/metadata-options-dialog/metadata-fetch-options/metadata-fetch-options.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 1
-    }
-  },
   "src/app/features/metadata/component/metadata-options-dialog/metadata-fetch-options/metadata-fetch-options.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 4
-    },
     "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/features/metadata/component/metadata-provider-field-selector/metadata-provider-field-selector.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
       "count": 1
     }
   },
   "src/app/features/metadata/component/metadata-provider-field-selector/metadata-provider-field-selector.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 4
-    },
     "@angular-eslint/prefer-signals": {
       "count": 1
-    }
-  },
-  "src/app/features/metadata/component/metadata-review-dialog/metadata-review-dialog-component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 9
     }
   },
   "src/app/features/metadata/component/metadata-review-dialog/metadata-review-dialog-component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 5
-    },
     "@angular-eslint/prefer-signals": {
       "count": 1
-    }
-  },
-  "src/app/features/metadata/component/multi-book-metadata-editor/multi-book-metadata-editor-component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 3
-    }
-  },
-  "src/app/features/metadata/component/multi-book-metadata-editor/multi-book-metadata-editor-component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 2
-    }
-  },
-  "src/app/features/metadata/component/multi-book-metadata-fetch/multi-book-metadata-fetch-component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 2
     }
   },
   "src/app/features/metadata/component/multi-book-metadata-fetch/multi-book-metadata-fetch-component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    },
     "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/features/metadata/data/metadata-refresh-submission.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/metadata/service/sidecar.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/metadata/sources/metadata-source-query.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/notebook/components/notebook/notebook.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 3
-    }
-  },
-  "src/app/features/notebook/components/notebook/notebook.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 4
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/features/notebook/service/notebook.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-service-decorator": {
       "count": 1
     }
   },
   "src/app/features/readers/audiobook-player/audiobook-player.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 12
-    },
     "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/features/readers/audiobook-player/audiobook.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/readers/cbx-reader/cbx-reader.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 3
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 8
-    }
-  },
-  "src/app/features/readers/cbx-reader/cbx-reader.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 18
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 67
-    }
-  },
-  "src/app/features/readers/cbx-reader/core/cbx-page-dimension.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/readers/cbx-reader/dialogs/cbx-note-dialog.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 4
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
       "count": 1
     }
   },
   "src/app/features/readers/cbx-reader/dialogs/cbx-note-dialog.component.ts": {
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 2
-    },
     "@angular-eslint/prefer-signals": {
       "count": 1
-    }
-  },
-  "src/app/features/readers/cbx-reader/dialogs/cbx-shortcuts-help.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 2
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 1
-    }
-  },
-  "src/app/features/readers/cbx-reader/dialogs/cbx-shortcuts-help.component.ts": {
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 1
-    }
-  },
-  "src/app/features/readers/cbx-reader/layout/footer/cbx-footer.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 7
-    }
-  },
-  "src/app/features/readers/cbx-reader/layout/footer/cbx-footer.component.ts": {
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 1
-    }
-  },
-  "src/app/features/readers/cbx-reader/layout/header/cbx-header.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 13
     }
   },
   "src/app/features/readers/cbx-reader/layout/header/cbx-header.component.ts": {
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 1
-    },
     "@angular-eslint/prefer-signals": {
       "count": 2
     }
   },
-  "src/app/features/readers/cbx-reader/layout/header/cbx-header.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    }
-  },
-  "src/app/features/readers/cbx-reader/layout/quick-settings/cbx-quick-settings.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 12
-    }
-  },
   "src/app/features/readers/cbx-reader/layout/sidebar/cbx-sidebar.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 8
-    },
     "@angular-eslint/template/no-non-null-assertion": {
       "count": 2
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 12
     },
     "@angular-eslint/template/require-switch-default": {
       "count": 1
@@ -1068,200 +197,49 @@
       "count": 4
     }
   },
-  "src/app/features/readers/ebook-reader/core/epub-streaming.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/readers/ebook-reader/core/event.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/readers/ebook-reader/core/loader.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/readers/ebook-reader/core/style.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/readers/ebook-reader/core/view-manager.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
   "src/app/features/readers/ebook-reader/dialogs/metadata-dialog.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 1
-    },
     "@angular-eslint/template/no-non-null-assertion": {
       "count": 2
     }
   },
   "src/app/features/readers/ebook-reader/dialogs/metadata-dialog.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 4
-    },
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 1
-    },
     "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/features/readers/ebook-reader/dialogs/note-dialog.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 4
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
       "count": 1
     }
   },
   "src/app/features/readers/ebook-reader/dialogs/note-dialog.component.ts": {
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 2
-    },
     "@angular-eslint/prefer-signals": {
       "count": 1
-    }
-  },
-  "src/app/features/readers/ebook-reader/dialogs/settings-dialog.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 19
     }
   },
   "src/app/features/readers/ebook-reader/dialogs/settings-dialog.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 4
-    },
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 1
-    },
     "@angular-eslint/prefer-signals": {
       "count": 3
-    }
-  },
-  "src/app/features/readers/ebook-reader/dialogs/shortcuts-help.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 2
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 1
-    }
-  },
-  "src/app/features/readers/ebook-reader/dialogs/shortcuts-help.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 1
-    }
-  },
-  "src/app/features/readers/ebook-reader/ebook-reader.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 10
     }
   },
   "src/app/features/readers/ebook-reader/ebook-reader.component.ts": {
     "@angular-eslint/prefer-signals": {
-      "count": 13
-    }
-  },
-  "src/app/features/readers/ebook-reader/features/annotations/annotation-renderer.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
       "count": 1
-    }
-  },
-  "src/app/features/readers/ebook-reader/features/bookmarks/bookmark.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    }
-  },
-  "src/app/features/readers/ebook-reader/features/fonts/custom-font.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/readers/ebook-reader/layout/footer/footer.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 9
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 7
     }
   },
   "src/app/features/readers/ebook-reader/layout/footer/footer.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 2
-    },
     "@angular-eslint/prefer-signals": {
       "count": 3
     }
   },
-  "src/app/features/readers/ebook-reader/layout/header/header.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 12
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 12
-    }
-  },
-  "src/app/features/readers/ebook-reader/layout/header/header.component.ts": {
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 1
-    }
-  },
-  "src/app/features/readers/ebook-reader/layout/header/quick-settings.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 6
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 1
-    }
-  },
   "src/app/features/readers/ebook-reader/layout/header/quick-settings.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 2
-    },
     "@angular-eslint/prefer-signals": {
       "count": 2
     }
   },
   "src/app/features/readers/ebook-reader/layout/panel/panel.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 7
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 13
-    },
     "@angular-eslint/template/require-switch-default": {
       "count": 1
     }
   },
   "src/app/features/readers/ebook-reader/layout/sidebar/sidebar.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 6
-    },
     "@angular-eslint/template/no-non-null-assertion": {
       "count": 2
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 8
     },
     "@angular-eslint/template/require-switch-default": {
       "count": 1
@@ -1272,91 +250,26 @@
       "count": 4
     }
   },
-  "src/app/features/readers/ebook-reader/shared/selection-popup.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 8
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 7
-    }
-  },
   "src/app/features/readers/ebook-reader/shared/selection-popup.component.ts": {
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 1
-    },
     "@angular-eslint/prefer-signals": {
       "count": 6
     }
   },
-  "src/app/features/readers/ebook-reader/state/reader-state.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
   "src/app/features/readers/pdf-reader/components/pdf-sidebar.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 7
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 9
-    },
     "@angular-eslint/template/require-switch-default": {
       "count": 1
-    }
-  },
-  "src/app/features/readers/pdf-reader/components/pdf-sidebar.component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 4
     }
   },
   "src/app/features/readers/pdf-reader/pdf-reader.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 20
-    },
     "@angular-eslint/template/no-non-null-assertion": {
       "count": 2
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 46
     },
     "@angular-eslint/template/require-switch-default": {
       "count": 1
     }
   },
-  "src/app/features/readers/pdf-reader/pdf-reader.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 19
-    }
-  },
-  "src/app/features/series-browser/components/series-browser/series-browser.component.html": {
-    "@angular-eslint/template/prefer-at-else": {
-      "count": 1
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 4
-    }
-  },
-  "src/app/features/series-browser/components/series-card/series-card.component.html": {
-    "@angular-eslint/template/prefer-class-binding": {
-      "count": 3
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 2
-    }
-  },
   "src/app/features/series-browser/components/series-card/series-card.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    },
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 1
-    },
     "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/features/series-browser/components/series-scroller/series-scroller.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
       "count": 1
     }
   },
@@ -1368,308 +281,29 @@
       "count": 2
     }
   },
-  "src/app/features/series-browser/service/series-data.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/features/settings/audit-logs/audit-log.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/settings/audit-logs/audit-logs.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 2
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 3
-    }
-  },
-  "src/app/features/settings/audit-logs/audit-logs.component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 4
-    }
-  },
-  "src/app/features/settings/custom-fonts/custom-fonts.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 9
-    }
-  },
-  "src/app/features/settings/custom-fonts/custom-fonts.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 6
-    }
-  },
-  "src/app/features/settings/custom-fonts/font-upload-dialog/font-upload-dialog.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 2
-    }
-  },
   "src/app/features/settings/custom-fonts/font-upload-dialog/font-upload-dialog.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 4
-    },
     "@angular-eslint/prefer-signals": {
       "count": 1
-    }
-  },
-  "src/app/features/settings/device-settings/component/hardcover-settings/hardcover-settings-component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 5
-    }
-  },
-  "src/app/features/settings/device-settings/component/hardcover-settings/hardcover-settings-component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 3
-    }
-  },
-  "src/app/features/settings/device-settings/component/hardcover-settings/hardcover-sync-settings.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/settings/device-settings/component/kobo-sync-settings/kobo-sync-settings-component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 20
-    }
-  },
-  "src/app/features/settings/device-settings/component/kobo-sync-settings/kobo.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/settings/device-settings/component/koreader-settings/koreader-settings-component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 8
-    }
-  },
-  "src/app/features/settings/device-settings/component/koreader-settings/koreader-settings-component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 5
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 6
-    }
-  },
-  "src/app/features/settings/device-settings/component/koreader-settings/koreader.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/settings/device-settings/device-settings-component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 3
-    }
-  },
-  "src/app/features/settings/email-v2/create-email-provider-dialog/create-email-provider-dialog.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 2
-    }
-  },
-  "src/app/features/settings/email-v2/create-email-provider-dialog/create-email-provider-dialog.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 5
-    }
-  },
-  "src/app/features/settings/email-v2/create-email-recipient-dialog/create-email-recipient-dialog.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 1
-    }
-  },
-  "src/app/features/settings/email-v2/create-email-recipient-dialog/create-email-recipient-dialog.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 5
-    }
-  },
-  "src/app/features/settings/email-v2/email-v2-provider/email-v2-provider.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 9
-    }
-  },
-  "src/app/features/settings/email-v2/email-v2-provider/email-v2-provider.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 6
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/features/settings/email-v2/email-v2-provider/email-v2-provider.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/settings/email-v2/email-v2-recipient/email-v2-recipient.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 6
-    }
-  },
-  "src/app/features/settings/email-v2/email-v2-recipient/email-v2-recipient.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 5
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/features/settings/email-v2/email-v2-recipient/email-v2-recipient.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/settings/email-v2/email-v2.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 3
-    }
-  },
-  "src/app/features/settings/email-v2/email.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/settings/file-naming-pattern/file-naming-pattern.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 4
-    }
-  },
-  "src/app/features/settings/file-naming-pattern/file-naming-pattern.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 5
-    }
-  },
-  "src/app/features/settings/global-preferences/global-preferences.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 8
-    }
-  },
-  "src/app/features/settings/global-preferences/global-preferences.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 5
-    }
-  },
-  "src/app/features/settings/global-preferences/metadata-match-weights/metadata-match-weights-component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 2
     }
   },
   "src/app/features/settings/global-preferences/metadata-provider-settings/metadata-provider-settings.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 10
-    },
     "@angular-eslint/template/require-switch-default": {
       "count": 1
-    }
-  },
-  "src/app/features/settings/global-preferences/metadata-provider-settings/metadata-provider-settings.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 4
     }
   },
   "src/app/features/settings/library-metadata-settings/library-metadata-settings.component.html": {
     "@angular-eslint/template/no-non-null-assertion": {
       "count": 7
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 3
-    }
-  },
-  "src/app/features/settings/metadata-settings/metadata-persistence-settings/metadata-persistence-settings-component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 9
-    }
-  },
-  "src/app/features/settings/metadata-settings/metadata-persistence-settings/metadata-persistence-settings-component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    }
-  },
-  "src/app/features/settings/metadata-settings/metadata-settings-component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 6
-    }
-  },
-  "src/app/features/settings/metadata-settings/metadata-settings-component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    }
-  },
-  "src/app/features/settings/metadata-settings/public-reviews-settings/public-reviews-settings-component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 3
-    }
-  },
-  "src/app/features/settings/opds-settings/opds-settings.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 14
-    }
-  },
-  "src/app/features/settings/opds-settings/opds-settings.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 7
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 2
-    }
-  },
-  "src/app/features/settings/opds-settings/opds.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
     }
   },
   "src/app/features/settings/reader-preferences/cbx-reader-preferences/cbx-reader-preferences-component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
     "@angular-eslint/prefer-signals": {
       "count": 1
-    }
-  },
-  "src/app/features/settings/reader-preferences/epub-reader-preferences/epub-reader-preferences-component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 13
-    }
-  },
-  "src/app/features/settings/reader-preferences/epub-reader-preferences/epub-reader-preferences-component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/features/settings/reader-preferences/local-settings/local-settings.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 3
     }
   },
   "src/app/features/settings/reader-preferences/local-settings/local-settings.component.ts": {
     "@angular-eslint/no-async-lifecycle-method": {
       "count": 1
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 3
     }
   },
   "src/app/features/settings/reader-preferences/pdf-reader-preferences/pdf-reader-preferences-component.ts": {
@@ -1677,346 +311,69 @@
       "count": 1
     }
   },
-  "src/app/features/settings/reader-preferences/reader-preferences.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 5
-    }
-  },
-  "src/app/features/settings/reader-preferences/reader-preferences.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
   "src/app/features/settings/reader-preferences/settings-application-mode/settings-application-mode.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
     "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/features/settings/settings.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 13
-    }
-  },
-  "src/app/features/settings/settings.component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 2
-    }
-  },
-  "src/app/features/settings/task-management/task-helper.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
       "count": 1
     }
   },
   "src/app/features/settings/task-management/task-management.component.html": {
     "@angular-eslint/template/no-non-null-assertion": {
       "count": 3
-    },
-    "@angular-eslint/template/prefer-class-binding": {
-      "count": 3
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 8
-    }
-  },
-  "src/app/features/settings/task-management/task.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/settings/user-management/content-restriction.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/settings/user-management/content-restrictions-editor/content-restrictions-editor.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 2
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 2
     }
   },
   "src/app/features/settings/user-management/content-restrictions-editor/content-restrictions-editor.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 5
-    },
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 1
-    },
     "@angular-eslint/prefer-signals": {
       "count": 2
     }
   },
-  "src/app/features/settings/user-management/create-user-dialog/create-user-dialog.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 28
-    }
-  },
-  "src/app/features/settings/user-management/create-user-dialog/create-user-dialog.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 7
-    }
-  },
-  "src/app/features/settings/user-management/user-management.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 39
-    }
-  },
-  "src/app/features/settings/user-management/user-management.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 6
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/features/settings/user-management/user-stats.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/settings/user-management/user.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 3
-    }
-  },
-  "src/app/features/settings/user-profile-dialog/user-profile-dialog.component.html": {
-    "@angular-eslint/template/prefer-at-else": {
-      "count": 1
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 8
-    }
-  },
-  "src/app/features/settings/user-profile-dialog/user-profile-dialog.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 5
-    }
-  },
-  "src/app/features/settings/view-preferences-parent/dashboard-preferences/dashboard-preferences.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 12
-    }
-  },
-  "src/app/features/settings/view-preferences-parent/display-preferences/display-preferences.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 5
-    }
-  },
-  "src/app/features/settings/view-preferences-parent/meta-center-view-mode/meta-center-view-mode-component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    }
-  },
-  "src/app/features/settings/view-preferences-parent/sidebar-sorting-preferences/sidebar-sorting-preferences.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 3
-    }
-  },
-  "src/app/features/settings/view-preferences-parent/sidebar-sorting-preferences/sidebar-sorting-preferences.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    }
-  },
-  "src/app/features/settings/view-preferences-parent/view-preferences-parent.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 6
-    }
-  },
-  "src/app/features/settings/view-preferences-parent/view-preferences-parent.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    }
-  },
-  "src/app/features/settings/view-preferences-parent/view-preferences/view-preferences.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 10
-    }
-  },
-  "src/app/features/settings/view-preferences-parent/view-preferences/view-preferences.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 9
-    }
-  },
-  "src/app/features/stats/component/library-stats/charts/top-items-chart/top-items-chart.component.html": {
-    "@angular-eslint/template/prefer-class-binding": {
-      "count": 4
-    }
-  },
   "src/app/features/stats/component/library-stats/charts/top-items-chart/top-items-chart.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    },
     "@angular-eslint/prefer-signals": {
       "count": 1
     }
   },
   "src/app/features/stats/component/library-stats/library-stats.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 11
-    },
     "@angular-eslint/template/require-switch-default": {
       "count": 1
     }
   },
-  "src/app/features/stats/component/library-stats/service/libraries-summary.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/stats/component/library-stats/service/library-filter.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/stats/component/shared/stats-chart-theme.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
   "src/app/features/stats/component/user-stats/charts/book-flow-chart/book-flow-chart.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    },
     "@angular-eslint/prefer-signals": {
       "count": 1
     }
   },
   "src/app/features/stats/component/user-stats/charts/completion-race-chart/completion-race-chart.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    },
     "@angular-eslint/prefer-signals": {
       "count": 1
     }
   },
   "src/app/features/stats/component/user-stats/charts/completion-timeline-chart/completion-timeline-chart.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    },
     "@angular-eslint/prefer-signals": {
       "count": 1
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/favorite-days-chart/favorite-days-chart.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 2
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/favorite-days-chart/favorite-days-chart.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
     }
   },
   "src/app/features/stats/component/user-stats/charts/genre-stats-chart/genre-stats-chart.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    },
     "@angular-eslint/prefer-signals": {
       "count": 1
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/page-turner-chart/page-turner-chart.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/peak-hours-chart/peak-hours-chart.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 2
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/peak-hours-chart/peak-hours-chart.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
     }
   },
   "src/app/features/stats/component/user-stats/charts/reading-session-heatmap/reading-session-heatmap.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    },
     "@angular-eslint/prefer-signals": {
       "count": 1
     }
   },
-  "src/app/features/stats/component/user-stats/charts/reading-session-timeline/reading-session-timeline.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 2
-    }
-  },
   "src/app/features/stats/component/user-stats/charts/reading-session-timeline/reading-session-timeline.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    },
     "@angular-eslint/prefer-signals": {
-      "count": 2
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/series-progress-chart/series-progress-chart.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 2
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/session-archetypes-chart/session-archetypes-chart.component.html": {
-    "@angular-eslint/template/button-has-type": {
       "count": 2
     }
   },
   "src/app/features/stats/component/user-stats/charts/session-archetypes-chart/session-archetypes-chart.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    },
     "@angular-eslint/prefer-signals": {
       "count": 1
     }
   },
-  "src/app/features/stats/component/user-stats/service/user-chart-config.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
   "src/app/features/stats/component/user-stats/user-stats.component.html": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 2
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 23
-    },
     "@angular-eslint/template/require-switch-default": {
       "count": 1
-    }
-  },
-  "src/app/shared/browse/bulk-actions/bulk-actions-bar.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    }
-  },
-  "src/app/shared/browse/filter-rail/facet-range-inputs.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    }
-  },
-  "src/app/shared/browse/filter-rail/filter-section.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
     }
   },
   "src/app/shared/browse/grid/grid-item.component.ts": {
@@ -2024,53 +381,8 @@
       "count": 1
     }
   },
-  "src/app/shared/components/book-uploader/book-uploader.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 4
-    },
-    "@angular-eslint/template/require-switch-default": {
-      "count": 1
-    }
-  },
   "src/app/shared/components/book-uploader/book-uploader.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 7
-    },
     "@angular-eslint/prefer-signals": {
-      "count": 3
-    }
-  },
-  "src/app/shared/components/change-password/change-password.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 3
-    }
-  },
-  "src/app/shared/components/change-password/change-password.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 4
-    }
-  },
-  "src/app/shared/components/cover/cover.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    }
-  },
-  "src/app/shared/components/directory-picker/directory-picker.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    },
-    "@angular-eslint/no-duplicates-in-metadata-arrays": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/shared/components/directory-picker/utility.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-service-decorator": {
       "count": 1
     }
   },
@@ -2079,564 +391,12 @@
       "count": 4
     }
   },
-  "src/app/shared/components/file-mover/file-mover-component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 8
-    }
-  },
-  "src/app/shared/components/file-mover/file-mover-component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 2
-    }
-  },
   "src/app/shared/components/icon-display/icon-display.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 4
-    },
     "@angular-eslint/prefer-signals": {
       "count": 6
-    },
-    "@angular-eslint/template/prefer-class-binding": {
-      "count": 2
     },
     "@angular-eslint/template/prefer-style-binding": {
       "count": 3
-    }
-  },
-  "src/app/shared/components/icon-picker/icon-picker-component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 6
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 8
-    }
-  },
-  "src/app/shared/components/icon/app-icon.directive.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/components/icon/svg-content.directive.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    }
-  },
-  "src/app/shared/components/library-import-progress-widget/library-import-progress-widget-component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 2
-    }
-  },
-  "src/app/shared/components/live-notification-box/live-notification-box.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    }
-  },
-  "src/app/shared/components/login/login.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 2
-    }
-  },
-  "src/app/shared/components/login/login.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 6
-    }
-  },
-  "src/app/shared/components/metadata-progress-widget/metadata-progress-widget-component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 8
-    }
-  },
-  "src/app/shared/components/metadata-progress-widget/metadata-progress-widget-component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 7
-    }
-  },
-  "src/app/shared/components/setup/login.guard.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/components/setup/setup-redirect.guard.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/components/setup/setup.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/shared/components/setup/setup.guard.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/components/setup/setup.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/components/tag/tag.component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 8
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 1
-    }
-  },
-  "src/app/shared/layout/layout-main/app.layout.component.html": {
-    "@angular-eslint/template/prefer-class-binding": {
-      "count": 1
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 3
-    }
-  },
-  "src/app/shared/layout/layout-main/app.layout.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    }
-  },
-  "src/app/shared/layout/layout-sidebar/app.sidebar-item-row.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 2
-    }
-  },
-  "src/app/shared/layout/layout-sidebar/app.sidebar-item-row.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    }
-  },
-  "src/app/shared/layout/layout-sidebar/app.sidebar-section.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    }
-  },
-  "src/app/shared/layout/layout-sidebar/app.sidebar.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 1
-    }
-  },
-  "src/app/shared/layout/layout-sidebar/version-changelog-dialog/version-changelog-dialog.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 1
-    }
-  },
-  "src/app/shared/layout/layout-sidebar/version-changelog-dialog/version-changelog-dialog.component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/shared/layout/layout.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/layout/page-header/app.page-header-breadcrumbs.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/template/prefer-class-binding": {
-      "count": 1
-    }
-  },
-  "src/app/shared/layout/page-header/page-header.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/layout/theme/favicon-service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/metadata/metadata-catalog.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/metadata/metadata-form.builder.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/metadata/metadata-provider-fields.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/metadata/metadata-utils.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/annotation.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/app-locale.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/app-settings.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 2
-    }
-  },
-  "src/app/shared/service/app-theme.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/app-ui-font.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/audiobook-session.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/auth.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 4
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/book-mark.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/book-metadata-host.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/book-note-v2.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/book-note.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/cache-storage.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/cover-scale-preference.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/custom-font.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 2
-    }
-  },
-  "src/app/shared/service/file-download.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/file-operations.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/icon-picker.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/language-resolver.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/library-import-progress.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/local-settings.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/local-storage.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/metadata-match-weights.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/metadata-progress.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/oidc-group-mapping.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/page-title.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/pdf-annotation.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/reading-session-api.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/reading-session.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/route-scroll-position.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/settings-helper.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/startup.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/url-helper.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/version.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/wake-lock.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/services/custom-svg-cache.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/services/custom-svg.service.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    },
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/services/dialog-launcher.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/ui/autocomplete/app-autocomplete-base.directive.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    }
-  },
-  "src/app/shared/ui/autocomplete/app-autocomplete-popup.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    }
-  },
-  "src/app/shared/ui/checkbox/app-checkbox.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    }
-  },
-  "src/app/shared/ui/date-picker/app-date-picker-base.directive.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    }
-  },
-  "src/app/shared/ui/field/app-field.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    }
-  },
-  "src/app/shared/ui/input/app-input.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    }
-  },
-  "src/app/shared/ui/menu/app-menu-checkbox.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    }
-  },
-  "src/app/shared/ui/menu/app-menu-item.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    }
-  },
-  "src/app/shared/ui/menu/app-menu-radio.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    }
-  },
-  "src/app/shared/ui/menu/app-menu-trigger.directive.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    }
-  },
-  "src/app/shared/ui/menu/app-menu.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 6
-    }
-  },
-  "src/app/shared/ui/menu/app-menu.spec.ts": {
-    "@angular-eslint/template/button-has-type": {
-      "count": 3
-    }
-  },
-  "src/app/shared/ui/message/app-message.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    }
-  },
-  "src/app/shared/ui/number-input/app-number-input.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    }
-  },
-  "src/app/shared/ui/radio-group/app-radio-group.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    }
-  },
-  "src/app/shared/ui/rating/app-rating.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    }
-  },
-  "src/app/shared/ui/select/app-select-base.directive.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    }
-  },
-  "src/app/shared/ui/slider/app-slider.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    }
-  },
-  "src/app/shared/ui/switch/app-switch.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    }
-  },
-  "src/app/shared/ui/tabs/app-tabs.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    }
-  },
-  "src/app/shared/ui/textarea/app-textarea.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
-    }
-  },
-  "src/app/shared/websocket/notification-event.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/shared/websocket/rx-stomp.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
     }
   }
 }
