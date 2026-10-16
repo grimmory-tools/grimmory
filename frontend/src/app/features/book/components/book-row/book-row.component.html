@@ -1,0 +1,63 @@
+<section [style.--card-width.px]="cardWidth()" [style.--card-height.px]="cardHeight()">
+  @if (rowTitle()) {
+    <div class="mb-1 flex h-7 items-center justify-between gap-4">
+      <ng-content />
+
+      @if (desktop() && !(atStart() && atEnd())) {
+        <div class="ml-auto flex shrink-0 items-center">
+          <button
+            type="button"
+            [class]="arrowClass"
+            [disabled]="atStart()"
+            [attr.aria-label]="'book.row.previous' | transloco"
+            (click)="scrollPage(-1)">
+            <svg lucideChevronLeft aria-hidden="true" strokeWidth="1.75" class="size-5"></svg>
+          </button>
+          <button
+            type="button"
+            [class]="arrowClass"
+            [disabled]="atEnd()"
+            [attr.aria-label]="'book.row.next' | transloco"
+            (click)="scrollPage(1)">
+            <svg lucideChevronRight aria-hidden="true" strokeWidth="1.75" class="size-5"></svg>
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  @if (status() === 'error' && cards().length === 0) {
+    <div class="flex items-center gap-3 py-2">
+      <p class="m-0 text-sm text-text-muted">{{ 'book.row.loadError' | transloco }}</p>
+      <app-button variant="ghost" size="sm" [label]="'common.retry' | transloco" (clicked)="retry.emit()" />
+    </div>
+  } @else {
+    <div
+      #strip
+      class="flex items-end gap-4 overflow-x-auto overflow-y-hidden overscroll-x-contain py-2 motion-safe:scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      [class]="pageBleed() ? '-mx-4 px-4 md:-mx-8 md:px-8' : '-mx-3 px-3'">
+      @for (card of cards(); track card.book.id) {
+        <app-book-card
+          class="-mx-3 -mt-2 box-content w-[var(--card-width)] shrink-0 px-3 pt-2 [contain-intrinsic-size:auto_var(--card-width)_var(--card-height)] [content-visibility:auto]"
+          [book]="card.book"
+          [file]="card.file ?? null"
+          [squareCovers]="squareCovers()"
+          [showFormatPill]="showFormatPill()"
+          detailMode="request"
+          [menuOpen]="bookMenu().openBookId() === card.book.id"
+          (action)="bookNavigation.readBook(card.book, card.file)"
+          (detailRequested)="opened.emit(card.book)"
+          (menuRequested)="bookMenu().openFor(card.book, $event, card.file)" />
+      } @empty {
+        @if (status() === 'pending') {
+          @for (skeleton of skeletons; track $index) {
+            <app-book-card-skeleton
+              class="w-[var(--card-width)] shrink-0"
+              [squareCovers]="squareCovers()"
+              [class.invisible]="!skeletonVisible()" />
+          }
+        }
+      }
+    </div>
+  }
+</section>

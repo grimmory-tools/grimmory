@@ -75,8 +75,9 @@ public class BookLoreUser {
         public SidebarSortOption sidebarMagicShelfSorting;
         public EntityViewPreferences entityViewPreferences;
         public List<TableColumnPreference> tableColumnPreference;
-        public String filterMode;
         public String filterSortingMode;
+        public Boolean filterMatchAll;
+        public Boolean filterExcludeOnTick;
         public String metadataCenterViewMode;
         public boolean koReaderEnabled;
         public boolean enableSeriesView;
@@ -259,6 +260,8 @@ public class BookLoreUser {
             private int order;
             private Integer maxItems;
             private Long magicShelfId;
+            private Long libraryId;
+            private Long shelfId;
             private String sortField;
             private String sortDirection;
         }

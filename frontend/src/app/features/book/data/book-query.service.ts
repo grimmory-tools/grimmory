@@ -10,13 +10,15 @@ import {
 import {lastValueFrom, Observable, map, takeUntil} from 'rxjs';
 
 import {API_CONFIG} from '../../../core/config/api-config';
-import {BrowseFacetResult, findBrowsePageLink} from '../../../core/data/browse.models';
-import {mapBrowseFacetResult, mapBrowsePage} from '../../../core/data/browse-response';
+import {BrowseFacetGroup, BrowseFacetIndex, findBrowsePageLink} from '../../../core/data/browse.models';
+import {mapBrowseFacetIndex, mapBrowseFacetPage, mapBrowsePage} from '../../../core/data/browse-response';
+import {withBrowseFacetValues} from '../../../shared/browse/facets';
 import {bookQueryKeys} from './book-query-keys';
 import {
   BookCollectionFilterParams,
   BookDescriptionOptions,
   BookPageParams,
+  BookQueryFacetKey,
   BookQueryParams,
   normalizeBookCollectionFilterParams,
   normalizeBookPageParams,
@@ -29,6 +31,8 @@ import {BookPage} from './book-query.models';
 import {BookDetail, BookRecommendation, BookSummary} from './book-response.models';
 import {abortSignal, QUERY_DEFAULTS} from '../../../core/data/query-transport';
 import {AuthService} from '../../../shared/service/auth.service';
+
+const FACET_PAGE_SIZE = 100;
 
 @Injectable({providedIn: 'root'})
 export class BookQueryService {
@@ -84,16 +88,37 @@ export class BookQueryService {
     });
   }
 
-  facets(params: BookCollectionFilterParams) {
+  facetIndex(params: BookCollectionFilterParams) {
     const normalized = normalizeBookCollectionFilterParams(params);
 
     return queryOptions({
-      queryKey: bookQueryKeys.facets(normalized),
-      queryFn: ({signal}): Promise<BrowseFacetResult> => this.getMapped(
+      queryKey: bookQueryKeys.facetIndex(normalized),
+      queryFn: ({signal}): Promise<BrowseFacetIndex> => this.getMapped(
         `${this.baseUrl}/facets`,
         signal,
-        mapBrowseFacetResult,
+        mapBrowseFacetIndex,
         toCollectionHttpParams(normalized),
+      ),
+      ...QUERY_DEFAULTS,
+    });
+  }
+
+  facet(key: BookQueryFacetKey, params: BookCollectionFilterParams, search = '') {
+    const otherFacets = withBrowseFacetValues(params.facets, key, []);
+    const normalized = normalizeBookCollectionFilterParams({...params, facets: otherFacets});
+    const term = search.trim();
+    let httpParams = toCollectionHttpParams(normalized).set('size', FACET_PAGE_SIZE);
+    if (term) {
+      httpParams = httpParams.set('search', term);
+    }
+
+    return queryOptions({
+      queryKey: bookQueryKeys.facet(key, normalized, term),
+      queryFn: ({signal}): Promise<BrowseFacetGroup> => this.getMapped(
+        `${this.baseUrl}/facets/${encodeURIComponent(key)}`,
+        signal,
+        mapBrowseFacetPage,
+        httpParams,
       ),
       ...QUERY_DEFAULTS,
     });

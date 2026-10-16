@@ -50,13 +50,13 @@ import {type BrowseFilterChip} from '../facets';
       <app-tag
         [class]="tagHostClass()"
         [styleClass]="tagClass()"
-        color="primary"
+        [color]="chip.excluded ? 'red' : 'primary'"
         size="sm"
         removable
         [removeLabel]="'shared.ui.tag.removeLabel' | transloco: {label: chip.valueLabel}"
         (remove)="removeChip.emit(chip)">
-        <span class="text-primary-text/70">{{ chip.groupLabelKey | transloco }}:</span>
-        <span class="max-w-48 truncate">{{ chip.valueLabel }}</span>
+        <span class="opacity-70">{{ chip.groupLabelKey | transloco }}:</span>
+        <span class="max-w-48 truncate" [class.line-through]="chip.excluded">{{ chip.valueLabel }}</span>
       </app-tag>
     }
     </div>
