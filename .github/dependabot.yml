@@ -66,6 +66,13 @@ updates:
         patterns:
           - "tailwindcss"
           - "@tailwindcss/*"
+      stylelint:
+        patterns:
+          - "stylelint"
+          - "stylelint-config-*"
+      stomp:
+        patterns:
+          - "@stomp/*"
       vitest:
         patterns:
           - "vitest"
