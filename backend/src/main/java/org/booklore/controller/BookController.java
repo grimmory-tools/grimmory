@@ -118,7 +118,7 @@ public class BookController {
         return ResponseEntity.ok(bookFacetService.getFacets(facet, facetLogic, query));
     }
 
-    @Operation(summary = "Get one book facet", description = "Values and counts for a single facet, scoped and counted the same way as the facets endpoint. Name facets such as author, genre and tag are paged and can be searched.")
+    @Operation(summary = "Get one book facet", description = "Values and counts for a single facet, scoped by the same facet, facet_logic, and query parameters as the page endpoint. The facet omits its own selections from its counts.")
     @ApiResponse(responseCode = "200", description = "Facet values returned successfully")
     @GetMapping("/facets/{facetName}")
     public ResponseEntity<FacetGroupsResponse> getBookFacet(
@@ -131,7 +131,7 @@ public class BookController {
             @RequestParam(name = "facet_logic", required = false) String facetLogic,
             @Parameter(description = "Free-text search applied to the counts")
             @RequestParam(required = false) String query,
-            @Parameter(description = "Case-insensitive text the values must contain; name facets only")
+            @Parameter(description = "Case-insensitive text the values must contain; author, genre, tag, mood, series, publisher, language, narrator, and comic facets only")
             @RequestParam(required = false) String search) {
         return ResponseEntity.ok(bookFacetService.getFacet(facetName, facet, facetLogic, query, search, pageable));
     }
