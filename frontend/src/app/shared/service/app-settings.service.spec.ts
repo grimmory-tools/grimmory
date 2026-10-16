@@ -61,6 +61,7 @@ function buildAppSettings(overrides: Partial<AppSettings> = {}): AppSettings {
       providers: [],
     },
     koboSettings: {} as never,
+    koreaderSyncSettings: {} as never,
     coverCroppingSettings: {} as never,
     metadataDownloadOnBookdrop: false,
     metadataProviderSpecificFields: {} as never,
@@ -147,6 +148,25 @@ describe('AppSettingsService', () => {
     httpTestingController.expectOne(req => req.url.endsWith('/api/v1/public-settings')).flush(publicSettings);
 
     await expect(queryResultPromise).resolves.toEqual(publicSettings);
+  });
+
+  it('publishes the external KOReader sync server and login edits to the public settings', async () => {
+    flushInitialSettingsRequests(httpTestingController, {
+      appSettings: {
+        koreaderSyncSettings: {
+          externalServerEnabled: true,
+          externalServerUrl: ' https://sync.example ',
+          shelfName: 'KOReader',
+          usersCanEditLogin: true,
+        },
+      },
+    });
+    await vi.waitFor(() => {
+      flushSignalAndQueryEffects();
+      expect(queryClientHarness.queryClient.getQueryData(PUBLIC_SETTINGS_QUERY_KEY)).toEqual(
+        expect.objectContaining({koreaderSyncUrlOverride: 'https://sync.example', koreaderUsersCanEditLogin: true}),
+      );
+    });
   });
 
   it('removes authenticated settings queries when the auth token becomes null', () => {

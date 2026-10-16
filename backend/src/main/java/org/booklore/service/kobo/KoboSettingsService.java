@@ -24,6 +24,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class KoboSettingsService {
 
+    private static final String PREVIOUS_KOBO_ICON = "tablet";
+
     private final KoboUserSettingsRepository repository;
     private final AuthenticationService authenticationService;
     private final ShelfService shelfService;
@@ -106,9 +108,17 @@ public class KoboSettingsService {
                     ShelfCreateRequest.builder()
                             .name(ShelfType.KOBO.getName())
                             .icon(ShelfType.KOBO.getIcon())
-                            .iconType(IconType.LUCIDE)
+                            .iconType(ShelfType.KOBO.getIconType())
                             .build()
             );
+        } else if (PREVIOUS_KOBO_ICON.equals(shelf.get().getIcon()) && shelf.get().getIconType() == IconType.LUCIDE) {
+            ShelfEntity existing = shelf.get();
+            shelfService.updateShelf(existing.getId(), ShelfCreateRequest.builder()
+                    .name(existing.getName())
+                    .icon(ShelfType.KOBO.getIcon())
+                    .iconType(ShelfType.KOBO.getIconType())
+                    .publicShelf(existing.isPublic())
+                    .build());
         }
     }
 

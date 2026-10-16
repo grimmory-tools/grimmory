@@ -19,6 +19,8 @@ public interface ShelfRepository extends JpaRepository<ShelfEntity, Long> {
 
     Optional<ShelfEntity> findByUserIdAndName(Long id, String name);
 
+    List<ShelfEntity> findByName(String name);
+
     @EntityGraph(attributePaths = {"user"})
     @Query("SELECT s FROM ShelfEntity s WHERE s.id = :id")
     Optional<ShelfEntity> findByIdWithUser(@Param("id") Long id);

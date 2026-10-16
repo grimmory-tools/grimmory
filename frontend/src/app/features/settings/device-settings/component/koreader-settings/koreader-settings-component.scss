@@ -66,6 +66,7 @@
 
   @media (width <= 768px) {
     flex-direction: column;
+    align-items: stretch;
     gap: 0.875rem;
     padding: 0.4375rem 0;
   }
@@ -94,6 +95,11 @@
       margin-bottom: 0;
       flex-shrink: 0;
       min-width: 150px;
+
+      @media (width <= 768px) {
+        flex-shrink: 1;
+        min-width: 0;
+      }
     }
 
     .token-input-group {
@@ -102,7 +108,8 @@
       max-width: 500px;
 
       @media (width <= 768px) {
-        min-width: 250px;
+        flex-basis: 100%;
+        min-width: 0;
         max-width: 100%;
       }
     }
@@ -142,7 +149,7 @@
     min-width: 200px;
 
     @media (width <= 768px) {
-      min-width: 150px;
+      min-width: 0;
     }
   }
 
@@ -151,7 +158,7 @@
     min-width: 200px;
 
     @media (width <= 768px) {
-      min-width: 150px;
+      min-width: 0;
     }
   }
 }

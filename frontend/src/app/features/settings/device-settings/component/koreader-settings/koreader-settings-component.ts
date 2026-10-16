@@ -10,6 +10,7 @@ import {MessageService} from '@openng/optimus-ui/api';
 import {KoreaderService} from './koreader.service';
 import {UserService} from '../../../user-management/user.service';
 import {ExternalDocLinkComponent} from '../../../../../shared/components/external-doc-link/external-doc-link.component';
+import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 
 @Component({
@@ -36,7 +37,13 @@ export class KoreaderSettingsComponent {
   koReaderUsername = signal('');
   koReaderPassword = signal('');
   credentialsSaved = signal(false);
-  readonly koreaderEndpoint = `${window.location.origin}/api/koreader`;
+  rotating = signal(false);
+  rotated = signal(false);
+
+  private readonly appSettingsService = inject(AppSettingsService);
+  readonly externalSyncUrl = computed(() => this.appSettingsService.publicAppSettings()?.koreaderSyncUrlOverride?.trim() || null);
+  readonly koreaderEndpoint = computed(() => this.externalSyncUrl() ?? `${window.location.origin}/api/koreader`);
+  readonly loginEditable = computed(() => !this.externalSyncUrl() || !!this.appSettingsService.publicAppSettings()?.koreaderUsersCanEditLogin);
 
   private readonly messageService = inject(MessageService);
   private readonly koreaderService = inject(KoreaderService);
@@ -115,6 +122,37 @@ export class KoreaderSettingsComponent {
 
   toggleShowPassword() {
     this.showPassword.update(showPassword => !showPassword);
+  }
+
+  rotatePassword() {
+    if (this.rotating()) {
+      return;
+    }
+    this.rotating.set(true);
+    this.koreaderService.rotatePassword()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: koreaderUser => {
+          this.koReaderUsername.set(koreaderUser.username);
+          this.koReaderPassword.set(koreaderUser.password);
+          this.credentialsSaved.set(true);
+          this.rotated.set(true);
+          this.rotating.set(false);
+          this.messageService.add({
+            severity: 'success',
+            summary: this.t.translate('settingsDevice.koreader.rotated'),
+            detail: this.t.translate('settingsDevice.koreader.rotatedDetail')
+          });
+        },
+        error: () => {
+          this.rotating.set(false);
+          this.messageService.add({
+            severity: 'error',
+            summary: this.t.translate('common.error'),
+            detail: this.t.translate('settingsDevice.koreader.rotateError')
+          });
+        }
+      });
   }
 
 

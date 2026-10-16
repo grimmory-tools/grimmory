@@ -28,6 +28,10 @@ export class KoreaderService {
     return this.http.get<KoreaderUser>(`${this.url}/me`);
   }
 
+  rotatePassword(): Observable<KoreaderUser> {
+    return this.http.post<KoreaderUser>(`${this.url}/me/rotate-password`, null);
+  }
+
   toggleSync(enabled: boolean): Observable<void> {
     return this.http.patch<void>(`${this.url}/me/sync`, null, {
       params: {enabled: enabled.toString()}

@@ -8,7 +8,8 @@ import {ToggleSwitch} from '@openng/optimus-ui/toggleswitch';
 
 import {AppSettingsService} from '../../../shared/service/app-settings.service';
 import {BookMetadataManageService} from '../../book/service/book-metadata-manage.service';
-import {AppSettingKey, CoverCroppingSettings} from '../../../shared/model/app-settings.model';
+import {ShelfService} from '../../book/service/shelf.service';
+import {AppSettingKey, CoverCroppingSettings, KoreaderSyncSettings} from '../../../shared/model/app-settings.model';
 import {InputText} from '@openng/optimus-ui/inputtext';
 import {Slider} from '@openng/optimus-ui/slider';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
@@ -43,8 +44,16 @@ export class GlobalPreferencesComponent implements OnInit {
     smartCroppingEnabled: false
   };
 
+  koreaderSyncSettings: KoreaderSyncSettings = {
+    externalServerEnabled: false,
+    externalServerUrl: '',
+    shelfName: 'KOReader',
+    usersCanEditLogin: false
+  };
+
   private appSettingsService = inject(AppSettingsService);
   private bookMetadataManageService = inject(BookMetadataManageService);
+  private shelfService = inject(ShelfService);
   private messageService = inject(MessageService);
   private t = inject(TranslocoService);
   private destroyRef = inject(DestroyRef);
@@ -60,6 +69,9 @@ export class GlobalPreferencesComponent implements OnInit {
     }
     if (settings.coverCroppingSettings) {
       this.coverCroppingSettings = {...settings.coverCroppingSettings};
+    }
+    if (settings.koreaderSyncSettings) {
+      this.koreaderSyncSettings = {...settings.koreaderSyncSettings};
     }
     this.toggles.autoBookSearch = settings.autoBookSearch ?? false;
     this.toggles.similarBookRecommendation = settings.similarBookRecommendation ?? false;
@@ -96,6 +108,22 @@ export class GlobalPreferencesComponent implements OnInit {
     this.saveSetting(AppSettingKey.COVER_CROPPING_SETTINGS, this.coverCroppingSettings);
   }
 
+  onKoreaderSyncToggle(checked: boolean): void {
+    this.koreaderSyncSettings.externalServerEnabled = checked;
+    this.saveKoreaderSync();
+  }
+
+  saveKoreaderSync(): void {
+    const url = (this.koreaderSyncSettings.externalServerUrl ?? '').trim();
+    if (this.koreaderSyncSettings.externalServerEnabled && !/^https?:\/\/\S+$/.test(url)) {
+      this.showMessage('error', this.t.translate('common.error'), this.t.translate('settingsApp.koreaderSync.invalidUrl'));
+      return;
+    }
+    this.koreaderSyncSettings.externalServerUrl = url;
+    this.koreaderSyncSettings.shelfName = (this.koreaderSyncSettings.shelfName ?? '').trim() || 'KOReader';
+    this.saveSetting(AppSettingKey.KOREADER_SYNC_SETTINGS, this.koreaderSyncSettings, () => this.shelfService.reloadShelves());
+  }
+
   saveFileSize() {
     if (!this.maxFileUploadSizeInMb || this.maxFileUploadSizeInMb <= 0) {
       this.showMessage('error', this.t.translate('settingsApp.fileManagement.invalidInput'), this.t.translate('settingsApp.fileManagement.invalidInputDetail'));
@@ -115,12 +143,14 @@ export class GlobalPreferencesComponent implements OnInit {
     });
   }
 
-  private saveSetting(key: string, value: unknown): void {
+  private saveSetting(key: string, value: unknown, onSaved?: () => void): void {
     this.appSettingsService.saveSettings([{key, newValue: value}]).pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
-      next: () =>
-        this.showMessage('success', this.t.translate('settingsApp.settingsSaved'), this.t.translate('settingsApp.settingsSavedDetail')),
+      next: () => {
+        onSaved?.();
+        this.showMessage('success', this.t.translate('settingsApp.settingsSaved'), this.t.translate('settingsApp.settingsSavedDetail'));
+      },
       error: () =>
         this.showMessage('error', this.t.translate('common.error'), this.t.translate('settingsApp.settingsError'))
     });

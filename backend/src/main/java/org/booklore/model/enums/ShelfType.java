@@ -4,13 +4,15 @@ import lombok.Getter;
 
 @Getter
 public enum ShelfType {
-    KOBO("Kobo", "tablet");
+    KOBO("Kobo", "kobo-white", IconType.CUSTOM_SVG);
 
     private final String name;
     private final String icon;
+    private final IconType iconType;
 
-    ShelfType(String name, String icon) {
+    ShelfType(String name, String icon, IconType iconType) {
         this.name = name;
         this.icon = icon;
+        this.iconType = iconType;
     }
 }

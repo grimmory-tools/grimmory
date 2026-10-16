@@ -56,6 +56,7 @@
 
   @media (width <= 768px) {
     flex-direction: column;
+    align-items: stretch;
     gap: 0.875rem;
   }
 }
@@ -83,6 +84,11 @@
       margin-bottom: 0;
       flex-shrink: 0;
       min-width: 180px;
+
+      @media (width <= 768px) {
+        flex-shrink: 1;
+        min-width: 0;
+      }
     }
 
     .input-group {
@@ -138,6 +144,18 @@
     align-items: flex-start;
     gap: 0.4375rem;
   }
+}
+
+.url-input-group {
+  @media (width <= 768px) {
+    width: 100%;
+    align-items: stretch;
+  }
+}
+
+.url-input {
+  width: 28rem;
+  max-width: 100%;
 }
 
 .input-with-unit {

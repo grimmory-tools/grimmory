@@ -60,6 +60,7 @@
 
   @media (width <= 768px) {
     flex-direction: column;
+    align-items: stretch;
     gap: 0.875rem;
   }
 }
@@ -87,6 +88,11 @@
       margin-bottom: 0;
       flex-shrink: 0;
       min-width: 150px;
+
+      @media (width <= 768px) {
+        flex-shrink: 1;
+        min-width: 0;
+      }
     }
 
     .slider-container {
@@ -106,7 +112,8 @@
       max-width: 500px;
 
       @media (width <= 768px) {
-        min-width: 250px;
+        flex-basis: 100%;
+        min-width: 0;
         max-width: 100%;
       }
     }
@@ -148,6 +155,10 @@
   .token-input {
     flex: 1;
     min-width: 200px;
+
+    @media (width <= 768px) {
+      min-width: 0;
+    }
   }
 }
 
