@@ -23,8 +23,8 @@ import {
   DEFAULT_BOOK_SORT_TERMS,
   EMPTY_FACET_SELECTION,
   type BookSortTerm,
-} from '../../../../core/data/browse-query-params';
-import {BookQueryService} from '../../../../core/data/browse-query.service';
+} from '../../../book/data/book-query-params';
+import {BookQueryService} from '../../../book/data/book-query.service';
 import {bookSortOptions, bookSortTermsFromCriteria} from '../../../book/browse/book-browse-sort';
 import {entityViewSortCriteria, entityViewSortPatch} from '../../user-management/entity-view-preferences';
 import {type BookBrowseMultiSortDialogResult} from '../../../book/browse/book-browse-multi-sort-dialog.component';

@@ -33,8 +33,8 @@ import {
   type BookQuerySortKey,
   type BookSortTerm,
   type BookQueryFacetKey,
-} from '../../../core/data/browse-query-params';
-import {bookCollectionKeys} from '../../../core/data/browse-query-keys';
+} from '../data/book-query-params';
+import {browseCollectionKeys} from '../../../core/data/browse-query-keys';
 import {bookBrowseScope, bookBrowseScopePreferenceContext} from './book-browse-scope';
 import {createBookBrowseQueries} from './book-browse-queries';
 import {createBookBrowseFilterSettings} from './book-browse-filter-settings';
@@ -58,7 +58,7 @@ import {
 import {BookBrowseToolbarComponent} from './book-browse-toolbar.component';
 import {BookBrowseBulkBarComponent} from './book-browse-bulk-bar.component';
 import {BrowseSelectModeControlsComponent} from '../../../shared/browse/bulk-actions/select-mode-controls.component';
-import {BookQueryService} from '../../../core/data/browse-query.service';
+import {BookQueryService} from '../data/book-query.service';
 import {type BookSummary} from '../data/book-response.models';
 import {
   injectPendingBookDeletions,
@@ -217,7 +217,7 @@ export class BookBrowsePageComponent {
     size: PAGE_SIZE,
     sort: this.sortTerms(),
   }));
-  private readonly collectionKeys = computed(() => bookCollectionKeys(this.params()));
+  private readonly collectionKeys = computed(() => browseCollectionKeys(this.params()));
   private readonly filtersKey = computed(() => this.collectionKeys().filtersKey);
   private readonly shuffleGeneration = signal(0);
   private readonly listKey = computed(() =>

@@ -5,7 +5,7 @@ import {lastValueFrom} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {QUERY_DEFAULTS} from '../../../core/data/query-transport';
-import {bookQueryKeys} from '../../../core/data/browse-query-keys';
+import {bookQueryKeys} from '../../../features/book/data/book-query-keys';
 import { Router, RouterLink } from '@angular/router';
 import { AppSidebarSectionComponent } from './app.sidebar-section.component';
 import { CdkTrapFocus } from '@angular/cdk/a11y';

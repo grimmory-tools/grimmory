@@ -5,13 +5,13 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {observeActiveQuery} from '../../../core/testing/query-testing';
 import {Book} from '../model/book.model';
 import {TaskStatus} from '../../settings/task-management/task.service';
-import {bookQueryKeys} from '../../../core/data/browse-query-keys';
+import {bookQueryKeys} from '../data/book-query-keys';
 import {BookDetail} from '../data/book-response.models';
-import {normalizeBookPageParams} from '../../../core/data/browse-query-params';
+import {normalizeBrowsePageParams} from '../../../core/data/browse-query-params';
 import {BOOKS_QUERY_KEY, bookDetailQueryKey, bookRecommendationsQueryKey} from './book-query-keys';
 import {BookSocketService} from './book-socket.service';
 
-const PAGE_QUERY_KEY = bookQueryKeys.boundedPage(normalizeBookPageParams({
+const PAGE_QUERY_KEY = bookQueryKeys.boundedPage(normalizeBrowsePageParams({
   size: 20,
   facets: {},
   sort: [],

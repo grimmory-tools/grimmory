@@ -421,11 +421,6 @@
       "count": 1
     }
   },
-  "src/app/features/book/data/book-query.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
   "src/app/features/book/data/book-shelf-command.service.ts": {
     "@angular-eslint/prefer-service-decorator": {
       "count": 1

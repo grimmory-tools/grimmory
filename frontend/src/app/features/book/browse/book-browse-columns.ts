@@ -1,7 +1,7 @@
 import {formatMediumDate} from '../../../shared/util/date-format';
 import {formatFileSizeKb} from '../../../shared/util/file-size';
 import {type TableColumnPreference} from '../../settings/user-management/user.service';
-import {type BookQuerySortKey} from '../../../core/data/browse-query-params';
+import {type BookQuerySortKey} from '../data/book-query-params';
 import {type BookSummary} from '../data/book-response.models';
 import {
   COLUMNS,

@@ -14,7 +14,7 @@ import {
   type BookQueryFacetKey,
   type BookQuerySortKey,
   type SortDirection,
-} from '../../../core/data/browse-query-params';
+} from '../data/book-query-params';
 import {type BookSummary, type KnownBookReadStatus} from '../data/book-response.models';
 import {MATCH_SCORE_BANDS} from '../model/book-value-labels';
 
@@ -144,6 +144,10 @@ const FIELDS = [
     sort: {key: 'authorName', group: 'common', defaultDirection: 'asc', kind: 'alphabetical', detailLine: false},
     column: {key: 'authorName', group: 'publishing', defaultVisible: true,
       defaultWidth: 220, value: book => book.metadata?.authors?.join(', ') ?? ''},
+  },
+  {
+    labelKey: 'book.fields.subtitle',
+    sort: {key: 'subtitle', group: 'more', defaultDirection: 'asc', kind: 'alphabetical'},
   },
   {
     labelKey: 'book.fields.authorSurname',
@@ -284,6 +288,19 @@ const FIELDS = [
       defaultWidth: 132, kind: 'number', value: book => book.metadata?.audibleReviewCount},
   },
   {
+    labelKey: 'book.fields.applebooksRating',
+    facet: {key: 'applebooks_rating', banded: true, stars: 5},
+    sort: {key: 'applebooksRating', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
+    column: {key: 'applebooksRating', group: 'ratings', defaultVisible: false,
+      defaultWidth: 124, kind: 'rating', value: book => book.metadata?.applebooksRating},
+  },
+  {
+    labelKey: 'book.fields.applebooksReviewCount',
+    sort: {key: 'applebooksReviewCount', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
+    column: {key: 'applebooksReviewCount', group: 'ratings', defaultVisible: false,
+      defaultWidth: 132, kind: 'number', value: book => book.metadata?.applebooksReviewCount},
+  },
+  {
     labelKey: 'book.fields.pageCount',
     facet: {key: 'page_count', kind: 'range', valueLabel: value => rangeTokenLabel(value)},
     sort: {key: 'pageCount', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
@@ -418,6 +435,8 @@ const COLUMN_ORDER = [
   'lubimyczytacRating',
   'audibleRating',
   'audibleReviewCount',
+  'applebooksRating',
+  'applebooksReviewCount',
 ] as const satisfies readonly BookColumnKey[];
 
 export const COLUMN_GROUP_ORDER = ['reading', 'publishing', 'file', 'categorization', 'ratings'] as const;

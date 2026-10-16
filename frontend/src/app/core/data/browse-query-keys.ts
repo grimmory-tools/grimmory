@@ -1,45 +1,45 @@
 import {hashKey} from '@tanstack/angular-query-experimental';
 
 import {
-  BookCollectionFilterParams,
-  BookPageParams,
-  BookQueryParams,
-  normalizeBookCollectionFilterParams,
-  normalizeBookQueryParams,
+  BrowseCollectionFilterParams,
+  BrowsePageParams,
+  BrowseQueryParams,
+  normalizeBrowseCollectionFilterParams,
+  normalizeBrowseQueryParams,
 } from './browse-query-params';
 
-export const bookQueryKeys = {
-  all: () => ['books', 'query'] as const,
-  collections: () => [...bookQueryKeys.all(), 'collection'] as const,
-  boundedPages: () => [...bookQueryKeys.collections(), 'page', 'bounded'] as const,
-  boundedPage: (params: BookPageParams) =>
-    [...bookQueryKeys.boundedPages(), params] as const,
-  infinitePages: () => [...bookQueryKeys.collections(), 'page', 'infinite'] as const,
-  infinitePage: (params: BookPageParams) =>
-    [...bookQueryKeys.infinitePages(), params] as const,
-  facetQueries: () => [...bookQueryKeys.collections(), 'facets'] as const,
-  facetIndex: (params: BookCollectionFilterParams) =>
-    [...bookQueryKeys.facetQueries(), 'index', params] as const,
-  facet: (key: string, params: BookCollectionFilterParams, search: string) =>
-    [...bookQueryKeys.facetQueries(), 'facet', key, params, search] as const,
-  idQueries: () => [...bookQueryKeys.collections(), 'ids'] as const,
-  ids: (params: BookQueryParams) =>
-    [...bookQueryKeys.idQueries(), params] as const,
-  details: () => [...bookQueryKeys.all(), 'detail'] as const,
-  detailQueries: (bookId: number) =>
-    [...bookQueryKeys.details(), bookId] as const,
-  detail: (bookId: number, withDescription: boolean) =>
-    [...bookQueryKeys.detailQueries(bookId), {withDescription}] as const,
-  recommendations: () => [...bookQueryKeys.all(), 'recommendation'] as const,
-  recommendationQueries: (bookId: number) =>
-    [...bookQueryKeys.recommendations(), bookId] as const,
-  recommendation: (bookId: number, limit: number) =>
-    [...bookQueryKeys.recommendationQueries(bookId), {limit}] as const,
-};
+export function browseQueryKeys<FacetKey extends string, SortKey extends string>(root: string) {
+  const all = () => [root, 'query'] as const;
+  const collections = () => [...all(), 'collection'] as const;
+  const boundedPages = () => [...collections(), 'page', 'bounded'] as const;
+  const infinitePages = () => [...collections(), 'page', 'infinite'] as const;
+  const facetQueries = () => [...collections(), 'facets'] as const;
+  const idQueries = () => [...collections(), 'ids'] as const;
 
-export function bookCollectionKeys(params: BookQueryParams) {
   return {
-    filtersKey: hashKey([normalizeBookCollectionFilterParams(params)]),
-    listKey: hashKey([normalizeBookQueryParams(params)]),
+    all,
+    collections,
+    boundedPages,
+    boundedPage: (params: BrowsePageParams<FacetKey, SortKey>) => [...boundedPages(), params] as const,
+    infinitePages,
+    infinitePage: (params: BrowsePageParams<FacetKey, SortKey>) => [...infinitePages(), params] as const,
+    facetQueries,
+    facetIndex: (params: BrowseCollectionFilterParams<FacetKey>) => [...facetQueries(), 'index', params] as const,
+    facet: (key: FacetKey, params: BrowseCollectionFilterParams<FacetKey>, search: string) =>
+      [...facetQueries(), 'facet', key, params, search] as const,
+    idQueries,
+    ids: (params: BrowseQueryParams<FacetKey, SortKey>) => [...idQueries(), params] as const,
+  };
+}
+
+export type BrowseQueryKeys<FacetKey extends string, SortKey extends string> =
+  ReturnType<typeof browseQueryKeys<FacetKey, SortKey>>;
+
+export function browseCollectionKeys<FacetKey extends string, SortKey extends string>(
+  params: BrowseQueryParams<FacetKey, SortKey>,
+) {
+  return {
+    filtersKey: hashKey([normalizeBrowseCollectionFilterParams(params)]),
+    listKey: hashKey([normalizeBrowseQueryParams(params)]),
   };
 }

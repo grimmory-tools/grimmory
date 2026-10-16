@@ -4,7 +4,7 @@ import {Router, type CanActivateChildFn, type ParamMap} from '@angular/router';
 import {requireBrowseFacetValue} from '../../../shared/browse/facets';
 import {type LibraryShelfMenuTarget} from '../../../shared/layout/navigation/library-shelf-menu-target.model';
 import {type EntityViewPreferenceContext} from '../../settings/user-management/entity-view-preferences';
-import {type FacetValueMap} from '../../../core/data/browse-query-params';
+import {type FacetValueMap} from '../data/book-query-params';
 
 export type BookBrowseScope =
   | {kind: 'library'; entityId: number; facetKey: 'library'; facetValue: string}
