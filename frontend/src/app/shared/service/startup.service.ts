@@ -18,7 +18,7 @@ export class StartupService {
 
   async load(): Promise<void> {
     if (this.authService.token()) {
-      const user = await this.queryClient.fetchQuery(this.userService.getUserQueryOptions());
+      const user = await this.queryClient.query(this.userService.getUserQueryOptions());
       await this.applyUserPreferences(user);
       return undefined;
     }

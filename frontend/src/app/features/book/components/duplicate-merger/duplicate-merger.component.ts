@@ -8,7 +8,7 @@ import {SelectButton} from '@openng/optimus-ui/selectbutton';
 import {ProgressBar} from '@openng/optimus-ui/progressbar';
 import {Tag} from '@openng/optimus-ui/tag';
 import {Paginator, PaginatorState} from '@openng/optimus-ui/paginator';
-import {Subject, takeUntil} from 'rxjs';
+import {lastValueFrom, Subject, takeUntil} from 'rxjs';
 import {BookFileService} from '../../service/book-file.service';
 import {BookService} from '../../service/book.service';
 import {Book, DuplicateDetectionRequest, DuplicateGroup} from '../../model/book.model';
@@ -298,9 +298,8 @@ export class DuplicateMergerComponent implements OnInit, OnDestroy {
 
     group.dismissed = true;
     try {
-      await this.bookFileService.attachBookFiles(targetId, sourceIds, this.moveFiles)
-        .pipe(takeUntil(this.destroy$))
-        .toPromise();
+      await lastValueFrom(this.bookFileService.attachBookFiles(targetId, sourceIds, this.moveFiles)
+        .pipe(takeUntil(this.destroy$)), {defaultValue: undefined});
     } catch {
       group.dismissed = false;
       this.messageService.add({
@@ -335,9 +334,8 @@ export class DuplicateMergerComponent implements OnInit, OnDestroy {
       }
 
       try {
-        await this.bookFileService.attachBookFiles(targetId, sourceIds, this.moveFiles)
-          .pipe(takeUntil(this.destroy$))
-          .toPromise();
+        await lastValueFrom(this.bookFileService.attachBookFiles(targetId, sourceIds, this.moveFiles)
+          .pipe(takeUntil(this.destroy$)), {defaultValue: undefined});
         group.dismissed = true;
         successCount++;
       } catch {

@@ -23,7 +23,7 @@ describe('StartupService', () => {
   });
 
   it('loads the current user when a token is present', async () => {
-    const fetchQuery = vi.fn().mockResolvedValue({id: 1, username: 'admin', locale: 'en', theme: 'grimmory', themeAccent: null, themeSyncEnabled: true});
+    const query = vi.fn().mockResolvedValue({id: 1, username: 'admin', locale: 'en', theme: 'grimmory', themeAccent: null, themeSyncEnabled: true});
     const applySyncedTheme = vi.fn();
     const applyDeviceTheme = vi.fn();
     const useStoredDeviceTheme = vi.fn();
@@ -43,7 +43,7 @@ describe('StartupService', () => {
             }),
           },
         },
-        {provide: QueryClient, useValue: {fetchQuery}},
+        {provide: QueryClient, useValue: {query}},
         {provide: AppThemeService, useValue: {applySyncedTheme, applyDeviceTheme, useStoredDeviceTheme, appState: () => ({themeSyncEnabled: true})}},
         {provide: AppLocaleService, useValue: {applyLocale, getDisplayLocale}},
       ]
@@ -52,14 +52,14 @@ describe('StartupService', () => {
     const service = TestBed.inject(StartupService);
 
     await expect(service.load()).resolves.toBeUndefined();
-    expect(fetchQuery).toHaveBeenCalledOnce();
+    expect(query).toHaveBeenCalledOnce();
     expect(applySyncedTheme).toHaveBeenCalledWith('grimmory', 'orange');
     expect(applyDeviceTheme).not.toHaveBeenCalled();
     expect(applyLocale).toHaveBeenCalledWith('en');
   });
 
   it('loads the local display locale when there is no token', async () => {
-    const fetchQuery = vi.fn();
+    const query = vi.fn();
     const applySyncedTheme = vi.fn();
     const applyLocale = vi.fn().mockResolvedValue(undefined);
     const getDisplayLocale = vi.fn().mockReturnValue('de');
@@ -78,7 +78,7 @@ describe('StartupService', () => {
             }),
           },
         },
-        {provide: QueryClient, useValue: {fetchQuery}},
+        {provide: QueryClient, useValue: {query}},
         {provide: AppThemeService, useValue: {applySyncedTheme, appState: () => ({themeSyncEnabled: true})}},
         {provide: AppLocaleService, useValue: {applyLocale, getDisplayLocale}},
         {provide: AppUiFontService, useValue: {applyUiFont}},
@@ -88,14 +88,14 @@ describe('StartupService', () => {
     const service = TestBed.inject(StartupService);
 
     await expect(service.load()).resolves.toBeUndefined();
-    expect(fetchQuery).not.toHaveBeenCalled();
+    expect(query).not.toHaveBeenCalled();
     expect(applyUiFont).not.toHaveBeenCalled();
     expect(getDisplayLocale).toHaveBeenCalledOnce();
     expect(applyLocale).toHaveBeenCalledWith('de');
   });
 
   it('uses the backend locale for authenticated users', async () => {
-    const fetchQuery = vi.fn().mockResolvedValue({id: 1, username: 'admin', locale: 'en', theme: 'custom', themeAccent: 'teal', themeSyncEnabled: true, uiFont: 'atkinson'});
+    const query = vi.fn().mockResolvedValue({id: 1, username: 'admin', locale: 'en', theme: 'custom', themeAccent: 'teal', themeSyncEnabled: true, uiFont: 'atkinson'});
     const updateUserProfile = vi.fn().mockReturnValue(of({id: 1, username: 'admin', locale: 'de', theme: 'custom', themeAccent: 'teal', themeSyncEnabled: true}));
     const applySyncedTheme = vi.fn();
     const applyLocale = vi.fn().mockResolvedValue(undefined);
@@ -116,7 +116,7 @@ describe('StartupService', () => {
             updateUserProfile,
           },
         },
-        {provide: QueryClient, useValue: {fetchQuery}},
+        {provide: QueryClient, useValue: {query}},
         {provide: AppThemeService, useValue: {applySyncedTheme, appState: () => ({themeSyncEnabled: true})}},
         {provide: AppLocaleService, useValue: {applyLocale, getDisplayLocale}},
         {provide: AppUiFontService, useValue: {applyUiFont}},
@@ -134,7 +134,7 @@ describe('StartupService', () => {
   });
 
   it('uses a local device theme when theme sync is disabled', async () => {
-    const fetchQuery = vi.fn().mockResolvedValue({id: 1, username: 'admin', locale: 'en', theme: 'cobalt', themeAccent: null, themeSyncEnabled: false});
+    const query = vi.fn().mockResolvedValue({id: 1, username: 'admin', locale: 'en', theme: 'cobalt', themeAccent: null, themeSyncEnabled: false});
     const applySyncedTheme = vi.fn();
     const applyDeviceTheme = vi.fn();
     const useStoredDeviceTheme = vi.fn();
@@ -154,7 +154,7 @@ describe('StartupService', () => {
             }),
           },
         },
-        {provide: QueryClient, useValue: {fetchQuery}},
+        {provide: QueryClient, useValue: {query}},
         {provide: AppThemeService, useValue: {applySyncedTheme, applyDeviceTheme, useStoredDeviceTheme, appState: () => ({themeSyncEnabled: false})}},
         {provide: AppLocaleService, useValue: {applyLocale, getDisplayLocale}},
       ]
@@ -170,7 +170,7 @@ describe('StartupService', () => {
   });
 
   it('seeds the local device theme from the backend when sync is disabled without a local override', async () => {
-    const fetchQuery = vi.fn().mockResolvedValue({id: 1, username: 'admin', locale: 'en', theme: 'cobalt', themeAccent: null, themeSyncEnabled: false});
+    const query = vi.fn().mockResolvedValue({id: 1, username: 'admin', locale: 'en', theme: 'cobalt', themeAccent: null, themeSyncEnabled: false});
     const applyDeviceTheme = vi.fn();
     const applyLocale = vi.fn().mockResolvedValue(undefined);
     const getDisplayLocale = vi.fn().mockReturnValue('en');
@@ -188,7 +188,7 @@ describe('StartupService', () => {
             }),
           },
         },
-        {provide: QueryClient, useValue: {fetchQuery}},
+        {provide: QueryClient, useValue: {query}},
         {provide: AppThemeService, useValue: {applyDeviceTheme, appState: () => ({themeSyncEnabled: true})}},
         {provide: AppLocaleService, useValue: {applyLocale, getDisplayLocale}},
       ]

@@ -232,7 +232,7 @@ export class BookUploaderComponent {
       }
 
       const req = mitigateWebkitUploadBug(
-        new HttpRequest('POST', uploadUrl, formData, { reportProgress: true })
+        new HttpRequest('POST', uploadUrl, formData, { reportUploadProgress: true, reportDownloadProgress: true })
       );
 
       mitigateWebkitUploadBug(req);

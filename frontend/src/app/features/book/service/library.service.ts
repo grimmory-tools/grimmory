@@ -126,7 +126,7 @@ export class LibraryService {
   }
 
   getBookCountsByFormat(libraryId: number): Observable<Record<string, number>> {
-    return from(this.queryClient.ensureQueryData(this.getLibraryFormatCountsQueryOptions(libraryId)));
+    return from(this.queryClient.query({...this.getLibraryFormatCountsQueryOptions(libraryId), staleTime: 'static'}));
   }
 
   private sortLibraries(libraries: Library[]): Library[] {

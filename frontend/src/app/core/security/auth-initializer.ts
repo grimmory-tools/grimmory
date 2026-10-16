@@ -13,7 +13,7 @@ export function initializeAuthFactory() {
     const authInitService = inject(AuthInitializationService);
     const queryClient = inject(QueryClient);
 
-    const settingsPromise = queryClient.fetchQuery(appSettingsService.getPublicSettingsQueryOptions());
+    const settingsPromise = queryClient.query(appSettingsService.getPublicSettingsQueryOptions());
     const timeoutPromise = new Promise<null>(resolve =>
       setTimeout(() => resolve(null), SETTINGS_TIMEOUT_MS)
     );

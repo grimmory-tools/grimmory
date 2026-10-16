@@ -255,7 +255,7 @@ export class LegacyBookCardComponent {
     if (!this.additionalFilesLoaded() && !this.isSubMenuLoading() && this.needsAdditionalFilesData()) {
       this.isSubMenuLoading.set(true);
       const requestedBookId = currentBookId;
-      void this.queryClient.fetchQuery(this.bookService.bookDetailQueryOptions(requestedBookId, true))
+      void this.queryClient.query(this.bookService.bookDetailQueryOptions(requestedBookId, true))
         .then((fetchedBook) => {
           if (this.book().id !== requestedBookId) return;
           this.additionalFilesLoaded.set(true);

@@ -20,7 +20,7 @@ describe('initializeAuthFactory', () => {
   };
 
   const queryClient = {
-    fetchQuery: vi.fn(),
+    query: vi.fn(),
   };
 
   const appSettingsService = {
@@ -40,13 +40,13 @@ describe('initializeAuthFactory', () => {
     authService.getInternalAccessToken.mockReset();
     authService.remoteLogin.mockReset();
     authService.initializeWebSocketConnection.mockReset();
-    queryClient.fetchQuery.mockReset();
+    queryClient.query.mockReset();
     appSettingsService.getPublicSettingsQueryOptions.mockClear();
   });
 
   it('marks auth initialized when public settings are unavailable', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-    queryClient.fetchQuery.mockResolvedValue(null);
+    queryClient.query.mockResolvedValue(null);
 
     const injector = Injector.create({
       providers: [
@@ -65,7 +65,7 @@ describe('initializeAuthFactory', () => {
   });
 
   it('initializes websocket auth when local auth is active and a token exists', async () => {
-    queryClient.fetchQuery.mockResolvedValue({...settingsBase, remoteAuthEnabled: false});
+    queryClient.query.mockResolvedValue({...settingsBase, remoteAuthEnabled: false});
     authService.getInternalAccessToken.mockReturnValue('access-token');
 
     const injector = Injector.create({
@@ -84,7 +84,7 @@ describe('initializeAuthFactory', () => {
   });
 
   it('skips websocket initialization when local auth is active and no token exists', async () => {
-    queryClient.fetchQuery.mockResolvedValue({...settingsBase, remoteAuthEnabled: false});
+    queryClient.query.mockResolvedValue({...settingsBase, remoteAuthEnabled: false});
     authService.getInternalAccessToken.mockReturnValue(null);
 
     const injector = Injector.create({
@@ -103,7 +103,7 @@ describe('initializeAuthFactory', () => {
   });
 
   it('performs remote login when remote auth is enabled', async () => {
-    queryClient.fetchQuery.mockResolvedValue({...settingsBase, remoteAuthEnabled: true});
+    queryClient.query.mockResolvedValue({...settingsBase, remoteAuthEnabled: true});
     authService.remoteLogin.mockReturnValue(of({
       accessToken: 'access',
       refreshToken: 'refresh',
@@ -127,7 +127,7 @@ describe('initializeAuthFactory', () => {
 
   it('marks auth initialized even when remote login fails', async () => {
     const error = new Error('remote login failed');
-    queryClient.fetchQuery.mockResolvedValue({...settingsBase, remoteAuthEnabled: true});
+    queryClient.query.mockResolvedValue({...settingsBase, remoteAuthEnabled: true});
     authService.remoteLogin.mockReturnValue(throwError(() => error));
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 

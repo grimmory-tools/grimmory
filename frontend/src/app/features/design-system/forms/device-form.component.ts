@@ -71,7 +71,7 @@ export class DeviceFormExampleComponent {
 
   readonly model = signal<DeviceFormModel>(createInitialModel());
   readonly deviceForm = form(this.model, path => {
-    hidden(path.hardcover.apiKey, ({ valueOf }) => !valueOf(path.hardcover.enabled));
+    hidden(path.hardcover.apiKey, {when: ({ valueOf }) => !valueOf(path.hardcover.enabled)});
     required(path.hardcover.apiKey, { message: 'Enter your Hardcover API key' });
     minLength(path.hardcover.apiKey, 20, { message: 'Hardcover keys are at least 20 characters' });
 
@@ -81,13 +81,13 @@ export class DeviceFormExampleComponent {
     max(path.kobo.markAsFinished, 100);
     min(path.kobo.conversionLimitMb, 1);
     max(path.kobo.conversionLimitMb, 250);
-    hidden(path.kobo.convertToKepub, ({ valueOf }) => !valueOf(path.kobo.enabled));
-    hidden(path.kobo.markAsReading, ({ valueOf }) => !valueOf(path.kobo.enabled));
-    hidden(path.kobo.markAsFinished, ({ valueOf }) => !valueOf(path.kobo.enabled));
-    hidden(path.kobo.conversionLimitMb, ({ valueOf }) => !valueOf(path.kobo.enabled));
+    hidden(path.kobo.convertToKepub, {when: ({ valueOf }) => !valueOf(path.kobo.enabled)});
+    hidden(path.kobo.markAsReading, {when: ({ valueOf }) => !valueOf(path.kobo.enabled)});
+    hidden(path.kobo.markAsFinished, {when: ({ valueOf }) => !valueOf(path.kobo.enabled)});
+    hidden(path.kobo.conversionLimitMb, {when: ({ valueOf }) => !valueOf(path.kobo.enabled)});
 
-    hidden(path.koreader.username, ({ valueOf }) => !valueOf(path.koreader.enabled));
-    hidden(path.koreader.password, ({ valueOf }) => !valueOf(path.koreader.enabled));
+    hidden(path.koreader.username, {when: ({ valueOf }) => !valueOf(path.koreader.enabled)});
+    hidden(path.koreader.password, {when: ({ valueOf }) => !valueOf(path.koreader.enabled)});
     required(path.koreader.username, { message: 'Choose a sync username' });
     required(path.koreader.password, { message: 'Set a sync password' });
     minLength(path.koreader.password, 6, { message: 'Use at least 6 characters' });

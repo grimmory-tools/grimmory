@@ -148,7 +148,7 @@ describe('LegacyBookCardComponent', () => {
     appSettings: ReturnType<typeof vi.fn>;
   };
   let queryClient: {
-    fetchQuery: ReturnType<typeof vi.fn>;
+    query: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
@@ -204,7 +204,7 @@ describe('LegacyBookCardComponent', () => {
       appSettings: vi.fn(() => ({diskType: 'LOCAL'})),
     };
     queryClient = {
-      fetchQuery: vi.fn(),
+      query: vi.fn(),
     };
 
     TestBed.configureTestingModule({

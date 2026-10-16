@@ -49,7 +49,7 @@ export class CustomFontService {
   }
 
   ensureFonts(): Promise<CustomFont[]> {
-    return this.queryClient.ensureQueryData(this.getFontsQueryOptions());
+    return this.queryClient.query({...this.getFontsQueryOptions(), staleTime: 'static'});
   }
 
   uploadFont(file: File, fontName?: string): Observable<CustomFont> {

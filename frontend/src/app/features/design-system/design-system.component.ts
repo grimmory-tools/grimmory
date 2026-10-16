@@ -19,7 +19,7 @@ import {
   LucideShare2,
   LucideSmartphone,
   LucideTag,
-  LucideTrash2,
+  LucideTrash,
   LucideTriangleAlert,
   LucideX,
   LucideZap,
@@ -136,7 +136,7 @@ interface ButtonExample {
     LucideEllipsisVertical,
     LucideFolderOpen,
     LucideDownload,
-    LucideTrash2,
+    LucideTrash,
     LucideSearch,
     LucideX,
     LucideTriangleAlert,
@@ -184,7 +184,7 @@ export class DesignSystemComponent {
   readonly iconCopy: LucideIconData = LucideCopy.icon;
   readonly iconPencil: LucideIconData = LucidePencil.icon;
   readonly iconDownload: LucideIconData = LucideDownload.icon;
-  readonly iconTrash: LucideIconData = LucideTrash2.icon;
+  readonly iconTrash: LucideIconData = LucideTrash.icon;
   readonly iconShare: LucideIconData = LucideShare2.icon;
   readonly iconFolderOpen: LucideIconData = LucideFolderOpen.icon;
 

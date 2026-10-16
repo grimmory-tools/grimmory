@@ -118,7 +118,7 @@ export class BookService {
   }
 
   ensureBookDetail(bookId: number, withDescription: boolean): Promise<Book> {
-    return this.queryClient.ensureQueryData(this.bookDetailQueryOptions(bookId, withDescription));
+    return this.queryClient.query({...this.bookDetailQueryOptions(bookId, withDescription), staleTime: 'static'});
   }
 
   /**
@@ -129,7 +129,7 @@ export class BookService {
    * this network request is necessary to pick up progress saved on another device or browser.
    */
   fetchFreshBookDetail(bookId: number, withDescription: boolean): Promise<Book> {
-    return this.queryClient.fetchQuery({
+    return this.queryClient.query({
       ...this.bookDetailQueryOptions(bookId, withDescription),
       staleTime: 0,
     });
@@ -167,7 +167,7 @@ export class BookService {
   }
 
   getBooksInSeries(bookId: number): Observable<Book[]> {
-    return from(this.queryClient.ensureQueryData(this.getBooksQueryOptions())).pipe(
+    return from(this.queryClient.query({...this.getBooksQueryOptions(), staleTime: 'static'})).pipe(
       map(books => {
         const currentBook = books.find(book => book.id === bookId);
         if (!currentBook?.metadata?.seriesName) {
@@ -182,7 +182,7 @@ export class BookService {
   }
 
   getBookRecommendations(bookId: number, limit: number = 20): Observable<BookRecommendation[]> {
-    return from(this.queryClient.ensureQueryData(this.bookRecommendationsQueryOptions(bookId, limit)));
+    return from(this.queryClient.query({...this.bookRecommendationsQueryOptions(bookId, limit), staleTime: 'static'}));
   }
 
   /*------------------ Book Operations ------------------*/

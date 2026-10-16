@@ -102,7 +102,7 @@ describe('LibraryService', () => {
     expect(queryClientHarness.queryClient.removeQueries).toHaveBeenCalledWith({queryKey: libraryFormatCountsQueryKey(4), exact: true});
   });
 
-  it('hydrates format counts through ensureQueryData', async () => {
+  it('hydrates format counts through query', async () => {
     httpTestingController.expectOne(req => req.url.endsWith('/api/v1/libraries')).flush([]);
 
     const resultPromise = new Promise<Record<string, number>>((resolve, reject) => {
