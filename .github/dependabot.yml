@@ -43,6 +43,10 @@ updates:
       openng:
         patterns:
           - "@openng/*"
+      vitest:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
