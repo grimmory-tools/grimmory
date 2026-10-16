@@ -68,7 +68,6 @@
     "@openng/optimus-ui-tailwindcss": "^2.0.2",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.3.3",
-    "@types/markdown-it": "^14.2.0",
     "@types/node": "^26.6.2",
     "@vitest/coverage-v8": "^5.0.3",
     "angular-eslint": "^22.5.0",
