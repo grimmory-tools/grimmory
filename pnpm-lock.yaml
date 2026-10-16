@@ -235,8 +235,8 @@ importers:
         specifier: ^4.5.1
         version: 4.5.1
       chartjs-chart-matrix:
-        specifier: 3.0.5
-        version: 3.0.5(chart.js@4.5.1)
+        specifier: 3.1.0
+        version: 3.1.0(chart.js@4.5.1)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -2796,8 +2796,8 @@ packages:
     resolution: {integrity: sha512-GIjfiT9dbmHRiYi6Nl2yFCq7kkwdkp1W/lp2J99rX0yo9tgJGn3lKQATztIjb5tVtevcBtIdICNWqlq5+E8/Pw==}
     engines: {pnpm: '>=8'}
 
-  chartjs-chart-matrix@3.0.5:
-    resolution: {integrity: sha512-hVqXBEtLoYJk+iA9NajA/ArG7HlPZl3XXNsRDY3c5sCuqSrM6uTythSJh1jVR7UNVApdY9PStb84xSEjEceKaw==}
+  chartjs-chart-matrix@3.1.0:
+    resolution: {integrity: sha512-pdo8DnhFXOisjbLDgfkzZH1w0xmjGqiaAMgkQSHCEMzxQENsXTgkXImIyweDiO7SqlE5PuzjhklyBCiorQhRmw==}
     peerDependencies:
       chart.js: '>=3.0.0'
 
@@ -6849,7 +6849,7 @@ snapshots:
     dependencies:
       '@kurkle/color': 0.3.4
 
-  chartjs-chart-matrix@3.0.5(chart.js@4.5.1):
+  chartjs-chart-matrix@3.1.0(chart.js@4.5.1):
     dependencies:
       chart.js: 4.5.1
 
