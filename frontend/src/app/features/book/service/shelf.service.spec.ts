@@ -5,7 +5,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {createAuthServiceStub, createQueryClientHarness, flushQueryAsync, flushSignalAndQueryEffects} from '../../../core/testing/query-testing';
 import type {Shelf} from '../model/shelf.model';
 import {shelfDefinitionQueryKeys} from '../data/shelf-definition-query-keys';
-import {bookQueryKeys} from '../data/book-query-keys';
+import {bookQueryKeys} from '../../../core/data/browse-query-keys';
 import {AuthService} from '../../../shared/service/auth.service';
 import {BookService} from './book.service';
 import {ShelfService} from './shelf.service';

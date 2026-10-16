@@ -1,10 +1,10 @@
-import {unmarkedBrowseFacetKey, type BrowseFacetKey, type BrowseFacetSelection} from '../../../shared/browse/facets';
+import {unmarkedBrowseFacetKey, type BrowseFacetKey, type BrowseFacetSelection} from '../../shared/browse/facets';
 import {HttpParams} from '@angular/common/http';
 
 import {
   BrowseSortDirection,
   BrowseSortTerm,
-} from '../../../core/data/browse.models';
+} from './browse.models';
 export const BOOK_QUERY_FACET_KEYS = [
   'author',
   'genre',

@@ -10,7 +10,7 @@ import {AuthService} from '../../../shared/service/auth.service';
 import {Book} from '../../book/model/book.model';
 import {AUTHORS_QUERY_KEY} from './author-query-keys';
 import {AuthorService} from './author.service';
-import {bookQueryKeys} from '../../book/data/book-query-keys';
+import {bookQueryKeys} from '../../../core/data/browse-query-keys';
 
 function makeBook(authors?: string[]): Book {
   return {

@@ -7,7 +7,7 @@ import {LucideChevronDown, LucideChevronUp, LucideDynamicIcon, LucideGripVertica
 import {AppButtonComponent} from '../../../shared/ui/button/app-button.component';
 import {AppSelectComponent} from '../../../shared/ui/select/app-select.component';
 import {type SelectOption} from '../../../shared/ui/select/app-select.options';
-import {type BookSortTerm} from '../data/book-query-params';
+import {type BookSortTerm} from '../../../core/data/browse-query-params';
 import {bookSortDirectionIcon, bookSortField, type BookSortOption} from './book-browse-sort';
 
 @Component({

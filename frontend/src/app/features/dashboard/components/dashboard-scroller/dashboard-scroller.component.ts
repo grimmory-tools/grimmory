@@ -6,7 +6,7 @@ import {BookCardComponent} from '../../../book/components/cards/book-card.compon
 import {BOOK_CARD_COVER_ASPECT, bookCardHeightForWidth} from '../../../book/components/cards/book-card.layout';
 import {BookCardSkeletonComponent} from '../../../book/components/cards/book-card-skeleton.component';
 import {BookMenuComponent} from '../../../book/components/book-menu/book-menu.component';
-import {BookQueryService} from '../../../book/data/book-query.service';
+import {BookQueryService} from '../../../../core/data/browse-query.service';
 import {type BookSummary} from '../../../book/data/book-response.models';
 import {BookNavigationService} from '../../../book/service/book-navigation.service';
 import {UserService} from '../../../settings/user-management/user.service';

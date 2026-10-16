@@ -10,7 +10,7 @@ import {
   createQueryClientHarness,
   flushSignalAndQueryEffects,
 } from '../../../core/testing/query-testing';
-import {bookQueryKeys} from './book-query-keys';
+import {bookQueryKeys} from '../../../core/data/browse-query-keys';
 import {BookCommandService} from './book-command.service';
 
 @Injectable()

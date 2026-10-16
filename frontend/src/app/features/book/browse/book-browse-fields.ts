@@ -14,7 +14,7 @@ import {
   type BookQueryFacetKey,
   type BookQuerySortKey,
   type SortDirection,
-} from '../data/book-query-params';
+} from '../../../core/data/browse-query-params';
 import {type BookSummary, type KnownBookReadStatus} from '../data/book-response.models';
 import {MATCH_SCORE_BANDS} from '../model/book-value-labels';
 

@@ -9,11 +9,11 @@ import {
 } from '@tanstack/angular-query-experimental';
 import {lastValueFrom, Observable, map, takeUntil} from 'rxjs';
 
-import {API_CONFIG} from '../../../core/config/api-config';
-import {BrowseFacetGroup, BrowseFacetIndex, findBrowsePageLink} from '../../../core/data/browse.models';
-import {mapBrowseFacetIndex, mapBrowseFacetPage, mapBrowsePage} from '../../../core/data/browse-response';
-import {withBrowseFacetValues} from '../../../shared/browse/facets';
-import {bookQueryKeys} from './book-query-keys';
+import {API_CONFIG} from '../config/api-config';
+import {BrowseFacetGroup, BrowseFacetIndex, findBrowsePageLink} from './browse.models';
+import {mapBrowseFacetIndex, mapBrowseFacetPage, mapBrowsePage} from './browse-response';
+import {withBrowseFacetValues} from '../../shared/browse/facets';
+import {bookQueryKeys} from './browse-query-keys';
 import {
   BookCollectionFilterParams,
   BookDescriptionOptions,
@@ -26,11 +26,11 @@ import {
   toCollectionHttpParams,
   toIdsHttpParams,
   toPageHttpParams,
-} from './book-query-params';
-import {BookPage} from './book-query.models';
-import {BookDetail, BookRecommendation, BookSummary} from './book-response.models';
-import {abortSignal, QUERY_DEFAULTS} from '../../../core/data/query-transport';
-import {AuthService} from '../../../shared/service/auth.service';
+} from './browse-query-params';
+import {BookPage} from '../../features/book/data/book-query.models';
+import {BookDetail, BookRecommendation, BookSummary} from '../../features/book/data/book-response.models';
+import {abortSignal, QUERY_DEFAULTS} from './query-transport';
+import {AuthService} from '../../shared/service/auth.service';
 
 const FACET_PAGE_SIZE = 100;
 
