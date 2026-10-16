@@ -19,10 +19,16 @@ public record FacetGroupsResponse(List<Link> links, List<FacetGroup> facets) {
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public record FacetLink(@JsonSerialize(using = RelSerializer.class) List<String> rel, String href, String type, String title, String value, Properties properties) {
+    public record FacetLink(@JsonSerialize(using = RelSerializer.class) List<String> rel, String href, String type, Boolean templated, String title, String value, Properties properties) {
+        public FacetLink(List<String> rel, String href, String type, String title, String value, Properties properties) {
+            this(rel, href, type, null, title, value, properties);
+        }
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public record Properties(Long numberOfItems) {
+    public record Properties(Long numberOfItems, Number min, Number max) {
+        public Properties(Long numberOfItems) {
+            this(numberOfItems, null, null);
+        }
     }
 }
