@@ -229,8 +229,8 @@ importers:
         specifier: 9.1.0
         version: 9.1.0(@angular/common@22.2.2(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))
       '@tanstack/angular-virtual':
-        specifier: ^6.0.2
-        version: 6.0.2(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))
+        specifier: ^6.1.4
+        version: 6.1.4(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))
       chart.js:
         specifier: ^4.5.1
         version: 4.5.1
@@ -2435,8 +2435,8 @@ packages:
     peerDependencies:
       '@angular/core': '>=19'
 
-  '@tanstack/angular-virtual@6.0.2':
-    resolution: {integrity: sha512-y/u2ZKAN5ob+ljwUoSK+r2j2piXw/ol63ykFbzZ8Hahj0dRU9xCJ0cJIDxTQ9zRoGbk0ZIiy3BK5w8Mso1daKA==}
+  '@tanstack/angular-virtual@6.1.4':
+    resolution: {integrity: sha512-OiY4jjK3PqGVv9ZpcefGuH7ZNGKC9LkpYsb8Qay0E1XJ9Xrpxlg2vqaZjqT2uFe4oKRwe8mVq4+mqrW67PXyGw==}
     peerDependencies:
       '@angular/core': '>=20.0.0'
 
@@ -2453,8 +2453,8 @@ packages:
     resolution: {integrity: sha512-tvnnqdWlvF/l6P65yS4ca4keW2VCC3e+OTT8/pUM7ZF5OQBJ7zTVy67T0lLpWBpkELrZN8sFJxY5DHF05fLUDQ==}
     engines: {node: '>=20'}
 
-  '@tanstack/virtual-core@3.17.7':
-    resolution: {integrity: sha512-bp+v10y65sp2H7WpWfIMyxTNfl8ZVfxFTLRjPIFRryi6FV/J33z4IS53WO4pTk36KlvJ4iLiQz+oaydDC1xbcA==}
+  '@tanstack/virtual-core@3.19.3':
+    resolution: {integrity: sha512-jPxPiyBaUn+IChc8sfYNKn7B2SCOxYO1mCJrh7U4ldmrMxun19q/iw+jHRYk2cR/KNEjW8ABJrufX41m342Sqw==}
 
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
@@ -6311,10 +6311,10 @@ snapshots:
     transitivePeerDependencies:
       - '@angular/common'
 
-  '@tanstack/angular-virtual@6.0.2(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))':
+  '@tanstack/angular-virtual@6.1.4(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))':
     dependencies:
       '@angular/core': 22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2)
-      '@tanstack/virtual-core': 3.17.7
+      '@tanstack/virtual-core': 3.19.3
 
   '@tanstack/query-core@5.102.8': {}
 
@@ -6327,7 +6327,7 @@ snapshots:
     dependencies:
       '@tanstack/store': 0.11.1
 
-  '@tanstack/virtual-core@3.17.7': {}
+  '@tanstack/virtual-core@3.19.3': {}
 
   '@types/chai@5.2.3':
     dependencies:
