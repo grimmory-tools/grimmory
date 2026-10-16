@@ -22,7 +22,7 @@ updates:
         patterns:
           - "org.mapstruct:*"
 
-  # JavaScript – pnpm workspace (frontend + release tooling)
+  # JavaScript – pnpm workspace (frontend)
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -46,11 +46,6 @@ updates:
         patterns:
           - "lucide-static"
           - "@lucide/*"
-      release-tooling:
-        patterns:
-          - "semantic-release"
-          - "@semantic-release/*"
-          - "conventional-changelog*"
       eslint:
         patterns:
           - "eslint"
