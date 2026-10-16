@@ -228,9 +228,9 @@
           <div class="setting-label-row">
             <span class="setting-label">{{ t('maxColumns') }}</span>
             <div class="font-size-controls">
-              <p-button icon="pi pi-minus" size="small" rounded outlined (click)="maxColumnCount = maxColumnCount > 1 ? maxColumnCount - 1 : 1"></p-button>
+              <p-button icon="pi pi-minus" size="small" rounded outlined (click)="decreaseMaxColumnCount()" [disabled]="maxColumnCount <= columnCountLimits.min"></p-button>
               <span class="font-size-value">{{ maxColumnCount }}</span>
-              <p-button icon="pi pi-plus" size="small" rounded outlined (click)="maxColumnCount = maxColumnCount < 4 ? maxColumnCount + 1 : 4"></p-button>
+              <p-button icon="pi pi-plus" size="small" rounded outlined (click)="increaseMaxColumnCount()" [disabled]="maxColumnCount >= columnCountLimits.max"></p-button>
             </div>
           </div>
           <p class="setting-description">

@@ -7,6 +7,7 @@ import {UserService} from '../../../settings/user-management/user.service';
 import {EpubCustomFontService} from '../features/fonts/custom-font.service';
 import {ReaderStateService} from './reader-state.service';
 import {themes} from './themes.constant';
+import {COLUMN_COUNT_LIMITS} from './reader-layout.constant';
 
 describe('ReaderStateService', () => {
   const customFonts = [
@@ -169,7 +170,7 @@ describe('ReaderStateService', () => {
     service.setFlow('scrolled');
 
     expect(service.state().lineHeight).toBe(0.8);
-    expect(service.state().maxColumnCount).toBe(10);
+    expect(service.state().maxColumnCount).toBe(COLUMN_COUNT_LIMITS.max);
     expect(service.state().gap).toBe(0.5);
     expect(service.state().justify).toBe(false);
     expect(service.state().hyphenate).toBe(false);
