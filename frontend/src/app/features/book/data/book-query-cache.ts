@@ -1,6 +1,6 @@
 import {QueryClient} from '@tanstack/angular-query-experimental';
 
-import {bookQueryKeys} from './book-query-keys';
+import {bookQueryKeys} from '../../../core/data/browse-query-keys';
 
 function uniqueBookIds(bookIds: Iterable<number>): Set<number> {
   return new Set(bookIds);

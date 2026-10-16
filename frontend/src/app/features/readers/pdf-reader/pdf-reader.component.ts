@@ -11,7 +11,7 @@ import { UserService } from '../../settings/user-management/user.service';
 import { AuthService } from '../../../shared/service/auth.service';
 import { API_CONFIG } from '../../../core/config/api-config';
 import { PdfAnnotationService } from '../../../shared/service/pdf-annotation.service';
-import { ReaderIconComponent } from '../../readers/ebook-reader/shared/icon.component';
+import { ReaderIconComponent } from '../ebook-reader/shared/icon.component';
 import { BookMark } from '../../../shared/service/book-mark.service';
 import { EmbedPdfBookService, PDF_PAGE_COLOR, PdfOutlineItem, PdfScrollLayout } from './services/embedpdf-book.service';
 import type { AnnotationTransferItem } from '@embedpdf/snippet';

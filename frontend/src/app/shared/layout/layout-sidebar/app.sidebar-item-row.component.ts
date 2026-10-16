@@ -5,8 +5,8 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { LucideEllipsisVertical } from '@lucide/angular';
 import {injectQuery} from '@tanstack/angular-query-experimental';
 import {scopedFacetSelection} from '../../../features/book/browse/book-browse-scope';
-import {BookQueryService} from '../../../features/book/data/book-query.service';
-import {EMPTY_FACET_SELECTION, type FacetValueMap} from '../../../features/book/data/book-query-params';
+import {BookQueryService} from '../../../core/data/browse-query.service';
+import {EMPTY_FACET_SELECTION, type FacetValueMap} from '../../../core/data/browse-query-params';
 import {AuthService} from '../../service/auth.service';
 import { IconSelection, toIconSelection } from '../../icons/icon-selection';
 

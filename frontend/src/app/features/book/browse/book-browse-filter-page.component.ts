@@ -27,9 +27,9 @@ import {
   EMPTY_FACET_SELECTION,
   type BookQueryFacetKey,
   type FacetValueMap,
-} from '../data/book-query-params';
+} from '../../../core/data/browse-query-params';
 import {type BookPage} from '../data/book-query.models';
-import {BookQueryService} from '../data/book-query.service';
+import {BookQueryService} from '../../../core/data/browse-query.service';
 import {bookBrowseScope} from './book-browse-scope';
 import {createBookBrowseFilterSettings} from './book-browse-filter-settings';
 import {createBookBrowseQueries} from './book-browse-queries';

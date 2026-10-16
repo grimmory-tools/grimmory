@@ -33,8 +33,8 @@ import {
   type BookQuerySortKey,
   type BookSortTerm,
   type BookQueryFacetKey,
-} from '../data/book-query-params';
-import {bookCollectionKeys} from '../data/book-query-keys';
+} from '../../../core/data/browse-query-params';
+import {bookCollectionKeys} from '../../../core/data/browse-query-keys';
 import {bookBrowseScope, bookBrowseScopePreferenceContext} from './book-browse-scope';
 import {createBookBrowseQueries} from './book-browse-queries';
 import {createBookBrowseFilterSettings} from './book-browse-filter-settings';
@@ -58,7 +58,7 @@ import {
 import {BookBrowseToolbarComponent} from './book-browse-toolbar.component';
 import {BookBrowseBulkBarComponent} from './book-browse-bulk-bar.component';
 import {BrowseSelectModeControlsComponent} from '../../../shared/browse/bulk-actions/select-mode-controls.component';
-import {BookQueryService} from '../data/book-query.service';
+import {BookQueryService} from '../../../core/data/browse-query.service';
 import {type BookSummary} from '../data/book-response.models';
 import {
   injectPendingBookDeletions,

@@ -9,7 +9,7 @@ import {
   toCollectionHttpParams,
   toIdsHttpParams,
   toPageHttpParams,
-} from './book-query-params';
+} from './browse-query-params';
 
 describe('book query parameters', () => {
   it('normalizes equivalent queries and facet selections', () => {

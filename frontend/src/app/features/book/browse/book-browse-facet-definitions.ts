@@ -3,7 +3,7 @@ import {
   BOOK_QUERY_FACET_KEYS,
   isBookQueryFacetKey,
   type BookQueryFacetKey,
-} from '../data/book-query-params';
+} from '../../../core/data/browse-query-params';
 import {type BookSummary} from '../data/book-response.models';
 import {
   COLUMNS_BY_KEY,

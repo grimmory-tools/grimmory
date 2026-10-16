@@ -1,7 +1,7 @@
 import {convertToParamMap} from '@angular/router';
 import {describe, expect, it} from 'vitest';
 
-import {EMPTY_FACET_SELECTION} from '../data/book-query-params';
+import {EMPTY_FACET_SELECTION} from '../../../core/data/browse-query-params';
 import {bookBrowseScope, scopedFacetSelection} from './book-browse-scope';
 
 describe('bookBrowseScope', () => {

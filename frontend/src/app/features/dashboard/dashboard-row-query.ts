@@ -4,7 +4,7 @@ import {
   type BookPageParams,
   type BookSortTerm,
   DEFAULT_BOOK_SORT_TERMS,
-} from '../book/data/book-query-params';
+} from '../../core/data/browse-query-params';
 import {
   BOOK_FILE_TYPES,
   type BookFileResponse,

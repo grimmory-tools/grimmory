@@ -12,12 +12,12 @@ import {
   flushSignalAndQueryEffects,
 } from '../../../core/testing/query-testing';
 import {AuthService} from '../../../shared/service/auth.service';
-import {bookQueryKeys} from './book-query-keys';
-import {BookPageParams} from './book-query-params';
+import {bookQueryKeys} from '../../../core/data/browse-query-keys';
+import {BookPageParams} from '../../../core/data/browse-query-params';
 import {BookPage} from './book-query.models';
 import {BookDetail, BookRecommendation} from './book-response.models';
 import {retryTransientQueryError} from '../../../core/data/query-transport';
-import {BookQueryService} from './book-query.service';
+import {BookQueryService} from '../../../core/data/browse-query.service';
 
 const PARAMS: BookPageParams = {
   query: 'dune',

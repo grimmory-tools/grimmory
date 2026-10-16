@@ -2,7 +2,7 @@ import {QueryClient} from '@tanstack/angular-query-experimental';
 import {beforeEach, describe, expect, it} from 'vitest';
 
 import {Book} from '../model/book.model';
-import {bookQueryKeys} from '../data/book-query-keys';
+import {bookQueryKeys} from '../../../core/data/browse-query-keys';
 import {
   invalidateDeletedBookQueries,
   patchBooksInCacheWith,

@@ -6,7 +6,7 @@ import {
   BookQueryParams,
   normalizeBookCollectionFilterParams,
   normalizeBookQueryParams,
-} from './book-query-params';
+} from './browse-query-params';
 
 export const bookQueryKeys = {
   all: () => ['books', 'query'] as const,

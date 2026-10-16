@@ -5,9 +5,9 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {observeActiveQuery} from '../../../core/testing/query-testing';
 import {Book} from '../model/book.model';
 import {TaskStatus} from '../../settings/task-management/task.service';
-import {bookQueryKeys} from '../data/book-query-keys';
+import {bookQueryKeys} from '../../../core/data/browse-query-keys';
 import {BookDetail} from '../data/book-response.models';
-import {normalizeBookPageParams} from '../data/book-query-params';
+import {normalizeBookPageParams} from '../../../core/data/browse-query-params';
 import {BOOKS_QUERY_KEY, bookDetailQueryKey, bookRecommendationsQueryKey} from './book-query-keys';
 import {BookSocketService} from './book-socket.service';
 

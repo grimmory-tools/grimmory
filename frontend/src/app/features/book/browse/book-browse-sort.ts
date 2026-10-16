@@ -16,7 +16,7 @@ import {
   type BookQuerySortKey,
   type BookSortTerm,
   type SortDirection,
-} from '../data/book-query-params';
+} from '../../../core/data/browse-query-params';
 import {SORT_FIELDS, type BookDetailLineSortKey} from './book-browse-fields';
 
 export type BookSortOption = BrowseSortOption<BookQuerySortKey>;

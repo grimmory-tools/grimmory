@@ -11,7 +11,7 @@ import {
   MetadataBatchStatus,
 } from '../../../shared/model/metadata-batch-progress.model';
 import {AUTHORS_QUERY_KEY} from '../../author-browser/service/author-query-keys';
-import {bookQueryKeys} from '../../book/data/book-query-keys';
+import {bookQueryKeys} from '../../../core/data/browse-query-keys';
 import {MetadataRefreshSubmissionService} from './metadata-refresh-submission.service';
 
 function batchProgress(status: MetadataBatchStatus): MetadataBatchProgressNotification {
