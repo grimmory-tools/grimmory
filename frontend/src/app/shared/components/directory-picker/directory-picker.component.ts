@@ -26,7 +26,6 @@ import {TranslocoDirective, TranslocoPipe} from '@jsverse/transloco';
     Checkbox,
     InputIcon,
     Button,
-    InputIcon,
     IconField,
     Tooltip,
     TranslocoDirective,
