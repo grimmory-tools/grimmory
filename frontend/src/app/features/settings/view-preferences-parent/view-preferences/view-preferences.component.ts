@@ -27,8 +27,8 @@ import {
 import {BookQueryService} from '../../../book/data/book-query.service';
 import {bookSortOptions, bookSortTermsFromCriteria} from '../../../book/browse/book-browse-sort';
 import {entityViewSortCriteria, entityViewSortPatch} from '../../user-management/entity-view-preferences';
-import {type BookBrowseMultiSortDialogResult} from '../../../book/browse/book-browse-multi-sort-dialog.component';
-import {BookBrowseMultiSortEditorComponent} from '../../../book/browse/book-browse-multi-sort-editor.component';
+import {type BookBrowseMultiSortDialogResult} from '../../../../shared/browse/multi-sort-dialog.component';
+import {BookBrowseMultiSortEditorComponent} from '../../../../shared/browse/multi-sort-editor.component';
 
 @Component({
   selector: 'app-view-preferences',

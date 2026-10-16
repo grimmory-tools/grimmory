@@ -5,7 +5,7 @@ import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {injectQuery} from '@tanstack/angular-query-experimental';
 import {LucideEllipsis} from '@lucide/angular';
 
-import {BrowseFilterRailComponent} from '../../../shared/browse/filter-rail/filter-rail.component';
+import {BrowseFilterRailComponent} from './filter-rail/filter-rail.component';
 import {
   countBrowseFacetValues,
   browseFacetMatchAll,
@@ -13,28 +13,28 @@ import {
   withBrowseFacetMatchAll,
   type BrowseFilterRangeCommit,
   type BrowseFilterToggle,
-} from '../../../shared/browse/facets';
+} from './facets';
 
-import {AppButtonComponent} from '../../../shared/ui/button/app-button.component';
-import {AppMenuComponent} from '../../../shared/ui/menu/app-menu.component';
-import {AppMenuTriggerDirective} from '../../../shared/ui/menu/app-menu-trigger.directive';
-import {BrowseSearchInputComponent} from '../../../shared/browse/search-input/search-input.component';
-import {debouncedSignal} from '../../../shared/util/debounced-signal';
-import {SEARCH_DEBOUNCE_MS} from '../../../shared/util/search-terms';
-import {AppPageHeaderComponent} from '../../../shared/layout/page-header/app.page-header.component';
-import {type PageHeader} from '../../../shared/layout/page-header/page-header.service';
+import {AppButtonComponent} from '../ui/button/app-button.component';
+import {AppMenuComponent} from '../ui/menu/app-menu.component';
+import {AppMenuTriggerDirective} from '../ui/menu/app-menu-trigger.directive';
+import {BrowseSearchInputComponent} from './search-input/search-input.component';
+import {debouncedSignal} from '../util/debounced-signal';
+import {SEARCH_DEBOUNCE_MS} from '../util/search-terms';
+import {AppPageHeaderComponent} from '../layout/page-header/app.page-header.component';
+import {type PageHeader} from '../layout/page-header/page-header.service';
 import {
   EMPTY_FACET_SELECTION,
   type BookQueryFacetKey,
   type FacetValueMap,
-} from '../data/book-query-params';
-import {type BookPage} from '../data/book-query.models';
-import {BookQueryService} from '../data/book-query.service';
-import {bookBrowseScope} from './book-browse-scope';
-import {createBookBrowseFilterSettings} from './book-browse-filter-settings';
-import {createBookBrowseQueries} from './book-browse-queries';
-import {createBookBrowseUrlState} from './book-browse-url-state';
-import {BookBrowseFilterMenuItemsComponent} from './book-browse-filter-menu-items.component';
+} from '../../features/book/data/book-query-params';
+import {type BookPage} from '../../features/book/data/book-query.models';
+import {BookQueryService} from '../../features/book/data/book-query.service';
+import {bookBrowseScope} from '../../features/book/browse/book-browse-scope';
+import {createBookBrowseFilterSettings} from './filter-settings';
+import {createBookBrowseQueries} from './facet-queries';
+import {createBookBrowseUrlState} from './url-state';
+import {BookBrowseFilterMenuItemsComponent} from './filter-menu-items.component';
 
 @Component({
   selector: 'app-book-browse-filter-page',

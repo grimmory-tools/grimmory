@@ -1,10 +1,10 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {beforeEach, describe, expect, it} from 'vitest';
 
-import {getTranslocoModule} from '../../../core/testing/transloco-testing';
-import {bookSortOptions} from './book-browse-sort';
-import {BookBrowseToolbarComponent} from './book-browse-toolbar.component';
-import {LibraryShelfMenuService} from '../service/library-shelf-menu.service';
+import {getTranslocoModule} from '../../core/testing/transloco-testing';
+import {bookSortOptions} from '../../features/book/browse/book-browse-sort';
+import {BookBrowseToolbarComponent} from './sort-control.component';
+import {LibraryShelfMenuService} from '../../features/book/service/library-shelf-menu.service';
 
 describe('BookBrowseToolbarComponent', () => {
   let fixture: ComponentFixture<BookBrowseToolbarComponent>;
