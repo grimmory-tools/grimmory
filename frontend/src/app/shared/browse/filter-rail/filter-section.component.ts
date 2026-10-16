@@ -50,6 +50,9 @@ const REVEAL_CLASS = 'grid transition-[grid-template-rows] duration-200 ease-out
   templateUrl: './filter-section.component.html',
 })
 export class BrowseFilterSectionComponent<K extends string = string> {
+  private readonly injector = inject(Injector);
+  private readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+
   readonly group = input.required<BrowseFilterGroup<K>>();
   readonly open = model(false);
   readonly search = model('');
@@ -58,9 +61,6 @@ export class BrowseFilterSectionComponent<K extends string = string> {
   readonly toggleValue = output<BrowseFilterToggle<K>>();
   readonly commitRange = output<BrowseFilterRangeCommit<K>>();
 
-  private readonly injector = inject(Injector);
-
-  private readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   protected readonly everOpened = linkedSignal<boolean, boolean>({
     source: this.open,
     computation: (open, previous) => open || (previous?.value ?? false),
@@ -99,14 +99,21 @@ export class BrowseFilterSectionComponent<K extends string = string> {
 
   protected readonly foldLimit = computed(() => this.group().showAllValues ? Infinity : COLLAPSED_VALUE_COUNT);
 
+  protected readonly foldReserve = linkedSignal<number, {rows: number; more: number}>({
+    source: () => this.group().values.length,
+    computation: (count, previous) => ({
+      rows: Math.max(Math.min(count, COLLAPSED_VALUE_COUNT), previous?.value.rows ?? 0),
+      more: Math.max(count > COLLAPSED_VALUE_COUNT ? 1 : 0, previous?.value.more ?? 0),
+    }),
+  });
   protected readonly foldClass = computed(() =>
     this.group().showAllValues || this.expanded()
       ? ''
-      : 'min-h-[calc(8*1.75rem+1.875rem)] pointer-coarse:min-h-[calc(8*2.75rem+2.875rem)]');
+      : 'min-h-[calc(var(--fold-rows)*1.75rem+var(--fold-more)*1.875rem)] pointer-coarse:min-h-[calc(var(--fold-rows)*2.75rem+var(--fold-more)*2.875rem)]');
 
-  private readonly clicked = signal<{value: string; slot: number; from: BrowseFilterValue[]} | null>(null);
+  private readonly clicked = signal<{item: BrowseFilterValue<K>; slot: number; from: BrowseFilterValue<K>[]} | null>(null);
   private readonly values = computed(() => this.group().values);
-  private readonly appliedClick = linkedSignal<BrowseFilterValue[], {value: string; slot: number} | null>({
+  private readonly appliedClick = linkedSignal<BrowseFilterValue<K>[], {item: BrowseFilterValue<K>; slot: number} | null>({
     source: this.values,
     computation: (_values, previous) => {
       const click = untracked(this.clicked);
@@ -119,7 +126,7 @@ export class BrowseFilterSectionComponent<K extends string = string> {
     const values = query ? this.matches(query) : this.group().values;
     const limit = query ? Infinity : this.foldLimit();
     const click = this.appliedClick();
-    const item = click ? values.find(candidate => candidate.value === click.value) : undefined;
+    const item = click ? values.find(candidate => sameRow(candidate, click.item)) : undefined;
     if (!click || !item) {
       return this.fold(values, limit);
     }
@@ -128,7 +135,7 @@ export class BrowseFilterSectionComponent<K extends string = string> {
     return shown;
   });
 
-  private fold(values: BrowseFilterValue[], limit: number): BrowseFilterValue[] {
+  private fold(values: BrowseFilterValue<K>[], limit: number): BrowseFilterValue<K>[] {
     if (this.expanded()) {
       return [...values];
     }
@@ -156,17 +163,17 @@ export class BrowseFilterSectionComponent<K extends string = string> {
 
   protected readonly activeQuery = computed(() => this.search().trim());
 
-  private matches(query: string): BrowseFilterValue[] {
+  private matches(query: string): BrowseFilterValue<K>[] {
     const needle = normalizeLocalSearchTerm(query);
     return this.group().values.filter(item => normalizeLocalSearchTerm(item.label).includes(needle));
   }
 
-  protected state(item: BrowseFilterValue): BrowseFacetState | null {
+  protected state(item: BrowseFilterValue<K>): BrowseFacetState | null {
     const picks = this.group().picks;
-    return picks ? picks.get(item.value) ?? null : item.state;
+    return picks ? picks.get(item.facetKey)?.get(item.value) ?? null : item.state;
   }
 
-  private nextState(item: BrowseFilterValue): BrowseFacetState | null {
+  private nextState(item: BrowseFilterValue<K>): BrowseFacetState | null {
     const current = this.state(item);
     if (current === null) {
       return 'included';
@@ -177,16 +184,16 @@ export class BrowseFilterSectionComponent<K extends string = string> {
     return null;
   }
 
-  protected onRowToggle(item: BrowseFilterValue): void {
-    this.clicked.set({value: item.value, slot: this.visibleValues().indexOf(item), from: this.values()});
-    this.toggleValue.emit({key: this.group().key, value: item.value, state: this.nextState(item)});
+  protected onRowToggle(item: BrowseFilterValue<K>): void {
+    this.clicked.set({item, slot: this.visibleValues().indexOf(item), from: this.values()});
+    this.toggleValue.emit({key: item.facetKey, value: item.value, state: this.nextState(item)});
   }
 
-  protected isZero(item: BrowseFilterValue): boolean {
+  protected isZero(item: BrowseFilterValue<K>): boolean {
     return item.count === 0 && item.state === null && !this.state(item);
   }
 
-  protected rowClass(item: BrowseFilterValue): string {
+  protected rowClass(item: BrowseFilterValue<K>): string {
     return cn(
       'group/frow flex min-h-7 w-full cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-left text-text-secondary pointer-coarse:min-h-11 pointer-coarse:gap-2.5',
       'hover:bg-surface-hover hover:text-text',
@@ -195,7 +202,7 @@ export class BrowseFilterSectionComponent<K extends string = string> {
     );
   }
 
-  protected boxClass(item: BrowseFilterValue): string {
+  protected boxClass(item: BrowseFilterValue<K>): string {
     const state = this.state(item);
     return cn(
       checkIndicatorBaseClass,
@@ -204,7 +211,7 @@ export class BrowseFilterSectionComponent<K extends string = string> {
     );
   }
 
-  protected labelClass(item: BrowseFilterValue): string {
+  protected labelClass(item: BrowseFilterValue<K>): string {
     const state = this.state(item);
     return cn(
       'min-w-0 flex-1 truncate',
@@ -213,6 +220,10 @@ export class BrowseFilterSectionComponent<K extends string = string> {
       state === 'excluded' && 'line-through',
     );
   }
+}
+
+function sameRow(a: BrowseFilterValue, b: BrowseFilterValue): boolean {
+  return a.facetKey === b.facetKey && a.value === b.value;
 }
 
 function boxStateClass(state: BrowseFacetState | null): string {

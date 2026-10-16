@@ -1,15 +1,38 @@
 import {describe, expect, it} from 'vitest';
 
 import {
+  facetQueryParams,
   normalizeBrowseCollectionFilterParams,
   normalizeBrowsePageParams,
   normalizeBrowseQueryParams,
+  parseFacetParams,
+  parseSortTermsToken,
   toCollectionHttpParams,
   toIdsHttpParams,
   toPageHttpParams,
 } from './browse-query-params';
 
+const isFacetKey = (key: string): key is 'genre' | 'tag' => key === 'genre' || key === 'tag';
+const isSortKey = (key: string): key is 'title' | 'addedOn' => key === 'title' || key === 'addedOn';
+
 describe('browse query parameters', () => {
+  it('round-trips a selection through route params and drops unknown keys', () => {
+    const selection = parseFacetParams([
+      'genre:Comedy', 'genre:Drama', '+tag:Anthology', 'future_group:a:b', '__proto__:READ', 'genre:',
+    ], isFacetKey);
+    expect(selection).toEqual({genre: ['Comedy', 'Drama'], '+tag': ['Anthology']});
+    expect(facetQueryParams(selection)).toEqual({facet: ['genre:Comedy', 'genre:Drama', '+tag:Anthology']});
+    expect(facetQueryParams({})).toEqual({facet: null});
+  });
+
+  it('parses a sort token, dropping unknown and repeated keys', () => {
+    expect(parseSortTermsToken('-addedOn, title,random,title', isSortKey)).toEqual([
+      {key: 'addedOn', direction: 'desc'},
+      {key: 'title', direction: 'asc'},
+    ]);
+    expect(parseSortTermsToken(null, isSortKey)).toEqual([]);
+  });
+
   it('normalizes equivalent queries and facet selections', () => {
     const first = normalizeBrowsePageParams({
       query: '  dune  ',

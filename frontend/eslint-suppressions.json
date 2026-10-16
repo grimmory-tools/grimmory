@@ -176,16 +176,6 @@
       "count": 1
     }
   },
-  "src/app/features/book/browse/book-browse-detail-line.service.ts": {
-    "@angular-eslint/prefer-service-decorator": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-table.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 8
-    }
-  },
   "src/app/features/book/components/add-physical-book-dialog/add-physical-book-dialog.component.html": {
     "@angular-eslint/template/prefer-self-closing-tags": {
       "count": 3
@@ -302,7 +292,7 @@
   },
   "src/app/features/book/components/cards/book-card.component.ts": {
     "@angular-eslint/inject-at-top": {
-      "count": 5
+      "count": 4
     }
   },
   "src/app/features/book/components/duplicate-merger/duplicate-merger.component.html": {
@@ -2009,11 +1999,6 @@
       "count": 1
     }
   },
-  "src/app/shared/browse/filter-rail/filter-section.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    }
-  },
   "src/app/shared/browse/grid/grid-item.component.ts": {
     "@angular-eslint/template/require-switch-default": {
       "count": 1
@@ -2043,11 +2028,6 @@
   "src/app/shared/components/change-password/change-password.component.ts": {
     "@angular-eslint/inject-at-top": {
       "count": 4
-    }
-  },
-  "src/app/shared/components/cover/cover.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 1
     }
   },
   "src/app/shared/components/directory-picker/directory-picker.component.ts": {

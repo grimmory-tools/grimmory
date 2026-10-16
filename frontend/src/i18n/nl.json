@@ -3295,9 +3295,6 @@
         "failedDetail": ""
       }
     },
-    "sorting": {
-      "saveAsDefault": ""
-    },
     "fileAttacher": {
       "title": "",
       "titleBulk": "",
@@ -3323,7 +3320,6 @@
     },
     "searcher": {
       "placeholder": "",
-      "clearSearch": "",
       "bookCoverAlt": "",
       "byPrefix": "",
       "noResults": "",
@@ -5174,6 +5170,12 @@
   "browse": {
     "showAll": "Alles weergeven",
     "moreActions": "Meer acties",
+    "sort": {
+      "saveAsDefault": ""
+    },
+    "rail": {
+      "clearSearch": ""
+    },
     "toolbar": {
       "viewMode": "Weergave",
       "resetColumns": "Naar standaard resetten"

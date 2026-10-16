@@ -1,13 +1,11 @@
 import {booleanAttribute, ChangeDetectionStrategy, Component, computed, input} from '@angular/core';
 
 import {
-  bookCardAspectClass,
-  BOOK_CARD_META_ACCESSORY_HEIGHT,
-  BOOK_CARD_META_AUTHOR_HEIGHT,
-  BOOK_CARD_META_PADDING_TOP,
-  BOOK_CARD_META_TITLE_HEIGHT,
-  BOOK_CARD_RADIUS_CLASS,
-} from './book-card.layout';
+  CARD_META_LINE_HEIGHT,
+  CARD_META_PADDING_TOP,
+  CARD_META_TITLE_HEIGHT,
+} from '../../../../shared/components/cards/card.layout';
+import {bookCardAspectClass, BOOK_CARD_META_AUTHOR_HEIGHT, BOOK_CARD_RADIUS_CLASS} from './book-card.layout';
 
 @Component({
   selector: 'app-book-card-skeleton',
@@ -36,10 +34,10 @@ export class BookCardSkeletonComponent {
   readonly squareCovers = input(false, {transform: booleanAttribute});
   readonly metaLines = input<2 | 3>(2);
 
-  protected readonly metaPaddingTop = BOOK_CARD_META_PADDING_TOP;
-  protected readonly titleHeight = BOOK_CARD_META_TITLE_HEIGHT;
+  protected readonly metaPaddingTop = CARD_META_PADDING_TOP;
+  protected readonly titleHeight = CARD_META_TITLE_HEIGHT;
   protected readonly authorHeight = BOOK_CARD_META_AUTHOR_HEIGHT;
-  protected readonly accessoryHeight = BOOK_CARD_META_ACCESSORY_HEIGHT;
+  protected readonly accessoryHeight = CARD_META_LINE_HEIGHT;
 
   protected readonly barClass = 'rounded bg-skeleton-base animate-skeleton motion-reduce:animate-none';
   protected readonly coverClass = computed(() =>

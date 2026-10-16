@@ -176,7 +176,6 @@ describe('BookSocketService', () => {
   });
 
   it('invalidates recommendations when recommendation refresh completes', () => {
-    queryClient.setQueryData(bookQueryKeys.recommendation(1, 20), [makeBook(2)]);
     queryClient.setQueryData(bookRecommendationsQueryKey(1, 20), [makeBook(2)]);
 
     service.handleTaskProgress({
@@ -187,7 +186,6 @@ describe('BookSocketService', () => {
       message: 'Done',
     });
 
-    expect(isInvalidated(bookQueryKeys.recommendation(1, 20))).toBe(true);
     expect(isInvalidated(bookRecommendationsQueryKey(1, 20))).toBe(true);
   });
 

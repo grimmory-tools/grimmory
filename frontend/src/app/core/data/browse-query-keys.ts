@@ -19,15 +19,11 @@ export function browseQueryKeys<FacetKey extends string, SortKey extends string>
   return {
     all,
     collections,
-    boundedPages,
     boundedPage: (params: BrowsePageParams<FacetKey, SortKey>) => [...boundedPages(), params] as const,
-    infinitePages,
     infinitePage: (params: BrowsePageParams<FacetKey, SortKey>) => [...infinitePages(), params] as const,
-    facetQueries,
     facetIndex: (params: BrowseCollectionFilterParams<FacetKey>) => [...facetQueries(), 'index', params] as const,
     facet: (key: FacetKey, params: BrowseCollectionFilterParams<FacetKey>, search: string) =>
       [...facetQueries(), 'facet', key, params, search] as const,
-    idQueries,
     ids: (params: BrowseQueryParams<FacetKey, SortKey>) => [...idQueries(), params] as const,
   };
 }

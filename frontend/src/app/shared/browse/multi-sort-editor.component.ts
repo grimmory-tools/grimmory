@@ -4,14 +4,14 @@ import {toSignal} from '@angular/core/rxjs-interop';
 import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {LucideChevronDown, LucideChevronUp, LucideDynamicIcon, LucideGripVertical, LucideX} from '@lucide/angular';
 
+import {type BrowseSortTerm} from '../../core/data/browse.models';
 import {AppButtonComponent} from '../ui/button/app-button.component';
 import {AppSelectComponent} from '../ui/select/app-select.component';
 import {type SelectOption} from '../ui/select/app-select.options';
-import {type BookSortTerm} from '../../features/book/data/book-query-params';
-import {bookSortDirectionIcon, bookSortField, type BookSortOption} from '../../features/book/browse/book-browse-sort';
+import {browseSortDirectionIcon, type BrowseSortField, type BrowseSortOption} from './sort';
 
 @Component({
-  selector: 'app-book-browse-multi-sort-editor',
+  selector: 'app-browse-multi-sort-editor',
   imports: [
     TranslocoPipe,
     AppButtonComponent,
@@ -86,32 +86,34 @@ import {bookSortDirectionIcon, bookSortField, type BookSortOption} from '../../f
       (valueChange)="add($event)" />
   `,
 })
-export class BookBrowseMultiSortEditorComponent {
+export class BrowseMultiSortEditorComponent<Key extends string> {
   private readonly transloco = inject(TranslocoService);
   private readonly activeLang = toSignal(this.transloco.langChanges$, {
     initialValue: this.transloco.getActiveLang(),
   });
 
-  readonly terms = model.required<readonly BookSortTerm[]>();
-  readonly options = input.required<readonly BookSortOption[]>();
+  readonly terms = model.required<readonly BrowseSortTerm<Key>[]>();
+  readonly options = input.required<readonly BrowseSortOption<Key>[]>();
+  readonly sortField = input.required<(key: Key) => BrowseSortField>();
 
-  protected readonly addSelection = signal<string | null>(null);
+  protected readonly addSelection = signal<Key | null>(null);
 
   protected readonly rows = computed(() => {
     this.activeLang();
     const optionsById = new Map(this.options().map(option => [option.id, option]));
     return this.terms().map(term => {
       const option = optionsById.get(term.key);
+      const field = option ?? this.sortField()(term.key);
       return {
         key: term.key,
-        label: this.transloco.translate((option ?? bookSortField(term.key)).labelKey),
-        icon: bookSortDirectionIcon(term.key, term.direction),
+        label: this.transloco.translate(field.labelKey),
+        icon: browseSortDirectionIcon(field.kind, term.direction),
         canFlip: option?.directions.length === 2,
       };
     });
   });
 
-  protected readonly addOptions = computed<SelectOption<string>[]>(() => {
+  protected readonly addOptions = computed<SelectOption<Key>[]>(() => {
     this.activeLang();
     const used = new Set(this.terms().map(term => term.key));
     return this.options()
@@ -136,7 +138,7 @@ export class BookBrowseMultiSortEditorComponent {
   }
 
   protected flip(index: number): void {
-    const next = this.terms().map((term, i): BookSortTerm => {
+    const next = this.terms().map((term, i): BrowseSortTerm<Key> => {
       if (i !== index) {
         return term;
       }
@@ -150,7 +152,7 @@ export class BookBrowseMultiSortEditorComponent {
     this.terms.set(terms.filter((_, i) => i !== index));
   }
 
-  protected add(key: string | null): void {
+  protected add(key: Key | null): void {
     if (!key) {
       return;
     }

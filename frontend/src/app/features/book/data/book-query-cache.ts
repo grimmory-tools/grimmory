@@ -24,10 +24,6 @@ export function invalidateBookCollections(queryClient: QueryClient): Promise<voi
   return queryClient.invalidateQueries({queryKey: bookQueryKeys.collections()});
 }
 
-export function invalidateBookRecommendations(queryClient: QueryClient): Promise<void> {
-  return queryClient.invalidateQueries({queryKey: bookQueryKeys.recommendations()});
-}
-
 export async function applyBookQueryChangeSet(
   queryClient: QueryClient,
   update: BookQueryChangeSet,
@@ -44,9 +40,7 @@ export async function applyBookQueryChangeSet(
 
   if (deletedBookIds.size > 0) {
     queryClient.removeQueries({
-      predicate: ({queryKey}) =>
-        isBookLeafKey(queryKey, bookQueryKeys.details(), deletedBookIds)
-        || isBookLeafKey(queryKey, bookQueryKeys.recommendations(), deletedBookIds),
+      predicate: ({queryKey}) => isBookLeafKey(queryKey, bookQueryKeys.details(), deletedBookIds),
     });
   }
 
@@ -56,7 +50,6 @@ export async function applyBookQueryChangeSet(
     ...(changedBookIds.size > 0 ? [queryClient.invalidateQueries({
       predicate: ({queryKey}) => isBookLeafKey(queryKey, bookQueryKeys.details(), changedBookIds),
     })] : []),
-    invalidateBookRecommendations(queryClient),
   ]);
 }
 
@@ -65,6 +58,8 @@ function isBookLeafKey(
   prefix: readonly string[],
   bookIds: ReadonlySet<number>,
 ): boolean {
+  const bookId = queryKey[prefix.length];
   return prefix.every((part, index) => queryKey[index] === part)
-    && bookIds.has(queryKey[prefix.length] as number);
+    && typeof bookId === 'number'
+    && bookIds.has(bookId);
 }

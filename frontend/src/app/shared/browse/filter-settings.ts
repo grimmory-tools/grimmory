@@ -2,18 +2,18 @@ import {inject, linkedSignal} from '@angular/core';
 import {TranslocoService} from '@jsverse/transloco';
 import {MessageService} from '@openng/optimus-ui/api';
 
-import {browseFacetMatchAll, withBrowseFacetMatchAll} from './facets';
 import {UserService} from '../../features/settings/user-management/user.service';
-import {type BookBrowseUrlState} from './url-state';
+import {browseFacetMatchAll, withBrowseFacetMatchAll} from './facets';
+import {type BrowseUrlState} from './url-state';
 
-export function createBookBrowseFilterSettings(urlState: BookBrowseUrlState) {
+export function createBrowseFilterSettings<FacetKey extends string>(urlState: BrowseUrlState<FacetKey, string>) {
   const userService = inject(UserService);
   const messages = inject(MessageService);
   const transloco = inject(TranslocoService);
 
   const matchAll = linkedSignal(() =>
-    browseFacetMatchAll(urlState.facets()) ?? userService.currentUser()?.userSettings?.filterMatchAll === true);
-  const excludeOnTick = linkedSignal(() => userService.currentUser()?.userSettings?.filterExcludeOnTick === true);
+    browseFacetMatchAll(urlState.facets()) ?? userService.currentUser()?.userSettings.filterMatchAll === true);
+  const excludeOnTick = linkedSignal(() => userService.currentUser()?.userSettings.filterExcludeOnTick === true);
 
   function onSaveError(): void {
     messages.add({

@@ -3312,9 +3312,6 @@
         "failedDetail": "Ett fel uppstod vid uppdatering av fältlåsstatusar."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Spara som standard"
-    },
     "fileAttacher": {
       "title": "Bifoga fil till annan bok",
       "titleBulk": "Bifoga filer till annan bok",
@@ -3340,7 +3337,6 @@
     },
     "searcher": {
       "placeholder": "Titel, författare, serie, genre eller ISBN...",
-      "clearSearch": "Rensa sökning",
       "bookCoverAlt": "Bokomslag",
       "byPrefix": "av",
       "noResults": "Inga resultat hittades",
@@ -5208,7 +5204,11 @@
       "resetColumns": "Återställ till standard"
     },
     "sort": {
-      "apply": "Tillämpa"
+      "apply": "Tillämpa",
+      "saveAsDefault": "Spara som standard"
+    },
+    "rail": {
+      "clearSearch": "Rensa sökning"
     },
     "bulk": {
       "organizeFiles": "Organisera filer",

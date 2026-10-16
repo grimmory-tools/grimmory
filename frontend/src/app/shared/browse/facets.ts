@@ -4,9 +4,11 @@ import {formatRangeLabel, formatRangeToken, parseRangeToken} from './facet-range
 
 export type BrowseFacetState = 'included' | 'excluded';
 
-export interface BrowseFilterValue {
+export interface BrowseFilterValue<K extends string = string> {
+  facetKey: K;
   value: string;
   label: string;
+  labelKey?: string;
   count: number | null;
   state: BrowseFacetState | null;
   stars?: {value: number; max: number};
@@ -27,8 +29,8 @@ export interface BrowseFilterGroup<K extends string = string> {
   showAllValues?: boolean;
   range?: BrowseFilterRange;
   loading?: boolean;
-  picks?: ReadonlyMap<string, BrowseFacetState>;
-  values: BrowseFilterValue[];
+  picks?: ReadonlyMap<K, ReadonlyMap<string, BrowseFacetState>>;
+  values: BrowseFilterValue<K>[];
 }
 
 export interface BrowseFilterToggle<K extends string = string> {
@@ -60,7 +62,21 @@ export type BrowseFacetSelection<K extends string = string> =
 
 export type BrowseFacetValueOrder = 'asc' | 'desc' | readonly string[];
 
-export type BrowseFacetKind = 'range';
+export type BrowseFacetShape =
+  | {
+    readonly kind?: 'list';
+    readonly order?: BrowseFacetValueOrder;
+    readonly domain?: never;
+    readonly stars?: never;
+    readonly bands?: never;
+    readonly fileSize?: never;
+  }
+  | {readonly kind: 'domain'; readonly domain: readonly string[]}
+  | {readonly kind: 'stars'; readonly stars: number}
+  | {readonly kind: 'range'; readonly bands?: true; readonly fileSize?: true}
+  | {readonly kind: 'flag'};
+
+export type BrowseFacetDescription = BrowseFacetShape & {readonly labelKey: string};
 
 export function browseFacetValues<K extends string>(
   selection: BrowseFacetSelection<K>,
@@ -104,8 +120,14 @@ export function browseFacetPicks<K extends string>(
   ]);
 }
 
-export function unmarkedBrowseFacetKey(marked: string): string {
-  return marked.startsWith('+') || marked.startsWith('-') ? marked.slice(1) : marked;
+export function browseFacetSelectionKeys<K extends string>(selection: BrowseFacetSelection<K>): BrowseFacetKey<K>[] {
+  // SAFETY: a selection only holds BrowseFacetKey<K> keys, because every writer takes a typed key and parseFacetParams drops unknown ones.
+  return Object.keys(selection) as BrowseFacetKey<K>[];
+}
+
+export function unmarkedBrowseFacetKey<K extends string>(marked: BrowseFacetKey<K>): K {
+  // SAFETY: removing the + or - mark from a BrowseFacetKey<K> leaves K, which TypeScript cannot work out from slice.
+  return (marked.startsWith('+') || marked.startsWith('-') ? marked.slice(1) : marked) as K;
 }
 
 function markedBrowseFacetKey<K extends string>(key: K, state: BrowseFacetState, matchAll: boolean): BrowseFacetKey<K> {
@@ -146,13 +168,13 @@ export function withBrowseFacetMatchAll<K extends string>(
   matchAll: boolean,
 ): BrowseFacetSelection<K> {
   let next: Partial<Record<BrowseFacetKey<K>, readonly string[]>> = {};
-  for (const marked of Object.keys(selection) as BrowseFacetKey<K>[]) {
+  for (const marked of browseFacetSelectionKeys(selection)) {
     const values = browseFacetValues(selection, marked);
     if (marked.startsWith('-')) {
       next = withBrowseFacetValues(next, marked, values);
       continue;
     }
-    const key = unmarkedBrowseFacetKey(marked) as K;
+    const key = unmarkedBrowseFacetKey(marked);
     const target: BrowseFacetKey<K> = matchAll ? `+${key}` : key;
     const merged = new Set([...browseFacetValues(next, target), ...values]);
     next = withBrowseFacetValues(next, target, [...merged]);
@@ -162,6 +184,18 @@ export function withBrowseFacetMatchAll<K extends string>(
 
 export function countBrowseFacetValues(selection: BrowseFacetSelection): number {
   return Object.values(selection).reduce((count, values) => count + (values?.length ?? 0), 0);
+}
+
+export interface BrowseFacetPin<K extends string = string> {
+  readonly facetKey: K;
+  readonly facetValue: string;
+}
+
+export function pinnedBrowseFacetSelection<K extends string>(
+  selection: BrowseFacetSelection<K>,
+  pin: BrowseFacetPin<K> | null,
+): BrowseFacetSelection<K> {
+  return pin ? requireBrowseFacetValue(selection, pin.facetKey, pin.facetValue) : selection;
 }
 
 export function requireBrowseFacetValue<K extends string>(
@@ -194,15 +228,20 @@ export function withBrowseFacetRange<K extends string>(
 export interface BrowseFacetDefinitions<K extends string> {
   readonly order: readonly K[];
   readonly isKey: (key: string) => key is K;
-  readonly labelKey: (key: K) => string;
-  readonly kind?: (key: K) => BrowseFacetKind | undefined;
-  readonly valueOrder?: (key: K) => BrowseFacetValueOrder | undefined;
-  readonly valueDomain?: (key: K) => readonly string[] | undefined;
-  readonly banded?: (key: K) => boolean;
-  readonly starScale?: (key: K) => number | undefined;
-  readonly fileSize?: (key: K) => boolean;
+  readonly field: (key: K) => BrowseFacetDescription;
   readonly valueLabel?: (key: K, value: string) => string | null;
   readonly valueIcon?: (key: K, value: string) => IconSelection | null;
+}
+
+const FLAG_VALUE = 'true';
+const FLAG_SECTION_LABEL_KEY = 'common.metadata';
+
+function isFlagFacet<K extends string>(definitions: BrowseFacetDefinitions<K>, key: K): boolean {
+  return definitions.field(key).kind === 'flag';
+}
+
+export function browseFacetSectionKeys<K extends string>(definitions: BrowseFacetDefinitions<K>, key: K): readonly K[] {
+  return isFlagFacet(definitions, key) ? definitions.order.filter(member => isFlagFacet(definitions, member)) : [key];
 }
 
 export function browseFilterGroups<K extends string>(
@@ -212,9 +251,23 @@ export function browseFilterGroups<K extends string>(
   selections: BrowseFacetSelection<K>,
 ): BrowseFilterGroup<K>[] {
   const servedByKey = new Map(served.map(group => [group.key, group]));
-  return definitions.order
+  const groups = definitions.order
     .filter(key => available.has(key) || hasBrowseFacetValues(selections, key))
     .map(key => buildFacetGroup(key, servedByKey.get(key), browseFacetPicks(selections, key), definitions));
+  const flags = groups.filter(group => isFlagFacet(definitions, group.key));
+  return groups.flatMap(group => {
+    if (!flags.includes(group)) {
+      return [group];
+    }
+    return group === flags[0]
+      ? [{
+        key: browseFacetSectionKeys(definitions, group.key)[0],
+        labelKey: FLAG_SECTION_LABEL_KEY,
+        showAllValues: true,
+        values: flags.flatMap(flag => flag.values),
+      }]
+      : [];
+  });
 }
 
 function buildFacetGroup<K extends string>(
@@ -226,32 +279,41 @@ function buildFacetGroup<K extends string>(
   const state = (value: string) => picks.get(value) ?? null;
   const included = [...picks.keys()].filter(value => picks.get(value) === 'included');
   const servedValues = servedGroup?.values ?? [];
-  const kind = definitions.kind?.(key);
-  const domain = definitions.valueDomain?.(key);
+  const field = definitions.field(key);
   const label = (value: string, servedLabel: string) => definitions.valueLabel?.(key, value) ?? servedLabel;
-  const base = {key, labelKey: definitions.labelKey(key)};
-  const range = kind === 'range'
-    ? buildFacetRange(servedGroup, included, definitions.fileSize?.(key) ?? false)
-    : undefined;
-  if (definitions.banded?.(key)) {
-    const values = bandFacetValues(servedValues, state, label, definitions.starScale?.(key));
-    return {...base, range, showAllValues: true, values};
+  const base = {key, labelKey: field.labelKey};
+  const plainValues = () => {
+    const counts = new Map(servedValues.map(item => [item.value, item.count]));
+    const complete = servedGroup?.complete ?? false;
+    return plainFacetValues(
+      key, servedValues, [...picks.keys()], state, label,
+      value => definitions.valueIcon?.(key, value) ?? undefined,
+      value => counts.get(value) ?? (complete || picks.get(value) === 'excluded' ? 0 : null),
+    );
+  };
+  switch (field.kind) {
+    case 'stars':
+      return {...base, showAllValues: true, values: bandFacetValues(key, servedValues, state, label, field.stars)};
+    case 'range': {
+      const range = buildFacetRange(servedGroup, included, field.fileSize ?? false);
+      return field.bands
+        ? {...base, range, showAllValues: true, values: bandFacetValues(key, servedValues, state, label, undefined)}
+        : {...base, range, showAllValues: false, values: []};
+    }
+    case 'domain':
+      return {...base, showAllValues: true, values: applyDomain(key, plainValues(), field.domain, label)};
+    case 'flag':
+      return {
+        ...base,
+        showAllValues: true,
+        values: applyDomain(key, plainValues(), [FLAG_VALUE], label).map(item => ({...item, labelKey: field.labelKey})),
+      };
+    case 'list':
+    case undefined: {
+      const values = plainValues();
+      return {...base, showAllValues: false, values: field.order ? sortFacetValues(values, field.order) : values};
+    }
   }
-  if (kind === 'range') {
-    return {...base, range, showAllValues: false, values: []};
-  }
-  const counts = new Map(servedValues.map(item => [item.value, item.count]));
-  const complete = servedGroup?.complete ?? false;
-  const values = plainFacetValues(
-    servedValues, [...picks.keys()], state, label,
-    value => definitions.valueIcon?.(key, value) ?? undefined,
-    value => counts.get(value) ?? (complete || picks.get(value) === 'excluded' ? 0 : null),
-  );
-  if (domain) {
-    return {...base, showAllValues: true, values: applyDomain(values, domain, label)};
-  }
-  const order = definitions.valueOrder?.(key);
-  return {...base, showAllValues: false, values: order ? sortFacetValues(values, order) : values};
 }
 
 function buildFacetRange(
@@ -271,15 +333,17 @@ function buildFacetRange(
   };
 }
 
-function bandFacetValues(
+function bandFacetValues<K extends string>(
+  key: K,
   servedValues: BrowseFacetGroup['values'],
   state: (value: string) => BrowseFacetState | null,
   label: (value: string, servedLabel: string) => string,
   starScale: number | undefined,
-): BrowseFilterValue[] {
+): BrowseFilterValue<K>[] {
   return servedValues.map(item => {
     const range = parseRangeToken(item.value);
     return {
+      facetKey: key,
       value: item.value,
       label: label(item.value, (range && formatRangeLabel(range)) ?? item.title),
       count: item.count,
@@ -289,14 +353,15 @@ function bandFacetValues(
   });
 }
 
-function plainFacetValues(
+function plainFacetValues<K extends string>(
+  key: K,
   servedValues: BrowseFacetGroup['values'],
   picks: readonly string[],
   state: (value: string) => BrowseFacetState | null,
   label: (value: string, servedLabel: string) => string,
   icon: (value: string) => IconSelection | undefined,
   count: (value: string) => number | null,
-): BrowseFilterValue[] {
+): BrowseFilterValue<K>[] {
   const labelsByValue = new Map(servedValues.map(option => [option.value, option.title]));
   for (const value of picks) {
     if (!labelsByValue.has(value)) {
@@ -304,6 +369,7 @@ function plainFacetValues(
     }
   }
   return Array.from(labelsByValue, ([value, title]) => ({
+    facetKey: key,
     value,
     label: label(value, title),
     icon: icon(value),
@@ -312,16 +378,18 @@ function plainFacetValues(
   }));
 }
 
-function applyDomain(
-  values: BrowseFilterValue[],
+function applyDomain<K extends string>(
+  key: K,
+  values: BrowseFilterValue<K>[],
   domain: readonly string[],
   label: (value: string, servedLabel: string) => string,
-): BrowseFilterValue[] {
+): BrowseFilterValue<K>[] {
   const byValue = new Map(values.map(item => [item.value, item]));
-  return domain.map(value => byValue.get(value) ?? {value, label: label(value, value), count: 0, state: null});
+  return domain.map(value =>
+    byValue.get(value) ?? {facetKey: key, value, label: label(value, value), count: 0, state: null});
 }
 
-function sortFacetValues(values: BrowseFilterValue[], order: BrowseFacetValueOrder): BrowseFilterValue[] {
+function sortFacetValues<K extends string>(values: BrowseFilterValue<K>[], order: BrowseFacetValueOrder): BrowseFilterValue<K>[] {
   if (order === 'asc' || order === 'desc') {
     const direction = order === 'asc' ? 1 : -1;
     return [...values].sort((a, b) =>
@@ -343,6 +411,7 @@ export interface BrowseFilterChip<K extends string = string> {
   readonly excluded: boolean;
   readonly groupLabelKey: string;
   readonly valueLabel: string;
+  readonly valueLabelKey?: string;
 }
 
 export function browseFilterChips<K extends string>(
@@ -351,20 +420,22 @@ export function browseFilterChips<K extends string>(
   selections: BrowseFacetSelection<K>,
 ): BrowseFilterChip<K>[] {
   const servedByKey = new Map(served.map(group => [group.key, group]));
-  const markedKeys = Object.keys(selections) as BrowseFacetKey<K>[];
-  return markedKeys.flatMap(marked => {
+  return browseFacetSelectionKeys(selections).flatMap(marked => {
     const key = unmarkedBrowseFacetKey(marked);
     if (!definitions.isKey(key)) {
       return [];
     }
     const values = browseFacetValues(selections, marked);
     const labels = new Map(servedByKey.get(key)?.values.map(option => [option.value, option.title]));
+    const field = definitions.field(key);
     return values.map(value => ({
       key,
       value,
       excluded: marked.startsWith('-'),
-      groupLabelKey: definitions.labelKey(key),
       valueLabel: definitions.valueLabel?.(key, value) ?? labels.get(value) ?? value,
+      ...(field.kind === 'flag' && value === FLAG_VALUE
+        ? {groupLabelKey: FLAG_SECTION_LABEL_KEY, valueLabelKey: field.labelKey}
+        : {groupLabelKey: field.labelKey}),
     }));
   });
 }

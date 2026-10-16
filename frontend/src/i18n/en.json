@@ -1,5 +1,6 @@
 {
   "common": {
+    "openInNewTab": "Open Details in New Tab",
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
@@ -33,7 +34,8 @@
     "on": "On",
     "off": "Off",
     "moreActionsFor": "More actions for {{label}}",
-    "dialogLoadError": "An error occurred while loading the dialog. Please try again."
+    "dialogLoadError": "An error occurred while loading the dialog. Please try again.",
+    "metadata": "Metadata"
   },
   "auth": {
     "oidc": {
@@ -2838,14 +2840,12 @@
     },
     "menu": {
       "label": "Book actions",
-      "openInNewTab": "Open Details in New Tab",
       "addToShelf": "Add to Shelf",
       "markAs": "Mark as",
       "send": "Send",
       "quickSend": "Quick Send",
       "customSend": "Custom Send",
       "download": "Download",
-      "metadata": "Metadata",
       "editMetadata": "Edit Metadata",
       "fetchMetadata": "Refresh Metadata",
       "fetchMetadataWithOptions": "Refresh with Options",
@@ -3361,9 +3361,6 @@
         "failedDetail": "An error occurred while updating field lock statuses."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Save as Default for {{scope}}"
-    },
     "fileAttacher": {
       "title": "Attach File to Another Book",
       "titleBulk": "Attach Files to Another Book",
@@ -3389,7 +3386,6 @@
     },
     "searcher": {
       "placeholder": "Title, Author, Series, Genre, or ISBN...",
-      "clearSearch": "Clear search",
       "bookCoverAlt": "Book Cover",
       "byPrefix": "by",
       "noResults": "No results found",
@@ -5256,7 +5252,8 @@
       "apply": "Apply",
       "moveUp": "Move Up",
       "moveDown": "Move Down",
-      "flipDirection": "Flip Direction"
+      "flipDirection": "Flip Direction",
+      "saveAsDefault": "Save as Default for {{scope}}"
     },
     "chips": {
       "removeSearch": "Remove Search Filter {{query}}"
@@ -5264,6 +5261,7 @@
     "rail": {
       "searchValues": "Search…",
       "searchFields": "Title, author, genre…",
+      "clearSearch": "Clear search",
       "searchScope": {
         "allBooks": "Search All Books",
         "library": "Search Library",
@@ -5319,7 +5317,7 @@
       "markAsMessage": "Mark {{count}} books as {{status}}?",
       "editAll": "Edit All",
       "editOneByOne": "Edit One by One",
-      "selectionEmpty": "That selection no longer matches any books.",
+      "selectionEmpty": "That selection no longer matches anything.",
       "selectionLoadError": "Couldn't load the selection. Please try again.",
       "organizeFiles": "Organize Files",
       "updateReadStatus": "Update Read Status",
