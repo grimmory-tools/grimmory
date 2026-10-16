@@ -2,7 +2,7 @@ import {DestroyRef, inject, Service} from '@angular/core';
 import {QueryClient} from '@tanstack/angular-query-experimental';
 
 import {invalidateBookRecommendations} from '../data/book-query-cache';
-import {TaskProgressPayload} from '../../settings/task-management/task.service';
+import {TaskProgressPayload, TaskStatus} from '../../settings/task-management/task.service';
 import {Book} from '../model/book.model';
 import {
   BookCoverPatch,
@@ -55,7 +55,7 @@ export class BookSocketService {
   }
 
   handleTaskProgress(payload: TaskProgressPayload): void {
-    if (payload.taskType !== 'UPDATE_BOOK_RECOMMENDATIONS' || payload.taskStatus !== 'COMPLETED') {
+    if (payload.taskType !== 'UPDATE_BOOK_RECOMMENDATIONS' || payload.taskStatus !== TaskStatus.COMPLETED) {
       return;
     }
     void Promise.all([

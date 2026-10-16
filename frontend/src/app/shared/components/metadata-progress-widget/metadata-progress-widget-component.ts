@@ -75,7 +75,7 @@ export class MetadataProgressWidgetComponent implements OnInit, OnDestroy {
   private markTaskStalled(taskId: string): void {
     const task = this.activeTasks[taskId];
     if (!task) return;
-    if (task.status !== MetadataBatchStatus.COMPLETED && task.status !== 'ERROR') {
+    if (task.status !== MetadataBatchStatus.COMPLETED && task.status !== MetadataBatchStatus.ERROR) {
       this.activeTasks[taskId] = {
         ...task,
         status: MetadataBatchStatus.ERROR,
@@ -87,7 +87,7 @@ export class MetadataProgressWidgetComponent implements OnInit, OnDestroy {
 
   getProgressPercent(task: MetadataBatchProgressNotification): number {
     if (task.total <= 0) return 0;
-    if (task.status === 'COMPLETED') return 100;
+    if (task.status === MetadataBatchStatus.COMPLETED) return 100;
     return Math.round((task.completed / task.total) * 100);
   }
 
