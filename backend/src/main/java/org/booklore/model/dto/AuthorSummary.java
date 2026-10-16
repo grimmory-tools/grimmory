@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -16,5 +18,5 @@ public class AuthorSummary {
     private String name;
     private String asin;
     private int bookCount;
-    private boolean hasPhoto;
+    private Instant photoUpdatedOn;
 }
