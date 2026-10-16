@@ -7,10 +7,8 @@ import {
 import {Book, BookMetadata} from '../model/book.model';
 import {
   BOOK_DETAIL_QUERY_PREFIX,
-  BOOK_RECOMMENDATIONS_QUERY_PREFIX,
   BOOKS_QUERY_KEY,
   bookDetailQueryPrefix,
-  bookRecommendationsQueryPrefix,
 } from './book-query-keys';
 
 export interface BookCoverPatch {
@@ -35,7 +33,6 @@ interface BookCacheReconciliationOptions {
 function removeLegacyBookQueries(queryClient: QueryClient, bookIds: Iterable<number>): void {
   for (const bookId of bookIds) {
     queryClient.removeQueries({queryKey: bookDetailQueryPrefix(bookId)});
-    queryClient.removeQueries({queryKey: bookRecommendationsQueryPrefix(bookId)});
   }
 }
 
@@ -50,7 +47,6 @@ async function reconcileLegacyBookChangeSet(
     ...[...changeSet.changedBookIds].map(bookId => queryClient.invalidateQueries({
       queryKey: bookDetailQueryPrefix(bookId),
     })),
-    invalidateLegacyBookRecommendations(queryClient),
   ]);
 }
 
@@ -58,12 +54,7 @@ export async function invalidateAllLegacyBooks(queryClient: QueryClient): Promis
   await Promise.all([
     queryClient.invalidateQueries({queryKey: BOOKS_QUERY_KEY, exact: true}),
     queryClient.invalidateQueries({queryKey: BOOK_DETAIL_QUERY_PREFIX}),
-    queryClient.invalidateQueries({queryKey: BOOK_RECOMMENDATIONS_QUERY_PREFIX}),
   ]);
-}
-
-export function invalidateLegacyBookRecommendations(queryClient: QueryClient): Promise<void> {
-  return queryClient.invalidateQueries({queryKey: BOOK_RECOMMENDATIONS_QUERY_PREFIX});
 }
 
 export async function reconcileBookCacheChangeSet(
@@ -97,7 +88,6 @@ async function reconcilePatchedLegacyBookChangeSet(
     ...[...changeSet.changedBookIds].map(bookId => queryClient.invalidateQueries({
       queryKey: bookDetailQueryPrefix(bookId),
     })),
-    invalidateLegacyBookRecommendations(queryClient),
   ]);
 }
 

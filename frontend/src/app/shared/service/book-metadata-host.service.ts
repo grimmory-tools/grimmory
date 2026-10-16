@@ -5,10 +5,6 @@ import {Subject} from 'rxjs';
 export class BookMetadataHostService {
   private bookSwitchRequest$ = new Subject<number>();
 
-  requestBookSwitch(bookId: number) {
-    this.bookSwitchRequest$.next(bookId);
-  }
-
   switchBook(bookId: number): void {
     this.bookSwitchRequest$.next(bookId);
   }

@@ -2,7 +2,6 @@ package org.booklore.service.recommender;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.ApiError;
 import org.booklore.mapper.BookMapper;
 import org.booklore.model.dto.*;
@@ -12,6 +11,7 @@ import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.projection.BookEmbeddingProjection;
 import org.booklore.service.book.BookQueryService;
+import org.booklore.service.browse.BookBrowseService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,12 +31,12 @@ public class BookRecommendationService {
     private final BookRepository bookRepository;
     private final BookQueryService bookQueryService;
     private final BookMapper bookMapper;
-    private final AuthenticationService authenticationService;
+    private final BookBrowseService bookBrowseService;
 
     private static final int MAX_BOOKS_PER_AUTHOR = 3;
 
     @Transactional
-    public List<BookRecommendation> getRecommendations(Long bookId, int limit) {
+    public List<Book> getRecommendations(Long bookId, int limit) {
         BookEntity book = bookRepository.findByIdWithMetadata(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
         Set<BookRecommendationLite> recommendations = book.getSimilarBooksJson();
@@ -47,36 +47,12 @@ public class BookRecommendationService {
             bookRepository.save(book);
         }
 
-        Set<Long> recommendedBookIds = recommendations.stream()
+        List<Long> recommendedBookIds = recommendations.stream()
+                .sorted(Comparator.comparingDouble(BookRecommendationLite::getS).reversed())
                 .map(BookRecommendationLite::getB)
-                .collect(Collectors.toSet());
+                .toList();
 
-        BookLoreUser user = authenticationService.getAuthenticatedUser();
-        Set<Long> accessibleLibraryIds;
-        if (user.getPermissions().isAdmin()) {
-            accessibleLibraryIds = null;
-        } else {
-            accessibleLibraryIds = user.getAssignedLibraries().stream()
-                    .map(Library::getId)
-                    .collect(Collectors.toSet());
-        }
-
-        Map<Long, BookEntity> recommendedBooksMap = bookQueryService.findAllWithMetadataByIds(recommendedBookIds).stream()
-                .filter(b -> {
-                    if (accessibleLibraryIds == null) {
-                        return true;
-                    }
-                    return b.getLibrary() != null && accessibleLibraryIds.contains(b.getLibrary().getId());
-                })
-                .collect(Collectors.toMap(BookEntity::getId, Function.identity()));
-
-        return recommendations.stream()
-                .map(rec -> {
-                    BookEntity bookEntity = recommendedBooksMap.get(rec.getB());
-                    if (bookEntity == null) return null;
-                    return new BookRecommendation(bookMapper.toBookWithDescription(bookEntity, false), rec.getS());
-                })
-                .filter(Objects::nonNull)
+        return bookBrowseService.findByIds(recommendedBookIds).stream()
                 .limit(limit)
                 .toList();
     }

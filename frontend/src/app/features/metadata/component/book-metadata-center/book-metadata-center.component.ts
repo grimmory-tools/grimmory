@@ -2,7 +2,7 @@ import {computed, Component, DestroyRef, inject, OnInit, signal} from '@angular/
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UserService} from '../../../settings/user-management/user.service';
-import {Book, BookRecommendation} from '../../../book/model/book.model';
+import {Book} from '../../../book/model/book.model';
 import {distinctUntilChanged, filter, map} from 'rxjs/operators';
 import {BookService} from '../../../book/service/book.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
@@ -15,8 +15,7 @@ import {MetadataViewerComponent} from './metadata-viewer/metadata-viewer.compone
 import {MetadataEditorComponent} from './metadata-editor/metadata-editor.component';
 import {MetadataSearcherComponent} from './metadata-searcher/metadata-searcher.component';
 import {SidecarViewerComponent} from './sidecar-viewer/sidecar-viewer.component';
-import {injectQuery, queryOptions} from '@tanstack/angular-query-experimental';
-import {bookRecommendationsQueryKey} from '../../../book/service/book-query-keys';
+import {injectQuery} from '@tanstack/angular-query-experimental';
 import {PageTitleService} from '../../../../shared/service/page-title.service';
 
 enum BookMetadataTab {
@@ -76,25 +75,6 @@ export class BookMetadataCenterComponent implements OnInit {
     return this.bookService.bookDetailQueryOptions(bookId, true);
   });
   readonly book = computed(() => this.bookQuery.data() ?? null);
-  private readonly recommendationsQuery = injectQuery(() => {
-    const bookId = this.currentBookId();
-    const settings = this.appSettingsService.appSettings();
-
-    if (bookId == null || !(settings?.similarBookRecommendation ?? false)) {
-      return queryOptions({
-        queryKey: bookRecommendationsQueryKey(-1, 20),
-        queryFn: async (): Promise<BookRecommendation[]> => [],
-        enabled: false,
-      });
-    }
-
-    return this.bookService.bookRecommendationsQueryOptions(bookId, 20);
-  });
-  readonly recommendedBooks = computed(() =>
-    [...(this.recommendationsQuery.data() ?? [])].sort(
-      (a, b) => (b.similarityScore ?? 0) - (a.similarityScore ?? 0)
-    )
-  );
   private _tab: BookMetadataTab = BookMetadataTab.View;
   readonly canEditMetadata = computed(() => {
     const user = this.userService.currentUser();

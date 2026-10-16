@@ -17,6 +17,7 @@ import {
 import {NgTemplateOutlet} from '@angular/common';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {cn} from '../../ui/cn';
+import {controlMinHeightBySize} from '../../ui/control.styles';
 import {AppTabsComponent} from '../../ui/tabs/app-tabs.component';
 import {AppPageHeaderBreadcrumbsComponent} from './app.page-header-breadcrumbs.component';
 import {PageHeaderService, type PageHeader} from './page-header.service';
@@ -78,8 +79,8 @@ export class AppPageHeaderComponent {
   );
   readonly leadPrincipalClass = computed(() =>
     cn(
-      'grow-[999] basis-0',
-      this.leadVariant() === 'trail' ? 'flex items-center min-w-[14rem]' : 'min-w-[20rem]',
+      `flex grow-[999] basis-0 items-center ${controlMinHeightBySize.md}`,
+      this.leadVariant() === 'trail' ? 'min-w-[14rem]' : 'min-w-[20rem]',
     ),
   );
   readonly rowClass = computed(() => {
@@ -92,7 +93,7 @@ export class AppPageHeaderComponent {
       case 'stacked':
         return cn('flex flex-wrap items-start gap-x-6 gap-y-4 pt-0.5 pb-5', pbForTabs, collapseWhenEmpty);
       default:
-        return cn('flex flex-wrap items-center gap-x-6 gap-y-4 pt-5', pbForTabs ?? 'pb-5', collapseWhenEmpty);
+        return cn('flex flex-wrap items-center gap-x-6 gap-y-4 pt-4', pbForTabs ?? 'pb-4', collapseWhenEmpty);
     }
   });
   readonly stickyRegionClass = computed(() =>

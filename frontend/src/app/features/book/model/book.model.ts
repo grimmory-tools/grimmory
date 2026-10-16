@@ -379,11 +379,6 @@ export interface BookSetting {
   [key: string]: unknown;
 }
 
-export interface BookRecommendation {
-  book: Book;
-  similarityScore: number;
-}
-
 export interface BulkMetadataUpdateRequest {
   bookIds: number[];
   authors?: string[];

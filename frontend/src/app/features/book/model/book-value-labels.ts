@@ -54,16 +54,16 @@ export interface MatchScoreBand extends BrowseFacetBucket {
 
 export const MATCH_SCORE_BANDS: readonly MatchScoreBand[] = [
   {min: 95, labelKey: 'outstanding'},
-  {min: 90, max: 95, labelKey: 'excellent'},
-  {min: 80, max: 90, labelKey: 'great'},
-  {min: 70, max: 80, labelKey: 'good'},
-  {min: 50, max: 70, labelKey: 'fair'},
-  {min: 30, max: 50, labelKey: 'weak'},
-  {min: 0, max: 30, labelKey: 'poor'},
+  {min: 90, max: 95, maxExclusive: true, labelKey: 'excellent'},
+  {min: 80, max: 90, maxExclusive: true, labelKey: 'great'},
+  {min: 70, max: 80, maxExclusive: true, labelKey: 'good'},
+  {min: 50, max: 70, maxExclusive: true, labelKey: 'fair'},
+  {min: 30, max: 50, maxExclusive: true, labelKey: 'weak'},
+  {min: 0, max: 30, maxExclusive: true, labelKey: 'poor'},
 ];
 
 export function bookMatchScoreRangeToken(score: number): string | null {
   const band = MATCH_SCORE_BANDS.find(candidate =>
-    (candidate.min == null || score >= candidate.min) && (candidate.max == null || score <= candidate.max));
+    (candidate.min == null || score >= candidate.min) && (candidate.max == null || score < candidate.max));
   return band ? formatRangeToken(band) : null;
 }

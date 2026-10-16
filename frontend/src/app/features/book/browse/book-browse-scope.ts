@@ -1,19 +1,22 @@
 import {inject} from '@angular/core';
 import {Router, type CanActivateChildFn, type ParamMap} from '@angular/router';
 
-import {pinBrowseFacetValue} from '../../../shared/browse/facets';
+import {browseFacetValues, withBrowseFacetValues, type BrowseFacetKey} from '../../../shared/browse/facets';
 import {type LibraryShelfMenuTarget} from '../../../shared/layout/navigation/library-shelf-menu-target.model';
+import {type PageHeaderBreadcrumb} from '../../../shared/layout/page-header/page-header.service';
 import {type EntityViewPreferenceContext} from '../../settings/user-management/entity-view-preferences';
-import {type FacetValueMap} from '../data/book-query-params';
+import {type BookQueryFacetKey, type FacetValueMap} from '../data/book-query-params';
 
-export type BookBrowseScope =
-  | {kind: 'library'; entityId: number; facetKey: 'library'; facetValue: string}
-  | {kind: 'shelf'; entityId: number; facetKey: 'shelf'; facetValue: string}
-  | {kind: 'magicShelf'; entityId: number; facetKey: 'shelf'; facetValue: string}
-  | {kind: 'unshelved'; facetKey: 'shelf_status'; facetValue: 'unshelved'};
+export type BookBrowseScope = {readonly facets: FacetValueMap} & (
+  | {readonly kind: 'library'; readonly entityId: number}
+  | {readonly kind: 'shelf'; readonly entityId: number}
+  | {readonly kind: 'magicShelf'; readonly entityId: number}
+  | {readonly kind: 'unshelved'}
+  | {readonly kind: 'dashboardRow'; readonly rowId: string; readonly titleKey: string}
+);
 
 export interface BookBrowseRouteData {
-  browseScope?: 'unshelved';
+  browseScope?: BookBrowseScope;
 }
 
 export const validBookBrowseScope: CanActivateChildFn = route => {
@@ -23,18 +26,18 @@ export const validBookBrowseScope: CanActivateChildFn = route => {
 };
 
 export const UNSHELVED_BROWSE_SCOPE: BookBrowseScope =
-  {kind: 'unshelved', facetKey: 'shelf_status', facetValue: 'unshelved'};
+  {kind: 'unshelved', facets: {'+shelf_status': ['unshelved']}};
 
 export function libraryBrowseScope(entityId: number): BookBrowseScope {
-  return {kind: 'library', entityId, facetKey: 'library', facetValue: `${entityId}`};
+  return {kind: 'library', entityId, facets: {'+library': [`${entityId}`]}};
 }
 
 export function shelfBrowseScope(entityId: number): BookBrowseScope {
-  return {kind: 'shelf', entityId, facetKey: 'shelf', facetValue: `${entityId}`};
+  return {kind: 'shelf', entityId, facets: {'+shelf': [`${entityId}`]}};
 }
 
 export function magicShelfBrowseScope(entityId: number): BookBrowseScope {
-  return {kind: 'magicShelf', entityId, facetKey: 'shelf', facetValue: `magic:${entityId}`};
+  return {kind: 'magicShelf', entityId, facets: {'+shelf': [`magic:${entityId}`]}};
 }
 
 export function bookBrowseScope(
@@ -56,18 +59,26 @@ export function bookBrowseScope(
     return magicShelfBrowseScope(magicShelfId);
   }
 
-  if (routeData.browseScope === 'unshelved') {
-    return UNSHELVED_BROWSE_SCOPE;
-  }
-
-  return null;
+  return routeData.browseScope ?? null;
 }
 
 export function scopedFacetSelection(
   selection: FacetValueMap,
   scope: BookBrowseScope | null,
 ): FacetValueMap {
-  return scope ? pinBrowseFacetValue(selection, scope.facetKey, scope.facetValue) : selection;
+  if (!scope) {
+    return selection;
+  }
+  const fixed = bookBrowseScopeFixedFacets(scope);
+  let next = selection;
+  for (const [key, values] of Object.entries(scope.facets) as [BrowseFacetKey<BookQueryFacetKey>, readonly string[]][]) {
+    next = withBrowseFacetValues(next, key, fixed.has(key) ? values : [...new Set([...browseFacetValues(next, key), ...values])]);
+  }
+  return next;
+}
+
+export function bookBrowseScopeFixedFacets(scope: BookBrowseScope | null): ReadonlySet<string> {
+  return new Set(Object.keys(scope?.facets ?? {}).filter(key => !key.startsWith('+') && !key.startsWith('-')));
 }
 
 export function bookBrowseScopeTitle(
@@ -75,7 +86,7 @@ export function bookBrowseScopeTitle(
   libraries: readonly {id?: number | null; name: string}[],
   shelves: readonly {id?: number | null; name: string}[],
   magicShelves: readonly {id?: number | null; name: string}[],
-  labels: {readonly allBooks: string; readonly unshelved: string},
+  translate: (key: string) => string,
 ): string {
   switch (scope?.kind) {
     case 'library':
@@ -85,10 +96,19 @@ export function bookBrowseScopeTitle(
     case 'magicShelf':
       return magicShelves.find(shelf => shelf.id === scope.entityId)?.name ?? '';
     case 'unshelved':
-      return labels.unshelved;
+      return translate('book.browser.labels.unshelvedBooks');
+    case 'dashboardRow':
+      return translate(scope.titleKey);
     case undefined:
-      return labels.allBooks;
+      return translate('book.browser.labels.allBooks');
   }
+}
+
+export function bookBrowseScopeBreadcrumbs(
+  scope: BookBrowseScope | null,
+  translate: (key: string) => string,
+): PageHeaderBreadcrumb[] {
+  return scope?.kind === 'dashboardRow' ? [{label: translate('dashboard.main.pageTitle'), commands: ['/dashboard']}] : [];
 }
 
 export function bookBrowseScopePreferenceContext(
@@ -102,6 +122,7 @@ export function bookBrowseScopePreferenceContext(
     case 'magicShelf':
       return {entityType: 'MAGIC_SHELF', entityId: scope.entityId};
     case 'unshelved':
+    case 'dashboardRow':
     case undefined:
       return null;
   }
@@ -136,6 +157,7 @@ export function bookBrowseScopeMenuTarget(
           };
     }
     case 'unshelved':
+    case 'dashboardRow':
     case undefined:
       return null;
   }

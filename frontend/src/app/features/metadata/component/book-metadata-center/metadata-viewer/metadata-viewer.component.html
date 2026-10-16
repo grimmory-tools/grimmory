@@ -847,10 +847,8 @@
 
     <app-metadata-tabs
       [book]="book"
-      [bookInSeries]="bookInSeries"
-      [hasSeries]="!!book.metadata?.seriesName"
-      [recommendedBooks]="filteredRecommendedBooks()"
       (readBook)="onReadBook($event)"
+      (openBook)="navigateToBook($event)"
       (downloadBook)="onDownloadBook($event)"
       (downloadFile)="onDownloadFile($event)"
       (downloadAllFiles)="onDownloadAllFiles($event)"

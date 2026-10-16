@@ -31,6 +31,7 @@ import {EmailService} from '../../settings/email-v2/email.service';
 import {type BookSortTerm} from '../data/book-query-params';
 import {BookBrowsePageComponent} from './book-browse-page.component';
 import {BookBrowseFilterPageComponent} from './book-browse-filter-page.component';
+import {UNSHELVED_BROWSE_SCOPE} from './book-browse-scope';
 
 const PAGE_URL = `${API_CONFIG.BASE_URL}/api/v1/books/page`;
 const FACETS_URL = `${API_CONFIG.BASE_URL}/api/v1/books/facets`;
@@ -93,19 +94,17 @@ describe('BookBrowsePageComponent', () => {
   }
 
   function flushFacetRegistry(): void {
-    for (const request of http.match(candidate => candidate.url === FACETS_URL)) {
-      request.flush({
-        links: [{rel: 'self', href: '/api/v1/books/facets', type: 'application/json'}],
-        facets: [{
-          metadata: {rel: 'sort', key: 'sort', title: 'Sort'},
-          links: [
-            {rel: 'sort', href: '', type: '', title: 'title ascending', value: 'title'},
-            {rel: 'sort', href: '', type: '', title: 'title descending', value: '-title'},
-            {rel: 'sort', href: '', type: '', title: 'page count', value: 'pageCount'},
-          ],
-        }],
-      });
-    }
+    http.expectOne(candidate => candidate.url === FACETS_URL).flush({
+      links: [{rel: 'self', href: '/api/v1/books/facets', type: 'application/json'}],
+      facets: [{
+        metadata: {rel: 'sort', key: 'sort', title: 'Sort'},
+        links: [
+          {rel: 'sort', href: '', type: '', title: 'title ascending', value: 'title'},
+          {rel: 'sort', href: '', type: '', title: 'title descending', value: '-title'},
+          {rel: 'sort', href: '', type: '', title: 'page count', value: 'pageCount'},
+        ],
+      }],
+    });
   }
 
   function expectInitialPageRequest() {
@@ -146,7 +145,7 @@ describe('BookBrowsePageComponent', () => {
           ]},
           {path: 'magic-shelf/:magicShelfId/books', children: [{path: '', component: BookBrowsePageComponent}]},
           {path: 'unshelved-books', children: [
-            {path: '', component: BookBrowsePageComponent, data: {browseScope: 'unshelved'}},
+            {path: '', component: BookBrowsePageComponent, data: {browseScope: UNSHELVED_BROWSE_SCOPE}},
           ]},
         ]),
         {
@@ -189,16 +188,13 @@ describe('BookBrowsePageComponent', () => {
     history.replaceState({}, '', '/');
   });
 
-  it('pins the route scope onto page and facet requests, over any URL facet for the same key', async () => {
+  it('adds the route scope as a must-have on page and facet requests, alongside URL facets', async () => {
     const routerHarness = await routeTo('/library/3/books?facet=genre:Fantasy&facet=library:99');
-    const facetRequests = http.match(candidate => candidate.url === FACETS_URL);
-    expect(facetRequests.map(facets => facets.request.params.getAll('facet'))).toEqual(
-      expect.arrayContaining([['library:3'], ['genre:Fantasy', 'library:3']]),
-    );
-    expect(facetRequests).toHaveLength(2);
-    facetRequests.forEach(facets => facets.flush({facets: []}));
+    const index = http.expectOne(candidate => candidate.url === FACETS_URL);
+    expect(index.request.params.getAll('facet')).toEqual(['+library:3']);
+    index.flush({links: [], facets: []});
     const library = http.expectOne(candidate => candidate.url === PAGE_URL);
-    expect(library.request.params.getAll('facet')).toEqual(['genre:Fantasy', 'library:3']);
+    expect(library.request.params.getAll('facet')).toEqual(['+library:3', 'genre:Fantasy', 'library:99']);
     library.flush(bookPage([1], 1));
     await flushQueryAsync();
 
@@ -206,7 +202,7 @@ describe('BookBrowsePageComponent', () => {
     routerHarness.detectChanges();
     flushFacetRegistry();
     const magic = http.expectOne(candidate => candidate.url === PAGE_URL);
-    expect(magic.request.params.getAll('facet')).toEqual(['shelf:magic:9']);
+    expect(magic.request.params.getAll('facet')).toEqual(['+shelf:magic:9']);
     magic.flush(bookPage([1], 1));
     await flushQueryAsync();
 
@@ -214,7 +210,7 @@ describe('BookBrowsePageComponent', () => {
     routerHarness.detectChanges();
     flushFacetRegistry();
     const unshelved = http.expectOne(candidate => candidate.url === PAGE_URL);
-    expect(unshelved.request.params.getAll('facet')).toEqual(['shelf_status:unshelved']);
+    expect(unshelved.request.params.getAll('facet')).toEqual(['+shelf_status:unshelved']);
     unshelved.flush(bookPage([1], 1));
     await flushQueryAsync();
   });

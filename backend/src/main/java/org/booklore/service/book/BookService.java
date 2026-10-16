@@ -140,38 +140,6 @@ public class BookService {
                 .map(Library::getId)
                 .collect(Collectors.toSet());
     }
-    public List<Book> getBooksByIds(Set<Long> bookIds, boolean withDescription) {
-        BookLoreUser user = authenticationService.getAuthenticatedUser();
-        boolean isAdmin = user.getPermissions().isAdmin();
-
-        List<BookEntity> bookEntities = bookQueryService.findAllWithMetadataByIds(bookIds);
-
-        if (!isAdmin) {
-            Set<Long> userLibraryIds = getUserLibraryIds(user);
-            bookEntities = bookEntities.stream()
-                    .filter(book -> userLibraryIds.contains(book.getLibrary().getId()))
-                    .toList();
-        }
-
-        Set<Long> entityIds = bookEntities.stream().map(BookEntity::getId).collect(Collectors.toSet());
-
-        Map<Long, UserBookProgressEntity> progressMap =
-                readingProgressService.fetchUserProgress(user.getId(), entityIds);
-        Map<Long, UserBookFileProgressEntity> fileProgressMap =
-                readingProgressService.fetchUserFileProgress(user.getId(), entityIds);
-
-        return bookEntities.stream().map(bookEntity -> {
-            Book book = bookMapper.toBook(bookEntity);
-            if (!withDescription) book.getMetadata().setDescription(null);
-            readingProgressService.enrichBookWithProgress(
-                    book,
-                    progressMap.get(bookEntity.getId()),
-                    fileProgressMap.get(bookEntity.getId())
-            );
-            return book;
-        }).toList();
-    }
-
     public Book getBook(long bookId, boolean withDescription) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));

@@ -49,7 +49,7 @@ export class AppSidebarItemRowComponent {
     return scope === undefined ? undefined : scopedFacetSelection(EMPTY_FACET_SELECTION, scope);
   });
   private readonly bookCountQuery = injectQuery(() => ({
-    ...this.bookQuery.page({facets: this.countFacets() ?? {}, facetLogic: 'or', sort: [], size: 1}),
+    ...this.bookQuery.page({facets: this.countFacets() ?? {}, sort: [], size: 1}),
     enabled: this.countFacets() !== undefined && this.authService.isAuthenticated()
       && this.layoutService.areSidebarCountsVisible(this.parentKey()),
   }));

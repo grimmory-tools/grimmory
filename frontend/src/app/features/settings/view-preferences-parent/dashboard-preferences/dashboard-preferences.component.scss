@@ -107,15 +107,6 @@
   }
 }
 
-.max-items-field {
-  max-width: 7.875rem;
-  flex-shrink: 0;
-
-  @media (width <= 768px) {
-    max-width: none;
-  }
-}
-
 .setting-actions {
   display: flex;
   align-items: center;

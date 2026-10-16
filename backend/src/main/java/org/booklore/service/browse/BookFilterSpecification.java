@@ -79,7 +79,7 @@ public class BookFilterSpecification {
         return result;
     }
 
-    private record NumericRange<T>(T min, T max) {
+    private record NumericRange<T>(T min, T max, boolean maxExclusive) {
     }
 
     private static <T extends Comparable<? super T>> List<NumericRange<T>> parseNumericRanges(List<String> values, Function<String, T> parser, String paramName) {
@@ -98,7 +98,7 @@ public class BookFilterSpecification {
         }
         if (!invalid.isEmpty()) {
             throw new APIException("Invalid " + paramName + " values: " + invalid
-                    + ". Expected a number, min..max, min..*, or *..max. Minimum must not exceed maximum.", HttpStatus.BAD_REQUEST);
+                    + ". Expected a number, min..max, min..*, *..max, or min..<max to exclude max. Minimum must not exceed maximum.", HttpStatus.BAD_REQUEST);
         }
         return ranges;
     }
@@ -108,11 +108,15 @@ public class BookFilterSpecification {
             int separator = value.indexOf("..");
             if (separator < 0) {
                 T exact = parser.apply(value);
-                return new NumericRange<>(exact, exact);
+                return new NumericRange<>(exact, exact, false);
             }
             String minPart = value.substring(0, separator).trim();
             String maxPart = value.substring(separator + 2).trim();
-            if (minPart.equals("*") && maxPart.equals("*")) {
+            boolean maxExclusive = maxPart.startsWith("<");
+            if (maxExclusive) {
+                maxPart = maxPart.substring(1).trim();
+            }
+            if (maxPart.equals("*") && (maxExclusive || minPart.equals("*"))) {
                 return null;
             }
             T min = minPart.equals("*") ? null : parser.apply(minPart);
@@ -120,7 +124,7 @@ public class BookFilterSpecification {
             if (min != null && max != null && min.compareTo(max) > 0) {
                 return null;
             }
-            return new NumericRange<>(min, max);
+            return new NumericRange<>(min, max, maxExclusive);
         } catch (NumberFormatException e) {
             return null;
         }
@@ -133,14 +137,19 @@ public class BookFilterSpecification {
             if (range.min() != null && range.max() != null) {
                 predicates.add(cb.and(
                         cb.greaterThanOrEqualTo(field, range.min()),
-                        cb.lessThanOrEqualTo(field, range.max())));
+                        upperBound(cb, field, range)));
             } else if (range.min() != null) {
                 predicates.add(cb.greaterThanOrEqualTo(field, range.min()));
             } else {
-                predicates.add(cb.lessThanOrEqualTo(field, range.max()));
+                predicates.add(upperBound(cb, field, range));
             }
         }
         return cb.or(predicates.toArray(Predicate[]::new));
+    }
+
+    private static <T extends Comparable<? super T>> Predicate upperBound(
+            CriteriaBuilder cb, Expression<T> field, NumericRange<T> range) {
+        return range.maxExclusive() ? cb.lessThan(field, range.max()) : cb.lessThanOrEqualTo(field, range.max());
     }
 
     @SuppressWarnings("unchecked")
