@@ -237,20 +237,27 @@ export function patchBookFieldsInCache(queryClient: QueryClient, updates: {bookI
   })));
 }
 
-export function patchAttachedBookFilesInCache(
+export function patchAttachedBookFilesInLegacyCache(
   queryClient: QueryClient,
   updatedBook: Book,
-  deletedSourceBookIds: Iterable<number>,
-): void {
-  const deletedBookIds = new Set(deletedSourceBookIds);
+  deletedBookIds: Iterable<number>,
+  sourceBookIds: readonly number[],
+): Promise<void> {
+  const deleted = new Set(deletedBookIds);
+  const surviving = new Set(sourceBookIds.filter(bookId => !deleted.has(bookId)));
   queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, current =>
     current
-      ?.filter(book => !deletedBookIds.has(book.id))
+      ?.filter(book => !deleted.has(book.id))
       .map(book => book.id === updatedBook.id ? updatedBook : book)
   );
-  void reconcileBookCacheChangeSet(
-    queryClient,
-    {changedBookIds: [updatedBook.id], deletedBookIds},
-    {legacyList: 'already-updated'},
-  );
+  return Promise.all([
+    reconcilePatchedLegacyBookChangeSet(queryClient, {
+      changedBookIds: new Set([updatedBook.id, ...surviving]),
+      deletedBookIds: deleted,
+    }),
+    ...(surviving.size > 0 ? [queryClient.invalidateQueries({
+      queryKey: BOOKS_QUERY_KEY,
+      exact: true,
+    })] : []),
+  ]).then(() => undefined);
 }

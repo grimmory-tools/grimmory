@@ -1,34 +1,47 @@
-import {ChangeDetectorRef, Component, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
+import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
+import {ConfirmationService} from '@openng/optimus-ui/api';
 import {Button} from '@openng/optimus-ui/button';
 import {Checkbox} from '@openng/optimus-ui/checkbox';
+import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
+import {Paginator, PaginatorState} from '@openng/optimus-ui/paginator';
+import {ProgressBar} from '@openng/optimus-ui/progressbar';
 import {RadioButton} from '@openng/optimus-ui/radiobutton';
 import {SelectButton} from '@openng/optimus-ui/selectbutton';
-import {ProgressBar} from '@openng/optimus-ui/progressbar';
 import {Tag} from '@openng/optimus-ui/tag';
-import {Paginator, PaginatorState} from '@openng/optimus-ui/paginator';
-import {Subject, takeUntil} from 'rxjs';
-import {BookFileService} from '../../service/book-file.service';
-import {BookService} from '../../service/book.service';
-import {Book, DuplicateDetectionRequest, DuplicateGroup} from '../../model/book.model';
-import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
-import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
+import {injectMutation, QueryClient} from '@tanstack/angular-query-experimental';
+
 import {CoverComponent} from '../../../../shared/components/cover/cover.component';
-import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
+import {UrlHelperService} from '../../../../shared/service/url-helper.service';
+import {formatFileSizeKb} from '../../../../shared/util/file-size';
+import {DeleteBooksPartialError} from '../../data/book-command.models';
+import {BookCommandService} from '../../data/book-command.service';
+import {BookDuplicateGroup} from '../../data/book-query.models';
+import {BookQueryService} from '../../data/book-query.service';
+import {BookDetail} from '../../data/book-response.models';
+import {injectBookActionFeedback} from '../../service/book-action-feedback';
+import {
+  legacyBookCachePatches,
+  withLegacyBookCache,
+} from '../../service/book-command-legacy-adapter';
 
 type PresetMode = 'strict' | 'balanced' | 'aggressive' | 'custom';
 
-interface DisplayGroup extends DuplicateGroup {
-  selectedTargetBookId: number;
-  dismissed: boolean;
-  selectedForDeletion: Set<number>;
+interface DisplayGroup extends BookDuplicateGroup {
+  readonly selectedTargetBookId: number;
+  readonly selectedForDeletion: ReadonlySet<number>;
 }
 
 @Component({
   selector: 'app-duplicate-merger',
-  standalone: true,
   imports: [
     FormsModule,
     Button,
@@ -45,354 +58,237 @@ interface DisplayGroup extends DuplicateGroup {
   templateUrl: './duplicate-merger.component.html',
   styleUrls: ['./duplicate-merger.component.scss']
 })
-export class DuplicateMergerComponent implements OnInit, OnDestroy {
-  libraryId!: number;
-  presetMode: PresetMode = 'balanced';
-  showAdvanced = false;
-
-  matchByIsbn = true;
-  matchByExternalId = true;
-  matchByTitleAuthor = true;
-  matchByDirectory = false;
-  matchByFilename = false;
-
-  isScanning = signal(false);
-  isMerging = signal(false);
-  hasScanned = signal(false);
-  moveFiles = false;
-  mergeProgress = signal(0);
-  mergeTotal = signal(0);
-
-  groups: DisplayGroup[] = [];
-  presetOptions: { label: string; value: PresetMode }[] = [];
-
-  pageFirst = 0;
-  pageSize = 20;
-
-  private destroy$ = new Subject<void>();
-  private readonly bookFileService = inject(BookFileService);
-  private readonly bookService = inject(BookService);
-  private readonly messageService = inject(MessageService);
+export class DuplicateMergerComponent {
+  private readonly config = inject(DynamicDialogConfig);
+  private readonly queryClient = inject(QueryClient);
+  private readonly bookQueryService = inject(BookQueryService);
+  private readonly bookCommandService = inject(BookCommandService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly dialogRef = inject(DynamicDialogRef);
-  private readonly config = inject(DynamicDialogConfig);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly t = inject(TranslocoService);
+  private readonly feedback = injectBookActionFeedback();
   readonly urlHelper = inject(UrlHelperService);
-  private readonly appSettingsService = inject(AppSettingsService);
-  private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  readonly formatFileSize = formatFileSizeKb;
 
-  ngOnInit(): void {
-    this.libraryId = this.config.data.libraryId;
+  private readonly attachMutation = injectMutation(() => withLegacyBookCache(
+    this.bookCommandService.attachBookFiles(), legacyBookCachePatches.attachBookFiles));
+  private readonly deleteMutation = injectMutation(() => withLegacyBookCache(
+    this.bookCommandService.deleteBooks(), legacyBookCachePatches.deleteBooks));
 
-    const settings = this.appSettingsService.appSettings();
-    if (settings) {
-      this.moveFiles = settings.metadataPersistenceSettings?.moveFilesToLibraryPattern ?? false;
-    }
+  readonly presetMode = signal<PresetMode>('balanced');
+  readonly showAdvanced = signal(false);
+  readonly criteria = {
+    matchByIsbn: signal(true),
+    matchByExternalId: signal(true),
+    matchByTitleAuthor: signal(true),
+    matchByDirectory: signal(false),
+    matchByFilename: signal(false),
+  };
+  readonly moveFiles = signal(inject(AppSettingsService).appSettings()?.metadataPersistenceSettings?.moveFilesToLibraryPattern ?? false);
+  readonly presetOptions = ['Strict', 'Balanced', 'Aggressive', 'Custom'].map(preset => ({
+    label: this.t.translate(`book.duplicateMerger.preset${preset}`),
+    value: preset.toLowerCase(),
+  }));
 
-    this.presetOptions = [
-      {label: this.t.translate('book.duplicateMerger.presetStrict'), value: 'strict'},
-      {label: this.t.translate('book.duplicateMerger.presetBalanced'), value: 'balanced'},
-      {label: this.t.translate('book.duplicateMerger.presetAggressive'), value: 'aggressive'},
-      {label: this.t.translate('book.duplicateMerger.presetCustom'), value: 'custom'},
-    ];
-    this.applyPreset('balanced');
-  }
+  readonly matchingOptions = [
+    {key: 'matchByIsbn', id: 'isbn', label: 'signalIsbn'},
+    {key: 'matchByExternalId', id: 'externalId', label: 'signalExternalId'},
+    {key: 'matchByTitleAuthor', id: 'titleAuthor', label: 'signalTitleAuthor'},
+    {key: 'matchByDirectory', id: 'directory', label: 'signalDirectory'},
+    {key: 'matchByFilename', id: 'filename', label: 'signalFilename'},
+  ] as const;
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+  readonly scanState = signal<'idle' | 'scanning' | 'empty' | 'found'>('idle');
+  readonly groups = signal<readonly DisplayGroup[]>([]);
+  readonly mergeProgress = signal<number | null>(null);
+  readonly pageFirst = signal(0);
+  readonly pageSize = signal(20);
+  readonly pagedGroups = computed(() => this.groups().slice(this.pageFirst(), this.pageFirst() + this.pageSize()));
+  readonly isBusy = computed(() => this.scanState() === 'scanning' || this.mergeProgress() !== null || this.deleteMutation.isPending());
+  readonly canScan = computed(() => !this.isBusy() && this.matchingOptions.some(option => this.criteria[option.key]()));
+  private closed = false;
 
   onPresetChange(): void {
-    if (this.presetMode !== 'custom') {
-      this.applyPreset(this.presetMode);
+    const preset = this.presetMode();
+    if (preset === 'custom') return;
+    this.criteria.matchByIsbn.set(true);
+    this.criteria.matchByExternalId.set(true);
+    this.criteria.matchByTitleAuthor.set(preset !== 'strict');
+    this.criteria.matchByDirectory.set(preset === 'aggressive');
+    this.criteria.matchByFilename.set(preset === 'aggressive');
+  }
+
+  async scan(): Promise<void> {
+    this.scanState.set('scanning');
+    this.groups.set([]);
+    this.pageFirst.set(0);
+    try {
+      const serverGroups = await this.queryClient.fetchQuery(this.bookQueryService.duplicates({
+        libraryId: this.config.data.libraryId,
+        matchByIsbn: this.criteria.matchByIsbn(),
+        matchByExternalId: this.criteria.matchByExternalId(),
+        matchByTitleAuthor: this.criteria.matchByTitleAuthor(),
+        matchByDirectory: this.criteria.matchByDirectory(),
+        matchByFilename: this.criteria.matchByFilename(),
+      }));
+      if (this.closed || this.destroyRef.destroyed) return;
+
+      this.groups.set(serverGroups.map(group => ({
+        ...group,
+        selectedTargetBookId: group.suggestedTargetBookId,
+        selectedForDeletion: new Set<number>(),
+      })));
+      this.scanState.set(serverGroups.length ? 'found' : 'empty');
+    } catch (error) {
+      if (!this.closed && !this.destroyRef.destroyed) this.feedback.error('book.duplicateMerger.toast.scanFailed', error);
+      this.scanState.set('idle');
     }
-  }
-
-  onSignalToggle(): void {
-    this.presetMode = 'custom';
-  }
-
-  applyPreset(mode: PresetMode): void {
-    switch (mode) {
-      case 'strict':
-        this.matchByIsbn = true;
-        this.matchByExternalId = true;
-        this.matchByTitleAuthor = false;
-        this.matchByDirectory = false;
-        this.matchByFilename = false;
-        break;
-      case 'balanced':
-        this.matchByIsbn = true;
-        this.matchByExternalId = true;
-        this.matchByTitleAuthor = true;
-        this.matchByDirectory = false;
-        this.matchByFilename = false;
-        break;
-      case 'aggressive':
-        this.matchByIsbn = true;
-        this.matchByExternalId = true;
-        this.matchByTitleAuthor = true;
-        this.matchByDirectory = true;
-        this.matchByFilename = true;
-        break;
-    }
-  }
-
-  scan(): void {
-    this.isScanning.set(true);
-    this.hasScanned.set(false);
-    this.groups = [];
-    this.pageFirst = 0;
-
-    const request: DuplicateDetectionRequest = {
-      libraryId: this.libraryId,
-      matchByIsbn: this.matchByIsbn,
-      matchByExternalId: this.matchByExternalId,
-      matchByTitleAuthor: this.matchByTitleAuthor,
-      matchByDirectory: this.matchByDirectory,
-      matchByFilename: this.matchByFilename,
-    };
-
-    this.bookFileService.findDuplicates(request).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: (groups) => {
-        this.groups = groups.map(g => ({
-          ...g,
-          selectedTargetBookId: g.suggestedTargetBookId,
-          dismissed: false,
-          selectedForDeletion: new Set<number>(),
-        }));
-        this.isScanning.set(false);
-        this.hasScanned.set(true);
-      },
-      error: (err) => {
-        this.isScanning.set(false);
-        this.hasScanned.set(true);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.t.translate('book.duplicateMerger.toast.scanFailedSummary'),
-          detail: err?.error?.message || this.t.translate('book.duplicateMerger.toast.scanFailedDetail'),
-        });
-      }
-    });
-  }
-
-  get activeGroups(): DisplayGroup[] {
-    return this.groups.filter(g => !g.dismissed);
-  }
-
-  get pagedGroups(): DisplayGroup[] {
-    return this.activeGroups.slice(this.pageFirst, this.pageFirst + this.pageSize);
-  }
-
-  get canScan(): boolean {
-    return !this.isScanning() && !this.isMerging() &&
-      (this.matchByIsbn || this.matchByExternalId || this.matchByTitleAuthor ||
-        this.matchByDirectory || this.matchByFilename);
   }
 
   onPageChange(event: PaginatorState): void {
-    this.pageFirst = event.first ?? 0;
-    this.pageSize = event.rows ?? this.pageSize;
+    this.pageFirst.set(event.first ?? 0);
+    this.pageSize.set(event.rows ?? this.pageSize());
   }
 
-  getBookFormats(book: Book): string[] {
-    const formats: string[] = [];
-    if (book.primaryFile?.bookType) {
-      formats.push(book.primaryFile.bookType);
-    }
-    if (book.alternativeFormats) {
-      for (const alt of book.alternativeFormats) {
-        if (alt.bookType) {
-          formats.push(alt.bookType);
-        }
-      }
-    }
-    return formats;
+  getBookFormats(book: BookDetail): string[] {
+    return [book.primaryFile, ...(book.alternativeFormats ?? [])].flatMap(file => file?.bookType ? [file.bookType] : []);
   }
 
-  getFileCount(book: Book): number {
-    let count = book.primaryFile ? 1 : 0;
-    count += book.alternativeFormats?.length ?? 0;
-    return count;
-  }
-
-  getMatchReasonLabel(reason: string): string {
-    return this.t.translate(`book.duplicateMerger.reason.${reason}`);
+  getFileCount(book: BookDetail): number {
+    return (book.primaryFile ? 1 : 0) + (book.alternativeFormats?.length ?? 0);
   }
 
   hasSameFormatConflict(group: DisplayGroup): boolean {
-    const formats = new Set<string>();
-    for (const book of group.books) {
-      if (book.primaryFile?.bookType) {
-        if (formats.has(book.primaryFile.bookType)) return true;
-        formats.add(book.primaryFile.bookType);
-      }
-    }
-    return false;
+    const formats = group.books.flatMap(book => book.primaryFile?.bookType ? [book.primaryFile.bookType] : []);
+    return new Set(formats).size < formats.length;
   }
 
-  getBookFilePath(book: Book): string {
+  getBookFilePath(book: BookDetail): string {
     const subPath = book.primaryFile?.fileSubPath;
     const fileName = book.primaryFile?.fileName || '';
     if (subPath) return `${subPath}/${fileName}`;
     return fileName;
   }
 
-  formatFileSize(sizeKb?: number): string {
-    if (!sizeKb) return '';
-    if (sizeKb < 1024) return `${sizeKb} KB`;
-    const sizeMb = sizeKb / 1024;
-    if (sizeMb < 1024) return `${sizeMb.toFixed(1)} MB`;
-    return `${(sizeMb / 1024).toFixed(2)} GB`;
-  }
+  readonly matchReasonSeverity: Record<string, 'success' | 'info' | 'warn' | 'secondary'> = {
+    ISBN: 'success', EXTERNAL_ID: 'success', TITLE_AUTHOR: 'info', DIRECTORY: 'warn', FILENAME: 'secondary',
+  };
 
-  getMatchReasonSeverity(reason: string): "success" | "info" | "warn" | "danger" | "secondary" | "contrast" {
-    switch (reason) {
-      case 'ISBN':
-      case 'EXTERNAL_ID':
-        return 'success';
-      case 'TITLE_AUTHOR':
-        return 'info';
-      case 'DIRECTORY':
-        return 'warn';
-      case 'FILENAME':
-        return 'secondary';
-      default:
-        return 'info';
-    }
-  }
-
-  onTargetChange(group: DisplayGroup): void {
-    group.selectedForDeletion.delete(group.selectedTargetBookId);
+  onTargetChange(group: DisplayGroup, targetBookId: number): void {
+    const selectedForDeletion = new Set(group.selectedForDeletion);
+    selectedForDeletion.delete(targetBookId);
+    this.replaceGroup(group, {...group, selectedTargetBookId: targetBookId, selectedForDeletion});
   }
 
   toggleDeleteSelection(group: DisplayGroup, bookId: number): void {
-    if (group.selectedForDeletion.has(bookId)) {
-      group.selectedForDeletion.delete(bookId);
+    const selectedForDeletion = new Set(group.selectedForDeletion);
+    if (selectedForDeletion.has(bookId)) {
+      selectedForDeletion.delete(bookId);
     } else {
-      group.selectedForDeletion.add(bookId);
+      selectedForDeletion.add(bookId);
     }
+    this.replaceGroup(group, {...group, selectedForDeletion});
   }
 
-  getDeleteSelectedCount(group: DisplayGroup): number {
-    return group.selectedForDeletion.size;
-  }
-
-  dismissGroup(group: DisplayGroup): void {
-    group.dismissed = true;
-    if (this.pagedGroups.length === 0 && this.pageFirst > 0) {
-      this.pageFirst = Math.max(0, this.pageFirst - this.pageSize);
-    }
-  }
-
-  async mergeGroup(group: DisplayGroup): Promise<void> {
-    const targetId = group.selectedTargetBookId;
-    const sourceIds = group.books
-      .filter(b => b.id !== targetId)
-      .map(b => b.id);
-
-    if (sourceIds.length === 0) return;
-
-    group.dismissed = true;
-    try {
-      await this.bookFileService.attachBookFiles(targetId, sourceIds, this.moveFiles)
-        .pipe(takeUntil(this.destroy$))
-        .toPromise();
-    } catch {
-      group.dismissed = false;
-      this.messageService.add({
-        severity: 'error',
-        summary: this.t.translate('book.duplicateMerger.toast.mergeFailedSummary'),
-        detail: this.t.translate('book.duplicateMerger.toast.mergeFailedDetail'),
-      });
-    }
-  }
-
-  async mergeAll(): Promise<void> {
-    const toMerge = this.activeGroups;
-    if (toMerge.length === 0) return;
-
-    this.isMerging.set(true);
-    this.mergeTotal.set(toMerge.length);
+  async mergeGroups(groups: readonly DisplayGroup[], bulk = false): Promise<void> {
+    if (this.isBusy()) return;
     this.mergeProgress.set(0);
-
-    let successCount = 0;
-    let failCount = 0;
-
-    for (const group of toMerge) {
-      const targetId = group.selectedTargetBookId;
-      const sourceIds = group.books
-        .filter(b => b.id !== targetId)
-        .map(b => b.id);
-
-      if (sourceIds.length === 0) {
-        group.dismissed = true;
-        this.mergeProgress.update((p) => p + 1);
-        continue;
-      }
-
+    let success = 0;
+    let failed = 0;
+    let firstError: unknown;
+    for (const group of groups) {
+      if (this.closed || this.destroyRef.destroyed) break;
       try {
-        await this.bookFileService.attachBookFiles(targetId, sourceIds, this.moveFiles)
-          .pipe(takeUntil(this.destroy$))
-          .toPromise();
-        group.dismissed = true;
-        successCount++;
-      } catch {
-        failCount++;
+        await this.attachMutation.mutateAsync({
+          targetBookId: group.selectedTargetBookId,
+          sourceBookIds: group.books.filter(book => book.id !== group.selectedTargetBookId).map(book => book.id),
+          moveFiles: this.moveFiles(),
+        });
+        this.removeGroup(group);
+        success++;
+      } catch (error) {
+        firstError ??= error;
+        failed++;
       }
-      this.mergeProgress.update((p) => p + 1);
+      this.mergeProgress.set(((success + failed) / groups.length) * 100);
     }
-
-    this.isMerging.set(false);
-
-    if (successCount > 0) {
-      this.messageService.add({
-        severity: 'success',
-        summary: this.t.translate('book.duplicateMerger.toast.mergeSuccessSummary'),
-        detail: this.t.translate('book.duplicateMerger.toast.mergeSuccessDetail', {count: successCount}),
+    this.mergeProgress.set(null);
+    if (this.closed || this.destroyRef.destroyed) return;
+    if (success) {
+      this.feedback.show('success', bulk ? 'book.duplicateMerger.toast.mergeSuccess' : 'book.bookService.toast.filesAttached', {
+        count: bulk ? success : groups[0].books.length - 1,
       });
     }
-    if (failCount > 0) {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.t.translate('book.duplicateMerger.toast.mergeFailedSummary'),
-        detail: this.t.translate('book.duplicateMerger.toast.mergePartialDetail', {success: successCount, failed: failCount}),
-      });
+    if (failed) {
+      if (bulk) {
+        this.feedback.show('error', 'book.duplicateMerger.toast.mergeFailed', undefined,
+          this.t.translate('book.duplicateMerger.toast.mergePartialDetail', {success, failed}));
+      } else {
+        this.feedback.error('book.duplicateMerger.toast.mergeFailed', firstError);
+      }
     }
   }
 
   deleteGroup(group: DisplayGroup): void {
-    const idsToDelete = Array.from(group.selectedForDeletion);
-    if (idsToDelete.length === 0) return;
-
+    const bookIds = [...group.selectedForDeletion];
     this.confirmationService.confirm({
-      message: this.t.translate('book.duplicateMerger.confirm.deleteMessage', {count: idsToDelete.length}),
+      message: this.t.translate('book.duplicateMerger.confirm.deleteMessage', {count: bookIds.length}),
       header: this.t.translate('book.duplicateMerger.confirm.deleteHeader'),
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: this.t.translate('common.yes'),
       rejectLabel: this.t.translate('common.no'),
       acceptButtonProps: {severity: 'danger'},
-      accept: () => {
-        this.bookService.deleteBooks(new Set(idsToDelete)).pipe(
-          takeUntil(this.destroy$)
-        ).subscribe({
-          next: () => {
-            group.books = group.books.filter(b => !group.selectedForDeletion.has(b.id));
-            group.selectedForDeletion.clear();
-            if (group.books.length <= 1) {
-              group.dismissed = true;
-            }
-            this.changeDetectorRef.markForCheck();
-          }
-        });
-      }
+      accept: () => void this.deleteConfirmedBooks(group, bookIds),
     });
   }
 
   closeDialog(): void {
+    this.closed = true;
     this.dialogRef.close();
   }
+
+  private async deleteConfirmedBooks(group: DisplayGroup, bookIds: readonly number[]): Promise<void> {
+    if (this.closed || this.destroyRef.destroyed || !this.groups().includes(group)) return;
+    try {
+      const result = await this.deleteMutation.mutateAsync({bookIds});
+      this.applyConfirmedDeletion(group, result.removedBookIds);
+      if (this.closed || this.destroyRef.destroyed) return;
+      if (result.fileCleanupFailedBookIds.length) {
+        this.feedback.show('warn', 'book.bookService.toast.someFilesNotDeleted', {
+          fileNames: result.fileCleanupFailedBookIds.join(', '),
+        });
+      } else {
+        this.feedback.show('success', 'book.bookService.toast.booksDeleted', {count: result.removedBookIds.length});
+      }
+    } catch (error) {
+      if (error instanceof DeleteBooksPartialError) this.applyConfirmedDeletion(group, error.completed.removedBookIds);
+      if (!this.closed && !this.destroyRef.destroyed) this.feedback.error('book.bookService.toast.deleteFailed', error);
+    }
+  }
+
+  private applyConfirmedDeletion(group: DisplayGroup, removedBookIds: readonly number[]): void {
+    const books = group.books.filter(book => !removedBookIds.includes(book.id));
+    if (books.length <= 1) {
+      this.removeGroup(group);
+      return;
+    }
+
+    const selectedForDeletion = new Set(
+      [...group.selectedForDeletion].filter(bookId => !removedBookIds.includes(bookId)),
+    );
+    this.replaceGroup(group, {...group, books, selectedForDeletion});
+  }
+
+  private replaceGroup(group: DisplayGroup, replacement: DisplayGroup): void {
+    this.groups.update(groups => groups.map(current => current === group ? replacement : current));
+  }
+
+  removeGroup(group: DisplayGroup): void {
+    this.groups.update(groups => groups.filter(current => current !== group));
+    if (this.pagedGroups().length === 0 && this.pageFirst() > 0) {
+      this.pageFirst.set(Math.max(0, this.pageFirst() - this.pageSize()));
+    }
+  }
+
 }

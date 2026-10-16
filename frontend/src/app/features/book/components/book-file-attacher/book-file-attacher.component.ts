@@ -1,16 +1,28 @@
-import { Component, computed, inject, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, Signal, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { DynamicDialogRef, DynamicDialogConfig } from '@openng/optimus-ui/dynamicdialog';
-import { AutoComplete, AutoCompleteSelectEvent } from '@openng/optimus-ui/autocomplete';
-import { Button } from '@openng/optimus-ui/button';
-import { Checkbox } from '@openng/optimus-ui/checkbox';
-import { Subject, takeUntil } from 'rxjs';
-import { BookService } from '../../service/book.service';
-import { BookFileService } from '../../service/book-file.service';
-import { Book } from '../../model/book.model';
-import { MessageService } from '@openng/optimus-ui/api';
-import { TranslocoDirective, TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { AppSettingsService } from '../../../../shared/service/app-settings.service';
+import {
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import {FormsModule} from '@angular/forms';
+import {TranslocoDirective, TranslocoPipe} from '@jsverse/transloco';
+import {AutoComplete} from '@openng/optimus-ui/autocomplete';
+import {Button} from '@openng/optimus-ui/button';
+import {Checkbox} from '@openng/optimus-ui/checkbox';
+import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
+import {injectMutation, injectQuery} from '@tanstack/angular-query-experimental';
+
+import {AppSettingsService} from '../../../../shared/service/app-settings.service';
+import {debouncedSignal} from '../../../../shared/util/debounced-signal';
+import {SEARCH_DEBOUNCE_MS} from '../../../../shared/util/search-terms';
+import {BookCommandService} from '../../data/book-command.service';
+import {injectBookActionFeedback} from '../../service/book-action-feedback';
+import {DEFAULT_BOOK_SORT_TERMS} from '../../data/book-query-params';
+import {BookSummary} from '../../data/book-response.models';
+import {BookQueryService} from '../../data/book-query.service';
+import {legacyBookCachePatches, withLegacyBookCache} from '../../service/book-command-legacy-adapter';
+
+const SEARCH_PAGE_SIZE = 100;
 
 export interface BookFileAttacherSourceBook {
   id: number;
@@ -21,7 +33,6 @@ export interface BookFileAttacherSourceBook {
 
 @Component({
   selector: 'app-book-file-attacher',
-  standalone: true,
   imports: [
     FormsModule,
     AutoComplete,
@@ -31,141 +42,98 @@ export interface BookFileAttacherSourceBook {
     TranslocoPipe,
   ],
   templateUrl: './book-file-attacher.component.html',
-  styleUrls: ['./book-file-attacher.component.scss']
+  styleUrl: './book-file-attacher.component.scss'
 })
-export class BookFileAttacherComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('autocompleteWrapper') autocompleteWrapper!: ElementRef;
+export class BookFileAttacherComponent {
+  private readonly dialogRef = inject(DynamicDialogRef);
+  private readonly config = inject(DynamicDialogConfig);
+  private readonly bookQueryService = inject(BookQueryService);
+  private readonly bookCommands = inject(BookCommandService);
+  private readonly feedback = injectBookActionFeedback();
 
-  sourceBooks: readonly BookFileAttacherSourceBook[] = [];
-  targetBook: Book | null = null;
-  moveFiles = false;
-  isAttaching = false;
-  searchQuery = '';
-  filteredBooks: Book[] = [];
-  autocomplePanelStyle: Record<string, string> = {};
+  readonly sourceBooks: readonly BookFileAttacherSourceBook[] = this.config.data.sourceBook
+    ? [this.config.data.sourceBook]
+    : this.config.data.sourceBooks;
+  readonly isBulkMode = this.sourceBooks.length > 1;
+  private readonly sourceBookIds = this.sourceBooks.map(book => book.id);
 
-  private destroy$ = new Subject<void>();
-  private allBooks: Signal<Book[]> = signal([]);
+  readonly targetInputValue = signal<BookSummary | string | null>(null);
+  readonly moveFiles = signal(
+    inject(AppSettingsService).appSettings()?.metadataPersistenceSettings?.moveFilesToLibraryPattern ?? false
+  );
+  private readonly searchTerm = signal('');
+  // Debounce here: Optimus's delay leaves a pending search alive when its Clear icon is clicked.
+  private readonly queryTerm = debouncedSignal(this.searchTerm, SEARCH_DEBOUNCE_MS);
+  private readonly autocompleteSearchSequence = signal(0);
 
-  private readonly t = inject(TranslocoService);
-  private readonly appSettingsService = inject(AppSettingsService);
-  private dialogRef = inject(DynamicDialogRef);
-  private config = inject(DynamicDialogConfig);
-  private bookService = inject(BookService);
-  private bookFileService = inject(BookFileService);
-  private messageService = inject(MessageService);
+  readonly targetsQuery = injectQuery(() => this.bookQueryService.page({
+    query: this.queryTerm() || undefined,
+    facets: {library: [`${this.sourceBooks[0].libraryId}`]},
+    facetLogic: 'and',
+    sort: DEFAULT_BOOK_SORT_TERMS,
+    size: SEARCH_PAGE_SIZE,
+  }));
 
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      const width = this.autocompleteWrapper?.nativeElement?.offsetWidth;
-      if (width) {
-        this.autocomplePanelStyle = { 'width': `${width}px`, 'max-width': `${width}px` };
-      }
-    });
+  readonly attachMutation = injectMutation(() => withLegacyBookCache(
+    this.bookCommands.attachBookFiles(), legacyBookCachePatches.attachBookFiles));
+
+  readonly isSearching = computed(() =>
+    this.searchTerm() !== this.queryTerm()
+      || this.targetsQuery.isPending()
+      || this.targetsQuery.isFetching()
+  );
+  readonly filteredBooks = computed(() => {
+    // Optimus completes each search when its suggestions input receives a new array.
+    this.autocompleteSearchSequence();
+    if (this.isSearching() || this.targetsQuery.isError()) return [];
+    return (this.targetsQuery.data()?.content ?? []).filter(book => !this.sourceBookIds.includes(book.id));
+  });
+
+  readonly canAttach = computed(() => {
+    const target = this.targetInputValue();
+    return !!target && typeof target !== 'string' && !this.attachMutation.isPending();
+  });
+
+  onSearchInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.targetInputValue.set(value || null);
+    this.searchTerm.set(value.trim());
   }
 
-  ngOnInit(): void {
-    // Support both single book and multiple books
-    if (this.config.data.sourceBook) {
-      this.sourceBooks = [this.config.data.sourceBook];
-    } else if (this.config.data.sourceBooks) {
-      this.sourceBooks = this.config.data.sourceBooks;
+  filterBooks(event: {query: string}): void {
+    const query = event.query.trim();
+    const retriesFailedSearch = query === this.queryTerm()
+      && this.targetsQuery.isError()
+      && !this.targetsQuery.isFetching();
+
+    this.searchTerm.set(query);
+    this.autocompleteSearchSequence.update(sequence => sequence + 1);
+
+    if (retriesFailedSearch) {
+      void this.targetsQuery.refetch();
     }
-
-    if (this.sourceBooks.length === 0) {
-      this.closeDialog();
-      return;
-    }
-
-    const settings = this.appSettingsService.appSettings();
-    if (settings) {
-      this.moveFiles = settings.metadataPersistenceSettings?.moveFilesToLibraryPattern ?? false;
-    }
-
-    // Get the library ID from first source book (all should be same library)
-    const libraryId = this.sourceBooks[0].libraryId;
-    const sourceBookIds = new Set(this.sourceBooks.map(b => b.id));
-
-    this.allBooks = computed(() =>
-      this.bookService.books().filter(book =>
-        book.libraryId === libraryId && !sourceBookIds.has(book.id)
-      )
-    );
-
-    this.filteredBooks = this.allBooks().slice(0, 20);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  get isBulkMode(): boolean {
-    return this.sourceBooks.length > 1;
-  }
-
-  filterBooks(event: { query: string; }): void {
-    const query = event.query.toLowerCase().trim();
-    const books = this.allBooks();
-    if (!query) {
-      this.filteredBooks = books.slice(0, 20);
-      return;
-    }
-
-    this.filteredBooks = books
-      .filter(book => {
-        const title = book.metadata?.title?.toLowerCase() || '';
-        const authors = book.metadata?.authors?.join(' ').toLowerCase() || '';
-        return title.includes(query) || authors.includes(query);
-      })
-      .slice(0, 20);
-  }
-
-  onBookSelect(event: AutoCompleteSelectEvent): void {
-    this.targetBook = event.value as Book;
   }
 
   onBookClear(): void {
-    this.targetBook = null;
-  }
-
-  getBookDisplayName(book: Book): string {
-    const title = book.metadata?.title || `Book #${book.id}`;
-    const authors = book.metadata?.authors?.join(', ');
-    return authors ? `${title} - ${authors}` : title;
-  }
-
-  getSourceFileInfo(book: BookFileAttacherSourceBook): string {
-    const file = book.primaryFile;
-    if (!file) return this.t.translate('book.fileAttacher.unknownFile');
-    const format = file.extension?.toUpperCase() || file.bookType || this.t.translate('book.fileAttacher.unknownFormat');
-    return `${format} - ${file.fileName || this.t.translate('book.fileAttacher.unknownFilename')}`;
-  }
-
-  canAttach(): boolean {
-    return !!this.targetBook && !this.isAttaching;
+    this.targetInputValue.set(null);
+    this.searchTerm.set('');
+    this.autocompleteSearchSequence.update(sequence => sequence + 1);
   }
 
   attach(): void {
-    if (!this.targetBook) return;
+    const target = this.targetInputValue();
+    if (!target || typeof target === 'string') return;
 
-    this.isAttaching = true;
-
-    const sourceBookIds = this.sourceBooks.map(b => b.id);
-
-    this.bookFileService.attachBookFiles(
-      this.targetBook.id,
-      sourceBookIds,
-      this.moveFiles
-    ).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: () => {
-        this.dialogRef.close({ success: true });
+    this.attachMutation.mutate({
+      targetBookId: target.id,
+      sourceBookIds: this.sourceBookIds,
+      moveFiles: this.moveFiles(),
+    }, {
+      onSuccess: (_data, variables) => {
+        this.feedback.show('success', 'book.bookService.toast.filesAttached', {count: variables.sourceBookIds.length});
+        this.dialogRef.close({success: true});
       },
-      error: () => {
-        this.isAttaching = false;
-      }
+      onError: error => this.feedback.error('book.bookService.toast.attachmentFailed', error),
     });
   }
 

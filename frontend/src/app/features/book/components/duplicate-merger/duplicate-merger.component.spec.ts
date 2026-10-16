@@ -1,85 +1,84 @@
-import {ChangeDetectorRef, signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
-import {of} from 'rxjs';
+import * as TanStack from '@tanstack/angular-query-experimental';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
-import {Book, DuplicateGroup} from '../../model/book.model';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
-import {BookFileService} from '../../service/book-file.service';
-import {BookService} from '../../service/book.service';
+import {DeleteBooksPartialError} from '../../data/book-command.models';
+import {BookCommandService} from '../../data/book-command.service';
+import {BookQueryService} from '../../data/book-query.service';
+import {BookDetail} from '../../data/book-response.models';
 import {DuplicateMergerComponent} from './duplicate-merger.component';
 
-const createBook = (id: number): Book => ({id, libraryId: 1, libraryName: 'Main Library'});
+vi.mock('@tanstack/angular-query-experimental', {spy: true});
 
-const createGroup = (books: Book[]): DuplicateGroup => ({
-  suggestedTargetBookId: books[0].id,
+const book = (id: number): BookDetail => ({id, libraryId: 1, libraryName: 'Library'});
+const group = (...bookIds: number[]) => ({
+  suggestedTargetBookId: bookIds[0],
+  selectedTargetBookId: bookIds[0],
+  selectedForDeletion: new Set<number>(),
   matchReason: 'TITLE_AUTHOR',
-  books,
+  books: bookIds.map(book),
 });
 
 describe('DuplicateMergerComponent', () => {
-  const changeDetectorRef = {markForCheck: vi.fn()};
-  const dialogConfig = {data: {libraryId: 1}};
-  const bookFileService = {findDuplicates: vi.fn()};
-  const bookService = {deleteBooks: vi.fn()};
   const confirmationService = {confirm: vi.fn()};
-  const messageService = {add: vi.fn()};
-  const translocoService = {translate: vi.fn((key: string) => key)};
-  const urlHelper = {getThumbnailUrl: vi.fn()};
-  const appSettingsService = {appSettings: signal(null)};
-
+  const attach = vi.fn();
+  const remove = vi.fn();
   let component: DuplicateMergerComponent;
 
   beforeEach(() => {
-    vi.restoreAllMocks();
-    appSettingsService.appSettings.set(null);
-
-    TestBed.resetTestingModule();
+    vi.resetAllMocks();
+    vi.mocked(TanStack.injectMutation).mockImplementation(vi.fn()
+      .mockReturnValueOnce({mutateAsync: attach})
+      .mockReturnValueOnce({mutateAsync: remove, isPending: () => false}));
     TestBed.configureTestingModule({
       providers: [
-        {provide: ChangeDetectorRef, useValue: changeDetectorRef},
-        {provide: DynamicDialogConfig, useValue: dialogConfig},
+        {provide: TanStack.QueryClient, useValue: {}},
+        {provide: DynamicDialogConfig, useValue: {data: {libraryId: 1}}},
         {provide: DynamicDialogRef, useValue: {close: vi.fn()}},
-        {provide: BookFileService, useValue: bookFileService},
-        {provide: BookService, useValue: bookService},
+        {provide: BookQueryService, useValue: {}},
+        {provide: BookCommandService, useValue: {}},
         {provide: ConfirmationService, useValue: confirmationService},
-        {provide: MessageService, useValue: messageService},
-        {provide: TranslocoService, useValue: translocoService},
-        {provide: UrlHelperService, useValue: urlHelper},
-        {provide: AppSettingsService, useValue: appSettingsService},
-      ]
+        {provide: MessageService, useValue: {add: vi.fn()}},
+        {provide: TranslocoService, useValue: {translate: (key: string) => key}},
+        {provide: UrlHelperService, useValue: {}},
+        {provide: AppSettingsService, useValue: {appSettings: () => null}},
+      ],
     });
-
     component = TestBed.runInInjectionContext(() => new DuplicateMergerComponent());
   });
 
   afterEach(() => {
     TestBed.resetTestingModule();
+    vi.restoreAllMocks();
   });
 
-  it('removes a deleted book from its group, dismisses the group, and notifies change detection', () => {
-    const deletedBookId = 2;
-
-    bookFileService.findDuplicates.mockReturnValue(of([
-      createGroup([createBook(1), createBook(2)]),
-    ]));
-    component.ngOnInit();
-    component.scan();
-
-    const group = component.groups[0];
-    component.toggleDeleteSelection(group, deletedBookId);
-
-    bookService.deleteBooks.mockReturnValue(of({deleted: [deletedBookId], failedFileDeletions: []}));
+  it('keeps failed deletions visible and selected after a partial deletion', async () => {
+    component.groups.set([{...group(1, 2, 3), selectedForDeletion: new Set([2, 3])}]);
+    remove.mockRejectedValue(new DeleteBooksPartialError(
+      {removedBookIds: [2], fileCleanupFailedBookIds: []}, [3], new Error('Book 3 could not be deleted'),
+    ));
     confirmationService.confirm.mockImplementation(config => config.accept());
 
-    component.deleteGroup(group);
+    component.deleteGroup(component.groups()[0]);
+    await vi.waitFor(() => expect(component.groups()[0].books.map(current => current.id)).toEqual([1, 3]));
+    expect(component.groups()[0].selectedForDeletion).toEqual(new Set([3]));
+  });
 
-    expect(group.books.map(book => book.id)).toEqual([1]);
-    expect(group.dismissed).toBe(true);
-    expect(changeDetectorRef.markForCheck).toHaveBeenCalledOnce();
+  it('stops scheduling merges when the dialog closes during an in-flight merge', async () => {
+    component.groups.set([group(1, 2), group(3, 4)]);
+    let finishFirstMerge!: () => void;
+    attach.mockReturnValueOnce(new Promise<void>(resolve => {finishFirstMerge = resolve;}));
+
+    const merging = component.mergeGroups(component.groups(), true);
+    component.closeDialog();
+    finishFirstMerge();
+    await merging;
+
+    expect(attach).toHaveBeenCalledTimes(1);
   });
 });

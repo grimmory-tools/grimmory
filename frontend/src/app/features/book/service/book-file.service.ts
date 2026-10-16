@@ -2,7 +2,7 @@ import {inject, Injectable} from '@angular/core';
 import {Observable, throwError, from} from 'rxjs';
 import {HttpClient, HttpEventType, HttpRequest} from '@angular/common/http';
 import {catchError, filter, map, tap} from 'rxjs/operators';
-import {AdditionalFile, AdditionalFileType, Book, DetachBookFileResponse, DuplicateDetectionRequest, DuplicateGroup} from '../model/book.model';
+import {AdditionalFile, AdditionalFileType, Book, DetachBookFileResponse} from '../model/book.model';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {MessageService} from '@openng/optimus-ui/api';
 import {FileDownloadService} from '../../../shared/service/file-download.service';
@@ -10,7 +10,7 @@ import {CacheStorageService} from '../../../shared/service/cache-storage.service
 import {LocalSettingsService} from '../../../shared/service/local-settings.service';
 import {TranslocoService} from '@jsverse/transloco';
 import {QueryClient} from '@tanstack/angular-query-experimental';
-import {patchAttachedBookFilesInCache, patchBookInCacheWith, upsertBooksInCache} from './legacy-book-cache';
+import {patchBookInCacheWith, upsertBooksInCache} from './legacy-book-cache';
 import {mitigateWebkitUploadBug} from '../../../shared/util/mitigate-webkit-upload-bug';
 
 @Injectable({
@@ -194,35 +194,4 @@ export class BookFileService {
     );
   }
 
-  findDuplicates(request: DuplicateDetectionRequest): Observable<DuplicateGroup[]> {
-    return this.http.post<DuplicateGroup[]>(`${this.url}/duplicates`, request);
-  }
-
-  attachBookFiles(targetBookId: number, sourceBookIds: number[], moveFiles: boolean): Observable<{updatedBook: Book, deletedSourceBookIds: number[]}> {
-    return this.http.post<{updatedBook: Book, deletedSourceBookIds: number[]}>(`${this.url}/${targetBookId}/attach-file`, {
-      sourceBookIds,
-      moveFiles
-    }).pipe(
-      tap(response => {
-        patchAttachedBookFilesInCache(
-          this.queryClient,
-          response.updatedBook,
-          response.deletedSourceBookIds,
-        );
-        this.messageService.add({
-          severity: 'success',
-          summary: this.t.translate('book.bookService.toast.filesAttachedSummary'),
-          detail: this.t.translate('book.bookService.toast.filesAttachedDetail', {count: sourceBookIds.length})
-        });
-      }),
-      catchError(error => {
-        this.messageService.add({
-          severity: 'error',
-          summary: this.t.translate('book.bookService.toast.attachmentFailedSummary'),
-          detail: error?.error?.message || error?.message || this.t.translate('book.bookService.toast.attachmentFailedDetail')
-        });
-        return throwError(() => error);
-      })
-    );
-  }
 }
