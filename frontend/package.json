@@ -40,7 +40,7 @@
     "@stomp/rx-stomp": "^2.4.0",
     "@stomp/stompjs": "^7.4.0",
     "@tanstack/angular-query-experimental": "5.104.2",
-    "@tanstack/angular-table": "9.1.0",
+    "@tanstack/angular-table": "9.3.1",
     "@tanstack/angular-virtual": "^6.1.4",
     "chart.js": "^4.5.1",
     "chartjs-chart-matrix": "3.0.5",
