@@ -68,11 +68,11 @@ import static org.mockito.Mockito.when;
         "app.task.process-bookdrop-cron=*/1 * * * * *",
         "app.features.oidc-enabled=false"
 })
-@Import(BookBrowseServiceTest.TestConfig.class)
-class BookBrowseServiceTest {
+@Import(BookBrowseTest.TestConfig.class)
+class BookBrowseTest {
 
     @Autowired
-    private BookBrowseService browseService;
+    private BrowseService<BookEntity, Book> bookBrowse;
     @Autowired
     private BookRepository bookRepository;
     @MockitoBean
@@ -143,7 +143,7 @@ class BookBrowseServiceTest {
     }
 
     private BrowsePage<Book> browse(String sort, List<String> facet, String query, String cursor, int page, int size) {
-        return browseService.browse(sort, facet, query, cursor, PageRequest.of(page, size));
+        return bookBrowse.browse(sort, facet, query, cursor, PageRequest.of(page, size));
     }
 
     private String nextCursor(BrowsePage<Book> page) {
@@ -265,7 +265,7 @@ class BookBrowseServiceTest {
         em.flush();
 
         List<Long> pageIds = browse("title", null, null, null, 0, 20).content().stream().map(Book::getId).toList();
-        List<Long> allIds = browseService.findAllIds("title", null, null);
+        List<Long> allIds = bookBrowse.findAllIds("title", null, null);
 
         assertThat(allIds).isEqualTo(pageIds);
     }
@@ -275,7 +275,7 @@ class BookBrowseServiceTest {
         Long horror = book("H", List.of("Horror")).getId();
         book("R", List.of("Romance"));
         em.flush();
-        assertThat(browseService.findAllIds(null, List.of("genre:Horror"), null)).containsExactly(horror);
+        assertThat(bookBrowse.findAllIds(null, List.of("genre:Horror"), null)).containsExactly(horror);
     }
 
     @Test
@@ -286,8 +286,8 @@ class BookBrowseServiceTest {
         series.getMetadata().setSeriesName("Discworld");
         Long none = book("None", List.of()).getId();
         em.flush();
-        assertThat(browseService.findAllIds(null, List.of("+genre:Horror", "+genre:Romance"), null)).containsExactly(both);
-        assertThat(browseService.findAllIds(null, List.of("-genre:Romance", "-series:Discworld"), null))
+        assertThat(bookBrowse.findAllIds(null, List.of("+genre:Horror", "+genre:Romance"), null)).containsExactly(both);
+        assertThat(bookBrowse.findAllIds(null, List.of("-genre:Romance", "-series:Discworld"), null))
                 .containsExactlyInAnyOrder(horror, none);
     }
 
@@ -305,7 +305,7 @@ class BookBrowseServiceTest {
         em.persist(BookMetadataEntity.builder().book(outside).title("Outside").build());
         em.flush();
 
-        assertThat(browseService.findAllIds(null, null, null)).containsExactly(inLibrary);
+        assertThat(bookBrowse.findAllIds(null, null, null)).containsExactly(inLibrary);
     }
 
     @Test
@@ -314,7 +314,7 @@ class BookBrowseServiceTest {
         org.springframework.data.domain.Page<Book> page =
                 new org.springframework.data.domain.PageImpl<>(List.of(book), PageRequest.of(0, 20), 1);
 
-        BrowsePage<Book> wrapped = browseService.wrapLegacy(page, PageRequest.of(0, 20));
+        BrowsePage<Book> wrapped = bookBrowse.wrapLegacy(page, PageRequest.of(0, 20));
 
         assertThat(wrapped.content()).hasSize(1);
         assertThat(wrapped.page().totalElements()).isEqualTo(1);
@@ -351,7 +351,7 @@ class BookBrowseServiceTest {
         BrowsePage<Book> result = browse(null, null, null, null, 0, 20);
         assertThat(result.content()).isEmpty();
         assertThat(result.page().totalElements()).isZero();
-        assertThat(browseService.findAllIds(null, null, null)).isEmpty();
+        assertThat(bookBrowse.findAllIds(null, null, null)).isEmpty();
     }
 
     @Test
@@ -368,7 +368,7 @@ class BookBrowseServiceTest {
 
         assertThat(browse(null, null, null, null, 0, 20).content().stream().map(Book::getId))
                 .containsExactly(romance);
-        assertThat(browseService.findAllIds(null, null, null)).containsExactly(romance);
+        assertThat(bookBrowse.findAllIds(null, null, null)).containsExactly(romance);
     }
 
     private BookLoreUser noLibrariesUser() {
