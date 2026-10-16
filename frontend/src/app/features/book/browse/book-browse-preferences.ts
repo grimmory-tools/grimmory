@@ -16,12 +16,12 @@ import {
   type EntityViewPreferenceContext,
 } from '../../settings/user-management/entity-view-preferences';
 import {browseSortCriteria} from '../../../shared/browse/sort';
+import {sortTermsToken} from '../../../core/data/browse-query-params';
 import {
   DEFAULT_BOOK_SORT_TERMS,
-  sortTermsToken,
   type BookQuerySortKey,
   type BookSortTerm,
-} from '../../../core/data/browse-query-params';
+} from '../data/book-query-params';
 import {
   bookColumnOptions,
   bookVisibleColumnOptions,
@@ -45,7 +45,7 @@ export function createBookBrowsePreferences({context, availableSortKeys, urlStat
 
   const viewMode = computed<BookBrowseViewMode>(() =>
     urlState.view() ?? (entityViewMode(entityViewPreferences(), context()) === 'TABLE' ? 'table' : 'grid'));
-  const formatPill = computed(() => entityViewPreferences()?.global?.overlayBookType ?? true);
+  const formatPill = computed(() => entityViewPreferences()?.global.overlayBookType ?? true);
 
   const defaultSortTerms = computed<readonly BookSortTerm[]>(() => {
     const preferences = entityViewPreferences();

@@ -4,7 +4,7 @@ import { Tooltip } from '@openng/optimus-ui/tooltip';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LucideEllipsisVertical } from '@lucide/angular';
 import {injectQuery} from '@tanstack/angular-query-experimental';
-import {BookQueryService} from '../../../core/data/browse-query.service';
+import {BookQueryService} from '../../../features/book/data/book-query.service';
 import {AuthService} from '../../service/auth.service';
 import { IconSelection, toIconSelection } from '../../icons/icon-selection';
 

@@ -10,7 +10,7 @@ import { createQueryClientHarness } from '../../core/testing/query-testing';
 import { getTranslocoModule } from '../../core/testing/transloco-testing';
 import { BookDialogHelperService } from '../book/service/book-dialog-helper.service';
 import { BookPage } from '../book/data/book-query.models';
-import { BookQueryService } from '../../core/data/browse-query.service';
+import { BookQueryService } from '../book/data/book-query.service';
 import { BookSummary } from '../book/data/book-response.models';
 import { LibraryService } from '../book/service/library.service';
 import { ShelfService } from '../book/service/shelf.service';

@@ -14,7 +14,7 @@ import {
   ContentRestrictionType
 } from '../content-restriction.model';
 import {ContentRestrictionService} from '../content-restriction.service';
-import {type BookQueryFacetKey} from '../../../../core/data/browse-query-params';
+import {type BookQueryFacetKey} from '../../../book/data/book-query-params';
 import {FacetSuggestionsDirective} from '../../../book/components/facet-suggestions.directive';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 

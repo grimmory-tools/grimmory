@@ -5,7 +5,7 @@ import {QueryClient} from '@tanstack/angular-query-experimental';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {API_CONFIG} from '../../../core/config/api-config';
-import {bookQueryKeys} from '../../../core/data/browse-query-keys';
+import {bookQueryKeys} from '../../book/data/book-query-keys';
 import {AUTHORS_QUERY_KEY} from '../../author-browser/service/author-query-keys';
 import {SidecarService} from './sidecar.service';
 

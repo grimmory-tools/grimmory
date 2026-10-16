@@ -4,7 +4,7 @@ import {AutoComplete, type AutoCompleteCompleteEvent} from '@openng/optimus-ui/a
 import {provideTanStackQuery, QueryClient} from '@tanstack/angular-query-experimental';
 import {expect, it, vi} from 'vitest';
 
-import {BookQueryService} from '../../../core/data/browse-query.service';
+import {BookQueryService} from '../data/book-query.service';
 import {FacetSuggestionsDirective} from './facet-suggestions.directive';
 
 @Component({

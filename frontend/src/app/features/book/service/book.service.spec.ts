@@ -8,7 +8,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {createAuthServiceStub, createQueryClientHarness, flushSignalAndQueryEffects, flushQueryAsync} from '../../../core/testing/query-testing';
 import type {Book, BookMetadata} from '../model/book.model';
 import type {Shelf} from '../model/shelf.model';
-import {bookQueryKeys} from '../../../core/data/browse-query-keys';
+import {bookQueryKeys} from '../data/book-query-keys';
 import {AuthService} from '../../../shared/service/auth.service';
 import {BookPatchService} from './book-patch.service';
 import {BOOKS_QUERY_KEY} from './book-query-keys';

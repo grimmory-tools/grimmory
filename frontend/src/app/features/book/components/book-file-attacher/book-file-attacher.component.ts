@@ -17,9 +17,9 @@ import {debouncedSignal} from '../../../../shared/util/debounced-signal';
 import {SEARCH_DEBOUNCE_MS} from '../../../../shared/util/search-terms';
 import {BookCommandService} from '../../data/book-command.service';
 import {injectBookActionFeedback} from '../../service/book-action-feedback';
-import {DEFAULT_BOOK_SORT_TERMS} from '../../../../core/data/browse-query-params';
+import {DEFAULT_BOOK_SORT_TERMS} from '../../data/book-query-params';
 import {BookSummary} from '../../data/book-response.models';
-import {BookQueryService} from '../../../../core/data/browse-query.service';
+import {BookQueryService} from '../../data/book-query.service';
 import {legacyBookCachePatches, withLegacyBookCache} from '../../service/book-command-legacy-adapter';
 
 const SEARCH_PAGE_SIZE = 100;

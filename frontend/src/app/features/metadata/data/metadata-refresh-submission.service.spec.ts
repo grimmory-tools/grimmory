@@ -11,7 +11,7 @@ import {
   MetadataBatchStatus,
 } from '../../../shared/model/metadata-batch-progress.model';
 import {AUTHORS_QUERY_KEY} from '../../author-browser/service/author-query-keys';
-import {bookQueryKeys} from '../../../core/data/browse-query-keys';
+import {bookQueryKeys} from '../../book/data/book-query-keys';
 import {MetadataRefreshSubmissionService} from './metadata-refresh-submission.service';
 
 function batchProgress(status: MetadataBatchStatus): MetadataBatchProgressNotification {
@@ -71,7 +71,7 @@ describe('MetadataRefreshSubmissionService batch reconciliation', () => {
     expect(invalidate).not.toHaveBeenCalled();
 
     service.handleBatchProgress(batchProgress(MetadataBatchStatus.COMPLETED));
-    expect(invalidate).toHaveBeenCalledTimes(2);
+    expect(invalidate).toHaveBeenCalledTimes(4);
   });
 
 });

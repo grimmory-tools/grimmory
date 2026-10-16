@@ -10,7 +10,7 @@ import {getTranslocoModule} from '../../../../core/testing/transloco-testing';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {BookCommandService} from '../../data/book-command.service';
 import {BookSummary} from '../../data/book-response.models';
-import {BookQueryService} from '../../../../core/data/browse-query.service';
+import {BookQueryService} from '../../data/book-query.service';
 import {BookFileAttacherComponent} from './book-file-attacher.component';
 
 function book(id: number): BookSummary {

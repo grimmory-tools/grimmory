@@ -6,7 +6,7 @@ import {createAuthServiceStub, createQueryClientHarness, flushSignalAndQueryEffe
 import {AuthService} from '../../../shared/service/auth.service';
 import type {GroupRule} from '../component/magic-shelf-component';
 import {MagicShelfService, type MagicShelf} from './magic-shelf.service';
-import {bookQueryKeys} from '../../../core/data/browse-query-keys';
+import {bookQueryKeys} from '../../book/data/book-query-keys';
 
 function buildMagicShelf(overrides: Partial<MagicShelf> = {}): MagicShelf {
   return {

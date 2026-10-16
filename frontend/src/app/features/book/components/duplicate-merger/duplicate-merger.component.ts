@@ -25,7 +25,7 @@ import {formatFileSizeKb} from '../../../../shared/util/file-size';
 import {DeleteBooksPartialError} from '../../data/book-command.models';
 import {BookCommandService} from '../../data/book-command.service';
 import {BookDuplicateGroup} from '../../data/book-query.models';
-import {BookQueryService} from '../../../../core/data/browse-query.service';
+import {BookQueryService} from '../../data/book-query.service';
 import {BookDetail} from '../../data/book-response.models';
 import {injectBookActionFeedback} from '../../service/book-action-feedback';
 import {
