@@ -10,8 +10,8 @@ import {BookService} from '../../../book/service/book.service';
 import {BookCardOverlayPreferenceService} from '../../../book/components/legacy-book-card/book-card-overlay-preference.service';
 import {CoverScalePreferenceService} from '../../../../shared/service/cover-scale-preference.service';
 import {UserService} from '../../../settings/user-management/user.service';
-import type {AuthorDetails} from '../../model/author.model';
-import {AuthorService} from '../../service/author.service';
+import type {AuthorDetails} from '../../../author-browser/model/author.model';
+import {AuthorService} from '../../../author-browser/service/author.service';
 import {PageTitleService} from '../../../../shared/service/page-title.service';
 import {AuthorDetailComponent} from './author-detail.component';
 

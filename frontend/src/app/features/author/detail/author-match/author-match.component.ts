@@ -6,8 +6,8 @@ import {Select} from '@openng/optimus-ui/select';
 import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {MessageService} from '@openng/optimus-ui/api';
-import {AuthorService} from '../../service/author.service';
-import {AuthorDetails, AuthorMatchRequest, AuthorSearchResult} from '../../model/author.model';
+import {AuthorService} from '../../../author-browser/service/author.service';
+import {AuthorDetails, AuthorMatchRequest, AuthorSearchResult} from '../../../author-browser/model/author.model';
 
 interface RegionOption {
   label: string;
