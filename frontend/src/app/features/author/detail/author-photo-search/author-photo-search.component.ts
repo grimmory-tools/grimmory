@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, computed, inject, OnInit, signal} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Button} from '@openng/optimus-ui/button';
 import {InputText} from '@openng/optimus-ui/inputtext';
@@ -8,9 +8,10 @@ import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {MessageService} from '@openng/optimus-ui/api';
-import {finalize} from 'rxjs/operators';
-import {AuthorService} from '../../../author-browser/service/author.service';
-import {AuthorPhotoResult} from '../../../author-browser/model/author.model';
+import {injectMutation, injectQuery, QueryClient} from '@tanstack/angular-query-experimental';
+import {AuthorCommandService} from '../../data/author-command.service';
+import {AuthorQueryService} from '../../data/author-query.service';
+import {type AuthorPhotoResult} from '../../data/author-response.models';
 
 @Component({
   selector: 'app-author-photo-search',
@@ -27,18 +28,27 @@ import {AuthorPhotoResult} from '../../../author-browser/model/author.model';
   ]
 })
 export class AuthorPhotoSearchComponent implements OnInit {
-  private readonly fb = inject(FormBuilder);
-  private readonly authorService = inject(AuthorService);
-  private readonly dynamicDialogConfig = inject(DynamicDialogConfig);
-  protected dynamicDialogRef = inject(DynamicDialogRef);
-  private readonly messageService = inject(MessageService);
-  private readonly t = inject(TranslocoService);
+  private readonly authorQueries = inject(AuthorQueryService);
+  private readonly authorCommands = inject(AuthorCommandService);
+  private readonly queryClient = inject(QueryClient);
   searchForm: FormGroup;
-  photos: AuthorPhotoResult[] = [];
-  searching = false;
-  hasSearched = false;
 
-  private authorId!: number;
+  private fb = inject(FormBuilder);
+  private dynamicDialogConfig = inject(DynamicDialogConfig);
+  protected dynamicDialogRef = inject(DynamicDialogRef);
+  private messageService = inject(MessageService);
+  private t = inject(TranslocoService);
+
+  private readonly authorId: number = this.dynamicDialogConfig.data.authorId;
+  private readonly submitted = signal<string | null>(null);
+  private readonly photoQuery = injectQuery(() => ({
+    ...this.authorQueries.photoSearch(this.authorId, this.submitted() ?? ''),
+    enabled: this.submitted() !== null,
+  }));
+  private readonly uploadMutation = injectMutation(() => this.authorCommands.uploadPhotoFromUrl());
+  readonly photos = computed(() => [...(this.photoQuery.data() ?? [])].sort((a, b) => a.index - b.index));
+  readonly searching = this.photoQuery.isFetching;
+  readonly hasSearched = computed(() => this.submitted() !== null);
 
   constructor() {
     this.searchForm = this.fb.group({
@@ -47,7 +57,6 @@ export class AuthorPhotoSearchComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.authorId = this.dynamicDialogConfig.data.authorId;
     const authorName = this.dynamicDialogConfig.data.authorName;
 
     if (authorName) {
@@ -60,28 +69,14 @@ export class AuthorPhotoSearchComponent implements OnInit {
 
   onSearch(): void {
     if (!this.searchForm.valid) return;
-    this.searching = true;
-    this.photos = [];
-
-    this.authorService.searchAuthorPhotos(this.authorId, this.searchForm.value.query)
-      .pipe(finalize(() => {
-        this.searching = false;
-        this.hasSearched = true;
-      }))
-      .subscribe({
-        next: (photo) => {
-          this.photos.push(photo);
-          this.photos.sort((a, b) => a.index - b.index);
-        },
-        error: () => {
-          console.error('Error searching photos');
-        }
-      });
+    const query: string = this.searchForm.value.query;
+    void this.queryClient.resetQueries({queryKey: this.authorQueries.photoSearch(this.authorId, query).queryKey, exact: true});
+    this.submitted.set(query);
   }
 
   selectAndUploadPhoto(photo: AuthorPhotoResult): void {
-    this.authorService.uploadAuthorPhotoFromUrl(this.authorId, photo.url).subscribe({
-      next: () => {
+    this.uploadMutation.mutateAsync({authorId: this.authorId, url: photo.url}).then(
+      () => {
         this.messageService.add({
           severity: 'success',
           summary: this.t.translate('authorBrowser.editor.toast.photoUploadedSummary'),
@@ -89,19 +84,18 @@ export class AuthorPhotoSearchComponent implements OnInit {
         });
         this.dynamicDialogRef.close(true);
       },
-      error: () => {
+      () => {
         this.messageService.add({
           severity: 'error',
           summary: this.t.translate('authorBrowser.editor.toast.errorSummary'),
           detail: this.t.translate('authorBrowser.editor.toast.photoUploadErrorDetail')
         });
       }
-    });
+    );
   }
 
   onClear(): void {
     this.searchForm.reset();
-    this.photos = [];
-    this.hasSearched = false;
+    this.submitted.set(null);
   }
 }

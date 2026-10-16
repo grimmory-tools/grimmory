@@ -261,9 +261,6 @@ importers:
       ngx-infinite-scroll:
         specifier: ^22.0.0
         version: 22.0.0(@angular/common@22.2.2(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))
-      ngx-sse-client:
-        specifier: ^21.0.0
-        version: 21.0.0(@angular/common@22.2.2(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))
       rxjs:
         specifier: ^7.8.2
         version: 7.8.2
@@ -3837,12 +3834,6 @@ packages:
     peerDependencies:
       '@angular/common': '>=22.0.0 <23.0.0'
       '@angular/core': '>=22.0.0 <23.0.0'
-
-  ngx-sse-client@21.0.0:
-    resolution: {integrity: sha512-ZkX+42YPfD1G6ZXQufgXt7ozMtdss94NF6H7HsLJxkE0lNFuUtg+YlDoA08dtDz31Nhqgw6DNiDAM+UXmwGXCg==}
-    peerDependencies:
-      '@angular/common': '>=21.0.0'
-      '@angular/core': '>=21.0.0'
 
   node-addon-api@6.1.0:
     resolution: {integrity: sha512-+eawOlIgy680F0kBzPUNFhMZGtJ1YmqM6l4+Crf4IkImjYrO/mqPwRMh352g23uIaQKFItcQ64I7KMaJxHgAVA==}
@@ -7947,12 +7938,6 @@ snapshots:
       tslib: 2.8.1
 
   ngx-infinite-scroll@22.0.0(@angular/common@22.2.2(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2)):
-    dependencies:
-      '@angular/common': 22.2.2(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))(rxjs@7.8.2)
-      '@angular/core': 22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2)
-      tslib: 2.8.1
-
-  ngx-sse-client@21.0.0(@angular/common@22.2.2(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2)):
     dependencies:
       '@angular/common': 22.2.2(@angular/core@22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2))(rxjs@7.8.2)
       '@angular/core': 22.2.2(@angular/compiler@22.2.2)(rxjs@7.8.2)

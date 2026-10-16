@@ -6,7 +6,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {API_CONFIG} from '../../../core/config/api-config';
 import {bookQueryKeys} from '../../book/data/book-query-keys';
-import {AUTHORS_QUERY_KEY} from '../../author-browser/service/author-query-keys';
+import {authorQueryKeys} from '../../author/data/author-query-keys';
 import {SidecarService} from './sidecar.service';
 
 describe('SidecarService', () => {
@@ -60,7 +60,7 @@ describe('SidecarService', () => {
 
     expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: ['books', 'detail', 42]});
     expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: bookQueryKeys.collections()});
-    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: AUTHORS_QUERY_KEY, exact: true});
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: authorQueryKeys.collections()});
   });
 
   it('bulk exports sidecars for a library', () => {
@@ -87,6 +87,6 @@ describe('SidecarService', () => {
     request.flush({message: 'imported', imported: 2});
 
     expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: bookQueryKeys.all()});
-    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: AUTHORS_QUERY_KEY, exact: true});
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: authorQueryKeys.collections()});
   });
 });

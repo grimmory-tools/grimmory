@@ -1,7 +1,8 @@
 <ng-container *transloco="let t; prefix: 'authorBrowser.detail'">
   @if (loading()) {
     <div class="loading-state">
-      <p-progressSpinner strokeWidth="4" fill="transparent" animationDuration=".8s" />
+      <p-progressSpinner strokeWidth="4" fill="transparent" animationDuration=".8s">
+      </p-progressSpinner>
       <p style="color: var(--primary-color);">{{ t('loading') }}</p>
     </div>
   }
@@ -49,32 +50,33 @@
                        target="_blank"
                        rel="noopener noreferrer"
                        class="asin-link">
-                      <p-tag [value]="'ASIN: ' + author.asin" severity="info" />
+                      <p-tag [value]="'ASIN: ' + author.asin" severity="info"></p-tag>
                     </a>
                     <a [href]="'https://www.audible.com/author/' + author.asin"
                        target="_blank"
                        rel="noopener noreferrer"
                        class="asin-link">
-                      <p-tag value="Audible" severity="warn" />
+                      <p-tag value="Audible" severity="warn"></p-tag>
                     </a>
                   }
                   @if (canEditMetadata) {
                     <p-button
-                      [icon]="quickMatching ? 'pi pi-spin pi-spinner' : 'pi pi-bolt'"
+                      [icon]="authorQuickMatch.isPending() ? 'pi pi-spin pi-spinner' : 'pi pi-bolt'"
                       [outlined]="true"
                       severity="warn"
                       size="small"
-                      [disabled]="quickMatching"
+                      [disabled]="authorQuickMatch.isPending()"
                       (onClick)="quickMatch()"
                       [pTooltip]="t('quickMatchTooltip')"
-                      tooltipPosition="top" />
+                      tooltipPosition="top">
+                    </p-button>
                   }
                 </div>
 
                 @if (author.description) {
                   <div class="description-box">
                     <div #descriptionContent
-                      [class.line-clamp-5]="!isExpanded"
+                      [ngClass]="{'line-clamp-5': !isExpanded}"
                       class="description-container">
                       <div class="readonly-editor">{{ author.description }}</div>
                     </div>
@@ -85,7 +87,8 @@
                         iconPos="right"
                         size="small"
                         text
-                        (click)="toggleExpand()" />
+                        (click)="toggleExpand()">
+                      </p-button>
                     }
                   </div>
                 }
@@ -117,7 +120,8 @@
                                 [index]="virtualItem.index"
                                 [book]="book"
                                 [isSeriesCollapsed]="false"
-                                [overlayPreferenceService]="bookCardOverlayPreferenceService" />
+                                [overlayPreferenceService]="bookCardOverlayPreferenceService">
+                              </app-legacy-book-card>
                             </div>
                           </div>
                         }
@@ -134,13 +138,16 @@
               <app-author-editor
                 [authorId]="author.id"
                 [author]="author"
-                (authorUpdated)="onAuthorUpdated($event)" />
+                [photoTimestamp]="photoTimestamp"
+                (authorUpdated)="onAuthorUpdated()">
+              </app-author-editor>
             </p-tabpanel>
             <p-tabpanel value="match">
               <app-author-match
                 [authorId]="author.id"
                 [authorName]="author.name"
-                (authorMatched)="onAuthorUpdated($event)" />
+                (authorMatched)="onAuthorUpdated()">
+              </app-author-match>
             </p-tabpanel>
           }
         </p-tabpanels>

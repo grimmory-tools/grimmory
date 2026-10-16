@@ -3,23 +3,24 @@ import {TestBed} from '@angular/core/testing';
 import {TranslocoService} from '@jsverse/transloco';
 import {MessageService} from '@openng/optimus-ui/api';
 import {ActivatedRoute, convertToParamMap, Router} from '@angular/router';
-import {Subject, of, throwError} from 'rxjs';
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi, type Mock} from 'vitest';
 
 import {BookService} from '../../../book/service/book.service';
 import {BookCardOverlayPreferenceService} from '../../../book/components/legacy-book-card/book-card-overlay-preference.service';
 import {CoverScalePreferenceService} from '../../../../shared/service/cover-scale-preference.service';
 import {UserService} from '../../../settings/user-management/user.service';
-import type {AuthorDetails} from '../../../author-browser/model/author.model';
-import {AuthorService} from '../../../author-browser/service/author.service';
+import type {AuthorDetail} from '../../data/author-response.models';
+import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {PageTitleService} from '../../../../shared/service/page-title.service';
 import {AuthorDetailComponent} from './author-detail.component';
+import {authorQueryKeys} from '../../data/author-query-keys';
+import {createQueryClientHarness, flushQueryAsync} from '../../../../core/testing/query-testing';
+import {AuthorCommandService} from '../../data/author-command.service';
+import {AuthorQueryService} from '../../data/author-query.service';
 
 describe('AuthorDetailComponent', () => {
-  let getAuthorDetails: ReturnType<typeof vi.fn>;
+  let getAuthorDetails: Mock<(authorId: number) => Promise<AuthorDetail>>;
   let getAuthorPhotoUrl: ReturnType<typeof vi.fn>;
-  let patchAuthorInCache: ReturnType<typeof vi.fn>;
-  let quickMatchAuthor: ReturnType<typeof vi.fn>;
   let getCurrentUser: ReturnType<typeof vi.fn>;
   let setPageTitle: ReturnType<typeof vi.fn>;
   let translate: ReturnType<typeof vi.fn>;
@@ -31,7 +32,7 @@ describe('AuthorDetailComponent', () => {
     };
   };
 
-  const baseAuthor: AuthorDetails = {
+  const baseAuthor: AuthorDetail = {
     id: 9,
     name: 'Ada Lovelace',
     description: 'Analytical engine pioneer',
@@ -50,10 +51,8 @@ describe('AuthorDetailComponent', () => {
   const createComponent = () => TestBed.runInInjectionContext(() => new AuthorDetailComponent());
 
   beforeEach(() => {
-    getAuthorDetails = vi.fn();
-    getAuthorPhotoUrl = vi.fn((authorId: number) => `/api/authors/${authorId}/photo`);
-    patchAuthorInCache = vi.fn();
-    quickMatchAuthor = vi.fn();
+    getAuthorDetails = vi.fn<(authorId: number) => Promise<AuthorDetail>>();
+    getAuthorPhotoUrl = vi.fn((authorId: number, version?: number) => `/api/authors/${authorId}/photo?${version}`);
     getCurrentUser = vi.fn(() => null);
     setPageTitle = vi.fn();
     translate = vi.fn((key: string) => key);
@@ -67,8 +66,11 @@ describe('AuthorDetailComponent', () => {
       },
     };
 
+    const harness = createQueryClientHarness();
+
     TestBed.configureTestingModule({
       providers: [
+        ...harness.providers,
         {
           provide: ActivatedRoute,
           useValue: route,
@@ -78,12 +80,21 @@ describe('AuthorDetailComponent', () => {
           useValue: {},
         },
         {
-          provide: AuthorService,
+          provide: UrlHelperService,
           useValue: {
-            getAuthorDetails,
             getAuthorPhotoUrl,
-            patchAuthorInCache,
-            quickMatchAuthor,
+          },
+        },
+        {
+          provide: AuthorQueryService,
+          useValue: {
+            detail: (authorId: number) => ({queryKey: authorQueryKeys.detail(authorId), queryFn: () => getAuthorDetails(authorId), retry: false}),
+          },
+        },
+        {
+          provide: AuthorCommandService,
+          useValue: {
+            quickMatch: () => ({mutationFn: vi.fn()}),
           },
         },
         {
@@ -133,13 +144,13 @@ describe('AuthorDetailComponent', () => {
     vi.restoreAllMocks();
   });
 
-  it('loads the author from the route, honors the tab query param, and updates page title on success', () => {
+  it('loads the author from the route, honors the tab query param, and updates page title on success', async () => {
     setRouteState(42, 'series');
-    getAuthorDetails.mockReturnValue(of({...baseAuthor, id: 42, name: 'Grace Hopper'}));
+    getAuthorDetails.mockResolvedValue({...baseAuthor, id: 42, name: 'Grace Hopper'});
 
     const component = createComponent();
-
     component.ngOnInit();
+    await flushQueryAsync();
 
     expect(getAuthorDetails).toHaveBeenCalledWith(42);
     expect(component.tab).toBe('series');
@@ -148,13 +159,13 @@ describe('AuthorDetailComponent', () => {
     expect(setPageTitle).toHaveBeenCalledWith('Grace Hopper');
   });
 
-  it('keeps the default tab and clears loading when author load fails', () => {
+  it('keeps the default tab and clears loading when author load fails', async () => {
     setRouteState(9);
-    getAuthorDetails.mockReturnValue(throwError(() => new Error('load failed')));
+    getAuthorDetails.mockRejectedValue(new Error('load failed'));
 
     const component = createComponent();
-
     component.ngOnInit();
+    await flushQueryAsync();
 
     expect(component.tab).toBe('books');
     expect(component.loading()).toBe(false);
@@ -162,17 +173,16 @@ describe('AuthorDetailComponent', () => {
     expect(setPageTitle).not.toHaveBeenCalled();
   });
 
-  it('derives photoUrl from the loaded author state and gates canEditMetadata from user permissions', () => {
-    const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(321);
+  it('derives photoUrl from the loaded author and gates canEditMetadata from user permissions', async () => {
+    getAuthorDetails.mockResolvedValue(baseAuthor);
+    vi.spyOn(Date, 'now').mockReturnValue(321);
     const component = createComponent();
 
     expect(component.photoUrl).toBe('');
     expect(component.canEditMetadata).toBe(false);
 
-    component.onAuthorUpdated(baseAuthor);
-
-    expect(nowSpy).toHaveBeenCalled();
-    expect(component.photoUrl).toBe('/api/authors/9/photo&t=321');
+    await flushQueryAsync();
+    expect(component.photoUrl).toBe('/api/authors/9/photo?321');
 
     getCurrentUser.mockReturnValue({permissions: {admin: false, canEditMetadata: true}});
     expect(component.canEditMetadata).toBe(true);
@@ -198,101 +208,5 @@ describe('AuthorDetailComponent', () => {
     });
 
     expect(component.isOverflowing).toBe(true);
-  });
-
-  it('patches the cached author summary and refreshes photo state when the author is updated', () => {
-    const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(777);
-    const component = createComponent();
-
-    component.hasPhoto = false;
-    component.photoTimestamp = 10;
-
-    component.onAuthorUpdated({
-      ...baseAuthor,
-      asin: 'B00UPDATED',
-    });
-
-    expect(component.author()).toEqual({
-      ...baseAuthor,
-      asin: 'B00UPDATED',
-    });
-    expect(component.hasPhoto).toBe(true);
-    expect(component.photoTimestamp).toBe(777);
-    expect(patchAuthorInCache).toHaveBeenCalledWith(9, {
-      name: 'Ada Lovelace',
-      asin: 'B00UPDATED',
-      hasPhoto: true,
-    });
-    expect(nowSpy).toHaveBeenCalled();
-  });
-
-  it('guards quickMatch when there is no author loaded or a match is already in flight', () => {
-    const component = createComponent();
-
-    component.quickMatch();
-    expect(quickMatchAuthor).not.toHaveBeenCalled();
-
-    component.onAuthorUpdated(baseAuthor);
-    vi.clearAllMocks();
-    component.quickMatching = true;
-
-    component.quickMatch();
-
-    expect(quickMatchAuthor).not.toHaveBeenCalled();
-  });
-
-  it('quick-matches the loaded author, patches state, and reports a translated success toast', () => {
-    const quickMatch$ = new Subject<AuthorDetails>();
-    const matchedAuthor: AuthorDetails = {
-      ...baseAuthor,
-      asin: 'B00MATCH',
-    };
-    quickMatchAuthor.mockReturnValue(quickMatch$);
-
-    const component = createComponent();
-    component.onAuthorUpdated(baseAuthor);
-    vi.clearAllMocks();
-
-    component.quickMatch();
-
-    expect(quickMatchAuthor).toHaveBeenCalledWith(9);
-    expect(component.quickMatching).toBe(true);
-
-    quickMatch$.next(matchedAuthor);
-    quickMatch$.complete();
-
-    expect(component.quickMatching).toBe(false);
-    expect(component.author()).toEqual(matchedAuthor);
-    expect(patchAuthorInCache).toHaveBeenCalledWith(9, {
-      name: 'Ada Lovelace',
-      asin: 'B00MATCH',
-      hasPhoto: true,
-    });
-    expect(translate).toHaveBeenCalledWith('authorBrowser.toast.quickMatchSuccessSummary');
-    expect(translate).toHaveBeenCalledWith('authorBrowser.toast.quickMatchSuccessDetail');
-    expect(messageService.add).toHaveBeenCalledWith({
-      severity: 'success',
-      summary: 'authorBrowser.toast.quickMatchSuccessSummary',
-      detail: 'authorBrowser.toast.quickMatchSuccessDetail',
-    });
-  });
-
-  it('clears the in-flight quick-match flag and reports a translated error toast on failure', () => {
-    quickMatchAuthor.mockReturnValue(throwError(() => new Error('quick match failed')));
-
-    const component = createComponent();
-    component.onAuthorUpdated(baseAuthor);
-    vi.clearAllMocks();
-
-    component.quickMatch();
-
-    expect(component.quickMatching).toBe(false);
-    expect(translate).toHaveBeenCalledWith('authorBrowser.toast.quickMatchFailedSummary');
-    expect(translate).toHaveBeenCalledWith('authorBrowser.toast.quickMatchFailedDetail');
-    expect(messageService.add).toHaveBeenCalledWith({
-      severity: 'error',
-      summary: 'authorBrowser.toast.quickMatchFailedSummary',
-      detail: 'authorBrowser.toast.quickMatchFailedDetail',
-    });
   });
 });

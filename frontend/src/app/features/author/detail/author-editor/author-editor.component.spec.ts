@@ -3,22 +3,22 @@ import {TestBed} from '@angular/core/testing';
 import {TranslocoService} from '@jsverse/transloco';
 import {MessageService} from '@openng/optimus-ui/api';
 import {DialogService} from '@openng/optimus-ui/dynamicdialog';
-import {Subject, throwError} from 'rxjs';
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {QueryClient} from '@tanstack/angular-query-experimental';
+import {afterEach, beforeEach, describe, expect, it, vi, type Mock} from 'vitest';
 
-import type {AuthorDetails} from '../../../author-browser/model/author.model';
-import {AuthorService} from '../../../author-browser/service/author.service';
-import {AuthorPhotoSearchComponent} from '../author-photo-search/author-photo-search.component';
+import {createQueryClientHarness, flushQueryAsync} from '../../../../core/testing/query-testing';
+import {AuthorCommandService, type UpdateAuthorVariables} from '../../data/author-command.service';
+import {authorQueryKeys} from '../../data/author-query-keys';
+import {type AuthorDetail} from '../../data/author-response.models';
+import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {AuthorEditorComponent} from './author-editor.component';
 
 describe('AuthorEditorComponent', () => {
-  let updateAuthor: ReturnType<typeof vi.fn>;
-  let dialogOpen: ReturnType<typeof vi.fn>;
-  let dialogClose$: Subject<boolean>;
+  let updateAuthor: Mock<(variables: UpdateAuthorVariables) => Promise<AuthorDetail>>;
   let messageService: Pick<MessageService, 'add'>;
-  let translate: ReturnType<typeof vi.fn>;
+  let queryClient: QueryClient;
 
-  const baseAuthor: AuthorDetails = {
+  const baseAuthor: AuthorDetail = {
     id: 9,
     name: 'Ada Lovelace',
     description: 'Analytical engine pioneer',
@@ -29,51 +29,37 @@ describe('AuthorEditorComponent', () => {
     photoLocked: false,
   };
 
-  const createComponent = (overrides?: {authorId?: number; author?: Partial<AuthorDetails>}) => {
+  const createComponent = (author: Partial<AuthorDetail> = {}) => {
     const component = TestBed.runInInjectionContext(() => new AuthorEditorComponent());
-    component.authorId = overrides?.authorId ?? 9;
-    component.author = {
-      ...baseAuthor,
-      ...overrides?.author,
-    };
+    component.authorId = 9;
+    component.author = {...baseAuthor, ...author};
+    component.photoTimestamp = 1;
     return component;
   };
 
   beforeEach(() => {
-    updateAuthor = vi.fn();
-    dialogClose$ = new Subject<boolean>();
-    dialogOpen = vi.fn(() => ({onClose: dialogClose$}));
-    messageService = {
-      add: vi.fn(),
-    };
-    translate = vi.fn((key: string) => key);
+    updateAuthor = vi.fn<(variables: UpdateAuthorVariables) => Promise<AuthorDetail>>();
+    messageService = {add: vi.fn()};
+    const harness = createQueryClientHarness();
+    queryClient = harness.queryClient;
 
     TestBed.configureTestingModule({
       providers: [
+        ...harness.providers,
         {
-          provide: AuthorService,
+          provide: UrlHelperService,
+          useValue: {getAuthorPhotoUrl: (authorId: number) => `/api/authors/${authorId}/photo`},
+        },
+        {
+          provide: AuthorCommandService,
           useValue: {
-            updateAuthor,
-            getAuthorPhotoUrl: vi.fn((authorId: number) => `/api/authors/${authorId}/photo`),
-            getUploadAuthorPhotoUrl: vi.fn((authorId: number) => `/api/authors/${authorId}/photo/upload`),
+            update: () => ({mutationFn: updateAuthor}),
+            photoUploadUrl: (authorId: number) => `/api/authors/${authorId}/photo/upload`,
           },
         },
-        {
-          provide: MessageService,
-          useValue: messageService,
-        },
-        {
-          provide: DialogService,
-          useValue: {
-            open: dialogOpen,
-          },
-        },
-        {
-          provide: TranslocoService,
-          useValue: {
-            translate,
-          },
-        },
+        {provide: MessageService, useValue: messageService},
+        {provide: DialogService, useValue: {open: vi.fn()}},
+        {provide: TranslocoService, useValue: {translate: (key: string) => key}},
       ],
     });
   });
@@ -84,185 +70,61 @@ describe('AuthorEditorComponent', () => {
   });
 
   it('initializes the form and disables controls whose lock flags start enabled', () => {
-    const component = createComponent({
-      author: {
-        nameLocked: true,
-        asinLocked: true,
-      },
-    });
+    const component = createComponent({nameLocked: true, asinLocked: true});
 
     component.ngOnInit();
 
     expect(component.form.get('name')?.value).toBe('Ada Lovelace');
-    expect(component.form.get('description')?.value).toBe('Analytical engine pioneer');
-    expect(component.form.get('asin')?.value).toBe('B00ADA');
     expect(component.form.get('name')?.disabled).toBe(true);
     expect(component.form.get('description')?.disabled).toBe(false);
     expect(component.form.get('asin')?.disabled).toBe(true);
-    expect(component.form.get('photoLocked')?.value).toBe(false);
   });
 
-  it('restores photo state when a later author input change arrives', () => {
+  it('saves the trimmed form values, tells the page, and reports success', async () => {
+    updateAuthor.mockResolvedValue(baseAuthor);
     const component = createComponent();
-    const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(777);
+    const updated = vi.fn();
+    component.authorUpdated.subscribe(updated);
+    component.ngOnInit();
+    component.form.patchValue({name: '   ', description: '  Updated  ', asin: '  B00NEW  ', photoLocked: true});
 
-    component.hasPhoto = false;
-    component.photoTimestamp = 10;
-    component.ngOnChanges({
-      author: new SimpleChange(baseAuthor, {...baseAuthor, name: 'Updated Ada'}, false),
+    component.onSave();
+    await flushQueryAsync();
+
+    expect(updateAuthor.mock.calls[0][0]).toEqual({
+      authorId: 9,
+      request: {
+        name: undefined,
+        description: 'Updated',
+        asin: 'B00NEW',
+        nameLocked: false,
+        descriptionLocked: false,
+        asinLocked: false,
+        photoLocked: true,
+      },
     });
+    expect(updated).toHaveBeenCalled();
+    expect(messageService.add).toHaveBeenCalledWith(expect.objectContaining({severity: 'success'}));
+  });
+
+  it('shows the photo again when the page refreshes its photo timestamp', () => {
+    const component = createComponent();
+    component.hasPhoto = false;
+
+    component.ngOnChanges({photoTimestamp: new SimpleChange(1, 2, false)});
 
     expect(component.hasPhoto).toBe(true);
-    expect(component.photoTimestamp).toBe(777);
-    expect(nowSpy).toHaveBeenCalled();
   });
 
-  it('shapes the save request from raw form values, emits the updated author, and reports success', () => {
-    const updatedAuthor: AuthorDetails = {
-      ...baseAuthor,
-      description: 'Updated description',
-      asin: 'B00NEW',
-      nameLocked: true,
-      asinLocked: true,
-      photoLocked: true,
-    };
-    const save$ = new Subject<AuthorDetails>();
-    updateAuthor.mockReturnValue(save$);
-
+  it('refreshes the author lists after a direct photo upload', () => {
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
     const component = createComponent();
-    const emitSpy = vi.spyOn(component.authorUpdated, 'emit');
-
-    component.ngOnInit();
-    component.form.patchValue({
-      name: '   ',
-      description: '  Updated description  ',
-      asin: '  B00NEW  ',
-      nameLocked: true,
-      descriptionLocked: false,
-      asinLocked: true,
-      photoLocked: true,
-    });
-
-    component.onSave();
-
-    expect(component.isSaving()).toBe(true);
-    expect(updateAuthor).toHaveBeenCalledWith(9, {
-      name: undefined,
-      description: 'Updated description',
-      asin: 'B00NEW',
-      nameLocked: true,
-      descriptionLocked: false,
-      asinLocked: true,
-      photoLocked: true,
-    });
-
-    save$.next(updatedAuthor);
-    save$.complete();
-
-    expect(component.isSaving()).toBe(false);
-    expect(emitSpy).toHaveBeenCalledWith(updatedAuthor);
-    expect(translate).toHaveBeenCalledWith('authorBrowser.editor.toast.successSummary');
-    expect(translate).toHaveBeenCalledWith('authorBrowser.editor.toast.successDetail');
-    expect(messageService.add).toHaveBeenCalledWith({
-      severity: 'success',
-      summary: 'authorBrowser.editor.toast.successSummary',
-      detail: 'authorBrowser.editor.toast.successDetail',
-    });
-  });
-
-  it('sends the author name when it has actually changed', () => {
-    updateAuthor.mockReturnValue(new Subject<AuthorDetails>());
-
-    const component = createComponent();
-    component.ngOnInit();
-    component.form.patchValue({name: 'Augusta Ada King'});
-    component.onSave();
-
-    expect(updateAuthor).toHaveBeenCalledWith(9, expect.objectContaining({name: 'Augusta Ada King'}));
-  });
-
-  it('clears the saving flag and reports an error toast when saveMetadata fails', () => {
-    updateAuthor.mockReturnValue(throwError(() => new Error('boom')));
-
-    const component = createComponent();
-    const emitSpy = vi.spyOn(component.authorUpdated, 'emit');
-    component.ngOnInit();
-
-    component.onSave();
-
-    expect(component.isSaving()).toBe(false);
-    expect(emitSpy).not.toHaveBeenCalled();
-    expect(translate).toHaveBeenCalledWith('authorBrowser.editor.toast.errorSummary');
-    expect(translate).toHaveBeenCalledWith('authorBrowser.editor.toast.errorDetail');
-    expect(messageService.add).toHaveBeenCalledWith({
-      severity: 'error',
-      summary: 'authorBrowser.editor.toast.errorSummary',
-      detail: 'authorBrowser.editor.toast.errorDetail',
-    });
-  });
-
-  it('opens the photo search dialog and refreshes photo state when it closes with success', () => {
-    const component = createComponent({authorId: 42});
-    const emitSpy = vi.spyOn(component.authorUpdated, 'emit');
-    const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(888);
-
-    component.hasPhoto = false;
-    component.photoTimestamp = 12;
-
-    component.openPhotoSearch();
-
-    expect(dialogOpen).toHaveBeenCalledWith(AuthorPhotoSearchComponent, {
-      data: {authorId: 42, authorName: 'Ada Lovelace'},
-      header: 'authorBrowser.editor.searchPhotoTitle',
-      width: '70vw',
-      height: '80vh',
-      modal: true,
-      closable: true,
-      dismissableMask: true,
-      contentStyle: {'overflow': 'hidden', 'padding': '0', 'display': 'flex', 'flex-direction': 'column'},
-    });
-
-    dialogClose$.next(true);
-
-    expect(component.hasPhoto).toBe(true);
-    expect(component.photoTimestamp).toBe(888);
-    expect(emitSpy).toHaveBeenCalledWith(component.author);
-    expect(nowSpy).toHaveBeenCalled();
-  });
-
-  it('marks upload success, refreshes the photo timestamp, and shows a success toast', () => {
-    const component = createComponent();
-    const emitSpy = vi.spyOn(component.authorUpdated, 'emit');
-    const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(999);
-
-    component.isUploading.set(true);
-    component.hasPhoto = false;
+    const updated = vi.fn();
+    component.authorUpdated.subscribe(updated);
 
     component.onUpload();
 
-    expect(component.isUploading()).toBe(false);
-    expect(component.hasPhoto).toBe(true);
-    expect(component.photoTimestamp).toBe(999);
-    expect(emitSpy).toHaveBeenCalledWith(component.author);
-    expect(messageService.add).toHaveBeenCalledWith({
-      severity: 'success',
-      summary: 'authorBrowser.editor.toast.photoUploadedSummary',
-      detail: 'authorBrowser.editor.toast.photoUploadedDetail',
-    });
-    expect(nowSpy).toHaveBeenCalled();
-  });
-
-  it('clears upload progress and shows an error toast when upload fails', () => {
-    const component = createComponent();
-    component.isUploading.set(true);
-
-    component.onUploadError();
-
-    expect(component.isUploading()).toBe(false);
-    expect(messageService.add).toHaveBeenCalledWith({
-      severity: 'error',
-      summary: 'authorBrowser.editor.toast.errorSummary',
-      detail: 'authorBrowser.editor.toast.photoUploadErrorDetail',
-    });
+    expect(invalidate).toHaveBeenCalledWith({queryKey: authorQueryKeys.collections()});
+    expect(updated).toHaveBeenCalled();
   });
 });

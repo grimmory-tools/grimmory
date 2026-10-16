@@ -1,6 +1,6 @@
 import {AfterViewChecked, Component, computed, DestroyRef, ElementRef, inject, Input, OnInit, signal, ViewChild} from '@angular/core';
 import {Button} from '@openng/optimus-ui/button';
-import {DecimalPipe} from '@angular/common';
+import {DecimalPipe, NgClass} from '@angular/common';
 import {BookService} from '../../../../book/service/book.service';
 import {BookFileService} from '../../../../book/service/book-file.service';
 import {Rating, RatingRateEvent} from '@openng/optimus-ui/rating';
@@ -42,7 +42,8 @@ import {AppSettingsService} from '../../../../../shared/service/app-settings.ser
 import {LanguageResolverService} from '../../../../../shared/service/language-resolver.service';
 import {DeleteBookFileEvent, DeleteSupplementaryFileEvent, DetachBookFileEvent, DownloadAdditionalFileEvent, DownloadAllFilesEvent, DownloadEvent, MetadataTabsComponent, ReadEvent} from './metadata-tabs/metadata-tabs.component';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
-import {AuthorService} from '../../../../author-browser/service/author.service';
+import {QueryClient} from '@tanstack/angular-query-experimental';
+import {AuthorQueryService} from '../../../../author/data/author-query.service';
 import {Dialog} from '@openng/optimus-ui/dialog';
 import {Checkbox} from '@openng/optimus-ui/checkbox';
 import DOMPurify from 'dompurify';
@@ -61,30 +62,13 @@ interface ProviderBadge {
   standalone: true,
   templateUrl: './metadata-viewer.component.html',
   styleUrl: './metadata-viewer.component.scss',
-  imports: [Button, Rating, FormsModule, SplitButton, Tooltip, DecimalPipe, ProgressBar, Menu, DatePicker, ProgressSpinner, TieredMenu, TagComponent, MetadataTabsComponent, TranslocoDirective, TranslocoPipe, Dialog, Checkbox, CoverComponent]
+  imports: [Button, Rating, FormsModule, SplitButton, NgClass, Tooltip, DecimalPipe, ProgressBar, Menu, DatePicker, ProgressSpinner, TieredMenu, TagComponent, MetadataTabsComponent, TranslocoDirective, TranslocoPipe, Dialog, Checkbox, CoverComponent]
 })
 export class MetadataViewerComponent implements OnInit, AfterViewChecked {
-  private readonly bookService = inject(BookService);
-  private readonly t = inject(TranslocoService);
-  private readonly libraryService = inject(LibraryService);
-  private readonly bookDialogHelperService = inject(BookDialogHelperService)
-  private readonly emailService = inject(EmailService);
-  private readonly messageService = inject(MessageService);
-  private readonly bookFileService = inject(BookFileService);
-  private readonly taskHelperService = inject(TaskHelperService);
-  private readonly authorService = inject(AuthorService);
-  protected urlHelper = inject(UrlHelperService);
-  protected userService = inject(UserService);
-  protected languageResolver = inject(LanguageResolverService);
-  private readonly appSettingsService = inject(AppSettingsService);
-  private readonly confirmationService = inject(ConfirmationService);
-  private readonly router = inject(Router);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly dialogRef = inject(DynamicDialogRef, { optional: true });
-  private readonly catalog = inject(MetadataCatalogService);
-  private readonly bookNavigationService = inject(BookNavigationService);
-  private readonly metadataHostService = inject(BookMetadataHostService);
-  private readonly currentBook = signal<Book | null>(null);
+  private readonly authorQueries = inject(AuthorQueryService);
+  private readonly queryClient = inject(QueryClient);
+  private bookService = inject(BookService);
+  private currentBook = signal<Book | null>(null);
   private readonly seriesLookupBookId = computed(() => {
     const metadata = this.currentBook()?.metadata;
     return metadata?.seriesName ? metadata.bookId : null;
@@ -131,9 +115,27 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   set recommendedBooks(value: BookRecommendation[]) {
     this.originalRecommendedBooks.set(value);
   }
+
+  private readonly t = inject(TranslocoService);
   private readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
-  private readonly userState = this.userService.currentUser;
-  private readonly appSettings = this.appSettingsService.appSettings;
+  private libraryService = inject(LibraryService);
+  private bookDialogHelperService = inject(BookDialogHelperService)
+  private emailService = inject(EmailService);
+  private messageService = inject(MessageService);
+  private bookFileService = inject(BookFileService);
+  private taskHelperService = inject(TaskHelperService);
+  protected urlHelper = inject(UrlHelperService);
+  protected userService = inject(UserService);
+  protected languageResolver = inject(LanguageResolverService);
+  private appSettingsService = inject(AppSettingsService);
+  private confirmationService = inject(ConfirmationService);
+
+  private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
+  private dialogRef = inject(DynamicDialogRef, { optional: true });
+  private userState = this.userService.currentUser;
+  private appSettings = this.appSettingsService.appSettings;
+  private readonly catalog = inject(MetadataCatalogService);
 
   readonly providerBadges = computed((): ProviderBadge[] => {
     const metadata = this.currentBook()?.metadata;
@@ -500,6 +502,9 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
     {value: ReadStatus.WONT_READ, labelKey: 'metadata.viewer.readStatusWontRead'},
     {value: ReadStatus.UNSET, labelKey: 'metadata.viewer.readStatusUnset'},
   ];
+
+  private bookNavigationService = inject(BookNavigationService);
+  private metadataHostService = inject(BookMetadataHostService);
   readonly navigationState = this.bookNavigationService.navigationState;
   readonly canNavigatePrevious = this.bookNavigationService.canNavigatePrevious;
   readonly canNavigateNext = this.bookNavigationService.canNavigateNext;
@@ -828,15 +833,15 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   }
 
   goToAuthorBooks(author: string): void {
-    this.authorService.getAuthorByName(author).subscribe({
-      next: (authorDetails) => {
+    this.queryClient.query(this.authorQueries.byName(author)).then(
+      (authorDetails) => {
         const navigate = () => this.router.navigate(['/author', authorDetails.id]);
         this.navigateAfterDialogClose(() => void navigate());
       },
-      error: () => {
+      () => {
         this.handleMetadataClick('author', author);
       }
-    });
+    );
   }
 
   goToCategory(category: string): void {

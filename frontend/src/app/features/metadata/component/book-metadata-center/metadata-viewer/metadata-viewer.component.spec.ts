@@ -18,7 +18,8 @@ import {EmailService} from '../../../../settings/email-v2/email.service';
 import {BookDialogHelperService} from '../../../../book/service/book-dialog-helper.service';
 import {LibraryService} from '../../../../book/service/library.service';
 import {TaskHelperService} from '../../../../settings/task-management/task-helper.service';
-import {AuthorService} from '../../../../author-browser/service/author.service';
+import {QueryClient} from '@tanstack/angular-query-experimental';
+import {AuthorQueryService} from '../../../../author/data/author-query.service';
 import {Router} from '@angular/router';
 import {BookNavigationService} from '../../../../book/service/book-navigation.service';
 import {BookMetadataHostService} from '../../../../../shared/service/book-metadata-host.service';
@@ -79,7 +80,6 @@ describe('MetadataViewerComponent', () => {
 
   const emailBookQuick = vi.fn(() => of(void 0));
   const refreshMetadataTask = vi.fn(() => of(void 0));
-  const getAuthorByName = vi.fn(() => of({id: 41}));
 
   const findLibraryById = vi.fn(() => ({allowedFormats: ['PDF', 'EPUB']}));
   const switchBook = vi.fn();
@@ -190,7 +190,6 @@ describe('MetadataViewerComponent', () => {
 
     emailBookQuick.mockClear();
     refreshMetadataTask.mockClear();
-    getAuthorByName.mockClear();
 
     findLibraryById.mockClear();
     switchBook.mockClear();
@@ -241,7 +240,8 @@ describe('MetadataViewerComponent', () => {
         },
         {provide: BookFileService, useValue: {downloadFile, downloadAdditionalFile, downloadAllFiles, deleteAdditionalFile, deleteBookFile, detachBookFile}},
         {provide: TaskHelperService, useValue: {refreshMetadataTask}},
-        {provide: AuthorService, useValue: {getAuthorByName}},
+        {provide: AuthorQueryService, useValue: {byName: vi.fn()}},
+        {provide: QueryClient, useValue: {fetchQuery: vi.fn()}},
         {provide: UrlHelperService, useValue: {getCoverUrl, getAudiobookCoverUrl, getThumbnailUrl}},
         {provide: UserService, useValue: {currentUser}},
         {provide: AppSettingsService, useValue: {appSettings}},

@@ -15,6 +15,10 @@ function railValue(label: string): BrowseFilterValue {
   return {facetKey: 'author', value: label.toLowerCase().replace(/\s+/g, '-'), label, count: 3, state: null};
 }
 
+function flagValue(facetKey: string, labelKey: string): BrowseFilterValue {
+  return {facetKey, value: 'true', label: 'true', labelKey, count: 3, state: null};
+}
+
 function authorGroup(count: number): BrowseFilterGroup {
   return {
     key: 'author',
@@ -36,7 +40,7 @@ function authorGroup(count: number): BrowseFilterGroup {
 })
 class HostComponent {
   readonly groups = signal<readonly BrowseFilterGroup[]>([authorGroup(20)]);
-  readonly openKeys: ReadonlySet<string> = new Set(['author', 'file_size']);
+  readonly openKeys: ReadonlySet<string> = new Set(['author', 'file_size', 'has_photo']);
   readonly searchTerms: Readonly<Record<string, string>> = {};
   readonly toggles: BrowseFilterToggle[] = [];
   readonly commits: BrowseFilterRangeCommit[] = [];
@@ -54,6 +58,25 @@ describe('BrowseFilterRailComponent', () => {
 
   afterEach(() => {
     TestBed.resetTestingModule();
+  });
+
+  it('ticks and excludes each Metadata row under its own facet key', () => {
+    const values = [flagValue('has_photo', 'author.fields.hasPhoto'), flagValue('has_asin', 'author.fields.hasAsin')];
+    const metadata: BrowseFilterGroup = {key: 'has_photo', labelKey: 'common.metadata', showAllValues: true, values};
+    fixture.componentInstance.groups.set([metadata]);
+    fixture.detectChanges();
+    const rows = () => root().querySelectorAll<HTMLButtonElement>('button[aria-pressed]');
+    expect(Array.from(rows(), row => row.title)).toEqual(['Photo', 'ASIN']);
+
+    rows()[1].click();
+    fixture.componentInstance.groups.set([{...metadata, picks: new Map([['has_asin', new Map([['true', 'included']])]])}]);
+    fixture.detectChanges();
+    rows()[1].click();
+
+    expect(fixture.componentInstance.toggles).toEqual([
+      {key: 'has_asin', value: 'true', state: 'included'},
+      {key: 'has_asin', value: 'true', state: 'excluded'},
+    ]);
   });
 
   it('commits file size ranges in KB from the unit the user picked', () => {

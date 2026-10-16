@@ -1,270 +1,85 @@
-<ng-container *transloco="let t; prefix: 'authorBrowser'">
-<div class="author-browser-page">
-  @if (loading()) {
-    <div class="loading-state">
-      <p-progressSpinner
-        [style]="{'width': '60px', 'height': '60px'}"
-        strokeWidth="3"
-        fill="transparent"
-        animationDuration="1.5s" />
-    </div>
-  }
+<app-browse-page
+  viewMode="grid"
+  [page]="page"
+  [title]="labels.title()"
+  [estimateItemHeight]="estimateItemHeight"
+  [messages]="messages"
+  [searchHint]="labels.searchHintKey">
+  <ng-template appBrowsePageToolbar>
+    <app-browse-sort-control
+      [sortOptions]="page.sortOptions()"
+      [sortTerms]="page.sortTerms()"
+      [sortField]="sortField"
+      (sortTermsChange)="page.setSortTerms($event)"
+      (shuffleRequested)="page.shuffle()" />
 
-  @else {
-    <div class="browse-header">
-      <h2 class="browse-title">{{ t('browseAllAuthors') }}</h2>
+    <app-button
+      class="sm:hidden"
+      variant="soft"
+      [label]="'browse.filter' | transloco"
+      [ariaExpanded]="page.rail.visible()"
+      (clicked)="page.rail.toggle()">
+      <svg lucideFunnel [attr.fill]="page.rail.visible() ? 'currentColor' : 'none'" aria-hidden="true"></svg>
+    </app-button>
 
-      <div class="browse-controls">
-        <div class="search-wrapper">
-          <i class="pi pi-search search-icon"></i>
-          <input
-            pInputText
-            type="text"
-            [placeholder]="t('searchPlaceholder')"
-            [ngModel]="searchTerm()"
-            (ngModelChange)="onSearchChange($event)"
-            aria-label="{{ t('searchPlaceholder') }}"
-            class="search-input"/>
-        </div>
+    <app-button
+      class="sm:hidden"
+      variant="soft"
+      [label]="'common.select' | transloco"
+      (clicked)="page.toggleMobileSelect()" />
 
-        <div class="filter-sort-wrapper">
-          <p-select
-            [options]="sortOptions"
-            [ngModel]="sortBy()"
-            (ngModelChange)="onSortChange($event)"
-            optionLabel="label"
-            optionValue="value"
-            class="sort-dropdown" />
-
-          <button type="button" class="sort-direction-btn" (click)="toggleSortDirection()">
-            <i class="pi" [class.pi-arrow-up]="sortDirection() === 'asc'" [class.pi-arrow-down]="sortDirection() === 'desc'"></i>
-          </button>
-
-          <button type="button" class="filter-btn" (click)="filterPopover.toggle($event)">
-            <i class="pi pi-filter"></i>
-            @if (activeFilterCount() > 0) {
-              <span class="filter-badge"></span>
-            }
-          </button>
-
-          <button
-            type="button"
-            class="display-settings-btn"
-            [attr.aria-label]="'common.displaySettings' | transloco"
-            [title]="'common.displaySettings' | transloco"
-            (click)="displaySettingsPopover.toggle($event)">
-            <i class="pi pi-sliders-h"></i>
-          </button>
-        </div>
+    <span class="hidden h-6 w-px bg-border sm:block" aria-hidden="true"></span>
+    <app-button
+      class="ml-auto sm:ml-0"
+      variant="ghost"
+      iconOnly
+      [ariaLabel]="'browse.moreActions' | transloco"
+      [appMenuTriggerFor]="moreMenu">
+      <svg lucideEllipsis aria-hidden="true"></svg>
+    </app-button>
+    <app-menu #moreMenu [ariaLabel]="'browse.moreActions' | transloco">
+      <app-menu-section>{{ 'browse.toolbar.viewMode' | transloco }}</app-menu-section>
+      <app-browse-density-menu-items
+        [smallerDisabled]="page.density.smallerDisabled()"
+        [largerDisabled]="page.density.largerDisabled()"
+        (densityChange)="page.density.adjust($event)" />
+      <div class="hidden sm:contents">
+        <app-menu-separator />
+        <app-browse-filter-menu-items
+          [matchAll]="page.filterSettings.matchAll()"
+          [excludeOnTick]="page.filterSettings.excludeOnTick()"
+          (matchAllChange)="page.filterSettings.setMatchAll($event)"
+          (excludeOnTickChange)="page.filterSettings.setExcludeOnTick($event)">
+          <app-menu-checkbox
+            value="show-filters"
+            [checked]="page.rail.visible()"
+            (selected)="page.rail.toggle()">
+            {{ 'browse.toolbar.showFilters' | transloco }}
+          </app-menu-checkbox>
+        </app-browse-filter-menu-items>
       </div>
+    </app-menu>
+  </ng-template>
 
-      <p-popover #displaySettingsPopover>
-        <div class="display-settings-content">
-          <span class="display-settings-label">{{ 'common.cardSize' | transloco }}</span>
-          <app-grid-density-buttons
-            [smallerDisabled]="gridDensitySmallerDisabled()"
-            [largerDisabled]="gridDensityLargerDisabled()"
-            (densityChange)="adjustGridDensity($event)"/>
-        </div>
-      </p-popover>
+  <app-author-menu (deleted)="page.selection.pruneDeleted($event)" />
 
-      <p-popover #filterPopover>
-            <div class="filter-popover-content">
-              <div class="filter-group">
-                <span class="filter-label">{{ t('filters.matchStatus') }}</span>
-                <p-select
-                  [options]="[
-                    {label: t('filters.all'), value: 'all'},
-                    {label: t('filters.matched'), value: 'matched'},
-                    {label: t('filters.unmatched'), value: 'unmatched'}
-                  ]"
-                  [ngModel]="filters().matchStatus"
-                  (ngModelChange)="onFilterChange('matchStatus', $event)"
-                  optionLabel="label"
-                  optionValue="value"
-                  class="filter-dropdown" />
-              </div>
+  <app-author-browse-bulk-bar
+    [selection]="page.selection"
+    [total]="page.results.total()"
+    [fetchIds]="page.fetchMatchingIds" />
 
-              <div class="filter-group">
-                <span class="filter-label">{{ t('filters.photoStatus') }}</span>
-                <p-select
-                  [options]="[
-                    {label: t('filters.all'), value: 'all'},
-                    {label: t('filters.hasPhoto'), value: 'has-photo'},
-                    {label: t('filters.noPhoto'), value: 'no-photo'}
-                  ]"
-                  [ngModel]="filters().photoStatus"
-                  (ngModelChange)="onFilterChange('photoStatus', $event)"
-                  optionLabel="label"
-                  optionValue="value"
-                  class="filter-dropdown" />
-              </div>
+  <ng-template [appBrowseGridItemOf]="page.results.items()" let-author let-index="index">
+    <app-author-card
+      [author]="author"
+      [selectable]="page.selectionEnabled()"
+      [selected]="page.isSelected(author.id)"
+      [selectionActive]="page.selectionActive()"
+      [menuOpen]="menuOpenAuthorId() === author.id"
+      (toggleSelect)="page.selection.toggle(author, index, $event.shiftKey)"
+      (menuRequested)="authorMenu()?.openFor(author, $event)" />
+  </ng-template>
 
-              <div class="filter-group">
-                <span class="filter-label">{{ t('filters.readStatus') }}</span>
-                <p-select
-                  [options]="[
-                    {label: t('filters.all'), value: 'all'},
-                    {label: t('filters.allRead'), value: 'all-read'},
-                    {label: t('filters.someRead'), value: 'some-read'},
-                    {label: t('filters.inProgress'), value: 'in-progress'},
-                    {label: t('filters.unread'), value: 'unread'}
-                  ]"
-                  [ngModel]="filters().readStatus"
-                  (ngModelChange)="onFilterChange('readStatus', $event)"
-                  optionLabel="label"
-                  optionValue="value"
-                  class="filter-dropdown" />
-              </div>
-
-              <div class="filter-group">
-                <span class="filter-label">{{ t('filters.bookCount') }}</span>
-                <p-select
-                  [options]="[
-                    {label: t('filters.all'), value: 'all'},
-                    {label: '0', value: '0'},
-                    {label: '1', value: '1'},
-                    {label: '2', value: '2'},
-                    {label: '3', value: '3'},
-                    {label: '4', value: '4'},
-                    {label: '5', value: '5'},
-                    {label: '6-10', value: '6-10'},
-                    {label: '11-20', value: '11-20'},
-                    {label: '21-35', value: '21-35'},
-                    {label: '36+', value: '36+'}
-                  ]"
-                  [ngModel]="filters().bookCount"
-                  (ngModelChange)="onFilterChange('bookCount', $event)"
-                  optionLabel="label"
-                  optionValue="value"
-                  class="filter-dropdown" />
-              </div>
-
-              <div class="filter-group">
-                <span class="filter-label">{{ t('filters.library') }}</span>
-                <p-select
-                  [options]="libraryOptions()"
-                  [ngModel]="filters().library"
-                  (ngModelChange)="onFilterChange('library', $event)"
-                  optionLabel="label"
-                  optionValue="value"
-                  class="filter-dropdown" />
-              </div>
-
-              <div class="filter-group">
-                <span class="filter-label">{{ t('filters.genre') }}</span>
-                <p-select
-                  [options]="genreOptions()"
-                  [ngModel]="filters().genre"
-                  (ngModelChange)="onFilterChange('genre', $event)"
-                  optionLabel="label"
-                  optionValue="value"
-                  class="filter-dropdown" />
-              </div>
-
-              @if (activeFilterCount() > 0) {
-                <p-button
-                  [label]="t('filters.reset')"
-                  icon="pi pi-filter-slash"
-                  severity="secondary"
-                  [outlined]="true"
-                  size="small"
-                  (onClick)="resetFilters()"
-                  class="filter-reset-btn" />
-              }
-            </div>
-      </p-popover>
-    </div>
-
-    @if (filteredAuthors(); as authorList) {
-      @if (authorList.length === 0) {
-        <div class="empty-state">
-          <i class="pi pi-users empty-icon"></i>
-          <p>{{ t('noAuthorsFound') }}</p>
-        </div>
-      } @else {
-        <div #scrollElement class="virtual-scroller">
-          <div class="virtual-content" [style.height.px]="virtualGrid.virtualizer.getTotalSize()">
-            @for (virtualItem of virtualGrid.virtualizer.getVirtualItems(); track virtualItem.key) {
-              @if (authorList[virtualItem.index]; as author) {
-                <div
-                  class="virtual-cell"
-                  [style.width.px]="virtualGrid.itemWidth()"
-                  [style.height.px]="virtualItem.size"
-                  [style.transform]="virtualGrid.itemTransform(virtualItem)">
-                  <app-author-card
-                    [author]="author"
-                    [index]="virtualItem.index"
-                    [cacheBuster]="thumbnailCacheBusters.get(author.id) || 0"
-                    [canQuickMatch]="canEditMetadata"
-                    [canDelete]="canDeleteBook"
-                    [isCheckboxEnabled]="canEditMetadata || canDeleteBook"
-                    [isSelected]="isAuthorSelected(author.id)"
-                    (cardClick)="navigateToAuthor($event)"
-                    (viewAuthor)="navigateToAuthor($event)"
-                    (editAuthor)="navigateToAuthorEdit($event)"
-                    (deleteAuthor)="deleteAuthor($event)"
-                    (quickMatched)="onAuthorQuickMatched($event)"
-                    (checkboxClick)="onCheckboxClicked($event)" />
-                </div>
-              }
-            }
-          </div>
-        </div>
-      }
-    }
-
-    @if (currentUser(); as user) {
-      <div class="author-browser-footer" [class.footer-hidden]="selectedCount() === 0">
-        <div class="footer-content">
-          <div class="selected-count-badge">
-            <i class="pi pi-check-circle"></i>
-            <span class="selected-count">{{ selectedCount() }}</span>
-            <span class="selected-label">{{ t('footer.selected') }}</span>
-          </div>
-          @if (canEditMetadata || canDeleteBook) {
-            <p-divider layout="vertical" />
-            <div class="action-buttons-group">
-              @if (canEditMetadata) {
-                <p-button
-                  icon="pi pi-bolt"
-                  outlined="true"
-                  severity="info"
-                  (onClick)="autoMatchSelected()"
-                  [pTooltip]="t('footer.autoMatch')"
-                  tooltipPosition="top" />
-              }
-              @if (canDeleteBook) {
-                <p-button
-                  icon="pi pi-trash"
-                  outlined="true"
-                  severity="danger"
-                  (onClick)="deleteSelected()"
-                  [pTooltip]="t('footer.deleteSelected')"
-                  tooltipPosition="top" />
-              }
-            </div>
-          }
-          <p-divider layout="vertical" />
-          <div class="action-buttons-group">
-            <p-button
-              outlined="true"
-              icon="pi pi-check-square"
-              severity="success"
-              (click)="selectAllAuthors()"
-              [pTooltip]="t('footer.selectAll')"
-              tooltipPosition="top" />
-            <p-button
-              outlined="true"
-              icon="pi pi-times"
-              severity="warn"
-              (click)="deselectAllAuthors()"
-              [pTooltip]="t('footer.deselectAll')"
-              tooltipPosition="top" />
-          </div>
-        </div>
-      </div>
-    }
-  }
-</div>
-</ng-container>
+  <ng-template appBrowseGridSkeleton>
+    <app-author-card-skeleton />
+  </ng-template>
+</app-browse-page>
