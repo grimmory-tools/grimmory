@@ -159,11 +159,15 @@ export function patchBookCoversInCache(
   );
 }
 
-export function invalidateAllBookCaches(queryClient: QueryClient): void {
-  void Promise.all([
+export async function reconcileAllBookCaches(queryClient: QueryClient): Promise<void> {
+  await Promise.all([
     invalidateAllLegacyBooks(queryClient),
     invalidateAllBookQueries(queryClient),
   ]);
+}
+
+export function invalidateAllBookCaches(queryClient: QueryClient): void {
+  void reconcileAllBookCaches(queryClient);
 }
 
 export function invalidateBooksById(queryClient: QueryClient, bookIds: Iterable<number>): void {

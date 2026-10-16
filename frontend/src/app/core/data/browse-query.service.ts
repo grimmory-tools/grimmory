@@ -1,111 +1,120 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {effect, inject, Service} from '@angular/core';
+import {effect, inject} from '@angular/core';
 import {
   type InfiniteData,
   infiniteQueryOptions,
+  type QueryFunctionContext,
   type QueryKey,
   queryOptions,
   QueryClient,
 } from '@tanstack/angular-query-experimental';
-import {lastValueFrom, Observable, map, takeUntil} from 'rxjs';
 
 import {API_CONFIG} from '../config/api-config';
-import {BrowseFacetGroup, BrowseFacetIndex, findBrowsePageLink} from './browse.models';
-import {mapBrowseFacetIndex, mapBrowseFacetPage, mapBrowsePage} from './browse-response';
 import {withBrowseFacetValues} from '../../shared/browse/facets';
-import {bookQueryKeys} from './browse-query-keys';
+import {AuthService} from '../../shared/service/auth.service';
+import {BrowseFacetGroup, BrowseFacetIndex, BrowsePage, findBrowsePageLink} from './browse.models';
 import {
-  BookCollectionFilterParams,
-  BookDescriptionOptions,
-  BookPageParams,
-  BookQueryFacetKey,
-  BookQueryParams,
-  normalizeBookCollectionFilterParams,
-  normalizeBookPageParams,
-  normalizeBookQueryParams,
+  mapBrowseFacetIndex,
+  mapBrowseFacetPage,
+  mapBrowsePage,
+  type RawBrowsePage,
+  type RawFacetResponse,
+} from './browse-response';
+import {BrowseQueryKeys} from './browse-query-keys';
+import {
+  BrowseCollectionFilterParams,
+  BrowsePageParams,
+  BrowseQueryParams,
+  normalizeBrowseCollectionFilterParams,
+  normalizeBrowsePageParams,
+  normalizeBrowseQueryParams,
   toCollectionHttpParams,
   toIdsHttpParams,
   toPageHttpParams,
 } from './browse-query-params';
-import {BookPage} from '../../features/book/data/book-query.models';
-import {BookDetail, BookRecommendation, BookSummary} from '../../features/book/data/book-response.models';
-import {abortSignal, QUERY_DEFAULTS} from './query-transport';
-import {AuthService} from '../../shared/service/auth.service';
+import {QUERY_DEFAULTS, toAbortablePromise} from './query-transport';
 
 const FACET_PAGE_SIZE = 100;
 
-@Service()
-export class BookQueryService {
-  private readonly http = inject(HttpClient);
-  private readonly authService = inject(AuthService);
-  private readonly queryClient = inject(QueryClient);
-  private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/books`;
+export interface BrowseQueryConfig<FacetKey extends string, SortKey extends string> {
+  readonly path: string;
+  readonly keys: BrowseQueryKeys<FacetKey, SortKey>;
+}
 
-  constructor() {
+export abstract class BrowseQueryService<Item extends {id: number}, FacetKey extends string, SortKey extends string> {
+  private readonly http = inject(HttpClient);
+  protected readonly authService = inject(AuthService);
+  private readonly queryClient = inject(QueryClient);
+  private readonly keys: BrowseQueryKeys<FacetKey, SortKey>;
+  protected readonly baseUrl: string;
+
+  protected constructor({path, keys}: BrowseQueryConfig<FacetKey, SortKey>) {
+    this.keys = keys;
+    this.baseUrl = `${API_CONFIG.BASE_URL}${path}`;
+
     effect(() => {
       if (this.authService.token() === null) {
-        this.queryClient.removeQueries({queryKey: bookQueryKeys.all()});
+        this.queryClient.removeQueries({queryKey: this.keys.all()});
       }
     });
   }
 
-  page(params: BookPageParams) {
-    const normalized = normalizeBookPageParams(params);
+  page(params: BrowsePageParams<FacetKey, SortKey>) {
+    const normalized = normalizeBrowsePageParams(params);
 
     return queryOptions({
-      queryKey: bookQueryKeys.boundedPage(normalized),
+      queryKey: this.keys.boundedPage(normalized),
       queryFn: ({signal}) => this.fetchPage(normalized, null, signal),
       ...QUERY_DEFAULTS,
     });
   }
 
-  infinitePage(params: BookPageParams) {
-    const normalized = normalizeBookPageParams(params);
+  infinitePage(params: BrowsePageParams<FacetKey, SortKey>) {
+    const normalized = normalizeBrowsePageParams(params);
+
+    const key = this.keys.infinitePage(normalized);
 
     return infiniteQueryOptions({
-      queryKey: bookQueryKeys.infinitePage(normalized),
-      queryFn: ({pageParam, queryKey, signal}) => this.fetchPage(
+      queryKey: key,
+      queryFn: ({pageParam, queryKey, signal}: QueryFunctionContext<typeof key, string | null>) => this.fetchPage(
         normalized,
         pageParam ?? this.seededFirstPageHref(queryKey),
         signal,
       ),
-      initialPageParam: null as string | null,
+      initialPageParam: null,
       getNextPageParam: page => findBrowsePageLink(page, 'next')?.href,
       ...QUERY_DEFAULTS,
     });
   }
 
   private seededFirstPageHref(queryKey: QueryKey): string | null {
-    const firstPage = this.queryClient.getQueryData<InfiniteData<BookPage>>(queryKey)?.pages[0];
+    const firstPage = this.queryClient.getQueryData<InfiniteData<BrowsePage<Item>>>(queryKey)?.pages[0];
     return firstPage ? findBrowsePageLink(firstPage, 'self')?.href ?? null : null;
   }
 
-  restartInfinitePage(params: BookPageParams): Promise<void> {
-    const normalized = normalizeBookPageParams(params);
+  restartInfinitePage(params: BrowsePageParams<FacetKey, SortKey>): Promise<void> {
+    const normalized = normalizeBrowsePageParams(params);
     return this.queryClient.resetQueries({
-      queryKey: bookQueryKeys.infinitePage(normalized),
+      queryKey: this.keys.infinitePage(normalized),
       exact: true,
     });
   }
 
-  facetIndex(params: BookCollectionFilterParams) {
-    const normalized = normalizeBookCollectionFilterParams(params);
+  facetIndex(params: BrowseCollectionFilterParams<FacetKey>) {
+    const normalized = normalizeBrowseCollectionFilterParams(params);
 
     return queryOptions({
-      queryKey: bookQueryKeys.facetIndex(normalized),
-      queryFn: ({signal}): Promise<BrowseFacetIndex> => this.getMapped(
-        `${this.baseUrl}/facets`,
-        signal,
-        mapBrowseFacetIndex,
-        toCollectionHttpParams(normalized),
-      ),
+      queryKey: this.keys.facetIndex(normalized),
+      queryFn: ({signal}): Promise<BrowseFacetIndex> =>
+        this.get<RawFacetResponse>(`${this.baseUrl}/facets`, signal, toCollectionHttpParams(normalized))
+          .then(mapBrowseFacetIndex),
       ...QUERY_DEFAULTS,
     });
   }
 
-  facet(key: BookQueryFacetKey, params: BookCollectionFilterParams, search = '') {
+  facet(key: FacetKey, params: BrowseCollectionFilterParams<FacetKey>, search = '') {
     const otherFacets = withBrowseFacetValues(params.facets, key, []);
-    const normalized = normalizeBookCollectionFilterParams({...params, facets: otherFacets});
+    const normalized = normalizeBrowseCollectionFilterParams({...params, facets: otherFacets});
     const term = search.trim();
     let httpParams = toCollectionHttpParams(normalized).set('size', FACET_PAGE_SIZE);
     if (term) {
@@ -113,22 +122,19 @@ export class BookQueryService {
     }
 
     return queryOptions({
-      queryKey: bookQueryKeys.facet(key, normalized, term),
-      queryFn: ({signal}): Promise<BrowseFacetGroup> => this.getMapped(
-        `${this.baseUrl}/facets/${encodeURIComponent(key)}`,
-        signal,
-        mapBrowseFacetPage,
-        httpParams,
-      ),
+      queryKey: this.keys.facet(key, normalized, term),
+      queryFn: ({signal}): Promise<BrowseFacetGroup> =>
+        this.get<RawFacetResponse>(`${this.baseUrl}/facets/${encodeURIComponent(key)}`, signal, httpParams)
+          .then(mapBrowseFacetPage),
       ...QUERY_DEFAULTS,
     });
   }
 
-  ids(params: BookQueryParams) {
-    const normalized = normalizeBookQueryParams(params);
+  ids(params: BrowseQueryParams<FacetKey, SortKey>) {
+    const normalized = normalizeBrowseQueryParams(params);
 
     return queryOptions({
-      queryKey: bookQueryKeys.ids(normalized),
+      queryKey: this.keys.ids(normalized),
       queryFn: ({signal}) => this.get<number[]>(
         `${this.baseUrl}/ids`,
         signal,
@@ -140,65 +146,18 @@ export class BookQueryService {
     });
   }
 
-  detail(bookId: number, {withDescription}: BookDescriptionOptions) {
-    return queryOptions({
-      queryKey: bookQueryKeys.detail(bookId, withDescription),
-      queryFn: ({signal}): Promise<BookDetail> => this.get<BookDetail>(
-        `${this.baseUrl}/${bookId}`,
-        signal,
-        new HttpParams().set('withDescription', withDescription.toString()),
-      ),
-      ...QUERY_DEFAULTS,
-    });
-  }
-
-  recommendations(bookId: number, limit: number) {
-    return queryOptions({
-      queryKey: bookQueryKeys.recommendation(bookId, limit),
-      queryFn: ({signal}): Promise<BookRecommendation[]> => this.get<BookRecommendation[]>(
-        `${this.baseUrl}/${bookId}/recommendations`,
-        signal,
-        new HttpParams().set('limit', limit.toString()),
-      ),
-      ...QUERY_DEFAULTS,
-    });
+  protected get<T>(url: string, signal: AbortSignal, params?: HttpParams): Promise<T> {
+    return toAbortablePromise(this.http.get<T>(url, {params}), signal);
   }
 
   private fetchPage(
-    params: BookPageParams,
+    params: BrowsePageParams<FacetKey, SortKey>,
     nextHref: string | null,
     signal: AbortSignal,
-  ): Promise<BookPage> {
-    if (nextHref !== null) {
-      return this.getMapped(
-        `${API_CONFIG.BASE_URL}${nextHref}`,
-        signal,
-        mapBrowsePage<BookSummary>,
-      );
-    }
-
-    return this.getMapped(
-      `${this.baseUrl}/page`,
-      signal,
-      mapBrowsePage<BookSummary>,
-      toPageHttpParams(params),
-    );
-  }
-
-  private get<T>(url: string, signal: AbortSignal, params?: HttpParams): Promise<T> {
-    return this.finalize(this.http.get<T>(url, {params}), signal);
-  }
-
-  private getMapped<TRaw, T>(
-    url: string,
-    signal: AbortSignal,
-    project: (value: TRaw) => T,
-    params?: HttpParams,
-  ): Promise<T> {
-    return this.finalize(this.http.get<TRaw>(url, {params}).pipe(map(project)), signal);
-  }
-
-  private finalize<T>(source: Observable<T>, signal: AbortSignal): Promise<T> {
-    return lastValueFrom(source.pipe(takeUntil(abortSignal(signal))));
+  ): Promise<BrowsePage<Item>> {
+    const page = nextHref !== null
+      ? this.get<RawBrowsePage<Item>>(`${API_CONFIG.BASE_URL}${nextHref}`, signal)
+      : this.get<RawBrowsePage<Item>>(`${this.baseUrl}/page`, signal, toPageHttpParams(params));
+    return page.then(mapBrowsePage);
   }
 }

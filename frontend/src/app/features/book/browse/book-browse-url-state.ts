@@ -8,7 +8,7 @@ import {
   parseSortTermsToken,
   type BookSortTerm,
   type FacetValueMap,
-} from '../../../core/data/browse-query-params';
+} from '../data/book-query-params';
 
 export type BookBrowseViewMode = 'grid' | 'table';
 

@@ -12,12 +12,12 @@ import {
   flushSignalAndQueryEffects,
 } from '../../../core/testing/query-testing';
 import {AuthService} from '../../../shared/service/auth.service';
-import {bookQueryKeys} from '../../../core/data/browse-query-keys';
-import {BookPageParams} from '../../../core/data/browse-query-params';
+import {bookQueryKeys} from './book-query-keys';
+import {BookPageParams} from './book-query-params';
 import {BookPage} from './book-query.models';
 import {BookDetail, BookRecommendation} from './book-response.models';
 import {retryTransientQueryError} from '../../../core/data/query-transport';
-import {BookQueryService} from '../../../core/data/browse-query.service';
+import {BookQueryService} from './book-query.service';
 
 const PARAMS: BookPageParams = {
   query: 'dune',
@@ -87,7 +87,7 @@ describe('BookQueryService', () => {
   });
 
   it('fetches one bounded summary page with normalized parameters', async () => {
-    const resultPromise = queryClient.fetchQuery(service.page(PARAMS));
+    const resultPromise = queryClient.query(service.page(PARAMS));
     const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/page?query=dune&facet=genre:Science%20Fiction&sort=title&size=20`);
     request.flush(page([1, 2]));
 
@@ -97,7 +97,7 @@ describe('BookQueryService', () => {
   });
 
   it('sends every selected facet value as a repeated facet parameter', async () => {
-    const resultPromise = queryClient.fetchQuery(service.page({
+    const resultPromise = queryClient.query(service.page({
       ...PARAMS,
       facets: {
         genre: ['Science Fiction'],
@@ -113,7 +113,7 @@ describe('BookQueryService', () => {
   });
 
   it('fetches the facet index as the keys of facets with items and sort tokens', async () => {
-    const resultPromise = queryClient.fetchQuery(service.facetIndex(PARAMS));
+    const resultPromise = queryClient.query(service.facetIndex(PARAMS));
     const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/facets?query=dune&facet=genre:Science%20Fiction`);
     request.flush({
       links: [{rel: 'self', href: '/api/v1/books/facets?query=dune', type: 'application/json'}],
@@ -139,7 +139,7 @@ describe('BookQueryService', () => {
   });
 
   it('fetches one facet page with its search, noting whether more values follow', async () => {
-    const resultPromise = queryClient.fetchQuery(service.facet('author', PARAMS, ' tolk '));
+    const resultPromise = queryClient.query(service.facet('author', PARAMS, ' tolk '));
     const request = http.expectOne(
       `${API_CONFIG.BASE_URL}/api/v1/books/facets/author?query=dune&facet=genre:Science%20Fiction&size=100&search=tolk`,
     );
@@ -162,7 +162,7 @@ describe('BookQueryService', () => {
   });
 
   it('reads a number facet\'s bounds from its templated range link, keeping bands as values', async () => {
-    const resultPromise = queryClient.fetchQuery(service.facet('goodreads_rating', PARAMS));
+    const resultPromise = queryClient.query(service.facet('goodreads_rating', PARAMS));
     http.expectOne(request => request.url === `${API_CONFIG.BASE_URL}/api/v1/books/facets/goodreads_rating`).flush({
       links: [{rel: 'self', href: '/api/v1/books/facets/goodreads_rating', type: 'application/json'}],
       facets: [{
@@ -185,7 +185,7 @@ describe('BookQueryService', () => {
   });
 
   it('fetches matching IDs with sort but no size', async () => {
-    const resultPromise = queryClient.fetchQuery(service.ids(PARAMS));
+    const resultPromise = queryClient.query(service.ids(PARAMS));
     const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/ids?query=dune&facet=genre:Science%20Fiction&sort=title`);
     request.flush([3, 1, 2]);
 
@@ -240,7 +240,7 @@ describe('BookQueryService', () => {
   });
 
   it('fetches full book detail with the description flag', async () => {
-    const resultPromise = queryClient.fetchQuery(service.detail(42, {withDescription: true}));
+    const resultPromise = queryClient.query(service.detail(42, {withDescription: true}));
     expectTypeOf(resultPromise).toEqualTypeOf<Promise<BookDetail>>();
     const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/42?withDescription=true`);
     const response: BookDetail = {
@@ -275,7 +275,7 @@ describe('BookQueryService', () => {
 
   it('cancels an active HTTP request through the query signal', async () => {
     const options = service.detail(42, {withDescription: false});
-    const resultPromise = queryClient.fetchQuery(options);
+    const resultPromise = queryClient.query(options);
     const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/42?withDescription=false`);
 
     await queryClient.cancelQueries({queryKey: options.queryKey});

@@ -48,7 +48,7 @@ import {BrowseEmptyDef} from '../../../shared/browse/grid/grid.directives';
 import {sameRenderedRange, type BrowseRenderedRange, type BrowseStatus} from '../../../shared/browse/results';
 import {createBrowseSkeletonDelay} from '../../../shared/browse/skeleton-delay';
 import {type BrowseSelection} from '../../../shared/browse/selection';
-import {isBookQuerySortKey, type BookSortTerm} from '../../../core/data/browse-query-params';
+import {isBookQuerySortKey, type BookSortTerm} from '../data/book-query-params';
 import {type BookSummary} from '../data/book-response.models';
 import {bookTitle, type BookColumnValue} from './book-browse-fields';
 import {
