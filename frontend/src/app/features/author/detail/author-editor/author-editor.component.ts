@@ -11,8 +11,8 @@ import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
 import {Divider} from '@openng/optimus-ui/divider';
 import {MessageService} from '@openng/optimus-ui/api';
 import {DialogService} from '@openng/optimus-ui/dynamicdialog';
-import {AuthorService} from '../../service/author.service';
-import {AuthorDetails} from '../../model/author.model';
+import {AuthorService} from '../../../author-browser/service/author.service';
+import {AuthorDetails} from '../../../author-browser/model/author.model';
 import {AuthorPhotoSearchComponent} from '../author-photo-search/author-photo-search.component';
 
 @Component({

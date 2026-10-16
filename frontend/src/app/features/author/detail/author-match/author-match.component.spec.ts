@@ -4,8 +4,8 @@ import {MessageService} from '@openng/optimus-ui/api';
 import {Subject, throwError} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
-import type {AuthorDetails, AuthorSearchResult} from '../../model/author.model';
-import {AuthorService} from '../../service/author.service';
+import type {AuthorDetails, AuthorSearchResult} from '../../../author-browser/model/author.model';
+import {AuthorService} from '../../../author-browser/service/author.service';
 import {AuthorMatchComponent} from './author-match.component';
 
 describe('AuthorMatchComponent', () => {

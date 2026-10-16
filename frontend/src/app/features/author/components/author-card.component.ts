@@ -6,8 +6,8 @@ import {FormsModule} from '@angular/forms';
 import {TieredMenu} from '@openng/optimus-ui/tieredmenu';
 import {Button} from '@openng/optimus-ui/button';
 import {MenuItem, MessageService} from '@openng/optimus-ui/api';
-import {AuthorSummary} from '../../model/author.model';
-import {AuthorService} from '../../service/author.service';
+import {AuthorSummary} from '../../author-browser/model/author.model';
+import {AuthorService} from '../../author-browser/service/author.service';
 
 @Component({
   selector: 'app-author-card',

@@ -6,8 +6,8 @@ import {DialogService} from '@openng/optimus-ui/dynamicdialog';
 import {Subject, throwError} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
-import type {AuthorDetails} from '../../model/author.model';
-import {AuthorService} from '../../service/author.service';
+import type {AuthorDetails} from '../../../author-browser/model/author.model';
+import {AuthorService} from '../../../author-browser/service/author.service';
 import {AuthorPhotoSearchComponent} from '../author-photo-search/author-photo-search.component';
 import {AuthorEditorComponent} from './author-editor.component';
 

@@ -8,23 +8,23 @@ import {Button} from '@openng/optimus-ui/button';
 import {Divider} from '@openng/optimus-ui/divider';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
-import {RouteScrollPositionService} from '../../../../shared/service/route-scroll-position.service';
+import {RouteScrollPositionService} from '../../../shared/service/route-scroll-position.service';
 import {MessageService} from '@openng/optimus-ui/api';
-import {AuthorService} from '../../service/author.service';
-import {AuthorSummary, EnrichedAuthor, AuthorFilters, DEFAULT_AUTHOR_FILTERS} from '../../model/author.model';
-import {AuthorCardComponent} from '../author-card/author-card.component';
-import {AuthorSelectionService, AuthorCheckboxClickEvent} from '../../service/author-selection.service';
-import {PageTitleService} from '../../../../shared/service/page-title.service';
+import {AuthorService} from '../../author-browser/service/author.service';
+import {AuthorSummary, EnrichedAuthor, AuthorFilters, DEFAULT_AUTHOR_FILTERS} from '../../author-browser/model/author.model';
+import {AuthorCardComponent} from '../components/author-card.component';
+import {AuthorSelectionService, AuthorCheckboxClickEvent} from '../../author-browser/service/author-selection.service';
+import {PageTitleService} from '../../../shared/service/page-title.service';
 import {ActivatedRoute, Router} from '@angular/router';
-import {UserService} from '../../../settings/user-management/user.service';
-import {BookService} from '../../../book/service/book.service';
-import {Book, ReadStatus} from '../../../book/model/book.model';
-import {createVirtualGrid} from '../../../../shared/util/virtual-grid.util';
-import {GridDensityButtonsComponent, type GridDensityDirection} from '../../../../shared/components/grid-density-buttons/grid-density-buttons.component';
-import {LocalStorageService} from '../../../../shared/service/local-storage.service';
-import {ScalePreference} from '../../../../shared/util/scale-preference.util';
-import {LayoutService} from '../../../../shared/layout/layout.service';
-import {createGridDensity} from '../../../../shared/util/grid-density.util';
+import {UserService} from '../../settings/user-management/user.service';
+import {BookService} from '../../book/service/book.service';
+import {Book, ReadStatus} from '../../book/model/book.model';
+import {createVirtualGrid} from '../../../shared/util/virtual-grid.util';
+import {GridDensityButtonsComponent, type GridDensityDirection} from '../../../shared/components/grid-density-buttons/grid-density-buttons.component';
+import {LocalStorageService} from '../../../shared/service/local-storage.service';
+import {ScalePreference} from '../../../shared/util/scale-preference.util';
+import {LayoutService} from '../../../shared/layout/layout.service';
+import {createGridDensity} from '../../../shared/util/grid-density.util';
 
 type SortDirection = 'asc' | 'desc';
 
@@ -53,8 +53,8 @@ const DEFAULT_SORT_DIRECTIONS: Record<string, SortDirection> = {
 @Component({
   selector: 'app-author-browser',
   standalone: true,
-  templateUrl: './author-browser.component.html',
-  styleUrls: ['./author-browser.component.scss'],
+  templateUrl: './author-browse-page.component.html',
+  styleUrls: ['./author-browse-page.component.scss'],
   imports: [
     FormsModule,
     ProgressSpinner,
