@@ -37,12 +37,22 @@ updates:
           - "semantic-release"
           - "@semantic-release/*"
           - "conventional-changelog*"
+      eslint:
+        patterns:
+          - "eslint"
+          - "@eslint/*"
+          - "typescript-eslint"
+          - "angular-eslint"
       angular:
         patterns:
           - "@angular/*"
       openng:
         patterns:
           - "@openng/*"
+      vitest:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
@@ -53,6 +63,10 @@ updates:
       codeql:
         patterns:
           - "github/codeql-action/*"
+      artifact:
+        patterns:
+          - "actions/upload-artifact"
+          - "actions/download-artifact"
     labels:
       - "dependencies"
       - "ci"
