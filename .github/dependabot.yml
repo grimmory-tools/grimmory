@@ -49,6 +49,10 @@ updates:
       openng:
         patterns:
           - "@openng/*"
+      vitest:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
@@ -59,6 +63,10 @@ updates:
       codeql:
         patterns:
           - "github/codeql-action/*"
+      artifact:
+        patterns:
+          - "actions/upload-artifact"
+          - "actions/download-artifact"
     labels:
       - "dependencies"
       - "ci"
