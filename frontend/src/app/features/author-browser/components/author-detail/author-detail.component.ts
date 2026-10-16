@@ -1,5 +1,15 @@
-import { AfterViewChecked, Component, computed, ElementRef, inject, OnInit, signal, viewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import {
+  AfterViewChecked,
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  OnInit,
+  signal,
+  viewChild
+} from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@openng/optimus-ui/tabs';
 import { ProgressSpinner } from '@openng/optimus-ui/progressspinner';
@@ -10,8 +20,6 @@ import { MessageService } from '@openng/optimus-ui/api';
 import { Tooltip } from '@openng/optimus-ui/tooltip';
 import { AuthorService } from '../../service/author.service';
 import { AuthorDetails } from '../../model/author.model';
-import { BookService } from '../../../book/service/book.service';
-import { LegacyBookCardComponent } from '../../../book/components/legacy-book-card/legacy-book-card.component';
 import { CoverScalePreferenceService } from '../../../../shared/service/cover-scale-preference.service';
 import { BookCardOverlayPreferenceService } from '../../../book/components/legacy-book-card/book-card-overlay-preference.service';
 import { UserService } from '../../../settings/user-management/user.service';
@@ -19,6 +27,12 @@ import { AuthorMatchComponent } from '../author-match/author-match.component';
 import { AuthorEditorComponent } from '../author-editor/author-editor.component';
 import { PageTitleService } from '../../../../shared/service/page-title.service';
 import { createVirtualGrid } from '../../../../shared/util/virtual-grid.util';
+import {BookQueryService} from '../../../book/data/book-query.service';
+import {injectInfiniteQuery} from '@tanstack/angular-query-experimental';
+import {BookCardComponent} from '../../../book/components/cards/book-card.component';
+import {bookCardHeightForWidth} from '../../../book/components/cards/book-card.layout';
+import {BookNavigationService} from '../../../book/service/book-navigation.service';
+import {BookMenuComponent} from '../../../book/components/book-menu/book-menu.component';
 
 @Component({
   selector: 'app-author-detail',
@@ -37,9 +51,10 @@ import { createVirtualGrid } from '../../../../shared/util/virtual-grid.util';
     Tag,
     TranslocoDirective,
     Tooltip,
-    LegacyBookCardComponent,
     AuthorMatchComponent,
-    AuthorEditorComponent
+    AuthorEditorComponent,
+    BookCardComponent,
+    BookMenuComponent
   ]
 })
 export class AuthorDetailComponent implements OnInit, AfterViewChecked {
@@ -47,9 +62,9 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
   private static readonly GRID_GAP = 21;
 
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
   private authorService = inject(AuthorService);
-  private bookService = inject(BookService);
+  protected readonly bookNavigation = inject(BookNavigationService);
+  private readonly bookQueryService = inject(BookQueryService);
   private messageService = inject(MessageService);
   protected coverScalePreferenceService = inject(CoverScalePreferenceService);
   protected bookCardOverlayPreferenceService = inject(BookCardOverlayPreferenceService);
@@ -59,6 +74,7 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
 
   readonly descriptionContentRef = viewChild<ElementRef<HTMLElement>>('descriptionContent');
   private readonly scrollElement = viewChild<ElementRef<HTMLElement>>('scrollElement');
+  protected readonly bookMenu = viewChild(BookMenuComponent);
 
   loading = signal(true);
   tab = 'books';
@@ -69,23 +85,55 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
   quickMatching = false;
   private authorState = signal<AuthorDetails | null>(null);
   author = this.authorState.asReadonly();
-  authorBooks = computed(() => {
-    const authorName = this.author()?.name?.toLowerCase();
-    if (!authorName) {
-      return [];
+
+  readonly menuOpenBookId = computed(() => this.bookMenu()?.openBookId() ?? null);
+
+  readonly booksQuery = injectInfiniteQuery(() => this.bookQueryService.infinitePage({
+    enabled: this.author() != null,
+    size: 30,
+    sort: [],
+    facets: {
+      author: [ this.author()?.name ?? '' ]
+    },
+    facetLogic: 'and'
+  }));
+
+  books = computed(
+    () => this.booksQuery.data()?.pages.flatMap(p => p.content) ?? []
+  );
+
+  bookTotalCount = computed(() => this.booksQuery.data()?.pages[0]?.page.totalElements ?? 0)
+
+  private readonly fetchNextPageEffect = effect(() => {
+    const virtualItems = this.virtualGrid.virtualizer.getVirtualItems();
+    const lastItem = virtualItems[virtualItems.length - 1];
+
+    if (!lastItem) {
+      return
     }
 
-    return this.bookService.books().filter(book =>
-      book.metadata?.authors?.some(author => author.toLowerCase() === authorName)
-    );
-  });
+    if (this.booksQuery.isFetchNextPageError()) {
+      // If there's an error we may not want to keep retrying over and over.
+      return;
+    }
+
+    if (
+      lastItem.index >= this.books().length - 1 &&
+      this.booksQuery.hasNextPage() &&
+      !this.booksQuery.isFetchingNextPage()
+    ) {
+      this.booksQuery.fetchNextPage()
+    }
+  })
 
   get currentCardSize() {
-    return this.coverScalePreferenceService.currentCardSize();
+    const { width } = this.coverScalePreferenceService.currentCardSize();
+    const height = bookCardHeightForWidth(width, {square: false, metaLines: 2})
+    return { width, height };
   }
 
   readonly virtualGrid = createVirtualGrid({
-    items: this.authorBooks,
+    items: this.books,
     scrollElement: this.scrollElement,
     minItemWidth: computed(() => this.currentCardSize.width),
     estimateItemHeight: () => this.currentCardSize.height,
