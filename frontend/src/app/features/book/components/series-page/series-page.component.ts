@@ -30,8 +30,8 @@ import {BookCardOverlayPreferenceService} from '../legacy-book-card/book-card-ov
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {LanguageResolverService} from '../../../../shared/service/language-resolver.service';
 import {CoverComponent} from '../../../../shared/components/cover/cover.component';
-import {injectQuery} from '@tanstack/angular-query-experimental';
-import {AuthorService} from '../../../author-browser/service/author.service';
+import {injectQuery, QueryClient} from '@tanstack/angular-query-experimental';
+import {AuthorQueryService} from '../../../author/data/author-query.service';
 import {LayoutService} from '../../../../shared/layout/layout.service';
 
 interface ReadStatusSegment {
@@ -94,6 +94,8 @@ interface SeriesStats {
   ],
 })
 export class SeriesPageComponent implements AfterViewChecked {
+  private readonly authorQueries = inject(AuthorQueryService);
+  private readonly queryClient = inject(QueryClient);
 
   private readonly DEFAULT_SERIES_CARD_WIDTH = 135;
   private readonly DEFAULT_SERIES_CARD_HEIGHT = 220;
@@ -118,7 +120,6 @@ export class SeriesPageComponent implements AfterViewChecked {
   protected appSettingsService = inject(AppSettingsService);
   private readonly t = inject(TranslocoService);
   protected urlHelper = inject(UrlHelperService);
-  private authorService = inject(AuthorService);
   private layoutService = inject(LayoutService);
 
   private readonly descriptionContentRef = viewChild<ElementRef<HTMLElement>>('descriptionContent');
@@ -443,14 +444,14 @@ export class SeriesPageComponent implements AfterViewChecked {
   }
 
   goToAuthorBooks(author: string): void {
-    this.authorService.getAuthorByName(author).subscribe({
-      next: (authorDetails) => {
+    this.queryClient.query(this.authorQueries.byName(author)).then(
+      (authorDetails) => {
         this.router.navigate(['/author', authorDetails.id]);
       },
-      error: () => {
+      () => {
         this.handleMetadataClick('author', author);
       }
-    });
+    );
   }
 
   goToCategory(category: string): void {

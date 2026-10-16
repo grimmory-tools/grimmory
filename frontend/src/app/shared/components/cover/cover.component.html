@@ -19,6 +19,14 @@
     [attr.loading]="loading()"
     decoding="async"
   />
+} @else if (placeholder() === 'initials') {
+  <div
+    class="placeholder flex h-full w-full items-center justify-center overflow-hidden rounded-[inherit] bg-[oklch(from_var(--color-primary-100)_0.95_calc(c*0.6)_h)] dark:bg-[oklch(from_var(--color-primary-900)_0.31_calc(c*0.33)_h)]"
+  >
+    <span class="text-[30cqw] font-semibold leading-none tracking-[0.02em] text-primary-800 dark:text-primary-200">
+      {{ initials() }}
+    </span>
+  </div>
 } @else {
   <div
     class="placeholder group flex aspect-[5/7] h-full w-full flex-col justify-end overflow-hidden rounded-[inherit] p-2 text-left data-[size=md]:p-3 data-[size=lg]:p-3 bg-[oklch(from_var(--color-primary-100)_0.95_calc(c*0.6)_h)] dark:bg-[oklch(from_var(--color-primary-900)_0.31_calc(c*0.33)_h)]"

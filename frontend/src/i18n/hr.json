@@ -5053,74 +5053,6 @@
     }
   },
   "authorBrowser": {
-    "pageTitle": "Autori",
-    "browseAllAuthors": "Pregledaj sve autore",
-    "searchPlaceholder": "Pretraživanje po imenu autora...",
-    "noAuthorsFound": "Nijedan autor ne odgovara vašoj pretrazi.",
-    "sort": {
-      "name": "Naziv",
-      "bookCount": "Broj knjiga",
-      "matched": "Podudara se",
-      "recentlyAdded": "Nedavno dodano",
-      "recentlyRead": "Nedavno pročitano",
-      "readingProgress": "Napredak u čitanju",
-      "avgRating": "Prosječna ocjena",
-      "photo": "Fotografija",
-      "seriesCount": "Broj serija"
-    },
-    "filters": {
-      "all": "Sve",
-      "matchStatus": "Status podudaranja",
-      "matched": "Podudara se",
-      "unmatched": "Neusporedivo",
-      "photoStatus": "Status fotografije",
-      "hasPhoto": "Ima fotografiju",
-      "noPhoto": "Nema fotografije",
-      "readStatus": "Status čitanja",
-      "allRead": "Sve pročitano",
-      "someRead": "Neki čitaju",
-      "inProgress": "U tijeku",
-      "unread": "Nepročitano",
-      "bookCount": "Broj knjiga",
-      "library": "Zbrika",
-      "genre": "Žanr",
-      "reset": "Poništi filtere"
-    },
-    "footer": {
-      "selected": "odabrano",
-      "autoMatch": "Odabrano automatsko podudaranje",
-      "deleteSelected": "Izbriši odabrano",
-      "selectAll": "Odaberi sve",
-      "deselectAll": "Odznači sve"
-    },
-    "toast": {
-      "deleteSuccessSummary": "Autor izbrisan",
-      "deleteSuccessDetail": "Autor je uspješno izbrisan.",
-      "deleteFailedSummary": "Brisanje nije uspjelo",
-      "deleteFailedDetail": "Brisanje autora nije uspjelo.",
-      "autoMatchSuccessSummary": "Automatsko podudaranje dovršeno",
-      "autoMatchSuccessDetail": "Odabrani autori su uspješno usklađeni.",
-      "autoMatchFailedSummary": "Automatsko podudaranje nije uspjelo",
-      "autoMatchFailedDetail": "Automatsko podudaranje odabranih autora nije uspjelo.",
-      "quickMatchSuccessSummary": "Brzo podudaranje dovršeno",
-      "quickMatchSuccessDetail": "Autor je uspješno pronađen.",
-      "quickMatchFailedSummary": "Brzo podudaranje nije uspjelo",
-      "quickMatchFailedDetail": "Brzo pronalaženje autora nije uspjelo.",
-      "deleteSelectedSuccessSummary": "Autori izbrisani",
-      "deleteSelectedSuccessDetail": "Odabrani autori su uspješno izbrisani."
-    },
-    "card": {
-      "matched": "Podudara se",
-      "quickMatch": "Brzo podudaranje",
-      "book": "knjiga",
-      "books": "knjige",
-      "menu": {
-        "viewAuthor": "Prikaži autora",
-        "editAuthor": "Uredi autora",
-        "quickMatch": "Brzo podudaranje",
-        "deleteAuthor": "Izbriši autora"
-      }
-    },
     "editor": {
       "nameLabel": "Ime",
       "asinLabel": "ASIN",
@@ -5191,6 +5123,14 @@
         "matchFailedSummary": "Podudaranje nije uspjelo",
         "matchFailedDetail": "Nije uspjelo podudaranje autora s vanjskim metapodacima."
       }
+    }
+  },
+  "author": {
+    "quickMatch": {
+      "successSummary": "Brzo podudaranje dovršeno",
+      "successDetail": "Autor je uspješno pronađen.",
+      "failedSummary": "Brzo podudaranje nije uspjelo",
+      "failedDetail": "Brzo pronalaženje autora nije uspjelo."
     }
   },
   "browse": {

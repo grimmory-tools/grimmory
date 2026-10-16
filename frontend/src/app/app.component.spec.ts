@@ -21,7 +21,6 @@ import { ConfirmationService } from "@openng/optimus-ui/api";
 import { MessageService } from "@openng/optimus-ui/api";
 import { CommandPaletteService } from "./features/command-palette/command-palette.service";
 import { LibraryImportProgressService } from "./shared/service/library-import-progress.service";
-import { AuthorService } from "./features/author-browser/service/author.service";
 
 interface StompMessage {
   body: string;
@@ -45,10 +44,6 @@ describe("AppComponent", () => {
     handleRemovedBookIds: ReturnType<typeof vi.fn>;
     handleTaskProgress: ReturnType<typeof vi.fn>;
     handleReconnect: ReturnType<typeof vi.fn>;
-  };
-  let authorService: {
-    handleNewlyCreatedBook: ReturnType<typeof vi.fn>;
-    invalidateAuthors: ReturnType<typeof vi.fn>;
   };
   let notificationEventService: {
     handleNewNotification: ReturnType<typeof vi.fn>;
@@ -98,7 +93,6 @@ describe("AppComponent", () => {
       handleTaskProgress: vi.fn(),
       handleReconnect: vi.fn(),
     };
-    authorService = { handleNewlyCreatedBook: vi.fn(), invalidateAuthors: vi.fn() };
     notificationEventService = { handleNewNotification: vi.fn() };
     metadataProgressService = { handleIncomingProgress: vi.fn() };
     bookdropFileService = { handleIncomingFile: vi.fn() };
@@ -127,7 +121,6 @@ describe("AppComponent", () => {
         },
         { provide: RxStompService, useValue: rxStompService },
         { provide: BookService, useValue: bookService },
-        { provide: AuthorService, useValue: authorService },
         {
           provide: NotificationEventService,
           useValue: notificationEventService,
@@ -188,7 +181,6 @@ describe("AppComponent", () => {
       ?.next({ body: JSON.stringify({ metadata: { title: "First" } }) });
 
     expect(bookService.handleNewlyCreatedBook).toHaveBeenCalledWith({ metadata: { title: "First" } });
-    expect(authorService.handleNewlyCreatedBook).toHaveBeenCalledWith({ metadata: { title: "First" } });
     expect(libraryImportProgressService.recordBookAdded).toHaveBeenCalledWith("First");
   });
 
@@ -263,7 +255,6 @@ describe("AppComponent", () => {
     connectionState.next(RxStompState.OPEN);
 
     expect(bookService.handleReconnect).toHaveBeenCalledOnce();
-    expect(authorService.invalidateAuthors).toHaveBeenCalledOnce();
   });
 
   it("forces logout when the session is revoked", () => {

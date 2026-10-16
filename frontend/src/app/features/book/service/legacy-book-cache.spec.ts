@@ -2,9 +2,11 @@ import {QueryClient} from '@tanstack/angular-query-experimental';
 import {beforeEach, describe, expect, it} from 'vitest';
 
 import {Book} from '../model/book.model';
+import {authorQueryKeys} from '../../author/data/author-query-keys';
 import {bookQueryKeys} from '../data/book-query-keys';
 import {
   invalidateDeletedBookQueries,
+  patchBookFieldsInCache,
   patchBooksInCacheWith,
   reconcileBookCacheChangeSet,
   removeListOnlyBooks,
@@ -73,6 +75,16 @@ describe('legacy book cache adapter', () => {
     expect(isInvalidated(BOOKS_QUERY_KEY)).toBe(false);
     expect(isInvalidated(bookDetailQueryKey(1, false))).toBe(true);
     expect(isInvalidated(bookQueryKeys.detail(1, false))).toBe(true);
+  });
+
+  it('refreshes the author lists when a book field such as personal rating is patched', () => {
+    const authorIdsKey = authorQueryKeys.ids({facets: {}, sort: []});
+    queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, [makeBook(1)]);
+    queryClient.setQueryData(authorIdsKey, [1]);
+
+    patchBookFieldsInCache(queryClient, [{bookId: 1, fields: {personalRating: 8}}]);
+
+    expect(isInvalidated(authorIdsKey)).toBe(true);
   });
 
   it('does nothing for an empty changeset', async () => {

@@ -20,7 +20,7 @@
               type="submit"
               [label]="t('searchBtn')"
               icon="pi pi-search"
-              [loading]="searching"
+              [loading]="searching()"
               [disabled]="searchForm.invalid">
             </p-button>
             <p-button
@@ -39,7 +39,7 @@
     </div>
 
     <div class="results-section">
-      @if (!hasSearched) {
+      @if (!hasSearched()) {
         <div class="empty-state">
           <div class="empty-state-icon">
             <i class="pi pi-images"></i>
@@ -47,12 +47,12 @@
           <h3>{{ t('readyTitle') }}</h3>
           <p>{{ t('readyHint') }}</p>
         </div>
-      } @else if (searching) {
+      } @else if (searching()) {
         <div class="loading-state">
           <p-progressSpinner strokeWidth="3" animationDuration="1s"></p-progressSpinner>
           <p>{{ t('searching') }}</p>
         </div>
-      } @else if (photos.length === 0) {
+      } @else if (photos().length === 0) {
         <div class="empty-state no-results">
           <div class="empty-state-icon warning">
             <i class="pi pi-search"></i>
@@ -64,12 +64,12 @@
         <div class="results-header">
           <span class="results-count">
             <i class="pi pi-images"></i>
-            {{ t('resultsFound', { count: photos.length }) }}
+            {{ t('resultsFound', { count: photos().length }) }}
           </span>
         </div>
 
         <div class="photos-grid">
-          @for (photo of photos; track photo.url; let i = $index) {
+          @for (photo of photos(); track photo.url; let i = $index) {
             <div class="photo-card">
               <div class="photo-image-wrapper">
                 <p-image

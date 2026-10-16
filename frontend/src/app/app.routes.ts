@@ -52,7 +52,10 @@ export const routes: Routes = [
       {path: 'unshelved-books', children: bookBrowseRoutes({browseScope: 'unshelved'})},
       {path: 'series', loadComponent: () => import('./features/series-browser/components/series-browser/series-browser.component').then(m => m.SeriesBrowserComponent)},
       {path: 'series/:seriesName', loadComponent: () => import('./features/book/components/series-page/series-page.component').then(m => m.SeriesPageComponent)},
-      {path: 'authors', loadComponent: () => import('./features/author/browse/author-browse-page.component').then(m => m.AuthorBrowserComponent)},
+      {path: 'authors', children: [
+        {path: '', loadComponent: () => import('./features/author/browse/author-browse-page.component').then(m => m.AuthorBrowsePageComponent)},
+        {path: 'filter', loadComponent: () => import('./features/author/browse/author-browse-filter-page.component').then(m => m.AuthorBrowseFilterPageComponent)},
+      ]},
       {path: 'author/:authorId', loadComponent: () => import('./features/author/detail/author-detail/author-detail.component').then(m => m.AuthorDetailComponent)},
       {path: 'magic-shelf/:magicShelfId/books', canActivateChild: [validBookBrowseScope], children: bookBrowseRoutes()},
       {path: 'book/:bookId', loadComponent: () => import('./features/metadata/component/book-metadata-center/book-metadata-center.component').then(m => m.BookMetadataCenterComponent)},

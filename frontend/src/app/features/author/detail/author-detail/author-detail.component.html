@@ -61,11 +61,11 @@
                   }
                   @if (canEditMetadata) {
                     <p-button
-                      [icon]="quickMatching ? 'pi pi-spin pi-spinner' : 'pi pi-bolt'"
+                      [icon]="authorQuickMatch.isPending() ? 'pi pi-spin pi-spinner' : 'pi pi-bolt'"
                       [outlined]="true"
                       severity="warn"
                       size="small"
-                      [disabled]="quickMatching"
+                      [disabled]="authorQuickMatch.isPending()"
                       (onClick)="quickMatch()"
                       [pTooltip]="t('quickMatchTooltip')"
                       tooltipPosition="top">
@@ -138,14 +138,15 @@
               <app-author-editor
                 [authorId]="author.id"
                 [author]="author"
-                (authorUpdated)="onAuthorUpdated($event)">
+                [photoTimestamp]="photoTimestamp"
+                (authorUpdated)="onAuthorUpdated()">
               </app-author-editor>
             </p-tabpanel>
             <p-tabpanel value="match">
               <app-author-match
                 [authorId]="author.id"
                 [authorName]="author.name"
-                (authorMatched)="onAuthorUpdated($event)">
+                (authorMatched)="onAuthorUpdated()">
               </app-author-match>
             </p-tabpanel>
           }

@@ -42,7 +42,8 @@ import {AppSettingsService} from '../../../../../shared/service/app-settings.ser
 import {LanguageResolverService} from '../../../../../shared/service/language-resolver.service';
 import {DeleteBookFileEvent, DeleteSupplementaryFileEvent, DetachBookFileEvent, DownloadAdditionalFileEvent, DownloadAllFilesEvent, DownloadEvent, MetadataTabsComponent, ReadEvent} from './metadata-tabs/metadata-tabs.component';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
-import {AuthorService} from '../../../../author-browser/service/author.service';
+import {QueryClient} from '@tanstack/angular-query-experimental';
+import {AuthorQueryService} from '../../../../author/data/author-query.service';
 import {Dialog} from '@openng/optimus-ui/dialog';
 import {Checkbox} from '@openng/optimus-ui/checkbox';
 import DOMPurify from 'dompurify';
@@ -64,6 +65,8 @@ interface ProviderBadge {
   imports: [Button, Rating, FormsModule, SplitButton, NgClass, Tooltip, DecimalPipe, ProgressBar, Menu, DatePicker, ProgressSpinner, TieredMenu, TagComponent, MetadataTabsComponent, TranslocoDirective, TranslocoPipe, Dialog, Checkbox, CoverComponent]
 })
 export class MetadataViewerComponent implements OnInit, AfterViewChecked {
+  private readonly authorQueries = inject(AuthorQueryService);
+  private readonly queryClient = inject(QueryClient);
   private bookService = inject(BookService);
   private currentBook = signal<Book | null>(null);
   private readonly seriesLookupBookId = computed(() => {
@@ -121,7 +124,6 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   private messageService = inject(MessageService);
   private bookFileService = inject(BookFileService);
   private taskHelperService = inject(TaskHelperService);
-  private authorService = inject(AuthorService);
   protected urlHelper = inject(UrlHelperService);
   protected userService = inject(UserService);
   protected languageResolver = inject(LanguageResolverService);
@@ -831,15 +833,15 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   }
 
   goToAuthorBooks(author: string): void {
-    this.authorService.getAuthorByName(author).subscribe({
-      next: (authorDetails) => {
+    this.queryClient.query(this.authorQueries.byName(author)).then(
+      (authorDetails) => {
         const navigate = () => this.router.navigate(['/author', authorDetails.id]);
         this.navigateAfterDialogClose(() => void navigate());
       },
-      error: () => {
+      () => {
         this.handleMetadataClick('author', author);
       }
-    });
+    );
   }
 
   goToCategory(category: string): void {

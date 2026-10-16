@@ -5099,74 +5099,6 @@
     }
   },
   "authorBrowser": {
-    "pageTitle": "Authors",
-    "browseAllAuthors": "Browse All Authors",
-    "searchPlaceholder": "Search by author name...",
-    "noAuthorsFound": "No authors match your search.",
-    "sort": {
-      "name": "Name",
-      "bookCount": "Book Count",
-      "matched": "Matched",
-      "recentlyAdded": "Recently Added",
-      "recentlyRead": "Recently Read",
-      "readingProgress": "Reading Progress",
-      "avgRating": "Avg Rating",
-      "photo": "Photo",
-      "seriesCount": "Series Count"
-    },
-    "filters": {
-      "all": "All",
-      "matchStatus": "Match Status",
-      "matched": "Matched",
-      "unmatched": "Unmatched",
-      "photoStatus": "Photo Status",
-      "hasPhoto": "Has Photo",
-      "noPhoto": "No Photo",
-      "readStatus": "Read Status",
-      "allRead": "All Read",
-      "someRead": "Some Read",
-      "inProgress": "In Progress",
-      "unread": "Unread",
-      "bookCount": "Book Count",
-      "library": "Library",
-      "genre": "Genre",
-      "reset": "Reset Filters"
-    },
-    "footer": {
-      "selected": "selected",
-      "autoMatch": "Auto-match selected",
-      "deleteSelected": "Delete selected",
-      "selectAll": "Select all",
-      "deselectAll": "Deselect all"
-    },
-    "toast": {
-      "deleteSuccessSummary": "Author Deleted",
-      "deleteSuccessDetail": "Author has been deleted successfully.",
-      "deleteFailedSummary": "Delete Failed",
-      "deleteFailedDetail": "Failed to delete author.",
-      "autoMatchSuccessSummary": "Auto-Match Complete",
-      "autoMatchSuccessDetail": "Selected authors have been matched successfully.",
-      "autoMatchFailedSummary": "Auto-Match Failed",
-      "autoMatchFailedDetail": "Failed to auto-match selected authors.",
-      "quickMatchSuccessSummary": "Quick Match Complete",
-      "quickMatchSuccessDetail": "Author has been matched successfully.",
-      "quickMatchFailedSummary": "Quick Match Failed",
-      "quickMatchFailedDetail": "Failed to quick-match the author.",
-      "deleteSelectedSuccessSummary": "Authors Deleted",
-      "deleteSelectedSuccessDetail": "Selected authors have been deleted successfully."
-    },
-    "card": {
-      "matched": "Matched",
-      "quickMatch": "Quick Match",
-      "book": "book",
-      "books": "books",
-      "menu": {
-        "viewAuthor": "View Author",
-        "editAuthor": "Edit Author",
-        "quickMatch": "Quick Match",
-        "deleteAuthor": "Delete Author"
-      }
-    },
     "editor": {
       "nameLabel": "Name",
       "asinLabel": "ASIN",
@@ -5239,6 +5171,42 @@
       }
     }
   },
+  "author": {
+    "card": {
+      "book": "{{count}} book",
+      "books": "{{count}} books",
+      "select": "Select {{name}}",
+      "photoAlt": "Photo of {{name}}",
+      "menu": "Options for {{name}}"
+    },
+    "bulk": {
+      "autoMatch": "Auto-match",
+      "autoMatchResult": "Matched {{ matched }} of {{ total }} authors",
+      "autoMatchFailed": "Auto-match failed",
+      "deleteHeader": "Confirm Deletion",
+      "deleteMessage": "Are you sure you want to delete {{ count }} author(s)?\n\nThey will be removed from all of their books.\n\nThis action cannot be undone."
+    },
+    "menu": {
+      "label": "Author actions",
+      "quickMatch": "Quick Match",
+      "deleteMessage": "Are you sure you want to delete \"{{ name }}\"?\n\nThey will be removed from all of their books.\n\nThis action cannot be undone."
+    },
+    "fields": {
+      "name": "Name",
+      "surname": "Surname",
+      "bookCount": "Book Count",
+      "seriesCount": "Series Count",
+      "hasPhoto": "Photo",
+      "hasAsin": "ASIN",
+      "hasDescription": "Description"
+    },
+    "quickMatch": {
+      "successSummary": "Quick Match Complete",
+      "successDetail": "Author has been matched successfully.",
+      "failedSummary": "Quick Match Failed",
+      "failedDetail": "Failed to quick-match the author."
+    }
+  },
   "browse": {
     "showAll": "Show All",
     "showMore": "Show More",
@@ -5261,13 +5229,15 @@
     "rail": {
       "searchValues": "Search…",
       "searchFields": "Title, author, genre…",
+      "searchAuthors": "Name or ASIN…",
       "clearSearch": "Clear search",
       "searchScope": {
         "allBooks": "Search All Books",
         "library": "Search Library",
         "shelf": "Search Shelf",
         "magicShelf": "Search Magic Shelf",
-        "unshelved": "Search Unshelved Books"
+        "unshelved": "Search Unshelved Books",
+        "authors": "Search Authors"
       },
       "noMatches": "No matches",
       "minUnit": "Min unit",
@@ -5281,6 +5251,12 @@
       "filteredEmpty": "No books match these filters.",
       "loadError": "We couldn't load these books.",
       "pageError": "Couldn't load more books."
+    },
+    "author": {
+      "empty": "No authors here yet.",
+      "filteredEmpty": "No authors match these filters.",
+      "loadError": "We couldn't load these authors.",
+      "pageError": "Couldn't load more authors."
     },
     "table": {
       "moreValues": "Show {{count}} more {{column}}"
@@ -5324,7 +5300,8 @@
       "lockUnlockMetadata": "Lock/Unlock Metadata"
     },
     "filterPage": {
-      "show": "Show {{count}} Books"
+      "show": "Show {{count}} Books",
+      "showAuthors": "Show {{count}} Authors"
     }
   }
 }
