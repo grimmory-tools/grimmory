@@ -21,6 +21,14 @@ updates:
       mapstruct:
         patterns:
           - "org.mapstruct:*"
+      jaxb:
+        patterns:
+          - "jakarta.xml.bind:*"
+          - "org.glassfish.jaxb:*"
+      compress:
+        patterns:
+          - "org.apache.commons:commons-compress"
+          - "org.tukaani:xz"
 
   # JavaScript – pnpm workspace (frontend)
   - package-ecosystem: "npm"
@@ -91,6 +99,12 @@ updates:
         patterns:
           - "actions/upload-artifact"
           - "actions/download-artifact"
+      docker:
+        patterns:
+          - "docker/*"
+      pnpm:
+        patterns:
+          - "pnpm/*"
     labels:
       - "dependencies"
       - "ci"
