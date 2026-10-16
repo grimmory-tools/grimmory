@@ -32,6 +32,9 @@ updates:
       timezone: "UTC"
     cooldown:
       default-days: 3
+    ignore:
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
     open-pull-requests-limit: 5
     labels:
       - "dependencies"
