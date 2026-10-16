@@ -41,7 +41,7 @@
                 [value]="getKoProgressPercent(book)"
                 [showValue]="false"
                 class="cover-progress-bar"
-                [ngClass]="[
+                [class]="[
                   getKoProgressPercent(book) === 100 ? 'progress-complete-ko' : 'progress-incomplete-ko'
                 ]"
               />
@@ -52,7 +52,7 @@
                 [value]="getKoboProgressPercent(book)"
                 [showValue]="false"
                 class="cover-progress-bar"
-                [ngClass]="[
+                [class]="[
                   getKoboProgressPercent(book) === 100 ? 'progress-complete-kobo' : 'progress-incomplete-kobo'
                 ]"
               />
@@ -110,7 +110,7 @@
                 </h1>
                 <i
                   class="pi lock-icon"
-                  [ngClass]="isMetadataFullyLocked(book?.metadata!) ? 'pi-lock locked' : 'pi-lock-open unlocked'"
+                  [class]="isMetadataFullyLocked(book?.metadata!) ? 'pi-lock locked' : 'pi-lock-open unlocked'"
                   [pTooltip]="isMetadataFullyLocked(book?.metadata!) ? t('metadataLocked') : t('metadataUnlocked')"
                   tooltipPosition="top"
                 ></i>
@@ -512,7 +512,7 @@
           @if (hasDigitalFile(book)) {
             <div class="file-path-section">
               <span class="metadata-key">{{ t('filePathLabel') }}</span>
-              <i class="pi eye-icon" role="button" tabindex="0" [ngClass]="showFilePath ? 'pi-eye-slash' : 'pi-eye'" (click)="showFilePath = !showFilePath" (keydown.enter)="showFilePath = !showFilePath"></i>
+              <i class="pi eye-icon" role="button" tabindex="0" [class]="showFilePath ? 'pi-eye-slash' : 'pi-eye'" (click)="showFilePath = !showFilePath" (keydown.enter)="showFilePath = !showFilePath"></i>
               @if (showFilePath) {
                 <code class="file-path-code">{{ book?.primaryFile?.filePath }}</code>
               }
@@ -599,7 +599,7 @@
         @if (isExpanded || isOverflowing) {
           <button type="button" class="expand-toggle" (click)="toggleExpand()">
             {{ isExpanded ? t('showLess') : t('showMore') }}
-            <i class="pi" [ngClass]="isExpanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+            <i class="pi" [class]="isExpanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
           </button>
         }
       </div>
@@ -612,7 +612,7 @@
             <i class="pi pi-images"></i>
             <span>{{ t('comicDetailsTitle') }}</span>
           </div>
-          <i class="pi section-toggle-icon" [ngClass]="isComicSectionExpanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+          <i class="pi section-toggle-icon" [class]="isComicSectionExpanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
         </div>
 
         <div class="comic-metadata-content" [class.collapsed]="!isComicSectionExpanded">

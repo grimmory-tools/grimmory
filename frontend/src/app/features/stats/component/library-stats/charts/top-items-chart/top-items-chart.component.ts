@@ -8,7 +8,7 @@ import {LibraryFilterService} from '../../service/library-filter.service';
 import {BookService} from '../../../../../book/service/book.service';
 import {Book, ReadStatus} from '../../../../../book/model/book.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
-import {NgClass, AsyncPipe} from '@angular/common';
+import {AsyncPipe} from '@angular/common';
 
 interface ItemStats {
   name: string;
@@ -76,7 +76,7 @@ const READ_STATUS_ORDER: ReadStatus[] = [
   standalone: true,
   imports: [
     AsyncPipe,
-    NgClass,FormsModule, BaseChartDirective, Select, TranslocoDirective],
+    FormsModule, BaseChartDirective, Select, TranslocoDirective],
   templateUrl: './top-items-chart.component.html',
   styleUrls: ['./top-items-chart.component.scss']
 })

@@ -265,7 +265,7 @@
                     @if (isExpanded() || isOverflowing()) {
                       <button type="button" class="expand-toggle" (click)="toggleExpand()">
                         {{ isExpanded() ? t('showLess') : t('showMore') }}
-                        <i class="pi" [ngClass]="isExpanded() ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+                        <i class="pi" [class]="isExpanded() ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
                       </button>
                     }
                   </div>
@@ -351,7 +351,7 @@
                   <div class="list-rating-row">
                     @for (star of [1,2,3,4,5]; track star) {
                       <i class="pi list-star"
-                        [ngClass]="book.personalRating! >= star * 2 ? 'pi-star-fill' : (book.personalRating! >= star * 2 - 1 ? 'pi-star-half-fill' : 'pi-star')">
+                        [class]="book.personalRating! >= star * 2 ? 'pi-star-fill' : (book.personalRating! >= star * 2 - 1 ? 'pi-star-half-fill' : 'pi-star')">
                       </i>
                     }
                     <span class="list-rating-value">{{ book.personalRating }}/10</span>

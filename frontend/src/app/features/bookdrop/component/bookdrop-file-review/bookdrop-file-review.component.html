@@ -53,7 +53,7 @@
       @if (bookdropFileUis.length !== 0) {
         <div class="controls-row">
           <div class="action-buttons">
-            <p-inputgroup class="importmetadata" [ngClass]="!hasSelectedFiles ? 'disabled' : ''">
+            <p-inputgroup class="importmetadata" [class]="!hasSelectedFiles ? 'disabled' : ''">
               <p-button
                 size="small"
                 outlined
@@ -140,7 +140,7 @@
         @for (file of bookdropFileUis; track file.file.id) {
 
           <div class="file-item">
-            <div class="file-row" [ngClass]="file.showDetails ? ' expanded' : ''">
+            <div class="file-row" [class]="file.showDetails ? ' expanded' : ''">
               <p-checkbox
                 [binary]="true"
                 [(ngModel)]="file.selected"

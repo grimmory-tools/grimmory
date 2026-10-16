@@ -6,12 +6,11 @@ import {finalize, Subject, takeUntil} from 'rxjs';
 import {TableModule} from '@openng/optimus-ui/table';
 import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
-import {NgClass} from '@angular/common';
 @Component({
   selector: 'app-book-reading-sessions',
   standalone: true,
   imports: [
-    NgClass,TableModule, ProgressSpinner, TranslocoDirective],
+    TableModule, ProgressSpinner, TranslocoDirective],
   templateUrl: './book-reading-sessions.component.html',
   styleUrls: ['./book-reading-sessions.component.scss']
 })

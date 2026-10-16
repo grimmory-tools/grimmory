@@ -24,13 +24,11 @@ import {ExternalDocLinkComponent} from '../../../shared/components/external-doc-
 import {ToggleSwitch} from '@openng/optimus-ui/toggleswitch';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
-import {NgClass} from '@angular/common';
 
 @Component({
   selector: 'app-task-management',
   standalone: true,
   imports: [
-    NgClass,
     Button,
     ProgressBar,
     Select,

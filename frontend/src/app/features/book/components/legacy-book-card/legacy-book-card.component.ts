@@ -10,7 +10,6 @@ import {FormsModule} from '@angular/forms';
 import {MetadataRefreshType} from '../../../metadata/model/request/metadata-refresh-type.enum';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {CoverComponent} from '../../../../shared/components/cover/cover.component';
-import {NgClass} from '@angular/common';
 import {UserService} from '../../../settings/user-management/user.service';
 import {EmailService} from '../../../settings/email-v2/email.service';
 import {TieredMenu} from '@openng/optimus-ui/tieredmenu';
@@ -31,7 +30,7 @@ import {ButtonDirective} from '@openng/optimus-ui/button';
   selector: 'app-legacy-book-card',
   templateUrl: './legacy-book-card.component.html',
   styleUrls: ['./legacy-book-card.component.scss'],
-  imports: [ButtonDirective, Checkbox, FormsModule, NgClass, TieredMenu, Tooltip, RouterLink, TranslocoPipe, CoverComponent],
+  imports: [ButtonDirective, Checkbox, FormsModule, TieredMenu, Tooltip, RouterLink, TranslocoPipe, CoverComponent],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush
 })

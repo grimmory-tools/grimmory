@@ -17,7 +17,7 @@
 
     <div class="top-left-overlay-stack">
       @if (showBookTypePill() && displayFormat(); as fmt) {
-        <div class="book-type-pill-overlay" [ngClass]="'book-type-' + fmt.toLowerCase()">
+        <div class="book-type-pill-overlay" [class]="'book-type-' + fmt.toLowerCase()">
           {{ fmt }}
         </div>
       }
@@ -70,12 +70,12 @@
           </div>
         }
         @if (koProgressPercentage() !== null) {
-          <div class="cover-progress-bar" [ngClass]="koProgressPercentage() === 100 ? 'progress-complete-ko' : 'progress-incomplete-ko'">
+          <div class="cover-progress-bar" [class]="koProgressPercentage() === 100 ? 'progress-complete-ko' : 'progress-incomplete-ko'">
             <div class="progress-fill" [style.width.%]="koProgressPercentage()!"></div>
           </div>
         }
         @if (koboProgressPercentage() !== null) {
-          <div class="cover-progress-bar" [ngClass]="koboProgressPercentage() === 100 ? 'progress-complete-kobo' : 'progress-incomplete-kobo'">
+          <div class="cover-progress-bar" [class]="koboProgressPercentage() === 100 ? 'progress-complete-kobo' : 'progress-incomplete-kobo'">
             <div class="progress-fill" [style.width.%]="koboProgressPercentage()!"></div>
           </div>
         }
@@ -86,7 +86,7 @@
   @if (!bottomBarHidden()) {
     <div class="book-title-container">
       <div class="read-status-indicator"
-           [ngClass]="readStatusClass()"
+           [class]="readStatusClass()"
            [pTooltip]="readStatusTooltip()"
            tooltipPosition="bottom"
            (click)="toggleReadStatusMenu($event, readStatusMenu)"

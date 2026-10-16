@@ -1,5 +1,4 @@
 import {ChangeDetectionStrategy, Component, inject, Input, output} from '@angular/core';
-import {NgClass} from '@angular/common';
 import {ProgressBar} from '@openng/optimus-ui/progressbar';
 import {Button} from '@openng/optimus-ui/button';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
@@ -15,7 +14,7 @@ import {CoverComponent} from '../../../../shared/components/cover/cover.componen
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './series-card.component.html',
   styleUrls: ['./series-card.component.scss'],
-  imports: [NgClass, ProgressBar, Button, Tooltip, TranslocoPipe, CoverComponent]
+  imports: [ProgressBar, Button, Tooltip, TranslocoPipe, CoverComponent]
 })
 export class SeriesCardComponent {
   protected urlHelper = inject(UrlHelperService);
