@@ -77,15 +77,12 @@ public class AudiobookProcessor extends AbstractFileProcessor implements BookFil
     }
 
     @Override
-    public boolean generateAudiobookCover(BookEntity bookEntity) {
-        var audiobookFile = bookEntity.getBookFiles().stream()
-                .filter(f -> f.getBookType() == BookFileType.AUDIOBOOK)
-                .min(Comparator.comparingLong(BookFileEntity::getId))
-                .orElse(null);
-        if (audiobookFile == null) {
-            return false;
+    public boolean restoreCover(BookEntity bookEntity, BookFileEntity audiobookFile) {
+        if (generateCoverFromFile(bookEntity, audiobookFile)) {
+            return true;
         }
-        return generateCoverFromFile(bookEntity, audiobookFile);
+        Path folder = getBookFolderForCoverFallback(bookEntity, audiobookFile);
+        return folder != null && generateAudiobookCoverFromFolderImage(bookEntity, folder);
     }
 
     public boolean generateCover(BookEntity bookEntity, boolean isFolderBased) {
