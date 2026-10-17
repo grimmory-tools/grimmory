@@ -43,6 +43,8 @@ import {
   writeStripWidthPercentPerBook
 } from './core/cbx-reader-storage';
 import {computeCbxSpreads, findCbxSpreadForPage} from './core/cbx-spread.util';
+import {isPageTurnSwipe} from './core/cbx-swipe.util';
+import {isPrimaryButtonHeld} from '../../../shared/util/pointer-gestures';
 import {isTouchScreen, setupReaderEdges} from '../shared/reader-edges.util';
 
 const SERIES_SORT: readonly BookSortTerm[] = [{key: 'seriesNumber', direction: 'asc'}];
@@ -85,8 +87,13 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private static readonly AUTO_CLOSE_MENU_TIMEOUT = 3000;
   /** Max pages kept in DOM for infinite scroll; pages outside this window are removed. */
   private static readonly INFINITE_SCROLL_MAX_DOM_PAGES = 18;
+  private static readonly DRAG_THRESHOLD_PX = 5;
+  private static readonly DRAG_CLICK_SUPPRESS_MS = 300;
+  /** Mouse events this soon after a touch are the browser's emulated ones and are ignored. */
+  private static readonly TOUCH_MOUSE_EMULATION_MS = 800;
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly hostRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly cbxReaderService = inject(CbxReaderService);
@@ -122,7 +129,14 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   readonly scrollMode = signal<CbxScrollMode>(CbxScrollMode.PAGINATED);
 
   private touchStartX = 0;
-  private touchEndX = 0;
+  private touchStartY = 0;
+  private touchStartScrollLeft = 0;
+  private lastTouchTime = 0;
+
+  // Mouse drag-to-pan
+  private mouseDrag: {startX: number; startY: number; lastX: number; lastY: number; moved: boolean} | null = null;
+  /** performance.now() deadline; clicks before it end a drag. */
+  private suppressClicksUntil = 0;
 
   readonly currentBook = signal<Book | null>(null);
   readonly nextBookInSeries = signal<Book | null>(null);
@@ -316,6 +330,28 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     effect(() => {
       this.sidebarService.notes();
       this.updateNotesState();
+    });
+
+    // Capture phase: swallow the click that ends a mouse drag on the page (not toolbar clicks).
+    const suppressDragClick = (event: MouseEvent) => {
+      if (performance.now() < this.suppressClicksUntil && this.isOnPage(event.target)) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+    };
+    const host = this.hostRef.nativeElement;
+    host.addEventListener('click', suppressDragClick, true);
+    this.destroyRef.onDestroy(() => host.removeEventListener('click', suppressDragClick, true));
+
+    // Page, layout and magnifier changes can make the page draggable (or not) without a mouse move.
+    effect(() => {
+      this.currentPage();
+      this.fitMode();
+      this.scrollMode();
+      this.pageViewMode();
+      this.imagesLoaded();
+      this.isMagnifierActive();
+      this.afterNextPaint(() => this.refreshPanCursor());
     });
   }
 
@@ -1841,7 +1877,10 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   @HostListener('touchstart', ['$event'])
   onTouchStart(event: TouchEvent) {
+    this.lastTouchTime = performance.now();
     this.touchStartX = event.changedTouches[0].screenX;
+    this.touchStartY = event.changedTouches[0].screenY;
+    this.touchStartScrollLeft = this.getImageScrollContainer()?.scrollLeft ?? 0;
     this.touchMoveCount = 0;
   }
 
@@ -1852,15 +1891,77 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   @HostListener('touchend', ['$event'])
   onTouchEnd(event: TouchEvent) {
-    this.touchEndX = event.changedTouches[0].screenX;
+    this.lastTouchTime = performance.now();
     // Filter tremor/jitter: ignore if fewer than 3 move events
     if (this.touchMoveCount >= 3) {
-      this.handleSwipeGesture();
+      this.handleSwipeGesture(event.changedTouches[0]);
     }
+  }
+
+  @HostListener('mousedown', ['$event'])
+  onMouseDown(event: MouseEvent): void {
+    if (performance.now() - this.lastTouchTime < CbxReaderComponent.TOUCH_MOUSE_EMULATION_MS) return;
+    if (event.button !== 0 || this.isMagnifierActive() || !this.isOnPage(event.target)) return;
+    if (event.target instanceof Element && event.target.closest('button, a, input, select, textarea')) return;
+    if (!this.canPanPage()) return;
+
+    // Stops the browser's native image drag and text selection.
+    event.preventDefault();
+    this.mouseDrag = {startX: event.clientX, startY: event.clientY, lastX: event.clientX, lastY: event.clientY, moved: false};
+    this.getImageScrollContainer()?.classList.add('is-dragging');
+  }
+
+  @HostListener('document:mouseup')
+  onMouseUp(): void {
+    if (!this.mouseDrag) return;
+    if (this.mouseDrag.moved) {
+      this.suppressClicksUntil = performance.now() + CbxReaderComponent.DRAG_CLICK_SUPPRESS_MS;
+    }
+    this.endMouseDrag();
+  }
+
+  private updateMouseDrag(event: MouseEvent): void {
+    const drag = this.mouseDrag;
+    if (!drag) return;
+    // The button was released where we never saw mouseup (e.g. focus left the window): drop the drag.
+    if (!isPrimaryButtonHeld(event)) {
+      this.endMouseDrag();
+      return;
+    }
+    const container = this.getImageScrollContainer();
+    if (container) {
+      container.scrollLeft -= event.clientX - drag.lastX;
+      container.scrollTop -= event.clientY - drag.lastY;
+    }
+    drag.lastX = event.clientX;
+    drag.lastY = event.clientY;
+    drag.moved ||= Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) > CbxReaderComponent.DRAG_THRESHOLD_PX;
+  }
+
+  private endMouseDrag(): void {
+    this.mouseDrag = null;
+    this.getImageScrollContainer()?.classList.remove('is-dragging');
+  }
+
+  /** Pan only starts on the page area, not header/footer/sidebar. */
+  private isOnPage(target: EventTarget | null): boolean {
+    return target instanceof Node && !!this.getImageScrollContainer()?.contains(target);
+  }
+
+  private canPanPage(): boolean {
+    const container = this.getImageScrollContainer();
+    return !!container && (
+      container.scrollWidth > container.clientWidth + 1 || container.scrollHeight > container.clientHeight + 1
+    );
+  }
+
+  private refreshPanCursor(): void {
+    this.getImageScrollContainer()?.classList.toggle('can-pan', !this.isMagnifierActive() && this.canPanPage());
   }
 
   @HostListener('window:resize')
   onResize() {
+    this.refreshPanCursor();
     this.visibilityManager.updateWindowHeight(window.innerHeight);
     this.enforcePortraitSinglePageView();
   }
@@ -1868,6 +1969,11 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent): void {
     this.lastMouseEvent = event;
+    if (this.mouseDrag) {
+      this.updateMouseDrag(event);
+    } else {
+      this.refreshPanCursor();
+    }
     this.visibilityManager.handleMouseMove(event.clientY);
     if (this.isMagnifierActive()) {
       this.updateMagnifier(event);
@@ -1890,12 +1996,17 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     this.visibilityManager.setFooterHovered(hovered);
   }
 
-  private handleSwipeGesture() {
+  private handleSwipeGesture(touch: Touch) {
     if (this.scrollMode() === CbxScrollMode.INFINITE || this.scrollMode() === CbxScrollMode.LONG_STRIP) return;
 
-    const delta = this.touchEndX - this.touchStartX;
-    const threshold = Math.min(75, window.innerWidth * 0.1);
-    if (Math.abs(delta) < threshold) return;
+    const delta = touch.screenX - this.touchStartX;
+    const isSwipe = isPageTurnSwipe({
+      deltaX: delta,
+      deltaY: touch.screenY - this.touchStartY,
+      scrollDeltaX: (this.getImageScrollContainer()?.scrollLeft ?? 0) - this.touchStartScrollLeft,
+      threshold: Math.min(75, window.innerWidth * 0.1),
+    });
+    if (!isSwipe) return;
 
     const isRtl = this.readingDirection() === CbxReadingDirection.RTL;
     const shouldGoNext = isRtl ? delta > 0 : delta < 0;
