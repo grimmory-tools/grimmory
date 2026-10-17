@@ -179,7 +179,7 @@ class LibraryRescanHelperTest {
         verify(bookMetadataUpdater, times(1)).setBookMetadata(any(MetadataUpdateContext.class));
         verify(bookCoverService).regenerateCoversFromBookFiles(book1, MetadataReplaceMode.REPLACE_ALL);
         verify(bookCoverService).regenerateCoversFromBookFiles(book2, MetadataReplaceMode.REPLACE_ALL);
-        verify(bookCoverService).saveRegeneratedCovers(List.of(book1));
+        verify(bookCoverService).saveUpdatedCovers(List.of(book1));
     }
 
     @Test
@@ -195,7 +195,7 @@ class LibraryRescanHelperTest {
         when(metadataExtractorFactory.extractMetadata(any(BookFileType.class), any(File.class)))
                 .thenReturn(metadata1, metadata2);
         when(cancellationManager.isTaskCancelled(taskId)).thenReturn(false);
-        doThrow(new RuntimeException("Update failed")).doNothing()
+        doThrow(new RuntimeException("Update failed")).doReturn(false)
                 .when(bookMetadataUpdater).setBookMetadata(any(MetadataUpdateContext.class));
 
         libraryRescanHelper.handleRescanOptions(rescanContext, taskId);

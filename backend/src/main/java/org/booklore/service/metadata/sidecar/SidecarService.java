@@ -13,11 +13,13 @@ import org.booklore.model.enums.MetadataReplaceMode;
 import org.booklore.model.enums.SidecarSyncStatus;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.LibraryRepository;
+import org.booklore.service.metadata.BookCoverService;
 import org.booklore.service.metadata.BookMetadataUpdater;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +34,7 @@ public class SidecarService {
     private final SidecarMetadataWriter sidecarWriter;
     private final SidecarMetadataMapper sidecarMapper;
     private final BookMetadataUpdater bookMetadataUpdater;
+    private final BookCoverService bookCoverService;
 
     public Optional<SidecarMetadata> getSidecarContent(Long bookId) {
         BookEntity book = bookRepository.findByIdWithBookFiles(bookId)
@@ -75,8 +78,16 @@ public class SidecarService {
             throw ApiError.FILE_NOT_FOUND.createException("No sidecar file found for book");
         }
 
-        SidecarMetadata sidecar = sidecarOpt.get();
+        List<BookEntity> booksWithUpdatedCovers = new ArrayList<>();
+        importSidecar(book, sidecarOpt.get(), booksWithUpdatedCovers);
+        bookCoverService.saveUpdatedCovers(booksWithUpdatedCovers);
+    }
+
+    private boolean importSidecar(BookEntity book, SidecarMetadata sidecar, List<BookEntity> booksWithUpdatedCovers) {
+        byte[] coverBytes = sidecarReader.readSidecarCover(book.getFullFilePath(), sidecar);
         BookMetadata bookMetadata = sidecarMapper.toBookMetadata(sidecar);
+        boolean coverUpdated = coverBytes != null && bookCoverService.applyUploadedCoverSlots(book, coverBytes, true);
+        boolean metadataUpdated = false;
 
         if (bookMetadata != null) {
             MetadataUpdateWrapper wrapper = MetadataUpdateWrapper.builder()
@@ -90,13 +101,21 @@ public class SidecarService {
                     .replaceMode(MetadataReplaceMode.REPLACE_WHEN_PROVIDED)
                     .build();
 
-            bookMetadataUpdater.setBookMetadata(context);
+            metadataUpdated = bookMetadataUpdater.setBookMetadata(context);
         }
 
-        byte[] coverBytes = sidecarReader.readSidecarCover(bookPath);
-        if (coverBytes != null) {
-            log.info("Sidecar cover found for book ID {} - cover import is a separate operation", bookId);
+        if (coverUpdated && !metadataUpdated && sidecarWriter.isWriteOnUpdateEnabled()) {
+            try {
+                sidecarWriter.writeSidecarMetadata(book);
+            } catch (Exception e) {
+                log.warn("Failed to write sidecar metadata for book ID {}: {}", book.getId(), e.getMessage());
+            }
         }
+        if (coverUpdated) {
+            booksWithUpdatedCovers.add(book);
+        }
+
+        return bookMetadata != null || coverUpdated;
     }
 
     @Transactional
@@ -127,6 +146,7 @@ public class SidecarService {
 
         List<BookEntity> books = bookRepository.findAllByLibraryIdWithFiles(libraryId);
         int imported = 0;
+        List<BookEntity> booksWithUpdatedCovers = new ArrayList<>();
 
         for (BookEntity book : books) {
             try {
@@ -140,22 +160,7 @@ public class SidecarService {
                     continue;
                 }
 
-                SidecarMetadata sidecar = sidecarOpt.get();
-                BookMetadata bookMetadata = sidecarMapper.toBookMetadata(sidecar);
-
-                if (bookMetadata != null) {
-                    MetadataUpdateWrapper wrapper = MetadataUpdateWrapper.builder()
-                            .metadata(bookMetadata)
-                            .build();
-
-                    MetadataUpdateContext context = MetadataUpdateContext.builder()
-                            .bookEntity(book)
-                            .metadataUpdateWrapper(wrapper)
-                            .updateThumbnail(false)
-                            .replaceMode(MetadataReplaceMode.REPLACE_WHEN_PROVIDED)
-                            .build();
-
-                    bookMetadataUpdater.setBookMetadata(context);
+                if (importSidecar(book, sidecarOpt.get(), booksWithUpdatedCovers)) {
                     imported++;
                 }
             } catch (Exception e) {
@@ -163,6 +168,7 @@ public class SidecarService {
             }
         }
 
+        bookCoverService.saveUpdatedCovers(booksWithUpdatedCovers);
         log.info("Bulk imported {} sidecar files for library {}", imported, library.getName());
         return imported;
     }

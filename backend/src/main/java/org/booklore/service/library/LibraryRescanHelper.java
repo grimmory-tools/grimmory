@@ -129,7 +129,7 @@ public class LibraryRescanHelper {
             }
         }
 
-        bookCoverService.saveRegeneratedCovers(booksWithRegeneratedCovers);
+        bookCoverService.saveUpdatedCovers(booksWithRegeneratedCovers);
 
         if (taskId == null || !cancellationManager.isTaskCancelled(taskId)) {
             sendTaskProgressNotification(taskId, 100,
