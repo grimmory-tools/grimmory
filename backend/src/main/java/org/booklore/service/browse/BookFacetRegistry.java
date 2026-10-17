@@ -1,8 +1,18 @@
 package org.booklore.service.browse;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.booklore.browse.FacetLogic;
 import org.booklore.exception.ApiError;
+import org.booklore.model.entity.AuthorEntity;
 import org.booklore.model.entity.BookEntity;
+import org.booklore.model.entity.CategoryEntity;
+import org.booklore.model.entity.ComicCharacterEntity;
+import org.booklore.model.entity.ComicCreatorEntity;
+import org.booklore.model.entity.ComicLocationEntity;
+import org.booklore.model.entity.ComicTeamEntity;
+import org.booklore.model.entity.MoodEntity;
+import org.booklore.model.entity.TagEntity;
 import org.booklore.service.opds.MagicShelfBookService;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
@@ -10,6 +20,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 @Component
 public class BookFacetRegistry {
@@ -25,6 +36,8 @@ public class BookFacetRegistry {
             "comic_character", "comic_team", "comic_location", "comic_creator");
 
     private final MagicShelfBookService magicShelfBookService;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public BookFacetRegistry(MagicShelfBookService magicShelfBookService) {
         this.magicShelfBookService = magicShelfBookService;
@@ -41,11 +54,18 @@ public class BookFacetRegistry {
     public Specification<BookEntity> toSpecification(String facetName, List<String> values, FacetLogic logic, Long userId) {
         String mode = mode(logic);
         return switch (facetName) {
-            case "author" -> BookFilterSpecification.withAuthors(values, mode);
+            case "author" -> namedFilter(AuthorEntity.class, "authors", values, mode);
+            case "genre" -> namedFilter(CategoryEntity.class, "categories", values, mode);
+            case "tag" -> namedFilter(TagEntity.class, "tags", values, mode);
+            case "mood" -> namedFilter(MoodEntity.class, "moods", values, mode);
+            case "comic_character" -> BookFilterSpecification.withComicCollection("characters", values, mode,
+                    idsFor(ComicCharacterEntity.class));
+            case "comic_team" -> BookFilterSpecification.withComicCollection("teams", values, mode,
+                    idsFor(ComicTeamEntity.class));
+            case "comic_location" -> BookFilterSpecification.withComicCollection("locations", values, mode,
+                    idsFor(ComicLocationEntity.class));
+            case "comic_creator" -> BookFilterSpecification.withComicCreators(values, mode, idsFor(ComicCreatorEntity.class));
             case "series" -> BookFilterSpecification.inSeriesMulti(values, mode);
-            case "genre" -> BookFilterSpecification.withCategories(values, mode);
-            case "tag" -> BookFilterSpecification.withTags(values, mode);
-            case "mood" -> BookFilterSpecification.withMoods(values, mode);
             case "language" -> BookFilterSpecification.withLanguages(values, mode);
             case "publisher" -> BookFilterSpecification.withPublishers(values, mode);
             case "narrator" -> BookFilterSpecification.withNarrators(values, mode);
@@ -68,12 +88,24 @@ public class BookFacetRegistry {
             case "file_size" -> BookFilterSpecification.withFileSizes(values, mode);
             case "page_count" -> BookFilterSpecification.withPageCounts(values, mode);
             case "shelf_status" -> BookFilterSpecification.withShelfStatus(values, mode);
-            case "comic_character" -> BookFilterSpecification.withComicCharacters(values, mode);
-            case "comic_team" -> BookFilterSpecification.withComicTeams(values, mode);
-            case "comic_location" -> BookFilterSpecification.withComicLocations(values, mode);
-            case "comic_creator" -> BookFilterSpecification.withComicCreators(values, mode);
             default -> throw ApiError.INVALID_FACET.createException("Unknown facet: " + facetName);
         };
+    }
+
+    private Specification<BookEntity> namedFilter(Class<?> type, String path, List<String> values, String mode) {
+        return BookFilterSpecification.withMetadataCollection(path, values, mode, idsFor(type));
+    }
+
+    private Function<String, List<Long>> idsFor(Class<?> type) {
+        return name -> matchingIds(type, name);
+    }
+
+    private List<Long> matchingIds(Class<?> type, String name) {
+        var cb = entityManager.getCriteriaBuilder();
+        var query = cb.createQuery(Long.class);
+        var root = query.from(type);
+        query.select(root.get("id")).where(cb.equal(cb.lower(root.get("name")), name));
+        return entityManager.createQuery(query).getResultList();
     }
 
     private Specification<BookEntity> shelves(List<String> values, FacetLogic logic, Long userId) {
