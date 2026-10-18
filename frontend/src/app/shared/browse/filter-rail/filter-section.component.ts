@@ -50,21 +50,21 @@ export class BrowseFilterSectionComponent<K extends string = string> {
   private readonly injector = inject(Injector);
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   readonly group = input.required<BrowseFilterGroup<K>>();
-  readonly open = model(false);
+  readonly isOpen = model(false);
   readonly search = model('');
   readonly alwaysShowBoxes = input(false, {transform: booleanAttribute});
   readonly toggleValue = output<BrowseFilterToggle<K>>();
   readonly commitRange = output<BrowseFilterRangeCommit<K>>();
-  protected readonly everOpened = linkedSignal<boolean, boolean>({
-    source: this.open,
-    computation: (open, previous) => open || (previous?.value ?? false),
+  protected readonly hasEverOpened = linkedSignal<boolean, boolean>({
+    source: this.isOpen,
+    computation: (isOpen, previous) => isOpen || (previous?.value ?? false),
   });
   protected readonly expanded = signal(false);
   protected readonly searching = linkedSignal<string, boolean>({
     source: this.search,
     computation: (term, previous) => (previous?.value ?? false) || term !== '',
   });
-  protected readonly revealed = computed(() => this.open() && !this.group().loading);
+  protected readonly revealed = computed(() => this.isOpen() && !this.group().loading);
 
   protected readonly checkIconClass = checkIndicatorIconClass;
   protected readonly expandRowClass =
@@ -74,7 +74,7 @@ export class BrowseFilterSectionComponent<K extends string = string> {
     'pointer-coarse:min-h-11 pointer-coarse:text-[13px] pointer-coarse:pl-9';
 
   protected toggleOpen(): void {
-    this.open.update(open => !open);
+    this.isOpen.update(isOpen => !isOpen);
   }
 
   protected readonly selectedCount = computed(() => {
@@ -112,7 +112,7 @@ export class BrowseFilterSectionComponent<K extends string = string> {
     }
   }
 
-  protected readonly headerSearchable = computed(() => this.open() && this.group().values.length > this.foldLimit());
+  protected readonly headerSearchable = computed(() => this.isOpen() && this.group().values.length > this.foldLimit());
 
   protected toggleSearch(input: AppInputComponent): void {
     if (this.searching()) {

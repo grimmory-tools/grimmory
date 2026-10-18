@@ -17,10 +17,10 @@ import {BrowseFilterSectionComponent} from './filter-section.component';
     @for (group of groups(); track group.key) {
       <app-browse-filter-section
         [group]="group"
-        [open]="openKeys().has(group.key)"
+        [isOpen]="openKeys().has(group.key)"
         [search]="searchTerms()[group.key] ?? ''"
         [alwaysShowBoxes]="alwaysShowBoxes()"
-        (openChange)="openChange.emit({key: group.key, open: $event})"
+        (isOpenChange)="openChange.emit({key: group.key, open: $event})"
         (searchChange)="searchChange.emit({key: group.key, term: $event})"
         (toggleValue)="toggleValue.emit($event)"
         (commitRange)="commitRange.emit($event)" />
