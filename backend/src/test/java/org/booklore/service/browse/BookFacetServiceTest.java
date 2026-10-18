@@ -391,17 +391,23 @@ class BookFacetServiceTest {
     }
 
     @Test
-    void listsOnlyFacetsThatHaveValues() {
+    void listsEveryFacetWithWhetherItHasItems() {
         book("A", "Horror", "Alice").setPageCount(120);
         book("B", "Horror", "Alice").getBook().setIsPhysical(true);
         em.flush();
 
         FacetGroupsResponse response = facetService.getFacets(null, null, null);
 
-        assertThat(response.facets()).extracting(g -> g.metadata().key())
-                .contains("sort", "genre", "page_count", "file_type")
-                .doesNotContain("mood", "goodreads_rating");
+        for (String key : List.of("genre", "page_count", "file_type")) {
+            assertThat(group(response, key).metadata().hasItems()).isTrue();
+        }
+        for (String key : List.of("mood", "goodreads_rating")) {
+            assertThat(group(response, key).metadata().hasItems()).isFalse();
+        }
+        assertThat(group(response, "sort").metadata().hasItems()).isNull();
         assertThat(group(response, "genre").links()).isEmpty();
+        assertThat(springMapper.writeValueAsString(group(response, "mood").metadata()))
+                .isEqualTo("{\"rel\":\"facet\",\"key\":\"mood\",\"title\":\"Moods\",\"hasItems\":false}");
     }
 
     @Test

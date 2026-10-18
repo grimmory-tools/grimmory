@@ -158,9 +158,7 @@ public class BookFacetService {
             for (FacetDef def : FACETS) {
 
                 Specification<BookEntity> base = filterSpecifications.base(query, facets, facetLogic, scope, def.key());
-                if (hasValues(def, base, scope)) {
-                    groups.add(new FacetGroup(new Metadata("facet", def.key(), def.title()), List.of()));
-                }
+                groups.add(new FacetGroup(new Metadata("facet", def.key(), def.title(), hasItems(def, base, scope)), List.of()));
             }
             return new FacetGroupsResponse(builder.selfLinks(), groups);
         });
@@ -234,7 +232,7 @@ public class BookFacetService {
         return builder.group(def.key(), def.title(), counts);
     }
 
-    private boolean hasValues(FacetDef def, Specification<BookEntity> base, BrowseScope scope) {
+    private boolean hasItems(FacetDef def, Specification<BookEntity> base, BrowseScope scope) {
         return anyValue(def, base, scope) || ("file_type".equals(def.key()) && anyValue(PHYSICAL_FILE_TYPE, base, scope));
     }
 
