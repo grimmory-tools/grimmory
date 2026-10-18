@@ -90,7 +90,7 @@ public class BookController {
             @Parameter(hidden = true) Pageable pageable,
             @Parameter(description = "Comma-separated sort keys; prefix a key with '-' for descending (e.g. seriesName,-seriesNumber)")
             @RequestParam(required = false) String sort,
-            @Parameter(description = "Facet selection in key:value form; repeatable. Plain values of a facet match any of them; prefix a value with '+' (sent as %2B) to require it or '-' to exclude it (e.g. facet=genre:Horror&facet=%2Btag:Dragons&facet=-genre:Romance)")
+            @Parameter(description = "Facet selection in key:value form; repeatable, with '+' to require or '-' to exclude a value (e.g. genre:Horror, +tag:Dragons, -genre:Romance)")
             @RequestParam(required = false) List<String> facet,
             @Parameter(description = "Free-text search across title, series, author, genre, tag, ISBN, and ASIN")
             @RequestParam(required = false) String query,
