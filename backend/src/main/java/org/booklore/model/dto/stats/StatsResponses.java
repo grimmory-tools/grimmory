@@ -1,4 +1,4 @@
-package org.booklore.stats;
+package org.booklore.model.dto.stats;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.booklore.model.enums.BookFileType;

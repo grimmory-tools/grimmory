@@ -1,4 +1,4 @@
-package org.booklore.stats;
+package org.booklore.service.stats;
 
 import org.booklore.model.entity.BookEntity;
 import org.springframework.data.jpa.domain.Specification;

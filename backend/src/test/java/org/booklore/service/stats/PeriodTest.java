@@ -1,6 +1,7 @@
-package org.booklore.stats;
+package org.booklore.service.stats;
 
 import org.booklore.exception.APIException;
+import org.booklore.model.dto.stats.StatsQuery;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
