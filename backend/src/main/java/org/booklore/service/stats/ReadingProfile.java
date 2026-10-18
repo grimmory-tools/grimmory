@@ -1,4 +1,4 @@
-package org.booklore.stats;
+package org.booklore.service.stats;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
@@ -7,10 +7,10 @@ import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Selection;
-import org.booklore.model.enums.ReadStatus;
+import org.booklore.model.dto.stats.StatsResponses.ProfileRow;
+import org.booklore.model.dto.stats.StatsResponses.Rows;
 import org.booklore.model.entity.CategoryEntity;
-import org.booklore.stats.StatsResponses.ProfileRow;
-import org.booklore.stats.StatsResponses.Rows;
+import org.booklore.model.enums.ReadStatus;
 import org.hibernate.query.common.TemporalUnit;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaCriteriaQuery;

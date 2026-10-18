@@ -1,4 +1,4 @@
-package org.booklore.stats;
+package org.booklore.service.stats;
 
 import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.CriteriaQuery;
