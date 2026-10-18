@@ -64,7 +64,7 @@ public class BookMetadataUpdater {
     private final SidecarMetadataWriter sidecarMetadataWriter;
 
     @Transactional
-    public boolean setBookMetadata(MetadataUpdateContext context) {
+    public void setBookMetadata(MetadataUpdateContext context) {
         BookEntity bookEntity = context.getBookEntity();
         MetadataUpdateWrapper wrapper = context.getMetadataUpdateWrapper();
         boolean mergeCategories = context.isMergeCategories();
@@ -78,7 +78,7 @@ public class BookMetadataUpdater {
 
         if (newMetadata == null) {
             log.warn("Metadata is null for book ID {}. Skipping update.", bookId);
-            return false;
+            return;
         }
 
         MetadataClearFlags clearFlags = wrapper.getClearFlags();
@@ -89,13 +89,13 @@ public class BookMetadataUpdater {
         boolean hasValueChanges = MetadataChangeDetector.hasValueChanges(newMetadata, metadata, clearFlags);
         if (!thumbnailRequiresUpdate && !hasMetadataChanges) {
             log.info("No changes in metadata for book ID {}. Skipping update.", bookId);
-            return false;
+            return;
         }
 
         boolean hasLockChanges = MetadataChangeDetector.hasLockChanges(newMetadata, metadata);
         if (metadata.areAllFieldsLocked() && hasValueChanges && !hasLockChanges) {
             log.warn("All fields are locked for book ID {}. Skipping update.", bookId);
-            return false;
+            return;
         }
 
         MetadataPersistenceSettings settings = appSettingService.getAppSettings().getMetadataPersistenceSettings();
@@ -179,7 +179,6 @@ public class BookMetadataUpdater {
                 log.warn("Failed to move files for book ID {} after metadata update: {}", bookId, e.getMessage());
             }
         }
-        return true;
     }
 
     private void updateBasicFields(BookMetadata m, BookMetadataEntity e, MetadataClearFlags clear, MetadataReplaceMode replaceMode) {

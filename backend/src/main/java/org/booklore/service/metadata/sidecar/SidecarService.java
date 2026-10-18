@@ -87,7 +87,6 @@ public class SidecarService {
         byte[] coverBytes = sidecarReader.readSidecarCover(book.getFullFilePath(), sidecar);
         BookMetadata bookMetadata = sidecarMapper.toBookMetadata(sidecar);
         boolean coverUpdated = coverBytes != null && bookCoverService.applyUploadedCoverSlots(book, coverBytes, true);
-        boolean metadataUpdated = false;
 
         if (bookMetadata != null) {
             MetadataUpdateWrapper wrapper = MetadataUpdateWrapper.builder()
@@ -101,16 +100,9 @@ public class SidecarService {
                     .replaceMode(MetadataReplaceMode.REPLACE_WHEN_PROVIDED)
                     .build();
 
-            metadataUpdated = bookMetadataUpdater.setBookMetadata(context);
+            bookMetadataUpdater.setBookMetadata(context);
         }
 
-        if (coverUpdated && !metadataUpdated && sidecarWriter.isWriteOnUpdateEnabled()) {
-            try {
-                sidecarWriter.writeSidecarMetadata(book);
-            } catch (Exception e) {
-                log.warn("Failed to write sidecar metadata for book ID {}: {}", book.getId(), e.getMessage());
-            }
-        }
         if (coverUpdated) {
             booksWithUpdatedCovers.add(book);
         }
