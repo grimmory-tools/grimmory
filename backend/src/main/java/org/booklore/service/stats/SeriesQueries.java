@@ -1,4 +1,4 @@
-package org.booklore.stats;
+package org.booklore.service.stats;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
@@ -7,11 +7,11 @@ import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Selection;
+import org.booklore.model.dto.stats.StatsResponses.SeriesBar;
+import org.booklore.model.dto.stats.StatsResponses.SeriesPage;
+import org.booklore.model.dto.stats.StatsResponses.SeriesRow;
+import org.booklore.model.dto.stats.StatsResponses.SeriesSummary;
 import org.booklore.model.enums.ReadStatus;
-import org.booklore.stats.StatsResponses.SeriesBar;
-import org.booklore.stats.StatsResponses.SeriesPage;
-import org.booklore.stats.StatsResponses.SeriesRow;
-import org.booklore.stats.StatsResponses.SeriesSummary;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaCriteriaQuery;
 import org.hibernate.query.criteria.JpaDerivedRoot;
@@ -34,7 +34,7 @@ import static org.booklore.model.enums.ReadStatus.UNREAD;
 import static org.booklore.model.enums.ReadStatus.UNSET;
 import static org.booklore.model.enums.ReadStatus.WONT_READ;
 
-final class SeriesQueries {
+public final class SeriesQueries {
 
     enum Sort {
         PROGRESS, RATING, BOOKS, NAME
@@ -44,7 +44,7 @@ final class SeriesQueries {
     private static final List<String> GROUPS = List.of("readBooks", "reading", "partiallyRead", "paused", "abandoned", "wontRead", "unread");
     private static final List<ReadStatus> STILL_TO_READ = List.of(PARTIALLY_READ, PAUSED, UNREAD, UNSET);
     private static final int CHART_SERIES = 8;
-    static final int PAGE_SIZE = 10;
+    public static final int PAGE_SIZE = 10;
 
     private final EntityManager entityManager;
     private final HibernateCriteriaBuilder cb;

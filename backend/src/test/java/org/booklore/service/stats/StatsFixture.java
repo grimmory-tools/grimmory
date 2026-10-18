@@ -1,8 +1,9 @@
-package org.booklore.stats;
+package org.booklore.service.stats;
 
 import jakarta.persistence.EntityManager;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.Library;
+import org.booklore.model.dto.stats.StatsQuery;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.BookLoreUserEntity;

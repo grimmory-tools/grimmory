@@ -1,4 +1,4 @@
-package org.booklore.stats;
+package org.booklore.model.dto.stats;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import org.booklore.exception.ApiError;

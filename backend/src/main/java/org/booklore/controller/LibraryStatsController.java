@@ -1,4 +1,4 @@
-package org.booklore.stats;
+package org.booklore.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -6,9 +6,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
-import org.booklore.stats.StatsResponses.Distribution;
-import org.booklore.stats.StatsResponses.Rows;
-import org.booklore.stats.StatsResponses.TopName;
+import org.booklore.model.dto.stats.StatsQuery;
+import org.booklore.model.dto.stats.StatsResponses.Distribution;
+import org.booklore.model.dto.stats.StatsResponses.Rows;
+import org.booklore.model.dto.stats.StatsResponses.TopName;
+import org.booklore.service.stats.StatsService;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
