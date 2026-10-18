@@ -2,7 +2,7 @@ import {FormsModule} from "@angular/forms";
 import {Button} from "@openng/optimus-ui/button";
 import {ActivatedRoute, Router} from "@angular/router";
 import {toSignal} from '@angular/core/rxjs-interop';
-import {DecimalPipe, KeyValuePipe, NgClass, NgStyle} from "@angular/common";
+import {DecimalPipe, KeyValuePipe} from "@angular/common";
 import {finalize, map, take} from "rxjs/operators";
 import {Book, BookType, computeSeriesReadStatus, ReadStatus} from "../../model/book.model";
 import {BookService} from "../../service/book.service";
@@ -75,8 +75,6 @@ interface SeriesStats {
     KeyValuePipe,
     Button,
     FormsModule,
-    NgStyle,
-    NgClass,
     LegacyBookCardComponent,
     ProgressSpinner,
     ProgressBar,
