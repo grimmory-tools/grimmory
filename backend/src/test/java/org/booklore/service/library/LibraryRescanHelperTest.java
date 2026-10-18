@@ -195,7 +195,7 @@ class LibraryRescanHelperTest {
         when(metadataExtractorFactory.extractMetadata(any(BookFileType.class), any(File.class)))
                 .thenReturn(metadata1, metadata2);
         when(cancellationManager.isTaskCancelled(taskId)).thenReturn(false);
-        doThrow(new RuntimeException("Update failed")).doReturn(false)
+        doThrow(new RuntimeException("Update failed")).doNothing()
                 .when(bookMetadataUpdater).setBookMetadata(any(MetadataUpdateContext.class));
 
         libraryRescanHelper.handleRescanOptions(rescanContext, taskId);
