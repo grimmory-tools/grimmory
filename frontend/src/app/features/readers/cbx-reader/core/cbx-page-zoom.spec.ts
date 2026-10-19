@@ -114,6 +114,31 @@ describe('CbxPageZoom', () => {
     expect(container.getAttribute('style')).toBeFalsy();
   });
 
+  it('returns to the fit scroll position when zooming back out', () => {
+    const {container, zoom} = setup();
+    // Fit width: scrolled partway down the page before zooming.
+    container.scrollTop = 300;
+    zoom.zoomTo(2.5, {x: 200, y: 300});
+    container.scrollTop = 1200;
+    zoom.zoomTo(CBX_MIN_ZOOM, {x: 200, y: 300});
+
+    expect(container.scrollTop).toBe(300);
+    expect(container.scrollLeft).toBe(0);
+  });
+
+  it('goes to the top on reset and forgets the fit scroll position', () => {
+    const {container, zoom} = setup();
+    container.scrollTop = 300;
+    zoom.zoomTo(2.5, {x: 200, y: 300});
+    // Page turn or setting change.
+    zoom.reset();
+    expect(container.scrollTop).toBe(0);
+
+    container.scrollTop = 50;
+    zoom.zoomTo(CBX_MIN_ZOOM, {x: 200, y: 300});
+    expect(container.scrollTop).toBe(50);
+  });
+
   it('zooms both pages of a spread together, anchored on the pair', () => {
     document.body.innerHTML = `
       <div class="image-container">

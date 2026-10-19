@@ -92,6 +92,8 @@ function unionRect(elements: HTMLElement[]): Rect | null {
 export class CbxPageZoom {
   private zoom = CBX_MIN_ZOOM;
   private targets: ZoomTarget[] = [];
+  /** Scroll position at fit before zooming in, restored when zooming back out. */
+  private fitScroll: Point | null = null;
 
   constructor(private readonly getContainer: () => HTMLElement | null) {}
 
@@ -106,11 +108,17 @@ export class CbxPageZoom {
   /** Zoom to an absolute level, keeping the page spot under the given viewport point fixed. */
   zoomTo(zoom: number, at: Point): void {
     const target = clampZoom(zoom);
+    const container = this.getContainer();
     if (target === CBX_MIN_ZOOM) {
+      // Back to where the reader was at fit (fit width / height can scroll); reset() goes to the top.
+      const fitScroll = this.fitScroll;
       this.reset();
+      if (container && fitScroll) {
+        container.scrollLeft = fitScroll.x;
+        container.scrollTop = fitScroll.y;
+      }
       return;
     }
-    const container = this.getContainer();
     if (!container) return;
     this.ensureTargets();
     const images = this.targets.map(t => t.img);
@@ -118,7 +126,10 @@ export class CbxPageZoom {
     if (!before) return;
     const fraction = toAnchorFraction(at, before);
 
-    if (!this.isZoomed) this.enterZoomLayout(container);
+    if (!this.isZoomed) {
+      this.fitScroll = {x: container.scrollLeft, y: container.scrollTop};
+      this.enterZoomLayout(container);
+    }
     this.zoom = target;
     for (const t of this.targets) {
       t.img.style.width = `${t.baseWidth * target}px`;
@@ -139,6 +150,7 @@ export class CbxPageZoom {
       t.img.style.removeProperty('height');
     }
     this.targets = [];
+    this.fitScroll = null;
     const container = this.getContainer();
     if (container && this.isZoomed) {
       clearStyles(container, CONTAINER_STYLES);
