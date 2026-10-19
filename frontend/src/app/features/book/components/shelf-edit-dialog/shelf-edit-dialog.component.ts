@@ -45,6 +45,8 @@ export class ShelfEditDialogComponent implements OnInit {
   selectedIcon: IconSelection | null = null;
   shelf!: Shelf | undefined;
   isPublic: boolean = false;
+  koboSync: boolean = false;
+  canSyncKobo: boolean = this.userService.getCurrentUser()?.permissions.admin || this.userService.getCurrentUser()?.permissions.canSyncKobo || false;
   isAdmin: boolean = this.userService.getCurrentUser()?.permissions.admin ?? false;
 
   ngOnInit(): void {
@@ -63,6 +65,7 @@ export class ShelfEditDialogComponent implements OnInit {
       this.shelf = shelf;
       this.shelfName = shelf.name;
       this.isPublic = shelf.publicShelf ?? false;
+      this.koboSync = shelf.koboSync ?? false;
       if (shelf.iconType && shelf.icon) {
         this.selectedIcon = toIconSelection(shelf.icon, shelf.iconType);
       }
@@ -89,7 +92,8 @@ export class ShelfEditDialogComponent implements OnInit {
       name: this.shelfName,
       icon: iconValue,
       iconType: iconType,
-      publicShelf: this.isPublic
+      publicShelf: this.isPublic,
+      koboSync: this.koboSync
     };
 
     this.shelfService.updateShelf(shelf, this.shelf?.id).subscribe({

@@ -23,4 +23,6 @@ public class ShelfCreateRequest {
     private IconType iconType;
 
     private boolean publicShelf;
+
+    private boolean koboSync;
 }

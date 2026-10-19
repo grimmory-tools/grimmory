@@ -32,6 +32,7 @@ import org.booklore.repository.KoboReadingStateRepository;
 import org.booklore.repository.UserBookFileProgressRepository;
 import org.booklore.repository.UserBookProgressRepository;
 import org.booklore.service.kobo.KoboEntitlementService;
+import org.booklore.service.kobo.KoboLibrarySnapshotService;
 import org.booklore.service.kobo.KoboReadingStateBuilder;
 import org.booklore.service.kobo.KoboSettingsService;
 import org.booklore.service.kobo.KoboSpanMapService;
@@ -54,6 +55,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -112,6 +114,9 @@ class KoboEntitlementServiceTest {
     @Mock
     private KoboSpanMapService koboSpanMapService;
 
+    @Mock
+    private KoboLibrarySnapshotService koboLibrarySnapshotService;
+
     @InjectMocks
     private KoboEntitlementService koboEntitlementService;
 
@@ -123,6 +128,10 @@ class KoboEntitlementServiceTest {
         user = BookLoreUser.builder().id(1L).permissions(permissions).build();
         when(authenticationService.getAuthenticatedUser()).thenReturn(user);
         when(koboSpanMapService.getValidMaps(anyMap())).thenReturn(Map.of());
+        when(koboLibrarySnapshotService.resolveSyncedBooks(anyLong())).thenAnswer(invocation ->
+                shelfRepository.findByUserIdAndName(invocation.getArgument(0), ShelfType.KOBO.getName())
+                        .map(shelf -> (Set<BookEntity>) new LinkedHashSet<>(shelf.getBookEntities()))
+                        .orElseGet(LinkedHashSet::new));
         when(progressRepository.findByUserIdAndBookIdForKoboSync(anyLong(), anyLong()))
                 .thenAnswer(invocation -> progressRepository.findByUserIdAndBookId(
                         invocation.getArgument(0),

@@ -40,6 +40,8 @@ export class ShelfCreatorComponent {
   shelfName: string = '';
   selectedIcon: IconSelection | null = null;
   isPublic: boolean = false;
+  koboSync: boolean = false;
+  canSyncKobo: boolean = this.userService.getCurrentUser()?.permissions.admin || this.userService.getCurrentUser()?.permissions.canSyncKobo || false;
   isAdmin: boolean = this.userService.getCurrentUser()?.permissions.admin ?? false;
 
   openIconPicker(): void {
@@ -66,7 +68,8 @@ export class ShelfCreatorComponent {
       name: this.shelfName,
       icon: iconValue,
       iconType: iconType,
-      publicShelf: this.isPublic
+      publicShelf: this.isPublic,
+      koboSync: this.koboSync
     };
 
     this.shelfService.createShelf(newShelf as Shelf).subscribe({

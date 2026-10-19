@@ -25,4 +25,6 @@ public class MagicShelf {
     private String filterJson;
 
     private Boolean isPublic = false;
+
+    private Boolean koboSync = false;
 }

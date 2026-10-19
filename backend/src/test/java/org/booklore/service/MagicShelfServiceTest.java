@@ -45,6 +45,27 @@ class MagicShelfServiceTest {
     }
 
     @Test
+    void createOrUpdateShelf_shouldPersistKoboSyncFlag() {
+        MagicShelf dto = new MagicShelf();
+        dto.setName("Historical");
+        dto.setFilterJson("{\"status\": \"unread\"}");
+        dto.setIsPublic(false);
+        dto.setKoboSync(true);
+
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+        when(magicShelfRepository.existsByUserIdAndName(1L, "Historical")).thenReturn(false);
+        when(magicShelfRepository.save(any(MagicShelfEntity.class))).thenAnswer(invocation -> {
+            MagicShelfEntity entity = invocation.getArgument(0);
+            entity.setId(1L);
+            return entity;
+        });
+
+        MagicShelf result = magicShelfService.createOrUpdateShelf(dto);
+
+        assertTrue(result.getKoboSync());
+    }
+
+    @Test
     void createShelf_withNullIcon_shouldPersistNullIconValues() {
         MagicShelf dto = new MagicShelf();
         dto.setName("Unread Books");

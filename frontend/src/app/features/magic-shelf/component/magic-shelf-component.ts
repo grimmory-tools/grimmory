@@ -462,11 +462,13 @@ export class MagicShelfComponent implements OnInit {
     name: new FormControl<string | null>(null),
     icon: new FormControl<string | null>(null),
     isPublic: new FormControl<boolean>(false),
+    koboSync: new FormControl<boolean>(false),
     group: this.createGroup()
   });
 
   shelfId: number | null = null;
   isAdmin: boolean = false;
+  canSyncKobo: boolean = false;
   editMode!: boolean;
   showImportPanel = false;
   importJson = '';
@@ -495,6 +497,7 @@ export class MagicShelfComponent implements OnInit {
 
   ngOnInit(): void {
     this.isAdmin = this.userService.getCurrentUser()?.permissions.admin ?? false;
+    this.canSyncKobo = this.isAdmin || (this.userService.getCurrentUser()?.permissions.canSyncKobo ?? false);
     const id = this.config?.data?.id;
     this.editMode = !!this.config?.data?.editMode;
 
@@ -524,6 +527,7 @@ export class MagicShelfComponent implements OnInit {
       name: new FormControl<string | null>(shelf?.name ?? null, {nonNullable: true, validators: [Validators.required]}),
       icon: new FormControl<string | null>(iconValue),
       isPublic: new FormControl<boolean>(shelf?.isPublic ?? false),
+      koboSync: new FormControl<boolean>(shelf?.koboSync ?? false),
       group: shelf?.filterJson ? this.buildGroupFromData(JSON.parse(shelf.filterJson)) : this.createGroup()
     });
 
@@ -847,7 +851,7 @@ export class MagicShelfComponent implements OnInit {
       return;
     }
 
-    const value = this.form.value as { name: string | null; icon: string | null; group: GroupRule, isPublic: boolean | null };
+    const value = this.form.value as { name: string | null; icon: string | null; group: GroupRule, isPublic: boolean | null, koboSync: boolean | null };
     const cleanedGroup = removeNulls(serializeDateRules(value.group));
 
     this.magicShelfService.saveShelf({
@@ -856,6 +860,7 @@ export class MagicShelfComponent implements OnInit {
       icon: value.icon,
       iconType: this.selectedIcon?.type,
       isPublic: !!value.isPublic,
+      koboSync: !!value.koboSync,
       group: cleanedGroup
     }).subscribe({
       next: (savedShelf) => {
@@ -865,7 +870,8 @@ export class MagicShelfComponent implements OnInit {
           this.form.patchValue({
             name: savedShelf.name,
             icon: savedShelf.icon,
-            isPublic: savedShelf.isPublic
+            isPublic: savedShelf.isPublic,
+            koboSync: savedShelf.koboSync ?? false
           });
         }
       },

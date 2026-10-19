@@ -63,6 +63,7 @@ public class MagicShelfService {
             existing.setIconType(dto.getIconType());
             existing.setFilterJson(dto.getFilterJson());
             existing.setPublic(dto.getIsPublic());
+            existing.setKoboSync(Boolean.TRUE.equals(dto.getKoboSync()));
             MagicShelf result = toDto(magicShelfRepository.save(existing));
             auditService.log(AuditAction.MAGIC_SHELF_UPDATED, "MagicShelf", dto.getId(), "Updated magic shelf: " + dto.getName());
             return result;
@@ -95,6 +96,7 @@ public class MagicShelfService {
         dto.setIconType(entity.getIconType());
         dto.setFilterJson(entity.getFilterJson());
         dto.setIsPublic(entity.isPublic());
+        dto.setKoboSync(entity.isKoboSync());
         return dto;
     }
 
@@ -106,6 +108,7 @@ public class MagicShelfService {
         entity.setIconType(dto.getIconType());
         entity.setFilterJson(dto.getFilterJson());
         entity.setPublic(dto.getIsPublic());
+        entity.setKoboSync(Boolean.TRUE.equals(dto.getKoboSync()));
         entity.setUserId(userId);
         return entity;
     }

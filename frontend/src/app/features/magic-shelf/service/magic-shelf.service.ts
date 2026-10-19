@@ -16,6 +16,7 @@ export interface MagicShelf {
   iconType?: IconType | null;
   filterJson: string;
   isPublic?: boolean;
+  koboSync?: boolean;
 }
 
 const MAGIC_SHELVES_QUERY_KEY = ['magicShelves'] as const;
@@ -69,6 +70,7 @@ export class MagicShelfService {
     iconType?: IconType | null;
     group: unknown;
     isPublic?: boolean | null;
+    koboSync?: boolean | null;
   }): Observable<MagicShelf> {
     const payload: MagicShelf = {
       id: data.id,
@@ -76,7 +78,8 @@ export class MagicShelfService {
       icon: data.icon,
       iconType: data.iconType,
       filterJson: JSON.stringify(data.group),
-      isPublic: data.isPublic ?? false
+      isPublic: data.isPublic ?? false,
+      koboSync: data.koboSync ?? false
     };
 
     return this.http.post<MagicShelf>(this.url, payload).pipe(

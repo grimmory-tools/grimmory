@@ -8,7 +8,11 @@ import org.booklore.model.enums.ShelfType;
 import org.booklore.repository.KoboDeletedBookProgressRepository;
 import org.booklore.repository.KoboLibrarySnapshotRepository;
 import org.booklore.repository.KoboSnapshotBookRepository;
+import org.booklore.repository.BookRepository;
+import org.booklore.repository.MagicShelfRepository;
 import org.booklore.repository.ShelfRepository;
+import org.booklore.service.opds.MagicShelfBookService;
+import lombok.extern.slf4j.Slf4j;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,9 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
+@Slf4j
 @AllArgsConstructor
 @Service
 public class KoboLibrarySnapshotService {
+
+    public static final int MAX_MAGIC_SHELF_BOOKS_FOR_KOBO = 250;
 
     private final KoboLibrarySnapshotRepository koboLibrarySnapshotRepository;
     private final KoboSnapshotBookRepository koboSnapshotBookRepository;
@@ -28,6 +35,9 @@ public class KoboLibrarySnapshotService {
     private final KoboDeletedBookProgressRepository koboDeletedBookProgressRepository;
     private final KoboCompatibilityService koboCompatibilityService;
     private final AuthenticationService authenticationService;
+    private final MagicShelfRepository magicShelfRepository;
+    private final MagicShelfBookService magicShelfBookService;
+    private final BookRepository bookRepository;
 
     @Transactional(readOnly = true)
     public Optional<KoboLibrarySnapshotEntity> findByIdAndUserId(String id, Long userId) {
@@ -41,7 +51,7 @@ public class KoboLibrarySnapshotService {
                 .userId(userId)
                 .build();
 
-        List<KoboSnapshotBookEntity> books = mapBooksToKoboSnapshotBook(getKoboShelf(userId), snapshot);
+        List<KoboSnapshotBookEntity> books = mapBooksToKoboSnapshotBook(resolveSyncedBooks(userId), snapshot);
         snapshot.setBooks(books);
 
         return koboLibrarySnapshotRepository.save(snapshot);
@@ -121,18 +131,40 @@ public class KoboLibrarySnapshotService {
         return page;
     }
 
-    private ShelfEntity getKoboShelf(Long userId) {
-        return shelfRepository
-                .findByUserIdAndName(userId, ShelfType.KOBO.getName())
-                .orElseThrow(() -> new NoSuchElementException(
-                        String.format("Shelf '%s' not found for user %d", ShelfType.KOBO.getName(), userId)
-                ));
+    /**
+     * Books a user's Kobo should receive: the legacy "Kobo" shelf plus every shelf and
+     * magic shelf flagged with "Sync to Kobo".
+     */
+    @Transactional(readOnly = true)
+    public Set<BookEntity> resolveSyncedBooks(Long userId) {
+        Map<Long, BookEntity> books = new LinkedHashMap<>();
+
+        shelfRepository.findByUserIdAndName(userId, ShelfType.KOBO.getName())
+                .ifPresent(shelf -> shelf.getBookEntities().forEach(book -> books.putIfAbsent(book.getId(), book)));
+
+        shelfRepository.findByUserIdAndKoboSyncTrue(userId)
+                .forEach(shelf -> shelf.getBookEntities().forEach(book -> books.putIfAbsent(book.getId(), book)));
+
+        Set<Long> magicShelfBookIds = new LinkedHashSet<>();
+        for (MagicShelfEntity magicShelf : magicShelfRepository.findAllByUserIdAndKoboSyncTrue(userId)) {
+            try {
+                magicShelfBookIds.addAll(magicShelfBookService.getBookIdsByMagicShelfId(userId, magicShelf.getId(), MAX_MAGIC_SHELF_BOOKS_FOR_KOBO));
+            } catch (Exception e) {
+                log.warn("Skipping magic shelf '{}' during Kobo sync: {}", magicShelf.getName(), e.getMessage());
+            }
+        }
+        magicShelfBookIds.removeAll(books.keySet());
+        if (!magicShelfBookIds.isEmpty()) {
+            bookRepository.findAllById(magicShelfBookIds).forEach(book -> books.putIfAbsent(book.getId(), book));
+        }
+
+        return new LinkedHashSet<>(books.values());
     }
 
-    private List<KoboSnapshotBookEntity> mapBooksToKoboSnapshotBook(ShelfEntity shelf, KoboLibrarySnapshotEntity snapshot) {
+    private List<KoboSnapshotBookEntity> mapBooksToKoboSnapshotBook(Set<BookEntity> syncedBooks, KoboLibrarySnapshotEntity snapshot) {
         Long userId = snapshot.getUserId();
 
-        return shelf.getBookEntities().stream()
+        return syncedBooks.stream()
                 .filter(book -> isBookOwnedByUser(book, userId))
                 .filter(koboCompatibilityService::isBookSupportedForKobo)
                 .map(book -> {

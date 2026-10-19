@@ -80,6 +80,23 @@ class ShelfServiceTest {
     }
 
     @Test
+    void createShelf_shouldPersistKoboSyncFlag() {
+        ShelfCreateRequest request = ShelfCreateRequest.builder().name("Vacation").koboSync(true).build();
+
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+        when(shelfRepository.existsByUserIdAndName(1L, "Vacation")).thenReturn(false);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
+        when(shelfRepository.save(any(ShelfEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(shelfMapper.toShelf(any(ShelfEntity.class))).thenReturn(Shelf.builder().name("Vacation").build());
+
+        shelfService.createShelf(request);
+
+        ArgumentCaptor<ShelfEntity> captor = ArgumentCaptor.forClass(ShelfEntity.class);
+        verify(shelfRepository).save(captor.capture());
+        assertTrue(captor.getValue().isKoboSync());
+    }
+
+    @Test
     void createShelf_withIcon_shouldPersistIconValues() {
         ShelfCreateRequest request = ShelfCreateRequest.builder()
                 .name("My Shelf")

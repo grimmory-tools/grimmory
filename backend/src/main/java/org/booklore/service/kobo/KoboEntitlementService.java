@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class KoboEntitlementService {
 
-    private static final int MAX_MAGIC_SHELF_BOOKS_FOR_KOBO = 250;
+    private static final int MAX_MAGIC_SHELF_BOOKS_FOR_KOBO = KoboLibrarySnapshotService.MAX_MAGIC_SHELF_BOOKS_FOR_KOBO;
     private static final Pattern NON_ALPHANUMERIC_LOWERCASE_PATTERN = Pattern.compile("[^a-z0-9]");
     private final KoboUrlBuilder koboUrlBuilder;
     private final BookQueryService bookQueryService;
@@ -54,6 +54,7 @@ public class KoboEntitlementService {
     private final MagicShelfBookService magicShelfBookService;
     private final KoboSettingsService koboSettingsService;
     private final KoboSpanMapService koboSpanMapService;
+    private final KoboLibrarySnapshotService koboLibrarySnapshotService;
 
     public List<NewEntitlement> generateNewEntitlements(Set<Long> bookIds, String token) {
         List<BookEntity> books = bookQueryService.findAllWithMetadataByIds(bookIds);
@@ -150,9 +151,8 @@ public class KoboEntitlementService {
 
     public List<KoboTagWrapper> generateTags() {
         Long userId = authenticationService.getAuthenticatedUser().getId();
-        Set<Long> koboBookIDs = shelfRepository.findByUserIdAndName(userId, ShelfType.KOBO.getName())
-                .orElseThrow(() -> new NoSuchElementException("Kobo shelf not found for user: " + userId))
-                .getBookEntities().stream().filter(koboCompatibilityService::isBookSupportedForKobo)
+        Set<Long> koboBookIDs = koboLibrarySnapshotService.resolveSyncedBooks(userId).stream()
+                .filter(koboCompatibilityService::isBookSupportedForKobo)
                 .map(BookEntity::getId)
                 .collect(Collectors.toSet());
 

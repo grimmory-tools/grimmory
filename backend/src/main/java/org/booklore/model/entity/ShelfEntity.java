@@ -46,6 +46,10 @@ public class ShelfEntity {
     @Builder.Default
     private boolean isPublic = false;
 
+    @Column(name = "kobo_sync", nullable = false)
+    @Builder.Default
+    private boolean koboSync = false;
+
     @Formula("(SELECT COUNT(*) FROM book_shelf_mapping bsm WHERE bsm.shelf_id = id)")
     private int bookCount;
 

@@ -52,6 +52,7 @@ public class ShelfService {
                 .name(request.getName())
                 .iconType(request.getIconType())
                 .isPublic(request.isPublicShelf())
+                .koboSync(request.isKoboSync())
                 .user(fetchUserEntityById(userId))
                 .build();
         Shelf result = shelfMapper.toShelf(shelfRepository.save(shelfEntity));
@@ -69,6 +70,7 @@ public class ShelfService {
         shelfEntity.setIcon(request.getIcon());
         shelfEntity.setIconType(request.getIconType());
         shelfEntity.setPublic(request.isPublicShelf());
+        shelfEntity.setKoboSync(request.isKoboSync());
         Shelf result = shelfMapper.toShelf(shelfRepository.save(shelfEntity));
         auditService.log(AuditAction.SHELF_UPDATED, "Shelf", id, "Updated shelf: " + request.getName());
         return result;
