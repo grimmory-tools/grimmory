@@ -324,6 +324,21 @@ class KoboEntitlementServiceTest {
     }
 
     @Test
+    void generateTags_shouldReturnDeletedTagWhenSnapshotIsEmpty() {
+        BookEntity book1 = createEpubBookEntity(1L);
+        ShelfEntity userShelf = ShelfEntity.builder().id(101L).name("Vacation").koboSync(false).bookEntities(Set.of(book1)).build();
+
+        when(shelfRepository.findByUserId(user.getId())).thenReturn(List.of(userShelf));
+        when(magicShelfRepository.findAllByUserId(user.getId())).thenReturn(List.of());
+
+        List<KoboTagWrapper> tags = koboEntitlementService.generateTags(Set.of());
+
+        assertEquals(1, tags.size());
+        assertNull(tags.getFirst().getChangedTag());
+        assertEquals("BL-S-101", tags.getFirst().getDeletedTag().getTag().getId());
+    }
+
+    @Test
     void generateTags_shouldReturnTagsForShelvesAndMagicShelves() {
         BookEntity book1 = createEpubBookEntity(1L);
         BookEntity book2 = createEpubBookEntity(2L);
