@@ -326,56 +326,6 @@
       "count": 2
     }
   },
-  "src/app/features/stats/component/library-stats/charts/top-items-chart/top-items-chart.component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/features/stats/component/library-stats/library-stats.component.html": {
-    "@angular-eslint/template/require-switch-default": {
-      "count": 1
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/book-flow-chart/book-flow-chart.component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/completion-race-chart/completion-race-chart.component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/completion-timeline-chart/completion-timeline-chart.component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/genre-stats-chart/genre-stats-chart.component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/reading-session-heatmap/reading-session-heatmap.component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/reading-session-timeline/reading-session-timeline.component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 2
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/session-archetypes-chart/session-archetypes-chart.component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
-  "src/app/features/stats/component/user-stats/user-stats.component.html": {
-    "@angular-eslint/template/require-switch-default": {
-      "count": 1
-    }
-  },
   "src/app/shared/browse/grid/grid-item.component.ts": {
     "@angular-eslint/template/require-switch-default": {
       "count": 1
