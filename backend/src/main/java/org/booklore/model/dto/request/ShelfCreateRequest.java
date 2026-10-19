@@ -24,5 +24,5 @@ public class ShelfCreateRequest {
 
     private boolean publicShelf;
 
-    private boolean koboSync;
+    private Boolean koboSync;
 }

@@ -350,6 +350,26 @@ class KoboEntitlementServiceTest {
     }
 
     @Test
+    void generateTags_shouldIncludeSyncFlaggedShelfWithoutLegacyKoboShelf() {
+        BookEntity book1 = createEpubBookEntity(1L);
+        ShelfEntity syncShelf = ShelfEntity.builder().id(101L).name("Vacation").koboSync(true).bookEntities(Set.of(book1)).build();
+
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+        when(koboLibrarySnapshotService.resolveSyncedBooks(user.getId())).thenReturn(new LinkedHashSet<>(Set.of(book1)));
+        when(koboCompatibilityService.isBookSupportedForKobo(any(BookEntity.class))).thenReturn(true);
+        when(shelfRepository.findByUserId(user.getId())).thenReturn(List.of(syncShelf));
+        when(magicShelfRepository.findAllByUserId(user.getId())).thenReturn(List.of());
+
+        List<KoboTagWrapper> tags = koboEntitlementService.generateTags();
+
+        assertEquals(1, tags.size());
+        KoboTagWrapper tag = tags.getFirst();
+        assertEquals("BL-S-101", tag.getChangedTag().getTag().getId());
+        assertEquals(1, tag.getChangedTag().getTag().getItems().size());
+        assertEquals("1", tag.getChangedTag().getTag().getItems().getFirst().getRevisionId());
+    }
+
+    @Test
     void generateTags_shouldExcludeKoboShelfFromTags() {
         BookEntity book1 = createEpubBookEntity(1L);
         ShelfEntity koboShelf = ShelfEntity.builder().id(100L).name(ShelfType.KOBO.getName()).bookEntities(Set.of(book1)).build();

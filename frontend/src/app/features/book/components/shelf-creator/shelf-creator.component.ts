@@ -41,7 +41,10 @@ export class ShelfCreatorComponent {
   selectedIcon: IconSelection | null = null;
   isPublic: boolean = false;
   koboSync: boolean = false;
-  canSyncKobo: boolean = this.userService.getCurrentUser()?.permissions.admin || this.userService.getCurrentUser()?.permissions.canSyncKobo || false;
+  canSyncKobo: boolean = (() => {
+    const permissions = this.userService.getCurrentUser()?.permissions;
+    return !!(permissions?.admin || permissions?.canSyncKobo);
+  })();
   isAdmin: boolean = this.userService.getCurrentUser()?.permissions.admin ?? false;
 
   openIconPicker(): void {

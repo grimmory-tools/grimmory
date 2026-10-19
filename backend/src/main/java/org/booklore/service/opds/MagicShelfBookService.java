@@ -21,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,7 @@ import tools.jackson.databind.ObjectMapper;
 
 import org.booklore.exception.APIException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -95,10 +97,19 @@ public class MagicShelfBookService {
             Specification<BookEntity> specification = ruleEvaluatorService.toSpecification(groupRule, userId);
             specification = specification.and(createLibraryFilterSpecification(access.user()));
 
-            Pageable pageable = PageRequest.of(0, limit);
-            Page<BookEntity> booksPage = bookRepository.findAll(specification, pageable);
-            List<BookEntity> filtered = contentRestrictionService.applyRestrictions(booksPage.getContent(), userId);
-            return filtered.stream().map(BookEntity::getId).toList();
+            List<Long> ids = new ArrayList<>();
+            int pageIndex = 0;
+            Page<BookEntity> booksPage;
+            do {
+                booksPage = bookRepository.findAll(specification, PageRequest.of(pageIndex++, limit, Sort.by("id")));
+                for (BookEntity book : contentRestrictionService.applyRestrictions(booksPage.getContent(), userId)) {
+                    ids.add(book.getId());
+                    if (ids.size() >= limit) {
+                        return ids;
+                    }
+                }
+            } while (booksPage.hasNext());
+            return ids;
         } catch (APIException e) {
             throw e;
         } catch (Exception e) {

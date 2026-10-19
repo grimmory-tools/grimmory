@@ -66,6 +66,26 @@ class MagicShelfServiceTest {
     }
 
     @Test
+    void createOrUpdateShelf_shouldRejectKoboSyncWithoutPermission() {
+        BookLoreUser.UserPermissions permissions = new BookLoreUser.UserPermissions();
+        permissions.setAdmin(false);
+        permissions.setCanSyncKobo(false);
+        user.setPermissions(permissions);
+
+        MagicShelf dto = new MagicShelf();
+        dto.setName("Historical");
+        dto.setFilterJson("{\"status\": \"unread\"}");
+        dto.setIsPublic(false);
+        dto.setKoboSync(true);
+
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+        when(magicShelfRepository.existsByUserIdAndName(1L, "Historical")).thenReturn(false);
+
+        assertThrows(SecurityException.class, () -> magicShelfService.createOrUpdateShelf(dto));
+        verify(magicShelfRepository, never()).save(any());
+    }
+
+    @Test
     void createShelf_withNullIcon_shouldPersistNullIconValues() {
         MagicShelf dto = new MagicShelf();
         dto.setName("Unread Books");

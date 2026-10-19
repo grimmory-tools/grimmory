@@ -33,11 +33,13 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -199,7 +201,7 @@ class KoboLibrarySnapshotServiceTest {
         when(shelfRepository.findByUserIdAndName(owner.getId(), ShelfType.KOBO.getName())).thenReturn(Optional.of(koboShelf));
         when(shelfRepository.findByUserIdAndKoboSyncTrue(owner.getId())).thenReturn(List.of(syncShelf));
         when(magicShelfRepository.findAllByUserIdAndKoboSyncTrue(owner.getId())).thenReturn(List.of(magicShelf));
-        when(magicShelfBookService.getBookIdsByMagicShelfId(eq(owner.getId()), eq(9L), anyInt())).thenReturn(List.of(3L, 4L));
+        when(magicShelfBookService.getBookIdsByMagicShelfId(eq(owner.getId()), eq(9L), eq(KoboLibrarySnapshotService.MAX_MAGIC_SHELF_BOOKS_FOR_KOBO))).thenReturn(List.of(3L, 4L));
         when(bookRepository.findAllById(any())).thenReturn(List.of(magicBook));
 
         assertThat(service.resolveSyncedBooks(owner.getId()))
@@ -214,7 +216,7 @@ class KoboLibrarySnapshotServiceTest {
 
         when(shelfRepository.findByUserIdAndName(owner.getId(), ShelfType.KOBO.getName())).thenReturn(Optional.empty());
         when(magicShelfRepository.findAllByUserIdAndKoboSyncTrue(owner.getId())).thenReturn(List.of(magicShelf));
-        when(magicShelfBookService.getBookIdsByMagicShelfId(eq(owner.getId()), eq(9L), anyInt())).thenReturn(List.of(4L));
+        when(magicShelfBookService.getBookIdsByMagicShelfId(eq(owner.getId()), eq(9L), eq(KoboLibrarySnapshotService.MAX_MAGIC_SHELF_BOOKS_FOR_KOBO))).thenReturn(List.of(4L));
         when(bookRepository.findAllById(any())).thenReturn(List.of(magicBook));
 
         assertThat(service.resolveSyncedBooks(owner.getId()))
@@ -223,20 +225,47 @@ class KoboLibrarySnapshotServiceTest {
     }
 
     @Test
-    void resolveSyncedBooks_shouldSkipMagicShelfThatFailsToEvaluate() {
-        ShelfEntity syncShelf = ShelfEntity.builder().name("Vacation").koboSync(true)
-                .bookEntities(Set.of(ownersBook)).build();
+    void resolveSyncedBooks_shouldAbortWhenMagicShelfFailsToEvaluate() {
         MagicShelfEntity broken = MagicShelfEntity.builder().id(9L).name("Broken").koboSync(true).build();
 
         when(shelfRepository.findByUserIdAndName(owner.getId(), ShelfType.KOBO.getName())).thenReturn(Optional.empty());
-        when(shelfRepository.findByUserIdAndKoboSyncTrue(owner.getId())).thenReturn(List.of(syncShelf));
+        when(shelfRepository.findByUserIdAndKoboSyncTrue(owner.getId())).thenReturn(List.of());
         when(magicShelfRepository.findAllByUserIdAndKoboSyncTrue(owner.getId())).thenReturn(List.of(broken));
-        when(magicShelfBookService.getBookIdsByMagicShelfId(eq(owner.getId()), eq(9L), anyInt()))
+        when(magicShelfBookService.getBookIdsByMagicShelfId(eq(owner.getId()), eq(9L), eq(KoboLibrarySnapshotService.MAX_MAGIC_SHELF_BOOKS_FOR_KOBO)))
                 .thenThrow(new RuntimeException("bad rules"));
+
+        assertThatThrownBy(() -> service.resolveSyncedBooks(owner.getId()))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("bad rules");
+        verify(koboLibrarySnapshotRepository, never()).save(any());
+    }
+
+    @Test
+    void resolveSyncedBooks_shouldExcludeBooksOutsideTheUsersLibraries() {
+        ShelfEntity syncShelf = ShelfEntity.builder().name("Vacation").koboSync(true)
+                .bookEntities(Set.of(ownersBook, otherUsersBook)).build();
+
+        when(shelfRepository.findByUserIdAndName(owner.getId(), ShelfType.KOBO.getName())).thenReturn(Optional.empty());
+        when(shelfRepository.findByUserIdAndKoboSyncTrue(owner.getId())).thenReturn(List.of(syncShelf));
+        when(magicShelfRepository.findAllByUserIdAndKoboSyncTrue(owner.getId())).thenReturn(List.of());
 
         assertThat(service.resolveSyncedBooks(owner.getId()))
                 .extracting(BookEntity::getId)
                 .containsExactly(ownersBook.getId());
+    }
+
+    @Test
+    void resolveSyncedBooks_shouldRequestExactlyTheMagicShelfBookLimit() {
+        MagicShelfEntity magicShelf = MagicShelfEntity.builder().id(9L).name("Big").koboSync(true).build();
+
+        when(shelfRepository.findByUserIdAndName(owner.getId(), ShelfType.KOBO.getName())).thenReturn(Optional.empty());
+        when(shelfRepository.findByUserIdAndKoboSyncTrue(owner.getId())).thenReturn(List.of());
+        when(magicShelfRepository.findAllByUserIdAndKoboSyncTrue(owner.getId())).thenReturn(List.of(magicShelf));
+        when(magicShelfBookService.getBookIdsByMagicShelfId(owner.getId(), 9L, 250)).thenReturn(List.of());
+
+        assertThat(service.resolveSyncedBooks(owner.getId())).isEmpty();
+        assertThat(KoboLibrarySnapshotService.MAX_MAGIC_SHELF_BOOKS_FOR_KOBO).isEqualTo(250);
+        verify(magicShelfBookService).getBookIdsByMagicShelfId(owner.getId(), 9L, 250);
     }
 
     @Test

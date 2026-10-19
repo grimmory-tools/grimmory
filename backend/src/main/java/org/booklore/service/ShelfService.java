@@ -47,17 +47,29 @@ public class ShelfService {
         if (request.isPublicShelf() && !authenticationService.getAuthenticatedUser().getPermissions().isAdmin()) {
             throw new AccessDeniedException("Only admins can create public shelves");
         }
+        boolean koboSync = Boolean.TRUE.equals(request.getKoboSync());
+        requireKoboSyncPermission(koboSync);
         ShelfEntity shelfEntity = ShelfEntity.builder()
                 .icon(request.getIcon())
                 .name(request.getName())
                 .iconType(request.getIconType())
                 .isPublic(request.isPublicShelf())
-                .koboSync(request.isKoboSync())
+                .koboSync(koboSync)
                 .user(fetchUserEntityById(userId))
                 .build();
         Shelf result = shelfMapper.toShelf(shelfRepository.save(shelfEntity));
         auditService.log(AuditAction.SHELF_CREATED, "Shelf", shelfEntity.getId(), "Created shelf: " + request.getName());
         return result;
+    }
+
+    private void requireKoboSyncPermission(boolean enablingKoboSync) {
+        if (!enablingKoboSync) {
+            return;
+        }
+        var permissions = authenticationService.getAuthenticatedUser().getPermissions();
+        if (!permissions.isAdmin() && !permissions.isCanSyncKobo()) {
+            throw new AccessDeniedException("Kobo sync permission is required to sync a shelf to Kobo");
+        }
     }
 
     @Transactional
@@ -70,7 +82,10 @@ public class ShelfService {
         shelfEntity.setIcon(request.getIcon());
         shelfEntity.setIconType(request.getIconType());
         shelfEntity.setPublic(request.isPublicShelf());
-        shelfEntity.setKoboSync(request.isKoboSync());
+        if (request.getKoboSync() != null) {
+            requireKoboSyncPermission(request.getKoboSync() && !shelfEntity.isKoboSync());
+            shelfEntity.setKoboSync(request.getKoboSync());
+        }
         Shelf result = shelfMapper.toShelf(shelfRepository.save(shelfEntity));
         auditService.log(AuditAction.SHELF_UPDATED, "Shelf", id, "Updated shelf: " + request.getName());
         return result;

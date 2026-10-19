@@ -13,6 +13,7 @@ import org.booklore.repository.BookRepository;
 import org.booklore.repository.ShelfRepository;
 import org.booklore.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.security.access.AccessDeniedException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -81,6 +82,7 @@ class ShelfServiceTest {
 
     @Test
     void createShelf_shouldPersistKoboSyncFlag() {
+        user.setPermissions(permissions(false, true));
         ShelfCreateRequest request = ShelfCreateRequest.builder().name("Vacation").koboSync(true).build();
 
         when(authenticationService.getAuthenticatedUser()).thenReturn(user);
@@ -94,6 +96,47 @@ class ShelfServiceTest {
         ArgumentCaptor<ShelfEntity> captor = ArgumentCaptor.forClass(ShelfEntity.class);
         verify(shelfRepository).save(captor.capture());
         assertTrue(captor.getValue().isKoboSync());
+    }
+
+    @Test
+    void createShelf_shouldRejectKoboSyncWithoutPermission() {
+        user.setPermissions(permissions(false, false));
+        ShelfCreateRequest request = ShelfCreateRequest.builder().name("Vacation").koboSync(true).build();
+
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+        when(shelfRepository.existsByUserIdAndName(1L, "Vacation")).thenReturn(false);
+
+        assertThrows(AccessDeniedException.class, () -> shelfService.createShelf(request));
+        verify(shelfRepository, never()).save(any());
+    }
+
+    @Test
+    void updateShelf_shouldPreserveKoboSyncWhenFieldIsOmitted() {
+        ShelfEntity existing = ShelfEntity.builder().id(1L).name("Vacation").koboSync(true)
+                .user(userEntity).build();
+        ShelfCreateRequest request = ShelfCreateRequest.builder().name("Vacation renamed").build();
+
+        when(shelfRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(shelfRepository.save(any(ShelfEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(shelfMapper.toShelf(any(ShelfEntity.class))).thenReturn(Shelf.builder().name("Vacation renamed").build());
+
+        shelfService.updateShelf(1L, request);
+
+        assertTrue(existing.isKoboSync());
+    }
+
+    @Test
+    void updateShelf_shouldRejectEnablingKoboSyncWithoutPermission() {
+        user.setPermissions(permissions(false, false));
+        ShelfEntity existing = ShelfEntity.builder().id(1L).name("Vacation").koboSync(false)
+                .user(userEntity).build();
+        ShelfCreateRequest request = ShelfCreateRequest.builder().name("Vacation").koboSync(true).build();
+
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+        when(shelfRepository.findById(1L)).thenReturn(Optional.of(existing));
+
+        assertThrows(AccessDeniedException.class, () -> shelfService.updateShelf(1L, request));
+        assertFalse(existing.isKoboSync());
     }
 
     @Test
@@ -206,5 +249,12 @@ class ShelfServiceTest {
         ShelfEntity saved = captor.getValue();
         assertEquals("<svg>...</svg>", saved.getIcon());
         assertEquals(IconType.CUSTOM_SVG, saved.getIconType());
+    }
+
+    private static BookLoreUser.UserPermissions permissions(boolean admin, boolean canSyncKobo) {
+        BookLoreUser.UserPermissions permissions = new BookLoreUser.UserPermissions();
+        permissions.setAdmin(admin);
+        permissions.setCanSyncKobo(canSyncKobo);
+        return permissions;
     }
 }
