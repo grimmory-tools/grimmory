@@ -9,12 +9,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-final class BrowseParams {
+public final class BrowseParams {
 
     private BrowseParams() {
     }
 
-    static Map<String, List<String>> parseFacets(List<String> facet) {
+    public static Map<String, List<String>> parseFacets(List<String> facet) {
         Map<String, List<String>> facets = new LinkedHashMap<>();
         if (facet == null) {
             return facets;
