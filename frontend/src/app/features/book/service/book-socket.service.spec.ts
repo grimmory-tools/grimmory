@@ -75,6 +75,9 @@ describe('BookSocketService', () => {
     service.handleNewlyCreatedBook(created);
 
     expect(queryClient.getQueryData<Book[]>(BOOKS_QUERY_KEY)).toEqual([existing, created]);
+    expect(isInvalidated(PAGE_QUERY_KEY)).toBe(false);
+    flushSocketChanges();
+
     expect(isInvalidated(BOOKS_QUERY_KEY)).toBe(false);
     expect(isInvalidated(PAGE_QUERY_KEY)).toBe(true);
     expect(isInvalidated(bookQueryKeys.detail(2, false))).toBe(true);
@@ -99,6 +102,7 @@ describe('BookSocketService', () => {
     queryClient.setQueryData(bookQueryKeys.detail(7, false), cleanDetail);
 
     service.handleBookUpdate(updated);
+    flushSocketChanges();
 
     expect(queryClient.getQueryData<Book[]>(BOOKS_QUERY_KEY)).toEqual([updated]);
     expect(isInvalidated(BOOKS_QUERY_KEY)).toBe(false);
@@ -126,6 +130,7 @@ describe('BookSocketService', () => {
     queryClient.setQueryData(bookDetailQueryKey(3, false), first);
 
     service.handleMultipleBookCoverPatches([{id: 3, coverUpdatedOn: '2026-03-26T12:34:00Z'}]);
+    flushSocketChanges();
 
     expect(queryClient.getQueryData<Book[]>(BOOKS_QUERY_KEY)).toEqual([
       {...first, metadata: {...first.metadata, coverUpdatedOn: '2026-03-26T12:34:00Z'}},
@@ -174,6 +179,24 @@ describe('BookSocketService', () => {
     legacyBooks.finish();
     modernPage.finish();
     changedDetail.finish();
+  });
+
+  it('refetches active collection queries once for a burst of newly created books', async () => {
+    const legacyBooks = observeActiveQuery(queryClient, BOOKS_QUERY_KEY, [makeBook(1)]);
+    const modernPage = observeActiveQuery(queryClient, PAGE_QUERY_KEY, {content: [makeBook(1)]});
+
+    for (let id = 100; id < 250; id += 1) {
+      service.handleNewlyCreatedBook(makeBook(id));
+      vi.advanceTimersByTime(5);
+    }
+    flushSocketChanges();
+
+    await vi.waitFor(() => expect(modernPage.fetchCount()).toBe(1));
+    expect(modernPage.abortCount()).toBe(0);
+    expect(legacyBooks.fetchCount()).toBe(0);
+
+    legacyBooks.finish();
+    modernPage.finish();
   });
 
   it('invalidates recommendations when recommendation refresh completes', () => {
