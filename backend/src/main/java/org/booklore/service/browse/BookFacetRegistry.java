@@ -39,37 +39,37 @@ public class BookFacetRegistry {
 
     public Specification<BookEntity> matching(String facetName, List<String> values, Long userId) {
         return switch (facetName) {
-            case "author" -> BookFilterSpecification.withAuthors(values, "or");
-            case "series" -> BookFilterSpecification.inSeriesMulti(values, "or");
-            case "genre" -> BookFilterSpecification.withCategories(values, "or");
-            case "tag" -> BookFilterSpecification.withTags(values, "or");
-            case "mood" -> BookFilterSpecification.withMoods(values, "or");
-            case "language" -> BookFilterSpecification.withLanguages(values, "or");
-            case "publisher" -> BookFilterSpecification.withPublishers(values, "or");
-            case "narrator" -> BookFilterSpecification.withNarrators(values, "or");
-            case "library" -> BookFilterSpecification.inLibraries(values, "or");
+            case "author" -> BookFilterSpecification.withAuthors(values);
+            case "series" -> BookFilterSpecification.inSeriesMulti(values);
+            case "genre" -> BookFilterSpecification.withCategories(values);
+            case "tag" -> BookFilterSpecification.withTags(values);
+            case "mood" -> BookFilterSpecification.withMoods(values);
+            case "language" -> BookFilterSpecification.withLanguages(values);
+            case "publisher" -> BookFilterSpecification.withPublishers(values);
+            case "narrator" -> BookFilterSpecification.withNarrators(values);
+            case "library" -> BookFilterSpecification.inLibraries(values);
             case "shelf" -> shelves(values, userId);
-            case "file_type" -> BookFilterSpecification.withFileTypes(values, "or");
-            case "read_status" -> BookFilterSpecification.withReadStatuses(values, userId, "or");
-            case "personal_rating" -> BookFilterSpecification.withPersonalRatings(values, userId, "or");
-            case "amazon_rating" -> BookFilterSpecification.withAmazonRatings(values, "or");
-            case "goodreads_rating" -> BookFilterSpecification.withGoodreadsRatings(values, "or");
-            case "hardcover_rating" -> BookFilterSpecification.withHardcoverRatings(values, "or");
-            case "ranobedb_rating" -> BookFilterSpecification.withRanobedbRatings(values, "or");
-            case "lubimyczytac_rating" -> BookFilterSpecification.withLubimyczytacRatings(values, "or");
-            case "audible_rating" -> BookFilterSpecification.withAudibleRatings(values, "or");
-            case "applebooks_rating" -> BookFilterSpecification.withApplebooksRatings(values, "or");
-            case "age_rating" -> BookFilterSpecification.withAgeRatings(values, "or");
-            case "content_rating" -> BookFilterSpecification.withContentRatings(values, "or");
-            case "match_score" -> BookFilterSpecification.withMatchScores(values, "or");
-            case "published_year" -> BookFilterSpecification.withPublishedYears(values, "or");
-            case "file_size" -> BookFilterSpecification.withFileSizes(values, "or");
-            case "page_count" -> BookFilterSpecification.withPageCounts(values, "or");
-            case "shelf_status" -> BookFilterSpecification.withShelfStatus(values, "or");
-            case "comic_character" -> BookFilterSpecification.withComicCharacters(values, "or");
-            case "comic_team" -> BookFilterSpecification.withComicTeams(values, "or");
-            case "comic_location" -> BookFilterSpecification.withComicLocations(values, "or");
-            case "comic_creator" -> BookFilterSpecification.withComicCreators(values, "or");
+            case "file_type" -> BookFilterSpecification.withFileTypes(values);
+            case "read_status" -> BookFilterSpecification.withReadStatuses(values, userId);
+            case "personal_rating" -> BookFilterSpecification.withPersonalRatings(values, userId);
+            case "amazon_rating" -> BookFilterSpecification.withAmazonRatings(values);
+            case "goodreads_rating" -> BookFilterSpecification.withGoodreadsRatings(values);
+            case "hardcover_rating" -> BookFilterSpecification.withHardcoverRatings(values);
+            case "ranobedb_rating" -> BookFilterSpecification.withRanobedbRatings(values);
+            case "lubimyczytac_rating" -> BookFilterSpecification.withLubimyczytacRatings(values);
+            case "audible_rating" -> BookFilterSpecification.withAudibleRatings(values);
+            case "applebooks_rating" -> BookFilterSpecification.withApplebooksRatings(values);
+            case "age_rating" -> BookFilterSpecification.withAgeRatings(values);
+            case "content_rating" -> BookFilterSpecification.withContentRatings(values);
+            case "match_score" -> BookFilterSpecification.withMatchScores(values);
+            case "published_year" -> BookFilterSpecification.withPublishedYears(values);
+            case "file_size" -> BookFilterSpecification.withFileSizes(values);
+            case "page_count" -> BookFilterSpecification.withPageCounts(values);
+            case "shelf_status" -> BookFilterSpecification.withShelfStatus(values);
+            case "comic_character" -> BookFilterSpecification.withComicCharacters(values);
+            case "comic_team" -> BookFilterSpecification.withComicTeams(values);
+            case "comic_location" -> BookFilterSpecification.withComicLocations(values);
+            case "comic_creator" -> BookFilterSpecification.withComicCreators(values);
             default -> throw ApiError.INVALID_FACET.createException("Unknown facet: " + facetName);
         };
     }
@@ -88,7 +88,7 @@ public class BookFacetRegistry {
             }
         }
         if (!regularIds.isEmpty()) {
-            specs.add(BookFilterSpecification.inShelves(regularIds, "or"));
+            specs.add(BookFilterSpecification.inShelves(regularIds));
         }
         if (specs.isEmpty()) {
             return (root, query, cb) -> cb.conjunction();
