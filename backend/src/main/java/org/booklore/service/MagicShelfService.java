@@ -1,6 +1,7 @@
 package org.booklore.service;
 
 import org.booklore.config.security.service.AuthenticationService;
+import org.booklore.exception.ApiError;
 import org.booklore.model.dto.MagicShelf;
 import org.booklore.model.entity.MagicShelfEntity;
 import org.booklore.repository.MagicShelfRepository;
@@ -86,7 +87,7 @@ public class MagicShelfService {
         }
         var permissions = authenticationService.getAuthenticatedUser().getPermissions();
         if (!permissions.isAdmin() && !permissions.isCanSyncKobo()) {
-            throw new SecurityException("Kobo sync permission is required to sync a shelf to Kobo");
+            throw ApiError.FORBIDDEN.createException("Kobo sync permission is required to sync a shelf to Kobo");
         }
     }
 

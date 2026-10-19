@@ -1,6 +1,7 @@
 package org.booklore.service;
 
 import org.booklore.config.security.service.AuthenticationService;
+import org.booklore.exception.APIException;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.service.audit.AuditService;
 import org.booklore.model.dto.MagicShelf;
@@ -81,7 +82,7 @@ class MagicShelfServiceTest {
         when(authenticationService.getAuthenticatedUser()).thenReturn(user);
         when(magicShelfRepository.existsByUserIdAndName(1L, "Historical")).thenReturn(false);
 
-        assertThrows(SecurityException.class, () -> magicShelfService.createOrUpdateShelf(dto));
+        assertThrows(APIException.class, () -> magicShelfService.createOrUpdateShelf(dto));
         verify(magicShelfRepository, never()).save(any());
     }
 
