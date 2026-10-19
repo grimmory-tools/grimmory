@@ -4029,47 +4029,28 @@
       "publicationTimeline": "出版时间线"
     },
     "bookFormats": {
-      "title": "书籍格式",
-      "description": "书库中文件类型的分布"
+      "title": "书籍格式"
     },
-    "language": {
-      "title": "语言",
-      "description": "收藏中包含的语言"
+    "languages": {
+      "title": "语言"
     },
     "metadataScore": {
-      "title": "元数据评分",
-      "description": "书库中书籍元数据的质量",
-      "excellent": "优秀 (90-100%)",
-      "good": "良好 (70-89%)",
-      "fair": "一般 (50-69%)",
-      "poor": "较差 (25-49%)",
-      "veryPoor": "很差 (0-24%)"
+      "title": "元数据评分"
     },
     "pageCount": {
-      "title": "页数分布",
-      "description": "书库中书籍长度的分布",
       "tooltipTitle": "{{ label }} 页",
       "axisPageCount": "页数",
       "axisBooks": "书籍"
     },
     "publicationTimeline": {
       "title": "出版时间线",
-      "description": "您的书籍最初是什么时候出版的？",
       "axisNumberOfBooks": "书籍数量",
       "insightOldest": "最早",
       "insightNewest": "最新",
-      "insightPeakDecadeBooks": "{{ count }} 本"
+      "booksCount": "{{ count }} 本"
     },
     "topItems": {
-      "axisNumberOfBooks": "书籍数量",
-      "dataTypes": {
-        "authors": "作者",
-        "categories": "分类",
-        "series": "系列",
-        "publishers": "出版社",
-        "tags": "标签",
-        "moods": "情绪"
-      }
+      "axisNumberOfBooks": "书籍数量"
     },
     "libraryFilter": {
       "allLibraries": "所有书库"
@@ -4082,68 +4063,37 @@
     },
     "chartNames": {
       "favoriteDays": "最爱阅读日",
-      "timeline": "阅读会话时间线",
-      "readingHeatmap": "阅读活动热力图",
-      "personalRating": "个人评分分布",
-      "readStatus": "阅读状态分布",
+      "sessionTimeline": "阅读会话时间线",
       "readingClock": "阅读时钟",
-      "readingSurvival": "阅读存活曲线",
-      "bookLength": "图书长度偏好",
-      "ratingTaste": "评分口味对比",
-      "seriesProgress": "系列进度追踪器",
-      "readingDna": "阅读 DNA 档案",
-      "readingHabits": "阅读习惯分析",
-      "bookFlow": "",
-      "publicationEra": ""
+      "bookFlow": ""
     },
-    "sessionHeatmap": {
+    "sessionActivity": {
       "title": "阅读会话活动",
-      "description": "全年阅读会话的每日概览",
       "currentStreak": "当前连续",
       "longestStreak": "最长连续",
       "readingSessions": "阅读会话"
     },
     "sessionTimeline": {
       "title": "阅读会话时间线",
-      "description": "阅读会话和模式的每周概览",
-      "previousWeek": "上一周",
-      "nextWeek": "下一周",
-      "week": "第 {{ number }} 周",
-      "readingSession": "阅读会话",
-      "tooltipTime": "时间：",
-      "tooltipDuration": "时长：",
-      "tooltipFormat": "格式："
+      "readingSession": "阅读会话"
     },
-    "genreStats": {
+    "readingByGenre": {
       "title": "按类型阅读",
-      "description": "按总阅读时间排列的热门类型",
       "axisGenres": "类型",
-      "axisTimeRead": "阅读时间",
       "readingTime": "阅读时间"
     },
     "favoriteDays": {
       "title": "最爱阅读日",
-      "selectYear": "选择年份",
-      "selectMonth": "选择月份",
-      "allYears": "所有年份",
-      "allMonths": "所有月份",
       "axisDayOfWeek": "星期"
     },
     "personalRating": {
-      "title": "个人评分分布",
       "axisPersonalRating": "个人评分",
       "axisNumberOfBooks": "图书数量",
       "tooltipTitle": "个人评分：{{ label }}"
     },
-    "readStatus": {
-      "title": "阅读状态分布",
-      "description": "按阅读状态分类的图书"
-    },
+    "readStatus": {},
     "readingDna": {
-      "title": "阅读 DNA 档案",
-      "description": "您在 8 个维度上的独特阅读个性",
       "tooltipPersonality": "{{ label }} 个性",
-      "tooltipScore": "分数：{{ score }}/100",
       "traits": {
         "adventurous": "冒险型",
         "perfectionist": "完美主义者",
@@ -4198,10 +4148,7 @@
       }
     },
     "readingHabits": {
-      "title": "阅读习惯分析",
-      "description": "您在 8 个维度上的行为阅读模式",
       "tooltipHabit": "{{ label }} 习惯",
-      "tooltipScore": "分数：{{ score }}/100",
       "habits": {
         "consistency": "一致性",
         "multitasking": "多任务",
@@ -4250,20 +4197,19 @@
         }
       }
     },
-    "readingHeatmap": {
-      "title": "阅读活动热力图",
-      "booksRead": "已读图书"
+    "booksFinished": {},
+    "booksAddedVsFinished": {
+      "axisMonth": "月份",
+      "axisCumulativeBooks": "累计书籍",
+      "legendBooksAdded": "添加的书籍",
+      "legendBooksFinished": "完成的书籍",
+      "insightCurrentBacklog": "当前待读"
     },
-    "ratingTaste": {
-      "title": "评分口味对比",
-      "description": "将您的个人评分与外部评分（Goodreads、Amazon 等）进行对比"
-    },
+    "ratingComparison": {},
     "seriesProgress": {
-      "title": "系列进度追踪器",
       "seriesBreakdown": "系列详情",
       "ofTotal": "{{ filtered }} / {{ total }}",
       "searchSeries": "搜索系列...",
-      "allStatus": "所有状态",
       "inProgress": "进行中",
       "completed": "已完成",
       "notStarted": "未开始",
@@ -4278,44 +4224,30 @@
       "abandoned": "已放弃",
       "wontRead": "不会读",
       "unread": "未读",
-      "booksRead": "{{ read }}/{{ owned }} 已读",
       "next": "下一本：",
-      "tooltipRead": "已读：{{ read }}/{{ owned }} 已拥有",
       "noMatchingSearch": "没有匹配「{{ term }}」的系列",
       "pageInfo": "第 {{ current }} 页，共 {{ total }} 页"
     },
-    "readingSurvival": {
-      "title": "阅读存活曲线",
+    "readingDropOff": {
       "completionRate": "完成率",
-      "survivalRate": "存活率",
-      "axisProgressThreshold": "进度阈值",
-      "axisBooksSurviving": "存活图书百分比",
       "tooltipProgress": "{{ label }} 进度"
     },
     "readingClock": {
       "title": "阅读时钟",
-      "description": "您一天中什么时候阅读",
-      "peakHour": "高峰时段",
-      "totalRead": "总阅读量"
+      "peakHour": "高峰时段"
     },
-    "bookLength": {
-      "title": "图书长度偏好",
-      "description": "图书长度与您的个人评分的关系",
-      "sweetSpot": "最佳区间",
+    "ratingsByLength": {
       "axisPageCount": "页数",
       "axisPersonalRating": "个人评分"
     },
     "bookFlow": {
       "title": "",
-      "description": "",
       "totalBooks": "",
       "colAdded": "",
       "colStatus": "",
       "colRating": ""
     },
-    "publicationEra": {
-      "title": "",
-      "description": "",
+    "ratingsByDecade": {
       "bestDecade": ""
     }
   },
@@ -4757,6 +4689,28 @@
       "viewMode": "视图",
       "density": "大小",
       "resetColumns": "重置为默认"
+    }
+  },
+  "stats": {
+    "config": {
+      "title": "图表配置",
+      "resetOrder": "重置顺序"
+    },
+    "filter": {
+      "allYears": "所有年份",
+      "selectYear": "选择年份",
+      "allMonths": "所有月份",
+      "selectMonth": "选择月份",
+      "week": "第 {{ number }} 周",
+      "previousWeek": "上一周",
+      "nextWeek": "下一周",
+      "dataTypes": {
+        "authors": "作者",
+        "series": "系列",
+        "publishers": "出版社",
+        "tags": "标签",
+        "moods": "情绪"
+      }
     }
   }
 }

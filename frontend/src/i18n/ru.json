@@ -4029,47 +4029,28 @@
       "publicationTimeline": "Хронология публикаций"
     },
     "bookFormats": {
-      "title": "Форматы книг",
-      "description": "Распределение типов файлов в вашей библиотеке"
+      "title": "Форматы книг"
     },
-    "language": {
-      "title": "Языки",
-      "description": "Языки, представленные в вашей коллекции"
+    "languages": {
+      "title": "Языки"
     },
     "metadataScore": {
-      "title": "Оценка метаданных",
-      "description": "Качество метаданных книг в вашей библиотеке",
-      "excellent": "Отлично (90-100%)",
-      "good": "Хорошо (70-89%)",
-      "fair": "Средне (50-69%)",
-      "poor": "Плохо (25-49%)",
-      "veryPoor": "Очень плохо (0-24%)"
+      "title": "Оценка метаданных"
     },
     "pageCount": {
-      "title": "Распределение по количеству страниц",
-      "description": "Распределение длины книг в вашей библиотеке",
       "tooltipTitle": "{{ label }} страниц",
       "axisPageCount": "Количество страниц",
       "axisBooks": "Книги"
     },
     "publicationTimeline": {
       "title": "Хронология публикаций",
-      "description": "Когда были опубликованы ваши книги?",
       "axisNumberOfBooks": "Количество книг",
       "insightOldest": "Самая старая",
       "insightNewest": "Самая новая",
-      "insightPeakDecadeBooks": "{{ count }} книг"
+      "booksCount": "{{ count }} книг"
     },
     "topItems": {
-      "axisNumberOfBooks": "Количество книг",
-      "dataTypes": {
-        "authors": "Авторы",
-        "categories": "Категории",
-        "series": "Серии",
-        "publishers": "Издательства",
-        "tags": "Теги",
-        "moods": "Настроения"
-      }
+      "axisNumberOfBooks": "Количество книг"
     },
     "libraryFilter": {
       "allLibraries": "Все библиотеки"
@@ -4082,68 +4063,37 @@
     },
     "chartNames": {
       "favoriteDays": "Любимые дни чтения",
-      "timeline": "Хронология сеансов чтения",
-      "readingHeatmap": "Тепловая карта активности чтения",
-      "personalRating": "Распределение личных оценок",
-      "readStatus": "Распределение статусов чтения",
+      "sessionTimeline": "Хронология сеансов чтения",
       "readingClock": "Часы чтения",
-      "readingSurvival": "Кривая выживания чтения",
-      "bookLength": "Идеальная длина книги",
-      "ratingTaste": "Сравнение вкусов в оценках",
-      "seriesProgress": "Трекер прогресса серий",
-      "readingDna": "Профиль читательского ДНК",
-      "readingHabits": "Анализ читательских привычек",
-      "bookFlow": "",
-      "publicationEra": ""
+      "bookFlow": ""
     },
-    "sessionHeatmap": {
+    "sessionActivity": {
       "title": "Активность сеансов чтения",
-      "description": "Ежедневный обзор ваших сеансов чтения за год",
       "currentStreak": "Текущая серия",
       "longestStreak": "Самая длинная серия",
       "readingSessions": "Сеансы чтения"
     },
     "sessionTimeline": {
       "title": "Хронология сеансов чтения",
-      "description": "Еженедельный обзор ваших сеансов чтения и закономерностей",
-      "previousWeek": "Предыдущая неделя",
-      "nextWeek": "Следующая неделя",
-      "week": "Неделя {{ number }}",
-      "readingSession": "Сеанс чтения",
-      "tooltipTime": "Время:",
-      "tooltipDuration": "Длительность:",
-      "tooltipFormat": "Формат:"
+      "readingSession": "Сеанс чтения"
     },
-    "genreStats": {
+    "readingByGenre": {
       "title": "Чтение по жанрам",
-      "description": "Лучшие жанры по общему времени чтения",
       "axisGenres": "Жанры",
-      "axisTimeRead": "Время чтения",
       "readingTime": "Время чтения"
     },
     "favoriteDays": {
       "title": "Любимые дни чтения",
-      "selectYear": "Выберите год",
-      "selectMonth": "Выберите месяц",
-      "allYears": "Все годы",
-      "allMonths": "Все месяцы",
       "axisDayOfWeek": "День недели"
     },
     "personalRating": {
-      "title": "Распределение личных оценок",
       "axisPersonalRating": "Личная оценка",
       "axisNumberOfBooks": "Количество книг",
       "tooltipTitle": "Личная оценка: {{ label }}"
     },
-    "readStatus": {
-      "title": "Распределение статусов чтения",
-      "description": "Книги по статусу чтения"
-    },
+    "readStatus": {},
     "readingDna": {
-      "title": "Профиль читательского ДНК",
-      "description": "Ваша уникальная читательская личность по 8 измерениям",
       "tooltipPersonality": "Личность: {{ label }}",
-      "tooltipScore": "Баллы: {{ score }}/100",
       "traits": {
         "adventurous": "Авантюрность",
         "perfectionist": "Перфекционизм",
@@ -4198,10 +4148,7 @@
       }
     },
     "readingHabits": {
-      "title": "Анализ читательских привычек",
-      "description": "Ваши поведенческие модели чтения по 8 измерениям",
       "tooltipHabit": "Привычка: {{ label }}",
-      "tooltipScore": "Баллы: {{ score }}/100",
       "habits": {
         "consistency": "Постоянство",
         "multitasking": "Многозадачность",
@@ -4250,20 +4197,19 @@
         }
       }
     },
-    "readingHeatmap": {
-      "title": "Тепловая карта активности чтения",
-      "booksRead": "Прочитано книг"
+    "booksFinished": {},
+    "booksAddedVsFinished": {
+      "axisMonth": "Месяц",
+      "axisCumulativeBooks": "Накопительное количество книг",
+      "legendBooksAdded": "Добавлено книг",
+      "legendBooksFinished": "Прочитано книг",
+      "insightCurrentBacklog": "Текущие накопления"
     },
-    "ratingTaste": {
-      "title": "Сравнение вкусов в оценках",
-      "description": "Сравните ваши личные оценки с внешними рейтингами (Goodreads, Amazon и т.д.)"
-    },
+    "ratingComparison": {},
     "seriesProgress": {
-      "title": "Трекер прогресса серий",
       "seriesBreakdown": "Разбивка по сериям",
       "ofTotal": "{{ filtered }} из {{ total }}",
       "searchSeries": "Поиск серий...",
-      "allStatus": "Все статусы",
       "inProgress": "В процессе",
       "completed": "Завершено",
       "notStarted": "Не начато",
@@ -4278,44 +4224,30 @@
       "abandoned": "Заброшено",
       "wontRead": "Не буду читать",
       "unread": "Не прочитано",
-      "booksRead": "{{ read }}/{{ owned }} прочитано",
       "next": "Далее:",
-      "tooltipRead": "Прочитано: {{ read }}/{{ owned }} в наличии",
       "noMatchingSearch": "Нет серий, соответствующих «{{ term }}»",
       "pageInfo": "Страница {{ current }} из {{ total }}"
     },
-    "readingSurvival": {
-      "title": "Кривая выживания чтения",
+    "readingDropOff": {
       "completionRate": "Процент завершения",
-      "survivalRate": "Процент выживания",
-      "axisProgressThreshold": "Порог прогресса",
-      "axisBooksSurviving": "% выживших книг",
       "tooltipProgress": "{{ label }} прогресса"
     },
     "readingClock": {
       "title": "Часы чтения",
-      "description": "Когда вы читаете в течение дня",
-      "peakHour": "Пиковый час",
-      "totalRead": "Всего прочитано"
+      "peakHour": "Пиковый час"
     },
-    "bookLength": {
-      "title": "Идеальная длина книги",
-      "description": "Как длина книги соотносится с вашими личными оценками",
-      "sweetSpot": "Идеальный диапазон",
+    "ratingsByLength": {
       "axisPageCount": "Количество страниц",
       "axisPersonalRating": "Личная оценка"
     },
     "bookFlow": {
       "title": "",
-      "description": "",
       "totalBooks": "",
       "colAdded": "",
       "colStatus": "",
       "colRating": ""
     },
-    "publicationEra": {
-      "title": "",
-      "description": "",
+    "ratingsByDecade": {
       "bestDecade": ""
     }
   },
@@ -4757,6 +4689,28 @@
       "viewMode": "Вид",
       "density": "Размер",
       "resetColumns": "Сбросить по умолчанию"
+    }
+  },
+  "stats": {
+    "config": {
+      "title": "Настройка графиков",
+      "resetOrder": "Сбросить порядок"
+    },
+    "filter": {
+      "allYears": "Все годы",
+      "selectYear": "Выберите год",
+      "allMonths": "Все месяцы",
+      "selectMonth": "Выберите месяц",
+      "week": "Неделя {{ number }}",
+      "previousWeek": "Предыдущая неделя",
+      "nextWeek": "Следующая неделя",
+      "dataTypes": {
+        "authors": "Авторы",
+        "series": "Серии",
+        "publishers": "Издательства",
+        "tags": "Теги",
+        "moods": "Настроения"
+      }
     }
   }
 }
