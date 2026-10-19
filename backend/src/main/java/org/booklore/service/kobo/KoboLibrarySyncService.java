@@ -66,6 +66,10 @@ public class KoboLibrarySyncService {
     }
 
 
+    private Set<Long> snapshotBookIds(KoboLibrarySnapshotEntity snapshot) {
+        return snapshot.getBooks().stream().map(KoboSnapshotBookEntity::getBookId).collect(Collectors.toSet());
+    }
+
     private boolean isForwardingToKoboStore() {
         return appSettingService.getAppSettings().getKoboSettings().isForwardToKoboStore();
     }
@@ -119,7 +123,7 @@ public class KoboLibrarySyncService {
 
             if (!shouldContinueSync) {
                 entitlements.addAll(syncReadingStatesToKobo(user.getId(), currSnapshot.getId()));
-                entitlements.addAll(entitlementService.generateTags());
+                entitlements.addAll(entitlementService.generateTags(snapshotBookIds(currSnapshot)));
             }
         } else {
             int maxRemaining = 100;
@@ -136,7 +140,7 @@ public class KoboLibrarySyncService {
 
             if (!shouldContinueSync) {
                 entitlements.addAll(syncReadingStatesToKobo(user.getId(), currSnapshot.getId()));
-                entitlements.addAll(entitlementService.generateTags());
+                entitlements.addAll(entitlementService.generateTags(snapshotBookIds(currSnapshot)));
             }
         }
 

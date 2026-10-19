@@ -149,12 +149,8 @@ public class KoboEntitlementService {
                 .toList();
     }
 
-    public List<KoboTagWrapper> generateTags() {
+    public List<KoboTagWrapper> generateTags(Set<Long> koboBookIDs) {
         Long userId = authenticationService.getAuthenticatedUser().getId();
-        Set<Long> koboBookIDs = koboLibrarySnapshotService.resolveSyncedBooks(userId).stream()
-                .filter(koboCompatibilityService::isBookSupportedForKobo)
-                .map(BookEntity::getId)
-                .collect(Collectors.toSet());
 
         List<KoboTagWrapper> tags = new ArrayList<>();
         // Shelves
