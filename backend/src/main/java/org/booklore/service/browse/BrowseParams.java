@@ -1,5 +1,6 @@
 package org.booklore.service.browse;
 
+import org.booklore.browse.FacetLogic;
 import org.booklore.exception.ApiError;
 
 import java.net.URLEncoder;
@@ -32,7 +33,7 @@ final class BrowseParams {
         return facets;
     }
 
-    static String preserved(List<String> facet, String query) {
+    static String preserved(List<String> facet, String facetLogic, String query) {
         List<String> parts = new ArrayList<>();
         if (facet != null) {
             for (String entry : facet) {
@@ -40,6 +41,9 @@ final class BrowseParams {
                     parts.add("facet=" + encode(entry));
                 }
             }
+        }
+        if (facetLogic != null && !facetLogic.isBlank()) {
+            parts.add("facet_logic=" + encode(facetLogic));
         }
         if (query != null && !query.isBlank()) {
             parts.add("query=" + encode(query));
@@ -67,6 +71,13 @@ final class BrowseParams {
 
     static String unmarked(String key) {
         return key.startsWith("+") || key.startsWith("-") ? key.substring(1) : key;
+    }
+
+    static FacetLogic logic(String key, FacetLogic unmarked) {
+        if (key.startsWith("+")) {
+            return FacetLogic.AND;
+        }
+        return key.startsWith("-") ? FacetLogic.NOT : unmarked;
     }
 
     static String encode(String value) {

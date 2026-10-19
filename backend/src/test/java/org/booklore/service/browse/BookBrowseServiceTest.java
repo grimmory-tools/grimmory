@@ -143,7 +143,7 @@ class BookBrowseServiceTest {
     }
 
     private BrowsePage<Book> browse(String sort, List<String> facet, String query, String cursor, int page, int size) {
-        return browseService.browse(sort, facet, query, cursor, PageRequest.of(page, size));
+        return browseService.browse(sort, facet, null, query, cursor, PageRequest.of(page, size));
     }
 
     private String nextCursor(BrowsePage<Book> page) {
@@ -265,7 +265,7 @@ class BookBrowseServiceTest {
         em.flush();
 
         List<Long> pageIds = browse("title", null, null, null, 0, 20).content().stream().map(Book::getId).toList();
-        List<Long> allIds = browseService.findAllIds("title", null, null);
+        List<Long> allIds = browseService.findAllIds("title", null, null, null);
 
         assertThat(allIds).isEqualTo(pageIds);
     }
@@ -275,7 +275,7 @@ class BookBrowseServiceTest {
         Long horror = book("H", List.of("Horror")).getId();
         book("R", List.of("Romance"));
         em.flush();
-        assertThat(browseService.findAllIds(null, List.of("genre:Horror"), null)).containsExactly(horror);
+        assertThat(browseService.findAllIds(null, List.of("genre:Horror"), null, null)).containsExactly(horror);
     }
 
     @Test
@@ -286,9 +286,23 @@ class BookBrowseServiceTest {
         series.getMetadata().setSeriesName("Discworld");
         Long none = book("None", List.of()).getId();
         em.flush();
-        assertThat(browseService.findAllIds(null, List.of("+genre:Horror", "+genre:Romance"), null)).containsExactly(both);
-        assertThat(browseService.findAllIds(null, List.of("-genre:Romance", "-series:Discworld"), null))
+        assertThat(browseService.findAllIds(null, List.of("+genre:Horror", "+genre:Romance"), null, null)).containsExactly(both);
+        assertThat(browseService.findAllIds(null, List.of("-genre:Romance", "-series:Discworld"), null, null))
                 .containsExactlyInAnyOrder(horror, none);
+    }
+
+    @Test
+    void facetLogicOnlyCombinesUnprefixedValues() {
+        Long horror = book("H", List.of("Horror")).getId();
+        Long romance = book("R", List.of("Romance")).getId();
+        Long both = book("HR", List.of("Horror", "Romance")).getId();
+        Long fantasy = book("HRF", List.of("Horror", "Romance", "Fantasy")).getId();
+        em.flush();
+        List<String> genres = List.of("genre:Horror", "genre:Romance");
+        assertThat(browseService.findAllIds(null, genres, null, null)).containsExactlyInAnyOrder(horror, romance, both, fantasy);
+        assertThat(browseService.findAllIds(null, genres, "and", null)).containsExactlyInAnyOrder(both, fantasy);
+        assertThat(browseService.findAllIds(null, List.of("genre:Horror", "genre:Romance", "-genre:Fantasy"), "and", null))
+                .containsExactly(both);
     }
 
     @Test
@@ -305,7 +319,7 @@ class BookBrowseServiceTest {
         em.persist(BookMetadataEntity.builder().book(outside).title("Outside").build());
         em.flush();
 
-        assertThat(browseService.findAllIds(null, null, null)).containsExactly(inLibrary);
+        assertThat(browseService.findAllIds(null, null, null, null)).containsExactly(inLibrary);
     }
 
     @Test
@@ -351,7 +365,7 @@ class BookBrowseServiceTest {
         BrowsePage<Book> result = browse(null, null, null, null, 0, 20);
         assertThat(result.content()).isEmpty();
         assertThat(result.page().totalElements()).isZero();
-        assertThat(browseService.findAllIds(null, null, null)).isEmpty();
+        assertThat(browseService.findAllIds(null, null, null, null)).isEmpty();
     }
 
     @Test
@@ -368,7 +382,7 @@ class BookBrowseServiceTest {
 
         assertThat(browse(null, null, null, null, 0, 20).content().stream().map(Book::getId))
                 .containsExactly(romance);
-        assertThat(browseService.findAllIds(null, null, null)).containsExactly(romance);
+        assertThat(browseService.findAllIds(null, null, null, null)).containsExactly(romance);
     }
 
     private BookLoreUser noLibrariesUser() {

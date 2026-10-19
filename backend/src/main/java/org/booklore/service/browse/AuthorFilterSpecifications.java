@@ -3,6 +3,7 @@ package org.booklore.service.browse;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import lombok.RequiredArgsConstructor;
+import org.booklore.browse.FacetLogic;
 import org.booklore.exception.ApiError;
 import org.booklore.model.entity.AuthorEntity;
 import org.springframework.data.jpa.domain.Specification;
@@ -20,7 +21,8 @@ public class AuthorFilterSpecifications {
     private final AuthorFacetRegistry facetRegistry;
     private final AuthorVisibleBooks visibleBooks;
 
-    public Specification<AuthorEntity> base(String query, Map<String, List<String>> facets, BrowseScope scope, String omitFacet) {
+    public Specification<AuthorEntity> base(String query, Map<String, List<String>> facets, FacetLogic facetLogic,
+                                            BrowseScope scope, String omitFacet) {
         List<Specification<AuthorEntity>> specs = new ArrayList<>();
         if (!scope.isAdmin()) {
             specs.add((root, cq, cb) -> visibleBooks.exists(root.get("id"), cq, cb, scope));
@@ -32,17 +34,17 @@ public class AuthorFilterSpecifications {
                     cb.like(cb.lower(root.get("asin")), pattern)));
         }
         for (Map.Entry<String, List<String>> entry : facets.entrySet()) {
-            char mark = entry.getKey().charAt(0);
-            String key = mark == '+' || mark == '-' ? entry.getKey().substring(1) : entry.getKey();
+            String key = BrowseParams.unmarked(entry.getKey());
             if (!facetRegistry.has(key)) {
                 throw ApiError.INVALID_FACET.createException("Unknown facet: " + entry.getKey());
             }
-            if (mark == '+') {
-                entry.getValue().forEach(value -> specs.add(facetRegistry.matching(key, List.of(value), scope)));
-            } else if (mark == '-') {
-                specs.add(excluding(facetRegistry.matching(key, entry.getValue(), scope)));
-            } else if (!key.equals(omitFacet)) {
-                specs.add(facetRegistry.matching(key, entry.getValue(), scope));
+            if (entry.getKey().equals(omitFacet)) {
+                continue;
+            }
+            switch (BrowseParams.logic(entry.getKey(), facetLogic)) {
+                case AND -> entry.getValue().forEach(value -> specs.add(facetRegistry.matching(key, List.of(value), scope)));
+                case NOT -> specs.add(excluding(facetRegistry.matching(key, entry.getValue(), scope)));
+                case OR -> specs.add(facetRegistry.matching(key, entry.getValue(), scope));
             }
         }
         return Specification.allOf(specs);

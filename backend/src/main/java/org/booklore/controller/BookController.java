@@ -92,13 +92,15 @@ public class BookController {
             @RequestParam(required = false) String sort,
             @Parameter(description = "Facet selection in key:value form; repeatable, with '+' to require or '-' to exclude a value (e.g. genre:Horror, +tag:Dragons, -genre:Romance)")
             @RequestParam(required = false) List<String> facet,
+            @Parameter(hidden = true)
+            @RequestParam(name = "facet_logic", required = false) String facetLogic,
             @Parameter(description = "Free-text search across title, series, author, genre, tag, ISBN, and ASIN")
             @RequestParam(required = false) String query,
             @Parameter(description = "Opaque pagination cursor from a prior response's links")
             @RequestParam(required = false) String cursor) {
-        boolean browseMode = sort != null || facet != null || query != null || cursor != null;
+        boolean browseMode = sort != null || facet != null || facetLogic != null || query != null || cursor != null;
         if (browseMode) {
-            return ResponseEntity.ok(bookBrowseService.browse(sort, facet, query, cursor, pageable));
+            return ResponseEntity.ok(bookBrowseService.browse(sort, facet, facetLogic, query, cursor, pageable));
         }
         return ResponseEntity.ok(bookBrowseService.wrapLegacy(bookService.getBookDTOsPaged(pageable), pageable));
     }
@@ -109,9 +111,11 @@ public class BookController {
     public ResponseEntity<FacetGroupsResponse> getBookFacets(
             @Parameter(description = "Facet selection in key:value form; repeatable, with '+' to require or '-' to exclude a value")
             @RequestParam(required = false) List<String> facet,
+            @Parameter(hidden = true)
+            @RequestParam(name = "facet_logic", required = false) String facetLogic,
             @Parameter(description = "Free-text search applied to the counts")
             @RequestParam(required = false) String query) {
-        return ResponseEntity.ok(bookFacetService.getFacets(facet, query));
+        return ResponseEntity.ok(bookFacetService.getFacets(facet, facetLogic, query));
     }
 
     @Operation(summary = "Get one book facet", description = "Values and counts for a single facet, scoped by the same facet and query parameters as the page endpoint. When counting a facet, its own unprefixed values are not applied; its '+' and '-' values are.")
@@ -123,11 +127,13 @@ public class BookController {
             @Parameter(hidden = true) Pageable pageable,
             @Parameter(description = "Facet selection in key:value form; repeatable, with '+' to require or '-' to exclude a value")
             @RequestParam(required = false) List<String> facet,
+            @Parameter(hidden = true)
+            @RequestParam(name = "facet_logic", required = false) String facetLogic,
             @Parameter(description = "Free-text search applied to the counts")
             @RequestParam(required = false) String query,
             @Parameter(description = "Case-insensitive text the values must contain; author, genre, tag, mood, series, publisher, language, narrator, and comic facets only")
             @RequestParam(required = false) String search) {
-        return ResponseEntity.ok(bookFacetService.getFacet(facetName, facet, query, search, pageable));
+        return ResponseEntity.ok(bookFacetService.getFacet(facetName, facet, facetLogic, query, search, pageable));
     }
 
     @Operation(summary = "Get matching book ids", description = "Returns every book id matching the given sort, facet, and query parameters, in sort order. For select-all over the current filters.")
@@ -138,9 +144,11 @@ public class BookController {
             @RequestParam(required = false) String sort,
             @Parameter(description = "Facet selection in key:value form; repeatable, with '+' to require or '-' to exclude a value")
             @RequestParam(required = false) List<String> facet,
+            @Parameter(hidden = true)
+            @RequestParam(name = "facet_logic", required = false) String facetLogic,
             @Parameter(description = "Free-text search")
             @RequestParam(required = false) String query) {
-        return ResponseEntity.ok(bookBrowseService.findAllIds(sort, facet, query));
+        return ResponseEntity.ok(bookBrowseService.findAllIds(sort, facet, facetLogic, query));
     }
 
     @Operation(summary = "Get a book by ID", description = "Retrieve details of a specific book by its ID.")
