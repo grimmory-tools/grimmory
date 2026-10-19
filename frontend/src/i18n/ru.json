@@ -17,6 +17,7 @@
     "next": "Далее",
     "submit": "Отправить",
     "remove": "Удалить",
+    "clear": "",
     "edit": "Редактировать",
     "info": "Информация",
     "select": "Выбрать",
@@ -524,6 +525,7 @@
       "defaultPreferences": "Настройки по умолчанию",
       "defaultPreferencesDesc": "Настройте режим отображения по умолчанию и многоуровневую сортировку для всех библиотек и полок. Перетащите для изменения приоритета сортировки.",
       "sortOrderLabel": "Порядок сортировки (перетащите для изменения)",
+      "formatOverlay": "Наложение типа книги",
       "ascending": "По возрастанию",
       "descending": "По убыванию",
       "autoSave": "Автосохранение при навигации",
@@ -550,8 +552,7 @@
       "sortSaved": "Сортировка сохранена",
       "sortSavedDetail": "Конфигурация сортировки сохранена для {{entityType}}.",
       "editSort": "Изменить сортировку",
-      "tableSortConfig": "Конфигурация сортировки",
-      "formatOverlay": "Наложение типа книги"
+      "tableSortConfig": "Конфигурация сортировки"
     },
     "sidebarSort": {
       "sectionTitle": "Сортировка библиотек и полок в боковой панели",
@@ -1112,6 +1113,7 @@
     "deleteSuccess": "Пользователь успешно удалён",
     "deleteError": "Не удалось удалить пользователя",
     "opdsCopied": "Конечная точка OPDS скопирована в буфер обмена",
+    "copyFailed": "",
     "komgaCopied": "Конечная точка Komga API скопирована в буфер обмена",
     "sortUpdateSuccess": "Порядок сортировки успешно обновлён",
     "sortUpdateError": "Не удалось обновить порядок сортировки",
@@ -1366,8 +1368,6 @@
       "syncConfigDesc": "Включите и настройте синхронизацию между Вашей библиотекой Grimmory и устройством KOReader.",
       "enableSync": "Включить синхронизацию KOReader",
       "enableSyncDesc": "Включите синхронизацию для автоматической синхронизации прогресса чтения.",
-      "syncWithGrimmory": "Синхронизировать прогресс чтения с читалкой Grimmory",
-      "syncWithGrimmoryDesc": "Включить двунаправленную синхронизацию между читалкой Grimmory и KOReader. <strong>Примечание:</strong> Синхронизация прогресса приблизительная и может обновляться по главам, а не по точной странице или позиции.",
       "apiPath": "Путь API KOReader",
       "apiPathDesc": "Путь конечной точки API для Вашей службы синхронизации KOReader.",
       "username": "Имя пользователя KOReader",
@@ -1450,9 +1450,6 @@
       "syncEnabled": "Синхронизация Kobo включена",
       "syncDisabled": "Синхронизация Kobo отключена",
       "progressUpdated": "Пороги прогресса успешно обновлены",
-      "twoWaySyncLabel": "Двунаправленная синхронизация прогресса чтения",
-      "twoWaySyncDesc": "Включить двунаправленную синхронизацию между веб-читалкой Grimmory и Вашим устройством Kobo. Прогресс чтения на любой из платформ будет отражаться на другой.",
-      "twoWaySyncNote": "Примечание: из-за различий форматов позиции точность синхронизации обеспечивается на уровне «лучших усилий». В большинстве случаев прогресс будет точен на уровне главы.",
       "twoWaySyncKepubWarning": "",
       "twoWaySyncKepubWarningAdmin": "",
       "twoWaySyncEnabled": "Двунаправленная синхронизация прогресса включена",
@@ -1717,7 +1714,8 @@
       },
       "shelfMenu": {
         "addToShelf": "",
-        "newShelf": ""
+        "newShelf": "",
+        "removeFromAllShelves": ""
       },
       "spinner": {
         "loading": ""
@@ -1746,6 +1744,7 @@
     "commandPalette": {
       "placeholder": "",
       "empty": "",
+      "bookSearchError": "",
       "hintNavigate": "",
       "hintSelect": "",
       "ariaLabel": "",
@@ -2282,8 +2281,10 @@
       "fetching": "Получение...",
       "readyToSearch": "Готов к поиску",
       "readyToSearchHint": "Введите критерии поиска выше и нажмите «Поиск» для получения метаданных",
+      "noProviders": "",
       "noResultsFound": "Результатов не найдено",
       "noResultsHint": "Попробуйте изменить критерии поиска или выбрать других провайдеров",
+      "searchFailed": "",
       "selectOverlay": "Выбрать"
     },
     "tabs": {
@@ -2396,6 +2397,8 @@
       "goToPreviousBook": "Перейти к предыдущей книге",
       "goToNextBook": "Перейти к следующей книге",
       "personalRating": "Личная оценка",
+      "ratingTooltip": "",
+      "ratingTooltipNoReviews": "",
       "loadingBookDetails": "Загрузка деталей книги...",
       "readStatusUnread": "Не прочитано",
       "readStatusPaused": "Приостановлено",
@@ -2501,6 +2504,7 @@
       "byLabel": "Автор:",
       "coverFileLabel": "Файл обложки:",
       "loading": "Загрузка данных сопроводительного файла...",
+      "readFailed": "",
       "syncStatusInSync": "Синхронизировано",
       "syncStatusOutdated": "Устарело",
       "syncStatusConflict": "Конфликт",
@@ -2534,6 +2538,7 @@
       "searchingForCovers": "Поиск обложек...",
       "noCoversFound": "Обложки не найдены",
       "noCoversFoundDescription": "Попробуйте изменить условия поиска или проверить правописание.",
+      "searchFailed": "",
       "coversFoundSingular": "{{ count }} обложка найдена",
       "coversFoundPlural": "{{ count }} обложек найдено",
       "resultsHint": "Нажмите на изображение для предпросмотра или выберите для применения",
@@ -2678,10 +2683,31 @@
       "toast": {
         "providerRequiredSummary": "Ошибка",
         "providerRequiredDetail": "Для каждого включённого поля книги должен быть выбран хотя бы один провайдер (П1-П4)."
-      }
+      },
+      "inactiveProvider": ""
     },
     "fetchOptions": {
       "startRefresh": "Начать обновление"
+    },
+    "providers": {
+      "openLibrary": "",
+      "amazon": "",
+      "google": "",
+      "goodReads": "",
+      "hardcover": "",
+      "comicvine": "",
+      "douban": "",
+      "lubimyczytac": "",
+      "ranobedb": "",
+      "audible": "",
+      "appleBooks": ""
+    },
+    "providerFields": {
+      "id": "",
+      "rating": "",
+      "reviewCount": "",
+      "asin": "",
+      "hardcoverBookId": ""
     }
   },
   "notebook": {
@@ -2737,9 +2763,11 @@
     },
     "card": {
       "book": {
+        "physical": "",
         "unknownTitle": "Неизвестное название"
       },
       "aria": {
+        "bookMenu": "",
         "coverAlt": "Обложка {{ title }}"
       },
       "menu": {
@@ -2809,24 +2837,40 @@
       }
     },
     "menu": {
+      "label": "",
+      "openInNewTab": "",
+      "addToShelf": "",
+      "markAs": "",
+      "send": "",
       "quickSend": "Быстрая отправка",
       "customSend": "Настраиваемая отправка",
       "download": "Скачать",
       "metadata": "Метаданные",
       "editMetadata": "Редактирование метаданных",
+      "fetchMetadata": "",
+      "fetchMetadataWithOptions": "",
+      "searchProviders": "",
+      "restoreCover": "",
+      "generateCover": "",
+      "lockMetadata": "",
       "more": "Ещё",
       "organizeFile": "Организовать файл",
       "resetGrimmoryProgress": "Сбросить прогресс Grimmory",
       "resetKoreaderProgress": "Сбросить прогресс KOReader",
+      "deleteEntireBook": "",
       "confirm": {
         "deleteBookMessage": "Вы уверены, что хотите удалить «{{ title }}»?\n\nЭто навсегда удалит файл книги из вашей файловой системы.\n\nЭто действие нельзя отменить.",
         "deleteBookHeader": "Подтверждение удаления",
         "deleteFileMessage": "Вы уверены, что хотите удалить дополнительный файл «{{ fileName }}»?",
-        "deleteFileHeader": "Подтверждение удаления файла"
+        "deleteFileHeader": "Подтверждение удаления файла",
+        "largeFileMessage": "",
+        "largeFileHeader": "",
+        "sendAnyway": ""
       }
     },
     "readAction": {
       "read": {
+        "short": "",
         "long": "Читать книгу"
       },
       "continueReading": {
@@ -2841,6 +2885,11 @@
         "short": "Продолжить",
         "long": "Продолжить прослушивание"
       }
+    },
+    "selectBook": "",
+    "viewMode": {
+      "grid": "Сетка",
+      "table": "Таблица"
     },
     "notes": {
       "confirm": {
@@ -3105,7 +3154,9 @@
       "validationReady": "Готово к созданию",
       "cancelButton": "Отмена",
       "addButton": "Добавить физическую книгу",
-      "fetchMetadataTooltip": ""
+      "fetchMetadataTooltip": "",
+      "metadataNotFound": "",
+      "metadataLookupFailed": ""
     },
     "bulkIsbnImport": {
       "title": "",
@@ -3499,8 +3550,6 @@
       "hardcoverRating": "Рейтинг Hardcover",
       "hardcoverReviewCount": "Hardcover №",
       "ranobedbRating": "Рейтинг Ranobedb",
-      "lubimyczytacRating": "Lubimyczytac rating",
-      "audibleRating": "Audible rating",
       "pageCount": "Страницы",
       "publishedDate": "Дата публикации",
       "publishedYear": "Год публикации",
@@ -3510,7 +3559,7 @@
       "readingProgress": "Прогресс чтения",
       "fileName": "Имя файла",
       "fileSize": "Размер файла",
-      "isbn": "ISBN",
+      "isbn": "",
       "library": "Библиотека",
       "shelf": "Полка",
       "ageRating": "Возрастной рейтинг",
@@ -3521,11 +3570,9 @@
       "comicTeam": "Команда комикса",
       "comicLocation": "Место действия комикса",
       "comicCreator": "Создатель комикса",
-      "audibleReviewCount": "Количество отзывов Audible"
-    },
-    "viewMode": {
-      "grid": "Сетка",
-      "table": "Таблица"
+      "lubimyczytacRating": "",
+      "audibleReviewCount": "Количество отзывов Audible",
+      "audibleRating": ""
     }
   },
   "readerAudiobook": {
@@ -5195,20 +5242,80 @@
   },
   "browse": {
     "showAll": "Показать все",
+    "showMore": "",
+    "showFewer": "",
+    "clearFilters": "",
+    "filter": "",
     "moreActions": "Дополнительные действия",
+    "sort": {
+      "multiSort": "",
+      "addField": "",
+      "apply": "",
+      "moveUp": "",
+      "moveDown": "",
+      "flipDirection": ""
+    },
+    "chips": {
+      "removeSearch": ""
+    },
+    "rail": {
+      "searchValues": "",
+      "searchFields": "",
+      "searchScope": {
+        "allBooks": "",
+        "library": "",
+        "shelf": "",
+        "magicShelf": "",
+        "unshelved": ""
+      },
+      "noMatches": "",
+      "minUnit": "",
+      "maxUnit": "",
+      "min": "",
+      "max": ""
+    },
+    "book": {
+      "empty": "",
+      "filteredEmpty": "",
+      "loadError": "",
+      "pageError": ""
+    },
+    "table": {
+      "moreValues": ""
+    },
+    "toolbar": {
+      "columnGroups": {
+        "reading": "",
+        "publishing": "",
+        "file": "Файл",
+        "categorization": "",
+        "ratings": "Рейтинги"
+      },
+      "sort": "",
+      "sortAria": "",
+      "sortAscending": "",
+      "sortDescending": "",
+      "shuffleAgain": "",
+      "viewMode": "Вид",
+      "density": "Размер",
+      "smallerCards": "",
+      "largerCards": "",
+      "showFilters": "",
+      "columns": "",
+      "resetColumns": "Сбросить по умолчанию"
+    },
     "bulk": {
+      "markAsMessage": "",
+      "editAll": "",
+      "editOneByOne": "",
+      "selectionEmpty": "",
+      "selectionLoadError": "",
       "organizeFiles": "Организовать файлы",
       "updateReadStatus": "Обновить статус чтения",
       "lockUnlockMetadata": "Заблокировать/Разблокировать метаданные"
     },
-    "toolbar": {
-      "columnGroups": {
-        "file": "Файл",
-        "ratings": "Рейтинги"
-      },
-      "viewMode": "Вид",
-      "density": "Размер",
-      "resetColumns": "Сбросить по умолчанию"
+    "filterPage": {
+      "show": ""
     }
   }
 }

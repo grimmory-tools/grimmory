@@ -17,6 +17,7 @@
     "next": "Dalje",
     "submit": "Pošalji",
     "remove": "Ukloni",
+    "clear": "",
     "edit": "Uredi",
     "info": "Info",
     "select": "Odaberi",
@@ -297,9 +298,9 @@
       "maxWidthDesc": "Ograničite maksimalnu širinu područja čitanja za lakše praćenje redaka.",
       "maxHeight": "Maks. visina",
       "maxHeightDesc": "Ograničite maksimalnu visinu područja čitanja kako bi odgovaralo vašem zaslonu.",
-      "navigation": "",
-      "tapToTurnPage": "",
-      "tapToTurnPageDesc": ""
+      "navigation": "Navigacija",
+      "tapToTurnPage": "Dodirnite za okretanje stranice",
+      "tapToTurnPageDesc": "Dodirnite lijevu ili desnu marginu za okretanje stranica. Dodirivanjem sredine uključujete ili isključujete alatne trake."
     },
     "pdf": {
       "sectionTitle": "PDF čitač: Zadane postavke",
@@ -1112,6 +1113,7 @@
     "deleteSuccess": "Korisnik uspješno obrisan",
     "deleteError": "Brisanje korisnika nije uspjelo",
     "opdsCopied": "OPDS krajnja točka kopirana u međuspremnik",
+    "copyFailed": "",
     "komgaCopied": "Komga API krajnja točka kopirana u međuspremnik",
     "sortUpdateSuccess": "Redoslijed sortiranja uspješno ažuriran",
     "sortUpdateError": "Ažuriranje redoslijeda sortiranja nije uspjelo",
@@ -1366,8 +1368,6 @@
       "syncConfigDesc": "Omogućite i konfigurirajte sinkronizaciju između vaše Grimmory knjižnice i KOReader uređaja.",
       "enableSync": "Omogući KOReader sinkronizaciju",
       "enableSyncDesc": "Uključite sinkronizaciju za automatsku sinkronizaciju napretka čitanja.",
-      "syncWithGrimmory": "Sinkroniziraj napredak čitanja s Grimmory čitačem e-knjiga",
-      "syncWithGrimmoryDesc": "Omogući dvosmjernu sinkronizaciju između Grimmory čitača e-knjiga i KOReadera. <strong>Napomena:</strong> Sinkronizacija napretka je približna i može se ažurirati po poglavlju umjesto po točnoj stranici ili lokaciji.",
       "apiPath": "KOReader API putanja",
       "apiPathDesc": "Putanja API krajnje točke za vašu KOReader sinkronizacijsku uslugu.",
       "username": "KOReader korisničko ime",
@@ -1450,9 +1450,6 @@
       "syncEnabled": "Kobo sinkronizacija omogućena",
       "syncDisabled": "Kobo sinkronizacija onemogućena",
       "progressUpdated": "Pragovi napretka uspješno ažurirani",
-      "twoWaySyncLabel": "Dvosmjerna sinkronizacija napretka čitanja",
-      "twoWaySyncDesc": "Omogući dvosmjernu sinkronizaciju između Grimmory web čitača i vašeg Kobo uređaja. Napredak čitanja na bilo kojoj platformi odrazit će se na drugoj.",
-      "twoWaySyncNote": "Napomena: Zbog različitih formata pozicije, točnost sinkronizacije je na razini najboljeg napora. U većini slučajeva napredak će biti točan na razini poglavlja.",
       "twoWaySyncKepubWarning": "KEPUB konverzija je trenutno onemogućena. Dvosmjerna sinkronizacija napretka zahtijeva da administrator omogući KEPUB konverziju.",
       "twoWaySyncKepubWarningAdmin": "KEPUB konverzija je trenutno onemogućena. Omogućite je u administratorskim postavkama u nastavku kako bi dvosmjerna sinkronizacija napretka funkcionirala.",
       "twoWaySyncEnabled": "Dvosmjerna sinkronizacija napretka omogućena",
@@ -1717,7 +1714,8 @@
       },
       "shelfMenu": {
         "addToShelf": "Dodaj na policu",
-        "newShelf": "Nova polica…"
+        "newShelf": "Nova polica…",
+        "removeFromAllShelves": ""
       },
       "spinner": {
         "loading": "Učitavanje"
@@ -1746,6 +1744,7 @@
     "commandPalette": {
       "placeholder": "Pretraži knjige, stranice, knjižnice, police i radnje...",
       "empty": "Nema podudaranja",
+      "bookSearchError": "",
       "hintNavigate": "navigirati",
       "hintSelect": "odabrati",
       "ariaLabel": "Paleta naredbi",
@@ -2282,8 +2281,10 @@
       "fetching": "Dohvaćanje...",
       "readyToSearch": "Spremno za pretragu",
       "readyToSearchHint": "Unesite kriterije pretrage iznad i kliknite Pretraži za pronalaženje metapodataka",
+      "noProviders": "",
       "noResultsFound": "Nema pronađenih rezultata",
       "noResultsHint": "Pokušajte prilagoditi kriterije pretrage ili odabrati druge pružatelje",
+      "searchFailed": "",
       "selectOverlay": "Odaberi"
     },
     "tabs": {
@@ -2396,6 +2397,8 @@
       "goToPreviousBook": "Idi na prethodnu knjigu",
       "goToNextBook": "Idi na sljedeću knjigu",
       "personalRating": "Osobna ocjena",
+      "ratingTooltip": "",
+      "ratingTooltipNoReviews": "",
       "loadingBookDetails": "Učitavanje detalja knjige...",
       "readStatusUnread": "Nepročitano",
       "readStatusPaused": "Pauzirano",
@@ -2501,6 +2504,7 @@
       "byLabel": "Od:",
       "coverFileLabel": "Datoteka naslovnice:",
       "loading": "Učitavanje pratećih podataka...",
+      "readFailed": "",
       "syncStatusInSync": "Sinkronizirano",
       "syncStatusOutdated": "Zastarjelo",
       "syncStatusConflict": "Konflikt",
@@ -2534,6 +2538,7 @@
       "searchingForCovers": "Pretraživanje naslovnica...",
       "noCoversFound": "Naslovnice nisu pronađene",
       "noCoversFoundDescription": "Pokušajte prilagoditi pojmove pretraživanja ili provjeriti pravopis.",
+      "searchFailed": "",
       "coversFoundSingular": "{{ count }} naslovnica pronađena",
       "coversFoundPlural": "{{ count }} naslovnica pronađeno",
       "resultsHint": "Kliknite na sliku za pregled ili odaberite za primjenu",
@@ -2678,10 +2683,31 @@
       "toast": {
         "providerRequiredSummary": "Pogreška",
         "providerRequiredDetail": "Barem jedan pružatelj (P1-P4) mora biti odabran za svako omogućeno polje knjige."
-      }
+      },
+      "inactiveProvider": ""
     },
     "fetchOptions": {
       "startRefresh": "Započni osvježavanje"
+    },
+    "providers": {
+      "openLibrary": "",
+      "amazon": "",
+      "google": "",
+      "goodReads": "",
+      "hardcover": "",
+      "comicvine": "",
+      "douban": "",
+      "lubimyczytac": "",
+      "ranobedb": "",
+      "audible": "",
+      "appleBooks": ""
+    },
+    "providerFields": {
+      "id": "",
+      "rating": "",
+      "reviewCount": "",
+      "asin": "",
+      "hardcoverBookId": ""
     }
   },
   "notebook": {
@@ -2737,9 +2763,11 @@
     },
     "card": {
       "book": {
+        "physical": "",
         "unknownTitle": "Nepoznati naslov"
       },
       "aria": {
+        "bookMenu": "",
         "coverAlt": "Naslovnica {{ title }}"
       },
       "menu": {
@@ -2809,15 +2837,27 @@
       }
     },
     "menu": {
+      "label": "",
+      "openInNewTab": "",
+      "addToShelf": "",
+      "markAs": "",
+      "send": "",
       "quickSend": "Brzo slanje",
       "customSend": "Prilagođeno slanje",
       "download": "Preuzmi",
       "metadata": "Metapodaci",
       "editMetadata": "Uređivanje metapodataka",
+      "fetchMetadata": "",
+      "fetchMetadataWithOptions": "",
+      "searchProviders": "",
+      "restoreCover": "",
+      "generateCover": "",
+      "lockMetadata": "",
       "more": "Više",
       "organizeFile": "Organiziraj datoteku",
       "resetGrimmoryProgress": "Vrati Grimmory napredak",
       "resetKoreaderProgress": "Vrati KOReader napredak",
+      "deleteEntireBook": "",
       "confirm": {
         "deleteBookMessage": "Jeste li sigurni da želite obrisati \"{{ title }}\"?\n\nOvo će trajno ukloniti datoteku knjige iz vašeg datotečnog sustava.\n\nOva radnja se ne može poništiti.",
         "deleteBookHeader": "Potvrdi brisanje",
@@ -2830,6 +2870,7 @@
     },
     "readAction": {
       "read": {
+        "short": "",
         "long": "Čitaj knjigu"
       },
       "continueReading": {
@@ -2846,6 +2887,10 @@
       }
     },
     "selectBook": "Odaberite {{ title }}",
+    "viewMode": {
+      "grid": "Mreža",
+      "table": "Tablica"
+    },
     "notes": {
       "confirm": {
         "deleteMessage": "Jeste li sigurni da želite obrisati bilješku \"{{ title }}\"?",
@@ -3109,7 +3154,9 @@
       "validationReady": "Spremno za kreiranje",
       "cancelButton": "Odustani",
       "addButton": "Dodaj fizičku knjigu",
-      "fetchMetadataTooltip": "Dohvati metapodatke po ISBN-u"
+      "fetchMetadataTooltip": "Dohvati metapodatke po ISBN-u",
+      "metadataNotFound": "",
+      "metadataLookupFailed": ""
     },
     "bulkIsbnImport": {
       "title": "Uvoz ISBN-ova",
@@ -3503,8 +3550,6 @@
       "hardcoverRating": "Hardcover ocjena",
       "hardcoverReviewCount": "Hardcover #",
       "ranobedbRating": "RanobeDB ocjena",
-      "lubimyczytacRating": "Lubimyczytac ocjena",
-      "audibleRating": "Audible ocjena",
       "pageCount": "Stranice",
       "publishedDate": "Datum izdavanja",
       "publishedYear": "Godina izdavanja",
@@ -3514,7 +3559,7 @@
       "readingProgress": "Napredak čitanja",
       "fileName": "Naziv datoteke",
       "fileSize": "Veličina datoteke",
-      "isbn": "ISBN",
+      "isbn": "",
       "library": "Zbirka",
       "shelf": "Polica",
       "ageRating": "Dobna ocjena",
@@ -3525,11 +3570,9 @@
       "comicTeam": "Tim iz stripa",
       "comicLocation": "Lokacija iz stripa",
       "comicCreator": "Autor stripa",
-      "audibleReviewCount": "Audible broj recenzija"
-    },
-    "viewMode": {
-      "grid": "Mreža",
-      "table": "Tablica"
+      "lubimyczytacRating": "Lubimyczytac ocjena",
+      "audibleReviewCount": "Audible broj recenzija",
+      "audibleRating": "Audible ocjena"
     }
   },
   "readerAudiobook": {
@@ -5199,26 +5242,80 @@
   },
   "browse": {
     "showAll": "Prikaži sve",
+    "showMore": "",
+    "showFewer": "",
+    "clearFilters": "",
+    "filter": "",
     "moreActions": "Više radnji",
-    "rail": {
-      "noMatches": "Nema podudaranja"
-    },
     "sort": {
-      "apply": "Primijeni"
+      "multiSort": "",
+      "addField": "",
+      "apply": "Primijeni",
+      "moveUp": "",
+      "moveDown": "",
+      "flipDirection": ""
+    },
+    "chips": {
+      "removeSearch": ""
+    },
+    "rail": {
+      "searchValues": "",
+      "searchFields": "",
+      "searchScope": {
+        "allBooks": "",
+        "library": "",
+        "shelf": "",
+        "magicShelf": "",
+        "unshelved": ""
+      },
+      "noMatches": "Nema podudaranja",
+      "minUnit": "",
+      "maxUnit": "",
+      "min": "",
+      "max": ""
+    },
+    "book": {
+      "empty": "",
+      "filteredEmpty": "",
+      "loadError": "",
+      "pageError": ""
+    },
+    "table": {
+      "moreValues": ""
+    },
+    "toolbar": {
+      "columnGroups": {
+        "reading": "",
+        "publishing": "",
+        "file": "Datoteka",
+        "categorization": "",
+        "ratings": "Ocjene"
+      },
+      "sort": "",
+      "sortAria": "",
+      "sortAscending": "",
+      "sortDescending": "",
+      "shuffleAgain": "",
+      "viewMode": "Prikaz",
+      "density": "Veličina",
+      "smallerCards": "",
+      "largerCards": "",
+      "showFilters": "",
+      "columns": "",
+      "resetColumns": "Vrati na zadano"
     },
     "bulk": {
+      "markAsMessage": "",
+      "editAll": "",
+      "editOneByOne": "",
+      "selectionEmpty": "",
+      "selectionLoadError": "",
       "organizeFiles": "Organiziraj datoteke",
       "updateReadStatus": "Ažuriraj status čitanja",
       "lockUnlockMetadata": "Zaključaj/Otključaj metapodatke"
     },
-    "toolbar": {
-      "columnGroups": {
-        "file": "Datoteka",
-        "ratings": "Ocjene"
-      },
-      "viewMode": "Prikaz",
-      "density": "Veličina",
-      "resetColumns": "Vrati na zadano"
+    "filterPage": {
+      "show": ""
     }
   }
 }
