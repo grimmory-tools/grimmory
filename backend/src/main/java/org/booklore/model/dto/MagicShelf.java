@@ -26,5 +26,5 @@ public class MagicShelf {
 
     private Boolean isPublic = false;
 
-    private Boolean koboSync = false;
+    private Boolean koboSync;
 }

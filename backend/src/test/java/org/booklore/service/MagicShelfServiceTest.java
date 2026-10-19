@@ -139,6 +139,54 @@ class MagicShelfServiceTest {
     }
 
     @Test
+    void updateShelf_shouldPreserveKoboSyncWhenFieldIsOmitted() {
+        MagicShelfEntity existing = MagicShelfEntity.builder()
+                .id(1L).userId(1L).name("Old Shelf").koboSync(true)
+                .filterJson("{\"status\": \"reading\"}").build();
+
+        MagicShelf dto = new MagicShelf();
+        dto.setId(1L);
+        dto.setName("Renamed Shelf");
+        dto.setFilterJson("{\"status\": \"reading\"}");
+        dto.setIsPublic(false);
+
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+        when(magicShelfRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(magicShelfRepository.save(any(MagicShelfEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        MagicShelf result = magicShelfService.createOrUpdateShelf(dto);
+
+        assertTrue(existing.isKoboSync());
+        assertTrue(result.getKoboSync());
+    }
+
+    @Test
+    void updateShelf_shouldRejectEnablingKoboSyncWithoutPermission() {
+        BookLoreUser.UserPermissions permissions = new BookLoreUser.UserPermissions();
+        permissions.setAdmin(false);
+        permissions.setCanSyncKobo(false);
+        user.setPermissions(permissions);
+
+        MagicShelfEntity existing = MagicShelfEntity.builder()
+                .id(1L).userId(1L).name("Old Shelf").koboSync(false)
+                .filterJson("{\"status\": \"reading\"}").build();
+
+        MagicShelf dto = new MagicShelf();
+        dto.setId(1L);
+        dto.setName("Old Shelf");
+        dto.setFilterJson("{\"status\": \"reading\"}");
+        dto.setIsPublic(false);
+        dto.setKoboSync(true);
+
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+        when(magicShelfRepository.findById(1L)).thenReturn(Optional.of(existing));
+
+        assertThrows(APIException.class, () -> magicShelfService.createOrUpdateShelf(dto));
+        assertFalse(existing.isKoboSync());
+        verify(magicShelfRepository, never()).save(any());
+    }
+
+    @Test
     void updateShelf_withNullIcon_shouldClearIconValues() {
         MagicShelfEntity existing = MagicShelfEntity.builder()
                 .id(1L)
