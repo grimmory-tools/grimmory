@@ -71,6 +71,10 @@ export function anchorScrollDelta(fraction: Point, box: Rect, viewport: Point): 
   };
 }
 
+function containsPoint(r: DOMRect, p: Point): boolean {
+  return p.x >= r.left && p.x <= r.right && p.y >= r.top && p.y <= r.bottom;
+}
+
 function unionRect(elements: HTMLElement[]): Rect | null {
   let left = Infinity, top = Infinity, right = -Infinity, bottom = -Infinity;
   for (const el of elements) {
@@ -121,7 +125,10 @@ export class CbxPageZoom {
     }
     if (!container) return;
     this.ensureTargets();
-    const images = this.targets.map(t => t.img);
+    // Anchor on the tapped page: the gap between a spread's pages doesn't scale, so the spread
+    // as a whole is only the fallback (a tap in the gap).
+    const tapped = this.targets.map(t => t.img).filter(img => containsPoint(img.getBoundingClientRect(), at));
+    const images = tapped.length > 0 ? tapped : this.targets.map(t => t.img);
     const before = unionRect(images);
     if (!before) return;
     const fraction = toAnchorFraction(at, before);

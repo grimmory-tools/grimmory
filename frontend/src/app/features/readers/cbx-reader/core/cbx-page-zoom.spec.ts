@@ -165,6 +165,30 @@ describe('CbxPageZoom', () => {
     expect(container.scrollTop).toBe(225);
   });
 
+  it('anchors on the tapped page of a spread, since the gap between pages does not scale', () => {
+    document.body.innerHTML = `
+      <div class="image-container">
+        <div class="pages-wrapper"><div class="current-page-layer"><img><img></div></div>
+      </div>`;
+    const container = document.querySelector<HTMLElement>('.image-container')!;
+    const [left, right] = Array.from(document.querySelectorAll<HTMLImageElement>('img'));
+    const GAP = 14;
+    const box = (img: HTMLImageElement, offsetOf: () => number) => vi.spyOn(img, 'getBoundingClientRect').mockImplementation(() => {
+      const width = parseFloat(img.style.width) || 300;
+      const height = parseFloat(img.style.height) || 450;
+      const x = offsetOf();
+      return {left: x, top: 0, right: x + width, bottom: height, width, height, x, y: 0, toJSON: () => ({})} as DOMRect;
+    });
+    box(left, () => 0);
+    box(right, () => (parseFloat(left.style.width) || 300) + GAP);
+
+    // Centre of the right page; after 2x it is at 600 + 14 + 300 = 914.
+    new CbxPageZoom(() => container).zoomTo(2, {x: 464, y: 225});
+
+    expect(container.scrollLeft).toBe(450);
+    expect(container.scrollTop).toBe(225);
+  });
+
   it('remeasures the page after a reset, since a new page can differ in size', () => {
     const {img, zoom} = setup();
     zoom.zoomTo(2, {x: 0, y: 0});
