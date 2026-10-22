@@ -1,8 +1,9 @@
 import {convertToParamMap} from '@angular/router';
 import {describe, expect, it} from 'vitest';
 
-import {EMPTY_FACET_SELECTION} from '../data/book-query-params';
-import {bookBrowseScope, scopedFacetSelection} from './book-browse-scope';
+import {EMPTY_FACET_SELECTION, type BookQueryFacetKey} from '../data/book-query-params';
+import {pinnedBrowseFacetSelection} from '../../../shared/browse/facets';
+import {bookBrowseScope} from './book-browse-scope';
 
 describe('bookBrowseScope', () => {
   it('maps each scoped route onto its stable facet', () => {
@@ -23,21 +24,21 @@ describe('bookBrowseScope', () => {
   });
 });
 
-describe('scopedFacetSelection', () => {
+describe('pinnedBrowseFacetSelection with book scopes', () => {
   it('passes selections through unchanged without a scope', () => {
     const selection = {genre: ['Fantasy']};
-    expect(scopedFacetSelection(selection, null)).toBe(selection);
+    expect(pinnedBrowseFacetSelection(selection, null)).toBe(selection);
   });
 
   it('adds the scope as a must-have alongside other picks, even on an empty selection', () => {
     const library = bookBrowseScope(convertToParamMap({libraryId: '3'}), {});
-    expect(scopedFacetSelection({genre: ['Fantasy'], library: ['99']}, library)).toEqual({
+    expect(pinnedBrowseFacetSelection<BookQueryFacetKey>({genre: ['Fantasy'], library: ['99']}, library)).toEqual({
       genre: ['Fantasy'],
       library: ['99'],
       '+library': ['3'],
     });
 
     const unshelved = bookBrowseScope(convertToParamMap({}), {browseScope: 'unshelved'});
-    expect(scopedFacetSelection(EMPTY_FACET_SELECTION, unshelved)).toEqual({'+shelf_status': ['unshelved']});
+    expect(pinnedBrowseFacetSelection(EMPTY_FACET_SELECTION, unshelved)).toEqual({'+shelf_status': ['unshelved']});
   });
 });

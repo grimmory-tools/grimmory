@@ -40,18 +40,35 @@ export function httpGet<T>(http: HttpClient, url: string, signal: AbortSignal): 
   return toAbortablePromise(http.get<T>(url), signal);
 }
 
-export async function postSseJson<T>(
+export function postSseJson<T>(
   auth: AuthService,
   url: string,
   body: string,
+  signal?: AbortSignal,
+): Promise<AsyncIterable<T>> {
+  return fetchSseJson<T>(auth, url, {method: 'POST', body, headers: {'Content-Type': 'application/json'}}, signal);
+}
+
+export function getSseJson<T>(
+  auth: AuthService,
+  url: string,
   signal: AbortSignal,
+): Promise<AsyncIterable<T>> {
+  return fetchSseJson<T>(auth, url, {method: 'GET'}, signal);
+}
+
+async function fetchSseJson<T>(
+  auth: AuthService,
+  url: string,
+  {method, body, headers}: {method: 'GET' | 'POST'; body?: string; headers?: Record<string, string>},
+  signal?: AbortSignal,
 ): Promise<AsyncIterable<T>> {
   const send = async (options: {forceRefresh?: boolean} = {}) => {
     const token = await firstValueFrom(auth.ensureAccessToken(options));
     return fetch(url, {
-      method: 'POST',
+      method,
       headers: {
-        'Content-Type': 'application/json',
+        ...headers,
         'Authorization': `Bearer ${token}`,
       },
       body,
@@ -67,6 +84,7 @@ export async function postSseJson<T>(
 
   if (!response.ok) {
     await response.body?.cancel();
+    // oxlint-disable-next-line typescript/only-throw-error -- SAFETY: HttpClient rejects with HttpErrorResponse, and retryTransientQueryError only retries that type, so SSE failures must match it.
     throw new HttpErrorResponse({status: response.status, statusText: response.statusText, url});
   }
 

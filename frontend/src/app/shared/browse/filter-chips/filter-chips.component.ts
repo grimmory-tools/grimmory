@@ -47,16 +47,17 @@ import {type BrowseFilterChip} from '../facets';
       </app-tag>
     }
     @for (chip of chips(); track chip.key + ':' + chip.value) {
+      @let label = chip.valueLabelKey ? (chip.valueLabelKey | transloco) : chip.valueLabel;
       <app-tag
         [class]="tagHostClass()"
         [styleClass]="tagClass()"
         [color]="chip.excluded ? 'red' : 'primary'"
         size="sm"
         removable
-        [removeLabel]="'shared.ui.tag.removeLabel' | transloco: {label: chip.valueLabel}"
+        [removeLabel]="'shared.ui.tag.removeLabel' | transloco: {label}"
         (remove)="removeChip.emit(chip)">
         <span class="opacity-70">{{ chip.groupLabelKey | transloco }}:</span>
-        <span class="max-w-48 truncate" [class.line-through]="chip.excluded">{{ chip.valueLabel }}</span>
+        <span class="max-w-48 truncate" [class.line-through]="chip.excluded">{{ label }}</span>
       </app-tag>
     }
     </div>

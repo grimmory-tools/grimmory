@@ -4,7 +4,7 @@ import { Tooltip } from '@openng/optimus-ui/tooltip';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LucideEllipsisVertical } from '@lucide/angular';
 import {injectQuery} from '@tanstack/angular-query-experimental';
-import {scopedFacetSelection} from '../../../features/book/browse/book-browse-scope';
+import {pinnedBrowseFacetSelection} from '../../browse/facets';
 import {BookQueryService} from '../../../features/book/data/book-query.service';
 import {EMPTY_FACET_SELECTION, type FacetValueMap} from '../../../features/book/data/book-query-params';
 import {AuthService} from '../../service/auth.service';
@@ -44,7 +44,7 @@ export class AppSidebarItemRowComponent {
   readonly key = computed(() => `${this.parentKey()}-${this.index()}`);
   private readonly countFacets = computed<FacetValueMap | undefined>(() => {
     const scope = this.item().bookScope;
-    return scope === undefined ? undefined : scopedFacetSelection(EMPTY_FACET_SELECTION, scope);
+    return scope === undefined ? undefined : pinnedBrowseFacetSelection(EMPTY_FACET_SELECTION, scope);
   });
   private readonly bookCountQuery = injectQuery(() => ({
     ...this.bookQuery.page({facets: this.countFacets() ?? {}, sort: [], size: 1}),

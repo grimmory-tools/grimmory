@@ -32,7 +32,8 @@
     "on": "",
     "off": "",
     "moreActionsFor": "",
-    "dialogLoadError": ""
+    "dialogLoadError": "",
+    "metadata": "Metadane"
   },
   "auth": {
     "oidc": {
@@ -2812,7 +2813,6 @@
       "quickSend": "Szybkie wysyłanie",
       "customSend": "Wysyłanie niestandardowe",
       "download": "Pobierz",
-      "metadata": "Metadane",
       "editMetadata": "Edytuj metadane",
       "more": "Więcej",
       "organizeFile": "Organizuj plik",
@@ -3310,9 +3310,6 @@
         "failedDetail": "Wystąpił błąd podczas aktualizacji statusów blokad pól."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Zapisz jako domyślne"
-    },
     "fileAttacher": {
       "title": "Dołącz plik do innej książki",
       "titleBulk": "Dołącz pliki do innej książki",
@@ -3338,7 +3335,6 @@
     },
     "searcher": {
       "placeholder": "Tytuł, autor, seria, gatunek lub ISBN...",
-      "clearSearch": "Wyczyść wyszukiwanie",
       "bookCoverAlt": "Okładka książki",
       "byPrefix": "autor:",
       "noResults": "Nie znaleziono wyników",
@@ -5053,74 +5049,6 @@
     }
   },
   "authorBrowser": {
-    "pageTitle": "",
-    "browseAllAuthors": "",
-    "searchPlaceholder": "",
-    "noAuthorsFound": "",
-    "sort": {
-      "name": "",
-      "bookCount": "",
-      "matched": "",
-      "recentlyAdded": "",
-      "recentlyRead": "",
-      "readingProgress": "",
-      "avgRating": "",
-      "photo": "",
-      "seriesCount": ""
-    },
-    "filters": {
-      "all": "",
-      "matchStatus": "",
-      "matched": "",
-      "unmatched": "",
-      "photoStatus": "",
-      "hasPhoto": "",
-      "noPhoto": "",
-      "readStatus": "",
-      "allRead": "",
-      "someRead": "",
-      "inProgress": "",
-      "unread": "",
-      "bookCount": "",
-      "library": "",
-      "genre": "",
-      "reset": ""
-    },
-    "footer": {
-      "selected": "",
-      "autoMatch": "",
-      "deleteSelected": "",
-      "selectAll": "",
-      "deselectAll": ""
-    },
-    "toast": {
-      "deleteSuccessSummary": "",
-      "deleteSuccessDetail": "",
-      "deleteFailedSummary": "",
-      "deleteFailedDetail": "",
-      "autoMatchSuccessSummary": "",
-      "autoMatchSuccessDetail": "",
-      "autoMatchFailedSummary": "",
-      "autoMatchFailedDetail": "",
-      "quickMatchSuccessSummary": "",
-      "quickMatchSuccessDetail": "",
-      "quickMatchFailedSummary": "",
-      "quickMatchFailedDetail": "",
-      "deleteSelectedSuccessSummary": "",
-      "deleteSelectedSuccessDetail": ""
-    },
-    "card": {
-      "matched": "",
-      "quickMatch": "",
-      "book": "",
-      "books": "",
-      "menu": {
-        "viewAuthor": "",
-        "editAuthor": "",
-        "quickMatch": "",
-        "deleteAuthor": ""
-      }
-    },
     "editor": {
       "nameLabel": "",
       "asinLabel": "",
@@ -5193,9 +5121,23 @@
       }
     }
   },
+  "author": {
+    "quickMatch": {
+      "successSummary": "",
+      "successDetail": "",
+      "failedSummary": "",
+      "failedDetail": ""
+    }
+  },
   "browse": {
     "showAll": "Pokaż wszystkie",
     "moreActions": "Więcej akcji",
+    "sort": {
+      "saveAsDefault": "Zapisz jako domyślne"
+    },
+    "rail": {
+      "clearSearch": "Wyczyść wyszukiwanie"
+    },
     "bulk": {
       "organizeFiles": "Organizuj pliki",
       "updateReadStatus": "Zaktualizuj status czytania",

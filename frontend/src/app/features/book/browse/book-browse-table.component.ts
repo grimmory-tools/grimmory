@@ -48,9 +48,9 @@ import {BrowseEmptyDef} from '../../../shared/browse/grid/grid.directives';
 import {sameRenderedRange, type BrowseRenderedRange, type BrowseStatus} from '../../../shared/browse/results';
 import {createBrowseSkeletonDelay} from '../../../shared/browse/skeleton-delay';
 import {type BrowseSelection} from '../../../shared/browse/selection';
-import {isBookQuerySortKey, type BookSortTerm} from '../data/book-query-params';
+import {isBookQuerySortKey, type BookQueryFacetKey, type BookSortTerm} from '../data/book-query-params';
 import {type BookSummary} from '../data/book-response.models';
-import {bookTitle, type BookColumnValue} from './book-browse-fields';
+import {bookTitle, COLUMNS_BY_KEY, type BookColumnValue} from './book-browse-fields';
 import {
   bookColumnKind,
   bookColumnSizing,
@@ -59,7 +59,6 @@ import {
   formatBookValue,
   type BookColumnOption,
 } from './book-browse-columns';
-import {bookFacetLinks, type BookFacetLink} from './book-browse-facet-definitions';
 import {type BookSortOption} from './book-browse-sort';
 import {BookBrowseColumnWidthPreferenceService} from './book-browse-column-width-preference.service';
 
@@ -97,6 +96,11 @@ const BODY_CELL_CLASS =
   'border-border/70 bg-page px-3 group-hover/row:bg-surface-hover ' +
   'group-data-[menu-open=true]/row:bg-surface-hover group-data-[selected=true]/row:bg-active-surface!';
 
+interface BookFacetLink {
+  readonly key: BookQueryFacetKey;
+  readonly value: string;
+}
+
 @Component({
   selector: 'app-book-browse-table',
   imports: [
@@ -128,6 +132,7 @@ export class BookBrowseTableComponent {
   private readonly scrollPosition = inject(RouteScrollPositionService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly columnWidthPreference = inject(BookBrowseColumnWidthPreferenceService);
+
   readonly books = input.required<readonly BookSummary[]>();
   readonly status = input.required<BrowseStatus>();
   readonly hasNextPage = input.required<boolean>();
@@ -424,7 +429,8 @@ export class BookBrowseTableComponent {
   }
 
   protected cellLinks(book: BookSummary, field: string): readonly BookFacetLink[] {
-    return bookFacetLinks(book, field);
+    const facet = COLUMNS_BY_KEY.get(field)?.facet;
+    return facet?.itemValues?.(book).map(value => ({key: facet.key, value})) ?? [];
   }
 
   protected rememberSelectionPointer(event: MouseEvent): void {

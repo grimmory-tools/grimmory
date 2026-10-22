@@ -32,7 +32,8 @@
     "on": "Encendido",
     "off": "Apagado",
     "moreActionsFor": "Más acciones para {{label}}",
-    "dialogLoadError": "Se produjo un error al cargar la ventana. Inténtalo de nuevo."
+    "dialogLoadError": "Se produjo un error al cargar la ventana. Inténtalo de nuevo.",
+    "metadata": "Metadatos"
   },
   "auth": {
     "oidc": {
@@ -2812,7 +2813,6 @@
       "quickSend": "Envío rápido",
       "customSend": "Envío personalizado",
       "download": "Descargar",
-      "metadata": "Metadatos",
       "editMetadata": "Editar metadatos",
       "more": "Más",
       "organizeFile": "Organizar archivo",
@@ -3318,9 +3318,6 @@
         "failedDetail": "Se produjo un error al actualizar los estados de bloqueo de campos."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Guardar como predeterminado"
-    },
     "fileAttacher": {
       "title": "Adjuntar archivo a otro libro",
       "titleBulk": "Adjuntar archivos a otro libro",
@@ -3346,7 +3343,6 @@
     },
     "searcher": {
       "placeholder": "Título, autor, serie, género o ISBN...",
-      "clearSearch": "Borrar búsqueda",
       "bookCoverAlt": "Portada del libro",
       "byPrefix": "por",
       "noResults": "No se encontraron resultados",
@@ -5057,74 +5053,6 @@
     }
   },
   "authorBrowser": {
-    "pageTitle": "Autores",
-    "browseAllAuthors": "Explorar todos los autores",
-    "searchPlaceholder": "Buscar por nombre de autor...",
-    "noAuthorsFound": "Ningún autor coincide con tu búsqueda.",
-    "sort": {
-      "name": "Nombre",
-      "bookCount": "Cantidad de libros",
-      "matched": "Coincidencia",
-      "recentlyAdded": "Agregados recientemente",
-      "recentlyRead": "Leídos recientemente",
-      "readingProgress": "Progreso de lectura",
-      "avgRating": "Calificación promedio",
-      "photo": "Foto",
-      "seriesCount": "Cantidad de series"
-    },
-    "filters": {
-      "all": "Todos",
-      "matchStatus": "Estado de coincidencia",
-      "matched": "Coincidentes",
-      "unmatched": "Sin coincidencia",
-      "photoStatus": "Estado de foto",
-      "hasPhoto": "Con foto",
-      "noPhoto": "Sin foto",
-      "readStatus": "Estado de lectura",
-      "allRead": "Todos leídos",
-      "someRead": "Algunos leídos",
-      "inProgress": "En progreso",
-      "unread": "Sin leer",
-      "bookCount": "Cantidad de libros",
-      "library": "Biblioteca",
-      "genre": "Género",
-      "reset": "Restablecer filtros"
-    },
-    "footer": {
-      "selected": "seleccionados",
-      "autoMatch": "Auto-coincidir seleccionados",
-      "deleteSelected": "Eliminar seleccionados",
-      "selectAll": "Seleccionar todos",
-      "deselectAll": "Deseleccionar todos"
-    },
-    "toast": {
-      "deleteSuccessSummary": "Autor eliminado",
-      "deleteSuccessDetail": "El autor se ha eliminado correctamente.",
-      "deleteFailedSummary": "Error al eliminar",
-      "deleteFailedDetail": "Error al eliminar el autor.",
-      "autoMatchSuccessSummary": "Auto-coincidencia completa",
-      "autoMatchSuccessDetail": "Los autores seleccionados se han asociado correctamente.",
-      "autoMatchFailedSummary": "Error de auto-coincidencia",
-      "autoMatchFailedDetail": "Error al asociar automáticamente los autores seleccionados.",
-      "quickMatchSuccessSummary": "Coincidencia rápida completa",
-      "quickMatchSuccessDetail": "El autor se ha asociado correctamente.",
-      "quickMatchFailedSummary": "Error de coincidencia rápida",
-      "quickMatchFailedDetail": "Error al realizar la coincidencia rápida del autor.",
-      "deleteSelectedSuccessSummary": "Autores eliminados",
-      "deleteSelectedSuccessDetail": "Los autores seleccionados se han eliminado correctamente."
-    },
-    "card": {
-      "matched": "Coincidencia",
-      "quickMatch": "Coincidencia rápida",
-      "book": "libro",
-      "books": "libros",
-      "menu": {
-        "viewAuthor": "Ver autor",
-        "editAuthor": "Editar autor",
-        "quickMatch": "Coincidencia rápida",
-        "deleteAuthor": "Eliminar autor"
-      }
-    },
     "editor": {
       "nameLabel": "Nombre",
       "asinLabel": "",
@@ -5197,13 +5125,23 @@
       }
     }
   },
+  "author": {
+    "quickMatch": {
+      "successSummary": "Coincidencia rápida completa",
+      "successDetail": "El autor se ha asociado correctamente.",
+      "failedSummary": "Error de coincidencia rápida",
+      "failedDetail": "Error al realizar la coincidencia rápida del autor."
+    }
+  },
   "browse": {
     "showAll": "Mostrar todos",
     "moreActions": "Más acciones",
     "sort": {
-      "apply": "Aplicar"
+      "apply": "Aplicar",
+      "saveAsDefault": "Guardar como predeterminado"
     },
     "rail": {
+      "clearSearch": "Borrar búsqueda",
       "noMatches": "Sin coincidencias"
     },
     "toolbar": {

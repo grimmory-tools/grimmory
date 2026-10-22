@@ -1,0 +1,70 @@
+<span
+  role="group"
+  [class]="sortGroupClass"
+  [attr.aria-label]="'browse.toolbar.sort' | transloco">
+  <app-button
+    variant="soft"
+    [styleClass]="sortFieldButtonClass()"
+    [label]="(activeField().labelKey | transloco) + (multiSortActive() ? ' ' + multiSortShortcut() : '')"
+    [ariaLabel]="'browse.toolbar.sortAria' | transloco: {
+      field: activeField().labelKey | transloco
+    }"
+    [appMenuTriggerFor]="sortMenu" />
+  @if (activeSortHasSecondaryAction()) {
+  <app-button
+    variant="soft"
+    iconOnly
+    [styleClass]="sortDirectionButtonClass"
+    [ariaLabel]="secondarySortActionLabelKey() | transloco"
+    [title]="secondarySortActionLabelKey() | transloco"
+    (clicked)="activateSecondarySortAction()">
+    <svg [lucideIcon]="activeSortIcon()" aria-hidden="true"></svg>
+  </app-button>
+  }
+</span>
+<app-menu #sortMenu menuClass="w-60" [ariaLabel]="'browse.toolbar.sort' | transloco" (opened)="onSortMenuOpened()">
+  @for (option of commonOptions(); track option.id) {
+    <app-menu-item
+      [value]="option.id"
+      [icon]="directionIconFor(option)"
+      [badge]="sortRankFor(option)"
+      inset
+      (selected)="onSelect(option)">
+      {{ option.labelKey | transloco }}
+    </app-menu-item>
+  }
+  @if (moreOptions().length > 0) {
+    @if (moreSortsExpanded()) {
+      <div class="grid grid-rows-[1fr] transition-[grid-template-rows] duration-200 ease-out starting:grid-rows-[0fr] motion-reduce:transition-none">
+        <div class="min-h-0 overflow-hidden">
+          @for (option of moreOptions(); track option.id) {
+            <app-menu-item
+              [value]="option.id"
+              [icon]="directionIconFor(option)"
+              [badge]="sortRankFor(option)"
+              inset
+              (selected)="onSelect(option)">
+              {{ option.labelKey | transloco }}
+            </app-menu-item>
+          }
+        </div>
+      </div>
+    }
+    <app-menu-item value="toggle-more-sorts" [icon]="moreSortsToggleIcon()" [closeOnSelect]="false" (selected)="moreSortsExpanded.set(!moreSortsExpanded())">
+      <span class="text-text-muted">
+        {{ (moreSortsExpanded() ? 'browse.showFewer' : 'browse.showAll') | transloco }}
+      </span>
+    </app-menu-item>
+  }
+  @if (sortOptions().length > 0) {
+    <app-menu-separator />
+    <app-menu-item
+      value="multi-sort"
+      [class]="multiSortActive() ? 'bg-active-surface text-primary! [&_svg]:text-primary!' : ''"
+      [icon]="multiSortIcon"
+      [shortcut]="multiSortShortcut()"
+      (selected)="openMultiSort()">
+      {{ 'browse.sort.multiSort' | transloco }}
+    </app-menu-item>
+  }
+</app-menu>

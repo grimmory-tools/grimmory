@@ -7,27 +7,30 @@ import {
   invalidateBookCollections,
   applyBookQueryChangeSet,
 } from './book-query-cache';
+import {authorQueryKeys} from '../../author/data/author-query-keys';
 import {bookQueryKeys} from './book-query-keys';
-import {normalizeBookPageParams} from './book-query-params';
+import {normalizeBrowsePageParams} from '../../../core/data/browse-query-params';
 
 const firstBook = {id: 1};
 const secondBook = {id: 2};
-const pageKey = bookQueryKeys.boundedPage(normalizeBookPageParams({
+const pageKey = bookQueryKeys.boundedPage(normalizeBrowsePageParams({
+  facets: {},
+  sort: [],
+  size: 20,
+}));
+const authorPageKey = authorQueryKeys.boundedPage(normalizeBrowsePageParams({
   facets: {},
   sort: [],
   size: 20,
 }));
 const firstDetailKey = bookQueryKeys.detail(1, false);
 const secondDetailKey = bookQueryKeys.detail(2, false);
-const firstRecommendationKey = bookQueryKeys.recommendation(1, 20);
-const secondRecommendationKey = bookQueryKeys.recommendation(2, 20);
 
 function seedAllQueryFamilies(queryClient: QueryClient): void {
   queryClient.setQueryData(pageKey, {content: [firstBook, secondBook]});
   queryClient.setQueryData(firstDetailKey, firstBook);
   queryClient.setQueryData(secondDetailKey, secondBook);
-  queryClient.setQueryData(firstRecommendationKey, [secondBook]);
-  queryClient.setQueryData(secondRecommendationKey, [firstBook]);
+  queryClient.setQueryData(authorPageKey, {content: []});
 }
 
 describe('book query cache', () => {
@@ -45,6 +48,7 @@ describe('book query cache', () => {
     for (const query of queryClient.getQueryCache().findAll({queryKey: bookQueryKeys.all()})) {
       expect(query.state.isInvalidated).toBe(true);
     }
+    expect(queryClient.getQueryState(authorPageKey)?.isInvalidated).toBe(true);
   });
 
   it('invalidates only collection queries through the collection action', async () => {
@@ -54,10 +58,10 @@ describe('book query cache', () => {
 
     expect(queryClient.getQueryState(pageKey)?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(firstDetailKey)?.isInvalidated).toBe(false);
-    expect(queryClient.getQueryState(firstRecommendationKey)?.isInvalidated).toBe(false);
+    expect(queryClient.getQueryState(authorPageKey)?.isInvalidated).toBe(false);
   });
 
-  it('invalidates changed details and every dependent query family once', async () => {
+  it('invalidates changed details and book and author collections once each', async () => {
     seedAllQueryFamilies(queryClient);
     const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
 
@@ -66,7 +70,7 @@ describe('book query cache', () => {
     expect(queryClient.getQueryState(pageKey)?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(firstDetailKey)?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(secondDetailKey)?.isInvalidated).toBe(false);
-    expect(queryClient.getQueryState(firstRecommendationKey)?.isInvalidated).toBe(true);
+    expect(queryClient.getQueryState(authorPageKey)?.isInvalidated).toBe(true);
     expect(invalidateQueriesSpy).toHaveBeenCalledTimes(3);
   });
 
@@ -86,7 +90,7 @@ describe('book query cache', () => {
     expect(removeQueriesSpy).not.toHaveBeenCalled();
   });
 
-  it('removes deleted leaves and invalidates surviving dependents once', async () => {
+  it('removes deleted details and invalidates book and author collections once', async () => {
     seedAllQueryFamilies(queryClient);
     const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
     const removeQueriesSpy = vi.spyOn(queryClient, 'removeQueries');
@@ -94,11 +98,10 @@ describe('book query cache', () => {
     await applyBookQueryChangeSet(queryClient, {deletedBookIds: [1, 1]});
 
     expect(queryClient.getQueryData(firstDetailKey)).toBeUndefined();
-    expect(queryClient.getQueryData(firstRecommendationKey)).toBeUndefined();
     expect(queryClient.getQueryData(secondDetailKey)).toEqual(secondBook);
-    expect(queryClient.getQueryData(secondRecommendationKey)).toEqual([firstBook]);
+    expect(queryClient.getQueryState(secondDetailKey)?.isInvalidated).toBe(false);
     expect(queryClient.getQueryState(pageKey)?.isInvalidated).toBe(true);
-    expect(queryClient.getQueryState(secondRecommendationKey)?.isInvalidated).toBe(true);
+    expect(queryClient.getQueryState(authorPageKey)?.isInvalidated).toBe(true);
     expect(removeQueriesSpy).toHaveBeenCalledTimes(1);
     expect(invalidateQueriesSpy).toHaveBeenCalledTimes(2);
   });
@@ -106,18 +109,15 @@ describe('book query cache', () => {
   it('refetches each active dependent once without aborting it after a change', async () => {
     const page = observeActiveQuery(queryClient, pageKey, {content: [firstBook]});
     const detail = observeActiveQuery(queryClient, firstDetailKey, firstBook);
-    const recommendations = observeActiveQuery(queryClient, firstRecommendationKey, [secondBook]);
 
     const reconciliation = applyBookQueryChangeSet(queryClient, {changedBookIds: [1, 1]});
 
     await vi.waitFor(() => {
       expect(page.fetchCount()).toBe(1);
       expect(detail.fetchCount()).toBe(1);
-      expect(recommendations.fetchCount()).toBe(1);
     });
     expect(page.abortCount()).toBe(0);
     expect(detail.abortCount()).toBe(0);
-    expect(recommendations.abortCount()).toBe(0);
 
     let settled = false;
     void reconciliation.then(() => {
@@ -128,61 +128,33 @@ describe('book query cache', () => {
 
     page.finish();
     detail.finish();
-    recommendations.finish();
     await reconciliation;
     expect(settled).toBe(true);
   });
 
-  it('does not refetch removed active leaves and refetches surviving dependents once', async () => {
+  it('does not refetch removed active details and refetches collections once', async () => {
     const removedDetail = observeActiveQuery(queryClient, firstDetailKey, firstBook);
-    const removedRecommendations = observeActiveQuery(
-      queryClient,
-      firstRecommendationKey,
-      [secondBook],
-    );
     const page = observeActiveQuery(queryClient, pageKey, {content: [firstBook, secondBook]});
-    const survivingRecommendations = observeActiveQuery(
-      queryClient,
-      secondRecommendationKey,
-      [firstBook],
-    );
 
     const reconciliation = applyBookQueryChangeSet(queryClient, {deletedBookIds: [1, 1]});
 
     await vi.waitFor(() => {
       expect(page.fetchCount()).toBe(1);
-      expect(survivingRecommendations.fetchCount()).toBe(1);
     });
     expect(removedDetail.fetchCount()).toBe(0);
-    expect(removedRecommendations.fetchCount()).toBe(0);
     expect(removedDetail.abortCount()).toBe(0);
-    expect(removedRecommendations.abortCount()).toBe(0);
     expect(page.abortCount()).toBe(0);
-    expect(survivingRecommendations.abortCount()).toBe(0);
     expect(queryClient.getQueryData(firstDetailKey)).toBeUndefined();
-    expect(queryClient.getQueryData(firstRecommendationKey)).toBeUndefined();
 
     removedDetail.finish();
-    removedRecommendations.finish();
     page.finish();
-    survivingRecommendations.finish();
     await reconciliation;
   });
 
   it('combines changes and deletions with deletion winning for overlapping IDs', async () => {
     const changedDetail = observeActiveQuery(queryClient, secondDetailKey, secondBook);
     const removedDetail = observeActiveQuery(queryClient, firstDetailKey, firstBook);
-    const removedRecommendations = observeActiveQuery(
-      queryClient,
-      firstRecommendationKey,
-      [secondBook],
-    );
     const page = observeActiveQuery(queryClient, pageKey, {content: [firstBook, secondBook]});
-    const survivingRecommendations = observeActiveQuery(
-      queryClient,
-      secondRecommendationKey,
-      [firstBook],
-    );
 
     const reconciliation = applyBookQueryChangeSet(queryClient, {
       changedBookIds: [1, 2, 2],
@@ -192,23 +164,16 @@ describe('book query cache', () => {
     await vi.waitFor(() => {
       expect(changedDetail.fetchCount()).toBe(1);
       expect(page.fetchCount()).toBe(1);
-      expect(survivingRecommendations.fetchCount()).toBe(1);
     });
     expect(removedDetail.fetchCount()).toBe(0);
-    expect(removedRecommendations.fetchCount()).toBe(0);
     expect(changedDetail.abortCount()).toBe(0);
     expect(removedDetail.abortCount()).toBe(0);
-    expect(removedRecommendations.abortCount()).toBe(0);
     expect(page.abortCount()).toBe(0);
-    expect(survivingRecommendations.abortCount()).toBe(0);
     expect(queryClient.getQueryData(firstDetailKey)).toBeUndefined();
-    expect(queryClient.getQueryData(firstRecommendationKey)).toBeUndefined();
 
     changedDetail.finish();
     removedDetail.finish();
-    removedRecommendations.finish();
     page.finish();
-    survivingRecommendations.finish();
     await reconciliation;
   });
 

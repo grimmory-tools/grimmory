@@ -1,0 +1,113 @@
+<div [class]="layoutClasses().page">
+  <app-page-header [pageHeader]="header()" [stuckHairline]="false">
+    @if (page().mobileSelectMode()) {
+      <app-browse-select-mode-controls
+        [count]="page().selection.count()"
+        [total]="page().results.total()"
+        (selectAll)="page().selection.selectAll()"
+        (cancelled)="page().toggleMobileSelect()" />
+    } @else {
+      <ng-container *ngTemplateOutlet="toolbarDef().templateRef" />
+    }
+  </app-page-header>
+
+  <ng-content />
+
+  <div [class]="layoutClasses().row">
+    <div [class]="layoutClasses().column">
+      @if (page().chipsBand().count > 0) {
+        <div [class]="chipsBandClass()">
+          <app-browse-filter-chips
+            [chips]="page().chipsBand().chips"
+            [query]="page().chipsBand().query"
+            [mobile]="page().isMobile()"
+            (removeChip)="page().toggleFacet({key: $event.key, value: $event.value, state: null})"
+            (removeSearch)="page().clearQuery()"
+            (clearAll)="page().clearAllFilters()" />
+        </div>
+      } @else {
+        <div [class]="hairlineStripClass()"></div>
+      }
+      @if (viewMode() === 'table' && tableDef(); as table) {
+        <ng-container *ngTemplateOutlet="table.templateRef; context: {emptyState}" />
+      } @else {
+        <app-browse-grid
+          [class]="gridBoxClass()"
+          [items]="itemDef().items()"
+          [itemKey]="itemKey"
+          [hasNextPage]="page().results.shownHasNextPage()"
+          [status]="page().results.status()"
+          [nextPageError]="page().results.nextPageError()"
+          [fixedColumns]="page().density.columns()"
+          [minItemWidth]="page().density.minItemWidth()"
+          [gap]="page().density.gap()"
+          [rowGap]="page().density.rowGap"
+          [estimateItemHeight]="estimateItemHeight()"
+          [initialErrorMessage]="messages().loadError | transloco"
+          [nextPageErrorMessage]="messages().pageError | transloco"
+          (retryInitial)="page().results.retryInitial()"
+          (retryNextPage)="page().results.retryNextPage()">
+          <ng-template [appBrowseGridItemOf]="itemDef().items()" let-item let-index="index">
+            <ng-container *ngTemplateOutlet="itemDef().templateRef; context: {$implicit: item, index}" />
+          </ng-template>
+          <ng-template appBrowseGridSkeleton>
+            <ng-container *ngTemplateOutlet="skeletonDef().templateRef" />
+          </ng-template>
+          <ng-template appBrowseEmpty>
+            <ng-container *ngTemplateOutlet="emptyState" />
+          </ng-template>
+        </app-browse-grid>
+      }
+    </div>
+
+    @if (page().rail.visible()) {
+      <aside [class]="railClass()">
+        <div class="-mx-1.5 flex min-h-0 flex-1 flex-col">
+          <div class="mb-2 border-b border-border/50 pb-4">
+            <div class="mb-2 flex h-6 items-center px-2">
+              <h3 class="m-0 text-[13px] font-semibold text-text-secondary">{{ searchHint() | transloco }}</h3>
+            </div>
+            <div class="px-2">
+              <app-browse-search-input
+                size="sm"
+                [value]="page().searchDraft.value()"
+                [placeholder]="messages().searchPlaceholder | transloco"
+                [ariaLabel]="searchHint() | transloco"
+                [clearLabel]="'browse.rail.clearSearch' | transloco"
+                (valueChange)="page().searchDraft.set($event)"
+                (cleared)="page().clearQuery()" />
+            </div>
+          </div>
+          <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-6 [--page-stuck-offset:0px]">
+            @if (page().queries.ready()) {
+              <app-browse-filter-rail
+                [groups]="page().queries.railGroups()"
+                [openKeys]="page().queries.openKeys()"
+                [searchTerms]="page().queries.searchTerms()"
+                [excludable]="page().filterSettings.excludeOnTick()"
+                (toggleValue)="page().toggleFacet($event)"
+                (commitRange)="page().commitFacetRange($event)"
+                (openChange)="page().queries.setOpen($event)"
+                (searchChange)="page().queries.setSearch($event)" />
+            }
+          </div>
+        </div>
+      </aside>
+    }
+  </div>
+</div>
+
+<ng-template #emptyState>
+  @if (page().chipsBand().count > 0) {
+    <div class="flex flex-col items-center gap-2 py-16">
+      <p class="m-0 text-sm text-text-muted">{{ messages().filteredEmpty | transloco }}</p>
+      <app-button
+        variant="ghost"
+        size="sm"
+        [label]="'browse.clearFilters' | transloco"
+        (clicked)="page().clearAllFilters()" />
+    </div>
+  } @else {
+    <p class="py-16 text-center text-sm text-text-muted">{{ messages().empty | transloco }}</p>
+  }
+</ng-template>

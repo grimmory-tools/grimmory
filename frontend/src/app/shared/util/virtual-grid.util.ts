@@ -181,7 +181,7 @@ export function createVirtualGrid<T>(options: VirtualGridOptions<T>) {
         : (options.itemKey?.(item, index) ?? index);
     },
     estimateSize: () => toSafeSize(itemHeight(), DEFAULT_ITEM_SIZE),
-    overscan: toSafeInteger(gridColumns() * overscanRows(), DEFAULT_OVERSCAN_ROWS),
+    overscan: toSafeInteger(overscanRows(), DEFAULT_OVERSCAN_ROWS),
     gap: toSafeSize(rowGap(), DEFAULT_ITEM_SIZE),
     lanes: toSafeInteger(gridColumns(), 1),
     initialOffset: () => options.initialOffset?.() ?? 0,

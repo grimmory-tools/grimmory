@@ -1,17 +1,20 @@
-import {computed, inject, Service} from '@angular/core';
+import {computed, inject, Injectable} from '@angular/core';
 import {LocalStorageService} from './local-storage.service';
 import {ScalePreference} from '../util/scale-preference.util';
 
-@Service()
+@Injectable({
+  providedIn: 'root'
+})
 export class CoverScalePreferenceService {
-  private readonly localStorageService = inject(LocalStorageService);
 
   private readonly BASE_WIDTH = 135;
   private readonly BASE_HEIGHT = 220;
   private readonly STORAGE_KEY = 'coverScalePreference';
   private readonly MIN_SCALE = 0.5;
   private readonly MAX_SCALE = 1.5;
-  private readonly scalePreference = new ScalePreference(this.localStorageService, {
+
+  private readonly localStorageService = inject(LocalStorageService);
+  readonly scalePreference = new ScalePreference(this.localStorageService, {
     storageKey: this.STORAGE_KEY,
     minScale: this.MIN_SCALE,
     maxScale: this.MAX_SCALE,

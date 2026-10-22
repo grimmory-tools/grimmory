@@ -1,9 +1,10 @@
 import {computed, effect, signal, untracked, type EffectCleanupRegisterFn, type Signal} from '@angular/core';
+import {type CreateInfiniteQueryResult, type InfiniteData} from '@tanstack/angular-query-experimental';
 
 import {findBrowsePageLink, flattenBrowsePages, type BrowsePage} from '../../core/data/browse.models';
 
 const PREFETCH_THRESHOLD = 12;
-const DEFAULT_COVER_WAIT_MS = 400;
+const DEFAULT_ARTWORK_WAIT_MS = 400;
 const DEFAULT_STALE_RESULTS_MS = 600;
 
 export type BrowseStatus = 'pending' | 'error' | 'success';
@@ -21,6 +22,8 @@ export function sameRenderedRange(a: BrowseRenderedRange | null, b: BrowseRender
   return a === b || (a !== null && b !== null && a.start === b.start && a.end === b.end);
 }
 
+type BrowsePageQuery<T> = CreateInfiniteQueryResult<InfiniteData<BrowsePage<T>>, unknown>;
+
 export interface BrowseResultsQuery<T extends {id: number}> {
   data: () => BrowsePageData<T> | undefined;
   isSuccess: () => boolean;
@@ -28,8 +31,8 @@ export interface BrowseResultsQuery<T extends {id: number}> {
   isFetchNextPageError: () => boolean;
   hasNextPage: () => boolean;
   isFetching: () => boolean;
-  fetchNextPage: (options?: {cancelRefetch?: boolean}) => Promise<unknown>;
-  refetch: () => Promise<unknown>;
+  fetchNextPage: BrowsePageQuery<T>['fetchNextPage'];
+  refetch: BrowsePageQuery<T>['refetch'];
 }
 
 export interface BrowseResultsDeps<T extends {id: number}> {
@@ -37,7 +40,7 @@ export interface BrowseResultsDeps<T extends {id: number}> {
   listKey: Signal<string>;
   artworkUrls: (items: readonly T[], lastVisibleIndex: number) => readonly string[];
   scrollToTop: () => void;
-  coverWaitMs?: number;
+  artworkWaitMs?: number;
   staleResultsMs?: number;
 }
 
@@ -56,7 +59,7 @@ export interface BrowseResults<T extends {id: number}> {
 export function createBrowseResults<T extends {id: number}>(
   deps: BrowseResultsDeps<T>,
 ): BrowseResults<T> {
-  const coverWaitMs = deps.coverWaitMs ?? DEFAULT_COVER_WAIT_MS;
+  const artworkWaitMs = deps.artworkWaitMs ?? DEFAULT_ARTWORK_WAIT_MS;
   const staleResultsMs = deps.staleResultsMs ?? DEFAULT_STALE_RESULTS_MS;
 
   const renderedCount = signal(1);
@@ -87,7 +90,7 @@ export function createBrowseResults<T extends {id: number}>(
     shown.set(data);
   }
 
-  function showAfterCovers(listKey: string, data: BrowsePageData<T>, onCleanup: EffectCleanupRegisterFn): void {
+  function showAfterArtwork(listKey: string, data: BrowsePageData<T>, onCleanup: EffectCleanupRegisterFn): void {
     const urls = deps.artworkUrls(flattenBrowsePages(data), renderedCount() - 1);
     if (urls.length === 0) {
       show(listKey, data);
@@ -102,7 +105,7 @@ export function createBrowseResults<T extends {id: number}>(
       clearTimeout(timer);
       show(listKey, data);
     };
-    const timer = setTimeout(finish, coverWaitMs);
+    const timer = setTimeout(finish, artworkWaitMs);
     void Promise.all(urls.map(preloadImage)).then(finish);
     onCleanup(() => {
       done = true;
@@ -122,7 +125,7 @@ export function createBrowseResults<T extends {id: number}>(
       } else if (shownListKey === listKey || shown() === undefined) {
         show(listKey, data);
       } else {
-        showAfterCovers(listKey, data, onCleanup);
+        showAfterArtwork(listKey, data, onCleanup);
       }
     });
   });

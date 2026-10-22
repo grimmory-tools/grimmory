@@ -32,7 +32,8 @@
     "on": "",
     "off": "",
     "moreActionsFor": "",
-    "dialogLoadError": ""
+    "dialogLoadError": "",
+    "metadata": "Metadaten"
   },
   "auth": {
     "oidc": {
@@ -2812,7 +2813,6 @@
       "quickSend": "Schnellversand",
       "customSend": "Benutzerdefinierter Versand",
       "download": "Herunterladen",
-      "metadata": "Metadaten",
       "editMetadata": "Metadaten bearbeiten",
       "more": "Mehr",
       "organizeFile": "Datei organisieren",
@@ -3313,9 +3313,6 @@
         "failedDetail": "Beim Aktualisieren der Feldsperren ist ein Fehler aufgetreten."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Als Standard speichern"
-    },
     "fileAttacher": {
       "title": "Datei an ein anderes Buch anhängen",
       "titleBulk": "Dateien an ein anderes Buch anhängen",
@@ -3341,7 +3338,6 @@
     },
     "searcher": {
       "placeholder": "Titel, Autor, Serie, Genre oder ISBN...",
-      "clearSearch": "Suche löschen",
       "bookCoverAlt": "Buchcover",
       "byPrefix": "von",
       "noResults": "Keine Ergebnisse gefunden",
@@ -5056,74 +5052,6 @@
     }
   },
   "authorBrowser": {
-    "pageTitle": "Autoren",
-    "browseAllAuthors": "Alle Autoren durchsuchen",
-    "searchPlaceholder": "Nach Autorennamen suchen...",
-    "noAuthorsFound": "Keine Autoren stimmen mit der Suche überein.",
-    "sort": {
-      "name": "",
-      "bookCount": "Anzahl Bücher",
-      "matched": "Übereinstimmend",
-      "recentlyAdded": "Kürzlich hinzugefügt",
-      "recentlyRead": "Kürzlich gelesen",
-      "readingProgress": "Lesefortschritt",
-      "avgRating": "Durchschnittliche Bewertung",
-      "photo": "Foto",
-      "seriesCount": "Anzahl Serien"
-    },
-    "filters": {
-      "all": "Alle",
-      "matchStatus": "Status der Übereinstimmung",
-      "matched": "Übereinstimmend",
-      "unmatched": "Nicht übereinstimmend",
-      "photoStatus": "Foto Status",
-      "hasPhoto": "Hat Foto",
-      "noPhoto": "Kein Foto",
-      "readStatus": "Lesestatus",
-      "allRead": "Alle gelesenen",
-      "someRead": "Teilweise gelesene",
-      "inProgress": "Im Gange",
-      "unread": "Ungelesen",
-      "bookCount": "Anzahl Bücher",
-      "library": "Bibliothek",
-      "genre": "",
-      "reset": "Filter zurücksetzen"
-    },
-    "footer": {
-      "selected": "ausgewählt",
-      "autoMatch": "Auswahl automatisch kombinieren",
-      "deleteSelected": "Ausgewählte löschen",
-      "selectAll": "Alle auswählen",
-      "deselectAll": "Auswahl aufheben"
-    },
-    "toast": {
-      "deleteSuccessSummary": "Autor gelöscht",
-      "deleteSuccessDetail": "Autor wurde erfolgreich gelöscht.",
-      "deleteFailedSummary": "Löschvorgang fehlgeschlagen",
-      "deleteFailedDetail": "Autor konnte nicht gelöscht werden.",
-      "autoMatchSuccessSummary": "Automatische Kombination abgeschlossen",
-      "autoMatchSuccessDetail": "Ausgewählte Autoren wurden erfolgreich kombiniert.",
-      "autoMatchFailedSummary": "Automatische Kombination fehlgeschlagen",
-      "autoMatchFailedDetail": "Ausgewählte Autoren konnten nicht automatisch kombiniert werden.",
-      "quickMatchSuccessSummary": "",
-      "quickMatchSuccessDetail": "",
-      "quickMatchFailedSummary": "",
-      "quickMatchFailedDetail": "",
-      "deleteSelectedSuccessSummary": "Autoren gelöscht",
-      "deleteSelectedSuccessDetail": "Ausgewählte Autoren wurden erfolgreich gelöscht."
-    },
-    "card": {
-      "matched": "",
-      "quickMatch": "",
-      "book": "Buch",
-      "books": "Bücher",
-      "menu": {
-        "viewAuthor": "Autor anzeigen",
-        "editAuthor": "Autor bearbeiten",
-        "quickMatch": "",
-        "deleteAuthor": "Autor löschen"
-      }
-    },
     "editor": {
       "nameLabel": "",
       "asinLabel": "",
@@ -5196,6 +5124,14 @@
       }
     }
   },
+  "author": {
+    "quickMatch": {
+      "successSummary": "",
+      "successDetail": "",
+      "failedSummary": "",
+      "failedDetail": ""
+    }
+  },
   "browse": {
     "showAll": "Alle einblenden",
     "moreActions": "Weitere Aktionen",
@@ -5214,7 +5150,11 @@
       "lockUnlockMetadata": "Metadaten sperren/entsperren"
     },
     "sort": {
-      "apply": "Anwenden"
+      "apply": "Anwenden",
+      "saveAsDefault": "Als Standard speichern"
+    },
+    "rail": {
+      "clearSearch": "Suche löschen"
     }
   }
 }

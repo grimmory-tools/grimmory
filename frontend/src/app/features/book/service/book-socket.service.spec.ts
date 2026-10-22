@@ -7,11 +7,11 @@ import {Book} from '../model/book.model';
 import {TaskStatus} from '../../settings/task-management/task.service';
 import {bookQueryKeys} from '../data/book-query-keys';
 import {BookDetail} from '../data/book-response.models';
-import {normalizeBookPageParams} from '../data/book-query-params';
+import {normalizeBrowsePageParams} from '../../../core/data/browse-query-params';
 import {BOOKS_QUERY_KEY, bookDetailQueryKey, bookRecommendationsQueryKey} from './book-query-keys';
 import {BookSocketService} from './book-socket.service';
 
-const PAGE_QUERY_KEY = bookQueryKeys.boundedPage(normalizeBookPageParams({
+const PAGE_QUERY_KEY = bookQueryKeys.boundedPage(normalizeBrowsePageParams({
   size: 20,
   facets: {},
   sort: [],
@@ -176,7 +176,6 @@ describe('BookSocketService', () => {
   });
 
   it('invalidates recommendations when recommendation refresh completes', () => {
-    queryClient.setQueryData(bookQueryKeys.recommendation(1, 20), [makeBook(2)]);
     queryClient.setQueryData(bookRecommendationsQueryKey(1, 20), [makeBook(2)]);
 
     service.handleTaskProgress({
@@ -187,7 +186,6 @@ describe('BookSocketService', () => {
       message: 'Done',
     });
 
-    expect(isInvalidated(bookQueryKeys.recommendation(1, 20))).toBe(true);
     expect(isInvalidated(bookRecommendationsQueryKey(1, 20))).toBe(true);
   });
 
