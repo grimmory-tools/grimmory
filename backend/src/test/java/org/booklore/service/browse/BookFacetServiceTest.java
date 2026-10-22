@@ -18,6 +18,7 @@ import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.entity.CategoryEntity;
 import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.entity.LibraryPathEntity;
+import org.booklore.model.entity.ShelfEntity;
 import org.booklore.model.entity.UserContentRestrictionEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.ContentRestrictionMode;
@@ -34,6 +35,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +43,7 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -234,6 +237,63 @@ class BookFacetServiceTest {
         List<String> selection = List.of("shelf:magic:99");
         assertThat(count(facet("language", selection), "en")).isEqualTo(2);
         assertThat(count(facet("goodreads_rating", selection), "3..<4")).isEqualTo(2);
+    }
+
+    @Test
+    void shelfFacetCountsMagicShelvesWithinOtherSelections() {
+        book("A", "Horror", "Alice");
+        book("B", "Horror", "Bob");
+        book("C", "Romance", "Cara");
+        Map<Long, Specification<BookEntity>> rules = new LinkedHashMap<>();
+        rules.put(7L, (root, query, cb) -> cb.equal(root.join("metadata").join("categories").get("name"), "Horror"));
+        rules.put(8L, (root, query, cb) -> cb.equal(root.join("metadata").get("title"), "C"));
+        rules.put(9L, (root, query, cb) -> cb.equal(root.join("metadata").get("title"), "missing"));
+        when(magicShelfBookService.visibleShelfRules(userEntity.getId())).thenReturn(rules);
+        em.flush();
+
+        FacetGroup shelves = facet("shelf", null);
+        assertThat(count(shelves, "magic:7")).isEqualTo(2);
+        assertThat(count(shelves, "magic:8")).isEqualTo(1);
+        assertThat(count(shelves, "magic:9")).isNull();
+        assertThat(link(shelves, "magic:7").href()).isEqualTo("/api/v1/books/page?facet=shelf%3Amagic%3A7");
+
+        FacetGroup romanceShelves = facet("shelf", List.of("genre:Romance"));
+        assertThat(count(romanceShelves, "magic:7")).isNull();
+        assertThat(count(romanceShelves, "magic:8")).isEqualTo(1);
+
+        assertThat(group(facetService.getFacets(null, null, null), "shelf").metadata().hasItems()).isTrue();
+        assertThat(group(facetService.getFacets(List.of("genre:Fantasy"), null, null), "shelf").metadata().hasItems()).isFalse();
+    }
+
+    @Test
+    void shelfFacetsOnlyUseOwnAndPublicShelves() {
+        BookLoreUserEntity other = BookLoreUserEntity.builder().username("other").passwordHash("x").name("Other").build();
+        em.persist(other);
+        ShelfEntity own = shelf(userEntity, false);
+        ShelfEntity otherPrivate = shelf(other, false);
+        ShelfEntity otherPublic = shelf(other, true);
+        book("A", "Horror", "Alice").getBook().getShelves().add(own);
+        book("B", "Horror", "Bob").getBook().getShelves().add(otherPrivate);
+        book("C", "Horror", "Cara").getBook().getShelves().add(otherPublic);
+        book("D", "Horror", "Dan");
+        em.flush();
+
+        FacetGroup shelves = facet("shelf", null);
+        assertThat(count(shelves, String.valueOf(own.getId()))).isEqualTo(1);
+        assertThat(count(shelves, String.valueOf(otherPublic.getId()))).isEqualTo(1);
+        assertThat(count(shelves, String.valueOf(otherPrivate.getId()))).isNull();
+        assertThat(count(facet("library", List.of("shelf:" + otherPrivate.getId())), String.valueOf(library.getId()))).isNull();
+
+        FacetGroup status = facet("shelf_status", null);
+        assertThat(count(status, "shelved")).isEqualTo(2);
+        assertThat(count(status, "unshelved")).isEqualTo(2);
+        assertThat(count(facet("library", List.of("shelf_status:unshelved")), String.valueOf(library.getId()))).isEqualTo(2);
+    }
+
+    private ShelfEntity shelf(BookLoreUserEntity owner, boolean isPublic) {
+        ShelfEntity shelf = ShelfEntity.builder().user(owner).name("Shelf").isPublic(isPublic).build();
+        em.persist(shelf);
+        return shelf;
     }
 
     @Test

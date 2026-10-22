@@ -140,7 +140,7 @@ describe('MagicShelfService', () => {
     request.flush(buildMagicShelf({id: 11, name: 'Magic', filterJson: JSON.stringify(group), isPublic: true}));
 
     expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: ['magicShelves'], exact: true});
-    expect(invalidateQueriesSpy).not.toHaveBeenCalledWith({queryKey: bookQueryKeys.collections()});
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: bookQueryKeys.collections()});
   });
 
   it('invalidates browser collections after changing an existing shelf rule', () => {
