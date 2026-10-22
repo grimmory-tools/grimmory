@@ -12,6 +12,8 @@ import org.booklore.service.MagicShelfService;
 import org.booklore.util.ArchiveUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +28,48 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 class OpdsFeedServiceTest {
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", "/grimmory", "/api/v1/opds/proxy"})
+    void generatedLinksStayInsideContextPath(String prefix) throws Exception {
+        mockAuthenticatedUser();
+        when(request.getContextPath()).thenReturn(prefix);
+        when(request.getRequestURI()).thenReturn(prefix + "/api/v1/opds/catalog");
+        Book book = Book.builder().id(10L)
+                .primaryFile(BookFile.builder().id(1L).bookType(BookFileType.EPUB).build())
+                .metadata(BookMetadata.builder().title("Book").coverUpdatedOn(FIXED_INSTANT).build())
+                .build();
+        Page<Book> page = new PageImpl<>(List.of(book), PageRequest.of(0, 50), 100);
+        when(opdsBookService.getBooksPage(eq(TEST_USER_ID), any(), any(), any(), eq(0), eq(50))).thenReturn(page);
+        when(opdsBookService.applySortOrder(any(), any())).thenReturn(page);
+        when(opdsBookService.getRecentBooksPage(TEST_USER_ID, 0, 50)).thenReturn(page);
+        when(opdsBookService.getRandomBooks(TEST_USER_ID, 25)).thenReturn(List.of(book));
+        when(opdsBookService.getDistinctAuthors(TEST_USER_ID, 0, 50))
+                .thenReturn(new PageImpl<>(List.of("A & B")));
+        when(opdsBookService.getDistinctSeries(TEST_USER_ID, 0, 50))
+                .thenReturn(new PageImpl<>(List.of("Series / One")));
+
+        for (String xml : List.of(opdsFeedService.generateRootNavigation(request),
+                opdsFeedService.generateCatalogFeed(request), opdsFeedService.getOpenSearchDescription(request),
+                opdsFeedService.generateLibrariesNavigation(request), opdsFeedService.generateShelvesNavigation(request),
+                opdsFeedService.generateMagicShelvesNavigation(request), opdsFeedService.generateAuthorsNavigation(request),
+                opdsFeedService.generateSeriesNavigation(request), opdsFeedService.generateRecentFeed(request),
+                opdsFeedService.generateSurpriseFeed(request))) {
+            var document = javax.xml.parsers.DocumentBuilderFactory.newInstance().newDocumentBuilder()
+                    .parse(new java.io.ByteArrayInputStream(xml.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+            var attributes = (org.w3c.dom.NodeList) javax.xml.xpath.XPathFactory.newInstance().newXPath()
+                    .evaluate("//@href | //@template", document, javax.xml.xpath.XPathConstants.NODESET);
+            assertThat(attributes.getLength()).isPositive();
+            for (int i = 0; i < attributes.getLength(); i++) {
+                assertThat(attributes.item(i).getNodeValue()).startsWith(prefix + "/api/v1/opds");
+                if (!prefix.isEmpty()) assertThat(attributes.item(i).getNodeValue()).doesNotContain(prefix + prefix);
+            }
+        }
+        String catalog = opdsFeedService.generateCatalogFeed(request);
+        assertThat(catalog).contains("href=\"" + prefix + "/api/v1/opds/10/download?fileId=1\"")
+                .contains("href=\"" + prefix + "/api/v1/opds/10/cover?")
+                .contains("href=\"" + prefix + "/api/v1/opds/catalog?page=2&amp;size=50\"");
+    }
 
     private static final Instant FIXED_INSTANT = Instant.parse("2025-01-01T12:00:00Z");
     private static final Long TEST_USER_ID = 42L;
