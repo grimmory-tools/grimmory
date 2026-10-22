@@ -3,9 +3,6 @@ import { RouterLink } from '@angular/router';
 import { Tooltip } from '@openng/optimus-ui/tooltip';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LucideEllipsisVertical } from '@lucide/angular';
-import {injectQuery} from '@tanstack/angular-query-experimental';
-import {BookQueryService} from '../../../features/book/data/book-query.service';
-import {AuthService} from '../../service/auth.service';
 import { IconSelection, toIconSelection } from '../../icons/icon-selection';
 
 import { IconDisplayComponent } from '../../components/icon-display/icon-display.component';
@@ -32,22 +29,12 @@ import {AppMenuTriggerDirective} from '../../ui/menu/app-menu-trigger.directive'
 })
 export class AppSidebarItemRowComponent {
   readonly layoutService = inject(LayoutService);
-  private readonly bookQuery = inject(BookQueryService);
-  private readonly authService = inject(AuthService);
   readonly item = input.required<SidebarLeaf>();
   readonly index = input.required<number>();
   readonly parentKey = input.required<string>();
 
   readonly menuOpen = signal(false);
   readonly key = computed(() => `${this.parentKey()}-${this.index()}`);
-  private readonly bookCountQuery = injectQuery(() => ({
-    ...this.bookQuery.page({facets: {}, scope: this.item().bookScope ?? undefined, sort: [], size: 1}),
-    enabled: this.item().bookScope !== undefined && this.authService.isAuthenticated()
-      && this.layoutService.areSidebarCountsVisible(this.parentKey()),
-  }));
-  readonly displayCount = computed(() => this.item().bookScope === undefined
-    ? this.item().bookCount
-    : this.bookCountQuery.data()?.page.totalElements);
 
   readonly isRouteActive = computed(() => {
     const route = this.item().routerLink?.[0];
