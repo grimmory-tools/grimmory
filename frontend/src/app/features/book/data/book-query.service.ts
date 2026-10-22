@@ -171,7 +171,7 @@ export class BookQueryService {
   ): Promise<BookPage> {
     if (nextHref !== null) {
       return this.getMapped(
-        `${API_CONFIG.BASE_URL}${nextHref}`,
+        new URL(nextHref, `${API_CONFIG.BASE_URL}/`).href,
         signal,
         mapBrowsePage<BookSummary>,
       );
