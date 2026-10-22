@@ -1,5 +1,7 @@
 package org.booklore.service.browse;
 
+import org.booklore.util.RequestUtils;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -63,7 +65,7 @@ public class AuthorBrowseService {
         List<AuthorEntity> authors = page(spec, registry, sortTerms, scope, window.offset(), window.limit());
         List<AuthorSummary> summaries = toSummaries(authors, scope);
 
-        return pager.assemble(PAGE_PATH, FACET_PATH, BrowseParams.preserved(facet, facetLogicParam, query),
+        return pager.assemble(RequestUtils.withContextPath(PAGE_PATH), RequestUtils.withContextPath(FACET_PATH), BrowseParams.preserved(facet, facetLogicParam, query),
                 window, total, summaries);
     }
 
