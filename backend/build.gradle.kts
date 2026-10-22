@@ -206,6 +206,7 @@ hibernate {
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
+    inputs.property("runProductionSpaTests", providers.environmentVariable("RUN_PRODUCTION_SPA_TESTS").orElse("false"))
     maxHeapSize = "2560m"
     jvmArgs("-XX:+EnableDynamicAgentLoading", "--enable-native-access=ALL-UNNAMED", "--enable-preview")
     finalizedBy(tasks.named("jacocoTestReport"))
