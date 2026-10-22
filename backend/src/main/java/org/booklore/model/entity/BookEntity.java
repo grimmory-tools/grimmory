@@ -129,6 +129,7 @@ public class BookEntity {
         }
         return bookFiles
                 .stream()
+                .filter(BookFileEntity::isBook)
                 .min(Comparator.comparingLong(BookFileEntity::getId))
                 .orElse(null);
     }
