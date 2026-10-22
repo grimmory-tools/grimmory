@@ -169,7 +169,7 @@ export async function installLoginAndBooksRoutes(
     const {pathname} = url;
     const method = request.method();
 
-    if (pathname === '/api/public/settings' && method === 'HEAD') {
+    if (pathname === '/api/v1/public-settings' && method === 'HEAD') {
       await route.fulfill({status: 200, body: ''});
       return;
     }

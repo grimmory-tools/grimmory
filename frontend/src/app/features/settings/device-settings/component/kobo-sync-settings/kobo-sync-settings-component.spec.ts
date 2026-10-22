@@ -1,7 +1,7 @@
 import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {of, Subject, type Observable} from 'rxjs';
-import {afterEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {TranslocoService} from '@jsverse/transloco';
 
 import {AppSettings, KoboSettings} from '../../../../../shared/model/app-settings.model';
@@ -13,6 +13,8 @@ import {KoboService, type KoboSyncSettings} from './kobo.service';
 import {KoboSyncSettingsComponent} from './kobo-sync-settings-component';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
 import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
+
+import {API_CONFIG} from '../../../../../core/config/api-config';
 
 const DEFAULT_KOBO_SYNC_SETTINGS: KoboSyncSettings = {
   token: '',
@@ -81,7 +83,13 @@ function setupKoboTest(env: KoboTestEnv): void {
 }
 
 describe('KoboSyncSettingsComponent', () => {
+  const originalBaseUrl = API_CONFIG.BASE_URL;
+  beforeEach(() => {
+    API_CONFIG.BASE_URL = 'https://example.com/grimmory';
+  });
+
   afterEach(() => {
+    API_CONFIG.BASE_URL = originalBaseUrl;
     TestBed.resetTestingModule();
   });
 
@@ -241,7 +249,7 @@ describe('KoboSyncSettingsComponent', () => {
 
     const apiPathInput = fixture.nativeElement.querySelector('input#koboApiPath') as HTMLInputElement | null;
     expect(apiPathInput).not.toBeNull();
-    expect(apiPathInput?.value).toBe(`${window.location.origin}/api/kobo/token-123`);
+    expect(apiPathInput?.value).toBe('https://example.com/grimmory/api/kobo/token-123');
 
     fixture.destroy();
   });
@@ -290,12 +298,12 @@ describe('KoboSyncSettingsComponent', () => {
     const component = fixture.componentInstance;
 
     TestBed.flushEffects();
-    expect(component.koboApiPath).toBe(`${window.location.origin}/api/kobo/old-token`);
+    expect(component.koboApiPath).toBe('https://example.com/grimmory/api/kobo/old-token');
 
     component.confirmRegenerateToken();
 
     expect(component.syncForm.controls.token.value).toBe('new-token');
-    expect(component.koboApiPath).toBe(`${window.location.origin}/api/kobo/new-token`);
+    expect(component.koboApiPath).toBe('https://example.com/grimmory/api/kobo/new-token');
 
     fixture.destroy();
   });
@@ -314,7 +322,7 @@ describe('KoboSyncSettingsComponent', () => {
     expect(component.koboApiPath).toBe('');
 
     component.syncForm.controls.token.setValue('token-xyz');
-    expect(component.koboApiPath).toBe(`${window.location.origin}/api/kobo/token-xyz`);
+    expect(component.koboApiPath).toBe('https://example.com/grimmory/api/kobo/token-xyz');
 
     fixture.destroy();
   });

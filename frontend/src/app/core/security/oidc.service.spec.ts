@@ -3,6 +3,7 @@ import {of} from 'rxjs';
 
 import {AppSettingsService} from '../../shared/service/app-settings.service';
 import {API_CONFIG} from '../config/api-config';
+import {appUrl} from '../config/app-url';
 import {OidcService} from './oidc.service';
 
 describe('OidcService', () => {
@@ -139,7 +140,7 @@ describe('OidcService', () => {
     expect(http.post).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/v1/auth/oidc/callback`, {
       code: 'code-123',
       codeVerifier: 'verifier',
-      redirectUri: `${window.location.origin}/oauth2-callback`,
+      redirectUri: appUrl('oauth2-callback'),
       nonce: 'nonce',
       state: 'state',
     });
