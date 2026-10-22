@@ -180,16 +180,6 @@ public class BookFilterSpecification {
         };
     }
 
-    public static Specification<BookEntity> inShelf(Long shelfId) {
-        return (root, query, cb) -> {
-            if (shelfId == null) {
-                return cb.conjunction();
-            }
-            Join<BookEntity, ShelfEntity> shelvesJoin = root.join("shelves", JoinType.INNER);
-            return cb.equal(shelvesJoin.get("id"), shelfId);
-        };
-    }
-
     /**
      * Filter books that have any progress for a specific user.
      * If `optional` is true, allow books without user progress to be included
@@ -486,16 +476,6 @@ public class BookFilterSpecification {
         };
     }
 
-    public static Specification<BookEntity> unshelved() {
-        return (root, query, cb) -> {
-            Subquery<Long> subquery = query.subquery(Long.class);
-            Root<BookEntity> subRoot = subquery.correlate(root);
-            Join<BookEntity, ShelfEntity> shelvesJoin = subRoot.join("shelves", JoinType.INNER);
-            subquery.select(cb.literal(1L));
-            return cb.not(cb.exists(subquery));
-        };
-    }
-
     public static Specification<BookEntity> withAgeRatings(List<String> values) {
         return (root, query, cb) -> {
             List<NumericRange<Integer>> ranges = parseNumericRanges(values, Integer::valueOf, "ageRating");
@@ -627,7 +607,7 @@ public class BookFilterSpecification {
         };
     }
 
-    public static Specification<BookEntity> withShelfStatus(List<String> values) {
+    public static Specification<BookEntity> withShelfStatus(List<String> values, Long userId) {
         return (root, query, cb) -> {
             List<String> cleaned = cleanLowerCase(values);
             if (cleaned.isEmpty()) return cb.conjunction();
@@ -641,7 +621,10 @@ public class BookFilterSpecification {
             boolean wantShelved = cleaned.contains("shelved");
             boolean wantUnshelved = cleaned.contains("unshelved");
             if (wantShelved && wantUnshelved) return cb.conjunction();
-            Predicate hasShelves = cb.isNotEmpty(root.get("shelves"));
+            Subquery<Long> sub = query.subquery(Long.class);
+            Join<BookEntity, ShelfEntity> shelves = sub.correlate(root).join("shelves", JoinType.INNER);
+            sub.select(cb.literal(1L)).where(visibleShelf(cb, shelves, userId));
+            Predicate hasShelves = cb.exists(sub);
             Predicate combined = wantShelved ? hasShelves : cb.not(hasShelves);
             return combined;
         };
@@ -652,7 +635,7 @@ public class BookFilterSpecification {
         return withMetadataCollection("comicMetadata." + collectionAttr, values, idsForName);
     }
 
-    public static Specification<BookEntity> inShelves(List<String> shelfIds) {
+    public static Specification<BookEntity> inShelves(List<String> shelfIds, Long userId) {
         return (root, query, cb) -> {
             if (shelfIds.isEmpty()) return cb.conjunction();
             List<Long> ids = parseLongList(shelfIds, "shelf");
@@ -661,9 +644,13 @@ public class BookFilterSpecification {
             Subquery<Long> sub = query.subquery(Long.class);
             Root<BookEntity> subRoot = sub.correlate(root);
             Join<BookEntity, ShelfEntity> subShelves = subRoot.join("shelves", JoinType.INNER);
-            sub.select(cb.literal(1L)).where(subShelves.get("id").in(ids));
+            sub.select(cb.literal(1L)).where(subShelves.get("id").in(ids), visibleShelf(cb, subShelves, userId));
             return cb.exists(sub);
         };
+    }
+
+    static Predicate visibleShelf(CriteriaBuilder cb, From<?, ShelfEntity> shelf, Long userId) {
+        return cb.or(cb.equal(shelf.get("user").get("id"), userId), cb.isTrue(shelf.get("isPublic")));
     }
 
     public static Specification<BookEntity> inLibraries(List<String> libraryIds) {

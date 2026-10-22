@@ -24,7 +24,7 @@ import java.util.function.Function;
 @Component
 public class BookFacetRegistry {
 
-    private static final String MAGIC_SHELF_PREFIX = "magic:";
+    static final String MAGIC_SHELF_PREFIX = "magic:";
 
     private static final Set<String> NAMES = Set.of(
             "author", "series", "genre", "tag", "mood", "language", "publisher", "narrator", "library", "shelf",
@@ -79,7 +79,7 @@ public class BookFacetRegistry {
             case "published_year" -> BookFilterSpecification.withPublishedYears(values);
             case "file_size" -> BookFilterSpecification.withFileSizes(values);
             case "page_count" -> BookFilterSpecification.withPageCounts(values);
-            case "shelf_status" -> BookFilterSpecification.withShelfStatus(values);
+            case "shelf_status" -> BookFilterSpecification.withShelfStatus(values, userId);
             case "comic_character" -> BookFilterSpecification.withComicCollection("characters", values, idsFor(ComicCharacterEntity.class));
             case "comic_team" -> BookFilterSpecification.withComicCollection("teams", values, idsFor(ComicTeamEntity.class));
             case "comic_location" -> BookFilterSpecification.withComicCollection("locations", values, idsFor(ComicLocationEntity.class));
@@ -118,7 +118,7 @@ public class BookFacetRegistry {
             }
         }
         if (!regularIds.isEmpty()) {
-            specs.add(BookFilterSpecification.inShelves(regularIds));
+            specs.add(BookFilterSpecification.inShelves(regularIds, userId));
         }
         if (specs.isEmpty()) {
             return (root, query, cb) -> cb.conjunction();
