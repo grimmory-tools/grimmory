@@ -111,7 +111,8 @@ class KoboServerProxyTest {
 
     @Test
     void proxyCurrentRequest_shouldPreserveEncodedPath() throws Exception {
-        mockRequest.setRequestURI("/api/kobo/v1/library/test%20spaces");
+        mockRequest.setContextPath("/grimmory");
+        mockRequest.setRequestURI("/grimmory/api/kobo/v1/library/test%20spaces");
         setupSuccessfulProxyResponse();
 
         ResponseEntity<JsonNode> response = koboServerProxy.proxyCurrentRequest(null, false);

@@ -16,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
+import org.springframework.mock.web.MockServletContext;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
@@ -31,6 +33,9 @@ class KomgaMapperTest {
 
     @Mock
     private AppSettingService appSettingService;
+
+    @Spy
+    private MockServletContext servletContext = new MockServletContext();
 
     @InjectMocks
     private KomgaMapper mapper;
@@ -51,6 +56,7 @@ class KomgaMapperTest {
 
     @Test
     void shouldHandleNullPageCountInMetadata() {
+        servletContext.setContextPath("/grimmory");
         // Given: A book with metadata that has null pageCount
         LibraryEntity library = new LibraryEntity();
         library.setId(1L);
@@ -84,6 +90,9 @@ class KomgaMapperTest {
         assertThat(dto).isNotNull();
         assertThat(dto.getMedia()).isNotNull();
         assertThat(dto.getMedia().getPagesCount()).isEqualTo(0);
+        assertThat(dto.getUrl()).isEqualTo("/grimmory/komga/api/v1/books/100");
+        assertThat(mapper.toKomgaSeriesDto("Test Series", 1L, List.of(book)).getUrl())
+                .startsWith("/grimmory/komga/api/v1/series/");
     }
 
     @Test

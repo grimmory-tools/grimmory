@@ -15,8 +15,8 @@ public class KomgaEnabledInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String uri = request.getRequestURI();
-        
+        String uri = request.getServletPath();
+
         if (uri.startsWith("/komga/api/")) {
             boolean komgaEnabled = appSettingService.getAppSettings().isKomgaApiEnabled();
             if (!komgaEnabled) {
