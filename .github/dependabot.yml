@@ -60,6 +60,12 @@ updates:
           - "@eslint/*"
           - "typescript-eslint"
           - "angular-eslint"
+      oxlint:
+        patterns:
+          - "oxlint"
+          - "@oxlint/*"
+          - "eslint-plugin-oxlint"
+          - "oxlint-tsgolint"
       angular:
         patterns:
           - "@angular/*"
