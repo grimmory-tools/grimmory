@@ -126,6 +126,7 @@ describe('MagicShelfService', () => {
       iconType: 'LUCIDE',
       group,
       isPublic: true,
+      koboSync: true,
     }).subscribe();
 
     const request = httpTestingController.expectOne(req => req.url.endsWith('/api/magic-shelves'));
@@ -136,6 +137,7 @@ describe('MagicShelfService', () => {
       iconType: 'LUCIDE',
       filterJson: JSON.stringify(group),
       isPublic: true,
+      koboSync: true,
     }));
     request.flush(buildMagicShelf({id: 11, name: 'Magic', filterJson: JSON.stringify(group), isPublic: true}));
 
