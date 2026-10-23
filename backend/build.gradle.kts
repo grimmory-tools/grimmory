@@ -120,7 +120,7 @@ dependencies {
     // --- Database & Migration ---
     implementation("org.mariadb.jdbc:mariadb-java-client:3.5.10")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
-    implementation("org.flywaydb:flyway-mysql:13.10.3")
+    implementation("org.flywaydb:flyway-mysql")
 
     // --- Lombok (For Clean Code) ---
     compileOnly("org.projectlombok:lombok:1.18.48")
