@@ -70,6 +70,7 @@ updates:
         patterns:
           - "@angular/*"
           - "@angular-devkit/*"
+          - "ng-mocks"
       openng:
         patterns:
           - "@openng/*"
