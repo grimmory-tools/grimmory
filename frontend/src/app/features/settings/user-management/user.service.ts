@@ -240,6 +240,8 @@ export interface UserSettings {
   dashboardConfig?: DashboardConfig;
   koReaderEnabled: boolean;
   autoSaveMetadata: boolean;
+  filterMatchAll?: boolean;
+  filterExcludeOnTick?: boolean;
 }
 
 export interface User {

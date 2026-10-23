@@ -30,6 +30,8 @@ describe('BookBrowseToolbarComponent', () => {
     fixture.componentRef.setInput('densitySmallerDisabled', false);
     fixture.componentRef.setInput('densityLargerDisabled', false);
     fixture.componentRef.setInput('filtersOpen', false);
+    fixture.componentRef.setInput('matchAll', false);
+    fixture.componentRef.setInput('excludeOnTick', true);
     fixture.componentRef.setInput('actionTarget', null);
     await fixture.whenStable();
   });
