@@ -373,15 +373,22 @@ class EpubMetadataExtractorTest {
     @Nested
     class IdentifierSchemeMapping {
 
-        @Test
-        void parsesIsbn13WithOpfScheme() throws IOException {
+        @ParameterizedTest
+        @CsvSource({
+                "978-0-13-468599-1, 9780134685991",
+                "978-1-938570-51-3, 9781938570513",
+                "978-1-938570-26-1, 9781938570261",
+                "978-0-7869-5805-4, 9780786958054",
+                "978-0-345-51696-1, 9780345516961"
+        })
+        void parsesIsbn13WithOpfScheme(String isbn, String normalizedIsbn) throws IOException {
             String opf = wrapOpf("""
                     <dc:title>Book</dc:title>
-                    <dc:identifier opf:scheme="ISBN">978-0-13-468599-1</dc:identifier>
-                    """);
+                    <dc:identifier opf:scheme="ISBN">%s</dc:identifier>
+                    """.formatted(isbn));
             BookMetadata metadata = extractor.extractMetadata(createEpub(opf));
 
-            assertThat(metadata.getIsbn13()).isEqualTo("978-0-13-468599-1");
+            assertThat(metadata.getIsbn13()).isEqualTo(normalizedIsbn);
         }
 
         @Test
@@ -392,29 +399,56 @@ class EpubMetadataExtractorTest {
                     """);
             BookMetadata metadata = extractor.extractMetadata(createEpub(opf));
 
-            assertThat(metadata.getIsbn10()).isEqualTo("0-13-468599-X");
+            assertThat(metadata.getIsbn10()).isEqualTo("013468599X");
         }
 
-        @Test
-        void parsesUrnIsbnFormat() throws IOException {
+        @ParameterizedTest
+        @ValueSource(strings = {"", " - ", "1234-56789", "12345 678901", "123456-789012", "1234567-8901234"})
+        void ignoresIsbnWithInvalidNormalizedLength(String isbn) throws IOException {
             String opf = wrapOpf("""
                     <dc:title>Book</dc:title>
-                    <dc:identifier>urn:isbn:9780134685991</dc:identifier>
-                    """);
+                    <dc:identifier opf:scheme="ISBN">%s</dc:identifier>
+                    """.formatted(isbn));
+            BookMetadata metadata = extractor.extractMetadata(createEpub(opf));
+
+            assertThat(metadata.getIsbn10()).isNull();
+            assertThat(metadata.getIsbn13()).isNull();
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"9780134685991", "978-0-13-468599-1", "978 0 13 468599 1"})
+        void parsesUrnIsbnFormat(String isbn) throws IOException {
+            String opf = wrapOpf("""
+                    <dc:title>Book</dc:title>
+                    <dc:identifier>urn:isbn:%s</dc:identifier>
+                    """.formatted(isbn));
             BookMetadata metadata = extractor.extractMetadata(createEpub(opf));
 
             assertThat(metadata.getIsbn13()).isEqualTo("9780134685991");
         }
 
-        @Test
-        void parsesIsbnPrefixFormat() throws IOException {
+        @ParameterizedTest
+        @ValueSource(strings = {"9780134685991", "978-0-13-468599-1", "978 0 13 468599 1"})
+        void parsesIsbnPrefixFormat(String isbn) throws IOException {
             String opf = wrapOpf("""
                     <dc:title>Book</dc:title>
-                    <dc:identifier>isbn:9780134685991</dc:identifier>
-                    """);
+                    <dc:identifier>isbn:%s</dc:identifier>
+                    """.formatted(isbn));
             BookMetadata metadata = extractor.extractMetadata(createEpub(opf));
 
             assertThat(metadata.getIsbn13()).isEqualTo("9780134685991");
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"isbn:0-8044-2957-X", "urn:isbn:0 8044 2957 X"})
+        void parsesFormattedIsbn10WithPrefix(String identifier) throws IOException {
+            String opf = wrapOpf("""
+                    <dc:title>Book</dc:title>
+                    <dc:identifier>%s</dc:identifier>
+                    """.formatted(identifier));
+            BookMetadata metadata = extractor.extractMetadata(createEpub(opf));
+
+            assertThat(metadata.getIsbn10()).isEqualTo("080442957X");
         }
 
         @ParameterizedTest
@@ -496,7 +530,7 @@ class EpubMetadataExtractorTest {
                     """);
             BookMetadata metadata = extractor.extractMetadata(createEpub(opf));
 
-            assertThat(metadata.getIsbn13()).isEqualTo("978 0 13 468599 1");
+            assertThat(metadata.getIsbn13()).isEqualTo("9780134685991");
         }
     }
 
