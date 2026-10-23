@@ -119,7 +119,7 @@ export function createBookBrowseQueries({selection, query, scope, enabled}: Book
   const definitions = computed<BrowseFacetDefinitions<BookQueryFacetKey>>(() => {
     activeLang();
     return bookFacetDefinitions(bookFacetLabelDeps(
-      shelfDefinitions(),
+      [...shelfDefinitions(), ...magicShelfService.shelves().map(shelf => ({...shelf, id: `magic:${shelf.id}`}))],
       libraryService.libraries(),
       key => transloco.translate(key),
     ));

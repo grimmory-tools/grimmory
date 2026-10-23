@@ -14,7 +14,7 @@ import java.util.Set;
 @Component
 public class BookFacetRegistry {
 
-    private static final String MAGIC_SHELF_PREFIX = "magic:";
+    static final String MAGIC_SHELF_PREFIX = "magic:";
 
     private static final Set<String> NAMES = Set.of(
             "author", "series", "genre", "tag", "mood", "language", "publisher", "narrator", "library", "shelf",
@@ -67,7 +67,7 @@ public class BookFacetRegistry {
             case "published_year" -> BookFilterSpecification.withPublishedYears(values, mode);
             case "file_size" -> BookFilterSpecification.withFileSizes(values, mode);
             case "page_count" -> BookFilterSpecification.withPageCounts(values, mode);
-            case "shelf_status" -> BookFilterSpecification.withShelfStatus(values, mode);
+            case "shelf_status" -> BookFilterSpecification.withShelfStatus(values, userId, mode);
             case "comic_character" -> BookFilterSpecification.withComicCharacters(values, mode);
             case "comic_team" -> BookFilterSpecification.withComicTeams(values, mode);
             case "comic_location" -> BookFilterSpecification.withComicLocations(values, mode);
@@ -91,7 +91,7 @@ public class BookFacetRegistry {
         }
         if (!regularIds.isEmpty()) {
             String inMode = logic == FacetLogic.AND ? "and" : "or";
-            specs.add(BookFilterSpecification.inShelves(regularIds, inMode));
+            specs.add(BookFilterSpecification.inShelves(regularIds, userId, inMode));
         }
         if (specs.isEmpty()) {
             return (root, query, cb) -> cb.conjunction();

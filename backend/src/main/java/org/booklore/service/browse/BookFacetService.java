@@ -25,8 +25,10 @@ import org.booklore.model.dto.browse.FacetGroupsResponse.FacetGroup;
 import org.booklore.model.dto.browse.FacetGroupsResponse.Metadata;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
+import org.booklore.model.entity.ShelfEntity;
 import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.enums.ReadStatus;
+import org.booklore.service.opds.MagicShelfBookService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -48,6 +50,10 @@ public class BookFacetService {
     private static final String PAGE_PATH = "/api/v1/books/page";
     private static final String FACET_PATH = "/api/v1/books/facets";
     private static final int MAX_VALUES = 100;
+    private static final Comparator<FacetResponseBuilder.FacetCount> BY_COUNT = Comparator
+            .comparingLong(FacetResponseBuilder.FacetCount::count)
+            .reversed()
+            .thenComparing(FacetResponseBuilder.FacetCount::value);
 
     private static final FacetDef PHYSICAL_FILE_TYPE = new FacetDef("file_type", "File Type", (cb, root, userId) ->
             cb.<String>selectCase()
@@ -82,7 +88,11 @@ public class BookFacetService {
             new FacetDef("published_year", "Published Year", (cb, root, _) ->
                     cb.function("YEAR", Integer.class, metadata(root).get("publishedDate"))),
             new FacetDef("library", "Library", (cb, root, _) -> root.join("library").get("id")),
-            new FacetDef("shelf", "Shelf", (cb, root, _) -> root.join("shelves", JoinType.LEFT).get("id")),
+            new FacetDef("shelf", "Shelf", (cb, root, scope) -> {
+                Join<BookEntity, ShelfEntity> shelves = root.join("shelves", JoinType.LEFT);
+                shelves.on(BookFilterSpecification.visibleShelf(cb, shelves, scope.userId()));
+                return shelves.get("id");
+            }),
             new FacetDef("shelf_status", "Shelf Status", (cb, root, _) -> cb.<String>selectCase()
                     .when(cb.isNotEmpty(root.get("shelves")), "shelved")
                     .otherwise("unshelved")),
@@ -135,6 +145,7 @@ public class BookFacetService {
     private final BookSortRegistry sortRegistry;
     private final BrowseScopeFactory scopeFactory;
     private final EntityManager entityManager;
+    private final MagicShelfBookService magicShelfBookService;
 
     private final Cache<String, FacetGroupsResponse> cache = Caffeine.newBuilder()
             .expireAfterWrite(Duration.ofSeconds(30))
@@ -219,21 +230,52 @@ public class BookFacetService {
         if (NUMBER_FACETS.contains(def.key())) {
             return numberGroup(def, base, scope, builder);
         }
-        var counts = count(def, base, scope);
-        if ("file_type".equals(def.key())) {
-            counts = Stream.concat(counts.stream(), count(PHYSICAL_FILE_TYPE, base, scope).stream())
-                    .sorted(
-                            Comparator.comparingLong(FacetResponseBuilder.FacetCount::count)
-                                    .reversed()
-                                    .thenComparing(FacetResponseBuilder.FacetCount::value)
-                    )
+        var counts = switch (def.key()) {
+            case "library" -> count(def, base, scope, null, 0, Integer.MAX_VALUE);
+            case "shelf" -> Stream.concat(count(def, base, scope, null, 0, Integer.MAX_VALUE).stream(), magicShelfCounts(base, scope).stream())
+                    .sorted(BY_COUNT)
                     .toList();
-        }
+            case "shelf_status" -> shelfStatusCounts(base, scope);
+            case "file_type" -> Stream.concat(count(def, base, scope).stream(), count(PHYSICAL_FILE_TYPE, base, scope).stream())
+                    .sorted(BY_COUNT)
+                    .toList();
+            default -> count(def, base, scope);
+        };
         return builder.group(def.key(), def.title(), counts);
     }
 
+    private List<FacetResponseBuilder.FacetCount> magicShelfCounts(Specification<BookEntity> base, BrowseScope scope) {
+        return magicShelfBookService.visibleShelfRules(scope.userId()).entrySet().stream()
+                .map(rule -> new FacetResponseBuilder.FacetCount(BookFacetRegistry.MAGIC_SHELF_PREFIX + rule.getKey(), countMatching(base.and(rule.getValue()))))
+                .filter(count -> count.count() > 0)
+                .toList();
+    }
+
+    private List<FacetResponseBuilder.FacetCount> shelfStatusCounts(Specification<BookEntity> base, BrowseScope scope) {
+        return Stream.of("shelved", "unshelved")
+                .map(status -> new FacetResponseBuilder.FacetCount(status, countMatching(base.and(
+                        facetRegistry.toSpecification("shelf_status", List.of(status), FacetLogic.OR, scope.userId())))))
+                .filter(count -> count.count() > 0)
+                .sorted(BY_COUNT)
+                .toList();
+    }
+
     private boolean hasItems(FacetDef def, Specification<BookEntity> base, BrowseScope scope) {
-        return anyValue(def, base, scope) || ("file_type".equals(def.key()) && anyValue(PHYSICAL_FILE_TYPE, base, scope));
+        return anyValue(def, base, scope)
+                || ("file_type".equals(def.key()) && anyValue(PHYSICAL_FILE_TYPE, base, scope))
+                || ("shelf".equals(def.key()) && !magicShelfCounts(base, scope).isEmpty());
+    }
+
+    private long countMatching(Specification<BookEntity> filter) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<BookEntity> root = cq.from(BookEntity.class);
+        Predicate predicate = filter.toPredicate(root, cq, cb);
+        cq.select(countBooks(root.get("id"), root, cb));
+        if (predicate != null) {
+            cq.where(predicate);
+        }
+        return entityManager.createQuery(cq).getSingleResult();
     }
 
     private boolean anyValue(FacetDef def, Specification<BookEntity> base, BrowseScope scope) {
