@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @AllArgsConstructor
-public class AudibleParser implements BookParser, DetailedMetadataProvider {
+public class AudibleParser implements BookParser {
     private static final String DEFAULT_TLD = "com";
 
     private static final Map<String, String> EXTERNAL_BASE_URIS = Map.of(
@@ -386,18 +386,6 @@ public class AudibleParser implements BookParser, DetailedMetadataProvider {
                 .map(this::toMetadata)
                 .filter(Objects::nonNull)
                 .toList();
-    }
-
-    @Override
-    public BookMetadata fetchDetailedMetadata(String audibleId) {
-        log.info("Audible: Fetching metadata for: {}", audibleId);
-
-        try {
-            return this.toMetadata(this.lookup(audibleId));
-        } catch (Exception e) {
-            log.error("Failed to fetch Audible metadata for ID {}: {}", audibleId, e.getMessage());
-            return null;
-        }
     }
 
     private String stripHTML(String value) {

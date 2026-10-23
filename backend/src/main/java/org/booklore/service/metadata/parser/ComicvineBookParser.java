@@ -37,7 +37,7 @@ import java.text.DecimalFormat;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ComicvineBookParser implements BookParser, DetailedMetadataProvider {
+public class ComicvineBookParser implements BookParser {
 
     private static final String COMICVINE_URL = "https://comicvine.gamespot.com/api/";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -421,8 +421,7 @@ public class ComicvineBookParser implements BookParser, DetailedMetadataProvider
         return Collections.emptyList();
     }
 
-    @Override
-    public BookMetadata fetchDetailedMetadata(String comicvineId) {
+    private BookMetadata fetchDetailedMetadata(String comicvineId) {
         if (comicvineId == null || comicvineId.isEmpty()) return null;
         
         String prefix = RESOURCE_TYPE_ISSUE;

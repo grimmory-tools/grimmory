@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @AllArgsConstructor
-public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
+public class AmazonBookParser implements BookParser {
     private static final Pattern ASIN_PATTERN = Pattern.compile("([A-Z0-9]{10})");
 
     private static class AmazonAntiScrapingException extends RuntimeException {
@@ -171,11 +171,6 @@ public class AmazonBookParser implements BookParser, DetailedMetadataProvider {
             }
         }
         return results;
-    }
-
-    @Override
-    public BookMetadata fetchDetailedMetadata(String asin) {
-        return getBookMetadata(asin);
     }
 
     private String getExistingAsin(Book book) {
