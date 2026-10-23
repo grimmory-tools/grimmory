@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.booklore.BookloreApplication;
 import org.booklore.config.security.service.AuthenticationService;
+import org.booklore.model.dto.AuthorSummary;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.Library;
 import org.booklore.model.dto.browse.FacetGroupsResponse;
@@ -29,6 +30,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,9 +44,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -71,11 +73,11 @@ import static org.mockito.Mockito.when;
         "app.task.process-bookdrop-cron=*/1 * * * * *",
         "app.features.oidc-enabled=false"
 })
-@Import(AuthorFacetServiceTest.TestConfig.class)
-class AuthorFacetServiceTest {
+@Import(AuthorFacetsTest.TestConfig.class)
+class AuthorFacetsTest {
 
     @Autowired
-    private AuthorFacetService facetService;
+    private BrowseService<AuthorEntity, AuthorSummary> authorBrowse;
     @Autowired
     private AuthorPhotoIndex photoIndex;
     @Autowired
@@ -108,7 +110,7 @@ class AuthorFacetServiceTest {
 
     @BeforeEach
     void seed() throws IOException {
-        facetService.clearCache();
+        authorBrowse.clearCache();
         photoIndex.clearCache();
         deleteAuthorImages();
 
@@ -180,52 +182,41 @@ class AuthorFacetServiceTest {
         });
     }
 
-    private FacetGroup group(FacetGroupsResponse response, String key) {
-        return response.facets().stream()
-                .filter(g -> g.metadata().key().equals(key))
-                .findFirst().orElseThrow();
+    private FacetGroup facet(String name, List<String> selections) {
+        return authorBrowse.getFacet(name, selections, null, null, null, PageRequest.of(0, 20)).facets().getFirst();
     }
 
-    private Long count(FacetGroup group, String value) {
+    private Map<String, Long> counts(FacetGroup group) {
         return group.links().stream()
-                .filter(l -> l.value().equals(value))
-                .findFirst()
-                .map(l -> l.properties().numberOfItems())
-                .orElse(0L);
+                .collect(Collectors.toMap(FacetLink::value, l -> l.properties().numberOfItems(), (a, b) -> a, LinkedHashMap::new));
     }
 
     @Test
-    void returnsSortGroupAndFacetGroupsWithCounts() {
+    void indexListsFacetsWithoutValuesAndTheSortOptions() {
         AuthorEntity matched = author("Matched");
         matched.setAsin("B0FAKE");
-        matched.setDescription("Bio");
-        AuthorEntity unmatched = author("Unmatched");
         book("A", List.of(matched), List.of("Horror"), "en");
-        book("B", List.of(unmatched), List.of("Romance", "Horror"), "fr");
         em.flush();
 
-        FacetGroupsResponse response = facetService.getFacets(null, null, null);
+        FacetGroupsResponse response = authorBrowse.getFacets(null, null, null);
 
-        FacetGroup sort = group(response, "sort");
+        FacetGroup sort = response.facets().getFirst();
         assertThat(sort.metadata().rel()).isEqualTo("sort");
         assertThat(sort.links().stream().map(FacetLink::value))
-                .contains("name", "-name", "bookCount", "-bookCount", "amazonRating", "-personalRating");
-        assertThat(sort.links().stream().map(FacetLink::value)).doesNotContain("id", "-id");
+                .contains("name", "-name", "bookCount", "-bookCount", "amazonRating", "-personalRating")
+                .doesNotContain("id", "-id");
+        assertThat(response.facets().stream().skip(1).map(g -> g.metadata().key())).containsExactly(
+                "has_asin", "has_photo", "has_description", "genre", "language", "library", "read_status", "book_count");
+        assertThat(response.facets().stream().skip(1)).allSatisfy(group -> assertThat(group.links()).isEmpty());
+    }
 
-        assertThat(count(group(response, "has_asin"), "true")).isEqualTo(1);
-        assertThat(count(group(response, "has_asin"), "false")).isEqualTo(1);
-        assertThat(count(group(response, "has_description"), "true")).isEqualTo(1);
+    @Test
+    void choiceFacetsListTrueAndFalseWithZeros() {
+        AuthorEntity unmatched = author("Unmatched");
+        book("A", List.of(unmatched), null, null);
+        em.flush();
 
-        FacetGroup genre = group(response, "genre");
-        assertThat(count(genre, "Horror")).isEqualTo(2);
-        assertThat(count(genre, "Romance")).isEqualTo(1);
-
-        FacetGroup language = group(response, "language");
-        assertThat(count(language, "en")).isEqualTo(1);
-        assertThat(count(language, "fr")).isEqualTo(1);
-
-        assertThat(response.facets().stream().map(g -> g.metadata().key()))
-                .doesNotContain("book_count", "library", "read_status");
+        assertThat(counts(facet("has_asin", null))).containsExactly(Map.entry("true", 0L), Map.entry("false", 1L));
     }
 
     @Test
@@ -240,9 +231,7 @@ class AuthorFacetServiceTest {
         Files.createDirectories(thumbnail.getParent());
         Files.write(thumbnail, new byte[]{1});
 
-        FacetGroupsResponse response = facetService.getFacets(null, null, null);
-        assertThat(count(group(response, "has_photo"), "true")).isEqualTo(1);
-        assertThat(count(group(response, "has_photo"), "false")).isEqualTo(1);
+        assertThat(counts(facet("has_photo", null))).containsExactly(Map.entry("true", 1L), Map.entry("false", 1L));
     }
 
     @Test
@@ -254,42 +243,20 @@ class AuthorFacetServiceTest {
         book("B", List.of(unmatched), List.of("Romance"), null);
         em.flush();
 
-        FacetGroupsResponse response = facetService.getFacets(List.of("has_asin:true"), null, null);
-
-        assertThat(count(group(response, "has_asin"), "false")).isEqualTo(1);
-        assertThat(count(group(response, "genre"), "Horror")).isEqualTo(1);
-        assertThat(group(response, "genre").links().stream().map(FacetLink::value))
-                .doesNotContain("Romance");
-    }
-
-    @Test
-    void zeroCountValuesAreOmitted() {
-        AuthorEntity unmatched = author("Unmatched");
-        book("A", List.of(unmatched), null, null);
-        em.flush();
-
-        FacetGroupsResponse response = facetService.getFacets(null, null, null);
-        assertThat(group(response, "has_asin").links().stream().map(FacetLink::value))
-                .containsExactly("false");
+        assertThat(counts(facet("has_asin", List.of("has_asin:true")))).containsExactly(Map.entry("true", 1L), Map.entry("false", 1L));
+        assertThat(counts(facet("genre", List.of("has_asin:true")))).containsExactly(Map.entry("Horror", 1L));
     }
 
     @Test
     void activeFacetLinksCarrySelfRel() {
         AuthorEntity matched = author("Matched");
         matched.setAsin("B0FAKE");
-        AuthorEntity unmatched = author("Unmatched");
         book("A", List.of(matched), null, null);
-        book("B", List.of(unmatched), null, null);
         em.flush();
 
-        FacetGroupsResponse response = facetService.getFacets(List.of("has_asin:true"), null, null);
-        FacetLink active = group(response, "has_asin").links().stream()
-                .filter(l -> l.value().equals("true"))
-                .findFirst().orElseThrow();
+        FacetGroup group = facet("has_asin", List.of("has_asin:true"));
+        FacetLink active = group.links().stream().filter(l -> l.value().equals("true")).findFirst().orElseThrow();
         assertThat(active.rel()).contains("self", "facet");
-
-        Set<String> hrefs = group(response, "has_asin").links().stream()
-                .map(FacetLink::href).collect(Collectors.toSet());
-        assertThat(hrefs).allSatisfy(href -> assertThat(href).startsWith("/api/v1/authors/page"));
+        assertThat(group.links()).allSatisfy(link -> assertThat(link.href()).startsWith("/api/v1/authors/page"));
     }
 }

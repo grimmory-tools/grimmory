@@ -7,87 +7,34 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
-import org.booklore.browse.BrowsePage;
 import org.booklore.browse.BrowsePager;
-import org.booklore.browse.FacetLogic;
-import org.booklore.browse.ParamsHash;
-import org.booklore.browse.SortParser;
 import org.booklore.browse.SortRegistry;
 import org.booklore.browse.SortTerm;
-import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.model.dto.AuthorSummary;
-import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.entity.AuthorEntity;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@Service
+@Component
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
-public class AuthorBrowseService {
+public class AuthorPageFetcher implements PageFetcher<AuthorEntity, AuthorSummary> {
 
-    private static final String PAGE_PATH = "/api/v1/authors/page";
-    private static final String FACET_PATH = "/api/v1/authors/facets";
-
-    private final AuthenticationService authenticationService;
-    private final AuthorFilterSpecifications filterSpecifications;
-    private final AuthorSortRegistry sortRegistry;
     private final AuthorVisibleBooks visibleBooks;
-    private final BrowseScopeFactory scopeFactory;
-    private final BrowsePager pager;
     private final AuthorPhotoIndex photoIndex;
     private final EntityManager entityManager;
 
-    public BrowsePage<AuthorSummary> browse(String sort, List<String> facet, String facetLogicParam, String query, String cursor, Pageable pageable) {
-        BookLoreUser user = authenticationService.getAuthenticatedUser();
-        BrowseScope scope = scopeFactory.from(user);
-
-        Map<String, List<String>> facets = BrowseParams.parseFacets(facet);
-        FacetLogic facetLogic = FacetLogic.from(facetLogicParam);
-        String paramsHash = ParamsHash.compute(query, facets, facetLogic);
-
-        BrowsePager.Window window = pager.resolve(sort, cursor, pageable, paramsHash);
-
-        SortRegistry<AuthorEntity> registry = sortRegistry.registry(scope);
-        List<SortTerm> sortTerms = SortParser.parse(window.sort(), registry.keys());
-        Specification<AuthorEntity> spec = filterSpecifications.base(query, facets, facetLogic, scope, null);
-
-        long total = count(spec);
-        List<AuthorEntity> authors = page(spec, registry, sortTerms, scope, window.offset(), window.limit());
-        List<AuthorSummary> summaries = toSummaries(authors, scope);
-
-        return pager.assemble(PAGE_PATH, FACET_PATH, BrowseParams.preserved(facet, facetLogicParam, query),
-                window, total, summaries);
-    }
-
-    public List<Long> findAllIds(String sort, List<String> facet, String facetLogicParam, String query) {
-        BookLoreUser user = authenticationService.getAuthenticatedUser();
-        BrowseScope scope = scopeFactory.from(user);
-
-        Map<String, List<String>> facets = BrowseParams.parseFacets(facet);
-        FacetLogic facetLogic = FacetLogic.from(facetLogicParam);
-        SortRegistry<AuthorEntity> registry = sortRegistry.registry(scope);
-        List<SortTerm> sortTerms = SortParser.parse(sort, registry.keys());
-        Specification<AuthorEntity> spec = filterSpecifications.base(query, facets, facetLogic, scope, null);
-
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-        Root<AuthorEntity> root = cq.from(AuthorEntity.class);
-        cq.select(root.get("id"));
-        Predicate predicate = spec.toPredicate(root, cq, cb);
-        if (predicate != null) {
-            cq.where(predicate);
-        }
-        cq.orderBy(registry.toOrders(sortTerms, root, cq, cb, scope.userId(), null));
-
-        return entityManager.createQuery(cq).getResultList();
+    @Override
+    public FetchedPage<AuthorSummary> fetch(BrowseScope scope, Specification<AuthorEntity> filter,
+                                            SortRegistry<AuthorEntity> sorts, List<SortTerm> sortTerms,
+                                            BrowsePager.Window window) {
+        long total = count(filter);
+        List<AuthorEntity> authors = page(filter, sorts, sortTerms, scope, window.offset(), window.limit());
+        return new FetchedPage<>(toSummaries(authors, scope), total);
     }
 
     private long count(Specification<AuthorEntity> spec) {

@@ -14,7 +14,9 @@ import org.booklore.browse.SortRegistry;
 import org.booklore.model.entity.BookEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class BookSortRegistry {
@@ -30,10 +32,10 @@ public class BookSortRegistry {
     }
 
     private static SortRegistry<BookEntity> build() {
-        SortRegistry<BookEntity> registry = new SortRegistry<>();
+        Map<String, SortOrderBuilder<BookEntity>> builders = new LinkedHashMap<>();
 
-        registry.register("id", rootField("id"));
-        registry.register("addedOn", rootField("addedOn"));
+        builders.put("id", rootField("id"));
+        builders.put("addedOn", rootField("addedOn"));
 
         for (String field : List.of(
                 "title", "subtitle", "seriesName", "seriesNumber", "publisher", "publishedDate",
@@ -43,20 +45,20 @@ public class BookSortRegistry {
                 "audibleRating", "audibleReviewCount",
                 "applebooksRating", "applebooksReviewCount",
                 "narrator", "pageCount", "language")) {
-            registry.register(field, metadataField(field));
+            builders.put(field, metadataField(field));
         }
 
         for (String field : List.of("personalRating", "lastReadTime", "readStatus", "dateFinished")) {
-            registry.register(field, progressField(field));
+            builders.put(field, progressField(field));
         }
 
-        registry.register("authorName", authorField("name"));
-        registry.register("authorSortName", authorField("sortName"));
+        builders.put("authorName", authorField("name"));
+        builders.put("authorSortName", authorField("sortName"));
 
-        registry.register("readingProgress", readingProgress());
-        registry.register("random", random());
+        builders.put("readingProgress", readingProgress());
+        builders.put("random", random());
 
-        return registry;
+        return new SortRegistry<>(builders);
     }
 
     private static SortOrderBuilder<BookEntity> rootField(String field) {
