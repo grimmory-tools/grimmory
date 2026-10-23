@@ -100,7 +100,7 @@ public class BookBrowseService {
     }
 
     public BrowsePage<Book> wrapLegacy(Page<Book> page, Pageable pageable) {
-        String paramsHash = ParamsHash.compute(null, Map.of(), FacetLogic.AND);
+        String paramsHash = ParamsHash.compute(null, Map.of(), FacetLogic.OR);
 
         // Pass a null random seed for the legacy case - we don't actually store a seed value and
         // this is good enough for most use cases.

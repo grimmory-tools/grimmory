@@ -7,10 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class FacetLogicTest {
 
     @Test
-    void defaultsToAndForNullOrBlank() {
-        assertEquals(FacetLogic.AND, FacetLogic.from(null));
-        assertEquals(FacetLogic.AND, FacetLogic.from(""));
-        assertEquals(FacetLogic.AND, FacetLogic.from("   "));
+    void defaultsToOrForNullOrBlank() {
+        assertEquals(FacetLogic.OR, FacetLogic.from(null));
+        assertEquals(FacetLogic.OR, FacetLogic.from(""));
+        assertEquals(FacetLogic.OR, FacetLogic.from("   "));
     }
 
     @Test
@@ -22,7 +22,7 @@ class FacetLogicTest {
     }
 
     @Test
-    void unknownValueFallsBackToAnd() {
-        assertEquals(FacetLogic.AND, FacetLogic.from("xor"));
+    void unknownValueFallsBackToOr() {
+        assertEquals(FacetLogic.OR, FacetLogic.from("xor"));
     }
 }
