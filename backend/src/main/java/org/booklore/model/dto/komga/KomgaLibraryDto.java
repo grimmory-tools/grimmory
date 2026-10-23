@@ -1,5 +1,8 @@
 package org.booklore.model.dto.komga;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -70,4 +73,10 @@ public class KomgaLibraryDto {
     private Boolean hashKoreader = false;
     @Builder.Default
     private Boolean analyzeDimensions = true;
+
+    // Directory options
+    @Builder.Default
+    private List<String> scanDirectoryExclusions = Collections.emptyList();
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    private String oneshotsDirectory;
 }
