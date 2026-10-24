@@ -45,7 +45,7 @@
     "@stomp/stompjs": "^7.5.0",
     "@tanstack/angular-query-experimental": "5.104.2",
     "@tanstack/angular-table": "9.3.1",
-    "@tanstack/angular-virtual": "^6.1.4",
+    "@tanstack/angular-virtual": "^6.1.7",
     "chart.js": "^4.5.1",
     "chartjs-chart-matrix": "3.0.5",
     "class-variance-authority": "^0.7.1",
