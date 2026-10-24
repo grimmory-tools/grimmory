@@ -214,6 +214,10 @@ public class UserService {
             throw ApiError.INVALID_INPUT.createException("Unknown setting key: " + key);
         }
 
+        if (settingKey == UserSettingKey.LCP_DEFAULT_USER_KEY) {
+            throw ApiError.INVALID_INPUT.createException("Use the LCP import settings endpoint to manage unlock codes.");
+        }
+
         UserSettingEntity setting = user.getSettings().stream()
                 .filter(s -> s.getSettingKey().equals(key))
                 .findFirst()

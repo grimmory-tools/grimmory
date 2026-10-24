@@ -14,14 +14,19 @@ import {AppSettingsService} from '../../service/app-settings.service';
 import {SelectButton} from '@openng/optimus-ui/selectbutton';
 import {DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {ProgressBar} from '@openng/optimus-ui/progressbar';
-import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {mitigateWebkitUploadBug} from '../../util/mitigate-webkit-upload-bug';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {InputText} from '@openng/optimus-ui/inputtext';
+import {LcpSettingsService} from '../../service/lcp-settings.service';
 
 interface UploadingFile {
   file: File;
   status: 'Pending' | 'Uploading' | 'Uploaded' | 'Failed';
   progress: number;
   errorMessage?: string;
+  lcpPassphrase?: string;
+  lcpHint?: string;
 }
 
 type FileChooserCallback = () => void;
@@ -39,7 +44,9 @@ type FileRemoveCallback = (event: Event, index: number) => void;
     Tooltip,
     SelectButton,
     ProgressBar,
-    TranslocoDirective
+    TranslocoDirective,
+    TranslocoPipe,
+    InputText
   ],
   templateUrl: './book-uploader.component.html',
   styleUrl: './book-uploader.component.scss'
@@ -52,6 +59,8 @@ export class BookUploaderComponent {
   private readonly ref = inject(DynamicDialogRef);
   private readonly t = inject(TranslocoService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly lcpSettings = inject(LcpSettingsService);
+  readonly hasDefaultLcpPassphrase = signal<boolean | undefined>(undefined);
   @ViewChild(FileUpload) fileUpload!: FileUpload;
 
   files: UploadingFile[] = [];
@@ -68,6 +77,36 @@ export class BookUploaderComponent {
     {label: this.t.translate('shared.bookUploader.destinationBookdrop'), value: 'bookdrop'}
   ];
   value = 'library';
+  constructor() {
+    this.lcpSettings.getStatus().pipe(takeUntilDestroyed()).subscribe({
+      next: status => this.hasDefaultLcpPassphrase.set(status.hasDefaultPassphrase),
+      error: () => this.hasDefaultLcpPassphrase.set(false)
+    });
+  }
+
+  isLcpFile(file: UploadingFile): boolean {
+    return file.file.name.toLowerCase().endsWith('.lcpl');
+  }
+
+  private async loadLcpHint(upload: UploadingFile): Promise<void> {
+    if (!this.isLcpFile(upload) || upload.file.size > 1024 * 1024) return;
+    try {
+      // SAFETY: Parsed JSON is used only for this optional hint, which must pass the string check below.
+      const license = JSON.parse(await upload.file.text()) as {encryption?: {user_key?: {text_hint?: unknown}}};
+      const hint = license.encryption?.user_key?.text_hint;
+      if (typeof hint === 'string') upload.lcpHint = hint.slice(0, 1024);
+      this.cdr.markForCheck();
+    } catch {
+      // The server validates the complete license before downloading anything.
+    }
+  }
+
+  retryFile(upload: UploadingFile): void {
+    upload.status = 'Pending';
+    upload.errorMessage = undefined;
+    upload.progress = 0;
+    this.uploadCompleted.set(false);
+  }
   private readonly selectSingleLibraryEffect = effect(() => {
     const libraries = this.libraries();
     if (libraries.length !== 1 || this.selectedLibrary) {
@@ -153,7 +192,9 @@ export class BookUploaderComponent {
           life: 5000
         });
       } else {
-        this.files.unshift({file, status: 'Pending', progress: 0});
+        const upload: UploadingFile = {file, status: 'Pending', progress: 0};
+        this.files.unshift(upload);
+        void this.loadLcpHint(upload);
       }
     }
   }
@@ -188,6 +229,11 @@ export class BookUploaderComponent {
 
     const filesToUpload = this.files.filter(f => f.status === 'Pending');
     if (filesToUpload.length === 0) return;
+    if (filesToUpload.some(file => this.isLcpFile(file) && !file.lcpPassphrase && this.hasDefaultLcpPassphrase() !== true)) {
+      this.messageService.add({severity: 'warn', summary: this.t.translate('lcpImport.codeRequired'),
+        detail: this.t.translate('lcpImport.importCodeDescription')});
+      return;
+    }
 
     this.isUploading.set(true);
     this.uploadCompleted.set(false);
@@ -204,7 +250,7 @@ export class BookUploaderComponent {
       this.isUploading.set(false);
       this.uploadCompleted.set(true);
 
-      if (destination === 'bookdrop') {
+      if (destination === 'bookdrop' && this.getFailedCount() === 0) {
         this.ref.close('uploaded_to_bookdrop');
       }
       return;
@@ -219,6 +265,9 @@ export class BookUploaderComponent {
       const formData = new FormData();
       const cleanFile = new File([uploadFile.file], uploadFile.file.name, {type: uploadFile.file.type});
       formData.append('file', cleanFile, uploadFile.file.name);
+      if (this.isLcpFile(uploadFile) && uploadFile.lcpPassphrase) {
+        formData.append('lcpPassphrase', uploadFile.lcpPassphrase);
+      }
 
       let uploadUrl: string;
       if (destination === 'library') {
@@ -246,6 +295,7 @@ export class BookUploaderComponent {
             this.cdr.detectChanges();
           } else if (event.type === HttpEventType.Response) {
             uploadFile.status = 'Uploaded';
+            uploadFile.lcpPassphrase = undefined;
             uploadFile.progress = 100;
             this.cdr.detectChanges();
             if (--pending === 0) {
@@ -278,7 +328,9 @@ export class BookUploaderComponent {
   }
 
   isUploadDisabled(): boolean {
-    return this.isChooseDisabled() || !this.filesPresent() || !this.hasPendingFiles();
+    return this.isChooseDisabled() || !this.filesPresent() || !this.hasPendingFiles()
+      || this.files.some(file => file.status === 'Pending' && this.isLcpFile(file)
+        && !file.lcpPassphrase && this.hasDefaultLcpPassphrase() !== true);
   }
 
   isUploadZoneActive(): boolean {
@@ -319,6 +371,7 @@ export class BookUploaderComponent {
       case 'Pending':
         return this.t.translate('shared.bookUploader.statusReady');
       case 'Uploading':
+        if (this.isLcpFile(uploadFile) && uploadFile.progress === 100) return this.t.translate('lcpImport.converting');
         return this.t.translate('shared.bookUploader.statusUploading');
       case 'Uploaded':
         return this.t.translate('shared.bookUploader.statusUploaded');

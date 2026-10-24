@@ -270,6 +270,7 @@
 
     .file-item-card {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       gap: 0.875rem;
@@ -278,6 +279,16 @@
       border: 1px solid var(--border-color);
       border-radius: 8px;
       transition: all 0.2s ease;
+
+      .lcp-unlock-field {
+        display: flex;
+        flex-direction: column;
+        flex-basis: 100%;
+        gap: 0.4375rem;
+        padding-bottom: 0.75rem;
+
+        small { overflow-wrap: anywhere; }
+      }
 
       &:hover {
         border-color: var(--primary-color);

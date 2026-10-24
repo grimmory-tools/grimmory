@@ -86,7 +86,7 @@
           name="file"
           [customUpload]="true"
           [multiple]="true"
-          accept=".pdf,.epub,.cbz,.cbr,.cb7,.fb2,.mobi,.azw,.azw3,.m4b,.m4a,.mp3,.opus"
+          accept=".pdf,.epub,.lcpl,.cbz,.cbr,.cb7,.fb2,.mobi,.azw,.azw3,.m4b,.m4a,.mp3,.opus"
           (onSelect)="onFilesSelect($event)"
           (uploadHandler)="uploadFiles($event)">
           <ng-template #header let-files let-chooseCallback="chooseCallback" let-clearCallback="clearCallback" let-uploadCallback="uploadCallback">
@@ -165,6 +165,10 @@
                       }
                     </div>
                     <div class="file-actions">
+                      @if (isLcpFile(uploadFile) && uploadFile.status === 'Failed') {
+                        <p-button icon="pi pi-refresh" [label]="'lcpImport.retry' | transloco"
+                                  (onClick)="retryFile(uploadFile)" [disabled]="isUploading()" [text]="true" />
+                      }
                       @switch (uploadFile.status) {
                         @case ('Pending') {
                           <p-button
@@ -207,6 +211,16 @@
                         @default never;
                       }
                     </div>
+                    @if (isLcpFile(uploadFile) && uploadFile.status !== 'Uploaded') {
+                      <div class="lcp-unlock-field">
+                        <label [for]="'lcp-code-' + i">{{ 'lcpImport.importCode' | transloco }}</label>
+                        <small>{{ uploadFile.lcpHint || ('lcpImport.importCodeDescription' | transloco) }}</small>
+                        <input pInputText type="password" [id]="'lcp-code-' + i" [(ngModel)]="uploadFile.lcpPassphrase"
+                               maxlength="1024" autocomplete="off" [disabled]="isUploading()"
+                               [placeholder]="(hasDefaultLcpPassphrase() ? 'lcpImport.useDefault' : 'lcpImport.enterCode') | transloco" />
+                        @if (uploadFile.errorMessage) { <small role="alert">{{ uploadFile.errorMessage }}</small> }
+                      </div>
+                    }
                   </div>
                 }
               </div>

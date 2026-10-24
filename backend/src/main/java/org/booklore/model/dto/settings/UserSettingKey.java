@@ -21,6 +21,7 @@ public enum UserSettingKey {
     METADATA_CENTER_VIEW_MODE("metadataCenterViewMode", false),
     ENABLE_SERIES_VIEW("enableSeriesView", false),
     HARDCOVER_API_KEY("hardcoverApiKey", false),
+    LCP_DEFAULT_USER_KEY("lcpDefaultUserKey", false),
     HARDCOVER_SYNC_ENABLED("hardcoverSyncEnabled", false),
     AUTO_SAVE_METADATA("autoSaveMetadata", false),
     VISIBLE_FILTERS("visibleFilters", true),

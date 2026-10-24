@@ -3,6 +3,7 @@ package org.booklore.controller;
 import org.booklore.config.security.annotation.CheckLibraryAccess;
 import org.booklore.model.dto.Book;
 import org.booklore.service.upload.FileUploadService;
+import org.booklore.service.upload.lcp.LcpImportService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,6 +27,7 @@ import java.io.IOException;
 public class FileUploadController {
 
     private final FileUploadService fileUploadService;
+    private final LcpImportService lcpImportService;
 
     @Operation(summary = "Upload a file", description = "Upload a file to a specific library and path. Requires upload permission or admin.")
     @ApiResponse(responseCode = "204", description = "File uploaded successfully")
@@ -35,11 +37,15 @@ public class FileUploadController {
     public ResponseEntity<?> uploadFile(
             @Parameter(description = "File to upload") @RequestParam("file") MultipartFile file,
             @Parameter(description = "Library ID") @RequestParam("libraryId") long libraryId,
-            @Parameter(description = "Path ID") @RequestParam("pathId") long pathId) {
+            @Parameter(description = "Path ID") @RequestParam("pathId") long pathId,
+            @Parameter(description = "Optional LCP unlock code; uses the current user's default when omitted")
+            @RequestParam(value = "lcpPassphrase", required = false) String lcpPassphrase) throws IOException {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("Uploaded file is missing.");
         }
-        fileUploadService.uploadFile(file, libraryId, pathId);
+        try (var prepared = lcpImportService.prepare(file, lcpPassphrase)) {
+            fileUploadService.uploadFile(prepared.file(), libraryId, pathId);
+        }
         return ResponseEntity.noContent().build();
     }
 
@@ -48,10 +54,13 @@ public class FileUploadController {
     @PreAuthorize("@securityUtil.isAdmin() or @securityUtil.canUpload()")
     @PostMapping(value = "/upload/bookdrop", consumes = "multipart/form-data")
     public ResponseEntity<Book> uploadFile(
-            @Parameter(description = "Book file to upload") @RequestParam("file") MultipartFile file) throws IOException {
+            @Parameter(description = "Book file to upload") @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "lcpPassphrase", required = false) String lcpPassphrase) throws IOException {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("Uploaded file is missing.");
         }
-        return ResponseEntity.ok(fileUploadService.uploadFileBookDrop(file));
+        try (var prepared = lcpImportService.prepare(file, lcpPassphrase)) {
+            return ResponseEntity.ok(fileUploadService.uploadFileBookDrop(prepared.file()));
+        }
     }
 }

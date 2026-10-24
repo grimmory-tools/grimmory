@@ -1,0 +1,14 @@
+<section class="lcp-settings" *transloco="let t; prefix: 'lcpImport'">
+  <h3>{{ t('settingsTitle') }}</h3>
+  <p>{{ t('settingsDescription') }}</p>
+  <p role="status">{{ configured() ? t('defaultConfigured') : t('noDefault') }}</p>
+  <label for="lcp-default-passphrase">{{ t('newDefaultCode') }}</label>
+  <p-password inputId="lcp-default-passphrase" [(ngModel)]="passphrase" [feedback]="false"
+              [toggleMask]="true" [maxlength]="1024" [disabled]="busy()" [inputStyle]="{width: '100%'}" autocomplete="off" />
+  <div class="lcp-actions">
+    <p-button [label]="t('saveDefault')" (onClick)="save()" [disabled]="busy() || !passphrase" />
+    <p-button [label]="t('removeDefault')" (onClick)="clear()" severity="secondary" [outlined]="true"
+              [disabled]="busy() || !configured()" />
+  </div>
+  @if (error()) { <p class="lcp-error" role="alert">{{ error() }}</p> }
+</section>

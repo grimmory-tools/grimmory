@@ -52,6 +52,8 @@ public enum ApiError {
     REMOTE_AUTH_DISABLED(HttpStatus.NON_AUTHORITATIVE_INFORMATION, "Remote login is disabled"),
     SELF_DELETION_NOT_ALLOWED(HttpStatus.FORBIDDEN, "You cannot delete your own account"),
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "%s"),
+    LCP_PASSPHRASE_REQUIRED(HttpStatus.UNPROCESSABLE_ENTITY, "An LCP unlock code is required. Enter one for this import or configure a default in your profile."),
+    LCP_PASSPHRASE_INCORRECT(HttpStatus.UNPROCESSABLE_ENTITY, "The LCP unlock code does not match this license. Enter a different code and retry."),
     FILE_DELETION_DISABLED(HttpStatus.BAD_REQUEST, "File deletion is disabled"),
     UNSUPPORTED_FILE_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "%s"),
     CONFLICT(HttpStatus.CONFLICT, "%s"),

@@ -1,4 +1,21 @@
 {
+  "lcpImport": {
+    "settingsTitle": "LCP book imports",
+    "settingsDescription": "Save an unlock code for importing LCP licenses as EPUB books. You can override it for each import.",
+    "defaultConfigured": "A default unlock code is configured for your account.",
+    "noDefault": "No default code saved. You will be asked for one when importing an LCP license.",
+    "newDefaultCode": "New default unlock code",
+    "saveDefault": "Save code",
+    "removeDefault": "Remove code",
+    "settingsError": "Could not update LCP settings. Please try again.",
+    "importCode": "LCP unlock code",
+    "importCodeDescription": "Enter the code provided by your library or bookseller. This code is used only for this import.",
+    "codeRequired": "An LCP unlock code is required",
+    "useDefault": "Leave empty to use your saved code",
+    "enterCode": "Enter the unlock code",
+    "retry": "Retry",
+    "converting": "Converting to EPUB"
+  },
   "common": {
     "save": "Save",
     "cancel": "Cancel",
@@ -1546,7 +1563,7 @@
       "filesCount": "{{ uploaded }}/{{ total }} files",
       "failedCount": "({{ count }} failed)",
       "dragDropTitle": "Drag and Drop Files",
-      "supportedFormats": "Supported formats: <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.mobi</strong>, <strong>.azw</strong>, <strong>.azw3</strong>, <strong>.m4b</strong>, <strong>.m4a</strong>, <strong>.mp3</strong>, <strong>.opus</strong>",
+      "supportedFormats": "Supported formats: <strong>.pdf</strong>, <strong>.epub</strong>, <strong>.lcpl</strong> (converted to EPUB), <strong>.cbz</strong>, <strong>.cbr</strong>, <strong>.cb7</strong>, <strong>.fb2</strong>, <strong>.mobi</strong>, <strong>.azw</strong>, <strong>.azw3</strong>, <strong>.m4b</strong>, <strong>.m4a</strong>, <strong>.mp3</strong>, <strong>.opus</strong>",
       "maxFileSize": "Maximum file size: {{ size }} per file",
       "fileTooLargeTooltip": "File too large",
       "uploadFailedTooltip": "Upload failed",

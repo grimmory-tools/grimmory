@@ -7,6 +7,7 @@ import {User, UserProfileUpdateRequest, UserService} from '../user-management/us
 import {MessageService} from '@openng/optimus-ui/api';
 import {DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
+import {LcpImportSettingsComponent} from '../lcp-import-settings/lcp-import-settings.component';
 
 export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const newPassword = control.get('newPassword');
@@ -29,6 +30,7 @@ export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): V
     Password,
     TranslocoDirective,
     TranslocoPipe,
+    LcpImportSettingsComponent,
   ],
   templateUrl: './user-profile-dialog.component.html',
   styleUrls: ['./user-profile-dialog.component.scss']

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.http.client.ClientHttpRequestFactoryBuilder;
 import org.springframework.boot.http.client.HttpClientSettings;
+import org.springframework.boot.http.client.HttpRedirects;
 import org.springframework.boot.http.client.InetAddressFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -68,10 +69,22 @@ public class RestClientConfig {
     }
 
     @Bean
+    @Primary
     public RestClient restClient(ClientHttpRequestFactory clientHttpRequestFactory) {
         return RestClient.builder()
                 .requestFactory(clientHttpRequestFactory)
                 .build();
+    }
+
+    @Bean("lcpRestClient")
+    public RestClient lcpRestClient(InetAddressFilter outboundInetAddressFilter) {
+        var settings = HttpClientSettings.defaults()
+                .withConnectTimeout(Duration.ofSeconds(appProperties.getOutbound().getConnectTimeout()))
+                .withReadTimeout(Duration.ofSeconds(appProperties.getOutbound().getReadTimeout()))
+                .withRedirects(HttpRedirects.DONT_FOLLOW)
+                .withInetAddressFilter(outboundInetAddressFilter.and(InetAddressFilter.externalAddresses())
+                        .andNot(InetAddressFilter.specialPurpose(), InetAddressFilter.multicast()));
+        return RestClient.builder().requestFactory(ClientHttpRequestFactoryBuilder.jdk().build(settings)).build();
     }
 
     @Bean
