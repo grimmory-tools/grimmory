@@ -20,6 +20,8 @@ import {TableModule} from '@openng/optimus-ui/table';
 import {Dialog} from '@openng/optimus-ui/dialog';
 import {TagComponent} from '../../../shared/components/tag/tag.component';
 import {Chip} from '@openng/optimus-ui/chip';
+import {API_CONFIG} from '../../config/api-config';
+import {appUrl} from '../../config/app-url';
 
 @Component({
   selector: 'app-authentication-settings',
@@ -89,15 +91,15 @@ export class AuthenticationSettingsComponent {
 
   editingLibraryIds: number[] = [];
   sessionDurationHours: number | null = null;
-  backchannelLogoutUri = `${window.location.origin}/api/v1/auth/oidc/backchannel-logout`;
+  backchannelLogoutUri = `${API_CONFIG.BASE_URL}/api/v1/auth/oidc/backchannel-logout`;
   oidcForceOnlyMode = false;
   mobileRedirectUris: string[] = [this.defaultMobileRedirectUri];
   mobileRedirectUriInput = '';
 
   infoItems = [
-    {labelKey: 'infoPanel.redirectUri', value: `${window.location.origin}/oauth2-callback`},
-    {labelKey: 'infoPanel.postLogoutRedirectUri', value: `${window.location.origin}/login`},
-    {labelKey: 'infoPanel.backChannelLogoutUri', value: `${window.location.origin}/api/v1/auth/oidc/backchannel-logout`},
+    {labelKey: 'infoPanel.redirectUri', value: appUrl('oauth2-callback')},
+    {labelKey: 'infoPanel.postLogoutRedirectUri', value: appUrl('login')},
+    {labelKey: 'infoPanel.backChannelLogoutUri', value: `${API_CONFIG.BASE_URL}/api/v1/auth/oidc/backchannel-logout`},
     {labelKey: 'infoPanel.requiredScopes', value: 'openid profile email groups offline_access'},
     {labelKey: 'infoPanel.pkceMethod', value: 'S256'},
     {labelKey: 'infoPanel.grantType', value: 'Authorization Code'},

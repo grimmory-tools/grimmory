@@ -1,5 +1,6 @@
 package org.booklore.mapper.komga;
 
+import jakarta.servlet.ServletContext;
 import org.booklore.context.KomgaCleanContext;
 import org.booklore.model.dto.MagicShelf;
 import org.booklore.model.dto.komga.*;
@@ -24,6 +25,7 @@ public class KomgaMapper {
 
     private static final Pattern NON_ALPHANUMERIC_PATTERN = Pattern.compile("[^a-z0-9]+");
     private final AppSettingService appSettingService;
+    private final ServletContext servletContext;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
     private static final String UNKNOWN_SERIES = "Unknown Series";
 
@@ -49,7 +51,7 @@ public class KomgaMapper {
                 .seriesTitle(getBookSeriesName(book))
                 .libraryId(book.getLibrary().getId().toString())
                 .name(metadata != null ? metadata.getTitle() : bookFile.getFileName())
-                .url("/komga/api/v1/books/" + book.getId())
+                .url(servletContext.getContextPath() + "/komga/api/v1/books/" + book.getId())
                 .number(metadata != null && metadata.getSeriesNumber() != null 
                        ? metadata.getSeriesNumber().intValue() 
                        : 1)
@@ -82,7 +84,7 @@ public class KomgaMapper {
                 .id(seriesId)
                 .libraryId(libraryId.toString())
                 .name(seriesName)
-                .url("/komga/api/v1/series/" + seriesId)
+                .url(servletContext.getContextPath() + "/komga/api/v1/series/" + seriesId)
                 .created(firstBook.getAddedOn())
                 .lastModified(firstBook.getAddedOn())
                 .fileLastModified(firstBook.getAddedOn())

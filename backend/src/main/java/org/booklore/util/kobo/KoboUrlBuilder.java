@@ -17,7 +17,6 @@ public class KoboUrlBuilder {
     public UriComponentsBuilder baseBuilder() {
         UriComponentsBuilder builder = ServletUriComponentsBuilder
                 .fromCurrentContextPath()
-                .replacePath("")
                 .replaceQuery(null);
 
         UriComponents built = builder.build();

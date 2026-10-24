@@ -17,8 +17,8 @@ public class KomgaCleanInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String requestURI = request.getRequestURI();
-        
+        String requestURI = request.getServletPath();
+
         // Only apply to Komga API endpoints
         if (requestURI != null && requestURI.startsWith("/komga/api")) {
             String cleanParam = request.getParameter("clean");
@@ -27,7 +27,7 @@ public class KomgaCleanInterceptor implements HandlerInterceptor {
             boolean cleanMode = cleanParam != null && (cleanParam.isEmpty() || "true".equalsIgnoreCase(cleanParam));
             KomgaCleanContext.setCleanMode(cleanMode);
         }
-        
+
         return true;
     }
 

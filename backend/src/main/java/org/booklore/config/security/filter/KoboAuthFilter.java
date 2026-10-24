@@ -37,7 +37,7 @@ public class KoboAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        String path = request.getRequestURI();
+        String path = request.getServletPath();
         String[] parts = path.split("/");
         if (parts.length < 4) {
             log.warn("KOBO token missing in path");
