@@ -43,7 +43,7 @@
     "@openng/optimus-ui-themes": "^2.0.2",
     "@stomp/rx-stomp": "^2.4.0",
     "@stomp/stompjs": "^7.5.0",
-    "@tanstack/angular-query-experimental": "5.104.2",
+    "@tanstack/angular-query-experimental": "5.104.5",
     "@tanstack/angular-table": "9.3.1",
     "@tanstack/angular-virtual": "^6.1.4",
     "chart.js": "^4.5.1",
