@@ -25,8 +25,8 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/aria": "^22.2.3",
-    "@angular/cdk": "^22.2.3",
+    "@angular/aria": "^22.2.4",
+    "@angular/cdk": "^22.2.4",
     "@angular/common": "^22.2.3",
     "@angular/compiler": "^22.2.3",
     "@angular/core": "^22.2.3",
