@@ -1,3 +1,4 @@
+import {HttpErrorResponse} from '@angular/common/http';
 import {Component, computed, effect, inject, signal} from '@angular/core';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {FormsModule} from '@angular/forms';
@@ -14,7 +15,8 @@ import {LibraryService} from '../../service/library.service';
 import {Library} from '../../model/library.model';
 import {CreatePhysicalBookRequest} from '../../model/book.model';
 import {MetadataSourceQueryService} from '../../../metadata/sources/metadata-source-query.service';
-import {TranslocoDirective} from '@jsverse/transloco';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {MessageService} from '@openng/optimus-ui/api';
 
 @Component({
   selector: 'app-add-physical-book-dialog',
@@ -40,6 +42,8 @@ export class AddPhysicalBookDialogComponent {
   private readonly queryClient = inject(QueryClient);
   private readonly sources = inject(MetadataSourceQueryService);
   private readonly libraryService = inject(LibraryService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
 
   selectedLibraryId: number | null = null;
   title: string = '';
@@ -179,8 +183,14 @@ export class AddPhysicalBookDialogComponent {
         this.isLoading.set(false);
         this.dynamicDialogRef.close(book);
       },
-      error: () => {
+      error: (error: unknown) => {
         this.isLoading.set(false);
+        const message: unknown = error instanceof HttpErrorResponse ? error.error?.message : null;
+        this.messageService.add({
+          severity: 'error',
+          summary: this.t.translate('book.bookService.toast.creationFailedSummary'),
+          detail: typeof message === 'string' ? message : this.t.translate('book.bookService.toast.creationFailedDetail')
+        });
       }
     });
   }

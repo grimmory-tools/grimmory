@@ -234,14 +234,6 @@ export class BookService {
           summary: this.t.translate('book.bookService.toast.physicalBookCreatedSummary'),
           detail: this.t.translate('book.bookService.toast.physicalBookCreatedDetail', {title: newBook.metadata?.title || 'Book'})
         });
-      }),
-      catchError(error => {
-        this.messageService.add({
-          severity: 'error',
-          summary: this.t.translate('book.bookService.toast.creationFailedSummary'),
-          detail: error?.error?.message || error?.message || this.t.translate('book.bookService.toast.creationFailedDetail')
-        });
-        return throwError(() => error);
       })
     );
   }
