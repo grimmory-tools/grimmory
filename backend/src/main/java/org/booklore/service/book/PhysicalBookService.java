@@ -53,10 +53,10 @@ public class PhysicalBookService {
         String isbn = ParserUtils.cleanIsbn(request.getIsbn());
         String isbn13 = isbn != null && isbn.length() == 13 ? isbn : null;
         String isbn10 = isbn != null && isbn.length() == 10 ? isbn : null;
-        String matchIsbn13 = BookUtils.toIsbn13(isbn13, isbn10);
-        String matchIsbn10 = BookUtils.toIsbn10(isbn13, isbn10);
+        String matchIsbn13 = isbn13 != null ? isbn13 : BookUtils.isbn10To13(isbn10);
+        String matchIsbn10 = isbn10 != null ? isbn10 : BookUtils.isbn13to10(isbn13);
         if (matchIsbn13 != null && bookRepository.existsInLibraryByIsbn(library.getId(), matchIsbn13, matchIsbn10)) {
-            throw ApiError.BOOK_ALREADY_IN_LIBRARY.createException(request.getIsbn());
+            throw ApiError.BOOK_ALREADY_IN_LIBRARY.createException(isbn13 != null ? isbn13 : isbn10);
         }
 
         BookEntity bookEntity = BookEntity.builder()

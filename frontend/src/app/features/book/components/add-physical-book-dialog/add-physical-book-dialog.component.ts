@@ -1,5 +1,5 @@
-import {HttpErrorResponse} from '@angular/common/http';
 import {Component, computed, effect, inject, signal} from '@angular/core';
+import {HttpErrorResponse} from '@angular/common/http';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {FormsModule} from '@angular/forms';
 import {Button} from '@openng/optimus-ui/button';
@@ -183,14 +183,15 @@ export class AddPhysicalBookDialogComponent {
         this.isLoading.set(false);
         this.dynamicDialogRef.close(book);
       },
-      error: (error: unknown) => {
+      error: (err: unknown) => {
         this.isLoading.set(false);
-        const message: unknown = error instanceof HttpErrorResponse ? error.error?.message : null;
-        this.messageService.add({
-          severity: 'error',
-          summary: this.t.translate('book.bookService.toast.creationFailedSummary'),
-          detail: typeof message === 'string' ? message : this.t.translate('book.bookService.toast.creationFailedDetail')
-        });
+        if (err instanceof HttpErrorResponse && err.status === 409) {
+          this.messageService.add({
+            severity: 'error',
+            summary: this.t.translate('book.bookService.toast.creationFailedSummary'),
+            detail: this.t.translate('book.bulkIsbnImport.reason.alreadyExists')
+          });
+        }
       }
     });
   }

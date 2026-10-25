@@ -201,7 +201,7 @@
       "count": 1
     },
     "typescript/no-unsafe-member-access": {
-      "count": 3
+      "count": 2
     }
   },
   "src/app/features/book/components/additional-file-uploader/additional-file-uploader.component.ts": {
@@ -495,13 +495,13 @@
       "count": 1
     },
     "typescript/no-unsafe-assignment": {
-      "count": 1
-    },
-    "typescript/no-unsafe-member-access": {
       "count": 2
     },
+    "typescript/no-unsafe-member-access": {
+      "count": 4
+    },
     "typescript/no-unsafe-return": {
-      "count": 1
+      "count": 2
     },
     "typescript/switch-exhaustiveness-check": {
       "count": 1

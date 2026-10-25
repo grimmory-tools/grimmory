@@ -78,7 +78,10 @@ public class DuplicateDetectionService {
             BookMetadataEntity meta = book.getMetadata();
             if (meta == null) continue;
 
-            String isbn13 = BookUtils.toIsbn13(meta.getIsbn13(), meta.getIsbn10());
+            String isbn13 = meta.getIsbn13();
+            if (isbn13 == null && meta.getIsbn10() != null) {
+                isbn13 = BookUtils.isbn10To13(meta.getIsbn10());
+            }
             if (isbn13 != null && !isbn13.isBlank()) {
                 isbnGroups.computeIfAbsent(isbn13.trim(), k -> new ArrayList<>()).add(book);
             }

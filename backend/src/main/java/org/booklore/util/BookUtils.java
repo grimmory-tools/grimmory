@@ -118,14 +118,6 @@ public class BookUtils {
         return s;
     }
     
-    public static String toIsbn13(String isbn13, String isbn10) {
-        return isbn13 != null ? isbn13 : isbn10To13(isbn10);
-    }
-
-    public static String toIsbn10(String isbn13, String isbn10) {
-        return isbn10 != null ? isbn10 : isbn13to10(isbn13);
-    }
-
     public static String isbn10To13(String isbn10) {
         if (isbn10 == null || isbn10.length() != 10) {
             return null;
