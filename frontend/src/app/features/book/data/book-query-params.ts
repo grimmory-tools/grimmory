@@ -1,4 +1,4 @@
-import {unmarkedBrowseFacetKey, type BrowseFacetKey, type BrowseFacetSelection} from '../../../shared/browse/facets';
+import {browseFacetEntries, withBrowseFacetValues, type BrowseFacetSelection} from '../../../shared/browse/facets';
 import {HttpParams} from '@angular/common/http';
 
 import {
@@ -80,6 +80,7 @@ export type BookSortTerm = BrowseSortTerm<BookQuerySortKey>;
 export interface BookCollectionFilterParams {
   query?: string;
   facets: FacetValueMap;
+  scope?: {readonly facetKey: BookQueryFacetKey; readonly facetValue: string};
 }
 
 export interface BookQueryParams extends BookCollectionFilterParams {
@@ -106,35 +107,37 @@ export function isBookQuerySortKey(value: string): value is BookQuerySortKey {
   return BOOK_QUERY_SORT_KEY_SET.has(value);
 }
 
-function isMarkedBookQueryFacetKey(value: string): value is BrowseFacetKey<BookQueryFacetKey> {
-  return isBookQueryFacetKey(unmarkedBrowseFacetKey(value));
-}
-
 export function parseFacetParams(tokens: readonly string[]): FacetValueMap {
-  const facets = new Map<BrowseFacetKey<BookQueryFacetKey>, string[]>();
+  const facets: Partial<Record<BookQueryFacetKey, {include: string[]; exclude: string[]; matchAll?: true}>> = {};
   for (const token of tokens) {
     const separator = token.indexOf(':');
-    if (separator <= 0) {
-      continue;
-    }
-    const key = token.slice(0, separator);
-    if (!isMarkedBookQueryFacetKey(key)) {
-      continue;
-    }
+    const mark = token.startsWith('+') || token.startsWith('-') ? token[0] : '';
+    const key = token.slice(mark.length, separator);
     const value = token.slice(separator + 1).trim();
-    const values = facets.get(key) ?? [];
-    if (value && !values.includes(value)) {
+    if (separator <= mark.length || !value || !isBookQueryFacetKey(key)) {
+      continue;
+    }
+    const facet = facets[key] ??= {include: [], exclude: []};
+    const values = mark === '-' ? facet.exclude : facet.include;
+    if (!values.includes(value)) {
       values.push(value);
     }
-    facets.set(key, values);
+    if (mark === '+') {
+      facet.matchAll = true;
+    }
   }
-  return Object.fromEntries([...facets].filter(([, values]) => values.length > 0));
+  return facets;
+}
+
+function facetTokens(facets: FacetValueMap): string[] {
+  return browseFacetEntries(facets, isBookQueryFacetKey).flatMap(([key, values]) => [
+    ...values.include.map(value => `${values.matchAll ? '+' : ''}${key}:${value}`),
+    ...values.exclude.map(value => `-${key}:${value}`),
+  ]);
 }
 
 export function bookFacetQueryParams(facets: FacetValueMap) {
-  const tokens = Object.entries(facets).flatMap(([key, values]) =>
-    values.map(value => `${key}:${value}`),
-  );
+  const tokens = facetTokens(facets);
   return {facet: tokens.length > 0 ? tokens : null};
 }
 
@@ -203,6 +206,7 @@ export function normalizeBookCollectionFilterParams(
   return {
     ...(query ? {query} : {}),
     facets,
+    ...(params.scope ? {scope: {facetKey: params.scope.facetKey, facetValue: params.scope.facetValue}} : {}),
   };
 }
 
@@ -213,31 +217,24 @@ export function toCollectionHttpParams(params: BookCollectionFilterParams): Http
     httpParams = httpParams.set('query', params.query);
   }
 
-  return appendFacetParams(httpParams, params.facets);
+  const scope = params.scope ? [`+${params.scope.facetKey}:${params.scope.facetValue}`] : [];
+  return [...scope, ...facetTokens(params.facets)].reduce((result, token) => result.append('facet', token), httpParams);
 }
 
 function compareCodeUnits(first: string, second: string): number {
   return first < second ? -1 : first > second ? 1 : 0;
 }
 
-function normalizeFacetValueMap(facets: FacetValueMap): FacetValueMap {
-  const normalized = Object.entries(facets)
-    .sort(([first], [second]) => compareCodeUnits(first, second))
-    .map(([key, values]) => [key, [...new Set(values
-      .map(value => value.trim())
-      .filter(Boolean))].sort(compareCodeUnits)] as const)
-    .filter(([, values]) => values.length > 0);
-
-  return Object.fromEntries(normalized);
+function normalizeValues(values: readonly string[]): string[] {
+  return [...new Set(values.map(value => value.trim()).filter(Boolean))].sort(compareCodeUnits);
 }
 
-function appendFacetParams(httpParams: HttpParams, facets: FacetValueMap): HttpParams {
-  let result = httpParams;
-  for (const [key, values] of Object.entries(facets)) {
-    for (const value of values) {
-      result = result.append('facet', `${key}:${value}`);
-    }
-  }
-
-  return result;
+function normalizeFacetValueMap(facets: FacetValueMap): FacetValueMap {
+  return browseFacetEntries(facets, isBookQueryFacetKey)
+    .sort(([first], [second]) => compareCodeUnits(first, second))
+    .reduce<FacetValueMap>((normalized, [key, values]) => withBrowseFacetValues(normalized, key, {
+      ...values,
+      include: normalizeValues(values.include),
+      exclude: normalizeValues(values.exclude),
+    }), {});
 }

@@ -1,5 +1,4 @@
-import {NgTemplateOutlet} from '@angular/common';
-import {Component, Injector, afterNextRender, booleanAttribute, computed, ElementRef, inject, input, linkedSignal, model, output, signal, untracked} from '@angular/core';
+import {Component, Injector, afterNextRender, booleanAttribute, computed, ElementRef, inject, input, linkedSignal, model, output, signal} from '@angular/core';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {LucideCheck, LucideChevronDown, LucideMinus, LucideSearch, LucideSlidersHorizontal, LucideX} from '@lucide/angular';
 
@@ -37,7 +36,6 @@ const REVEAL_CLASS = 'grid transition-[grid-template-rows] duration-200 ease-out
 @Component({
   selector: 'app-browse-filter-section',
   imports: [
-    NgTemplateOutlet,
     TranslocoPipe,
     AppButtonComponent,
     AppInputComponent,
@@ -94,16 +92,7 @@ export class BrowseFilterSectionComponent<K extends string = string> {
     'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary ' +
     'pointer-coarse:min-h-11 pointer-coarse:text-[13px] pointer-coarse:pl-9';
 
-  protected readonly matchable = computed(() => this.isOpen() && (this.group().multiValued ?? false));
-  private readonly addressMatchAll = computed(() => {
-    const group = this.group();
-    const ticked = [...(group.picks?.values() ?? [])].includes('included');
-    return ticked ? group.matchAll ?? false : null;
-  });
-  protected readonly matchAll = linkedSignal<boolean | null, boolean>({
-    source: this.addressMatchAll,
-    computation: (fromAddress, previous) => fromAddress ?? previous?.value ?? false,
-  });
+  protected readonly matchable = computed(() => this.isOpen() && this.group().multiValued);
   protected readonly headerButtonClass = computed(() =>
     cn(
       'flex min-h-9 flex-1 cursor-pointer items-center gap-1.5 text-left pointer-coarse:min-h-12',
@@ -112,8 +101,7 @@ export class BrowseFilterSectionComponent<K extends string = string> {
     ));
 
   protected onMatchAll(value: string): void {
-    this.matchAll.set(value === 'all');
-    this.matchAllChange.emit({key: this.group().key, matchAll: this.matchAll()});
+    this.matchAllChange.emit({key: this.group().key, matchAll: value === 'all'});
   }
 
   protected toggleOpen(): void {
@@ -135,41 +123,34 @@ export class BrowseFilterSectionComponent<K extends string = string> {
 
   protected readonly foldLimit = computed(() => this.group().showAllValues ? Infinity : COLLAPSED_VALUE_COUNT);
 
-  protected readonly foldClass = computed(() =>
-    this.group().showAllValues || this.expanded()
+  protected readonly foldClass = computed(() => {
+    if (this.activeQuery()) {
+      return 'min-h-56 pointer-coarse:min-h-[22rem]';
+    }
+    return this.group().showAllValues || this.expanded()
       ? ''
-      : 'min-h-[calc(8*1.75rem+1.875rem)] pointer-coarse:min-h-[calc(8*2.75rem+2.875rem)]');
-
-  private readonly clicked = signal<{value: string; slot: number; from: BrowseFilterValue[]} | null>(null);
-  private readonly values = computed(() => this.group().values);
-  private readonly appliedClick = linkedSignal<BrowseFilterValue[], {value: string; slot: number} | null>({
-    source: this.values,
-    computation: (_values, previous) => {
-      const click = untracked(this.clicked);
-      return click && click.from === previous?.source ? click : null;
-    },
+      : 'min-h-[calc(8*1.75rem+1.875rem)] pointer-coarse:min-h-[calc(8*2.75rem+2.875rem)]';
   });
 
-  protected readonly visibleValues = computed(() => {
+  private readonly held = linkedSignal<readonly [boolean, boolean, string], {value: string; slot: number} | null>({
+    source: () => [this.isOpen(), this.expanded(), this.activeQuery()],
+    computation: () => null,
+  });
+
+  private readonly visibleValues = computed(() => {
     const query = this.activeQuery();
     const values = query ? this.matches(query) : this.group().values;
-    const limit = query ? Infinity : this.foldLimit();
-    const click = this.appliedClick();
-    const item = click ? values.find(candidate => candidate.value === click.value) : undefined;
-    if (!click || !item) {
-      return this.fold(values, limit);
+    const limit = query || this.expanded() ? Infinity : this.foldLimit();
+    const held = this.held();
+    const kept = (candidate: BrowseFilterValue) => this.state(candidate) !== null;
+    const item = held ? values.find(candidate => candidate.value === held.value) : undefined;
+    if (!held || !item) {
+      return foldValues(values, limit, kept);
     }
-    const shown = this.fold(values.filter(candidate => candidate !== item), limit - 1);
-    shown.splice(Math.min(click.slot, shown.length), 0, item);
+    const shown = foldValues(values.filter(candidate => candidate !== item), limit - 1, kept);
+    shown.splice(Math.min(held.slot, shown.length), 0, item);
     return shown;
   });
-
-  private fold(values: BrowseFilterValue[], limit: number): BrowseFilterValue[] {
-    if (this.expanded()) {
-      return [...values];
-    }
-    return foldValues(values, limit, item => this.state(item) !== null);
-  }
 
   protected onExpandToggle(): void {
     this.expanded.update(expanded => !expanded);
@@ -197,73 +178,59 @@ export class BrowseFilterSectionComponent<K extends string = string> {
     return this.group().values.filter(item => normalizeLocalSearchTerm(item.label).includes(needle));
   }
 
-  protected state(item: BrowseFilterValue): BrowseFacetState | null {
-    const picks = this.group().picks;
-    return picks ? picks.get(item.value) ?? null : item.state;
+  private state(item: BrowseFilterValue): BrowseFacetState | null {
+    return this.group().picks?.get(item.value) ?? null;
   }
 
-  protected onRowToggle(item: BrowseFilterValue, target: BrowseFacetState): void {
-    this.clicked.set({value: item.value, slot: this.visibleValues().indexOf(item), from: this.values()});
-    this.toggleValue.emit({key: this.group().key, value: item.value, state: this.state(item) === target ? null : target, matchAll: this.matchAll()});
-  }
+  protected readonly rows = computed(() => {
+    const boxes = this.alwaysShowBoxes();
+    return this.visibleValues().map(item => {
+      const state = this.state(item);
+      const zero = item.count === 0 && state === null && this.held()?.value !== item.value;
+      const trailing = boxes ? 'boxes' : state === 'excluded' ? 'excluded' : zero ? 'count' : 'swap';
+      return {
+        item,
+        state,
+        zero,
+        rowClass: cn(
+          'group/frow relative flex min-h-7 w-full items-stretch rounded-md text-text-secondary pointer-coarse:min-h-11',
+          'hover:bg-surface-hover hover:text-text',
+          zero && 'opacity-45',
+        ),
+        boxClass: cn(
+          checkIndicatorBaseClass,
+          state === 'included' ? checkIndicatorCheckedClass : checkIndicatorUncheckedClass,
+          !boxes && state !== 'included' && 'opacity-0 group-hover/frow:opacity-100',
+        ),
+        labelClass: cn(
+          'min-w-0 flex-1 truncate',
+          item.stars && 'flex items-center',
+          state && 'font-[550] text-text',
+          state === 'excluded' && 'line-through',
+        ),
+        countClass: cn(
+          'min-w-6 shrink-0 text-right text-[11.5px] tabular-nums text-text-muted pointer-coarse:text-xs',
+          trailing === 'excluded' && 'pointer-fine:invisible',
+          trailing === 'swap' && 'pointer-fine:group-hover/frow:invisible pointer-fine:group-has-[:focus-visible]/frow:invisible',
+        ),
+        excludeClass: cn(
+          'group/fexc flex shrink-0 cursor-pointer items-center rounded-md px-2 pointer-coarse:px-3',
+          'focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary',
+          !boxes && 'pointer-fine:absolute pointer-fine:inset-y-0 pointer-fine:right-0',
+          (trailing === 'swap' || trailing === 'count') && 'opacity-0 pointer-coarse:opacity-100',
+          trailing === 'swap' && 'group-hover/frow:opacity-100 group-has-[:focus-visible]/frow:opacity-100',
+        ),
+        excludeBoxClass: state === 'excluded'
+          ? cn(checkIndicatorBaseClass, checkIndicatorExcludedClass)
+          : cn(checkIndicatorBaseClass, checkIndicatorUncheckedClass, 'text-text-muted/60 group-hover/fexc:border-danger group-hover/fexc:text-danger'),
+      };
+    });
+  });
 
-  protected isZero(item: BrowseFilterValue): boolean {
-    return item.count === 0 && item.state === null && !this.state(item);
-  }
-
-  protected rowClass(item: BrowseFilterValue): string {
-    return cn(
-      'group/frow relative flex min-h-7 w-full items-stretch rounded-md text-text-secondary pointer-coarse:min-h-11',
-      'hover:bg-surface-hover hover:text-text',
-      this.isZero(item) && 'opacity-45',
-    );
-  }
-
-  protected excludeClass(item: BrowseFilterValue): string {
-    const inCountSlot = !this.alwaysShowBoxes();
-    return cn(
-      'group/fexc flex shrink-0 cursor-pointer items-center rounded-md px-2 pointer-coarse:px-3',
-      'focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary',
-      inCountSlot && 'pointer-fine:absolute pointer-fine:inset-y-0 pointer-fine:right-0',
-      inCountSlot && this.state(item) !== 'excluded' && 'opacity-0 pointer-coarse:opacity-100',
-      inCountSlot && this.state(item) !== 'excluded' && !this.isZero(item) &&
-        'group-hover/frow:opacity-100 group-has-[:focus-visible]/frow:opacity-100',
-    );
-  }
-
-  protected countClass(item: BrowseFilterValue): string {
-    const inCountSlot = !this.alwaysShowBoxes();
-    return cn(
-      'min-w-6 shrink-0 text-right text-[11.5px] tabular-nums text-text-muted pointer-coarse:text-xs',
-      inCountSlot && this.state(item) === 'excluded' && 'pointer-fine:invisible',
-      inCountSlot && this.state(item) !== 'excluded' && !this.isZero(item) &&
-        'pointer-fine:group-hover/frow:invisible pointer-fine:group-has-[:focus-visible]/frow:invisible',
-    );
-  }
-
-  protected boxClass(item: BrowseFilterValue): string {
-    const included = this.state(item) === 'included';
-    return cn(
-      checkIndicatorBaseClass,
-      included ? checkIndicatorCheckedClass : checkIndicatorUncheckedClass,
-      !this.alwaysShowBoxes() && !included && 'opacity-0 group-hover/frow:opacity-100',
-    );
-  }
-
-  protected excludeBoxClass(item: BrowseFilterValue): string {
-    return this.state(item) === 'excluded'
-      ? cn(checkIndicatorBaseClass, checkIndicatorExcludedClass)
-      : cn(checkIndicatorBaseClass, checkIndicatorUncheckedClass, 'text-text-muted/60 group-hover/fexc:border-danger group-hover/fexc:text-danger');
-  }
-
-  protected labelClass(item: BrowseFilterValue): string {
-    const state = this.state(item);
-    return cn(
-      'min-w-0 flex-1 truncate',
-      item.stars && 'flex items-center',
-      state && 'font-[550] text-text',
-      state === 'excluded' && 'line-through',
-    );
+  protected onRowToggle(slot: number, target: BrowseFacetState): void {
+    const {item, state} = this.rows()[slot];
+    this.held.set({value: item.value, slot});
+    this.toggleValue.emit({key: this.group().key, value: item.value, state: state === target ? null : target});
   }
 }
 

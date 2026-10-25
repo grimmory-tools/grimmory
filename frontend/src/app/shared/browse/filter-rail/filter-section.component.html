@@ -6,7 +6,7 @@
     [attr.aria-expanded]="isOpen()"
     (click)="toggleOpen()">
     <h3 class="m-0 text-[13px] font-semibold text-text-secondary group-hover/ghead:text-text pointer-coarse:text-base">{{ group.labelKey | transloco }}</h3>
-    @if (matchAll()) {
+    @if (group.matchAll) {
       <app-tag size="sm" styleClass="px-1! py-px! text-[10px]!">{{ 'browse.rail.all' | transloco }}</app-tag>
     }
     @if (!isOpen() && selectedCount() > 0) {
@@ -49,7 +49,7 @@
         <svg lucideSlidersHorizontal aria-hidden="true"></svg>
       </app-button>
       <app-menu #matchMenu [ariaLabel]="'browse.rail.matchOptions' | transloco">
-        <app-menu-radio-group [value]="matchAll() ? 'all' : 'any'" (valueSelected)="onMatchAll($event)">
+        <app-menu-radio-group [value]="group.matchAll ? 'all' : 'any'" (valueSelected)="onMatchAll($event)">
           <app-menu-radio value="any">{{ 'browse.rail.matchAny' | transloco }}</app-menu-radio>
           <app-menu-radio value="all">{{ 'browse.rail.matchAll' | transloco }}</app-menu-radio>
         </app-menu-radio-group>
@@ -78,30 +78,64 @@
 
     @if (hasEverOpened()) {
       <span [id]="excludedLabelId()" hidden>{{ 'browse.rail.excluded' | transloco }}</span>
-      @if (activeQuery()) {
-        <ul class="m-0 flex min-h-56 list-none flex-col p-0 pointer-coarse:min-h-[22rem]">
-          @for (item of visibleValues(); track item.value) {
-            <li><ng-container *ngTemplateOutlet="row; context: {item}" /></li>
-          } @empty {
-            <li class="px-1.5 py-1.5 text-xs text-text-muted pointer-coarse:px-2 pointer-coarse:text-[13px]">
-              {{ 'browse.rail.noMatches' | transloco }}
+      <div [class]="foldClass()">
+        <ul class="m-0 flex list-none flex-col p-0">
+          @for (row of rows(); track row.item.value) {
+            @let item = row.item;
+            <li [class]="row.rowClass">
+              <button
+                type="button"
+                [class]="includeClass()"
+                [disabled]="row.zero"
+                [attr.title]="item.label"
+                [attr.aria-label]="item.stars ? item.label : null"
+                [attr.aria-pressed]="row.state === 'included'"
+                [attr.aria-describedby]="row.state === 'excluded' ? excludedLabelId() : null"
+                (click)="onRowToggle($index, 'included')">
+                <span [class]="row.boxClass" aria-hidden="true">
+                  @if (row.state === 'included') {
+                    <svg lucideCheck [class]="checkIconClass" aria-hidden="true"></svg>
+                  }
+                </span>
+                @if (item.icon) {
+                  <app-icon-display class="shrink-0 text-text-muted" [icon]="item.icon" size="14px" />
+                }
+                <span [class]="row.labelClass">
+                  @if (item.stars; as stars) {
+                    <app-rating readonly size="sm" [value]="stars.value" [stars]="stars.max" />
+                  } @else {
+                    {{ item.label }}
+                  }
+                </span>
+                <span [class]="row.countClass">{{ item.count }}</span>
+              </button>
+              <button
+                type="button"
+                [class]="row.excludeClass"
+                [disabled]="row.zero"
+                [attr.title]="'browse.rail.exclude' | transloco"
+                [attr.aria-label]="'browse.rail.excludeValue' | transloco: {value: item.label}"
+                [attr.aria-pressed]="row.state === 'excluded'"
+                (click)="onRowToggle($index, 'excluded')">
+                <span [class]="row.excludeBoxClass" aria-hidden="true">
+                  <svg lucideMinus [class]="checkIconClass" aria-hidden="true"></svg>
+                </span>
+              </button>
             </li>
+          } @empty {
+            @if (activeQuery()) {
+              <li class="px-1.5 py-1.5 text-xs text-text-muted pointer-coarse:px-2 pointer-coarse:text-[13px]">
+                {{ 'browse.rail.noMatches' | transloco }}
+              </li>
+            }
           }
         </ul>
-      } @else {
-        <div [class]="foldClass()">
-          <ul class="m-0 flex list-none flex-col p-0">
-            @for (item of visibleValues(); track item.value) {
-              <li><ng-container *ngTemplateOutlet="row; context: {item}" /></li>
-            }
-          </ul>
-          @if (group.values.length > foldLimit()) {
-            <button type="button" [class]="expandRowClass" (click)="onExpandToggle()">
-              {{ (expanded() ? 'browse.showFewer' : 'browse.showMore') | transloco }}
-            </button>
-          }
-        </div>
-      }
+        @if (!activeQuery() && group.values.length > foldLimit()) {
+          <button type="button" [class]="expandRowClass" (click)="onExpandToggle()">
+            {{ (expanded() ? 'browse.showFewer' : 'browse.showMore') | transloco }}
+          </button>
+        }
+      </div>
       @if (group.range; as range) {
         <app-browse-facet-range-inputs
           [class]="rangeRowClass(group)"
@@ -113,46 +147,3 @@
     <div class="h-4" aria-hidden="true"></div>
   </div>
 </div>
-
-<ng-template #row let-item="item">
-  <div [class]="rowClass(item)">
-    <button
-      type="button"
-      [class]="includeClass()"
-      [disabled]="isZero(item)"
-      [attr.title]="item.label"
-      [attr.aria-label]="item.stars ? item.label : null"
-      [attr.aria-pressed]="state(item) === 'included'"
-      [attr.aria-describedby]="state(item) === 'excluded' ? excludedLabelId() : null"
-      (click)="onRowToggle(item, 'included')">
-      <span [class]="boxClass(item)" aria-hidden="true">
-        @if (state(item) === 'included') {
-          <svg lucideCheck [class]="checkIconClass" aria-hidden="true"></svg>
-        }
-      </span>
-      @if (item.icon) {
-        <app-icon-display class="shrink-0 text-text-muted" [icon]="item.icon" size="14px" />
-      }
-      <span [class]="labelClass(item)">
-        @if (item.stars; as stars) {
-          <app-rating readonly size="sm" [value]="stars.value" [stars]="stars.max" />
-        } @else {
-          {{ item.label }}
-        }
-      </span>
-      <span [class]="countClass(item)">{{ item.count }}</span>
-    </button>
-    <button
-      type="button"
-      [class]="excludeClass(item)"
-      [disabled]="isZero(item)"
-      [attr.title]="'browse.rail.exclude' | transloco"
-      [attr.aria-label]="'browse.rail.excludeValue' | transloco: {value: item.label}"
-      [attr.aria-pressed]="state(item) === 'excluded'"
-      (click)="onRowToggle(item, 'excluded')">
-      <span [class]="excludeBoxClass(item)" aria-hidden="true">
-        <svg lucideMinus [class]="checkIconClass" aria-hidden="true"></svg>
-      </span>
-    </button>
-  </div>
-</ng-template>

@@ -5256,7 +5256,8 @@
       "flipDirection": "Flip Direction"
     },
     "chips": {
-      "removeSearch": "Remove Search Filter {{query}}"
+      "removeSearch": "Remove Search Filter {{query}}",
+      "removeExcluded": "Remove Excluded {{ label }}"
     },
     "rail": {
       "searchValues": "Search…",

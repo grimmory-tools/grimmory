@@ -8,7 +8,6 @@ export interface BrowseFilterValue {
   value: string;
   label: string;
   count: number | null;
-  state: BrowseFacetState | null;
   stars?: {value: number; max: number};
   icon?: IconSelection;
 }
@@ -28,7 +27,7 @@ export interface BrowseFilterGroup<K extends string = string> {
   range?: BrowseFilterRange;
   loading?: boolean;
   picks?: ReadonlyMap<string, BrowseFacetState>;
-  multiValued?: boolean;
+  multiValued: boolean;
   matchAll?: boolean;
   values: BrowseFilterValue[];
 }
@@ -37,7 +36,6 @@ export interface BrowseFilterToggle<K extends string = string> {
   key: K;
   value: string;
   state: BrowseFacetState | null;
-  matchAll: boolean;
 }
 
 export interface BrowseFilterMatchAll<K extends string = string> {
@@ -61,87 +59,70 @@ export interface BrowseFilterSearch<K extends string = string> {
   term: string;
 }
 
-export type BrowseFacetKey<K extends string = string> = K | `+${K}` | `-${K}`;
+export interface BrowseFacetValues {
+  readonly include: readonly string[];
+  readonly exclude: readonly string[];
+  readonly matchAll?: true;
+}
 
-export type BrowseFacetSelection<K extends string = string> =
-  Readonly<Partial<Record<BrowseFacetKey<K>, readonly string[]>>>;
+export type BrowseFacetSelection<K extends string = string> = Readonly<Partial<Record<K, BrowseFacetValues>>>;
 
 export type BrowseFacetValueOrder = 'asc' | 'desc' | readonly string[];
 
 export type BrowseFacetKind = 'range';
 
-export function browseFacetValues<K extends string>(
-  selection: BrowseFacetSelection<K>,
-  key: BrowseFacetKey<K>,
-): readonly string[] {
-  return selection[key] ?? [];
+const EMPTY_FACET_VALUES: BrowseFacetValues = {include: [], exclude: []};
+
+export function browseFacetValues<K extends string>(selection: BrowseFacetSelection<K>, key: K): BrowseFacetValues {
+  return selection[key] ?? EMPTY_FACET_VALUES;
 }
 
 export function withBrowseFacetValues<K extends string>(
   selection: BrowseFacetSelection<K>,
-  key: BrowseFacetKey<K>,
-  values: readonly string[],
+  key: K,
+  {include, exclude, matchAll}: {readonly include: readonly string[]; readonly exclude: readonly string[]; readonly matchAll?: boolean},
 ): BrowseFacetSelection<K> {
-  const next: Partial<Record<BrowseFacetKey<K>, readonly string[]>> = {...selection};
-  if (values.length > 0) {
-    next[key] = values;
+  const next: Partial<Record<K, BrowseFacetValues>> = {...selection};
+  if (include.length > 0 || exclude.length > 0) {
+    next[key] = matchAll && include.length > 0 ? {include, exclude, matchAll: true} : {include, exclude};
   } else {
     delete next[key];
   }
   return next;
 }
 
-function includedBrowseFacetValues<K extends string>(
+export function browseFacetEntries<K extends string>(
   selection: BrowseFacetSelection<K>,
-  key: K,
-): readonly string[] {
-  return [...browseFacetValues(selection, key), ...browseFacetValues(selection, `+${key}`)];
+  isKey: (key: string) => key is K,
+): [K, BrowseFacetValues][] {
+  return Object.keys(selection).filter(isKey).flatMap<[K, BrowseFacetValues]>(key => {
+    const values = selection[key];
+    return values ? [[key, values]] : [];
+  });
 }
 
-export function hasBrowseFacetValues<K extends string>(selection: BrowseFacetSelection<K>, key: K): boolean {
-  return includedBrowseFacetValues(selection, key).length > 0 || browseFacetValues(selection, `-${key}`).length > 0;
-}
-
-export function browseFacetPicks<K extends string>(
-  selection: BrowseFacetSelection<K>,
-  key: K,
-): ReadonlyMap<string, BrowseFacetState> {
+export function browseFacetPicks(values: BrowseFacetValues): ReadonlyMap<string, BrowseFacetState> {
   return new Map([
-    ...includedBrowseFacetValues(selection, key).map(value => [value, 'included'] as const),
-    ...browseFacetValues(selection, `-${key}`).map(value => [value, 'excluded'] as const),
+    ...values.include.map(value => [value, 'included'] as const),
+    ...values.exclude.map(value => [value, 'excluded'] as const),
   ]);
 }
 
-export function browseFacetSelectionKeys<K extends string>(selection: BrowseFacetSelection<K>): BrowseFacetKey<K>[] {
-  // SAFETY: a selection only holds BrowseFacetKey<K> keys, because every writer takes a typed key and parseFacetParams drops unknown ones.
-  return Object.keys(selection) as BrowseFacetKey<K>[];
-}
-
-export function unmarkedBrowseFacetKey<K extends string>(marked: BrowseFacetKey<K>): K {
-  // SAFETY: removing the + or - mark from a BrowseFacetKey<K> leaves K, which TypeScript cannot work out from slice.
-  return (marked.startsWith('+') || marked.startsWith('-') ? marked.slice(1) : marked) as K;
-}
-
-export function browseFacetMatchAll<K extends string>(selection: BrowseFacetSelection<K>, key: K): boolean {
-  return browseFacetValues(selection, `+${key}`).length > 0;
-}
-
-export function setBrowseFacetValue<K extends string>(
+export function withBrowseFacetState<K extends string>(
   selection: BrowseFacetSelection<K>,
   key: K,
   value: string,
   state: BrowseFacetState | null,
   matchAll: boolean,
 ): BrowseFacetSelection<K> {
-  const target = state === 'excluded' ? `-${key}` as const : matchAll ? `+${key}` as const : key;
-  let next = selection;
-  for (const marked of [key, `+${key}`, `-${key}`] as const) {
-    next = withBrowseFacetValues(next, marked, browseFacetValues(next, marked).filter(item => item !== value));
-  }
-  if (state === null) {
-    return next;
-  }
-  return withBrowseFacetValues(next, target, [...browseFacetValues(next, target), value]);
+  const current = browseFacetValues(selection, key);
+  const include = current.include.filter(item => item !== value);
+  const exclude = current.exclude.filter(item => item !== value);
+  return withBrowseFacetValues(selection, key, {
+    include: state === 'included' ? [...include, value] : include,
+    exclude: state === 'excluded' ? [...exclude, value] : exclude,
+    matchAll,
+  });
 }
 
 export function withBrowseFacetMatchAll<K extends string>(
@@ -149,22 +130,11 @@ export function withBrowseFacetMatchAll<K extends string>(
   key: K,
   matchAll: boolean,
 ): BrowseFacetSelection<K> {
-  const included = includedBrowseFacetValues(selection, key);
-  const cleared = withBrowseFacetValues(withBrowseFacetValues(selection, key, []), `+${key}`, []);
-  return withBrowseFacetValues(cleared, matchAll ? `+${key}` : key, [...new Set(included)]);
+  return withBrowseFacetValues(selection, key, {...browseFacetValues(selection, key), matchAll});
 }
 
 export function countBrowseFacetValues(selection: BrowseFacetSelection): number {
-  return Object.values(selection).reduce((count, values) => count + (values?.length ?? 0), 0);
-}
-
-export function requireBrowseFacetValue<K extends string>(
-  selection: BrowseFacetSelection<K>,
-  key: K,
-  value: string,
-): BrowseFacetSelection<K> {
-  const required = browseFacetValues(selection, `+${key}`);
-  return required.includes(value) ? selection : withBrowseFacetValues(selection, `+${key}`, [...required, value]);
+  return Object.values(selection).reduce((count, values) => count + (values ? values.include.length + values.exclude.length : 0), 0);
 }
 
 export function withBrowseFacetRange<K extends string>(
@@ -175,12 +145,10 @@ export function withBrowseFacetRange<K extends string>(
   bandTokens: ReadonlySet<string>,
 ): BrowseFacetSelection<K> {
   const clamp = (value: number | null) => (value == null ? null : Math.max(0, value));
-  let next = selection;
-  for (const marked of [key, `+${key}`] as const) {
-    next = withBrowseFacetValues(next, marked, browseFacetValues(next, marked).filter(value => bandTokens.has(value)));
-  }
+  const current = browseFacetValues(selection, key);
+  const kept = current.include.filter(value => bandTokens.has(value));
   const token = formatRangeToken({min: clamp(min), max: clamp(max)});
-  return token == null ? next : withBrowseFacetValues(next, key, [...browseFacetValues(next, key), token]);
+  return withBrowseFacetValues(selection, key, {...current, include: token == null ? kept : [...kept, token]});
 }
 
 export interface BrowseFacetDefinitions<K extends string> {
@@ -206,28 +174,27 @@ export function browseFilterGroups<K extends string>(
 ): BrowseFilterGroup<K>[] {
   const servedByKey = new Map(served.map(group => [group.key, group]));
   return definitions.order
-    .filter(key => available.has(key) || hasBrowseFacetValues(selections, key))
-    .map(key => buildFacetGroup(key, servedByKey.get(key), browseFacetPicks(selections, key), definitions));
+    .filter(key => available.has(key) || selections[key] !== undefined)
+    .map(key => buildFacetGroup(key, servedByKey.get(key), browseFacetValues(selections, key), definitions));
 }
 
 function buildFacetGroup<K extends string>(
   key: K,
   servedGroup: BrowseFacetGroup | undefined,
-  picks: ReadonlyMap<string, BrowseFacetState>,
+  selected: BrowseFacetValues,
   definitions: BrowseFacetDefinitions<K>,
 ): BrowseFilterGroup<K> {
-  const state = (value: string) => picks.get(value) ?? null;
-  const included = [...picks.keys()].filter(value => picks.get(value) === 'included');
+  const picks = browseFacetPicks(selected);
   const servedValues = servedGroup?.values ?? [];
   const kind = definitions.kind?.(key);
   const domain = definitions.valueDomain?.(key);
   const label = (value: string, servedLabel: string) => definitions.valueLabel?.(key, value) ?? servedLabel;
   const base = {key, labelKey: definitions.labelKey(key), multiValued: definitions.multiValued?.(key) ?? false};
   const range = kind === 'range'
-    ? buildFacetRange(servedGroup, included, definitions.fileSize?.(key) ?? false)
+    ? buildFacetRange(servedGroup, selected.include, definitions.fileSize?.(key) ?? false)
     : undefined;
   if (definitions.banded?.(key)) {
-    const values = bandFacetValues(servedValues, state, label, definitions.starScale?.(key));
+    const values = bandFacetValues(servedValues, label, definitions.starScale?.(key));
     return {...base, range, showAllValues: true, values};
   }
   if (kind === 'range') {
@@ -236,7 +203,7 @@ function buildFacetGroup<K extends string>(
   const counts = new Map(servedValues.map(item => [item.value, item.count]));
   const complete = servedGroup?.complete ?? false;
   const values = plainFacetValues(
-    servedValues, [...picks.keys()], state, label,
+    servedValues, picks, label,
     value => definitions.valueIcon?.(key, value) ?? undefined,
     value => counts.get(value) ?? (complete || picks.get(value) === 'excluded' ? 0 : null),
   );
@@ -266,7 +233,6 @@ function buildFacetRange(
 
 function bandFacetValues(
   servedValues: BrowseFacetGroup['values'],
-  state: (value: string) => BrowseFacetState | null,
   label: (value: string, servedLabel: string) => string,
   starScale: number | undefined,
 ): BrowseFilterValue[] {
@@ -276,7 +242,6 @@ function bandFacetValues(
       value: item.value,
       label: label(item.value, (range && formatRangeLabel(range)) ?? item.title),
       count: item.count,
-      state: state(item.value),
       stars: starScale != null ? {value: range?.max ?? starScale, max: starScale} : undefined,
     };
   });
@@ -284,14 +249,13 @@ function bandFacetValues(
 
 function plainFacetValues(
   servedValues: BrowseFacetGroup['values'],
-  picks: readonly string[],
-  state: (value: string) => BrowseFacetState | null,
+  picks: ReadonlyMap<string, BrowseFacetState>,
   label: (value: string, servedLabel: string) => string,
   icon: (value: string) => IconSelection | undefined,
   count: (value: string) => number | null,
 ): BrowseFilterValue[] {
   const labelsByValue = new Map(servedValues.map(option => [option.value, option.title]));
-  for (const value of picks) {
+  for (const value of picks.keys()) {
     if (!labelsByValue.has(value)) {
       labelsByValue.set(value, value);
     }
@@ -301,7 +265,6 @@ function plainFacetValues(
     label: label(value, title),
     icon: icon(value),
     count: count(value),
-    state: state(value),
   }));
 }
 
@@ -311,7 +274,7 @@ function applyDomain(
   label: (value: string, servedLabel: string) => string,
 ): BrowseFilterValue[] {
   const byValue = new Map(values.map(item => [item.value, item]));
-  return domain.map(value => byValue.get(value) ?? {value, label: label(value, value), count: 0, state: null});
+  return domain.map(value => byValue.get(value) ?? {value, label: label(value, value), count: 0});
 }
 
 function sortFacetValues(values: BrowseFilterValue[], order: BrowseFacetValueOrder): BrowseFilterValue[] {
@@ -344,17 +307,12 @@ export function browseFilterChips<K extends string>(
   selections: BrowseFacetSelection<K>,
 ): BrowseFilterChip<K>[] {
   const servedByKey = new Map(served.map(group => [group.key, group]));
-  return browseFacetSelectionKeys(selections).flatMap(marked => {
-    const key = unmarkedBrowseFacetKey(marked);
-    if (!definitions.isKey(key)) {
-      return [];
-    }
-    const values = browseFacetValues(selections, marked);
+  return browseFacetEntries(selections, definitions.isKey).flatMap(([key, values]) => {
     const labels = new Map(servedByKey.get(key)?.values.map(option => [option.value, option.title]));
-    return values.map(value => ({
+    return [...browseFacetPicks(values)].map(([value, state]) => ({
       key,
       value,
-      excluded: marked.startsWith('-'),
+      excluded: state === 'excluded',
       groupLabelKey: definitions.labelKey(key),
       valueLabel: definitions.valueLabel?.(key, value) ?? labels.get(value) ?? value,
     }));

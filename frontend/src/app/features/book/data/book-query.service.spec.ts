@@ -21,7 +21,7 @@ import {BookQueryService} from './book-query.service';
 
 const PARAMS: BookPageParams = {
   query: 'dune',
-  facets: {genre: ['Science Fiction']},
+  facets: {genre: {include: ['Science Fiction'], exclude: []}},
   sort: [{key: 'title', direction: 'asc'}],
   size: 20,
 };
@@ -100,8 +100,8 @@ describe('BookQueryService', () => {
     const resultPromise = queryClient.fetchQuery(service.page({
       ...PARAMS,
       facets: {
-        genre: ['Science Fiction'],
-        language: ['English'],
+        genre: {include: ['Science Fiction'], exclude: []},
+        language: {include: ['English'], exclude: []},
       },
     }));
     const request = http.expectOne(

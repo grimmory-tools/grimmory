@@ -7,8 +7,6 @@ import {injectQuery} from '@tanstack/angular-query-experimental';
 import {BrowseFilterRailComponent} from '../../../shared/browse/filter-rail/filter-rail.component';
 import {
   countBrowseFacetValues,
-  setBrowseFacetValue,
-  withBrowseFacetMatchAll,
   type BrowseFilterMatchAll,
   type BrowseFilterRangeCommit,
   type BrowseFilterToggle,
@@ -133,23 +131,15 @@ export class BookBrowseFilterPageComponent {
   });
 
   protected onToggle(toggle: BrowseFilterToggle<BookQueryFacetKey>): void {
-    this.staged.update(current =>
-      setBrowseFacetValue(
-        current,
-        toggle.key,
-        toggle.value,
-        toggle.state,
-        toggle.matchAll,
-      ),
-    );
+    this.staged.set(this.queries.withState(toggle));
   }
 
-  protected onMatchAll({key, matchAll}: BrowseFilterMatchAll<BookQueryFacetKey>): void {
-    this.staged.update(current => withBrowseFacetMatchAll(current, key, matchAll));
+  protected onMatchAll(change: BrowseFilterMatchAll<BookQueryFacetKey>): void {
+    this.staged.set(this.queries.chooseMatchAll(change));
   }
 
   protected onCommitRange(commit: BrowseFilterRangeCommit<BookQueryFacetKey>): void {
-    this.staged.update(current => this.queries.withRange(current, commit));
+    this.staged.set(this.queries.withRange(commit));
   }
 
   protected onClear(): void {

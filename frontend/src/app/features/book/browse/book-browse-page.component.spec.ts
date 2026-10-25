@@ -187,7 +187,7 @@ describe('BookBrowsePageComponent', () => {
     history.replaceState({}, '', '/');
   });
 
-  it('adds the route scope as a must-have on page and facet requests, alongside URL facets', async () => {
+  it('adds the route scope as a required facet on page and facet requests, alongside URL facets', async () => {
     const routerHarness = await routeTo('/library/3/books?facet=genre:Fantasy&facet=library:99');
     const index = http.expectOne(candidate => candidate.url === FACETS_URL);
     expect(index.request.params.getAll('facet')).toEqual(['+library:3']);

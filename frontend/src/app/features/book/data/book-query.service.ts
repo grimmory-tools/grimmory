@@ -12,7 +12,7 @@ import {lastValueFrom, Observable, map, takeUntil} from 'rxjs';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {BrowseFacetGroup, BrowseFacetIndex, findBrowsePageLink} from '../../../core/data/browse.models';
 import {mapBrowseFacetIndex, mapBrowseFacetPage, mapBrowsePage} from '../../../core/data/browse-response';
-import {withBrowseFacetValues} from '../../../shared/browse/facets';
+import {browseFacetValues, withBrowseFacetValues} from '../../../shared/browse/facets';
 import {bookQueryKeys} from './book-query-keys';
 import {
   BookCollectionFilterParams,
@@ -104,7 +104,8 @@ export class BookQueryService {
   }
 
   facet(key: BookQueryFacetKey, params: BookCollectionFilterParams, search = '') {
-    const otherFacets = withBrowseFacetValues(params.facets, key, []);
+    const own = browseFacetValues(params.facets, key);
+    const otherFacets = own.matchAll ? params.facets : withBrowseFacetValues(params.facets, key, {...own, include: []});
     const normalized = normalizeBookCollectionFilterParams({...params, facets: otherFacets});
     const term = search.trim();
     let httpParams = toCollectionHttpParams(normalized).set('size', FACET_PAGE_SIZE);

@@ -129,9 +129,11 @@
         [attr.aria-label]="'browse.toolbar.largerCards' | transloco"
         (selected)="densityChange.emit('larger')" />
     </div>
-    <app-menu-separator />
   }
   <div class="contents sm:hidden">
+    @if (viewMode() === 'grid') {
+      <app-menu-separator />
+    }
     <app-menu-radio-group [value]="viewMode()" (valueSelected)="selectView($event)">
       <app-menu-radio value="grid">{{ 'book.viewMode.grid' | transloco }}</app-menu-radio>
       <app-menu-radio value="table">{{ 'book.viewMode.table' | transloco }}</app-menu-radio>

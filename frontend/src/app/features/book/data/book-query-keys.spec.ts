@@ -11,7 +11,7 @@ import {bookCollectionKeys, bookQueryKeys} from './book-query-keys';
 describe('book query keys', () => {
   const query = {
     query: 'dune',
-    facets: {genre: ['Fantasy']} as const,
+    facets: {genre: {include: ['Fantasy'], exclude: []}},
     sort: [{key: 'title', direction: 'asc'}] as const,
   };
   const page = normalizeBookPageParams({...query, size: 20});
@@ -57,7 +57,7 @@ describe('book query keys', () => {
 
 const PARAMS: BookPageParams = {
   query: 'dune',
-  facets: {genre: ['Science Fiction']},
+  facets: {genre: {include: ['Science Fiction'], exclude: []}},
   sort: [{key: 'title', direction: 'asc'}],
   size: 20,
 };
@@ -68,7 +68,7 @@ describe('bookCollectionKeys', () => {
     const equivalent = bookCollectionKeys({
       ...PARAMS,
       query: '  dune  ',
-      facets: {genre: ['Science Fiction', 'Science Fiction']},
+      facets: {genre: {include: ['Science Fiction', 'Science Fiction'], exclude: []}},
     });
     expect(equivalent.filtersKey).toBe(collection.filtersKey);
     expect(equivalent.listKey).toBe(collection.listKey);
