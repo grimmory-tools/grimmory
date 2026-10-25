@@ -7,7 +7,6 @@ import {CdkDragDrop} from '@angular/cdk/drag-drop';
 import {AutoCompleteSelectEvent} from '@openng/optimus-ui/autocomplete';
 
 import {Book, BookMetadata} from '../../../../book/model/book.model';
-import {BookService} from '../../../../book/service/book.service';
 import {BookMetadataManageService} from '../../../../book/service/book-metadata-manage.service';
 import {AppSettings} from '../../../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
@@ -18,14 +17,6 @@ import {getTranslocoModule} from '../../../../../core/testing/transloco-testing'
 import {MetadataPickerComponent} from './metadata-picker.component';
 
 describe('MetadataPickerComponent', () => {
-  const uniqueMetadata = signal({
-    authors: ['Alice', 'Bob'],
-    categories: ['Fantasy', 'History'],
-    moods: ['Hopeful'],
-    tags: ['Epic'],
-    publishers: ['Orbit'],
-    series: ['Saga'],
-  });
   const appSettings = signal<AppSettings | null>(null);
   const updateBookMetadata = vi.fn(() => of(void 0));
   const uploadAudiobookCoverFromUrl = vi.fn(() => of(void 0));
@@ -68,14 +59,6 @@ describe('MetadataPickerComponent', () => {
   }
 
   beforeEach(async () => {
-    uniqueMetadata.set({
-      authors: ['Alice', 'Bob'],
-      categories: ['Fantasy', 'History'],
-      moods: ['Hopeful'],
-      tags: ['Epic'],
-      publishers: ['Orbit'],
-      series: ['Saga'],
-    });
     appSettings.set(null);
     updateBookMetadata.mockClear();
     uploadAudiobookCoverFromUrl.mockClear();
@@ -91,7 +74,6 @@ describe('MetadataPickerComponent', () => {
         MetadataFormBuilder,
         MetadataUtilsService,
         {provide: AppSettingsService, useValue: {appSettings}},
-        {provide: BookService, useValue: {uniqueMetadata}},
         {
           provide: BookMetadataManageService,
           useValue: {updateBookMetadata, uploadAudiobookCoverFromUrl, supportsDualCovers},
@@ -105,7 +87,7 @@ describe('MetadataPickerComponent', () => {
     }).compileComponents();
   });
 
-  it('syncs provider field visibility from app settings and filters metadata suggestions', () => {
+  it('syncs provider field visibility from app settings', () => {
     appSettings.set({
       metadataProviderSpecificFields: {
         googleId: true,
@@ -120,10 +102,6 @@ describe('MetadataPickerComponent', () => {
     expect(component.metadataProviderFields().map(field => field.controlName)).toContain('googleId');
     expect(component.metadataProviderFields().map(field => field.controlName)).toContain('audibleId');
     expect(component.metadataProviderFields().map(field => field.controlName)).not.toContain('amazonRating');
-
-    component.filterItems({query: 'fan'}, 'categories');
-    expect(component.getFiltered('categories')).toEqual(['Fantasy']);
-    expect(component.getFiltered('missing')).toEqual([]);
   });
 
   it('patches book metadata into the form and resets review state when a new book arrives', () => {

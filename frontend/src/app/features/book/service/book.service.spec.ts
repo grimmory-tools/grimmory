@@ -123,7 +123,7 @@ describe('BookService', () => {
     vi.restoreAllMocks();
   });
 
-  it('eagerly fetches books and hydrates query-backed state, loading state, and unique metadata', async () => {
+  it('eagerly fetches books and hydrates query-backed state and loading state', async () => {
     setup();
 
     const response = [
@@ -162,14 +162,6 @@ describe('BookService', () => {
     expect(service.findBookById(2)).toEqual(response[1]);
     expect(service.findBookById(999)).toBeUndefined();
     expect(service.getBooksByIds([2, 999, 1])).toEqual(response);
-    expect(service.uniqueMetadata()).toEqual({
-      authors: ['Le Guin', 'Pratchett'],
-      categories: ['Fantasy', 'Humor'],
-      moods: ['Calm', 'Funny'],
-      tags: ['Classic', 'Satire'],
-      publishers: ['Ace', 'Corgi'],
-      series: ['Earthsea', 'Discworld'],
-    });
     expect(service.isBooksLoading()).toBe(false);
     expect(service.booksError()).toBeNull();
   });
