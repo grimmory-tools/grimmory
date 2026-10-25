@@ -84,6 +84,7 @@ const compactOptimusFontCss = `
 .p-treeselect:not(.p-treeselect-sm):not(.p-treeselect-lg) .p-treeselect-label,
 .p-autocomplete-input,
 .p-autocomplete-input-multiple,
+.p-autocomplete-input-multiple .p-autocomplete-input-chip input,
 .p-togglebutton:not(.p-togglebutton-sm):not(.p-togglebutton-lg),
 .p-inputchips-input-item input,
 .p-terminal-prompt-value,
