@@ -169,7 +169,8 @@ public class BookController {
             @ApiResponse(responseCode = "201", description = "Physical book created successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid request"),
             @ApiResponse(responseCode = "403", description = "Forbidden"),
-            @ApiResponse(responseCode = "404", description = "Library not found")
+            @ApiResponse(responseCode = "404", description = "Library not found"),
+            @ApiResponse(responseCode = "409", description = "A book with this ISBN is already in the library")
     })
     @PostMapping("/physical")
     @PreAuthorize("@securityUtil.canManageLibrary() or @securityUtil.isAdmin()")

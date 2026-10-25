@@ -491,14 +491,8 @@ public class HardcoverParser implements BookParser {
     }
 
     private void mapIsbn(BookMetadata.BookMetadataBuilder builder, GraphQLResponse.Edition edition) {
-        builder.isbn10(edition.getIsbn10());
-        builder.isbn13(edition.getIsbn13());
-
-        if (edition.getIsbn10() != null && edition.getIsbn13() == null) {
-            builder.isbn13(BookUtils.isbn10To13(edition.getIsbn10()));
-        } else if (edition.getIsbn13() != null && edition.getIsbn10() == null) {
-            builder.isbn10(BookUtils.isbn13to10(edition.getIsbn13()));
-        }
+        builder.isbn13(BookUtils.toIsbn13(edition.getIsbn13(), edition.getIsbn10()));
+        builder.isbn10(BookUtils.toIsbn10(edition.getIsbn13(), edition.getIsbn10()));
     }
 
     private void mapLanguage(BookMetadata.BookMetadataBuilder builder, GraphQLResponse.Edition edition) {
