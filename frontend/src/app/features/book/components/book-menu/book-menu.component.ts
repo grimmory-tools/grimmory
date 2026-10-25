@@ -280,7 +280,7 @@ export class BookMenuComponent {
   }
 
   protected onRead(): void {
-    this.bookNavigation.readBook(this.book()!, this.shownFile());
+    this.bookNavigation.readBook(this.book()!, {bookType: this.shownFile()?.bookType});
   }
 
   protected onToggleShelf(shelfId: number, checked: boolean): void {

@@ -488,9 +488,6 @@
     }
   },
   "src/app/features/book/service/book.service.ts": {
-    "anti-slop/no-known-value-widening": {
-      "count": 1
-    },
     "typescript/no-unnecessary-condition": {
       "count": 1
     },
@@ -502,9 +499,6 @@
     },
     "typescript/no-unsafe-return": {
       "count": 2
-    },
-    "typescript/switch-exhaustiveness-check": {
-      "count": 1
     }
   },
   "src/app/features/book/service/library-health.service.ts": {

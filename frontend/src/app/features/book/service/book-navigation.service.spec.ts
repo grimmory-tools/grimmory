@@ -80,13 +80,24 @@ describe('BookNavigationService', () => {
   ] as const)('opens %s books in the matching reader', (bookType, route) => {
     const service = createService();
 
-    service.readBook({
-      id: 7,
-      libraryId: 1,
-      libraryName: 'Library',
-      primaryFile: {id: 70, bookId: 7, book: true, folderBased: false, bookType},
-    });
+    service.readBook({id: 7, primaryFile: {bookType}});
 
-    expect(navigate).toHaveBeenCalledWith([route]);
+    expect(navigate).toHaveBeenCalledWith([route], {queryParams: {}});
+  });
+
+  it('opens an alternative format with its book type', () => {
+    const service = createService();
+
+    service.readBook({id: 7, primaryFile: {bookType: 'AUDIOBOOK'}}, {bookType: 'PDF'});
+
+    expect(navigate).toHaveBeenCalledWith(['/pdf-reader/book/7'], {queryParams: {bookType: 'PDF'}});
+  });
+
+  it('opens EPUBs in the streaming reader when asked', () => {
+    const service = createService();
+
+    service.readBook({id: 7, primaryFile: {bookType: 'EPUB'}}, {streaming: true});
+
+    expect(navigate).toHaveBeenCalledWith(['/ebook-reader/book/7'], {queryParams: {streaming: true}});
   });
 });

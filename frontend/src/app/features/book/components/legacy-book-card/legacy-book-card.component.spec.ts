@@ -97,9 +97,6 @@ describe('LegacyBookCardComponent', () => {
   let component: LegacyBookCardComponent;
   let fixture: ComponentFixture<LegacyBookCardComponent>;
   let ref: ComponentRef<LegacyBookCardComponent>;
-  let bookService: {
-    readBook: ReturnType<typeof vi.fn>;
-  };
   let bookFileService: {
     downloadFile: ReturnType<typeof vi.fn>;
     downloadAdditionalFile: ReturnType<typeof vi.fn>;
@@ -143,6 +140,7 @@ describe('LegacyBookCardComponent', () => {
   let bookNavigationService: {
     availableBookIds: ReturnType<typeof vi.fn>;
     setNavigationContext: ReturnType<typeof vi.fn>;
+    readBook: ReturnType<typeof vi.fn>;
   };
   let appSettingsService: {
     appSettings: ReturnType<typeof vi.fn>;
@@ -152,9 +150,6 @@ describe('LegacyBookCardComponent', () => {
   };
 
   beforeEach(() => {
-    bookService = {
-      readBook: vi.fn(),
-    };
     bookFileService = {
       downloadFile: vi.fn(),
       downloadAdditionalFile: vi.fn(),
@@ -199,6 +194,7 @@ describe('LegacyBookCardComponent', () => {
     bookNavigationService = {
       availableBookIds: vi.fn(() => []),
       setNavigationContext: vi.fn(),
+      readBook: vi.fn(),
     };
     appSettingsService = {
       appSettings: vi.fn(() => ({diskType: 'LOCAL'})),
@@ -212,7 +208,7 @@ describe('LegacyBookCardComponent', () => {
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
         {provide: ActivatedRoute, useValue: {}},
-        {provide: BookService, useValue: bookService},
+        {provide: BookService, useValue: {}},
         {provide: BookFileService, useValue: bookFileService},
         {provide: BookMetadataManageService, useValue: bookMetadataManageService},
         {provide: TaskHelperService, useValue: taskHelperService},
@@ -359,13 +355,14 @@ describe('LegacyBookCardComponent', () => {
     fixture.detectChanges();
     component.readBook(audiobookWithAlternativeFormat);
 
-    expect(bookService.readBook).toHaveBeenCalledWith(12, undefined, 'PDF');
+    expect(bookNavigationService.readBook).toHaveBeenCalledWith(audiobookWithAlternativeFormat, {bookType: 'PDF'});
 
     ref.setInput('forceEbookMode', false);
     fixture.detectChanges();
-    component.readBook(makeBook({id: 13}));
+    const book = makeBook({id: 13});
+    component.readBook(book);
 
-    expect(bookService.readBook).toHaveBeenCalledWith(13);
+    expect(bookNavigationService.readBook).toHaveBeenCalledWith(book, {bookType: undefined});
   });
 
   it('derives display format from missing primary files, extensions, paths, and forced audiobook ebook types', () => {

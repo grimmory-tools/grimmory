@@ -62,7 +62,6 @@ describe('MetadataViewerComponent', () => {
   const updatePersonalRating = vi.fn(() => of(void 0));
   const resetPersonalRating = vi.fn(() => of(void 0));
   const getBooksInSeries = vi.fn(() => of([] as Book[]));
-  const findBookById = vi.fn();
 
   const downloadFile = vi.fn();
   const downloadAdditionalFile = vi.fn();
@@ -173,7 +172,6 @@ describe('MetadataViewerComponent', () => {
     updatePersonalRating.mockClear();
     resetPersonalRating.mockClear();
     getBooksInSeries.mockClear();
-    findBookById.mockClear();
 
     downloadFile.mockClear();
     downloadAdditionalFile.mockClear();
@@ -227,7 +225,6 @@ describe('MetadataViewerComponent', () => {
         {
           provide: BookService,
           useValue: {
-            readBook,
             togglePhysicalFlag,
             deleteBooks,
             updateDateFinished,
@@ -236,7 +233,6 @@ describe('MetadataViewerComponent', () => {
             updatePersonalRating,
             resetPersonalRating,
             getBooksInSeries,
-            findBookById,
           },
         },
         {provide: BookFileService, useValue: {downloadFile, downloadAdditionalFile, downloadAllFiles, deleteAdditionalFile, deleteBookFile, detachBookFile}},
@@ -257,6 +253,7 @@ describe('MetadataViewerComponent', () => {
             previousBookId,
             nextBookId,
             updateCurrentBook,
+            readBook,
           },
         },
         {provide: BookMetadataHostService, useValue: {switchBook}},
@@ -296,7 +293,6 @@ describe('MetadataViewerComponent', () => {
         seriesNumber: 3,
       }
     );
-    findBookById.mockReturnValue(richBook);
 
     currentUser.set({
       permissions: {
@@ -332,9 +328,9 @@ describe('MetadataViewerComponent', () => {
     ]);
     expect(readItems[0].command).toBeDefined();
     runMenuCommand(readItems[0].command);
-    expect(readBook).toHaveBeenCalledWith(21, 'epub-streaming', undefined);
+    expect(readBook).toHaveBeenCalledWith(richBook, {streaming: true});
     runMenuCommand(readItems[2].items?.[0].command);
-    expect(readBook).toHaveBeenLastCalledWith(21, undefined, 'EPUB');
+    expect(readBook).toHaveBeenLastCalledWith(richBook, {bookType: 'EPUB'});
 
     const downloadItems = component.downloadMenuItems();
     expect(downloadItems.some(item => item.separator)).toBe(true);
