@@ -6,13 +6,10 @@ public enum FacetLogic {
     NOT;
 
     public static FacetLogic from(String value) {
-        if (value == null || value.isBlank()) {
-            return AND;
-        }
-        return switch (value.trim().toLowerCase()) {
-            case "or" -> OR;
+        return switch (value == null ? "" : value.trim().toLowerCase()) {
+            case "and" -> AND;
             case "not" -> NOT;
-            default -> AND;
+            default -> OR;
         };
     }
 }
