@@ -39,16 +39,28 @@
         </div>
         <div class="form-field form-field-wide">
           <label for="content-restriction-value">{{ t('value') }}</label>
-          <p-select
-            inputId="content-restriction-value"
-            [options]="getValueOptions()"
-            [(ngModel)]="newRestriction.value"
-            optionLabel="label"
-            optionValue="value"
-            [placeholder]="t('selectValue')"
-            [filter]="true"
-            [filterPlaceholder]="t('searchFilter')"
-            appendTo="body" />
+          @if (valueFacet(); as facet) {
+            <p-autoComplete
+              inputId="content-restriction-value"
+              [(ngModel)]="newRestriction.value"
+              [fluid]="true"
+              [dropdown]="false"
+              [forceSelection]="true"
+              [appFacetSuggestions]="facet"
+              [placeholder]="t('selectValue')"
+              appendTo="body" />
+          } @else {
+            <p-select
+              inputId="content-restriction-value"
+              [options]="getValueOptions()"
+              [(ngModel)]="newRestriction.value"
+              optionLabel="label"
+              optionValue="value"
+              [placeholder]="t('selectValue')"
+              [filter]="true"
+              [filterPlaceholder]="t('searchFilter')"
+              appendTo="body" />
+          }
         </div>
         <div class="form-field form-field-button">
           <p-button
