@@ -48,16 +48,16 @@ public class AuthorController {
         return ResponseEntity.ok(authorMetadataService.getAllAuthors());
     }
 
-    @Operation(summary = "Get authors (paginated)", description = "Retrieve a page of authors with book counts. Supports cursor pagination plus sort, facet, facet_logic, and query parameters.")
+    @Operation(summary = "Get authors (paginated)", description = "Retrieve a page of authors with book counts. Supports cursor pagination plus sort, facet, and query parameters.")
     @ApiResponse(responseCode = "200", description = "Page of authors returned successfully")
     @GetMapping("/page")
     public ResponseEntity<BrowsePage<AuthorSummary>> getAuthorsPaged(
             @Parameter(hidden = true) Pageable pageable,
             @Parameter(description = "Comma-separated sort keys; prefix a key with '-' for descending (e.g. sortName or -bookCount)")
             @RequestParam(required = false) String sort,
-            @Parameter(description = "Facet selection in key:value form; repeatable (e.g. facet=has_asin:false&facet=genre:Horror)")
+            @Parameter(description = "Facet selection in key:value form; repeatable, with '+' to require or '-' to exclude a value (e.g. has_asin:false, +genre:Horror, -genre:Romance)")
             @RequestParam(required = false) List<String> facet,
-            @Parameter(description = "How facet values combine within a group: and, or, or not")
+            @Parameter(hidden = true)
             @RequestParam(name = "facet_logic", required = false) String facetLogic,
             @Parameter(description = "Free-text search on author name and ASIN")
             @RequestParam(required = false) String query,
@@ -66,28 +66,28 @@ public class AuthorController {
         return ResponseEntity.ok(authorBrowseService.browse(sort, facet, facetLogic, query, cursor, pageable));
     }
 
-    @Operation(summary = "Get author facets", description = "Available facet values and author counts for the current user, scoped by the same facet, facet_logic, and query parameters as the page endpoint. Each facet omits its own selections from its counts. book_count, library, and read_status are filter-only and not enumerated here.")
+    @Operation(summary = "Get author facets", description = "Available facet values and author counts for the current user, scoped by the same facet and query parameters as the page endpoint. When counting each facet, its own unprefixed values are not applied; its '+' and '-' values are. book_count, library, and read_status are filter-only and not enumerated here.")
     @ApiResponse(responseCode = "200", description = "Facet groups returned successfully")
     @GetMapping("/facets")
     public ResponseEntity<FacetGroupsResponse> getAuthorFacets(
-            @Parameter(description = "Facet selection in key:value form; repeatable")
+            @Parameter(description = "Facet selection in key:value form; repeatable, with '+' to require or '-' to exclude a value")
             @RequestParam(required = false) List<String> facet,
-            @Parameter(description = "How facet values combine within a group: and, or, or not")
+            @Parameter(hidden = true)
             @RequestParam(name = "facet_logic", required = false) String facetLogic,
             @Parameter(description = "Free-text search applied to the counts")
             @RequestParam(required = false) String query) {
         return ResponseEntity.ok(authorFacetService.getFacets(facet, facetLogic, query));
     }
 
-    @Operation(summary = "Get matching author ids", description = "Returns every author id matching the given sort, facet, facet_logic, and query parameters, in sort order. For select-all over the current filters.")
+    @Operation(summary = "Get matching author ids", description = "Returns every author id matching the given sort, facet, and query parameters, in sort order. For select-all over the current filters.")
     @ApiResponse(responseCode = "200", description = "Matching author ids returned successfully")
     @GetMapping("/ids")
     public ResponseEntity<List<Long>> getAuthorIds(
             @Parameter(description = "Comma-separated sort keys; prefix a key with '-' for descending")
             @RequestParam(required = false) String sort,
-            @Parameter(description = "Facet selection in key:value form; repeatable")
+            @Parameter(description = "Facet selection in key:value form; repeatable, with '+' to require or '-' to exclude a value")
             @RequestParam(required = false) List<String> facet,
-            @Parameter(description = "How facet values combine within a group: and, or, or not")
+            @Parameter(hidden = true)
             @RequestParam(name = "facet_logic", required = false) String facetLogic,
             @Parameter(description = "Free-text search")
             @RequestParam(required = false) String query) {

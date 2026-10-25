@@ -20,7 +20,7 @@ public final class ParamsHash {
     public static String compute(String query, Map<String, List<String>> facets, FacetLogic logic) {
         StringBuilder canonical = new StringBuilder();
         appendField(canonical, query == null ? "" : query.trim());
-        appendField(canonical, (logic == null ? FacetLogic.AND : logic).name());
+        appendField(canonical, (logic == null ? FacetLogic.OR : logic).name());
         if (facets != null) {
             List<String> keys = new ArrayList<>(facets.keySet());
             keys.sort(String::compareTo);

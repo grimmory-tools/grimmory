@@ -279,6 +279,33 @@ class BookBrowseServiceTest {
     }
 
     @Test
+    void facetPrefixesRequireOrExcludeValues() {
+        Long horror = book("H", List.of("Horror")).getId();
+        Long both = book("HR", List.of("Horror", "Romance")).getId();
+        BookEntity series = book("S", List.of());
+        series.getMetadata().setSeriesName("Discworld");
+        Long none = book("None", List.of()).getId();
+        em.flush();
+        assertThat(browseService.findAllIds(null, List.of("+genre:Horror", "+genre:Romance"), null, null)).containsExactly(both);
+        assertThat(browseService.findAllIds(null, List.of("-genre:Romance", "-series:Discworld"), null, null))
+                .containsExactlyInAnyOrder(horror, none);
+    }
+
+    @Test
+    void facetLogicOnlyCombinesUnprefixedValues() {
+        Long horror = book("H", List.of("Horror")).getId();
+        Long romance = book("R", List.of("Romance")).getId();
+        Long both = book("HR", List.of("Horror", "Romance")).getId();
+        Long fantasy = book("HRF", List.of("Horror", "Romance", "Fantasy")).getId();
+        em.flush();
+        List<String> genres = List.of("genre:Horror", "genre:Romance");
+        assertThat(browseService.findAllIds(null, genres, null, null)).containsExactlyInAnyOrder(horror, romance, both, fantasy);
+        assertThat(browseService.findAllIds(null, genres, "and", null)).containsExactlyInAnyOrder(both, fantasy);
+        assertThat(browseService.findAllIds(null, List.of("genre:Horror", "genre:Romance", "-genre:Fantasy"), "and", null))
+                .containsExactly(both);
+    }
+
+    @Test
     void findAllIdsRespectsLibraryScoping() {
         Long inLibrary = book("InLibrary", List.of()).getId();
         LibraryEntity otherLibrary = LibraryEntity.builder().name("Other").icon("book").watch(false)
