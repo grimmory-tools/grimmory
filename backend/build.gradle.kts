@@ -118,9 +118,9 @@ dependencies {
     implementation("io.projectreactor:reactor-core")
 
     // --- Database & Migration ---
-    implementation("org.mariadb.jdbc:mariadb-java-client:3.5.10")
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.5.11")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
-    implementation("org.flywaydb:flyway-mysql:13.10.0")
+    implementation("org.flywaydb:flyway-mysql")
 
     // --- Lombok (For Clean Code) ---
     compileOnly("org.projectlombok:lombok:1.18.48")
@@ -173,7 +173,6 @@ dependencies {
     implementation("org.freemarker:freemarker:2.3.35")
 
     // --- Jackson 3 ---
-    implementation(platform("tools.jackson:jackson-bom:3.2.3"))
     implementation("tools.jackson.core:jackson-core")
     implementation("tools.jackson.core:jackson-databind")
 

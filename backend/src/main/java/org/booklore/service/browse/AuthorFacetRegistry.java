@@ -8,7 +8,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import lombok.RequiredArgsConstructor;
-import org.booklore.browse.FacetLogic;
 import org.booklore.exception.ApiError;
 import org.booklore.model.entity.AuthorEntity;
 import org.booklore.model.enums.ReadStatus;
@@ -38,20 +37,13 @@ public class AuthorFacetRegistry {
         return NAMES;
     }
 
-    public Specification<AuthorEntity> toSpecification(String facetName, List<String> values, FacetLogic logic, BrowseScope scope) {
+    public Specification<AuthorEntity> matching(String facetName, List<String> values, BrowseScope scope) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             for (String value : values) {
                 predicates.add(valuePredicate(facetName, value, root, query, cb, scope));
             }
-            if (predicates.isEmpty()) {
-                return cb.conjunction();
-            }
-            return switch (logic == null ? FacetLogic.AND : logic) {
-                case AND -> cb.and(predicates.toArray(Predicate[]::new));
-                case OR -> cb.or(predicates.toArray(Predicate[]::new));
-                case NOT -> cb.not(cb.or(predicates.toArray(Predicate[]::new)));
-            };
+            return predicates.isEmpty() ? cb.conjunction() : cb.or(predicates.toArray(Predicate[]::new));
         };
     }
 

@@ -298,7 +298,7 @@ public class BookFacetService {
         Expression<Number> value = (Expression<Number>) def.value().apply(cb, root, scope);
 
         List<Expression<Long>> matchingIds = bands.stream()
-                .map(band -> matchingId(facetRegistry.toSpecification(def.key(), List.of(band), FacetLogic.OR, scope.userId()), root, cq, cb))
+                .map(band -> matchingId(facetRegistry.matching(def.key(), List.of(band), scope.userId()), root, cq, cb))
                 .toList();
         Predicate basePredicate = base.toPredicate(root, cq, cb);
 

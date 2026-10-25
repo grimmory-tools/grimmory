@@ -83,16 +83,16 @@ public class BookController {
         return ResponseEntity.ok(bookService.getBookDTOs(withDescription, stripForListView));
     }
 
-    @Operation(summary = "Get books (paginated)", description = "Retrieve a page of books. Supports cursor pagination plus sort, facet, facet_logic, and query parameters; with none of these the legacy page/size behavior is preserved.")
+    @Operation(summary = "Get books (paginated)", description = "Retrieve a page of books. Supports cursor pagination plus sort, facet, and query parameters; with none of these the legacy page/size behavior is preserved.")
     @ApiResponse(responseCode = "200", description = "Page of books returned successfully")
     @GetMapping("/page")
     public ResponseEntity<BrowsePage<Book>> getBooksPaged(
             @Parameter(hidden = true) Pageable pageable,
             @Parameter(description = "Comma-separated sort keys; prefix a key with '-' for descending (e.g. seriesName,-seriesNumber)")
             @RequestParam(required = false) String sort,
-            @Parameter(description = "Facet selection in key:value form; repeatable (e.g. facet=genre:Horror&facet=read_status:READ)")
+            @Parameter(description = "Facet selection in key:value form; repeatable, with '+' to require or '-' to exclude a value (e.g. genre:Horror, +tag:Dragons, -genre:Romance)")
             @RequestParam(required = false) List<String> facet,
-            @Parameter(description = "How facet values combine within a group: and, or, or not")
+            @Parameter(hidden = true)
             @RequestParam(name = "facet_logic", required = false) String facetLogic,
             @Parameter(description = "Free-text search across title, series, author, genre, tag, ISBN, and ASIN")
             @RequestParam(required = false) String query,
@@ -105,29 +105,29 @@ public class BookController {
         return ResponseEntity.ok(bookBrowseService.wrapLegacy(bookService.getBookDTOsPaged(pageable), pageable));
     }
 
-    @Operation(summary = "Get book facets", description = "Every facet for the current user, without its values, scoped by the same facet, facet_logic, and query parameters as the page endpoint, plus the sort options. Each facet's hasItems says whether any matching book has a value for it. Load a facet's values from /facets/{facetName}.")
+    @Operation(summary = "Get book facets", description = "Every facet for the current user, without its values, scoped by the same facet and query parameters as the page endpoint, plus the sort options. Each facet's hasItems says whether any matching book has a value for it. Load a facet's values from /facets/{facetName}.")
     @ApiResponse(responseCode = "200", description = "Facet groups returned successfully")
     @GetMapping("/facets")
     public ResponseEntity<FacetGroupsResponse> getBookFacets(
-            @Parameter(description = "Facet selection in key:value form; repeatable")
+            @Parameter(description = "Facet selection in key:value form; repeatable, with '+' to require or '-' to exclude a value")
             @RequestParam(required = false) List<String> facet,
-            @Parameter(description = "How facet values combine within a group: and, or, or not")
+            @Parameter(hidden = true)
             @RequestParam(name = "facet_logic", required = false) String facetLogic,
             @Parameter(description = "Free-text search applied to the counts")
             @RequestParam(required = false) String query) {
         return ResponseEntity.ok(bookFacetService.getFacets(facet, facetLogic, query));
     }
 
-    @Operation(summary = "Get one book facet", description = "Values and counts for a single facet, scoped by the same facet, facet_logic, and query parameters as the page endpoint. The facet omits its own selections from its counts.")
+    @Operation(summary = "Get one book facet", description = "Values and counts for a single facet, scoped by the same facet and query parameters as the page endpoint. When counting a facet, its own unprefixed values are not applied; its '+' and '-' values are.")
     @ApiResponse(responseCode = "200", description = "Facet values returned successfully")
     @GetMapping("/facets/{facetName}")
     public ResponseEntity<FacetGroupsResponse> getBookFacet(
             @Parameter(description = "Facet name (for example author, genre, page_count, or goodreads_rating)")
             @PathVariable String facetName,
             @Parameter(hidden = true) Pageable pageable,
-            @Parameter(description = "Facet selection in key:value form; repeatable")
+            @Parameter(description = "Facet selection in key:value form; repeatable, with '+' to require or '-' to exclude a value")
             @RequestParam(required = false) List<String> facet,
-            @Parameter(description = "How facet values combine within a group: and, or, or not")
+            @Parameter(hidden = true)
             @RequestParam(name = "facet_logic", required = false) String facetLogic,
             @Parameter(description = "Free-text search applied to the counts")
             @RequestParam(required = false) String query,
@@ -136,15 +136,15 @@ public class BookController {
         return ResponseEntity.ok(bookFacetService.getFacet(facetName, facet, facetLogic, query, search, pageable));
     }
 
-    @Operation(summary = "Get matching book ids", description = "Returns every book id matching the given sort, facet, facet_logic, and query parameters, in sort order. For select-all over the current filters.")
+    @Operation(summary = "Get matching book ids", description = "Returns every book id matching the given sort, facet, and query parameters, in sort order. For select-all over the current filters.")
     @ApiResponse(responseCode = "200", description = "Matching book ids returned successfully")
     @GetMapping("/ids")
     public ResponseEntity<List<Long>> getBookIds(
             @Parameter(description = "Comma-separated sort keys; prefix a key with '-' for descending")
             @RequestParam(required = false) String sort,
-            @Parameter(description = "Facet selection in key:value form; repeatable")
+            @Parameter(description = "Facet selection in key:value form; repeatable, with '+' to require or '-' to exclude a value")
             @RequestParam(required = false) List<String> facet,
-            @Parameter(description = "How facet values combine within a group: and, or, or not")
+            @Parameter(hidden = true)
             @RequestParam(name = "facet_logic", required = false) String facetLogic,
             @Parameter(description = "Free-text search")
             @RequestParam(required = false) String query) {
