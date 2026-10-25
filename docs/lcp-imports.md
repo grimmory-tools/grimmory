@@ -2,6 +2,10 @@
 
 The web uploader accepts `.lcpl` licenses and imports their publication as an EPUB through the existing library or BookDrop upload flow.
 
+Conversion removes LCP DRM. The resulting EPUB has no technical expiry and can be retained and read indefinitely after the original library loan ends. It no longer enforces the original license's loan expiry, revocation, or DRM usage restrictions.
+
+Feature discussion: [grimmory-tools #2990](https://github.com/orgs/grimmory-tools/discussions/2990). One motivating use case is importing downloaded eBiblio licenses; eBiblio account access, catalogue browsing, borrowing, renewal, and loan-lifecycle integration are outside this change.
+
 ## Reader workflow
 
 1. Open the user profile and optionally save an LCP unlock code under **LCP book imports**.
@@ -11,6 +15,16 @@ The web uploader accepts `.lcpl` licenses and imports their publication as an EP
 5. If the code is incorrect, enter a replacement, select **Retry**, and upload again. The import dialog stays open when a conversion fails.
 
 The code entered during an upload is used only for that import. It does not replace the saved default. Saved defaults can be replaced or removed in the profile.
+
+### Screenshots
+
+These browser captures use a synthetic user and license with mocked API responses.
+
+![Per-user default unlock code](images/lcp-imports/profile.png)
+
+![Unlock code requested during import](images/lcp-imports/import.png)
+
+![Retry after an incorrect default code](images/lcp-imports/retry.png)
 
 ## Supported scope
 
