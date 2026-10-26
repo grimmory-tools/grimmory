@@ -107,18 +107,21 @@ export class BookQueryService {
     });
   }
 
-  facet(key: BookQueryFacetKey, params: BookCollectionFilterParams, search = '') {
+  facet(key: BookQueryFacetKey, params: BookCollectionFilterParams, search = '', page = 0) {
     const own = browseFacetValues(params.facets, key);
     const otherFacets = own.matchAll ? params.facets : withBrowseFacetValues(params.facets, key, {...own, include: []});
     const normalized = normalizeBookCollectionFilterParams({...params, facets: otherFacets});
     const term = search.trim();
     let httpParams = toCollectionHttpParams(normalized).set('size', FACET_PAGE_SIZE);
+    if (page > 0) {
+      httpParams = httpParams.set('page', page);
+    }
     if (term) {
       httpParams = httpParams.set('search', term);
     }
 
     return queryOptions({
-      queryKey: bookQueryKeys.facet(key, normalized, term),
+      queryKey: bookQueryKeys.facet(key, normalized, term, page),
       queryFn: async ({signal}) => mapBrowseFacetPage(await httpGet(
         this.http,
         `${this.booksUrl}/facets/${encodeURIComponent(key)}`,

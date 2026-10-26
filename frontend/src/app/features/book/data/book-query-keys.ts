@@ -21,8 +21,8 @@ export const bookQueryKeys = {
   facetQueries: () => [...bookQueryKeys.collections(), 'facets'] as const,
   facetIndex: (params: BookCollectionFilterParams) =>
     [...bookQueryKeys.facetQueries(), 'index', params] as const,
-  facet: (key: string, params: BookCollectionFilterParams, search: string) =>
-    [...bookQueryKeys.facetQueries(), 'facet', key, params, search] as const,
+  facet: (key: string, params: BookCollectionFilterParams, search: string, page: number) =>
+    [...bookQueryKeys.facetQueries(), 'facet', key, params, search, page] as const,
   idQueries: () => [...bookQueryKeys.collections(), 'ids'] as const,
   ids: (params: BookQueryParams) =>
     [...bookQueryKeys.idQueries(), params] as const,

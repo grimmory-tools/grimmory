@@ -10,6 +10,10 @@ import {QueryClient} from '@tanstack/angular-query-experimental';
 import {invalidateAllBookCaches, invalidateBooksById, patchBookMetadataInCache, patchBooksInCacheWith} from './legacy-book-cache';
 import {mitigateWebkitUploadBug} from '../../../shared/util/mitigate-webkit-upload-bug';
 
+export type MetadataSelection =
+  | {type: 'values'; values: string[]}
+  | {type: 'matching'; search: string; excludedValues: string[]};
+
 @Service()
 export class BookMetadataManageService {
   private readonly http = inject(HttpClient);
@@ -83,16 +87,16 @@ export class BookMetadataManageService {
     );
   }
 
-  consolidateMetadata(metadataType: 'authors' | 'categories' | 'moods' | 'tags' | 'series' | 'publishers' | 'languages', targetValues: string[], valuesToMerge: string[]): Observable<unknown> {
-    return this.http.post(`${this.url}/metadata/manage/consolidate`, {metadataType, targetValues, valuesToMerge}).pipe(
+  consolidateMetadata(metadataType: 'authors' | 'categories' | 'moods' | 'tags' | 'series' | 'publishers' | 'languages', targetValues: string[], selection: MetadataSelection): Observable<unknown> {
+    return this.http.post(`${this.url}/metadata/manage/consolidate`, {metadataType, targetValues, selection}).pipe(
       tap(() => {
         invalidateAllBookCaches(this.queryClient);
       })
     );
   }
 
-  deleteMetadata(metadataType: 'authors' | 'categories' | 'moods' | 'tags' | 'series' | 'publishers' | 'languages', valuesToDelete: string[]): Observable<unknown> {
-    return this.http.post(`${this.url}/metadata/manage/delete`, {metadataType, valuesToDelete}).pipe(
+  deleteMetadata(metadataType: 'authors' | 'categories' | 'moods' | 'tags' | 'series' | 'publishers' | 'languages', selection: MetadataSelection): Observable<unknown> {
+    return this.http.post(`${this.url}/metadata/manage/delete`, {metadataType, selection}).pipe(
       tap(() => {
         invalidateAllBookCaches(this.queryClient);
       })
