@@ -76,7 +76,7 @@
                   scrollHeight="flex">
                   <ng-template pTemplate="header">
                     <tr>
-                      <th style="width: 2.625rem">
+                      <th scope="col" style="width: 2.625rem">
                         <div class="header-content">
                           <p-checkbox
                             [binary]="true"
@@ -84,19 +84,19 @@
                             (ngModelChange)="setAllSelected($event)" />
                         </div>
                       </th>
-                      <th>
+                      <th scope="col">
                         <div class="header-content">
                           <i class="pi {{ tab.icon }}"></i>
                           <span>{{ t(tab.labelKey) }}</span>
                         </div>
                       </th>
-                      <th>
+                      <th scope="col">
                         <div class="header-content">
                           <i class="pi pi-book"></i>
                           <span>{{ t('booksColumn') }}</span>
                         </div>
                       </th>
-                      <th class="actions-header">
+                      <th scope="col" class="actions-header">
                         <div class="header-content">
                           <i class="pi pi-cog"></i>
                           <span>{{ t('actionsColumn') }}</span>

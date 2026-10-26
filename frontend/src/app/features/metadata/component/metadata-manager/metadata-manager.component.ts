@@ -53,6 +53,7 @@ const FACET_KEYS: Record<MetadataType, BookQueryFacetKey> = {
 };
 const NO_SELECTION: RowSelection = {kind: 'values', values: new Map()};
 const NO_FILTERS = {facets: EMPTY_FACET_SELECTION};
+const PAGE_SIZE = 50;
 
 @Component({
   selector: 'app-metadata-manager',
@@ -149,7 +150,7 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
   readonly selection = linkedSignal({source: this.scope, computation: (): RowSelection => NO_SELECTION});
 
   private readonly rowsQuery = injectQuery(() => ({
-    ...this.bookQuery.facet(FACET_KEYS[this._activeTab()], NO_FILTERS, this.search(), this.page()),
+    ...this.bookQuery.facet(FACET_KEYS[this._activeTab()], NO_FILTERS, this.search(), this.page(), PAGE_SIZE),
     placeholderData: keepPreviousData,
   }));
   readonly rows = computed(() => this.rowsQuery.data()?.values ?? []);
@@ -183,9 +184,12 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
     const type = this.getTypeLabel(this._activeTab(), true);
     const except = selection.kind === 'matching' ? selection.excluded.size : 0;
     const search = this.search();
-    const key = search === ''
-      ? (except > 0 ? 'allValuesExcept' : 'allValues')
-      : (except > 0 ? 'allMatchingExcept' : 'allMatching');
+    let key: string;
+    if (search === '') {
+      key = except > 0 ? 'allValuesExcept' : 'allValues';
+    } else {
+      key = except > 0 ? 'allMatchingExcept' : 'allMatching';
+    }
     return this.t.translate('metadata.manager.' + key, {type, search, count: except});
   });
 
@@ -392,6 +396,12 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
     const selected = this.getSelectedItems();
     const affectedBooks = this.affectedBooks();
     const operation = targetValues.length === 1 ? 'merge' : 'merge/split';
+    let detail: string | undefined;
+    if (affectedBooks !== null) {
+      detail = operation === 'merge'
+        ? this.t.translate('metadata.manager.toast.mergeSuccessfulDetail', {selectedCount: selected.length, type: this.getTypeLabel(this.currentMergeType, true), targetCount: targetValues.length, bookCount: affectedBooks})
+        : this.t.translate('metadata.manager.toast.mergeSplitSuccessfulDetail', {selectedCount: selected.length, type: this.getTypeLabel(this.currentMergeType, true), targetCount: targetValues.length, bookCount: affectedBooks});
+    }
 
     this.loading.set(true);
     this.mergingInProgress.set(true);
@@ -402,11 +412,7 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
           summary: operation === 'merge'
             ? this.t.translate('metadata.manager.toast.mergeSuccessfulSummary')
             : this.t.translate('metadata.manager.toast.mergeSplitSuccessfulSummary'),
-          detail: affectedBooks === null
-            ? undefined
-            : operation === 'merge'
-            ? this.t.translate('metadata.manager.toast.mergeSuccessfulDetail', {selectedCount: selected.length, type: this.getTypeLabel(this.currentMergeType, true), targetCount: targetValues.length, bookCount: affectedBooks})
-            : this.t.translate('metadata.manager.toast.mergeSplitSuccessfulDetail', {selectedCount: selected.length, type: this.getTypeLabel(this.currentMergeType, true), targetCount: targetValues.length, bookCount: affectedBooks}),
+          detail,
           life: 5000
         });
         this.showMergeDialog.set(false);
