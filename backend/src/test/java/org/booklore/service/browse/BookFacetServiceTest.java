@@ -359,6 +359,24 @@ class BookFacetServiceTest {
     }
 
     @Test
+    void facetCountsApplyPrefixedValues() {
+        book("A", "Horror", "Alice");
+        book("B", "Romance", "Bob");
+        book("C", "Fantasy", "Cara");
+        em.flush();
+
+        assertThat(facet("author", List.of("genre:Horror", "genre:Romance")).links())
+                .extracting(FacetLink::value).containsExactlyInAnyOrder("Alice", "Bob");
+
+        assertThat(facet("author", List.of("+genre:Horror", "+genre:Romance")).links()).isEmpty();
+
+        assertThat(facet("author", List.of("-genre:Horror", "-genre:Romance")).links())
+                .extracting(FacetLink::value).containsExactly("Cara");
+
+        assertThat(count(facet("genre", List.of("-genre:Horror")), "Horror")).isNull();
+    }
+
+    @Test
     void truncatesValuesAtMax() {
         for (int i = 0; i < 101; i++) {
             book("T" + i, "Genre" + i, "Author" + i);

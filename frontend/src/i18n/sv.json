@@ -17,6 +17,7 @@
     "next": "Nästa",
     "submit": "Skicka",
     "remove": "Ta bort",
+    "clear": "",
     "edit": "Redigera",
     "info": "",
     "select": "Välj",
@@ -524,6 +525,7 @@
       "defaultPreferences": "Standardinställningar",
       "defaultPreferencesDesc": "Konfigurera standardvisningsläge och flerfaldig sortering för alla bibliotek och hyllor. Dra för att ändra sorteringsprioritet.",
       "sortOrderLabel": "Sorteringsordning (dra för att ändra ordning)",
+      "formatOverlay": "Filformats-overlay",
       "ascending": "Stigande",
       "descending": "Fallande",
       "autoSave": "Spara automatiskt vid navigering",
@@ -550,8 +552,7 @@
       "sortSaved": "Sortering sparad",
       "sortSavedDetail": "Sorteringskonfiguration sparad för denna {{entityType}}.",
       "editSort": "Redigera sortering",
-      "tableSortConfig": "Sorteringskonfiguration",
-      "formatOverlay": "Filformats-overlay"
+      "tableSortConfig": "Sorteringskonfiguration"
     },
     "sidebarSort": {
       "sectionTitle": "Sidopanelens biblioteks- och hyllsortering",
@@ -1112,6 +1113,7 @@
     "deleteSuccess": "Användaren raderades",
     "deleteError": "Kunde inte radera användare",
     "opdsCopied": "OPDS-slutpunkt kopierad till urklipp",
+    "copyFailed": "",
     "komgaCopied": "Komga API-slutpunkt kopierad till urklipp",
     "sortUpdateSuccess": "Sorteringsordningen uppdaterades",
     "sortUpdateError": "Kunde inte uppdatera sorteringsordning",
@@ -1366,8 +1368,6 @@
       "syncConfigDesc": "Aktivera och konfigurera synkronisering mellan ditt Grimmory-bibliotek och KOReader-enhet.",
       "enableSync": "Aktivera KOReader-synk",
       "enableSyncDesc": "Aktivera synkronisering för att automatiskt synka dina läsframsteg.",
-      "syncWithGrimmory": "Synka läsframsteg med Grimmory e-boksläsare",
-      "syncWithGrimmoryDesc": "Aktivera dubbelriktad synk mellan Grimmorys e-boksläsare och KOReader. <strong>Obs:</strong> Framstegssynk är ungefärlig och kan uppdateras per kapitel snarare än exakt sida eller position.",
       "apiPath": "KOReader API-sökväg",
       "apiPathDesc": "API-slutpunktens sökväg för din KOReader-synktjänst.",
       "username": "KOReader-användarnamn",
@@ -1450,9 +1450,6 @@
       "syncEnabled": "Kobo-synk aktiverad",
       "syncDisabled": "Kobo-synk inaktiverad",
       "progressUpdated": "Framstegströsklar uppdaterades",
-      "twoWaySyncLabel": "Dubbelriktad läsframstegssynk",
-      "twoWaySyncDesc": "Aktivera dubbelriktad synk mellan Grimmorys webbläsare och din Kobo-enhet. Läsframsteg gjorda på endera plattformen reflekteras på den andra.",
-      "twoWaySyncNote": "Obs: På grund av olika positionsformat är synknoggrannheten bäst-ansträngning. I de flesta fall är framstegen korrekta på kapitelnivå.",
       "twoWaySyncKepubWarning": "",
       "twoWaySyncKepubWarningAdmin": "",
       "twoWaySyncEnabled": "Dubbelriktad framstegssynk aktiverad",
@@ -1717,7 +1714,8 @@
       },
       "shelfMenu": {
         "addToShelf": "",
-        "newShelf": ""
+        "newShelf": "",
+        "removeFromAllShelves": ""
       },
       "spinner": {
         "loading": ""
@@ -1746,6 +1744,7 @@
     "commandPalette": {
       "placeholder": "",
       "empty": "",
+      "bookSearchError": "",
       "hintNavigate": "",
       "hintSelect": "",
       "ariaLabel": "",
@@ -2282,8 +2281,10 @@
       "fetching": "Hämtar...",
       "readyToSearch": "Redo att söka",
       "readyToSearchHint": "Ange dina sökkriterier ovan och klicka Sök för att hitta metadata",
+      "noProviders": "",
       "noResultsFound": "Inga resultat hittades",
       "noResultsHint": "Prova att justera dina sökkriterier eller välja andra leverantörer",
+      "searchFailed": "",
       "selectOverlay": "Välj"
     },
     "tabs": {
@@ -2396,6 +2397,8 @@
       "goToPreviousBook": "Gå till föregående bok",
       "goToNextBook": "Gå till nästa bok",
       "personalRating": "Personligt betyg",
+      "ratingTooltip": "",
+      "ratingTooltipNoReviews": "",
       "loadingBookDetails": "Laddar bokdetaljer...",
       "readStatusUnread": "Oläst",
       "readStatusPaused": "Pausad",
@@ -2501,6 +2504,7 @@
       "byLabel": "Av:",
       "coverFileLabel": "Omslagsfil:",
       "loading": "Laddar sidecar-data...",
+      "readFailed": "",
       "syncStatusInSync": "Synkroniserad",
       "syncStatusOutdated": "Föråldrad",
       "syncStatusConflict": "Konflikt",
@@ -2534,6 +2538,7 @@
       "searchingForCovers": "Söker efter omslag...",
       "noCoversFound": "Inga omslag hittades",
       "noCoversFoundDescription": "Prova att justera dina söktermer eller kontrollera stavningen.",
+      "searchFailed": "",
       "coversFoundSingular": "{{ count }} omslag hittat",
       "coversFoundPlural": "{{ count }} omslag hittade",
       "resultsHint": "Klicka på en bild för att förhandsgranska, eller välj för att tillämpa",
@@ -2678,10 +2683,31 @@
       "toast": {
         "providerRequiredSummary": "Fel",
         "providerRequiredDetail": "Minst en leverantör (P1-P4) måste väljas för varje aktiverat bokfält."
-      }
+      },
+      "inactiveProvider": ""
     },
     "fetchOptions": {
       "startRefresh": "Starta uppdatering"
+    },
+    "providers": {
+      "openLibrary": "",
+      "amazon": "",
+      "google": "",
+      "goodReads": "",
+      "hardcover": "",
+      "comicvine": "",
+      "douban": "",
+      "lubimyczytac": "",
+      "ranobedb": "",
+      "audible": "",
+      "appleBooks": ""
+    },
+    "providerFields": {
+      "id": "",
+      "rating": "",
+      "reviewCount": "",
+      "asin": "",
+      "hardcoverBookId": ""
     }
   },
   "notebook": {
@@ -2737,9 +2763,11 @@
     },
     "card": {
       "book": {
+        "physical": "",
         "unknownTitle": "Okänd titel"
       },
       "aria": {
+        "bookMenu": "",
         "coverAlt": "Omslag för {{ title }}"
       },
       "menu": {
@@ -2809,14 +2837,27 @@
       }
     },
     "menu": {
+      "label": "",
+      "openInNewTab": "",
+      "addToShelf": "",
+      "markAs": "",
+      "send": "",
       "quickSend": "Snabbskicka",
       "customSend": "Anpassat skickande",
       "download": "Ladda ner",
+      "metadata": "",
       "editMetadata": "Redigera metadata",
+      "fetchMetadata": "",
+      "fetchMetadataWithOptions": "",
+      "searchProviders": "",
+      "restoreCover": "",
+      "generateCover": "",
+      "lockMetadata": "",
       "more": "Mer",
       "organizeFile": "Organisera fil",
       "resetGrimmoryProgress": "Återställ Grimmory-framsteg",
       "resetKoreaderProgress": "Återställ KOReader-framsteg",
+      "deleteEntireBook": "",
       "confirm": {
         "deleteBookMessage": "Är du säker på att du vill radera \"{{ title }}\"?\n\nDetta tar permanent bort bokfilen från ditt filsystem.\n\nDenna åtgärd kan inte ångras.",
         "deleteBookHeader": "Bekräfta radering",
@@ -2829,6 +2870,7 @@
     },
     "readAction": {
       "read": {
+        "short": "",
         "long": "Läs bok"
       },
       "continueReading": {
@@ -2843,6 +2885,11 @@
         "short": "Fortsätt",
         "long": "Fortsätt lyssna"
       }
+    },
+    "selectBook": "",
+    "viewMode": {
+      "grid": "Rutnät",
+      "table": "Tabell"
     },
     "notes": {
       "confirm": {
@@ -3107,7 +3154,9 @@
       "validationReady": "Redo att skapa",
       "cancelButton": "Avbryt",
       "addButton": "Lägg till fysisk bok",
-      "fetchMetadataTooltip": "Hämta metadata via ISBN"
+      "fetchMetadataTooltip": "Hämta metadata via ISBN",
+      "metadataNotFound": "",
+      "metadataLookupFailed": ""
     },
     "bulkIsbnImport": {
       "title": "Importera ISBN-nummer",
@@ -3478,16 +3527,12 @@
         "mergePartialDetail": "{{ success }} sammanfogade, {{ failed }} misslyckades."
       }
     },
-    "viewMode": {
-      "grid": "Rutnät",
-      "table": "Tabell"
-    },
     "fields": {
       "random": "Slumpmässig",
       "title": "Titel",
       "author": "Författare",
       "authorSurname": "Författare (efternamn)",
-      "genre": "Genre",
+      "genre": "",
       "series": "Serie",
       "seriesNumber": "Serienummer",
       "publisher": "Förlag",
@@ -3505,8 +3550,6 @@
       "hardcoverRating": "Hardcover-betyg",
       "hardcoverReviewCount": "Hardcover #",
       "ranobedbRating": "Ranobedb-betyg",
-      "lubimyczytacRating": "Lubimyczytac rating",
-      "audibleRating": "Audible rating",
       "pageCount": "Sidor",
       "publishedDate": "Utgivningsdatum",
       "publishedYear": "Utgivningsår",
@@ -3516,7 +3559,7 @@
       "readingProgress": "Läsframsteg",
       "fileName": "Filnamn",
       "fileSize": "Filstorlek",
-      "isbn": "ISBN",
+      "isbn": "",
       "library": "Bibliotek",
       "shelf": "Hylla",
       "ageRating": "Åldersbetyg",
@@ -3527,7 +3570,9 @@
       "comicTeam": "Serietidningsteam",
       "comicLocation": "Serietidningsplats",
       "comicCreator": "Serietidningsskapare",
-      "audibleReviewCount": "Audible-recensioner"
+      "lubimyczytacRating": "",
+      "audibleReviewCount": "Audible-recensioner",
+      "audibleRating": ""
     }
   },
   "readerAudiobook": {
@@ -5197,23 +5242,80 @@
   },
   "browse": {
     "showAll": "Visa alla",
+    "showMore": "",
+    "showFewer": "",
+    "clearFilters": "",
+    "filter": "",
     "moreActions": "Fler åtgärder",
+    "sort": {
+      "multiSort": "",
+      "addField": "",
+      "apply": "Tillämpa",
+      "moveUp": "",
+      "moveDown": "",
+      "flipDirection": ""
+    },
+    "chips": {
+      "removeSearch": ""
+    },
+    "rail": {
+      "searchValues": "",
+      "searchFields": "",
+      "searchScope": {
+        "allBooks": "",
+        "library": "",
+        "shelf": "",
+        "magicShelf": "",
+        "unshelved": ""
+      },
+      "noMatches": "",
+      "minUnit": "",
+      "maxUnit": "",
+      "min": "",
+      "max": ""
+    },
+    "book": {
+      "empty": "",
+      "filteredEmpty": "",
+      "loadError": "",
+      "pageError": ""
+    },
+    "table": {
+      "moreValues": ""
+    },
     "toolbar": {
       "columnGroups": {
+        "reading": "",
+        "publishing": "",
         "file": "Fil",
+        "categorization": "",
         "ratings": "Betyg"
       },
+      "sort": "",
+      "sortAria": "",
+      "sortAscending": "",
+      "sortDescending": "",
+      "shuffleAgain": "",
       "viewMode": "Vy",
       "density": "Storlek",
+      "smallerCards": "",
+      "largerCards": "",
+      "showFilters": "",
+      "columns": "",
       "resetColumns": "Återställ till standard"
     },
-    "sort": {
-      "apply": "Tillämpa"
-    },
     "bulk": {
+      "markAsMessage": "",
+      "editAll": "",
+      "editOneByOne": "",
+      "selectionEmpty": "",
+      "selectionLoadError": "",
       "organizeFiles": "Organisera filer",
       "updateReadStatus": "Uppdatera lässtatus",
       "lockUnlockMetadata": "Lås/lås upp metadata"
+    },
+    "filterPage": {
+      "show": ""
     }
   }
 }

@@ -125,6 +125,13 @@ export function patchListOnlyBooksWith(
   });
 }
 
+export function patchListOnlyBooks(queryClient: QueryClient, updatedBooks: readonly Book[]): void {
+  const updatedMap = new Map(updatedBooks.map(book => [book.id, book]));
+  queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, current =>
+    current?.map(book => updatedMap.get(book.id) ?? book)
+  );
+}
+
 export function removeListOnlyBooks(
   queryClient: QueryClient,
   bookIds: Iterable<number>,
@@ -151,11 +158,6 @@ export function patchBookCoversInCache(
         ? {...book, metadata: {...book.metadata, coverUpdatedOn}}
         : book;
     })
-  );
-  void reconcileBookCacheChangeSet(
-    queryClient,
-    {changedBookIds: patchMap.keys()},
-    {legacyList: 'already-updated'},
   );
 }
 
@@ -189,7 +191,7 @@ export function patchBooksInCache(queryClient: QueryClient, updatedBooks: readon
   })));
 }
 
-export function upsertBooksInCache(queryClient: QueryClient, updatedBooks: readonly Book[]): void {
+export function upsertListOnlyBooks(queryClient: QueryClient, updatedBooks: readonly Book[]): void {
   const updatedMap = new Map(updatedBooks.map(book => [book.id, book]));
   queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, current => {
     if (!current) {
@@ -201,9 +203,13 @@ export function upsertBooksInCache(queryClient: QueryClient, updatedBooks: reado
       ...updatedBooks.filter(book => !currentBookIds.has(book.id)),
     ];
   });
+}
+
+export function upsertBooksInCache(queryClient: QueryClient, updatedBooks: readonly Book[]): void {
+  upsertListOnlyBooks(queryClient, updatedBooks);
   void reconcileBookCacheChangeSet(
     queryClient,
-    {changedBookIds: updatedMap.keys()},
+    {changedBookIds: updatedBooks.map(book => book.id)},
     {legacyList: 'already-updated'},
   );
 }

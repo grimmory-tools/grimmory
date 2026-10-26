@@ -17,6 +17,7 @@
     "next": "Berikutnya",
     "submit": "Kirim",
     "remove": "Hapus",
+    "clear": "",
     "edit": "Ubah",
     "info": "",
     "select": "Pilih",
@@ -524,6 +525,7 @@
       "defaultPreferences": "",
       "defaultPreferencesDesc": "",
       "sortOrderLabel": "",
+      "formatOverlay": "",
       "ascending": "Naik",
       "descending": "Turun",
       "autoSave": "",
@@ -1111,6 +1113,7 @@
     "deleteSuccess": "",
     "deleteError": "",
     "opdsCopied": "",
+    "copyFailed": "",
     "komgaCopied": "",
     "sortUpdateSuccess": "",
     "sortUpdateError": "",
@@ -1365,8 +1368,6 @@
       "syncConfigDesc": "",
       "enableSync": "",
       "enableSyncDesc": "",
-      "syncWithGrimmory": "",
-      "syncWithGrimmoryDesc": "",
       "apiPath": "",
       "apiPathDesc": "",
       "username": "",
@@ -1449,9 +1450,6 @@
       "syncEnabled": "",
       "syncDisabled": "",
       "progressUpdated": "",
-      "twoWaySyncLabel": "",
-      "twoWaySyncDesc": "",
-      "twoWaySyncNote": "",
       "twoWaySyncKepubWarning": "",
       "twoWaySyncKepubWarningAdmin": "",
       "twoWaySyncEnabled": "",
@@ -1716,7 +1714,8 @@
       },
       "shelfMenu": {
         "addToShelf": "",
-        "newShelf": ""
+        "newShelf": "",
+        "removeFromAllShelves": ""
       },
       "spinner": {
         "loading": ""
@@ -1735,6 +1734,9 @@
         "parse": "",
         "pattern": "",
         "required": ""
+      },
+      "bulkActions": {
+        "selectAll": ""
       }
     }
   },
@@ -1742,6 +1744,7 @@
     "commandPalette": {
       "placeholder": "",
       "empty": "",
+      "bookSearchError": "",
       "hintNavigate": "",
       "hintSelect": "",
       "ariaLabel": "",
@@ -2278,8 +2281,10 @@
       "fetching": "Memuat...",
       "readyToSearch": "",
       "readyToSearchHint": "",
+      "noProviders": "",
       "noResultsFound": "",
       "noResultsHint": "",
+      "searchFailed": "",
       "selectOverlay": "Pilih"
     },
     "tabs": {
@@ -2392,6 +2397,8 @@
       "goToPreviousBook": "",
       "goToNextBook": "",
       "personalRating": "",
+      "ratingTooltip": "",
+      "ratingTooltipNoReviews": "",
       "loadingBookDetails": "",
       "readStatusUnread": "Belum Dibaca",
       "readStatusPaused": "Jeda",
@@ -2497,6 +2504,7 @@
       "byLabel": "Oleh:",
       "coverFileLabel": "",
       "loading": "",
+      "readFailed": "",
       "syncStatusInSync": "",
       "syncStatusOutdated": "",
       "syncStatusConflict": "Konflik",
@@ -2530,6 +2538,7 @@
       "searchingForCovers": "",
       "noCoversFound": "",
       "noCoversFoundDescription": "",
+      "searchFailed": "",
       "coversFoundSingular": "",
       "coversFoundPlural": "",
       "resultsHint": "",
@@ -2674,10 +2683,31 @@
       "toast": {
         "providerRequiredSummary": "Eror",
         "providerRequiredDetail": ""
-      }
+      },
+      "inactiveProvider": ""
     },
     "fetchOptions": {
       "startRefresh": ""
+    },
+    "providers": {
+      "openLibrary": "",
+      "amazon": "",
+      "google": "",
+      "goodReads": "",
+      "hardcover": "",
+      "comicvine": "",
+      "douban": "",
+      "lubimyczytac": "",
+      "ranobedb": "",
+      "audible": "",
+      "appleBooks": ""
+    },
+    "providerFields": {
+      "id": "",
+      "rating": "",
+      "reviewCount": "",
+      "asin": "",
+      "hardcoverBookId": ""
     }
   },
   "notebook": {
@@ -2732,6 +2762,14 @@
       }
     },
     "card": {
+      "book": {
+        "physical": "",
+        "unknownTitle": ""
+      },
+      "aria": {
+        "bookMenu": "",
+        "coverAlt": ""
+      },
       "menu": {
         "assignShelf": "",
         "viewDetails": "",
@@ -2797,6 +2835,61 @@
         "continueReading": "",
         "readStatusMenu": ""
       }
+    },
+    "menu": {
+      "label": "",
+      "openInNewTab": "",
+      "addToShelf": "",
+      "markAs": "",
+      "send": "",
+      "quickSend": "",
+      "customSend": "",
+      "download": "",
+      "metadata": "",
+      "editMetadata": "",
+      "fetchMetadata": "",
+      "fetchMetadataWithOptions": "",
+      "searchProviders": "",
+      "restoreCover": "",
+      "generateCover": "",
+      "lockMetadata": "",
+      "more": "",
+      "organizeFile": "",
+      "resetGrimmoryProgress": "",
+      "resetKoreaderProgress": "",
+      "deleteEntireBook": "",
+      "confirm": {
+        "deleteBookMessage": "",
+        "deleteBookHeader": "Konfirmasi Penghapusan",
+        "deleteFileMessage": "",
+        "deleteFileHeader": "",
+        "largeFileMessage": "",
+        "largeFileHeader": "",
+        "sendAnyway": ""
+      }
+    },
+    "readAction": {
+      "read": {
+        "short": "",
+        "long": ""
+      },
+      "continueReading": {
+        "short": "Lanjutkan",
+        "long": ""
+      },
+      "play": {
+        "short": "Putar",
+        "long": ""
+      },
+      "continueListening": {
+        "short": "Lanjutkan",
+        "long": ""
+      }
+    },
+    "selectBook": "",
+    "viewMode": {
+      "grid": "",
+      "table": "Tabel"
     },
     "notes": {
       "confirm": {
@@ -2925,7 +3018,8 @@
         "customFetchMetadata": "",
         "autoFetchMetadata": "",
         "findDuplicates": "",
-        "deleteLibrary": ""
+        "deleteLibrary": "",
+        "manageLibrary": ""
       },
       "shelf": {
         "publicShelfPrefix": "",
@@ -3060,7 +3154,9 @@
       "validationReady": "",
       "cancelButton": "",
       "addButton": "",
-      "fetchMetadataTooltip": ""
+      "fetchMetadataTooltip": "",
+      "metadataNotFound": "",
+      "metadataLookupFailed": ""
     },
     "bulkIsbnImport": {
       "title": "",
@@ -3431,68 +3527,52 @@
         "mergePartialDetail": ""
       }
     },
-    "menu": {
-      "confirm": {
-        "deleteBookHeader": "Konfirmasi Penghapusan"
-      }
-    },
-    "readAction": {
-      "continueReading": {
-        "short": "Lanjutkan"
-      },
-      "play": {
-        "short": "Putar"
-      },
-      "continueListening": {
-        "short": "Lanjutkan"
-      }
-    },
-    "viewMode": {
-      "table": "Tabel"
-    },
     "fields": {
-      "title": "Title",
-      "author": "Author",
-      "genre": "Genre",
-      "series": "Series",
+      "random": "",
+      "title": "",
+      "author": "",
+      "authorSurname": "",
+      "genre": "",
+      "series": "",
       "seriesNumber": "Series number",
-      "publisher": "Publisher",
-      "tag": "Tag",
-      "mood": "Mood",
-      "language": "Language",
-      "narrator": "Narrator",
-      "fileType": "File format",
-      "readStatus": "Read status",
-      "personalRating": "Personal rating",
-      "amazonRating": "Amazon rating",
+      "publisher": "",
+      "tag": "",
+      "mood": "",
+      "language": "",
+      "narrator": "",
+      "fileType": "",
+      "readStatus": "",
+      "personalRating": "",
+      "amazonRating": "",
       "amazonReviewCount": "Amazon reviews",
-      "goodreadsRating": "Goodreads rating",
+      "goodreadsRating": "",
       "goodreadsReviewCount": "Goodreads reviews",
-      "hardcoverRating": "Hardcover rating",
+      "hardcoverRating": "",
       "hardcoverReviewCount": "Hardcover reviews",
-      "ranobedbRating": "RanobeDB rating",
-      "lubimyczytacRating": "Lubimyczytac rating",
-      "audibleRating": "Audible rating",
-      "pageCount": "Pages",
-      "publishedDate": "Published date",
-      "publishedYear": "Published year",
-      "addedOn": "Date added",
-      "lastReadTime": "Last read",
-      "dateFinished": "Date finished",
-      "readingProgress": "Reading progress",
-      "fileName": "File name",
-      "fileSize": "File size",
-      "isbn": "ISBN",
-      "library": "Library",
-      "shelf": "Shelf",
-      "ageRating": "Age rating",
-      "contentRating": "Content rating",
-      "matchScore": "Metadata match score",
-      "shelfStatus": "Shelf status",
-      "comicCharacter": "Comic character",
-      "comicTeam": "Comic team",
-      "comicLocation": "Comic location",
-      "comicCreator": "Comic creator"
+      "ranobedbRating": "",
+      "pageCount": "",
+      "publishedDate": "",
+      "publishedYear": "",
+      "addedOn": "",
+      "lastReadTime": "",
+      "dateFinished": "",
+      "readingProgress": "",
+      "fileName": "",
+      "fileSize": "",
+      "isbn": "",
+      "library": "",
+      "shelf": "",
+      "ageRating": "",
+      "contentRating": "",
+      "matchScore": "",
+      "shelfStatus": "",
+      "comicCharacter": "",
+      "comicTeam": "",
+      "comicLocation": "",
+      "comicCreator": "",
+      "lubimyczytacRating": "",
+      "audibleReviewCount": "",
+      "audibleRating": ""
     }
   },
   "readerAudiobook": {
@@ -5161,18 +5241,81 @@
     }
   },
   "browse": {
+    "showAll": "",
+    "showMore": "",
+    "showFewer": "",
+    "clearFilters": "",
+    "filter": "",
     "moreActions": "Tindakan lain",
+    "sort": {
+      "multiSort": "",
+      "addField": "",
+      "apply": "",
+      "moveUp": "",
+      "moveDown": "",
+      "flipDirection": ""
+    },
+    "chips": {
+      "removeSearch": ""
+    },
+    "rail": {
+      "searchValues": "",
+      "searchFields": "",
+      "searchScope": {
+        "allBooks": "",
+        "library": "",
+        "shelf": "",
+        "magicShelf": "",
+        "unshelved": ""
+      },
+      "noMatches": "",
+      "minUnit": "",
+      "maxUnit": "",
+      "min": "",
+      "max": ""
+    },
+    "book": {
+      "empty": "",
+      "filteredEmpty": "",
+      "loadError": "",
+      "pageError": ""
+    },
+    "table": {
+      "moreValues": ""
+    },
     "toolbar": {
       "columnGroups": {
+        "reading": "",
+        "publishing": "",
         "file": "Berkas",
+        "categorization": "",
         "ratings": "Rating"
       },
+      "sort": "",
+      "sortAria": "",
+      "sortAscending": "",
+      "sortDescending": "",
+      "shuffleAgain": "",
       "viewMode": "Tampilan",
-      "density": "Ukuran"
+      "density": "Ukuran",
+      "smallerCards": "",
+      "largerCards": "",
+      "showFilters": "",
+      "columns": "",
+      "resetColumns": ""
     },
     "bulk": {
+      "markAsMessage": "",
+      "editAll": "",
+      "editOneByOne": "",
+      "selectionEmpty": "",
+      "selectionLoadError": "",
       "organizeFiles": "Atur Berkas",
+      "updateReadStatus": "",
       "lockUnlockMetadata": "Kunci/Buka kunci metadata"
+    },
+    "filterPage": {
+      "show": ""
     }
   }
 }

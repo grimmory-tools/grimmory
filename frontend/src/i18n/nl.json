@@ -17,6 +17,7 @@
     "next": "Volgende",
     "submit": "Verzenden",
     "remove": "Verwijderen",
+    "clear": "",
     "edit": "Bewerken",
     "info": "",
     "select": "Selecteren",
@@ -140,11 +141,11 @@
       "password": "Wachtwoord",
       "fromAddress": "",
       "hostPlaceholder": "",
-      "portPlaceholder": "",
-      "usernamePlaceholder": "",
-      "passwordPlaceholder": "",
+      "portPlaceholder": "587",
+      "usernamePlaceholder": "gebruiker@voorbeeld.com",
+      "passwordPlaceholder": "Wachtwoord invoeren",
       "fromAddressPlaceholder": "",
-      "providerNamePlaceholder": "",
+      "providerNamePlaceholder": "Provider naam",
       "authentication": "",
       "startTls": "",
       "shared": "",
@@ -171,13 +172,13 @@
         "host": "",
         "hostPlaceholder": "",
         "hostRequired": "",
-        "port": "",
-        "portPlaceholder": "",
+        "port": "Poort",
+        "portPlaceholder": "bijv., 587, 465",
         "portRequired": "",
         "username": "",
-        "usernamePlaceholder": "",
-        "password": "",
-        "passwordPlaceholder": "",
+        "usernamePlaceholder": "Gebruikersnaam invoeren",
+        "password": "Wachtwoord",
+        "passwordPlaceholder": "Wachtwoord invoeren",
         "fromAddress": "",
         "fromAddressPlaceholder": "",
         "enableAuth": "",
@@ -281,21 +282,21 @@
       "justified": "",
       "textJustificationDesc": "Lijn tekst links uit of vul uit voor een schone rand aan beide zijden.",
       "hyphenation": "",
-      "off": "",
-      "on": "",
+      "off": "Uit",
+      "on": "Aan",
       "hyphenationDesc": "",
       "layout": "",
       "flow": "",
       "paginated": "",
       "scrolled": "",
       "flowDesc": "",
-      "maxColumns": "",
+      "maxColumns": "Max Kolommen",
       "maxColumnsDesc": "",
-      "columnGap": "",
+      "columnGap": "Kolom ruimte",
       "columnGapDesc": "",
-      "maxWidth": "",
+      "maxWidth": "Max Breedte",
       "maxWidthDesc": "",
-      "maxHeight": "",
+      "maxHeight": "Max Hoogte",
       "maxHeightDesc": "",
       "navigation": "",
       "tapToTurnPage": "",
@@ -333,7 +334,7 @@
       "scrollModeDesc": "",
       "stripMaxWidth": "",
       "stripMaxWidthDesc": "",
-      "backgroundColor": "",
+      "backgroundColor": "Achtergrond kleur",
       "backgroundColorDesc": "",
       "even": "",
       "odd": "",
@@ -347,9 +348,9 @@
       "paginated": "",
       "infinite": "",
       "longStrip": "",
-      "gray": "",
-      "black": "",
-      "white": ""
+      "gray": "Grijs",
+      "black": "Zwart",
+      "white": "Wit"
     },
     "streamingPdf": {
       "sectionTitle": "",
@@ -377,7 +378,7 @@
       "infinite": "",
       "gray": "",
       "black": "",
-      "white": ""
+      "white": "Wit"
     },
     "toast": {
       "preferencesUpdated": "",
@@ -392,13 +393,13 @@
       "supportedFormats": "",
       "yourLibrary": "",
       "preview": "",
-      "file": "",
+      "file": "Bestand",
       "size": "",
       "uploaded": "",
-      "deleteFont": "",
-      "deleteFontConfirm": "",
-      "deleteFontHeader": "",
-      "deleteSuccess": "",
+      "deleteFont": "Verwijder lettertype",
+      "deleteFontConfirm": "Weet je het zeker dat je het lettertype \"{{name}}\" wilt verwijderen?",
+      "deleteFontHeader": "Verwijder lettertype",
+      "deleteSuccess": "Lettertype \"{{name}}\" succesvol verwijderd",
       "deleteFailed": "",
       "deleteError": "",
       "loadError": "",
@@ -524,6 +525,7 @@
       "defaultPreferences": "",
       "defaultPreferencesDesc": "",
       "sortOrderLabel": "",
+      "formatOverlay": "",
       "ascending": "",
       "descending": "",
       "autoSave": "",
@@ -1111,6 +1113,7 @@
     "deleteSuccess": "",
     "deleteError": "",
     "opdsCopied": "",
+    "copyFailed": "",
     "komgaCopied": "",
     "sortUpdateSuccess": "",
     "sortUpdateError": "",
@@ -1365,8 +1368,6 @@
       "syncConfigDesc": "",
       "enableSync": "",
       "enableSyncDesc": "",
-      "syncWithGrimmory": "",
-      "syncWithGrimmoryDesc": "",
       "apiPath": "",
       "apiPathDesc": "",
       "username": "",
@@ -1449,9 +1450,6 @@
       "syncEnabled": "",
       "syncDisabled": "",
       "progressUpdated": "",
-      "twoWaySyncLabel": "",
-      "twoWaySyncDesc": "",
-      "twoWaySyncNote": "",
       "twoWaySyncKepubWarning": "",
       "twoWaySyncKepubWarningAdmin": "",
       "twoWaySyncEnabled": "",
@@ -1716,7 +1714,8 @@
       },
       "shelfMenu": {
         "addToShelf": "",
-        "newShelf": ""
+        "newShelf": "",
+        "removeFromAllShelves": ""
       },
       "spinner": {
         "loading": ""
@@ -1745,6 +1744,7 @@
     "commandPalette": {
       "placeholder": "",
       "empty": "",
+      "bookSearchError": "",
       "hintNavigate": "",
       "hintSelect": "",
       "ariaLabel": "",
@@ -2281,8 +2281,10 @@
       "fetching": "",
       "readyToSearch": "",
       "readyToSearchHint": "",
+      "noProviders": "",
       "noResultsFound": "",
       "noResultsHint": "",
+      "searchFailed": "",
       "selectOverlay": ""
     },
     "tabs": {
@@ -2395,6 +2397,8 @@
       "goToPreviousBook": "",
       "goToNextBook": "",
       "personalRating": "",
+      "ratingTooltip": "",
+      "ratingTooltipNoReviews": "",
       "loadingBookDetails": "",
       "readStatusUnread": "",
       "readStatusPaused": "",
@@ -2500,6 +2504,7 @@
       "byLabel": "",
       "coverFileLabel": "",
       "loading": "",
+      "readFailed": "",
       "syncStatusInSync": "",
       "syncStatusOutdated": "",
       "syncStatusConflict": "",
@@ -2533,6 +2538,7 @@
       "searchingForCovers": "",
       "noCoversFound": "",
       "noCoversFoundDescription": "",
+      "searchFailed": "",
       "coversFoundSingular": "",
       "coversFoundPlural": "",
       "resultsHint": "",
@@ -2677,10 +2683,31 @@
       "toast": {
         "providerRequiredSummary": "",
         "providerRequiredDetail": ""
-      }
+      },
+      "inactiveProvider": ""
     },
     "fetchOptions": {
       "startRefresh": ""
+    },
+    "providers": {
+      "openLibrary": "",
+      "amazon": "",
+      "google": "",
+      "goodReads": "",
+      "hardcover": "",
+      "comicvine": "",
+      "douban": "",
+      "lubimyczytac": "",
+      "ranobedb": "",
+      "audible": "",
+      "appleBooks": ""
+    },
+    "providerFields": {
+      "id": "",
+      "rating": "",
+      "reviewCount": "",
+      "asin": "",
+      "hardcoverBookId": ""
     }
   },
   "notebook": {
@@ -2735,6 +2762,14 @@
       }
     },
     "card": {
+      "book": {
+        "physical": "",
+        "unknownTitle": ""
+      },
+      "aria": {
+        "bookMenu": "",
+        "coverAlt": ""
+      },
       "menu": {
         "assignShelf": "Toewijzen aan plank",
         "viewDetails": "Bekijk details",
@@ -2801,6 +2836,61 @@
         "readStatusMenu": ""
       }
     },
+    "menu": {
+      "label": "",
+      "openInNewTab": "",
+      "addToShelf": "",
+      "markAs": "",
+      "send": "",
+      "quickSend": "Snel verzenden",
+      "customSend": "Aangepast verzenden",
+      "download": "Downloaden",
+      "metadata": "",
+      "editMetadata": "Metadata bewerken",
+      "fetchMetadata": "",
+      "fetchMetadataWithOptions": "",
+      "searchProviders": "",
+      "restoreCover": "",
+      "generateCover": "",
+      "lockMetadata": "",
+      "more": "",
+      "organizeFile": "Bestand ordenen",
+      "resetGrimmoryProgress": "Voortgang Grimmory herstellen",
+      "resetKoreaderProgress": "Voortgang KOreader resetten",
+      "deleteEntireBook": "",
+      "confirm": {
+        "deleteBookMessage": "Weet u zeker dat u “{{ title }}” wilt verwijderen?\n\nHierdoor wordt het boekbestand permanent uit uw bestandssysteem verwijderd.\n\nDeze actie kan niet ongedaan worden gemaakt.",
+        "deleteBookHeader": "Verwijdering bevestigen",
+        "deleteFileMessage": "Weet u zeker dat u het extra bestand “{{ fileName }}” wilt verwijderen?",
+        "deleteFileHeader": "Bestandsverwijdering bevestigen",
+        "largeFileMessage": "Dit bestand is groter dan 25 MB. Sommige e-mailproviders kunnen grote bijlagen weigeren.\n\nWilt u het toch verzenden?",
+        "largeFileHeader": "Waarschuwing voor grote bestanden",
+        "sendAnyway": "Toch verzenden"
+      }
+    },
+    "readAction": {
+      "read": {
+        "short": "",
+        "long": ""
+      },
+      "continueReading": {
+        "short": "",
+        "long": "Lees Verder"
+      },
+      "play": {
+        "short": "",
+        "long": ""
+      },
+      "continueListening": {
+        "short": "",
+        "long": "Luister Verder"
+      }
+    },
+    "selectBook": "",
+    "viewMode": {
+      "grid": "",
+      "table": ""
+    },
     "notes": {
       "confirm": {
         "deleteMessage": "",
@@ -2845,32 +2935,6 @@
         "filesAttachedDetail": "",
         "attachmentFailedSummary": "",
         "attachmentFailedDetail": ""
-      }
-    },
-    "menu": {
-      "quickSend": "Snel verzenden",
-      "customSend": "Aangepast verzenden",
-      "download": "Downloaden",
-      "editMetadata": "Metadata bewerken",
-      "organizeFile": "Bestand ordenen",
-      "resetGrimmoryProgress": "Voortgang Grimmory herstellen",
-      "resetKoreaderProgress": "Voortgang KOreader resetten",
-      "confirm": {
-        "deleteBookMessage": "Weet u zeker dat u “{{ title }}” wilt verwijderen?\n\nHierdoor wordt het boekbestand permanent uit uw bestandssysteem verwijderd.\n\nDeze actie kan niet ongedaan worden gemaakt.",
-        "deleteBookHeader": "Verwijdering bevestigen",
-        "deleteFileMessage": "Weet u zeker dat u het extra bestand “{{ fileName }}” wilt verwijderen?",
-        "deleteFileHeader": "Bestandsverwijdering bevestigen",
-        "largeFileMessage": "Dit bestand is groter dan 25 MB. Sommige e-mailproviders kunnen grote bijlagen weigeren.\n\nWilt u het toch verzenden?",
-        "largeFileHeader": "Waarschuwing voor grote bestanden",
-        "sendAnyway": "Toch verzenden"
-      }
-    },
-    "readAction": {
-      "continueReading": {
-        "long": "Lees Verder"
-      },
-      "continueListening": {
-        "long": "Luister Verder"
       }
     },
     "menuService": {
@@ -3090,7 +3154,9 @@
       "validationReady": "",
       "cancelButton": "",
       "addButton": "",
-      "fetchMetadataTooltip": ""
+      "fetchMetadataTooltip": "",
+      "metadataNotFound": "",
+      "metadataLookupFailed": ""
     },
     "bulkIsbnImport": {
       "title": "",
@@ -3462,48 +3528,51 @@
       }
     },
     "fields": {
+      "random": "",
       "title": "Titel",
-      "author": "Author",
-      "genre": "Genre",
-      "series": "Series",
+      "author": "",
+      "authorSurname": "",
+      "genre": "",
+      "series": "",
       "seriesNumber": "Series number",
       "publisher": "Uitgever",
-      "tag": "Tag",
-      "mood": "Mood",
+      "tag": "",
+      "mood": "",
       "language": "Taal",
-      "narrator": "Narrator",
-      "fileType": "File format",
-      "readStatus": "Read status",
-      "personalRating": "Personal rating",
-      "amazonRating": "Amazon rating",
+      "narrator": "",
+      "fileType": "",
+      "readStatus": "",
+      "personalRating": "",
+      "amazonRating": "",
       "amazonReviewCount": "Amazon reviews",
-      "goodreadsRating": "Goodreads rating",
+      "goodreadsRating": "",
       "goodreadsReviewCount": "Goodreads reviews",
-      "hardcoverRating": "Hardcover rating",
+      "hardcoverRating": "",
       "hardcoverReviewCount": "Hardcover reviews",
-      "ranobedbRating": "RanobeDB rating",
-      "lubimyczytacRating": "Lubimyczytac rating",
-      "audibleRating": "Audible rating",
+      "ranobedbRating": "",
       "pageCount": "Pagina's",
-      "publishedDate": "Published date",
-      "publishedYear": "Published year",
+      "publishedDate": "",
+      "publishedYear": "",
       "addedOn": "Datum toegevoegd",
       "lastReadTime": "Laatst gelezen",
-      "dateFinished": "Date finished",
-      "readingProgress": "Reading progress",
+      "dateFinished": "",
+      "readingProgress": "",
       "fileName": "Bestandsnaam",
       "fileSize": "Bestandsgrootte",
-      "isbn": "ISBN",
-      "library": "Library",
-      "shelf": "Shelf",
-      "ageRating": "Age rating",
-      "contentRating": "Content rating",
-      "matchScore": "Metadata match score",
-      "shelfStatus": "Shelf status",
-      "comicCharacter": "Comic character",
-      "comicTeam": "Comic team",
-      "comicLocation": "Comic location",
-      "comicCreator": "Comic creator"
+      "isbn": "",
+      "library": "",
+      "shelf": "",
+      "ageRating": "",
+      "contentRating": "",
+      "matchScore": "",
+      "shelfStatus": "",
+      "comicCharacter": "",
+      "comicTeam": "",
+      "comicLocation": "",
+      "comicCreator": "",
+      "lubimyczytacRating": "",
+      "audibleReviewCount": "",
+      "audibleRating": ""
     }
   },
   "readerAudiobook": {
@@ -5173,14 +5242,80 @@
   },
   "browse": {
     "showAll": "Alles weergeven",
+    "showMore": "",
+    "showFewer": "",
+    "clearFilters": "",
+    "filter": "",
     "moreActions": "Meer acties",
+    "sort": {
+      "multiSort": "",
+      "addField": "",
+      "apply": "",
+      "moveUp": "",
+      "moveDown": "",
+      "flipDirection": ""
+    },
+    "chips": {
+      "removeSearch": ""
+    },
+    "rail": {
+      "searchValues": "",
+      "searchFields": "",
+      "searchScope": {
+        "allBooks": "",
+        "library": "",
+        "shelf": "",
+        "magicShelf": "",
+        "unshelved": ""
+      },
+      "noMatches": "",
+      "minUnit": "",
+      "maxUnit": "",
+      "min": "",
+      "max": ""
+    },
+    "book": {
+      "empty": "",
+      "filteredEmpty": "",
+      "loadError": "",
+      "pageError": ""
+    },
+    "table": {
+      "moreValues": ""
+    },
     "toolbar": {
+      "columnGroups": {
+        "reading": "",
+        "publishing": "",
+        "file": "",
+        "categorization": "",
+        "ratings": ""
+      },
+      "sort": "",
+      "sortAria": "",
+      "sortAscending": "",
+      "sortDescending": "",
+      "shuffleAgain": "",
       "viewMode": "Weergave",
+      "density": "",
+      "smallerCards": "",
+      "largerCards": "",
+      "showFilters": "",
+      "columns": "",
       "resetColumns": "Naar standaard resetten"
     },
     "bulk": {
+      "markAsMessage": "",
+      "editAll": "",
+      "editOneByOne": "",
+      "selectionEmpty": "",
+      "selectionLoadError": "",
       "organizeFiles": "Bestanden ordenen",
+      "updateReadStatus": "",
       "lockUnlockMetadata": "Metadata vergrendelen/ontgrendelen"
+    },
+    "filterPage": {
+      "show": ""
     }
   }
 }

@@ -6,6 +6,14 @@
         <form ngNoForm action="." class="command-palette-form" (submit)="$event.preventDefault()">
           <div class="command-palette-input-row">
             <svg lucideSearch class="command-palette-search-icon" aria-hidden="true"></svg>
+            <button
+              type="button"
+              class="command-palette-close-button"
+              [attr.aria-label]="'close' | transloco"
+              (click)="svc.hide()"
+            >
+              <svg lucideX aria-hidden="true"></svg>
+            </button>
             <input
               #paletteInput
               type="search"
@@ -21,14 +29,6 @@
               (ngModelChange)="onQueryChange($event)"
               (keydown)="onKeydown($event)"
             />
-            <button
-              type="button"
-              class="command-palette-close-button"
-              [attr.aria-label]="'close' | transloco"
-              (click)="svc.hide()"
-            >
-              <svg lucideX aria-hidden="true"></svg>
-            </button>
           </div>
         </form>
 

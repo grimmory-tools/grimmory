@@ -209,6 +209,17 @@
       }
     }
 
+    // Drag-to-pan cursors (toggled from script); override the global pointer on [role='button'].
+    &.can-pan,
+    &.can-pan :is([role='button'], .click-zone) {
+      cursor: grab;
+    }
+
+    &.is-dragging,
+    &.is-dragging :is([role='button'], .click-zone) {
+      cursor: grabbing;
+    }
+
     &.magnifier-active {
       cursor: none;
     }

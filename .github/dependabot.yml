@@ -60,10 +60,17 @@ updates:
           - "@eslint/*"
           - "typescript-eslint"
           - "angular-eslint"
+      oxlint:
+        patterns:
+          - "oxlint"
+          - "@oxlint/*"
+          - "eslint-plugin-oxlint"
+          - "oxlint-tsgolint"
       angular:
         patterns:
           - "@angular/*"
           - "@angular-devkit/*"
+          - "ng-mocks"
       openng:
         patterns:
           - "@openng/*"
@@ -88,7 +95,9 @@ updates:
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
-    directory: "/"
+    directories:
+      - "/"
+      - "/.github/actions/*"
     schedule:
       interval: "monthly"
     groups:

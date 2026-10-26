@@ -75,7 +75,18 @@
     "typescript/no-unsafe-member-access": "error",
     "typescript/no-unsafe-return": "error",
     "typescript/no-unsafe-unary-minus": "error",
-    "typescript/only-throw-error": "error",
+    "typescript/only-throw-error": [
+      "error",
+      {
+        "allow": [
+          {
+            "from": "package",
+            "package": "@angular/common",
+            "name": "HttpErrorResponse"
+          }
+        ]
+      }
+    ],
     "typescript/prefer-promise-reject-errors": "error",
     "typescript/require-await": "error",
     "typescript/restrict-plus-operands": "error",

@@ -292,11 +292,7 @@
       calc(0.6563rem + env(safe-area-inset-left));
 
     > .command-palette-search-icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      width: 1.125rem;
+      display: none;
     }
   }
 

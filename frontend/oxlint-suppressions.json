@@ -21,11 +21,6 @@
       "count": 4
     }
   },
-  "src/app/core/data/query-transport.ts": {
-    "typescript/only-throw-error": {
-      "count": 1
-    }
-  },
   "src/app/core/data/sse.ts": {
     "typescript/no-unsafe-assignment": {
       "count": 1

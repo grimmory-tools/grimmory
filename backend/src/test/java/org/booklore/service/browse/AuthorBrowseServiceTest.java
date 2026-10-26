@@ -305,6 +305,26 @@ class AuthorBrowseServiceTest {
     }
 
     @Test
+    void facetPrefixesRequireOrExcludeValues() {
+        AuthorEntity horrorOnly = author("Horror Only");
+        AuthorEntity romanceOnly = author("Romance Only");
+        AuthorEntity both = author("Both");
+        AuthorEntity neither = author("Neither");
+        book("H", library, libraryPath, List.of(horrorOnly), null, List.of("Horror"), null);
+        book("R", library, libraryPath, List.of(romanceOnly), null, List.of("Romance"), null);
+        book("B", library, libraryPath, List.of(both), null, List.of("Horror", "Romance"), null);
+        book("N", library, libraryPath, List.of(neither), null, List.of("Fantasy"), null);
+        em.flush();
+
+        assertThat(ids(browse("name", List.of("genre:Horror", "genre:Romance"), null, null, 0, 20)))
+                .containsExactly(both.getId(), horrorOnly.getId(), romanceOnly.getId());
+        assertThat(ids(browse("name", List.of("+genre:Horror", "+genre:Romance"), null, null, 0, 20)))
+                .containsExactly(both.getId());
+        assertThat(ids(browse("name", List.of("-genre:Horror", "-genre:Romance"), null, null, 0, 20)))
+                .containsExactly(neither.getId());
+    }
+
+    @Test
     void queryFiltersOnNameAndAsin() {
         AuthorEntity tolkien = author("J.R.R. Tolkien");
         tolkien.setAsin("B000AP9A6K");
