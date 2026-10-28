@@ -10,12 +10,12 @@ import {
   type BookFileResponse,
   type BookFileType,
   type BookSummary,
-  type KnownBookReadStatus,
+  type BookReadStatus,
 } from '../book/data/book-response.models';
 import {DEFAULT_MAX_ITEMS, type ScrollerConfig, ScrollerType} from './models/dashboard-config.model';
 
-const IN_PROGRESS_STATUSES: readonly KnownBookReadStatus[] = ['READING', 'RE_READING', 'PAUSED'];
-const RANDOM_EXCLUDED_STATUSES: readonly KnownBookReadStatus[] = [
+const IN_PROGRESS_STATUSES: readonly BookReadStatus[] = ['READING', 'RE_READING', 'PAUSED'];
+const RANDOM_EXCLUDED_STATUSES: readonly BookReadStatus[] = [
   'READ',
   'PARTIALLY_READ',
   'READING',
