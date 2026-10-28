@@ -11,7 +11,7 @@ import {
   patchBooksInCache,
   patchBookFieldsInCache,
 } from './legacy-book-cache';
-import {invalidateShelfDefinitions} from '../data/shelf-definition-query-cache';
+import {shelfQueryKeys} from '../../shelf/data/shelf-query-keys';
 
 function getResetProgressFields(type: ResetProgressType): Partial<Book> {
   if (type === ResetProgressTypes.KOREADER) {
@@ -101,7 +101,7 @@ export class BookPatchService {
     return this.http.post<Book[]>(`${this.url}/shelves`, requestPayload).pipe(
       tap(updatedBooks => {
         patchBooksInCache(this.queryClient, updatedBooks);
-        void invalidateShelfDefinitions(this.queryClient);
+        void this.queryClient.invalidateQueries({queryKey: shelfQueryKeys.all()});
       })
     );
   }
