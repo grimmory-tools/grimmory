@@ -6,7 +6,7 @@ import {AuthService} from '../../../shared/service/auth.service';
 import {createAuthServiceStub, createQueryClientHarness, flushSignalAndQueryEffects} from '../../../core/testing/query-testing';
 import type {Library} from '../model/library.model';
 import {bookQueryKeys} from '../data/book-query-keys';
-import {shelfDefinitionQueryKeys} from '../data/shelf-definition-query-keys';
+import {shelfQueryKeys} from '../../shelf/data/shelf-query-keys';
 import {AUTHORS_QUERY_KEY} from '../../author-browser/service/author-query-keys';
 import {BOOKS_QUERY_KEY} from './book-query-keys';
 import {SHELVES_QUERY_KEY} from './shelf-query-keys';
@@ -96,7 +96,7 @@ describe('LibraryService', () => {
     expect(queryClientHarness.queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: LIBRARIES_QUERY_KEY, exact: true});
     expect(queryClientHarness.queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: BOOKS_QUERY_KEY, exact: true});
     expect(queryClientHarness.queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: bookQueryKeys.all()});
-    expect(queryClientHarness.queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: shelfDefinitionQueryKeys.all()});
+    expect(queryClientHarness.queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: shelfQueryKeys.all()});
     expect(queryClientHarness.queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: SHELVES_QUERY_KEY, exact: true});
     expect(queryClientHarness.queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: AUTHORS_QUERY_KEY, exact: true});
     expect(queryClientHarness.queryClient.removeQueries).toHaveBeenCalledWith({queryKey: libraryFormatCountsQueryKey(4), exact: true});

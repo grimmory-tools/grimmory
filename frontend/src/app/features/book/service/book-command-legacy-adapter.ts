@@ -15,10 +15,9 @@ import {
   ResetBookProgressVariables,
   SetBookReadStatusResult,
 } from '../data/book-command.models';
-import {UpdateBookShelfMembershipResult} from '../data/book-shelf-command.models';
-import {BookDetailMetadata, BookFileResponse, BookShelf} from '../data/book-response.models';
+import {BookDetail, BookDetailMetadata, BookFileResponse} from '../data/book-response.models';
 import {AdditionalFile, Book, BOOK_TYPES, ReadStatus} from '../model/book.model';
-import {Shelf} from '../model/shelf.model';
+import type {Shelf} from '../../shelf/data/shelf-query.models';
 import {
   invalidateAllLegacyBooks,
   patchListOnlyBookFields,
@@ -134,8 +133,8 @@ export const legacyBookCachePatches = {
   }))),
   shelfMembership: (
     client: QueryClient,
-    result: UpdateBookShelfMembershipResult,
-  ): Promise<void> => patchLegacyShelfMembership(client, result),
+    books: readonly BookDetail[],
+  ): Promise<void> => patchLegacyShelfMembership(client, books),
 } as const;
 
 function metadataLocks(metadata: BookDetailMetadata): Record<string, boolean> {
@@ -178,14 +177,14 @@ function clearedProgressFields(source: BookProgressSource): Partial<Book> {
 
 async function patchLegacyShelfMembership(
   client: QueryClient,
-  result: UpdateBookShelfMembershipResult,
+  books: readonly BookDetail[],
 ): Promise<void> {
   await Promise.all([
-    patchListOnlyBooksWith(client, result.updatedBookShelves.map(update => ({
-      bookId: update.bookId,
+    patchListOnlyBooksWith(client, books.map(updated => ({
+      bookId: updated.id,
       updater: book => ({
         ...book,
-        shelves: update.shelves.map(toLegacyShelf),
+        shelves: updated.shelves?.map(toLegacyShelf),
       }),
     }))),
     client.invalidateQueries({queryKey: SHELVES_QUERY_KEY, exact: true}),
@@ -196,14 +195,13 @@ function toLegacyBookFile(file: BookFileResponse): AdditionalFile {
   return {...file, bookType: BOOK_TYPES.find(type => type === file.bookType)};
 }
 
-function toLegacyShelf(shelf: BookShelf): Shelf {
+function toLegacyShelf(shelf: Shelf) {
   return {
     id: shelf.id,
     name: shelf.name,
     icon: shelf.icon,
-    iconType: shelf.iconType as Shelf['iconType'],
+    iconType: shelf.iconType,
     userId: shelf.userId,
     publicShelf: shelf.publicShelf,
-    bookCount: shelf.bookCount,
   };
 }

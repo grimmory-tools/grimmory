@@ -9,7 +9,7 @@ import {API_CONFIG} from '../../../core/config/api-config';
 import {AuthService} from '../../../shared/service/auth.service';
 import {LIBRARIES_QUERY_KEY, libraryFormatCountsQueryKey} from './library-query-keys';
 import {AUTHORS_QUERY_KEY} from '../../author-browser/service/author-query-keys';
-import {invalidateShelfDefinitions} from '../data/shelf-definition-query-cache';
+import {shelfQueryKeys} from '../../shelf/data/shelf-query-keys';
 import {invalidateAllBookCaches} from './legacy-book-cache';
 import {SHELVES_QUERY_KEY} from './shelf-query-keys';
 
@@ -91,7 +91,7 @@ export class LibraryService {
       tap(() => {
         void this.queryClient.invalidateQueries({queryKey: LIBRARIES_QUERY_KEY, exact: true});
         invalidateAllBookCaches(this.queryClient);
-        void invalidateShelfDefinitions(this.queryClient);
+        void this.queryClient.invalidateQueries({queryKey: shelfQueryKeys.all()});
         void this.queryClient.invalidateQueries({queryKey: SHELVES_QUERY_KEY, exact: true});
         void this.queryClient.invalidateQueries({queryKey: AUTHORS_QUERY_KEY, exact: true});
         this.queryClient.removeQueries({queryKey: libraryFormatCountsQueryKey(id), exact: true});

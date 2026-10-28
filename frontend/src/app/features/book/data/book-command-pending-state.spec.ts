@@ -10,8 +10,8 @@ describe('overlayPendingBookState', () => {
     libraryName: 'Library',
     readStatus: 'UNREAD',
     shelves: [
-      {id: 20, name: 'Remove', publicShelf: false, bookCount: 1},
-      {id: 30, name: 'Keep', publicShelf: false, bookCount: 1},
+      {id: 20, name: 'Remove', userId: 1, publicShelf: false},
+      {id: 30, name: 'Keep', userId: 1, publicShelf: false},
     ],
     epubProgress: {
       cfi: 'epubcfi(/6/2)',
