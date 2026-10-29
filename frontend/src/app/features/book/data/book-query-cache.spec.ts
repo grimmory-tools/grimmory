@@ -67,7 +67,7 @@ describe('book query cache', () => {
     expect(queryClient.getQueryState(firstDetailKey)?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(secondDetailKey)?.isInvalidated).toBe(false);
     expect(queryClient.getQueryState(firstRecommendationKey)?.isInvalidated).toBe(true);
-    expect(invalidateQueriesSpy).toHaveBeenCalledTimes(3);
+    expect(invalidateQueriesSpy).toHaveBeenCalledTimes(4);
   });
 
   it('resolves without work when no changed or deleted book IDs are provided', async () => {
@@ -100,7 +100,7 @@ describe('book query cache', () => {
     expect(queryClient.getQueryState(pageKey)?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(secondRecommendationKey)?.isInvalidated).toBe(true);
     expect(removeQueriesSpy).toHaveBeenCalledTimes(1);
-    expect(invalidateQueriesSpy).toHaveBeenCalledTimes(2);
+    expect(invalidateQueriesSpy).toHaveBeenCalledTimes(3);
   });
 
   it('refetches each active dependent once without aborting it after a change', async () => {
