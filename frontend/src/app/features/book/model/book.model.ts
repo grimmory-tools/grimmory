@@ -305,6 +305,9 @@ export interface MetadataClearFlags {
   applebooksId?: boolean;
   applebooksRating?: boolean;
   applebooksReviewCount?: boolean;
+  doubanId?: boolean;
+  doubanRating?: boolean;
+  doubanReviewCount?: boolean;
   narrator?: boolean;
   abridged?: boolean;
   authors?: boolean;

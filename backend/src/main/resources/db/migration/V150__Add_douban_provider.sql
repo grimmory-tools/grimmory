@@ -1,0 +1,7 @@
+ALTER TABLE book_metadata
+    ADD COLUMN IF NOT EXISTS douban_id VARCHAR(100),
+    ADD COLUMN IF NOT EXISTS douban_rating FLOAT,
+    ADD COLUMN IF NOT EXISTS douban_review_count INT,
+    ADD COLUMN IF NOT EXISTS douban_id_locked BOOLEAN DEFAULT FALSE,
+    ADD COLUMN IF NOT EXISTS douban_rating_locked BOOLEAN DEFAULT FALSE,
+    ADD COLUMN IF NOT EXISTS douban_review_count_locked BOOLEAN DEFAULT FALSE;

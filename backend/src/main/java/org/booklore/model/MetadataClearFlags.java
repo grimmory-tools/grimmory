@@ -40,6 +40,9 @@ public class MetadataClearFlags {
     private boolean applebooksId;
     private boolean applebooksRating;
     private boolean applebooksReviewCount;
+    private boolean doubanId;
+    private boolean doubanRating;
+    private boolean doubanReviewCount;
     private boolean authors;
     private boolean categories;
     private boolean moods;

@@ -371,6 +371,9 @@ public class MetadataRefreshService {
             addProviderToSet(fieldOptions.getApplebooksId(), uniqueProviders);
             addProviderToSet(fieldOptions.getApplebooksRating(), uniqueProviders);
             addProviderToSet(fieldOptions.getApplebooksReviewCount(), uniqueProviders);
+            addProviderToSet(fieldOptions.getDoubanId(), uniqueProviders);
+            addProviderToSet(fieldOptions.getDoubanRating(), uniqueProviders);
+            addProviderToSet(fieldOptions.getDoubanReviewCount(), uniqueProviders);
             addProviderToSet(fieldOptions.getMoods(), uniqueProviders);
             addProviderToSet(fieldOptions.getTags(), uniqueProviders);
         }
@@ -709,6 +712,30 @@ public class MetadataRefreshService {
             }
         } else if (isReplaceAll && existingMetadata != null) {
             metadata.setApplebooksReviewCount(existingMetadata.getApplebooksReviewCount());
+        }
+
+        if (enabledFields.isDoubanId()) {
+            if (metadataMap.containsKey(Douban)) {
+                metadata.setDoubanId(metadataMap.get(Douban).getDoubanId());
+            }
+        } else if (isReplaceAll && existingMetadata != null) {
+            metadata.setDoubanId(existingMetadata.getDoubanId());
+        }
+
+        if (enabledFields.isDoubanRating()) {
+            if (metadataMap.containsKey(Douban)) {
+                metadata.setDoubanRating(metadataMap.get(Douban).getDoubanRating());
+            }
+        } else if (isReplaceAll && existingMetadata != null) {
+            metadata.setDoubanRating(existingMetadata.getDoubanRating());
+        }
+
+        if (enabledFields.isDoubanReviewCount()) {
+            if (metadataMap.containsKey(Douban)) {
+                metadata.setDoubanReviewCount(metadataMap.get(Douban).getDoubanReviewCount());
+            }
+        } else if (isReplaceAll && existingMetadata != null) {
+            metadata.setDoubanReviewCount(existingMetadata.getDoubanReviewCount());
         }
 
         if (enabledFields.isMoods()) {

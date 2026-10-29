@@ -859,6 +859,22 @@ class BookMetadataUpdaterTest {
         }
 
         @Test
+        void updatesDoubanFields() {
+            BookMetadata newMeta = BookMetadata.builder().title("T")
+                    .doubanId("1084336").doubanRating(4.55).doubanReviewCount(320)
+                    .build();
+            MetadataUpdateContext context = buildContext(newMeta, MetadataReplaceMode.REPLACE_ALL);
+
+            try (MockedStatic<MetadataChangeDetector> mcd = mockStatic(MetadataChangeDetector.class)) {
+                mockSettingsAndChangeDetector(mcd, true, true);
+                updater.setBookMetadata(context);
+                assertThat(metadataEntity.getDoubanId()).isEqualTo("1084336");
+                assertThat(metadataEntity.getDoubanRating()).isEqualTo(4.55);
+                assertThat(metadataEntity.getDoubanReviewCount()).isEqualTo(320);
+            }
+        }
+
+        @Test
         void updatesAgeRatingAndContentRating() {
             BookMetadata newMeta = BookMetadata.builder().title("T")
                     .ageRating(18).contentRating("Mature").build();

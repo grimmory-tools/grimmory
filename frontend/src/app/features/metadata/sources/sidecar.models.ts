@@ -26,6 +26,7 @@ interface SidecarRatings {
   ranobedb?: SidecarRating;
   audible?: SidecarRating;
   applebooks?: SidecarRating;
+  douban?: SidecarRating;
 }
 
 interface SidecarBookMetadata {
