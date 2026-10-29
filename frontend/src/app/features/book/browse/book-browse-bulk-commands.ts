@@ -10,7 +10,6 @@ import {
   CLEAR_BOOK_READ_STATUS_LABEL_KEY,
 } from '../components/book-read-status-options';
 import {DeleteBooksPartialError, type BookProgressSource} from '../data/book-command.models';
-import {BookBackgroundSubmissionService} from '../data/book-background-submission.service';
 import {BookCommandService} from '../data/book-command.service';
 import {BookShelfCommandService} from '../data/book-shelf-command.service';
 import {type BookSummary, type KnownBookReadStatus} from '../data/book-response.models';
@@ -32,7 +31,6 @@ export function createBookBrowseBulkCommands({selection, books, fetchIds}: BookB
   const transloco = inject(TranslocoService);
   const dialogHelper = inject(BookDialogHelperService);
   const metadataRefresh = inject(MetadataRefreshSubmissionService);
-  const backgroundSubmission = inject(BookBackgroundSubmissionService);
   const confirmationService = inject(ConfirmationService);
   const messageService = inject(MessageService);
   const bookCommands = inject(BookCommandService);
@@ -49,7 +47,8 @@ export function createBookBrowseBulkCommands({selection, books, fetchIds}: BookB
     bookCommands.resetProgress(), legacyBookCachePatches.resetProgress));
   const metadataLocksMutation = injectMutation(() => withLegacyBookCache(
     bookCommands.setAllMetadataLocks(), legacyBookCachePatches.metadataAllLocks));
-  const changeCoversMutation = injectMutation(() => backgroundSubmission.changeCovers());
+  const regenerateCoversMutation = injectMutation(() => bookCommands.bulkRegenerateCovers());
+  const generateCoversMutation = injectMutation(() => bookCommands.bulkGenerateCovers());
 
   const isResolving = signal(false);
 
@@ -166,7 +165,8 @@ export function createBookBrowseBulkCommands({selection, books, fetchIds}: BookB
         acceptLabel: transloco.translate('common.confirm'),
         rejectLabel: transloco.translate('common.cancel'),
         accept: () => {
-          void withSelectedBookIds(bookIds => changeCoversMutation.mutate({kind, bookIds: [...bookIds]}));
+          const mutation = regenerate ? regenerateCoversMutation : generateCoversMutation;
+          void withSelectedBookIds(bookIds => mutation.mutate({bookIds: [...bookIds]}));
         },
       });
     },
