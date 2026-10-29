@@ -30,7 +30,6 @@ jobs:
           ref: ${{ inputs.ref }}
 
       - name: Generate Preview Tag
-        id: preview_vars
         env:
           PR_NUMBER: ${{ inputs.pr_number }}
         run: |
@@ -50,7 +49,6 @@ jobs:
 
           echo "preview_tag=$preview_tag" >> "$GITHUB_ENV"
           echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
-          echo "repository=${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
           echo "Preview tag: $preview_tag"
 
       - name: Set Up Docker Buildx
@@ -68,7 +66,7 @@ jobs:
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: |
-            ghcr.io/${{ steps.preview_vars.outputs.repository }}
+            ghcr.io/${{ github.repository }}
           context: git
           tags: |
             type=raw,value=${{ env.preview_tag }}
@@ -87,4 +85,4 @@ jobs:
             APP_REVISION=${{ env.commit_sha }}
           cache-from: |
             type=gha,scope=image-shared
-            type=registry,ref=ghcr.io/${{ steps.preview_vars.outputs.repository }}:buildcache
+            type=registry,ref=ghcr.io/${{ github.repository }}:buildcache
