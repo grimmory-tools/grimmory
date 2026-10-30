@@ -2588,6 +2588,13 @@
       "deleteCannotUndo": "This action cannot be undone",
       "totalBooksAffected": "Total books affected:",
       "deleting": "Deleting...",
+      "previousPage": "Previous",
+      "allValues": "all {{ type }}",
+      "allValuesExcept": "all {{ type }} except {{ count }}",
+      "allMatching": "all {{ type }} matching \"{{ search }}\"",
+      "allMatchingExcept": "all {{ type }} matching \"{{ search }}\" except {{ count }}",
+      "mergeSplitAllDescription": "You are merging/splitting {{ selection }}.",
+      "deleteAllWarning": "You are about to delete {{ selection }}.",
       "tabs": {
         "author": "Author",
         "authors": "Authors",

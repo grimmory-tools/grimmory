@@ -800,9 +800,6 @@
   },
   "src/app/features/metadata/component/metadata-manager/metadata-manager.component.ts": {
     "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 3
-    },
-    "typescript/no-unnecessary-condition": {
       "count": 1
     },
     "typescript/no-unsafe-assignment": {

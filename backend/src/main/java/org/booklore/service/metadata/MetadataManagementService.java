@@ -2,12 +2,14 @@ package org.booklore.service.metadata;
 
 import org.booklore.config.AppProperties;
 import org.booklore.model.dto.FileMoveResult;
+import org.booklore.model.dto.request.MetadataSelection;
 import org.booklore.model.dto.settings.MetadataPersistenceSettings;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.MergeMetadataType;
 import org.booklore.repository.*;
 import org.booklore.service.appsettings.AppSettingService;
+import org.booklore.service.browse.BookFacetService;
 import org.booklore.service.file.FileFingerprint;
 import org.booklore.service.file.FileMoveService;
 import org.booklore.service.metadata.writer.MetadataWriter;
@@ -36,6 +38,7 @@ public class MetadataManagementService {
     private final MetadataWriterFactory metadataWriterFactory;
     private final FileMoveService fileMoveService;
     private final BookRepository bookRepository;
+    private final BookFacetService bookFacetService;
 
 
     @Transactional
@@ -53,6 +56,24 @@ public class MetadataManagementService {
             case publishers -> consolidatePublishers(targetValues, valuesToMerge, moveFile);
             case languages -> consolidateLanguages(targetValues, valuesToMerge, moveFile);
         }
+    }
+
+    public List<String> resolve(MergeMetadataType metadataType, MetadataSelection selection) {
+        String facetKey = switch (metadataType) {
+            case authors -> "author";
+            case categories -> "genre";
+            case moods -> "mood";
+            case tags -> "tag";
+            case series -> "series";
+            case publishers -> "publisher";
+            case languages -> "language";
+        };
+        return switch (selection) {
+            case MetadataSelection.Values values -> values.values();
+            case MetadataSelection.Matching matching -> bookFacetService.allValues(facetKey, matching.search()).stream()
+                    .filter(value -> !matching.excludedValues().contains(value))
+                    .toList();
+        };
     }
 
     private void writeMetadataToFile(List<BookMetadataEntity> metadataList, boolean moveFile) {

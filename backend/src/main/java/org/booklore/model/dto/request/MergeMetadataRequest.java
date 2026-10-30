@@ -9,5 +9,5 @@ import java.util.List;
 public class MergeMetadataRequest {
     private MergeMetadataType metadataType;
     private List<String> targetValues;
-    private List<String> valuesToMerge;
+    private MetadataSelection selection;
 }

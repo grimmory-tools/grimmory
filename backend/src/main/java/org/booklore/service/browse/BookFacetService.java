@@ -214,6 +214,16 @@ public class BookFacetService {
         return new FacetGroupsResponse(links, List.of(group));
     }
 
+    public List<String> allValues(String facetName, String search) {
+        FacetDef def = findFacet(facetName);
+        BrowseScope scope = scopeFactory.from(authenticationService.getAuthenticatedUser());
+        Specification<BookEntity> base = filterSpecifications.base(null, Map.of(), FacetLogic.OR, scope, def.key());
+        String term = search == null || search.isBlank() ? null : search.trim();
+        return count(def, base, scope, term, 0, Integer.MAX_VALUE).stream()
+                .map(FacetResponseBuilder.FacetCount::value)
+                .toList();
+    }
+
     // Package-private: lets tests reset the shared singleton cache between runs.
     void clearCache() {
         cache.invalidateAll();
