@@ -3313,6 +3313,8 @@
       "removeIconTooltip": "Remove icon",
       "visibilityLabel": "Visibility",
       "makePublicLabel": "Make this shelf public (read-only for others)",
+      "koboLabel": "Kobo",
+      "syncToKoboLabel": "Sync this shelf to my Kobo",
       "validationRequired": "Shelf name is required",
       "validationReady": "Ready to create",
       "cancelButton": "Cancel",
@@ -3331,6 +3333,8 @@
       "selectIcon": "Select Icon",
       "visibilityLabel": "Visibility:",
       "publicShelfLabel": "Public Shelf",
+      "koboLabel": "Kobo:",
+      "syncToKoboLabel": "Sync this shelf to my Kobo",
       "cancelButton": "Cancel",
       "saveChanges": "Save Changes",
       "toast": {
@@ -4829,7 +4833,8 @@
       "clickToChange": "Click to change",
       "removeIcon": "Remove icon",
       "selectIcon": "Select Icon",
-      "public": "Public"
+      "public": "Public",
+      "syncToKobo": "Sync to Kobo"
     },
     "actions": {
       "cancel": "Cancel",

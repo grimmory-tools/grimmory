@@ -1,6 +1,7 @@
 package org.booklore.service;
 
 import org.booklore.config.security.service.AuthenticationService;
+import org.booklore.exception.APIException;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.service.audit.AuditService;
 import org.booklore.model.dto.MagicShelf;
@@ -42,6 +43,47 @@ class MagicShelfServiceTest {
         BookLoreUser.UserPermissions permissions = new BookLoreUser.UserPermissions();
         permissions.setAdmin(true);
         user = BookLoreUser.builder().id(1L).isDefaultPassword(false).permissions(permissions).build();
+    }
+
+    @Test
+    void createOrUpdateShelf_shouldPersistKoboSyncFlag() {
+        MagicShelf dto = new MagicShelf();
+        dto.setName("Historical");
+        dto.setFilterJson("{\"status\": \"unread\"}");
+        dto.setIsPublic(false);
+        dto.setKoboSync(true);
+
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+        when(magicShelfRepository.existsByUserIdAndName(1L, "Historical")).thenReturn(false);
+        when(magicShelfRepository.save(any(MagicShelfEntity.class))).thenAnswer(invocation -> {
+            MagicShelfEntity entity = invocation.getArgument(0);
+            entity.setId(1L);
+            return entity;
+        });
+
+        MagicShelf result = magicShelfService.createOrUpdateShelf(dto);
+
+        assertTrue(result.getKoboSync());
+    }
+
+    @Test
+    void createOrUpdateShelf_shouldRejectKoboSyncWithoutPermission() {
+        BookLoreUser.UserPermissions permissions = new BookLoreUser.UserPermissions();
+        permissions.setAdmin(false);
+        permissions.setCanSyncKobo(false);
+        user.setPermissions(permissions);
+
+        MagicShelf dto = new MagicShelf();
+        dto.setName("Historical");
+        dto.setFilterJson("{\"status\": \"unread\"}");
+        dto.setIsPublic(false);
+        dto.setKoboSync(true);
+
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+        when(magicShelfRepository.existsByUserIdAndName(1L, "Historical")).thenReturn(false);
+
+        assertThrows(APIException.class, () -> magicShelfService.createOrUpdateShelf(dto));
+        verify(magicShelfRepository, never()).save(any());
     }
 
     @Test
@@ -94,6 +136,54 @@ class MagicShelfServiceTest {
         assertNotNull(result);
         assertEquals("star", result.getIcon());
         assertEquals(IconType.LUCIDE, result.getIconType());
+    }
+
+    @Test
+    void updateShelf_shouldPreserveKoboSyncWhenFieldIsOmitted() {
+        MagicShelfEntity existing = MagicShelfEntity.builder()
+                .id(1L).userId(1L).name("Old Shelf").koboSync(true)
+                .filterJson("{\"status\": \"reading\"}").build();
+
+        MagicShelf dto = new MagicShelf();
+        dto.setId(1L);
+        dto.setName("Renamed Shelf");
+        dto.setFilterJson("{\"status\": \"reading\"}");
+        dto.setIsPublic(false);
+
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+        when(magicShelfRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(magicShelfRepository.save(any(MagicShelfEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        MagicShelf result = magicShelfService.createOrUpdateShelf(dto);
+
+        assertTrue(existing.isKoboSync());
+        assertTrue(result.getKoboSync());
+    }
+
+    @Test
+    void updateShelf_shouldRejectEnablingKoboSyncWithoutPermission() {
+        BookLoreUser.UserPermissions permissions = new BookLoreUser.UserPermissions();
+        permissions.setAdmin(false);
+        permissions.setCanSyncKobo(false);
+        user.setPermissions(permissions);
+
+        MagicShelfEntity existing = MagicShelfEntity.builder()
+                .id(1L).userId(1L).name("Old Shelf").koboSync(false)
+                .filterJson("{\"status\": \"reading\"}").build();
+
+        MagicShelf dto = new MagicShelf();
+        dto.setId(1L);
+        dto.setName("Old Shelf");
+        dto.setFilterJson("{\"status\": \"reading\"}");
+        dto.setIsPublic(false);
+        dto.setKoboSync(true);
+
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+        when(magicShelfRepository.findById(1L)).thenReturn(Optional.of(existing));
+
+        assertThrows(APIException.class, () -> magicShelfService.createOrUpdateShelf(dto));
+        assertFalse(existing.isKoboSync());
+        verify(magicShelfRepository, never()).save(any());
     }
 
     @Test

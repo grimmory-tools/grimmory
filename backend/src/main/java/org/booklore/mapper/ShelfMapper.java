@@ -10,6 +10,7 @@ public interface ShelfMapper {
 
     @Mapping(source = "user.id", target = "userId")
     @Mapping(source = "public", target = "publicShelf")
+    @Mapping(source = "koboSync", target = "koboSync")
     @Mapping(target = "bookCount", source = "bookCount")
     Shelf toShelf(ShelfEntity shelfEntity);
 }

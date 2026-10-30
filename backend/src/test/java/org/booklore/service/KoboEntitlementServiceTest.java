@@ -32,6 +32,7 @@ import org.booklore.repository.KoboReadingStateRepository;
 import org.booklore.repository.UserBookFileProgressRepository;
 import org.booklore.repository.UserBookProgressRepository;
 import org.booklore.service.kobo.KoboEntitlementService;
+import org.booklore.service.kobo.KoboLibrarySnapshotService;
 import org.booklore.service.kobo.KoboReadingStateBuilder;
 import org.booklore.service.kobo.KoboSettingsService;
 import org.booklore.service.kobo.KoboSpanMapService;
@@ -54,6 +55,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -112,6 +114,9 @@ class KoboEntitlementServiceTest {
     @Mock
     private KoboSpanMapService koboSpanMapService;
 
+    @Mock
+    private KoboLibrarySnapshotService koboLibrarySnapshotService;
+
     @InjectMocks
     private KoboEntitlementService koboEntitlementService;
 
@@ -123,6 +128,10 @@ class KoboEntitlementServiceTest {
         user = BookLoreUser.builder().id(1L).permissions(permissions).build();
         when(authenticationService.getAuthenticatedUser()).thenReturn(user);
         when(koboSpanMapService.getValidMaps(anyMap())).thenReturn(Map.of());
+        when(koboLibrarySnapshotService.resolveSyncedBooks(anyLong())).thenAnswer(invocation ->
+                shelfRepository.findByUserIdAndName(invocation.getArgument(0), ShelfType.KOBO.getName())
+                        .map(shelf -> (Set<BookEntity>) new LinkedHashSet<>(shelf.getBookEntities()))
+                        .orElseGet(LinkedHashSet::new));
         when(progressRepository.findByUserIdAndBookIdForKoboSync(anyLong(), anyLong()))
                 .thenAnswer(invocation -> progressRepository.findByUserIdAndBookId(
                         invocation.getArgument(0),
@@ -290,6 +299,45 @@ class KoboEntitlementServiceTest {
         return appSettings;
     }
 
+    private List<KoboTagWrapper> generateTags() {
+        Set<Long> snapshotBookIds = koboLibrarySnapshotService.resolveSyncedBooks(user.getId()).stream()
+                .filter(koboCompatibilityService::isBookSupportedForKobo)
+                .map(BookEntity::getId)
+                .collect(java.util.stream.Collectors.toSet());
+        return koboEntitlementService.generateTags(snapshotBookIds);
+    }
+
+    @Test
+    void generateTags_shouldOnlyIncludeBooksFromTheGivenSnapshot() {
+        BookEntity book1 = createEpubBookEntity(1L);
+        BookEntity book2 = createEpubBookEntity(2L);
+        ShelfEntity userShelf = ShelfEntity.builder().id(101L).name("Vacation").koboSync(true).bookEntities(Set.of(book1, book2)).build();
+
+        when(shelfRepository.findByUserId(user.getId())).thenReturn(List.of(userShelf));
+        when(magicShelfRepository.findAllByUserId(user.getId())).thenReturn(List.of());
+
+        List<KoboTagWrapper> tags = koboEntitlementService.generateTags(Set.of(1L));
+
+        assertEquals(1, tags.size());
+        assertEquals(1, tags.getFirst().getChangedTag().getTag().getItems().size());
+        assertEquals("1", tags.getFirst().getChangedTag().getTag().getItems().getFirst().getRevisionId());
+    }
+
+    @Test
+    void generateTags_shouldReturnDeletedTagWhenSnapshotIsEmpty() {
+        BookEntity book1 = createEpubBookEntity(1L);
+        ShelfEntity userShelf = ShelfEntity.builder().id(101L).name("Vacation").koboSync(false).bookEntities(Set.of(book1)).build();
+
+        when(shelfRepository.findByUserId(user.getId())).thenReturn(List.of(userShelf));
+        when(magicShelfRepository.findAllByUserId(user.getId())).thenReturn(List.of());
+
+        List<KoboTagWrapper> tags = koboEntitlementService.generateTags(Set.of());
+
+        assertEquals(1, tags.size());
+        assertNull(tags.getFirst().getChangedTag());
+        assertEquals("BL-S-101", tags.getFirst().getDeletedTag().getTag().getId());
+    }
+
     @Test
     void generateTags_shouldReturnTagsForShelvesAndMagicShelves() {
         BookEntity book1 = createEpubBookEntity(1L);
@@ -317,7 +365,7 @@ class KoboEntitlementServiceTest {
         when(magicShelfBookService.getBookIdsByMagicShelfId(eq(user.getId()), eq(201L), anyInt()))
                 .thenReturn(List.of(2L));
 
-        List<KoboTagWrapper> tags = koboEntitlementService.generateTags();
+        List<KoboTagWrapper> tags = generateTags();
 
         assertEquals(2, tags.size());
 
@@ -341,6 +389,26 @@ class KoboEntitlementServiceTest {
     }
 
     @Test
+    void generateTags_shouldIncludeSyncFlaggedShelfWithoutLegacyKoboShelf() {
+        BookEntity book1 = createEpubBookEntity(1L);
+        ShelfEntity syncShelf = ShelfEntity.builder().id(101L).name("Vacation").koboSync(true).bookEntities(Set.of(book1)).build();
+
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+        when(koboLibrarySnapshotService.resolveSyncedBooks(user.getId())).thenReturn(new LinkedHashSet<>(Set.of(book1)));
+        when(koboCompatibilityService.isBookSupportedForKobo(any(BookEntity.class))).thenReturn(true);
+        when(shelfRepository.findByUserId(user.getId())).thenReturn(List.of(syncShelf));
+        when(magicShelfRepository.findAllByUserId(user.getId())).thenReturn(List.of());
+
+        List<KoboTagWrapper> tags = generateTags();
+
+        assertEquals(1, tags.size());
+        KoboTagWrapper tag = tags.getFirst();
+        assertEquals("BL-S-101", tag.getChangedTag().getTag().getId());
+        assertEquals(1, tag.getChangedTag().getTag().getItems().size());
+        assertEquals("1", tag.getChangedTag().getTag().getItems().getFirst().getRevisionId());
+    }
+
+    @Test
     void generateTags_shouldExcludeKoboShelfFromTags() {
         BookEntity book1 = createEpubBookEntity(1L);
         ShelfEntity koboShelf = ShelfEntity.builder().id(100L).name(ShelfType.KOBO.getName()).bookEntities(Set.of(book1)).build();
@@ -352,7 +420,7 @@ class KoboEntitlementServiceTest {
         when(shelfRepository.findByUserId(user.getId())).thenReturn(List.of(koboShelf));
         when(magicShelfRepository.findAllByUserId(user.getId())).thenReturn(List.of());
 
-        List<KoboTagWrapper> tags = koboEntitlementService.generateTags();
+        List<KoboTagWrapper> tags = generateTags();
 
         assertTrue(tags.isEmpty());
     }
@@ -374,7 +442,7 @@ class KoboEntitlementServiceTest {
         when(shelfRepository.findByUserId(user.getId())).thenReturn(List.of(koboShelf, userShelf));
         when(magicShelfRepository.findAllByUserId(user.getId())).thenReturn(List.of());
 
-        List<KoboTagWrapper> tags = koboEntitlementService.generateTags();
+        List<KoboTagWrapper> tags = generateTags();
 
         assertEquals(1, tags.size());
 
@@ -401,7 +469,7 @@ class KoboEntitlementServiceTest {
         when(shelfRepository.findByUserId(user.getId())).thenReturn(List.of(koboShelf, userShelf));
         when(magicShelfRepository.findAllByUserId(user.getId())).thenReturn(List.of());
 
-        List<KoboTagWrapper> tags = koboEntitlementService.generateTags();
+        List<KoboTagWrapper> tags = generateTags();
 
         assertEquals(1, tags.size());
 
@@ -425,7 +493,7 @@ class KoboEntitlementServiceTest {
         when(shelfRepository.findByUserId(user.getId())).thenReturn(List.of(koboShelf, userShelf));
         when(magicShelfRepository.findAllByUserId(user.getId())).thenReturn(List.of());
 
-        List<KoboTagWrapper> tags = koboEntitlementService.generateTags();
+        List<KoboTagWrapper> tags = generateTags();
 
         assertEquals(1, tags.size());
 
@@ -459,7 +527,7 @@ class KoboEntitlementServiceTest {
         when(magicShelfBookService.getBookIdsByMagicShelfId(eq(user.getId()), eq(201L), anyInt()))
                 .thenReturn(List.of(1L));
 
-        List<KoboTagWrapper> tags = koboEntitlementService.generateTags();
+        List<KoboTagWrapper> tags = generateTags();
 
         assertEquals(1, tags.size());
 
@@ -480,7 +548,7 @@ class KoboEntitlementServiceTest {
         when(shelfRepository.findByUserId(user.getId())).thenReturn(List.of(koboShelf));
         when(magicShelfRepository.findAllByUserId(user.getId())).thenReturn(List.of());
 
-        List<KoboTagWrapper> tags = koboEntitlementService.generateTags();
+        List<KoboTagWrapper> tags = generateTags();
 
         assertTrue(tags.isEmpty());
     }
@@ -501,7 +569,7 @@ class KoboEntitlementServiceTest {
         when(shelfRepository.findByUserId(user.getId())).thenReturn(List.of(koboShelf, userShelf));
         when(magicShelfRepository.findAllByUserId(user.getId())).thenReturn(List.of());
 
-        List<KoboTagWrapper> tags = koboEntitlementService.generateTags();
+        List<KoboTagWrapper> tags = generateTags();
 
         assertEquals(1, tags.size());
 
