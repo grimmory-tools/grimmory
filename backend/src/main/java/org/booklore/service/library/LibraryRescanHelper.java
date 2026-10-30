@@ -12,6 +12,7 @@ import org.booklore.repository.LibraryRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.NotificationService;
 import org.booklore.service.fileprocessor.AudiobookProcessor;
+import org.booklore.service.metadata.BookCoverService;
 import org.booklore.service.metadata.BookMetadataUpdater;
 import org.booklore.service.metadata.extractor.MetadataExtractorFactory;
 import org.booklore.task.options.RescanLibraryContext;
@@ -24,6 +25,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -37,8 +39,9 @@ public class LibraryRescanHelper {
     private final TaskCancellationManager cancellationManager;
     private final BookRepository bookRepository;
     private final AudiobookProcessor audiobookProcessor;
+    private final BookCoverService bookCoverService;
 
-    public LibraryRescanHelper(LibraryRepository libraryRepository, MetadataExtractorFactory metadataExtractorFactory, @Lazy BookMetadataUpdater bookMetadataUpdater, NotificationService notificationService, TaskCancellationManager cancellationManager, BookRepository bookRepository, AudiobookProcessor audiobookProcessor) {
+    public LibraryRescanHelper(LibraryRepository libraryRepository, MetadataExtractorFactory metadataExtractorFactory, @Lazy BookMetadataUpdater bookMetadataUpdater, NotificationService notificationService, TaskCancellationManager cancellationManager, BookRepository bookRepository, AudiobookProcessor audiobookProcessor, BookCoverService bookCoverService) {
         this.libraryRepository = libraryRepository;
         this.metadataExtractorFactory = metadataExtractorFactory;
         this.bookMetadataUpdater = bookMetadataUpdater;
@@ -46,6 +49,7 @@ public class LibraryRescanHelper {
         this.cancellationManager = cancellationManager;
         this.bookRepository = bookRepository;
         this.audiobookProcessor = audiobookProcessor;
+        this.bookCoverService = bookCoverService;
     }
 
     @Transactional
@@ -59,6 +63,7 @@ public class LibraryRescanHelper {
 
         int totalBooks = bookEntities.size();
         int processedBooks = 0;
+        List<BookEntity> booksWithRegeneratedCovers = new ArrayList<>();
 
         sendTaskProgressNotification(taskId, 0, String.format("Starting rescan for library: %s", library.getName()), TaskStatus.IN_PROGRESS);
 
@@ -90,6 +95,10 @@ public class LibraryRescanHelper {
                     TaskStatus.IN_PROGRESS);
 
             try {
+                if (bookCoverService.regenerateCoversFromBookFiles(bookEntity, context.getOptions().getMetadataReplaceMode())) {
+                    booksWithRegeneratedCovers.add(bookEntity);
+                }
+
                 BookMetadata bookMetadata = metadataExtractorFactory.extractMetadata(bookEntity.getPrimaryBookFile().getBookType(), bookEntity.getFullFilePath().toFile());
                 if (bookMetadata == null) {
                     log.warn("No metadata extracted for book id={} path={}", bookEntity.getId(), bookEntity.getFullFilePath());
@@ -119,6 +128,8 @@ public class LibraryRescanHelper {
                 processedBooks++;
             }
         }
+
+        bookCoverService.saveRegeneratedCovers(booksWithRegeneratedCovers);
 
         if (taskId == null || !cancellationManager.isTaskCancelled(taskId)) {
             sendTaskProgressNotification(taskId, 100,
