@@ -419,11 +419,6 @@
       "count": 2
     }
   },
-  "src/app/features/book/service/book-command-legacy-adapter.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
   "src/app/features/book/service/book-dialog-helper.service.ts": {
     "anti-slop/no-known-value-widening": {
       "count": 1

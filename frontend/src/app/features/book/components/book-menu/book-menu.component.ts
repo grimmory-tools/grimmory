@@ -36,8 +36,7 @@ import {
 import {UserService} from '../../../settings/user-management/user.service';
 import {MetadataRefreshSubmissionService} from '../../../metadata/data/metadata-refresh-submission.service';
 import {BookCommandService} from '../../data/book-command.service';
-import {BookShelfCommandService} from '../../data/book-shelf-command.service';
-import {type UpdateBookShelfMembershipResult} from '../../data/book-shelf-command.models';
+import {ShelfCommandService} from '../../../shelf/data/shelf-command.service';
 import {
   injectPendingBookShelfMembership,
   overlayShelfIds,
@@ -57,11 +56,12 @@ import {
   type BookReadStatusTarget,
 } from '../book-read-status-options';
 import {
+  type BookDetail,
   type BookFileResponse,
   type BookSummary,
   type BookReadStatus,
 } from '../../data/book-response.models';
-import {ShelfDefinitionQueryService} from '../../data/shelf-definition-query.service';
+import {ShelfQueryService} from '../../../shelf/data/shelf-query.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {legacyBookCachePatches, withLegacyBookCache} from '../../service/book-command-legacy-adapter';
 import {BookDialogHelperService} from '../../service/book-dialog-helper.service';
@@ -107,8 +107,8 @@ export class BookMenuComponent {
   private readonly dialogHelper = inject(BookDialogHelperService);
   private readonly metadataRefresh = inject(MetadataRefreshSubmissionService);
   private readonly bookCommands = inject(BookCommandService);
-  private readonly shelfCommands = inject(BookShelfCommandService);
-  private readonly shelfDefinitionQuery = inject(ShelfDefinitionQueryService);
+  private readonly shelfCommands = inject(ShelfCommandService);
+  private readonly shelfQuery = inject(ShelfQueryService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly transloco = inject(TranslocoService);
   private readonly router = inject(Router);
@@ -123,7 +123,7 @@ export class BookMenuComponent {
   private readonly openMenuBookId = signal<number | null>(null);
   readonly openBookId = this.openMenuBookId.asReadonly();
 
-  private readonly shelfDefinitionsQuery = injectQuery(() => this.shelfDefinitionQuery.definitions());
+  private readonly shelvesQuery = injectQuery(() => this.shelfQuery.shelves());
   private readonly pendingShelfMembership = injectPendingBookShelfMembership();
 
   private readonly shelfMembershipMutation = injectMutation(() => {
@@ -190,7 +190,7 @@ export class BookMenuComponent {
     }
     const onShelfIds = overlayShelfIds(book, this.pendingShelfMembership().get(book.id));
     const currentUserId = this.userService.currentUser()?.id;
-    return (this.shelfDefinitionsQuery.data() ?? [])
+    return (this.shelvesQuery.data() ?? [])
       .filter(shelf => shelf.userId === currentUserId)
       .map(shelf => ({id: shelf.id, name: shelf.name, checked: onShelfIds.has(shelf.id)}));
   });
@@ -417,11 +417,11 @@ export class BookMenuComponent {
     this.quickSendMutation.mutate({bookId});
   }
 
-  private updateShelfSnapshot(result: UpdateBookShelfMembershipResult): void {
+  private updateShelfSnapshot(books: readonly BookDetail[]): void {
     const snapshot = this.bookSnapshot();
-    const update = result.updatedBookShelves.find(item => item.bookId === snapshot?.id);
-    if (snapshot && update) {
-      this.bookSnapshot.set({...snapshot, shelves: [...update.shelves]});
+    const updated = books.find(book => book.id === snapshot?.id);
+    if (snapshot && updated) {
+      this.bookSnapshot.set({...snapshot, shelves: updated.shelves});
     }
   }
 }

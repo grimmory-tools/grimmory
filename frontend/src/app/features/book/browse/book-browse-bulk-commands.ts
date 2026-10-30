@@ -11,7 +11,7 @@ import {
 } from '../components/book-read-status-options';
 import {DeleteBooksPartialError, type BookProgressSource} from '../data/book-command.models';
 import {BookCommandService} from '../data/book-command.service';
-import {BookShelfCommandService} from '../data/book-shelf-command.service';
+import {ShelfCommandService} from '../../shelf/data/shelf-command.service';
 import {type BookSummary, type BookReadStatus} from '../data/book-response.models';
 import {MetadataRefreshSubmissionService} from '../../metadata/data/metadata-refresh-submission.service';
 import {type BookFileAttacherSourceBook} from '../components/book-file-attacher/book-file-attacher.component';
@@ -34,7 +34,7 @@ export function createBookBrowseBulkCommands({selection, books, fetchIds}: BookB
   const confirmationService = inject(ConfirmationService);
   const messageService = inject(MessageService);
   const bookCommands = inject(BookCommandService);
-  const shelfCommands = inject(BookShelfCommandService);
+  const shelfCommands = inject(ShelfCommandService);
 
   const shelfMembershipMutation = injectMutation(() => withLegacyBookCache(
     shelfCommands.updateMembership(), legacyBookCachePatches.shelfMembership));

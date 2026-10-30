@@ -15,7 +15,7 @@ import {
   type FacetValueMap,
 } from '../data/book-query-params';
 import {BookQueryService} from '../data/book-query.service';
-import {ShelfDefinitionQueryService} from '../data/shelf-definition-query.service';
+import {ShelfQueryService} from '../../shelf/data/shelf-query.service';
 import {LibraryService} from '../service/library.service';
 import {UserService} from '../../settings/user-management/user.service';
 import {type LibraryShelfMenuTarget} from '../../../shared/layout/navigation/library-shelf-menu-target.model';
@@ -52,7 +52,7 @@ export function createBookBrowseQueries({selection, query, scope, enabled}: Book
   const transloco = inject(TranslocoService);
   const libraryService = inject(LibraryService);
   const magicShelfService = inject(MagicShelfService);
-  const shelfDefinitionQuery = inject(ShelfDefinitionQueryService);
+  const shelfQuery = inject(ShelfQueryService);
   const userService = inject(UserService);
   const activeLang = toSignal(transloco.langChanges$, {initialValue: transloco.getActiveLang()});
 
@@ -113,13 +113,13 @@ export function createBookBrowseQueries({selection, query, scope, enabled}: Book
     computation: (loaded, previous) => loaded || (previous?.value ?? false),
   });
 
-  const shelfDefinitionsQuery = injectQuery(() => shelfDefinitionQuery.definitions());
-  const shelfDefinitions = computed(() => shelfDefinitionsQuery.data() ?? []);
+  const shelvesQuery = injectQuery(() => shelfQuery.shelves());
+  const shelves = computed(() => shelvesQuery.data() ?? []);
 
   const definitions = computed<BrowseFacetDefinitions<BookQueryFacetKey>>(() => {
     activeLang();
     return bookFacetDefinitions(bookFacetLabelDeps(
-      shelfDefinitions(),
+      shelves(),
       libraryService.libraries(),
       key => transloco.translate(key),
     ));
@@ -138,7 +138,7 @@ export function createBookBrowseQueries({selection, query, scope, enabled}: Book
     browseFilterChips(served(), definitions(), selection()));
   const title = computed(() => {
     activeLang();
-    return bookBrowseScopeTitle(scope(), libraryService.libraries(), shelfDefinitions(), magicShelfService.shelves(), {
+    return bookBrowseScopeTitle(scope(), libraryService.libraries(), shelves(), magicShelfService.shelves(), {
       allBooks: transloco.translate('book.browser.labels.allBooks'),
       unshelved: transloco.translate('book.browser.labels.unshelvedBooks'),
     });
@@ -151,7 +151,7 @@ export function createBookBrowseQueries({selection, query, scope, enabled}: Book
     const target = bookBrowseScopeMenuTarget(
       scope(),
       libraryService.libraries(),
-      shelfDefinitions(),
+      shelves(),
       magicShelfService.shelves(),
     );
     return target && libraryShelfMenuAvailable(target, userService.currentUser()) ? target : null;

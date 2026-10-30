@@ -31,7 +31,7 @@ import {
   overlayShelfIds,
 } from '../data/book-command-pending-state';
 import {type BookSummary} from '../data/book-response.models';
-import {ShelfDefinitionQueryService} from '../data/shelf-definition-query.service';
+import {ShelfQueryService} from '../../shelf/data/shelf-query.service';
 import {UserService} from '../../settings/user-management/user.service';
 import {type BrowseSelection} from '../../../shared/browse/selection';
 import {createBookBrowseBulkCommands} from './book-browse-bulk-commands';
@@ -62,7 +62,7 @@ const NO_OVERFLOW: ReadonlySet<string> = new Set();
 export class BookBrowseBulkBarComponent {
   private readonly userService = inject(UserService);
   private readonly appSettingsService = inject(AppSettingsService);
-  private readonly shelfDefinitionQuery = inject(ShelfDefinitionQueryService);
+  private readonly shelfQuery = inject(ShelfQueryService);
   readonly selection = input.required<BrowseSelection>();
   readonly books = input.required<readonly BookSummary[]>();
   readonly total = input.required<number | null>();
@@ -73,7 +73,7 @@ export class BookBrowseBulkBarComponent {
     fetchIds: this.fetchIds,
   });
 
-  private readonly shelfDefinitionsQuery = injectQuery(() => this.shelfDefinitionQuery.definitions());
+  private readonly shelvesQuery = injectQuery(() => this.shelfQuery.shelves());
   private readonly pendingShelfMembership = injectPendingBookShelfMembership();
   private readonly pendingDeletions = injectPendingBookDeletions();
 
@@ -118,7 +118,7 @@ export class BookBrowseBulkBarComponent {
     const shelfIdsByBook = selectedBooks.map(book =>
       overlayShelfIds(book, pendingShelfMembership.get(book.id)),
     );
-    return (this.shelfDefinitionsQuery.data() ?? [])
+    return (this.shelvesQuery.data() ?? [])
       .filter(shelf => shelf.userId === currentUserId)
       .map(shelf => {
         let onCount = 0;

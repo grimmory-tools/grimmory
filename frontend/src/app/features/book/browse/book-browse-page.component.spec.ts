@@ -24,7 +24,7 @@ import {BookFileService} from '../service/book-file.service';
 import {LibraryService} from '../service/library.service';
 import {LibraryShelfMenuService} from '../service/library-shelf-menu.service';
 import {MagicShelfService} from '../../magic-shelf/service/magic-shelf.service';
-import {ShelfDefinitionQueryService} from '../data/shelf-definition-query.service';
+import {ShelfQueryService} from '../../shelf/data/shelf-query.service';
 import {BookDialogHelperService} from '../service/book-dialog-helper.service';
 import {UserService} from '../../settings/user-management/user.service';
 import {EmailService} from '../../settings/email-v2/email.service';
@@ -155,10 +155,10 @@ describe('BookBrowsePageComponent', () => {
           },
         },
         {
-          provide: ShelfDefinitionQueryService,
+          provide: ShelfQueryService,
           useValue: {
-            definitions: () => ({
-              queryKey: ['shelves', 'query', 'definitions'] as const,
+            shelves: () => ({
+              queryKey: ['shelves', 'query', 'regular'] as const,
               queryFn: () => Promise.resolve([]),
             }),
           },

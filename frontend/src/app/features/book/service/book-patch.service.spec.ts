@@ -8,7 +8,7 @@ import {ResetProgressTypes} from '../../../shared/constants/reset-progress-type'
 import {Book, ReadStatus} from '../model/book.model';
 import {BOOKS_QUERY_KEY} from './book-query-keys';
 import {BookPatchService} from './book-patch.service';
-import {shelfDefinitionQueryKeys} from '../data/shelf-definition-query-keys';
+import {shelfQueryKeys} from '../../shelf/data/shelf-query-keys';
 
 function buildBook(id: number, overrides: Partial<Book> = {}): Book {
   return {
@@ -206,12 +206,12 @@ describe('BookPatchService', () => {
   });
 
   it('refreshes shelf counts after changing book membership', () => {
-    queryClient.setQueryData(shelfDefinitionQueryKeys.definitions(), []);
+    queryClient.setQueryData(shelfQueryKeys.shelves(), []);
 
     service.updateBookShelves(new Set([1]), new Set([7]), new Set()).subscribe();
 
     httpTestingController.expectOne(req => req.url.endsWith('/api/v1/books/shelves')).flush([]);
 
-    expect(queryClient.getQueryState(shelfDefinitionQueryKeys.definitions())?.isInvalidated).toBe(true);
+    expect(queryClient.getQueryState(shelfQueryKeys.shelves())?.isInvalidated).toBe(true);
   });
 });
