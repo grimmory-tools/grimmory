@@ -232,11 +232,11 @@ importers:
         specifier: ^6.1.7
         version: 6.1.7(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))
       chart.js:
-        specifier: ^4.5.1
-        version: 4.5.1
+        specifier: ^4.6.1
+        version: 4.6.1
       chartjs-chart-matrix:
         specifier: 3.0.5
-        version: 3.0.5(chart.js@4.5.1)
+        version: 3.0.5(chart.js@4.6.1)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -257,7 +257,7 @@ importers:
         version: 9.1.3(@angular/common@22.2.3(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(rxjs@7.8.2)
       ng2-charts:
         specifier: ^10.0.0
-        version: 10.0.0(ef117d02a0ce66c252dc9d3058153deb)
+        version: 10.0.0(454b2ad763f64593c5224794cd8181f5)
       ngx-infinite-scroll:
         specifier: ^22.0.0
         version: 22.0.0(@angular/common@22.2.3(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))
@@ -2997,8 +2997,8 @@ packages:
   chardet@2.2.0:
     resolution: {integrity: sha512-rddelWYNPRrXq6PtNEN2S3f6t9ILzvqaN5pVgi4kqt9jHQaXIial9PznB5iSPVlQSLNaaH22ItWz3EJtQ10+OA==}
 
-  chart.js@4.5.1:
-    resolution: {integrity: sha512-GIjfiT9dbmHRiYi6Nl2yFCq7kkwdkp1W/lp2J99rX0yo9tgJGn3lKQATztIjb5tVtevcBtIdICNWqlq5+E8/Pw==}
+  chart.js@4.6.1:
+    resolution: {integrity: sha512-hJyniucsFmq//EvXYvJ6c6mahPoI3kaxdjVH8awTaJ/fDNWeSqqqArixMJWkWNN6fcYvPU3HneSANFNYtRi61g==}
     engines: {pnpm: '>=8'}
 
   chartjs-chart-matrix@3.0.5:
@@ -7200,13 +7200,13 @@ snapshots:
 
   chardet@2.2.0: {}
 
-  chart.js@4.5.1:
+  chart.js@4.6.1:
     dependencies:
       '@kurkle/color': 0.3.4
 
-  chartjs-chart-matrix@3.0.5(chart.js@4.5.1):
+  chartjs-chart-matrix@3.0.5(chart.js@4.6.1):
     dependencies:
-      chart.js: 4.5.1
+      chart.js: 4.6.1
 
   chokidar@5.0.0:
     dependencies:
@@ -8021,13 +8021,13 @@ snapshots:
       '@angular/forms': 22.2.3(@angular/common@22.2.3(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(@angular/platform-browser@22.2.3(@angular/common@22.2.3(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2)))(rxjs@7.8.2)
       '@angular/platform-browser': 22.2.3(@angular/common@22.2.3(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))
 
-  ng2-charts@10.0.0(ef117d02a0ce66c252dc9d3058153deb):
+  ng2-charts@10.0.0(454b2ad763f64593c5224794cd8181f5):
     dependencies:
       '@angular/cdk': 22.2.4(@angular/common@22.2.3(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(@angular/forms@22.2.3(@angular/common@22.2.3(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(@angular/platform-browser@22.2.3(@angular/common@22.2.3(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2)))(rxjs@7.8.2))(@angular/platform-browser@22.2.3(@angular/common@22.2.3(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2)))(rxjs@7.8.2)
       '@angular/common': 22.2.3(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(rxjs@7.8.2)
       '@angular/core': 22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2)
       '@angular/platform-browser': 22.2.3(@angular/common@22.2.3(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))
-      chart.js: 4.5.1
+      chart.js: 4.6.1
       es-toolkit: 1.45.1
       rxjs: 7.8.2
       tslib: 2.8.1
