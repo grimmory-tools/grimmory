@@ -63,10 +63,10 @@
     "uuid": "^14.0.3"
   },
   "devDependencies": {
-    "@angular-devkit/architect": "^0.2202.3",
-    "@angular-devkit/schematics": "^22.2.3",
-    "@angular/build": "22.2.3",
-    "@angular/cli": "^22.2.3",
+    "@angular-devkit/architect": "^0.2202.4",
+    "@angular-devkit/schematics": "^22.2.4",
+    "@angular/build": "22.2.4",
+    "@angular/cli": "^22.2.4",
     "@angular/compiler-cli": "^22.2.3",
     "@eslint/js": "^10.0.1",
     "@openng/optimus-ui-tailwindcss": "^2.0.2",
