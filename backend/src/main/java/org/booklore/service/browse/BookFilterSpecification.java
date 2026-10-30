@@ -426,19 +426,6 @@ public class BookFilterSpecification {
     }
 
     /**
-     * Filter books by multiple author names.
-     */
-    public static Specification<BookEntity> withAuthors(List<String> authorNames) {
-        return (root, query, cb) -> {
-            List<String> cleaned = cleanLowerCase(authorNames);
-            if (cleaned.isEmpty()) return cb.conjunction();
-
-            return buildManyToManySpec(root, query, cb, cleaned,
-                    "metadata", "authors", "name");
-        };
-    }
-
-    /**
      * Filter books by multiple language codes.
      */
     public static Specification<BookEntity> withLanguages(List<String> languages) {
@@ -467,19 +454,6 @@ public class BookFilterSpecification {
     }
 
     /**
-     * Filter books by multiple categories.
-     */
-    public static Specification<BookEntity> withCategories(List<String> categoryNames) {
-        return (root, query, cb) -> {
-            List<String> cleaned = cleanLowerCase(categoryNames);
-            if (cleaned.isEmpty()) return cb.conjunction();
-
-            return buildManyToManySpec(root, query, cb, cleaned,
-                    "metadata", "categories", "name");
-        };
-    }
-
-    /**
      * Filter books by multiple publishers.
      */
     public static Specification<BookEntity> withPublishers(List<String> publishers) {
@@ -491,29 +465,12 @@ public class BookFilterSpecification {
         };
     }
 
-    /**
-     * Filter books by multiple tags.
-     */
-    public static Specification<BookEntity> withTags(List<String> tagNames) {
+    public static Specification<BookEntity> withMetadataCollection(
+            String collectionAttr, List<String> names, Function<String, List<Long>> idsForName) {
         return (root, query, cb) -> {
-            List<String> cleaned = cleanLowerCase(tagNames);
+            List<String> cleaned = cleanLowerCase(names);
             if (cleaned.isEmpty()) return cb.conjunction();
-
-            return buildManyToManySpec(root, query, cb, cleaned,
-                    "metadata", "tags", "name");
-        };
-    }
-
-    /**
-     * Filter books by multiple moods.
-     */
-    public static Specification<BookEntity> withMoods(List<String> moodNames) {
-        return (root, query, cb) -> {
-            List<String> cleaned = cleanLowerCase(moodNames);
-            if (cleaned.isEmpty()) return cb.conjunction();
-
-            return buildManyToManySpec(root, query, cb, cleaned,
-                    "metadata", "moods", "name");
+            return buildManyToManySpec(root, query, cb, cleaned, collectionAttr, idsForName);
         };
     }
 
@@ -690,35 +647,9 @@ public class BookFilterSpecification {
         };
     }
 
-    public static Specification<BookEntity> withComicCharacters(List<String> values) {
-        return buildComicCollectionSpec(values, "characters");
-    }
-
-    public static Specification<BookEntity> withComicTeams(List<String> values) {
-        return buildComicCollectionSpec(values, "teams");
-    }
-
-    public static Specification<BookEntity> withComicLocations(List<String> values) {
-        return buildComicCollectionSpec(values, "locations");
-    }
-
-    private static Specification<BookEntity> buildComicCollectionSpec(
-            List<String> values, String collectionAttr) {
-        return (root, query, cb) -> {
-            List<String> cleaned = cleanLowerCase(values);
-            if (cleaned.isEmpty()) return cb.conjunction();
-            
-            Subquery<Long> sub = query.subquery(Long.class);
-            Root<BookMetadataEntity> metaRoot = sub.from(BookMetadataEntity.class);
-            Join<?, ?> comicJoin = metaRoot.join("comicMetadata", JoinType.INNER);
-            Join<?, ?> collJoin = comicJoin.join(collectionAttr, JoinType.INNER);
-            sub.select(cb.literal(1L))
-                    .where(
-                            cb.equal(metaRoot.get("id"), root.get("id")),
-                            cb.lower(collJoin.get("name")).in(cleaned)
-                    );
-            return cb.exists(sub);
-        };
+    public static Specification<BookEntity> withComicCollection(
+            String collectionAttr, List<String> values, Function<String, List<Long>> idsForName) {
+        return withMetadataCollection("comicMetadata." + collectionAttr, values, idsForName);
     }
 
     public static Specification<BookEntity> inShelves(List<String> shelfIds) {
@@ -745,7 +676,8 @@ public class BookFilterSpecification {
         };
     }
 
-    public static Specification<BookEntity> withComicCreators(List<String> values) {
+    public static Specification<BookEntity> withComicCreators(
+            List<String> values, Function<String, List<Long>> idsForName) {
         return (root, query, cb) -> {
             if (values == null || values.isEmpty()) return cb.conjunction();
 
@@ -763,7 +695,7 @@ public class BookFilterSpecification {
 
                 List<Predicate> where = new ArrayList<>();
                 where.add(cb.equal(comicJoin.get("bookId"), root.get("id")));
-                where.add(cb.equal(cb.lower(creatorJoin.get("name")), name));
+                where.add(creatorJoin.get("id").in(idsForName.apply(name)));
 
                 if (roleName != null) {
                     ComicCreatorRole role = parseCreatorRole(roleName);
@@ -817,17 +749,25 @@ public class BookFilterSpecification {
     private static Predicate buildManyToManySpec(
             Root<BookEntity> root, CriteriaQuery<?> query, CriteriaBuilder cb,
             List<String> values,
-            String metadataAttr, String collectionAttr, String nameAttr) {
+            String collectionAttr, Function<String, List<Long>> idsForName) {
 
         Subquery<Long> sub = query.subquery(Long.class);
         Root<BookMetadataEntity> metaRoot = sub.from(BookMetadataEntity.class);
-        Join<?, ?> collJoin = metaRoot.join(collectionAttr, JoinType.INNER);
+        From<?, ?> collJoin = joinCollection(metaRoot, collectionAttr);
         sub.select(cb.literal(1L))
                 .where(
                         cb.equal(metaRoot.get("id"), root.get("id")),
-                        cb.lower(collJoin.get(nameAttr)).in(values)
+                        collJoin.get("id").in(values.stream()
+                                .flatMap(value -> idsForName.apply(value).stream()).distinct().toList())
                 );
         return cb.exists(sub);
+    }
+
+    private static From<?, ?> joinCollection(From<?, ?> from, String path) {
+        for (String attribute : path.split("\\.")) {
+            from = from.join(attribute, JoinType.INNER);
+        }
+        return from;
     }
 
     @SafeVarargs

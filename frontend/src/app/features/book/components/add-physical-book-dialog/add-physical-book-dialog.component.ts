@@ -1,4 +1,4 @@
-import {Component, computed, effect, inject, signal} from '@angular/core';
+import {Component, effect, inject, signal} from '@angular/core';
 import {HttpErrorResponse} from '@angular/common/http';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {FormsModule} from '@angular/forms';
@@ -8,9 +8,10 @@ import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {Select} from '@openng/optimus-ui/select';
 import {Textarea} from '@openng/optimus-ui/textarea';
 import {InputNumber} from '@openng/optimus-ui/inputnumber';
-import {AutoComplete, AutoCompleteCompleteEvent} from '@openng/optimus-ui/autocomplete';
+import {AutoComplete} from '@openng/optimus-ui/autocomplete';
 import {QueryClient} from '@tanstack/angular-query-experimental';
 import {BookService} from '../../service/book.service';
+import {FacetSuggestionsDirective} from '../facet-suggestions.directive';
 import {LibraryService} from '../../service/library.service';
 import {Library} from '../../model/library.model';
 import {CreatePhysicalBookRequest} from '../../model/book.model';
@@ -31,7 +32,8 @@ import {MessageService} from '@openng/optimus-ui/api';
     Textarea,
     InputNumber,
     AutoComplete,
-    TranslocoDirective
+    TranslocoDirective,
+    FacetSuggestionsDirective
   ],
   styleUrl: './add-physical-book-dialog.component.scss',
 })
@@ -56,12 +58,6 @@ export class AddPhysicalBookDialogComponent {
   pageCount: number | null = null;
   categories: string[] = [];
 
-  private readonly metadata = computed(() => this.bookService.uniqueMetadata());
-  get allAuthors(): string[] { return this.metadata().authors; }
-  get allCategories(): string[] { return this.metadata().categories; }
-  filteredAuthors: string[] = [];
-  filteredCategories: string[] = [];
-
   coverUrl: string | null = null;
   readonly isLoading = signal(false);
   readonly isFetchingMetadata = signal(false);
@@ -84,20 +80,6 @@ export class AddPhysicalBookDialogComponent {
 
   get libraries(): Library[] {
     return this.libraryService.libraries();
-  }
-
-  filterAuthors(event: AutoCompleteCompleteEvent): void {
-    const query = event.query.toLowerCase();
-    this.filteredAuthors = this.allAuthors.filter((author) =>
-      author.toLowerCase().includes(query)
-    );
-  }
-
-  filterCategories(event: AutoCompleteCompleteEvent): void {
-    const query = event.query.toLowerCase();
-    this.filteredCategories = this.allCategories.filter((category) =>
-      category.toLowerCase().includes(query)
-    );
   }
 
   onAutoCompleteKeyUp(fieldName: 'authors' | 'categories', event: KeyboardEvent): void {

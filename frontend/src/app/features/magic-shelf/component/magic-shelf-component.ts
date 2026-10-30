@@ -19,7 +19,7 @@ import {CheckboxChangeEvent, Checkbox} from "@openng/optimus-ui/checkbox";
 import {UserService} from "../../settings/user-management/user.service";
 import {IconDisplayComponent} from '../../../shared/components/icon-display/icon-display.component';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
-import {BookService} from '../../book/service/book.service';
+import {FacetSuggestionsDirective} from '../../book/components/facet-suggestions.directive';
 import {ShelfService} from '../../book/service/shelf.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {Textarea} from '@openng/optimus-ui/textarea';
@@ -234,6 +234,7 @@ const READ_STATUS_KEYS: Record<string, string> = {
     InputNumber,
     MultiSelect,
     AutoComplete,
+    FacetSuggestionsDirective,
     Checkbox,
     IconDisplayComponent,
     Tooltip,
@@ -248,7 +249,6 @@ export class MagicShelfComponent implements OnInit {
   private readonly injector = inject(Injector);
   libraryService = inject(LibraryService);
   shelfService = inject(ShelfService);
-  bookService = inject(BookService);
   magicShelfService = inject(MagicShelfService);
   ref = inject(DynamicDialogRef);
   messageService = inject(MessageService);
@@ -446,17 +446,6 @@ export class MagicShelfComponent implements OnInit {
       value: shelf.id!
     }))
   );
-  readonly categoryOptions = computed(() => {
-    const categoriesSet = new Set<string>();
-    this.bookService.books().forEach(book => {
-      book.metadata?.categories?.forEach(category => categoriesSet.add(category));
-    });
-
-    return Array.from(categoriesSet).map(category => ({
-      label: category,
-      value: category
-    })).sort((a, b) => a.label.localeCompare(b.label));
-  });
 
   form = new FormGroup({
     name: new FormControl<string | null>(null),

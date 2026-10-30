@@ -27,12 +27,17 @@ import {
   toIdsHttpParams,
   toPageHttpParams,
 } from './book-query-params';
-import {BookPage} from './book-query.models';
+import {
+  BookDuplicateGroup,
+  BookDuplicateRequest,
+  BookPage,
+} from './book-query.models';
 import {BookDetail, BookRecommendation, BookSummary} from './book-response.models';
 import {abortSignal, QUERY_DEFAULTS} from '../../../core/data/query-transport';
 import {AuthService} from '../../../shared/service/auth.service';
 
 const FACET_PAGE_SIZE = 100;
+const BOOK_BATCH_CHUNK_SIZE = 500;
 
 @Service()
 export class BookQueryService {
@@ -152,6 +157,15 @@ export class BookQueryService {
     });
   }
 
+  batch(ids: readonly number[]) {
+    const distinctIds = [...new Set(ids)];
+    return queryOptions({
+      queryKey: bookQueryKeys.batch(distinctIds),
+      queryFn: ({signal}): Promise<BookSummary[]> => this.fetchBatch(distinctIds, signal),
+      ...QUERY_DEFAULTS,
+    });
+  }
+
   recommendations(bookId: number, limit: number) {
     return queryOptions({
       queryKey: bookQueryKeys.recommendation(bookId, limit),
@@ -161,6 +175,17 @@ export class BookQueryService {
         new HttpParams().set('limit', limit.toString()),
       ),
       ...QUERY_DEFAULTS,
+    });
+  }
+
+  duplicates(request: BookDuplicateRequest) {
+    const criteria = {...request};
+    return queryOptions({
+      ...QUERY_DEFAULTS,
+      queryKey: bookQueryKeys.duplicates(criteria),
+      queryFn: ({signal}) => this.finalize(
+        this.http.post<BookDuplicateGroup[]>(`${this.baseUrl}/duplicates`, criteria), signal),
+      staleTime: 0,
     });
   }
 
@@ -183,6 +208,19 @@ export class BookQueryService {
       mapBrowsePage<BookSummary>,
       toPageHttpParams(params),
     );
+  }
+
+  private async fetchBatch(ids: readonly number[], signal: AbortSignal): Promise<BookSummary[]> {
+    const books: BookSummary[] = [];
+    for (let offset = 0; offset < ids.length; offset += BOOK_BATCH_CHUNK_SIZE) {
+      const chunk = ids.slice(offset, offset + BOOK_BATCH_CHUNK_SIZE);
+      books.push(...await this.get<BookSummary[]>(
+        `${this.baseUrl}/batch`,
+        signal,
+        new HttpParams().set('ids', chunk.join(',')),
+      ));
+    }
+    return books;
   }
 
   private get<T>(url: string, signal: AbortSignal, params?: HttpParams): Promise<T> {

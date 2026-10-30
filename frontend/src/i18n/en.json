@@ -701,9 +701,7 @@
         "language": "Language",
         "isbn13": "ISBN-13",
         "isbn10": "ISBN-10",
-        "pageCount": "Page Count",
-        "doubanRating": "Douban Rating",
-        "doubanReviewCount": "Douban Rating #"
+        "pageCount": "Page Count"
       }
     },
     "fieldSelector": {

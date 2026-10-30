@@ -46,6 +46,7 @@ const providers = [
     settingsKey: 'douban',
     labelKey: 'metadata.providers.douban',
     supportsReviews: true,
+    book: {ids: ['doubanId'], rating: 'doubanRating', reviewCount: 'doubanReviewCount'},
   },
   {
     id: 'Lubimyczytac',

@@ -18,6 +18,8 @@ import {
   DeleteBooksVariables,
   DeleteAdditionalFileVariables,
   DeleteAdditionalFileResult,
+  AttachBookFilesVariables,
+  AttachBookFilesResult,
   ResetBookProgressVariables,
   SetAllBookMetadataLocksVariables,
   SetBookReadStatusVariables,
@@ -85,6 +87,24 @@ export class BookCommandService {
           changedBookIds: [result.bookId],
         })),
       ),
+    });
+  }
+
+  attachBookFiles() {
+    return reconcilingMutationOptions({
+      mutationKey: bookCommandKeys.attachBookFiles(),
+      scope: bookCommandScopes.deletion,
+      mutationFn: ({targetBookId, sourceBookIds, moveFiles}: AttachBookFilesVariables) =>
+        lastValueFrom(this.http.post<AttachBookFilesResult>(`${this.baseUrl}/${targetBookId}/attach-file`, {
+          sourceBookIds: requireBookIds(sourceBookIds), moveFiles,
+        })),
+      reconcile: (outcome, variables, client) => {
+        const affected = [variables.targetBookId, ...variables.sourceBookIds];
+        return applyBookQueryChangeSet(client, bookCommandChangeSet(outcome, affected, result => ({
+          changedBookIds: affected,
+          deletedBookIds: result.deletedSourceBookIds,
+        })));
+      },
     });
   }
 

@@ -56,6 +56,9 @@ describe('metadata-refresh-options.model', () => {
       applebooksId: provider('AppleBooks'),
       applebooksRating: provider('AppleBooks'),
       applebooksReviewCount: provider('AppleBooks'),
+      doubanId: provider('Douban'),
+      doubanRating: provider('Douban'),
+      doubanReviewCount: provider('Douban'),
       moods: provider('Google'),
       tags: provider('Google')
     };
@@ -106,6 +109,9 @@ describe('metadata-refresh-options.model', () => {
         applebooksId: true,
         applebooksRating: true,
         applebooksReviewCount: true,
+        doubanId: true,
+        doubanRating: true,
+        doubanReviewCount: true,
         moods: true,
         tags: true
       }

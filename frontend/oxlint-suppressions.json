@@ -222,14 +222,11 @@
     "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 1
     },
-    "typescript/no-unnecessary-condition": {
-      "count": 3
-    },
     "typescript/no-unsafe-assignment": {
-      "count": 2
+      "count": 1
     },
     "typescript/no-unsafe-member-access": {
-      "count": 5
+      "count": 3
     }
   },
   "src/app/features/book/components/book-menu/book-menu.component.ts": {
@@ -287,16 +284,10 @@
     }
   },
   "src/app/features/book/components/duplicate-merger/duplicate-merger.component.ts": {
-    "typescript/no-unnecessary-condition": {
-      "count": 2
-    },
     "typescript/no-unsafe-assignment": {
-      "count": 2
+      "count": 1
     },
     "typescript/no-unsafe-member-access": {
-      "count": 2
-    },
-    "typescript/switch-exhaustiveness-check": {
       "count": 1
     }
   },
@@ -460,13 +451,13 @@
       "count": 1
     },
     "typescript/no-unsafe-assignment": {
-      "count": 5
+      "count": 4
     },
     "typescript/no-unsafe-member-access": {
-      "count": 10
+      "count": 8
     },
     "typescript/no-unsafe-return": {
-      "count": 5
+      "count": 4
     }
   },
   "src/app/features/book/service/book-menu.service.ts": {

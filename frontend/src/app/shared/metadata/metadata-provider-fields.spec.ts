@@ -14,6 +14,7 @@ describe('provider fields', () => {
       'googleId',
       'hardcoverId', 'hardcoverBookId', 'hardcoverRating', 'hardcoverReviewCount',
       'comicvineId',
+      'doubanId', 'doubanRating', 'doubanReviewCount',
       'lubimyczytacId', 'lubimyczytacRating',
       'ranobedbId', 'ranobedbRating',
       'audibleId', 'audibleRating', 'audibleReviewCount',

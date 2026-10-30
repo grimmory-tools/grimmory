@@ -269,7 +269,7 @@ public class BookRuleEvaluatorService {
             // String fields on BookMetadataEntity
             case "title", "subtitle", "description", "publisher", "language", "seriesName",
                  "isbn13", "isbn10", "asin", "contentRating", "narrator",
-                 "goodreadsId", "hardcoverId", "googleId", "audibleId", "applebooksId",
+                 "goodreadsId", "hardcoverId", "googleId", "audibleId", "applebooksId", "doubanId",
                  "lubimyczytacId", "ranobedbId", "comicvineId", "openlibraryId" ->
                     stringPresence(cb, root.get("metadata").get(metadataField));
 
@@ -278,6 +278,7 @@ public class BookRuleEvaluatorService {
                  "amazonRating", "goodreadsRating", "hardcoverRating", "ranobedbRating",
                  "lubimyczytacRating", "audibleRating",
                  "applebooksRating", "applebooksReviewCount",
+                 "doubanRating", "doubanReviewCount",
                  "amazonReviewCount", "goodreadsReviewCount", "hardcoverReviewCount", "audibleReviewCount" ->
                     cb.isNotNull(root.get("metadata").get(metadataField));
 
@@ -802,6 +803,8 @@ public class BookRuleEvaluatorService {
             case AUDIBLE_REVIEW_COUNT -> root.get("metadata").get("audibleReviewCount");
             case APPLEBOOKS_RATING -> root.get("metadata").get("applebooksRating");
             case APPLEBOOKS_REVIEW_COUNT -> root.get("metadata").get("applebooksReviewCount");
+            case DOUBAN_RATING -> root.get("metadata").get("doubanRating");
+            case DOUBAN_REVIEW_COUNT -> root.get("metadata").get("doubanReviewCount");
             case ABRIDGED -> root.get("metadata").get("abridged");
             case AUDIOBOOK_DURATION -> root.join("bookFiles", JoinType.LEFT).get("durationSeconds");
             case AUDIOBOOK_CODEC -> root.join("bookFiles", JoinType.LEFT).get("codec");
@@ -959,6 +962,7 @@ public class BookRuleEvaluatorService {
             RuleField.LUBIMYCZYTAC_RATING, RuleField.RANOBEDB_RATING,
             RuleField.AUDIBLE_RATING, RuleField.AUDIBLE_REVIEW_COUNT,
             RuleField.APPLEBOOKS_RATING, RuleField.APPLEBOOKS_REVIEW_COUNT,
+            RuleField.DOUBAN_RATING, RuleField.DOUBAN_REVIEW_COUNT,
             RuleField.AUDIOBOOK_CHAPTER_COUNT, RuleField.AUDIOBOOK_BITRATE
     );
 

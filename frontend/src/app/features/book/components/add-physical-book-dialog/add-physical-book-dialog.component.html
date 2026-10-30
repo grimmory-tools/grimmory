@@ -106,11 +106,10 @@
               [multiple]="true"
               [fluid]="true"
               [dropdown]="false"
-              [suggestions]="filteredAuthors"
+              appFacetSuggestions="author"
               [forceSelection]="false"
               [showClear]="false"
               [placeholder]="t('authorsPlaceholder')"
-              (completeMethod)="filterAuthors($event)"
               (onKeyUp)="onAutoCompleteKeyUp('authors', $event)"
               (onSelect)="onAutoCompleteSelect('authors', $event)" />
           </div>
@@ -209,11 +208,10 @@
           [multiple]="true"
           [fluid]="true"
           [dropdown]="false"
-          [suggestions]="filteredCategories"
+          appFacetSuggestions="genre"
           [forceSelection]="false"
           [showClear]="true"
           [placeholder]="t('categoriesPlaceholder')"
-          (completeMethod)="filterCategories($event)"
           (onKeyUp)="onAutoCompleteKeyUp('categories', $event)"
           (onSelect)="onAutoCompleteSelect('categories', $event)" />
       </div>

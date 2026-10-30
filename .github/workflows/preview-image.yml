@@ -61,6 +61,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: |
+            ghcr.io/${{ github.repository }}
+          context: git
+          tags: |
+            type=raw,value=${{ env.preview_tag }}
+
       - name: Build and push Preview image
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
@@ -68,11 +78,11 @@ jobs:
           file: Dockerfile
           platforms: linux/amd64
           push: true
-          tags: |
-            ghcr.io/grimmory-tools/grimmory:${{ env.preview_tag }}
+          tags: ${{ steps.meta.outputs.tags }}
+          annotations: ${{ steps.meta.outputs.annotations }}
           build-args: |
             APP_VERSION=${{ env.preview_tag }}
             APP_REVISION=${{ env.commit_sha }}
           cache-from: |
             type=gha,scope=image-shared
-            type=registry,ref=ghcr.io/grimmory-tools/grimmory:buildcache
+            type=registry,ref=ghcr.io/${{ github.repository }}:buildcache

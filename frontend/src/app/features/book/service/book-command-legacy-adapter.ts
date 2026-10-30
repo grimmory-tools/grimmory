@@ -7,19 +7,22 @@ import {
 
 import {
   DeleteAdditionalFileResult,
+  AttachBookFilesResult,
+  AttachBookFilesVariables,
   DeleteBooksResult,
   ResetBookProgressResult,
   SetAllBookMetadataLocksResult,
   SetBookReadStatusResult,
 } from '../data/book-command.models';
 import {UpdateBookShelfMembershipResult} from '../data/book-shelf-command.models';
-import {BookShelf} from '../data/book-response.models';
-import {Book, ReadStatus} from '../model/book.model';
+import {BookFileResponse, BookShelf} from '../data/book-response.models';
+import {AdditionalFile, Book, BOOK_TYPES, ReadStatus} from '../model/book.model';
 import {Shelf} from '../model/shelf.model';
 import {
   invalidateAllLegacyBooks,
   patchListOnlyBookFields,
   patchListOnlyBooksWith,
+  patchAttachedBookFilesInLegacyCache,
   removeListOnlyBooks,
 } from './legacy-book-cache';
 import {SHELVES_QUERY_KEY} from './shelf-query-keys';
@@ -27,9 +30,10 @@ import {SHELVES_QUERY_KEY} from './shelf-query-keys';
 type MutationOptionsWithKey<TData, TError, TVariables, TOnMutateResult> =
   WithRequired<CreateMutationOptions<TData, TError, TVariables, TOnMutateResult>, 'mutationKey'>;
 
-type LegacyBookCachePatch<TData> = (
+type LegacyBookCachePatch<TData, TVariables> = (
   client: QueryClient,
   data: TData,
+  variables: TVariables,
 ) => Promise<void> | void;
 
 export function withLegacyBookCache<
@@ -39,7 +43,7 @@ export function withLegacyBookCache<
   TOnMutateResult = unknown,
 >(
   options: MutationOptionsWithKey<TData, TError, TVariables, TOnMutateResult>,
-  patch: LegacyBookCachePatch<TData>,
+  patch: LegacyBookCachePatch<TData, TVariables>,
 ): MutationOptionsWithKey<TData, TError, TVariables, TOnMutateResult> {
   const originalOnSuccess = options.onSuccess;
   const originalOnError = options.onError;
@@ -48,7 +52,7 @@ export function withLegacyBookCache<
     ...options,
     onSuccess: async (data, variables, onMutateResult, context) => {
       await Promise.all([
-        patch(context.client, data),
+        patch(context.client, data, variables),
         originalOnSuccess?.(data, variables, onMutateResult, context),
       ]);
     },
@@ -62,6 +66,21 @@ export function withLegacyBookCache<
 }
 
 export const legacyBookCachePatches = {
+  attachBookFiles: (
+    client: QueryClient,
+    result: AttachBookFilesResult,
+    variables: AttachBookFilesVariables,
+  ): Promise<void> => patchAttachedBookFilesInLegacyCache(
+    client,
+    {
+      id: result.updatedBook.id,
+      primaryFile: result.updatedBook.primaryFile && toLegacyBookFile(result.updatedBook.primaryFile),
+      alternativeFormats: result.updatedBook.alternativeFormats?.map(toLegacyBookFile),
+      supplementaryFiles: result.updatedBook.supplementaryFiles?.map(toLegacyBookFile),
+    },
+    result.deletedSourceBookIds,
+    variables.sourceBookIds,
+  ),
   readStatus: (
     client: QueryClient,
     results: readonly SetBookReadStatusResult[],
@@ -158,6 +177,10 @@ async function patchLegacyShelfMembership(
     }))),
     client.invalidateQueries({queryKey: SHELVES_QUERY_KEY, exact: true}),
   ]);
+}
+
+function toLegacyBookFile(file: BookFileResponse): AdditionalFile {
+  return {...file, bookType: BOOK_TYPES.find(type => type === file.bookType)};
 }
 
 function toLegacyShelf(shelf: BookShelf): Shelf {

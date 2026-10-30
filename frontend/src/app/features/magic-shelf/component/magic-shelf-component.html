@@ -189,7 +189,9 @@
                     } @else if (ruleCtrl.get('field')?.value === 'shelf') {
                       <p-multiSelect [options]="shelfOptions()" formControlName="value" display="chip" class="value-input" appendTo="body" [placeholder]="t('placeholders.selectShelves')" />
                     } @else if (ruleCtrl.get('field')?.value === 'categories') {
-                      <p-multiSelect [options]="categoryOptions()" formControlName="value" display="chip" class="value-input" appendTo="body" [placeholder]="t('placeholders.selectGenres')" />
+                      <div class="autocomplete-wrapper">
+                        <p-autoComplete formControlName="value" [multiple]="true" [dropdown]="false" [forceSelection]="true" appFacetSuggestions="genre" [placeholder]="t('placeholders.selectGenres')" appendTo="body" />
+                      </div>
                     } @else if (ruleCtrl.get('field')?.value === 'contentRating') {
                       <p-multiSelect [options]="contentRatingOptions" formControlName="value" display="chip" class="value-input" appendTo="body" [placeholder]="t('placeholders.selectContentRatings')" />
                     } @else {
@@ -206,7 +208,9 @@
                   } @else if (ruleCtrl.get('field')?.value === 'shelf') {
                     <p-select [options]="shelfOptions()" formControlName="value" [placeholder]="t('placeholders.selectShelf')" appendTo="body" class="value-input" />
                   } @else if (ruleCtrl.get('field')?.value === 'categories') {
-                    <p-select [options]="categoryOptions()" formControlName="value" [placeholder]="t('placeholders.selectGenre')" appendTo="body" class="value-input" />
+                    <div class="autocomplete-wrapper">
+                      <p-autoComplete formControlName="value" [dropdown]="false" [forceSelection]="true" appFacetSuggestions="genre" [placeholder]="t('placeholders.selectGenre')" appendTo="body" />
+                    </div>
                   } @else if (ruleCtrl.get('field')?.value === 'contentRating') {
                     <p-select [options]="contentRatingOptions" formControlName="value" [placeholder]="t('placeholders.selectContentRating')" appendTo="body" class="value-input" />
                   } @else {
