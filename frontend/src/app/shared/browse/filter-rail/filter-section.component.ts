@@ -123,16 +123,23 @@ export class BrowseFilterSectionComponent<K extends string = string> {
 
   protected readonly foldLimit = computed(() => this.group().showAllValues ? Infinity : COLLAPSED_VALUE_COUNT);
 
+  protected readonly foldReserve = linkedSignal<number, {rows: number; more: number}>({
+    source: () => this.group().values.length,
+    computation: (count, previous) => ({
+      rows: Math.max(Math.min(count, COLLAPSED_VALUE_COUNT), previous?.value.rows ?? 0),
+      more: Math.max(count > COLLAPSED_VALUE_COUNT ? 1 : 0, previous?.value.more ?? 0),
+    }),
+  });
   protected readonly foldClass = computed(() => {
     if (this.activeQuery()) {
       return 'min-h-56 pointer-coarse:min-h-[22rem]';
     }
     return this.group().showAllValues || this.expanded()
       ? ''
-      : 'min-h-[calc(8*1.75rem+1.875rem)] pointer-coarse:min-h-[calc(8*2.75rem+2.875rem)]';
+      : 'min-h-[calc(var(--fold-rows)*1.75rem+var(--fold-more)*1.875rem)] pointer-coarse:min-h-[calc(var(--fold-rows)*2.75rem+var(--fold-more)*2.875rem)]';
   });
 
-  private readonly held = linkedSignal<readonly [boolean, boolean, string], {value: string; slot: number} | null>({
+  private readonly held = linkedSignal<readonly [boolean, boolean, string], {item: BrowseFilterValue<K>; slot: number} | null>({
     source: () => [this.isOpen(), this.expanded(), this.activeQuery()],
     computation: () => null,
   });
@@ -142,8 +149,8 @@ export class BrowseFilterSectionComponent<K extends string = string> {
     const values = query ? this.matches(query) : this.group().values;
     const limit = query || this.expanded() ? Infinity : this.foldLimit();
     const held = this.held();
-    const kept = (candidate: BrowseFilterValue) => this.state(candidate) !== null;
-    const item = held ? values.find(candidate => candidate.value === held.value) : undefined;
+    const kept = (candidate: BrowseFilterValue<K>) => this.state(candidate) !== null;
+    const item = held ? values.find(candidate => sameRow(candidate, held.item)) : undefined;
     if (!held || !item) {
       return foldValues(values, limit, kept);
     }
@@ -173,20 +180,21 @@ export class BrowseFilterSectionComponent<K extends string = string> {
 
   protected readonly activeQuery = computed(() => this.search().trim());
 
-  private matches(query: string): BrowseFilterValue[] {
+  private matches(query: string): BrowseFilterValue<K>[] {
     const needle = normalizeLocalSearchTerm(query);
     return this.group().values.filter(item => normalizeLocalSearchTerm(item.label).includes(needle));
   }
 
-  private state(item: BrowseFilterValue): BrowseFacetState | null {
-    return this.group().picks?.get(item.value) ?? null;
+  private state(item: BrowseFilterValue<K>): BrowseFacetState | null {
+    return this.group().picks?.get(item.facetKey)?.get(item.value) ?? null;
   }
 
   protected readonly rows = computed(() => {
     const boxes = this.alwaysShowBoxes();
     return this.visibleValues().map(item => {
       const state = this.state(item);
-      const zero = item.count === 0 && state === null && this.held()?.value !== item.value;
+      const held = this.held();
+      const zero = item.count === 0 && state === null && !(held && sameRow(held.item, item));
       const trailing = boxes ? 'boxes' : state === 'excluded' ? 'excluded' : zero ? 'count' : 'swap';
       return {
         item,
@@ -229,9 +237,13 @@ export class BrowseFilterSectionComponent<K extends string = string> {
 
   protected onRowToggle(slot: number, target: BrowseFacetState): void {
     const {item, state} = this.rows()[slot];
-    this.held.set({value: item.value, slot});
-    this.toggleValue.emit({key: this.group().key, value: item.value, state: state === target ? null : target});
+    this.held.set({item, slot});
+    this.toggleValue.emit({key: item.facetKey, value: item.value, state: state === target ? null : target});
   }
+}
+
+function sameRow(a: BrowseFilterValue, b: BrowseFilterValue): boolean {
+  return a.facetKey === b.facetKey && a.value === b.value;
 }
 
 function foldValues<T>(values: readonly T[], limit: number, kept: (item: T) => boolean): T[] {

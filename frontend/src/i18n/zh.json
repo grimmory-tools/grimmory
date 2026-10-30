@@ -33,7 +33,8 @@
     "on": "",
     "off": "",
     "moreActionsFor": "",
-    "dialogLoadError": ""
+    "dialogLoadError": "",
+    "metadata": "元数据"
   },
   "auth": {
     "oidc": {
@@ -2845,7 +2846,6 @@
       "quickSend": "快速发送",
       "customSend": "自定义发送",
       "download": "下载",
-      "metadata": "元数据",
       "editMetadata": "编辑元数据",
       "fetchMetadata": "",
       "fetchMetadataWithOptions": "",
@@ -3361,9 +3361,6 @@
         "failedDetail": "更新字段锁定状态时发生错误。"
       }
     },
-    "sorting": {
-      "saveAsDefault": "保存为默认"
-    },
     "fileAttacher": {
       "title": "将文件附加到其他图书",
       "titleBulk": "将文件附加到其他图书",
@@ -3389,7 +3386,6 @@
     },
     "searcher": {
       "placeholder": "标题、作者、系列、类型或 ISBN...",
-      "clearSearch": "清除搜索",
       "bookCoverAlt": "图书封面",
       "byPrefix": "作者",
       "noResults": "未找到结果",
@@ -5100,74 +5096,6 @@
     }
   },
   "authorBrowser": {
-    "pageTitle": "",
-    "browseAllAuthors": "",
-    "searchPlaceholder": "",
-    "noAuthorsFound": "",
-    "sort": {
-      "name": "",
-      "bookCount": "",
-      "matched": "",
-      "recentlyAdded": "",
-      "recentlyRead": "",
-      "readingProgress": "",
-      "avgRating": "",
-      "photo": "",
-      "seriesCount": ""
-    },
-    "filters": {
-      "all": "",
-      "matchStatus": "",
-      "matched": "",
-      "unmatched": "",
-      "photoStatus": "",
-      "hasPhoto": "",
-      "noPhoto": "",
-      "readStatus": "",
-      "allRead": "",
-      "someRead": "",
-      "inProgress": "",
-      "unread": "",
-      "bookCount": "",
-      "library": "",
-      "genre": "",
-      "reset": ""
-    },
-    "footer": {
-      "selected": "",
-      "autoMatch": "",
-      "deleteSelected": "",
-      "selectAll": "",
-      "deselectAll": ""
-    },
-    "toast": {
-      "deleteSuccessSummary": "",
-      "deleteSuccessDetail": "",
-      "deleteFailedSummary": "",
-      "deleteFailedDetail": "",
-      "autoMatchSuccessSummary": "",
-      "autoMatchSuccessDetail": "",
-      "autoMatchFailedSummary": "",
-      "autoMatchFailedDetail": "",
-      "quickMatchSuccessSummary": "",
-      "quickMatchSuccessDetail": "",
-      "quickMatchFailedSummary": "",
-      "quickMatchFailedDetail": "",
-      "deleteSelectedSuccessSummary": "",
-      "deleteSelectedSuccessDetail": ""
-    },
-    "card": {
-      "matched": "",
-      "quickMatch": "",
-      "book": "",
-      "books": "",
-      "menu": {
-        "viewAuthor": "",
-        "editAuthor": "",
-        "quickMatch": "",
-        "deleteAuthor": ""
-      }
-    },
     "editor": {
       "nameLabel": "",
       "asinLabel": "",
@@ -5240,6 +5168,14 @@
       }
     }
   },
+  "author": {
+    "quickMatch": {
+      "successSummary": "",
+      "successDetail": "",
+      "failedSummary": "",
+      "failedDetail": ""
+    }
+  },
   "browse": {
     "showAll": "全部显示",
     "showMore": "",
@@ -5248,6 +5184,7 @@
     "filter": "",
     "moreActions": "更多操作",
     "sort": {
+      "saveAsDefault": "保存为默认",
       "multiSort": "",
       "addField": "",
       "apply": "",
@@ -5259,6 +5196,7 @@
       "removeSearch": ""
     },
     "rail": {
+      "clearSearch": "清除搜索",
       "searchValues": "",
       "searchFields": "",
       "searchScope": {

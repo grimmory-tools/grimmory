@@ -109,6 +109,14 @@ public class FileService {
         return Paths.get(appProperties.getPathConfig(), AUTHOR_IMAGES_DIR, String.valueOf(authorId), AUTHOR_THUMBNAIL_FILENAME).toString();
     }
 
+    public Instant getAuthorPhotoUpdatedOn(long authorId) {
+        try {
+            return Files.getLastModifiedTime(Paths.get(getAuthorThumbnailFile(authorId))).toInstant();
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
     public String getBackgroundsFolder(Long userId) {
         if (userId != null) {
             return Paths.get(appProperties.getPathConfig(), BACKGROUNDS_DIR, "user-" + userId).toString();

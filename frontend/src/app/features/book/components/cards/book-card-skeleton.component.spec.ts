@@ -1,10 +1,8 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {beforeEach, describe, expect, it} from 'vitest';
 
-import {
-  bookCardHeightForWidth,
-  BOOK_CARD_META_PADDING_TOP,
-} from './book-card.layout';
+import {CARD_META_PADDING_TOP} from '../../../../shared/components/cards/card.layout';
+import {bookCardHeightForWidth} from './book-card.layout';
 import {BookCardSkeletonComponent} from './book-card-skeleton.component';
 
 describe('BookCardSkeletonComponent', () => {
@@ -41,7 +39,7 @@ describe('BookCardSkeletonComponent', () => {
       setMetaLines(metaLines);
       const rendered = width + metaPaddingTop() + rowHeights().reduce((sum, row) => sum + row, 0);
 
-      expect(metaPaddingTop()).toBe(BOOK_CARD_META_PADDING_TOP);
+      expect(metaPaddingTop()).toBe(CARD_META_PADDING_TOP);
       expect(rendered).toBe(bookCardHeightForWidth(width, {square: true, metaLines}));
     }
   });

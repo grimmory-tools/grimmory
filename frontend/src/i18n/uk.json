@@ -33,7 +33,8 @@
     "on": "",
     "off": "",
     "moreActionsFor": "",
-    "dialogLoadError": ""
+    "dialogLoadError": "",
+    "metadata": "Метадані"
   },
   "auth": {
     "oidc": {
@@ -2845,7 +2846,6 @@
       "quickSend": "Швидка відправка",
       "customSend": "Налаштована відправка",
       "download": "Завантажити",
-      "metadata": "Метадані",
       "editMetadata": "Редагувати метадані",
       "fetchMetadata": "",
       "fetchMetadataWithOptions": "",
@@ -3361,9 +3361,6 @@
         "failedDetail": "Під час оновлення статусів блокування полів сталася помилка."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Зберегти як значення за замовчуванням"
-    },
     "fileAttacher": {
       "title": "Прикріпити файл до іншої книги",
       "titleBulk": "Прикріпити файли до іншої книги",
@@ -3389,7 +3386,6 @@
     },
     "searcher": {
       "placeholder": "Назва, автор, серія, жанр або ISBN...",
-      "clearSearch": "Очистити пошук",
       "bookCoverAlt": "Обкладинка книги",
       "byPrefix": "від",
       "noResults": "Нічого не знайдено",
@@ -5100,74 +5096,6 @@
     }
   },
   "authorBrowser": {
-    "pageTitle": "Автори",
-    "browseAllAuthors": "Переглянути всіх авторів",
-    "searchPlaceholder": "Пошук за іменем автора...",
-    "noAuthorsFound": "Авторів за вашим запитом не знайдено.",
-    "sort": {
-      "name": "Ім'я",
-      "bookCount": "Кількість книг",
-      "matched": "Зіставлено",
-      "recentlyAdded": "Нещодавно додані",
-      "recentlyRead": "Нещодавно прочитані",
-      "readingProgress": "Прогрес читання",
-      "avgRating": "Сер. рейтинг",
-      "photo": "Фото",
-      "seriesCount": "Кількість серій"
-    },
-    "filters": {
-      "all": "Усі",
-      "matchStatus": "Статус зіставлення",
-      "matched": "Зіставлено",
-      "unmatched": "Не зіставлено",
-      "photoStatus": "Статус фото",
-      "hasPhoto": "Є фото",
-      "noPhoto": "Без фото",
-      "readStatus": "Статус читання",
-      "allRead": "Усі прочитані",
-      "someRead": "Деякі прочитані",
-      "inProgress": "У процесі",
-      "unread": "Не прочитано",
-      "bookCount": "Кількість книг",
-      "library": "Бібліотека",
-      "genre": "Жанр",
-      "reset": "Скинути фільтри"
-    },
-    "footer": {
-      "selected": "вибрано",
-      "autoMatch": "Автозіставити вибрані",
-      "deleteSelected": "Видалити вибрані",
-      "selectAll": "Вибрати всі",
-      "deselectAll": "Зняти виділення з усіх"
-    },
-    "toast": {
-      "deleteSuccessSummary": "Автора видалено",
-      "deleteSuccessDetail": "Автора успішно видалено.",
-      "deleteFailedSummary": "Не вдалося видалити",
-      "deleteFailedDetail": "Не вдалося видалити автора.",
-      "autoMatchSuccessSummary": "Автозіставлення завершено",
-      "autoMatchSuccessDetail": "Вибраних авторів успішно зіставлено.",
-      "autoMatchFailedSummary": "Не вдалося автозіставити",
-      "autoMatchFailedDetail": "Не вдалося виконати автозіставлення вибраних авторів.",
-      "quickMatchSuccessSummary": "Швидке зіставлення завершено",
-      "quickMatchSuccessDetail": "Автора успішно зіставлено.",
-      "quickMatchFailedSummary": "Не вдалося швидко зіставити",
-      "quickMatchFailedDetail": "Не вдалося виконати швидке зіставлення автора.",
-      "deleteSelectedSuccessSummary": "Авторів видалено",
-      "deleteSelectedSuccessDetail": "Вибраних авторів успішно видалено."
-    },
-    "card": {
-      "matched": "Зіставлено",
-      "quickMatch": "Швидке зіставлення",
-      "book": "книга",
-      "books": "книги",
-      "menu": {
-        "viewAuthor": "Переглянути автора",
-        "editAuthor": "Редагувати автора",
-        "quickMatch": "Швидке зіставлення",
-        "deleteAuthor": "Видалити автора"
-      }
-    },
     "editor": {
       "nameLabel": "Ім'я",
       "asinLabel": "",
@@ -5240,6 +5168,14 @@
       }
     }
   },
+  "author": {
+    "quickMatch": {
+      "successSummary": "Швидке зіставлення завершено",
+      "successDetail": "Автора успішно зіставлено.",
+      "failedSummary": "Не вдалося швидко зіставити",
+      "failedDetail": "Не вдалося виконати швидке зіставлення автора."
+    }
+  },
   "browse": {
     "showAll": "Показати все",
     "showMore": "",
@@ -5251,6 +5187,7 @@
       "multiSort": "",
       "addField": "",
       "apply": "Застосувати",
+      "saveAsDefault": "Зберегти як значення за замовчуванням",
       "moveUp": "",
       "moveDown": "",
       "flipDirection": ""
@@ -5259,6 +5196,7 @@
       "removeSearch": ""
     },
     "rail": {
+      "clearSearch": "Очистити пошук",
       "searchValues": "",
       "searchFields": "",
       "searchScope": {

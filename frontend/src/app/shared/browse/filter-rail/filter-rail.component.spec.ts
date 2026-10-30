@@ -12,7 +12,11 @@ import {
 } from '../facets';
 
 function railValue(label: string): BrowseFilterValue {
-  return {value: label.toLowerCase().replace(/\s+/g, '-'), label, count: 3};
+  return {facetKey: 'author', value: label.toLowerCase().replace(/\s+/g, '-'), label, count: 3};
+}
+
+function flagValue(facetKey: string, labelKey: string): BrowseFilterValue {
+  return {facetKey, value: 'true', label: 'true', labelKey, count: 3};
 }
 
 function authorGroup(count: number): BrowseFilterGroup {
@@ -37,7 +41,7 @@ function authorGroup(count: number): BrowseFilterGroup {
 })
 class HostComponent {
   readonly groups = signal<readonly BrowseFilterGroup[]>([authorGroup(20)]);
-  readonly openKeys: ReadonlySet<string> = new Set(['author', 'file_size']);
+  readonly openKeys: ReadonlySet<string> = new Set(['author', 'file_size', 'has_photo']);
   readonly searchTerms: Readonly<Record<string, string>> = {};
   readonly toggles: BrowseFilterToggle[] = [];
   readonly commits: BrowseFilterRangeCommit[] = [];
@@ -61,7 +65,7 @@ describe('BrowseFilterRailComponent', () => {
   });
 
   it('includes from the row and excludes from the minus box, each clearing itself and replacing the other', () => {
-    fixture.componentInstance.groups.set([{...authorGroup(3), picks: new Map([['author-1', 'included'], ['author-2', 'excluded']])}]);
+    fixture.componentInstance.groups.set([{...authorGroup(3), picks: new Map([['author', new Map([['author-1', 'included'], ['author-2', 'excluded']])]])}]);
     fixture.detectChanges();
 
     includeButtons()[0].click();
@@ -72,6 +76,24 @@ describe('BrowseFilterRailComponent', () => {
 
     expect(fixture.componentInstance.toggles.map(toggle => toggle.state)).toEqual([null, 'excluded', 'included', null, 'excluded']);
     expect(excludeButtons()[1].getAttribute('aria-label')).toBe('Exclude Author 2');
+  });
+
+  it('ticks and excludes each Metadata row under its own facet key', () => {
+    const values = [flagValue('has_photo', 'author.fields.hasPhoto'), flagValue('has_asin', 'author.fields.hasAsin')];
+    const metadata: BrowseFilterGroup = {key: 'has_photo', labelKey: 'common.metadata', multiValued: false, showAllValues: true, values};
+    fixture.componentInstance.groups.set([metadata]);
+    fixture.detectChanges();
+    expect(includeButtons().map(row => row.title)).toEqual(['Photo', 'ASIN']);
+
+    includeButtons()[1].click();
+    fixture.componentInstance.groups.set([{...metadata, picks: new Map([['has_asin', new Map([['true', 'included']])]])}]);
+    fixture.detectChanges();
+    excludeButtons()[1].click();
+
+    expect(fixture.componentInstance.toggles).toEqual([
+      {key: 'has_asin', value: 'true', state: 'included'},
+      {key: 'has_asin', value: 'true', state: 'excluded'},
+    ]);
   });
 
   it('commits file size ranges in KB from the unit the user picked', () => {
@@ -111,7 +133,7 @@ describe('BrowseFilterRailComponent', () => {
   });
 
   it('counts a ticked row below the fold as one of the eight', () => {
-    fixture.componentInstance.groups.set([{...authorGroup(20), picks: new Map([['author-12', 'included']])}]);
+    fixture.componentInstance.groups.set([{...authorGroup(20), picks: new Map([['author', new Map([['author-12', 'included']])]])}]);
     fixture.detectChanges();
 
     expect(labels()).toEqual(['Author 1', 'Author 2', 'Author 3', 'Author 4', 'Author 5', 'Author 6', 'Author 7', 'Author 12']);

@@ -33,7 +33,8 @@
     "on": "Be",
     "off": "Ki",
     "moreActionsFor": "Több müvelet ehhez: {{ label }}",
-    "dialogLoadError": "Hiba lépett fel a párbeszédablak betöltésekor. Kérlek próbáld újra."
+    "dialogLoadError": "Hiba lépett fel a párbeszédablak betöltésekor. Kérlek próbáld újra.",
+    "metadata": "Metaadat"
   },
   "auth": {
     "oidc": {
@@ -2845,7 +2846,6 @@
       "quickSend": "Gyors küldés",
       "customSend": "Egyedi küldés",
       "download": "Letöltés",
-      "metadata": "Metaadat",
       "editMetadata": "",
       "fetchMetadata": "",
       "fetchMetadataWithOptions": "",
@@ -3361,9 +3361,6 @@
         "failedDetail": ""
       }
     },
-    "sorting": {
-      "saveAsDefault": ""
-    },
     "fileAttacher": {
       "title": "",
       "titleBulk": "",
@@ -3389,7 +3386,6 @@
     },
     "searcher": {
       "placeholder": "",
-      "clearSearch": "",
       "bookCoverAlt": "",
       "byPrefix": "",
       "noResults": "",
@@ -5100,74 +5096,6 @@
     }
   },
   "authorBrowser": {
-    "pageTitle": "Szerzők",
-    "browseAllAuthors": "Összes szerző megtekintése",
-    "searchPlaceholder": "Keresés szerző neve alapján...",
-    "noAuthorsFound": "Nincs a kereséssel egyező szerző.",
-    "sort": {
-      "name": "Név",
-      "bookCount": "Könyvek száma",
-      "matched": "Összeillő",
-      "recentlyAdded": "Nemrég hozzáadva",
-      "recentlyRead": "Nemrég olvasva",
-      "readingProgress": "Olvasási haladás",
-      "avgRating": "Átlagos értékelés",
-      "photo": "Fotó",
-      "seriesCount": "Sorozatok száma"
-    },
-    "filters": {
-      "all": "Összes",
-      "matchStatus": "Találatok státusza",
-      "matched": "Egyeztetve",
-      "unmatched": "Nincs egyeztetve",
-      "photoStatus": "Fotó státusza",
-      "hasPhoto": "Van fotó",
-      "noPhoto": "Nincs fotó",
-      "readStatus": "Olvasás státusza",
-      "allRead": "Összes elolvasva",
-      "someRead": "Néhány elolvasva",
-      "inProgress": "Folyamatban",
-      "unread": "Olvasatlan",
-      "bookCount": "Könyvek száma",
-      "library": "Könyvtár",
-      "genre": "Műfaj",
-      "reset": "Szűrők alaphelyzetbe állítása"
-    },
-    "footer": {
-      "selected": "kiválasztva",
-      "autoMatch": "Automatikus egyezetetés kiválasztva",
-      "deleteSelected": "Kiválasztottak törlése",
-      "selectAll": "Össze kiválasztása",
-      "deselectAll": "Összes kiválasztás megszüntetése"
-    },
-    "toast": {
-      "deleteSuccessSummary": "Szerző törölve",
-      "deleteSuccessDetail": "A szerző törlése sikeres.",
-      "deleteFailedSummary": "Sikertelen törlés",
-      "deleteFailedDetail": "A szerző törlése sikertelen.",
-      "autoMatchSuccessSummary": "Automatikus egyeztetés kész",
-      "autoMatchSuccessDetail": "A kiválasztott szerzők sikeresen egyeztetve.",
-      "autoMatchFailedSummary": "Automatikus egyeztetés sikertelen",
-      "autoMatchFailedDetail": "A szerzők automatikus egyeztetése sikertelen.",
-      "quickMatchSuccessSummary": "Gyors egyeztetés kész",
-      "quickMatchSuccessDetail": "A szerzőt sikeresen egyeztettük.",
-      "quickMatchFailedSummary": "Gyors egyeztetés sikertelen",
-      "quickMatchFailedDetail": "Nem sikerült a szerző gyors egyeztetése.",
-      "deleteSelectedSuccessSummary": "Szerzők törölve",
-      "deleteSelectedSuccessDetail": "A kiválasztott szerzők sikeresen törölve."
-    },
-    "card": {
-      "matched": "Egyeztetve",
-      "quickMatch": "Gyors egyeztetés",
-      "book": "könyv",
-      "books": "könyvek",
-      "menu": {
-        "viewAuthor": "Szerző megtekintése",
-        "editAuthor": "Szerző szerkesztése",
-        "quickMatch": "Gyors egyeztetés",
-        "deleteAuthor": "Szerző törlése"
-      }
-    },
     "editor": {
       "nameLabel": "Név",
       "asinLabel": "",
@@ -5240,6 +5168,14 @@
       }
     }
   },
+  "author": {
+    "quickMatch": {
+      "successSummary": "Gyors egyeztetés kész",
+      "successDetail": "A szerzőt sikeresen egyeztettük.",
+      "failedSummary": "Gyors egyeztetés sikertelen",
+      "failedDetail": "Nem sikerült a szerző gyors egyeztetése."
+    }
+  },
   "browse": {
     "showAll": "",
     "showMore": "",
@@ -5248,6 +5184,7 @@
     "filter": "",
     "moreActions": "További lehetőségek",
     "sort": {
+      "saveAsDefault": "",
       "multiSort": "",
       "addField": "",
       "apply": "",
@@ -5259,6 +5196,7 @@
       "removeSearch": ""
     },
     "rail": {
+      "clearSearch": "",
       "searchValues": "",
       "searchFields": "",
       "searchScope": {

@@ -78,17 +78,18 @@
 
     @if (hasEverOpened()) {
       <span [id]="excludedLabelId()" hidden>{{ 'browse.rail.excluded' | transloco }}</span>
-      <div [class]="foldClass()">
+      <div [class]="foldClass()" [style.--fold-rows]="foldReserve().rows" [style.--fold-more]="foldReserve().more">
         <ul class="m-0 flex list-none flex-col p-0">
-          @for (row of rows(); track row.item.value) {
+          @for (row of rows(); track row.item.facetKey + ':' + row.item.value) {
             @let item = row.item;
+            @let label = item.labelKey ? (item.labelKey | transloco) : item.label;
             <li [class]="row.rowClass">
               <button
                 type="button"
                 [class]="includeClass()"
                 [disabled]="row.zero"
-                [attr.title]="item.label"
-                [attr.aria-label]="item.stars ? item.label : null"
+                [attr.title]="label"
+                [attr.aria-label]="item.stars ? label : null"
                 [attr.aria-pressed]="row.state === 'included'"
                 [attr.aria-describedby]="row.state === 'excluded' ? excludedLabelId() : null"
                 (click)="onRowToggle($index, 'included')">
@@ -104,7 +105,7 @@
                   @if (item.stars; as stars) {
                     <app-rating readonly size="sm" [value]="stars.value" [stars]="stars.max" />
                   } @else {
-                    {{ item.label }}
+                    {{ label }}
                   }
                 </span>
                 <span [class]="row.countClass">{{ item.count }}</span>
@@ -114,7 +115,7 @@
                 [class]="row.excludeClass"
                 [disabled]="row.zero"
                 [attr.title]="'browse.rail.exclude' | transloco"
-                [attr.aria-label]="'browse.rail.excludeValue' | transloco: {value: item.label}"
+                [attr.aria-label]="'browse.rail.excludeValue' | transloco: {value: label}"
                 [attr.aria-pressed]="row.state === 'excluded'"
                 (click)="onRowToggle($index, 'excluded')">
                 <span [class]="row.excludeBoxClass" aria-hidden="true">

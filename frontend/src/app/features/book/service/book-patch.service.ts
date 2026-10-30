@@ -2,7 +2,7 @@ import {inject, Service} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable, Subject} from 'rxjs';
 import {distinctUntilChanged, exhaustMap, share, tap} from 'rxjs/operators';
-import {Book, BookFileProgress, ReadStatus} from '../model/book.model';
+import {Book, ReadStatus} from '../model/book.model';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {ResetProgressType, ResetProgressTypes} from '../../../shared/constants/reset-progress-type';
 import {BookStatusUpdateResponse, PersonalRatingUpdateResponse} from '../model/book.model';
@@ -182,13 +182,6 @@ export class BookPatchService {
         }]);
       })
     );
-  }
-
-  saveFileProgress(bookId: number, fileProgress: BookFileProgress): Observable<void> {
-    return this.http.post<void>(`${this.url}/progress`, {
-      bookId,
-      fileProgress
-    });
   }
 
   updateDateFinished(bookId: number, dateFinished: string | null): Observable<void> {
