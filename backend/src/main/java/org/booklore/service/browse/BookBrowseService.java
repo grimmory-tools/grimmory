@@ -1,5 +1,7 @@
 package org.booklore.service.browse;
 
+import org.booklore.util.RequestUtils;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -69,7 +71,7 @@ public class BookBrowseService {
         Page<Book> page = bookQueryService.findBooksPaged(spec, pageRequest, userId);
         enrich(page.getContent(), userId);
 
-        return pager.assemble(PAGE_PATH, FACET_PATH, BrowseParams.preserved(facet, facetLogicParam, query),
+        return pager.assemble(RequestUtils.withContextPath(PAGE_PATH), RequestUtils.withContextPath(FACET_PATH), BrowseParams.preserved(facet, facetLogicParam, query),
                 window, page.getTotalElements(), page.getContent());
     }
 
@@ -125,7 +127,7 @@ public class BookBrowseService {
         // Pass a null random seed for the legacy case - we don't actually store a seed value and
         // this is good enough for most use cases.
         BrowsePager.Window window = new BrowsePager.Window(pageable.getOffset(), pageable.getPageSize(), null, paramsHash, null);
-        return pager.assemble(PAGE_PATH, FACET_PATH, "", window, page.getTotalElements(), page.getContent());
+        return pager.assemble(RequestUtils.withContextPath(PAGE_PATH), RequestUtils.withContextPath(FACET_PATH), "", window, page.getTotalElements(), page.getContent());
     }
 
     private Specification<BookEntity> withSort(Specification<BookEntity> filter, List<SortTerm> sortTerms, Long userId, Integer randomSeed) {

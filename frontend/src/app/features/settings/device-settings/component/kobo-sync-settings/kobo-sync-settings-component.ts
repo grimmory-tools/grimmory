@@ -19,6 +19,7 @@ import {ShelfService} from '../../../../book/service/shelf.service';
 import {ExternalDocLinkComponent} from '../../../../../shared/components/external-doc-link/external-doc-link.component';
 import {Toast} from '@openng/optimus-ui/toast';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {API_CONFIG} from '../../../../../core/config/api-config';
 
 @Component({
   selector: 'app-kobo-sync-setting-component',
@@ -47,7 +48,7 @@ export class KoboSyncSettingsComponent implements OnInit {
   isAdmin = false;
   credentialsSaved = false;
   showToken = false;
-  readonly koboApiBase = `${window.location.origin}/api/kobo`;
+  readonly koboApiBase = `${API_CONFIG.BASE_URL}/api/kobo`;
 
   get koboApiPath(): string {
     const token = this.syncForm.controls.token.value;

@@ -27,6 +27,8 @@ const PARAMS: BookPageParams = {
   size: 20,
 };
 
+const ORIGINAL_API_BASE = API_CONFIG.BASE_URL;
+
 function page(ids: number[]): BookPage {
   return {
     content: ids.map(id => ({id, libraryId: 1, libraryName: 'Library'})),
@@ -74,6 +76,7 @@ describe('BookQueryService', () => {
 
   afterEach(() => {
     http.verify();
+    API_CONFIG.BASE_URL = ORIGINAL_API_BASE;
     vi.restoreAllMocks();
   });
 
@@ -193,7 +196,18 @@ describe('BookQueryService', () => {
     await expect(resultPromise).resolves.toEqual([3, 1, 2]);
   });
 
-  it('follows the exact next href for an infinite query', async () => {
+  it.each(['', '/grimmory', '/apps/books'])('follows next href without duplicating base path %s', async prefix => {
+    API_CONFIG.BASE_URL = `https://books.example.test${prefix}`;
+    // Recreate the service: it captures the API base when instantiated.
+    TestBed.resetTestingModule();
+    const harness = createQueryClientHarness();
+    queryClient = harness.queryClient;
+    TestBed.configureTestingModule({providers: [
+      ...harness.providers,
+      {provide: AuthService, useValue: authService},
+      BookQueryService, InfiniteQueryHost,
+    ]});
+    http = TestBed.inject(HttpTestingController);
     const host = TestBed.inject(InfiniteQueryHost);
     flushSignalAndQueryEffects();
 
@@ -204,12 +218,12 @@ describe('BookQueryService', () => {
       links: [
         {
           rel: 'self',
-          href: '/api/v1/books/page?cursor=origin',
+          href: `${prefix}/api/v1/books/page?cursor=origin`,
           type: 'application/json',
         },
         {
           rel: 'next',
-          href: '/api/v1/books/page?facet=genre%3AScience%20Fiction&cursor=opaque',
+          href: `${prefix}/api/v1/books/page?facet=genre%3AScience%20Fiction&cursor=opaque`,
           type: 'application/json',
         },
       ],

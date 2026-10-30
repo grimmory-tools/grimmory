@@ -278,7 +278,7 @@ public class SecurityConfig {
 
         http
                 .securityMatcher(request -> {
-                    var pathContainer = PathContainer.parsePath(request.getRequestURI());
+                    var pathContainer = PathContainer.parsePath(request.getServletPath());
                     if (matchPatterns.parallelStream().noneMatch(p -> p.matches(pathContainer))) {
                         return false;
                     }
@@ -331,7 +331,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
+
         String allowedOriginsStr = env.getProperty("app.cors.allowed-origins", "*").trim();
         if ("*".equals(allowedOriginsStr) || allowedOriginsStr.isEmpty()) {
             log.warn(
