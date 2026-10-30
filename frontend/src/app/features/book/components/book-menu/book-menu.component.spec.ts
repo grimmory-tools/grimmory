@@ -7,7 +7,7 @@ import {signal, type WritableSignal} from '@angular/core';
 import {createQueryClientHarness} from '../../../../core/testing/query-testing';
 import {getTranslocoModule} from '../../../../core/testing/transloco-testing';
 import {UserService} from '../../../settings/user-management/user.service';
-import {MetadataRefreshSubmissionService} from '../../../metadata/data/metadata-refresh-submission.service';
+import {MetadataSourceCommandService} from '../../../metadata/sources/metadata-source-command.service';
 import {BookCommandService} from '../../data/book-command.service';
 import {BookShelfCommandService} from '../../data/book-shelf-command.service';
 import {ShelfDefinitionQueryService} from '../../data/shelf-definition-query.service';
@@ -60,7 +60,7 @@ describe('BookMenuComponent row gating', () => {
         provideRouter([{path: '**', children: []}]),
         {provide: UserService, useValue: {currentUser: () => ({id: 1, permissions: permissions()})}},
         {provide: ShelfDefinitionQueryService, useValue: {definitions: () => ({queryKey: ['shelves'], queryFn: () => []})}},
-        {provide: MetadataRefreshSubmissionService, useValue: {refreshMetadata: () => ({mutationFn: () => Promise.resolve()})}},
+        {provide: MetadataSourceCommandService, useValue: {refreshMetadata: () => ({mutationFn: () => Promise.resolve()})}},
         {provide: BookCommandService, useValue: {
           setReadStatus: () => ({mutationFn: () => Promise.resolve([])}),
           deleteBooks: () => ({mutationFn: () => Promise.resolve({removedBookIds: []})}),

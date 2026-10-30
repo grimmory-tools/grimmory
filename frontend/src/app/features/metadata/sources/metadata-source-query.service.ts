@@ -12,54 +12,23 @@ import {httpGet, postSseJson, QUERY_DEFAULTS, toAbortablePromise} from '../../..
 import {AuthService} from '../../../shared/service/auth.service';
 import type {BookMetadata} from '../../book/model/book.model';
 import {MetadataCatalogService} from '../../../shared/metadata/metadata-catalog.service';
-import type {MetadataProviderDescriptor, MetadataProviderId} from '../../../shared/metadata/metadata-providers';
+import type {MetadataProviderId} from '../../../shared/metadata/metadata-providers';
+import {metadataSourceQueryKeys} from './metadata-source-query-keys';
+import type {
+  CoverImage,
+  CoverSearchParams,
+  MetadataSearchParams,
+  MetadataSearchResult,
+  MetadataReviewTask,
+  MetadataSourceProvider,
+} from './metadata-source-query.models';
+import type {MetadataBatchProgressNotification} from '../../../shared/model/metadata-batch-progress.model';
 import type {SidecarMetadata, SidecarSyncStatus} from './sidecar.models';
 
 interface MetadataProviderState {
   readonly name: MetadataProviderId;
   readonly enabled: boolean;
 }
-
-export interface MetadataSourceProvider extends MetadataProviderDescriptor {
-  readonly enabled: boolean;
-}
-
-export interface MetadataSearchParams {
-  readonly bookId: number;
-  readonly providers: readonly MetadataProviderId[];
-  readonly title?: string;
-  readonly author?: string;
-  readonly isbn?: string;
-}
-
-export type MetadataSearchResult = BookMetadata & {readonly provider: MetadataProviderId};
-
-export interface CoverImage {
-  url: string;
-  width: number;
-  height: number;
-  index: number;
-}
-
-export interface CoverSearchParams {
-  readonly bookId: number;
-  readonly title?: string;
-  readonly author?: string;
-  readonly coverType: 'ebook' | 'audiobook';
-}
-
-export const metadataSourceKeys = {
-  all: () => ['metadata-sources'] as const,
-  providerList: () => [...metadataSourceKeys.all(), 'providers'] as const,
-  prospective: (params: MetadataSearchParams) =>
-    [...metadataSourceKeys.all(), 'prospective', params] as const,
-  covers: (params: CoverSearchParams) =>
-    [...metadataSourceKeys.all(), 'covers', params] as const,
-  isbnLookup: (isbn: string) => [...metadataSourceKeys.all(), 'isbn', isbn] as const,
-  fileMetadata: (bookId: number) => [...metadataSourceKeys.all(), 'file', bookId] as const,
-  sidecar: (bookId: number) => [...metadataSourceKeys.all(), 'sidecar', bookId] as const,
-  sidecarStatus: (bookId: number) => [...metadataSourceKeys.sidecar(bookId), 'status'] as const,
-};
 
 const STREAM_DEFAULTS = {
   refetchOnWindowFocus: false,
@@ -91,10 +60,11 @@ export class MetadataSourceQueryService {
   private readonly authService = inject(AuthService);
   private readonly queryClient = inject(QueryClient);
   private readonly catalog = inject(MetadataCatalogService);
-  private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/books`;
+  private readonly booksUrl = `${API_CONFIG.BASE_URL}/api/v1/books`;
+  private readonly reviewTasksUrl = `${API_CONFIG.BASE_URL}/api/metadata/tasks`;
 
   private readonly providerList = injectQuery(() => queryOptions({
-    queryKey: metadataSourceKeys.providerList(),
+    queryKey: metadataSourceQueryKeys.providerList(),
     queryFn: ({signal}) => httpGet<readonly MetadataProviderState[]>(
       this.http,
       `${API_CONFIG.BASE_URL}/api/v1/metadata/providers`,
@@ -116,13 +86,13 @@ export class MetadataSourceQueryService {
   readonly enabledProviders = computed(() => this.providers().filter(provider => provider.enabled));
 
   refreshProviders(): Promise<void> {
-    return this.queryClient.invalidateQueries({queryKey: metadataSourceKeys.providerList()});
+    return this.queryClient.invalidateQueries({queryKey: metadataSourceQueryKeys.providerList()});
   }
 
   constructor() {
     effect(() => {
       if (this.authService.token() === null) {
-        this.queryClient.removeQueries({queryKey: metadataSourceKeys.all()});
+        this.queryClient.removeQueries({queryKey: metadataSourceQueryKeys.all()});
       }
     });
   }
@@ -132,9 +102,9 @@ export class MetadataSourceQueryService {
     const body = JSON.stringify(normalized);
 
     return queryOptions({
-      queryKey: metadataSourceKeys.prospective(normalized),
+      queryKey: metadataSourceQueryKeys.prospective(normalized),
       queryFn: experimental_streamedQuery({
-        streamFn: ({signal}) => postSseJson<MetadataSearchResult>(this.authService, `${this.baseUrl}/${params.bookId}/metadata/prospective`, body, signal),
+        streamFn: ({signal}) => postSseJson<MetadataSearchResult>(this.authService, `${this.booksUrl}/${params.bookId}/metadata/prospective`, body, signal),
         refetchMode: 'reset',
       }),
       ...STREAM_DEFAULTS,
@@ -147,9 +117,9 @@ export class MetadataSourceQueryService {
     const body = JSON.stringify({title, author, coverType});
 
     return queryOptions({
-      queryKey: metadataSourceKeys.covers(normalized),
+      queryKey: metadataSourceQueryKeys.covers(normalized),
       queryFn: experimental_streamedQuery({
-        streamFn: ({signal}) => postSseJson<CoverImage>(this.authService, `${this.baseUrl}/${params.bookId}/metadata/covers`, body, signal),
+        streamFn: ({signal}) => postSseJson<CoverImage>(this.authService, `${this.booksUrl}/${params.bookId}/metadata/covers`, body, signal),
         refetchMode: 'reset',
       }),
       ...STREAM_DEFAULTS,
@@ -160,11 +130,11 @@ export class MetadataSourceQueryService {
     const trimmed = isbn.trim();
 
     return queryOptions({
-      queryKey: metadataSourceKeys.isbnLookup(trimmed),
+      queryKey: metadataSourceQueryKeys.isbnLookup(trimmed),
       queryFn: async ({signal}): Promise<BookMetadata | null> => {
         try {
           return await toAbortablePromise(
-            this.http.post<BookMetadata>(`${this.baseUrl}/metadata/isbn-lookup`, {isbn: trimmed}),
+            this.http.post<BookMetadata>(`${this.booksUrl}/metadata/isbn-lookup`, {isbn: trimmed}),
             signal,
           );
         } catch (error) {
@@ -178,10 +148,10 @@ export class MetadataSourceQueryService {
 
   fileMetadata(bookId: number) {
     return queryOptions({
-      queryKey: metadataSourceKeys.fileMetadata(bookId),
+      queryKey: metadataSourceQueryKeys.fileMetadata(bookId),
       queryFn: ({signal}): Promise<BookMetadata> => httpGet<BookMetadata>(
         this.http,
-        `${this.baseUrl}/${bookId}/file-metadata`,
+        `${this.booksUrl}/${bookId}/file-metadata`,
         signal,
       ),
       ...QUERY_DEFAULTS,
@@ -191,10 +161,10 @@ export class MetadataSourceQueryService {
 
   sidecar(bookId: number) {
     return queryOptions({
-      queryKey: metadataSourceKeys.sidecar(bookId),
+      queryKey: metadataSourceQueryKeys.sidecar(bookId),
       queryFn: ({signal}): Promise<SidecarMetadata> => httpGet<SidecarMetadata>(
         this.http,
-        `${this.baseUrl}/${bookId}/sidecar`,
+        `${this.booksUrl}/${bookId}/sidecar`,
         signal,
       ),
       ...QUERY_DEFAULTS,
@@ -204,14 +174,38 @@ export class MetadataSourceQueryService {
 
   sidecarStatus(bookId: number) {
     return queryOptions({
-      queryKey: metadataSourceKeys.sidecarStatus(bookId),
+      queryKey: metadataSourceQueryKeys.sidecarStatus(bookId),
       queryFn: ({signal}): Promise<{status: SidecarSyncStatus}> => httpGet<{status: SidecarSyncStatus}>(
         this.http,
-        `${this.baseUrl}/${bookId}/sidecar/status`,
+        `${this.booksUrl}/${bookId}/sidecar/status`,
         signal,
       ),
       ...QUERY_DEFAULTS,
       staleTime: 0,
+    });
+  }
+
+  activeReviewTasks() {
+    return queryOptions({
+      queryKey: metadataSourceQueryKeys.activeReviewTasks(),
+      queryFn: ({signal}) => httpGet<readonly MetadataBatchProgressNotification[]>(
+        this.http,
+        `${this.reviewTasksUrl}/active`,
+        signal,
+      ),
+      ...QUERY_DEFAULTS,
+    });
+  }
+
+  reviewTask(taskId: string) {
+    return queryOptions({
+      queryKey: metadataSourceQueryKeys.reviewTask(taskId),
+      queryFn: async ({signal}) => (await httpGet<{readonly task: MetadataReviewTask}>(
+        this.http,
+        `${this.reviewTasksUrl}/${taskId}`,
+        signal,
+      )).task,
+      ...QUERY_DEFAULTS,
     });
   }
 }

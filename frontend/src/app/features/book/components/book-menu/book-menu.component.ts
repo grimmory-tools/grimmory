@@ -34,7 +34,7 @@ import {
   type ShelfMembershipItem,
 } from '../../../../shared/components/shelf-menu/shelf-membership-menu.component';
 import {UserService} from '../../../settings/user-management/user.service';
-import {MetadataRefreshSubmissionService} from '../../../metadata/data/metadata-refresh-submission.service';
+import {MetadataSourceCommandService} from '../../../metadata/sources/metadata-source-command.service';
 import {BookCommandService} from '../../data/book-command.service';
 import {BookShelfCommandService} from '../../data/book-shelf-command.service';
 import {type UpdateBookShelfMembershipResult} from '../../data/book-shelf-command.models';
@@ -105,7 +105,7 @@ export class BookMenuComponent {
   private readonly fileDownload = inject(FileDownloadService);
   private readonly bookNavigation = inject(BookNavigationService);
   private readonly dialogHelper = inject(BookDialogHelperService);
-  private readonly metadataRefresh = inject(MetadataRefreshSubmissionService);
+  private readonly metadataSourceCommands = inject(MetadataSourceCommandService);
   private readonly bookCommands = inject(BookCommandService);
   private readonly shelfCommands = inject(BookShelfCommandService);
   private readonly shelfDefinitionQuery = inject(ShelfDefinitionQueryService);
@@ -139,7 +139,7 @@ export class BookMenuComponent {
   });
   private readonly readStatusMutation = injectMutation(() => withLegacyBookCache(
     this.bookCommands.setReadStatus(), legacyBookCachePatches.readStatus));
-  private readonly refreshMetadataMutation = injectMutation(() => this.metadataRefresh.refreshMetadata());
+  private readonly refreshMetadataMutation = injectMutation(() => this.metadataSourceCommands.refreshMetadata());
   private readonly deleteBooksMutation = injectMutation(() => {
     const options = withLegacyBookCache(
       this.bookCommands.deleteBooks(), legacyBookCachePatches.deleteBooks);
@@ -323,7 +323,7 @@ export class BookMenuComponent {
   }
 
   protected onFetchMetadata(): void {
-    this.refreshMetadataMutation.mutate({bookIds: [this.book()!.id]});
+    this.refreshMetadataMutation.mutate({refreshType: 'BOOKS', bookIds: [this.book()!.id]});
   }
 
   protected onFetchMetadataWithOptions(): void {
