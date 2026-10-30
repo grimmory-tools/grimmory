@@ -6,10 +6,12 @@ export const bookCommandKeys = {
   attachBookFiles: () => [...bookCommandKeys.all(), 'attach-files'] as const,
   resetProgress: () => [...bookCommandKeys.all(), 'reset-progress'] as const,
   metadataAllLocks: () => [...bookCommandKeys.all(), 'metadata', 'all-locks'] as const,
+  moveFiles: () => [...bookCommandKeys.all(), 'move-files'] as const,
 };
 
 export const bookCommandScopes = {
   readingState: {id: 'books.command.reading-state'} as const,
   deletion: {id: 'books.command.deletion'} as const,
   metadata: {id: 'books.command.metadata'} as const,
+  files: {id: 'books.command.files'} as const,
 };

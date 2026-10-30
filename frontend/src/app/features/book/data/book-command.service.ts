@@ -8,6 +8,7 @@ import {bookCommandKeys, bookCommandScopes} from './book-command-keys';
 import {
   bookCommandChangeSet,
   requireBookIds,
+  BookFileMove,
   DeleteBooksPartialError,
   DeleteBooksResult,
   SetAllBookMetadataLocksResult,
@@ -23,6 +24,7 @@ import {
   ResetBookProgressVariables,
   SetAllBookMetadataLocksVariables,
   SetBookReadStatusVariables,
+  MoveBookFilesVariables,
 } from './book-command.models';
 import {applyBookQueryChangeSet} from './book-query-cache';
 import {KnownBookReadStatus} from './book-response.models';
@@ -138,6 +140,21 @@ export class BookCommandService {
     });
   }
 
+  moveFiles() {
+    return reconcilingMutationOptions({
+      mutationKey: bookCommandKeys.moveFiles(),
+      scope: bookCommandScopes.files,
+      mutationFn: (variables: MoveBookFilesVariables) => this.postFileMoves(variables.moves),
+      reconcile: (outcome, variables, client) => {
+        const bookIds = variables.moves.map(move => move.bookId);
+        return applyBookQueryChangeSet(
+          client,
+          bookCommandChangeSet(outcome, bookIds, () => ({changedBookIds: bookIds})),
+        );
+      },
+    });
+  }
+
   private postReadStatus(
     bookIds: readonly number[],
     status: KnownBookReadStatus,
@@ -146,6 +163,10 @@ export class BookCommandService {
       `${this.baseUrl}/status`,
       {bookIds, status},
     ));
+  }
+
+  private async postFileMoves(moves: readonly BookFileMove[]): Promise<void> {
+    await lastValueFrom(this.http.post<void>(`${API_CONFIG.BASE_URL}/api/v1/files/move`, {moves}));
   }
 
   private async deleteAdditionalFileRecord(

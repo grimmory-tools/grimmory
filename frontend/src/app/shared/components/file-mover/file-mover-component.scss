@@ -507,3 +507,16 @@
     }
   }
 }
+
+.preview-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.875rem;
+  padding-top: 0.5rem;
+}
+
+.preview-pager-label {
+  font-size: var(--app-text-sm);
+  color: var(--color-text-secondary);
+}

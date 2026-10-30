@@ -1709,15 +1709,6 @@
   },
   "src/app/shared/components/file-mover/file-mover-component.ts": {
     "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 4
-    },
-    "typescript/no-unnecessary-condition": {
-      "count": 7
-    },
-    "typescript/no-unsafe-argument": {
-      "count": 1
-    },
-    "typescript/no-unsafe-member-access": {
       "count": 1
     }
   },
