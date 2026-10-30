@@ -26,7 +26,6 @@ import org.booklore.service.book.BookQueryService;
 import org.booklore.service.metadata.extractor.CbxMetadataExtractor;
 import org.booklore.service.metadata.extractor.MetadataExtractorFactory;
 import org.booklore.service.metadata.parser.BookParser;
-import org.booklore.service.metadata.parser.DetailedMetadataProvider;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.model.dto.request.MetadataRefreshOptions;
 import org.booklore.util.FileUtils;
@@ -164,19 +163,6 @@ public class BookMetadataService {
             log.warn("Failed to derive provider chain from settings, falling back to default: {}", e.getMessage());
         }
         return List.of(MetadataProvider.Google);
-    }
-
-    public BookMetadata getDetailedProviderMetadata(MetadataProvider provider, String providerItemId) {
-        BookParser parser = getParser(provider);
-
-        if (!parser.isEnabled()) {
-            return null;
-        }
-
-        if (parser instanceof DetailedMetadataProvider detailedProvider) {
-            return detailedProvider.fetchDetailedMetadata(providerItemId);
-        }
-        return null;
     }
 
     private BookParser getParser(MetadataProvider provider) {
