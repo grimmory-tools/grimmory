@@ -15,6 +15,7 @@ import org.booklore.model.entity.ComicCreatorEntity;
 import org.booklore.model.entity.ComicLocationEntity;
 import org.booklore.model.entity.ComicTeamEntity;
 import org.booklore.model.entity.MoodEntity;
+import org.booklore.model.entity.ShelfEntity;
 import org.booklore.model.entity.TagEntity;
 import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.enums.ReadStatus;
@@ -24,7 +25,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.booklore.service.browse.FacetDef.names;
 import static org.booklore.service.browse.FacetDef.number;
@@ -98,13 +101,16 @@ public class BookFacetRegistry {
                 number("published_year", "Published Year", any(BookFilterSpecification::withPublishedYears),
                         (root, query, cb, scope) -> cb.function("YEAR", Integer.class, metadata(root).get("publishedDate"))),
                 values("library", "Library", any(BookFilterSpecification::inLibraries),
-                        (root, query, cb, scope) -> root.join("library").get("id")),
+                        (root, query, cb, scope) -> root.join("library").get("id")).uncapped(),
                 values("shelf", "Shelf", this::shelves,
-                        (root, query, cb, scope) -> root.join("shelves", JoinType.LEFT).get("id")),
-                values("shelf_status", "Shelf Status", any(BookFilterSpecification::withShelfStatus),
-                        (root, query, cb, scope) -> cb.<String>selectCase()
-                                .when(cb.isNotEmpty(root.get("shelves")), "shelved")
-                                .otherwise("unshelved")),
+                        (root, query, cb, scope) -> {
+                            Join<BookEntity, ShelfEntity> shelves = root.join("shelves", JoinType.LEFT);
+                            shelves.on(BookFilterSpecification.visibleShelf(cb, shelves, scope.userId()));
+                            return shelves.get("id");
+                        }).uncapped().withExtraValues(this::magicShelves),
+                values("shelf_status", "Shelf Status",
+                        (values, scope) -> BookFilterSpecification.withShelfStatus(values, scope.userId()))
+                        .withExtraValues(this::shelfStatuses),
                 values("read_status", "Read Status",
                         (values, scope) -> BookFilterSpecification.withReadStatuses(values, scope.userId()),
                         (root, query, cb, scope) -> {
@@ -170,6 +176,17 @@ public class BookFacetRegistry {
         return metadata(root).join("comicMetadata", JoinType.LEFT);
     }
 
+    private Map<String, Specification<BookEntity>> shelfStatuses(BrowseScope scope) {
+        return Map.of(
+                "shelved", BookFilterSpecification.withShelfStatus(List.of("shelved"), scope.userId()),
+                "unshelved", BookFilterSpecification.withShelfStatus(List.of("unshelved"), scope.userId()));
+    }
+
+    private Map<String, Specification<BookEntity>> magicShelves(BrowseScope scope) {
+        return magicShelfBookService.visibleShelfRules(scope.userId()).entrySet().stream()
+                .collect(Collectors.toMap(rule -> MAGIC_SHELF_PREFIX + rule.getKey(), Map.Entry::getValue));
+    }
+
     private Specification<BookEntity> shelves(List<String> values, BrowseScope scope) {
         List<String> regularIds = new ArrayList<>();
         List<Specification<BookEntity>> specs = new ArrayList<>();
@@ -184,7 +201,7 @@ public class BookFacetRegistry {
             }
         }
         if (!regularIds.isEmpty()) {
-            specs.add(BookFilterSpecification.inShelves(regularIds));
+            specs.add(BookFilterSpecification.inShelves(regularIds, scope.userId()));
         }
         if (specs.isEmpty()) {
             return (root, query, cb) -> cb.conjunction();

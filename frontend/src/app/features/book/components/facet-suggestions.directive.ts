@@ -9,7 +9,7 @@ import {type BrowseCollectionFilterParams} from '../../../core/data/browse-query
 import {type BookQueryFacetKey, EMPTY_FACET_SELECTION} from '../data/book-query-params';
 import {BookQueryService} from '../data/book-query.service';
 
-const ALL_BOOKS: BrowseCollectionFilterParams<BookQueryFacetKey> = {facets: EMPTY_FACET_SELECTION, facetLogic: 'or'};
+const ALL_BOOKS: BrowseCollectionFilterParams<BookQueryFacetKey> = {facets: EMPTY_FACET_SELECTION};
 
 @Directive({selector: '[appFacetSuggestions]'})
 export class FacetSuggestionsDirective {

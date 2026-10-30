@@ -35,12 +35,17 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Transactional(readOnly = true)
 public class BrowseService<E, T> {
 
     private static final int MAX_VALUES = 100;
     private static final char LIKE_ESCAPE = '!';
+    private static final Comparator<FacetResponseBuilder.FacetCount> BY_COUNT = Comparator
+            .comparingLong(FacetResponseBuilder.FacetCount::count)
+            .reversed()
+            .thenComparing(FacetResponseBuilder.FacetCount::value);
 
     private final BrowseEntity<E, T> entity;
     private final BrowseScopeFactory scopeFactory;
@@ -176,22 +181,28 @@ public class BrowseService<E, T> {
         if (def.range() != null) {
             return numberGroup(def, base, scope, builder);
         }
-        if (def.groupBy().isEmpty()) {
+        if (def.groupBy().isEmpty() && def.extraValues() == null) {
             return listedGroup(def, base, scope, builder);
         }
-        List<FacetResponseBuilder.FacetCount> counts = def.groupBy().stream()
-                .flatMap(source -> count(source, base, scope).stream())
+        int limit = def.allValues() ? Integer.MAX_VALUE : MAX_VALUES;
+        List<FacetResponseBuilder.FacetCount> counts = Stream.concat(
+                        def.groupBy().stream().flatMap(source -> count(source, base, scope, null, 0, limit).stream()),
+                        extraCounts(def, base, scope).stream())
                 .toList();
-        if (def.groupBy().size() > 1) {
-            counts = counts.stream()
-                    .sorted(
-                            Comparator.comparingLong(FacetResponseBuilder.FacetCount::count)
-                                    .reversed()
-                                    .thenComparing(FacetResponseBuilder.FacetCount::value)
-                    )
-                    .toList();
+        if (def.groupBy().size() > 1 || def.extraValues() != null) {
+            counts = counts.stream().sorted(BY_COUNT).toList();
         }
         return builder.group(def.key(), def.title(), counts);
+    }
+
+    private List<FacetResponseBuilder.FacetCount> extraCounts(FacetDef<E> def, Specification<E> base, BrowseScope scope) {
+        if (def.extraValues() == null) {
+            return List.of();
+        }
+        return def.extraValues().apply(scope).entrySet().stream()
+                .map(value -> new FacetResponseBuilder.FacetCount(value.getKey(), countMatching(base.and(value.getValue()))))
+                .filter(count -> count.count() > 0)
+                .toList();
     }
 
     private boolean hasItems(FacetDef<E> def, Specification<E> base, BrowseScope scope) {
@@ -199,9 +210,22 @@ public class BrowseService<E, T> {
             return anyValue(def.range(), base, scope);
         }
         if (!def.groupBy().isEmpty()) {
-            return def.groupBy().stream().anyMatch(source -> anyValue(source, base, scope));
+            return def.groupBy().stream().anyMatch(source -> anyValue(source, base, scope))
+                    || !extraCounts(def, base, scope).isEmpty();
         }
         return anyEntity(base);
+    }
+
+    private long countMatching(Specification<E> filter) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<E> root = cq.from(entity.type());
+        Predicate predicate = filter.toPredicate(root, cq, cb);
+        cq.select(countRoots(root.get("id"), root, cb));
+        if (predicate != null) {
+            cq.where(predicate);
+        }
+        return entityManager.createQuery(cq).getSingleResult();
     }
 
     private boolean anyEntity(Specification<E> base) {

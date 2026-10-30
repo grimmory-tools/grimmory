@@ -2,8 +2,6 @@ import {signal} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {beforeEach, describe, expect, it} from 'vitest';
 
-import {createQueryClientHarness} from '../../../core/testing/query-testing';
-import {AuthService} from '../../service/auth.service';
 import {LayoutService} from '../layout.service';
 import {AppSidebarItemRowComponent} from './app.sidebar-item-row.component';
 
@@ -16,9 +14,7 @@ describe('AppSidebarItemRowComponent', () => {
     TestBed.configureTestingModule({
       imports: [AppSidebarItemRowComponent],
       providers: [
-        ...createQueryClientHarness().providers,
-        {provide: LayoutService, useValue: {currentPath, areSidebarCountsVisible: () => false}},
-        {provide: AuthService, useValue: {token: signal('token'), isAuthenticated: () => true}},
+        {provide: LayoutService, useValue: {currentPath}},
       ],
     });
     TestBed.overrideComponent(AppSidebarItemRowComponent, {set: {template: ''}});

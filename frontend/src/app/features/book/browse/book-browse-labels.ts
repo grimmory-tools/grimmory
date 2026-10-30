@@ -30,7 +30,10 @@ export function createBookBrowseLabels(scope: Signal<BookBrowseScope | null>) {
     facetDefinitions: computed<BrowseFacetDefinitions<BookQueryFacetKey>>(() => {
       activeLang();
       return BOOK_FIELDS.facetDefinitions({
-        shelf: browseFacetEntityLookup(shelfDefinitions()),
+        shelf: browseFacetEntityLookup([
+          ...shelfDefinitions(),
+          ...magicShelfService.shelves().map(shelf => ({...shelf, id: `magic:${shelf.id}`})),
+        ]),
         library: browseFacetEntityLookup(libraryService.libraries()),
         translate: key => transloco.translate(key),
       });
