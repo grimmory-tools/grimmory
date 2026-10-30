@@ -68,8 +68,7 @@ export class BookFileAttacherComponent {
 
   readonly targetsQuery = injectQuery(() => this.bookQueryService.page({
     query: this.queryTerm() || undefined,
-    facets: {library: [`${this.sourceBooks[0].libraryId}`]},
-    facetLogic: 'and',
+    facets: {library: {include: [`${this.sourceBooks[0].libraryId}`], exclude: []}},
     sort: DEFAULT_BOOK_SORT_TERMS,
     size: SEARCH_PAGE_SIZE,
   }));
