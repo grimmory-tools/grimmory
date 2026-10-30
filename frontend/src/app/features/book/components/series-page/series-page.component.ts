@@ -111,7 +111,7 @@ export class SeriesPageComponent implements AfterViewChecked {
   protected urlHelper = inject(UrlHelperService);
   private readonly authorService = inject(AuthorService);
   private readonly layoutService = inject(LayoutService);
-  protected readonly bookNavigation = inject(BookNavigationService);
+  private readonly bookNavigation = inject(BookNavigationService);
 
   private readonly DEFAULT_SERIES_CARD_WIDTH = 135;
   private readonly DEFAULT_SERIES_CARD_HEIGHT = 220;
@@ -558,6 +558,10 @@ export class SeriesPageComponent implements AfterViewChecked {
     return isAudiobook
       ? this.urlHelper.getAudiobookThumbnailUrl(book.id, book.metadata?.audiobookCoverUpdatedOn)
       : this.urlHelper.getThumbnailUrl(book.id, book.metadata?.coverUpdatedOn);
+  }
+
+  protected readBook(book: Book): void {
+    this.bookNavigation.readBook(book);
   }
 
   viewBookDetails(bookId: number): void {

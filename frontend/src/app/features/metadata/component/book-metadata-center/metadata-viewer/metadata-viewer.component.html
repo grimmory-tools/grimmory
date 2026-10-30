@@ -550,9 +550,9 @@
               @if (hasDigitalFile(book)) {
                 <div class="action-group primary-actions">
                   @if (readMenuItems().length > 0) {
-                    <p-splitbutton [label]="getReadButtonLabel(book)" [icon]="getReadButtonIcon(book)" [model]="readMenuItems()" (onClick)="bookNavigationService.readBook(book)" severity="primary" class="read-button-responsive"/>
+                    <p-splitbutton [label]="getReadButtonLabel(book)" [icon]="getReadButtonIcon(book)" [model]="readMenuItems()" (onClick)="readBook(book)" severity="primary" class="read-button-responsive"/>
                   } @else {
-                    <p-button [label]="getReadButtonLabel(book)" [icon]="getReadButtonIcon(book)" (onClick)="bookNavigationService.readBook(book)" severity="primary" class="read-button-responsive"/>
+                    <p-button [label]="getReadButtonLabel(book)" [icon]="getReadButtonIcon(book)" (onClick)="readBook(book)" severity="primary" class="read-button-responsive"/>
                   }
                 </div>
               }

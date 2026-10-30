@@ -36,7 +36,7 @@ import {
   CONTENT_RATING_LABELS,
   PAGE_COUNT_RANGES,
 } from '../../../../book/model/book-value-labels';
-import {BookNavigationService} from '../../../../book/service/book-navigation.service';
+import {BookNavigationService, type ReadOptions} from '../../../../book/service/book-navigation.service';
 import {BookMetadataHostService} from '../../../../../shared/service/book-metadata-host.service';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
 import {LanguageResolverService} from '../../../../../shared/service/language-resolver.service';
@@ -82,7 +82,7 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialogRef = inject(DynamicDialogRef, { optional: true });
   private readonly catalog = inject(MetadataCatalogService);
-  protected readonly bookNavigationService = inject(BookNavigationService);
+  private readonly bookNavigationService = inject(BookNavigationService);
   private readonly metadataHostService = inject(BookMetadataHostService);
   private readonly currentBook = signal<Book | null>(null);
   private readonly seriesLookupBookId = computed(() => {
@@ -530,6 +530,10 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
 
   sanitizeDescription(html: string | null | undefined): string {
     return html ? DOMPurify.sanitize(html) : '';
+  }
+
+  protected readBook(book: Book, options?: ReadOptions): void {
+    this.bookNavigationService.readBook(book, options);
   }
 
   isInProgressStatus(): boolean {

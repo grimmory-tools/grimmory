@@ -2,7 +2,7 @@ import {ChangeDetectionStrategy, computed, Component, DestroyRef, effect, inject
 import {UpperCasePipe} from '@angular/common';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Book, BookRecommendation, FileInfo} from '../../../../../book/model/book.model';
-import {BookNavigationService} from '../../../../../book/service/book-navigation.service';
+import {BookNavigationService, type ReadOptions} from '../../../../../book/service/book-navigation.service';
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from '@openng/optimus-ui/tabs';
 import {InfiniteScrollDirective} from 'ngx-infinite-scroll';
 import {BookCardLiteComponent} from '../../../../../book/components/book-card-lite/book-card-lite-component';
@@ -87,7 +87,7 @@ const metadataTab = (value: MetadataTabValue, icon: string, labelKey: string): M
 })
 export class MetadataTabsComponent {
   protected urlHelper = inject(UrlHelperService);
-  protected readonly bookNavigation = inject(BookNavigationService);
+  private readonly bookNavigation = inject(BookNavigationService);
   private readonly bookMetadataManageService = inject(BookMetadataManageService);
   private readonly audiobookService = inject(AudiobookService);
   private readonly t = inject(TranslocoService);
@@ -152,6 +152,10 @@ export class MetadataTabsComponent {
         untracked(() => this.loadChapters(bookId));
       }
     });
+  }
+
+  protected readBook(book: Book, options?: ReadOptions): void {
+    this.bookNavigation.readBook(book, options);
   }
 
   download(book: Book): void {

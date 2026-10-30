@@ -134,7 +134,7 @@ export class BookBrowsePageComponent {
   private readonly coverScale = inject(CoverScalePreferenceService);
   private readonly detailLines = inject(BookBrowseDetailLineService);
   private readonly libraryService = inject(LibraryService);
-  protected readonly bookNavigation = inject(BookNavigationService);
+  private readonly bookNavigation = inject(BookNavigationService);
   private readonly urlHelper = inject(UrlHelperService);
   private readonly dialogLauncher = inject(DialogLauncherService);
   private readonly pendingReadStatuses = injectPendingBookReadStatuses();
@@ -408,6 +408,10 @@ export class BookBrowsePageComponent {
       return;
     }
     this.mobileSelectMode.set(true);
+  }
+
+  protected readBook(book: BookSummary): void {
+    this.bookNavigation.readBook(book);
   }
 
   protected onBookDetailRequested(book: BookSummary): void {
