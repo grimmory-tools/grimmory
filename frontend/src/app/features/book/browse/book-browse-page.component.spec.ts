@@ -31,6 +31,7 @@ import {EmailService} from '../../settings/email-v2/email.service';
 import {type BookSortTerm} from '../data/book-query-params';
 import {BookBrowsePageComponent} from './book-browse-page.component';
 import {BookBrowseFilterPageComponent} from './book-browse-filter-page.component';
+import {UNSHELVED_BROWSE_SCOPE} from './book-browse-scope';
 
 const PAGE_URL = `${API_CONFIG.BASE_URL}/api/v1/books/page`;
 const FACETS_URL = `${API_CONFIG.BASE_URL}/api/v1/books/facets`;
@@ -144,7 +145,7 @@ describe('BookBrowsePageComponent', () => {
           ]},
           {path: 'magic-shelf/:magicShelfId/books', children: [{path: '', component: BookBrowsePageComponent}]},
           {path: 'unshelved-books', children: [
-            {path: '', component: BookBrowsePageComponent, data: {browseScope: 'unshelved'}},
+            {path: '', component: BookBrowsePageComponent, data: {browseScope: UNSHELVED_BROWSE_SCOPE}},
           ]},
         ]),
         {

@@ -71,7 +71,7 @@
             @if (isSearching()) {
             <span><i class="pi pi-spin pi-spinner"></i> {{ 'common.loading' | transloco }}</span>
             } @else if (targetsQuery.isError()) {
-            <span>{{ 'dashboard.scroller.loadError' | transloco }}</span>
+            <span>{{ 'browse.book.loadError' | transloco }}</span>
             } @else {
             <span>{{ 'book.searcher.noResults' | transloco }}</span>
             }
