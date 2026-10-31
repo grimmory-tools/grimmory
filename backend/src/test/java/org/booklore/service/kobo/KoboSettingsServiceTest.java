@@ -75,14 +75,14 @@ class KoboSettingsServiceTest {
         when(authenticationService.getAuthenticatedUser()).thenReturn(user);
         when(repository.findByUserId(1L)).thenReturn(Optional.empty());
         when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        when(shelfService.getShelf(eq(1L), eq(ShelfType.KOBO.getName()))).thenReturn(Optional.empty());
-        doReturn(Shelf.builder().id(100L).build()).when(shelfService).createShelf(any(ShelfCreateRequest.class));
 
         KoboSyncSettings dto = service.getCurrentUserSettings();
 
         assertEquals(user.getId().toString(), dto.getUserId());
         assertNotNull(dto.getToken());
         assertFalse(dto.isSyncEnabled());
+        
+        verifyNoInteractions(shelfService);
     }
 
     @Test
@@ -104,8 +104,6 @@ class KoboSettingsServiceTest {
         when(authenticationService.getAuthenticatedUser()).thenReturn(user);
         when(repository.findByUserId(1L)).thenReturn(Optional.empty());
         when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        when(shelfService.getShelf(eq(1L), eq(ShelfType.KOBO.getName()))).thenReturn(Optional.empty());
-        doReturn(Shelf.builder().id(100L).build()).when(shelfService).createShelf(any(ShelfCreateRequest.class));
 
         KoboSyncSettings dto = service.createOrUpdateToken();
 
