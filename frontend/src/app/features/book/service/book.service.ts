@@ -2,7 +2,7 @@ import {computed, effect, inject, Service} from '@angular/core';
 import {first, from, lastValueFrom, Observable, throwError} from 'rxjs';
 import {HttpClient, HttpErrorResponse, HttpParams} from '@angular/common/http';
 import {catchError, map, tap} from 'rxjs/operators';
-import {Book, BookDeletionResponse, BookRecommendation, BookSetting, BookStatusUpdateResponse, CreatePhysicalBookRequest, PersonalRatingUpdateResponse, ReadStatus} from '../model/book.model';
+import {Book, BookDeletionResponse, BookSetting, BookStatusUpdateResponse, CreatePhysicalBookRequest, PersonalRatingUpdateResponse, ReadStatus} from '../model/book.model';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {MessageService} from '@openng/optimus-ui/api';
 import {ResetProgressType} from '../../../shared/constants/reset-progress-type';
@@ -16,7 +16,6 @@ import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-ex
 import {
   BOOKS_QUERY_KEY,
   bookDetailQueryKey,
-  bookRecommendationsQueryKey,
 } from './book-query-keys';
 import {invalidateAllBookQueries} from '../data/book-query-cache';
 import {
@@ -102,15 +101,6 @@ export class BookService {
     });
   }
 
-  bookRecommendationsQueryOptions(bookId: number, limit: number) {
-    return queryOptions({
-      queryKey: bookRecommendationsQueryKey(bookId, limit),
-      queryFn: () => lastValueFrom(this.http.get<BookRecommendation[]>(`${this.url}/${bookId}/recommendations`, {
-        params: {limit: limit.toString()}
-      }))
-    });
-  }
-
   removeBooksFromShelf(shelfId: number): void {
     this.queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, current =>
       (current ?? []).map(book => ({
@@ -142,10 +132,6 @@ export class BookService {
       }),
       first()
     );
-  }
-
-  getBookRecommendations(bookId: number, limit: number = 20): Observable<BookRecommendation[]> {
-    return from(this.queryClient.query({...this.bookRecommendationsQueryOptions(bookId, limit), staleTime: 'static'}));
   }
 
   /*------------------ Book Operations ------------------*/

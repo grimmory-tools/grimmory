@@ -8,7 +8,7 @@ import {TaskStatus} from '../../settings/task-management/task.service';
 import {bookQueryKeys} from '../data/book-query-keys';
 import {BookDetail} from '../data/book-response.models';
 import {normalizeBookPageParams} from '../data/book-query-params';
-import {BOOKS_QUERY_KEY, bookDetailQueryKey, bookRecommendationsQueryKey} from './book-query-keys';
+import {BOOKS_QUERY_KEY, bookDetailQueryKey} from './book-query-keys';
 import {BookSocketService} from './book-socket.service';
 
 const PAGE_QUERY_KEY = bookQueryKeys.boundedPage(normalizeBookPageParams({
@@ -200,7 +200,6 @@ describe('BookSocketService', () => {
 
   it('invalidates recommendations when recommendation refresh completes', () => {
     queryClient.setQueryData(bookQueryKeys.recommendation(1, 20), [makeBook(2)]);
-    queryClient.setQueryData(bookRecommendationsQueryKey(1, 20), [makeBook(2)]);
 
     service.handleTaskProgress({
       taskId: 'task-1',
@@ -211,32 +210,18 @@ describe('BookSocketService', () => {
     });
 
     expect(isInvalidated(bookQueryKeys.recommendation(1, 20))).toBe(true);
-    expect(isInvalidated(bookRecommendationsQueryKey(1, 20))).toBe(true);
-  });
-
-  it.each([
-    {taskId: 'task-1', taskType: 'UPDATE_BOOK_RECOMMENDATIONS', taskStatus: TaskStatus.IN_PROGRESS, progress: 50, message: 'Working'},
-    {taskId: 'task-1', taskType: 'REFRESH_LIBRARY_METADATA', taskStatus: TaskStatus.COMPLETED, progress: 100, message: 'Done'},
-  ])('does not reconcile books for an irrelevant task event', payload => {
-    queryClient.setQueryData(bookRecommendationsQueryKey(1, 20), [makeBook(2)]);
-
-    service.handleTaskProgress(payload);
-
-    expect(isInvalidated(bookRecommendationsQueryKey(1, 20))).toBe(false);
   });
 
   it('broadly invalidates clean and legacy book caches after reconnect', () => {
     const book = makeBook(1);
     queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, [book]);
     queryClient.setQueryData(bookDetailQueryKey(1, false), book);
-    queryClient.setQueryData(bookRecommendationsQueryKey(1, 20), [book]);
     queryClient.setQueryData(bookQueryKeys.detail(1, false), book);
 
     service.handleReconnect();
 
     expect(isInvalidated(BOOKS_QUERY_KEY)).toBe(true);
     expect(isInvalidated(bookDetailQueryKey(1, false))).toBe(true);
-    expect(isInvalidated(bookRecommendationsQueryKey(1, 20))).toBe(true);
     expect(isInvalidated(bookQueryKeys.detail(1, false))).toBe(true);
   });
 });

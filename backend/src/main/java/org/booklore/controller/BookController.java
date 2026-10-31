@@ -4,7 +4,6 @@ import org.booklore.browse.BrowsePage;
 import org.booklore.config.security.annotation.CheckBookAccess;
 import org.booklore.exception.ApiError;
 import org.booklore.model.dto.Book;
-import org.booklore.model.dto.BookRecommendation;
 import org.booklore.model.dto.BookViewerSettings;
 import org.booklore.model.dto.request.AttachBookFileRequest;
 import org.booklore.model.dto.request.CreatePhysicalBookRequest;
@@ -311,11 +310,11 @@ public class BookController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Get book recommendations", description = "Get recommended books based on a specific book.")
+    @Operation(summary = "Get book recommendations", description = "Get recommended books based on a specific book, most similar first, in the same form as the page endpoint.")
     @ApiResponse(responseCode = "200", description = "Recommendations returned successfully")
     @GetMapping("/{id}/recommendations")
     @CheckBookAccess(bookIdParam = "id")
-    public ResponseEntity<List<BookRecommendation>> getRecommendations(
+    public ResponseEntity<List<Book>> getRecommendations(
             @Parameter(description = "ID of the book for recommendations") @PathVariable Long id,
             @Parameter(description = "Maximum number of recommendations to return (max 25)") @RequestParam(defaultValue = "25") @Max(25) @Min(1) int limit) {
         return ResponseEntity.ok(bookRecommendationService.getRecommendations(id, limit));

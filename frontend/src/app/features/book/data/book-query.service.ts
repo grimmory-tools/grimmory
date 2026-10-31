@@ -32,7 +32,7 @@ import {
   BookDuplicateRequest,
   BookPage,
 } from './book-query.models';
-import {BookDetail, BookRecommendation, BookSummary} from './book-response.models';
+import {BookDetail, BookSummary} from './book-response.models';
 import {abortSignal, QUERY_DEFAULTS} from '../../../core/data/query-transport';
 import {AuthService} from '../../../shared/service/auth.service';
 
@@ -170,7 +170,7 @@ export class BookQueryService {
   recommendations(bookId: number, limit: number) {
     return queryOptions({
       queryKey: bookQueryKeys.recommendation(bookId, limit),
-      queryFn: ({signal}): Promise<BookRecommendation[]> => this.get<BookRecommendation[]>(
+      queryFn: ({signal}): Promise<BookSummary[]> => this.get<BookSummary[]>(
         `${this.baseUrl}/${bookId}/recommendations`,
         signal,
         new HttpParams().set('limit', limit.toString()),

@@ -14,8 +14,6 @@ import {
   LucideFunnel,
   LucideLayoutGrid,
   LucideListOrdered,
-  LucideMinus,
-  LucidePlus,
   LucideTableProperties,
   type LucideIconData,
 } from '@lucide/angular';
@@ -25,6 +23,7 @@ import {DEFAULT_BOOK_SORT_TERMS, type BookSortTerm, type SortDirection} from '..
 import {AppButtonComponent} from '../../../shared/ui/button/app-button.component';
 import {connectedGroupClass, connectedItemClass} from '../../../shared/ui/connected-group';
 import {AppRadioGroupComponent} from '../../../shared/ui/radio-group/app-radio-group.component';
+import {BrowseCardSizeMenuItemsComponent} from '../../../shared/browse/card-size-menu-items.component';
 import {AppMenuComponent} from '../../../shared/ui/menu/app-menu.component';
 import {AppMenuCheckboxComponent} from '../../../shared/ui/menu/app-menu-checkbox.component';
 import {AppMenuItemComponent} from '../../../shared/ui/menu/app-menu-item.component';
@@ -59,6 +58,7 @@ import {LibraryShelfMenuItemsComponent} from '../components/library-shelf-menu/l
     AppMenuSeparatorComponent,
     AppMenuTriggerDirective,
     LibraryShelfMenuItemsComponent,
+    BrowseCardSizeMenuItemsComponent,
     LucideDynamicIcon,
     LucideEllipsis,
     LucideFunnel,
@@ -87,10 +87,6 @@ export class BookBrowseToolbarComponent {
   readonly filtersToggle = output();
   readonly mobileSelectToggle = output();
 
-  protected readonly stepperItemClass =
-    'w-10! flex-none justify-center px-0! text-text-muted pointer-coarse:w-12! [&_[data-menu-label]]:hidden';
-  protected readonly smallerIcon: LucideIconData = LucideMinus.icon;
-  protected readonly largerIcon: LucideIconData = LucidePlus.icon;
   protected readonly sortGroupClass = connectedGroupClass;
   protected readonly sortFieldButtonClass = computed(() => connectedItemClass({
     first: true,

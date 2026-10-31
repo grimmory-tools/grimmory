@@ -47,10 +47,6 @@ describe('BookMetadataCenterComponent', () => {
               queryKey: ['books', 'detail', bookId, true],
               queryFn: async (): Promise<Book> => ({id: bookId} as Book),
             }),
-            bookRecommendationsQueryOptions: (bookId: number) => queryOptions({
-              queryKey: ['books', 'recommendations', bookId],
-              queryFn: async () => [],
-            }),
           }
         },
         {provide: UserService, useValue: {currentUser: currentUserSignal}},
