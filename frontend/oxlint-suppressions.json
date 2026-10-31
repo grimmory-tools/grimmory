@@ -406,9 +406,6 @@
   "src/app/features/book/data/book-query.service.ts": {
     "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 1
-    },
-    "typescript/no-unnecessary-type-parameters": {
-      "count": 1
     }
   },
   "src/app/features/book/model/book.model.ts": {

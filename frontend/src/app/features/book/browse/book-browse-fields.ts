@@ -15,7 +15,7 @@ import {
   type BookQuerySortKey,
   type SortDirection,
 } from '../data/book-query-params';
-import {type BookSummary, type KnownBookReadStatus} from '../data/book-response.models';
+import {type BookSummary, type BookReadStatus} from '../data/book-response.models';
 import {MATCH_SCORE_BANDS} from '../model/book-value-labels';
 
 export type BookColumnKind = 'text' | 'number' | 'rating' | 'date' | 'fileSize' | 'readStatus';
@@ -97,7 +97,7 @@ const READ_STATUS_LABEL_KEYS = new Map<string, string>(Object.entries({
   WONT_READ: 'wontRead',
   ABANDONED: 'abandoned',
   UNSET: 'unset',
-} satisfies Record<KnownBookReadStatus, string>));
+} satisfies Record<BookReadStatus, string>));
 
 const CONTENT_RATING_LABEL_KEYS = new Map([
   ['EVERYONE', 'everyone'],

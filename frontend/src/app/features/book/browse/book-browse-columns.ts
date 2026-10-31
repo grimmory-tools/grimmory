@@ -2,7 +2,7 @@ import {formatMediumDate} from '../../../shared/util/date-format';
 import {formatFileSizeKb} from '../../../shared/util/file-size';
 import {type TableColumnPreference} from '../../settings/user-management/user.service';
 import {type BookQuerySortKey} from '../data/book-query-params';
-import {type BookSummary} from '../data/book-response.models';
+import {BOOK_READ_STATUSES, type BookSummary} from '../data/book-response.models';
 import {
   COLUMNS,
   COLUMNS_BY_KEY,
@@ -135,7 +135,7 @@ export function formatBookValue(
     case 'number':
       return NUMBER_FORMAT.format(Number(value));
     case 'readStatus': {
-      const labelKey = typeof value === 'string' ? bookReadStatusLabelKey(value) : null;
+      const labelKey = bookReadStatusLabelKey(BOOK_READ_STATUSES.find(status => status === value));
       return labelKey ? translate(labelKey) : null;
     }
     case 'text':
