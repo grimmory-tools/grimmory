@@ -77,6 +77,7 @@ class BookUpdateServiceTest {
         BookEntity book = new BookEntity();
         book.setId(bookId);
         BookFileEntity primaryFile = new BookFileEntity();
+        primaryFile.setBookFormat(true);
         primaryFile.setBook(book);
         primaryFile.setBookType(BookFileType.PDF);
         book.setBookFiles(Set.of(primaryFile));
@@ -107,6 +108,7 @@ class BookUpdateServiceTest {
         BookEntity book = new BookEntity();
         book.setId(bookId);
         BookFileEntity primaryFile = new BookFileEntity();
+        primaryFile.setBookFormat(true);
         primaryFile.setBook(book);
         primaryFile.setBookType(BookFileType.EPUB);
         book.setBookFiles(Set.of(primaryFile));
@@ -157,6 +159,7 @@ class BookUpdateServiceTest {
         BookEntity book = new BookEntity();
         book.setId(bookId);
         BookFileEntity primaryFile = new BookFileEntity();
+        primaryFile.setBookFormat(true);
         primaryFile.setBook(book);
         primaryFile.setBookType(null);
         book.setBookFiles(Set.of(primaryFile));
@@ -292,6 +295,7 @@ class BookUpdateServiceTest {
         libraryPath1.setPath("/mock/path/1");
         doReturn(libraryPath1).when(bookEntity1).getLibraryPath();
         BookFileEntity bookFileEntity1 = new BookFileEntity();
+        bookFileEntity1.setBookFormat(true);
         bookFileEntity1.setBook(bookEntity1);
         bookFileEntity1.setFileSubPath("sub1");
         bookFileEntity1.setFileName("file1.pdf");
@@ -304,6 +308,7 @@ class BookUpdateServiceTest {
         libraryPath2.setPath("/mock/path/2");
         doReturn(libraryPath2).when(bookEntity2).getLibraryPath();
         BookFileEntity bookFileEntity2 = new BookFileEntity();
+        bookFileEntity2.setBookFormat(true);
         bookFileEntity2.setBook(bookEntity2);
         bookFileEntity2.setFileSubPath("sub2");
         bookFileEntity2.setFileName("file2.pdf");

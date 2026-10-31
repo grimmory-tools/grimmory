@@ -388,6 +388,7 @@ class LibraryRescanHelperTest {
         primaryFile.setFileName(fileName);
         primaryFile.setFileSubPath("");
         primaryFile.setBookType(bookType);
+        primaryFile.setBookFormat(true);
         book.setBookFiles(Set.of(primaryFile));
         return book;
     }
