@@ -1,6 +1,4 @@
-import {CommandOutcome} from '../../../core/data/command-options';
 import {BookDetail, KnownBookReadStatus} from './book-response.models';
-import {BookQueryChangeSet} from './book-query-cache';
 
 export interface SetBookReadStatusVariables {
   readonly bookIds: readonly number[];
@@ -28,11 +26,6 @@ export interface DeleteAdditionalFileVariables {
   readonly fileId: number;
 }
 
-export interface DeleteAdditionalFileResult {
-  readonly bookId: number;
-  readonly fileId: number;
-}
-
 export interface AttachBookFilesVariables {
   readonly targetBookId: number;
   readonly sourceBookIds: readonly number[];
@@ -53,51 +46,18 @@ export interface ResetBookProgressVariables {
 
 export interface ResetBookProgressResult {
   readonly bookId: number;
-  readonly source: BookProgressSource;
+  readonly readStatus: KnownBookReadStatus | null;
   readonly readStatusModifiedTime: string | null;
+  readonly dateFinished: string | null;
 }
 
-export abstract class BulkBookCommandPartialError<TCompleted> extends Error {
+export class DeleteBooksPartialError extends Error {
   constructor(
-    readonly completed: TCompleted,
-    readonly attemptedBookIds: readonly number[],
+    readonly completed: DeleteBooksResult,
     override readonly cause: unknown,
   ) {
-    super('Bulk book command stopped before completing.', {cause});
-    this.name = 'BulkBookCommandPartialError';
-  }
-
-  abstract get changeSet(): BookQueryChangeSet;
-}
-
-export class DeleteBooksPartialError extends BulkBookCommandPartialError<DeleteBooksResult> {
-  constructor(
-    completed: DeleteBooksResult,
-    attemptedBookIds: readonly number[],
-    cause: unknown,
-  ) {
-    super(completed, attemptedBookIds, cause);
+    super('Deleting books stopped before completing.', {cause});
     this.name = 'DeleteBooksPartialError';
-  }
-
-  override get changeSet(): BookQueryChangeSet {
-    return {deletedBookIds: this.completed.removedBookIds};
-  }
-}
-
-export class ResetBookProgressPartialError
-  extends BulkBookCommandPartialError<readonly ResetBookProgressResult[]> {
-  constructor(
-    completed: readonly ResetBookProgressResult[],
-    attemptedBookIds: readonly number[],
-    cause: unknown,
-  ) {
-    super(completed, attemptedBookIds, cause);
-    this.name = 'ResetBookProgressPartialError';
-  }
-
-  override get changeSet(): BookQueryChangeSet {
-    return {changedBookIds: this.completed.map(result => result.bookId)};
   }
 }
 
@@ -108,36 +68,7 @@ export function requireBookIds(bookIds: readonly number[]): readonly number[] {
   return bookIds;
 }
 
-export function bookCommandChangeSet<TData>(
-  outcome: CommandOutcome<TData>,
-  requestedBookIds: readonly number[],
-  confirmed: (data: TData) => BookQueryChangeSet,
-): BookQueryChangeSet {
-  return outcome.status === 'success'
-    ? confirmed(outcome.data)
-    : bookFailureChangeSet(outcome.error, requestedBookIds);
-}
-
-function bookFailureChangeSet(
-  error: unknown,
-  requestedBookIds: readonly number[],
-): BookQueryChangeSet {
-  if (error instanceof BulkBookCommandPartialError) {
-    const changeSet = error.changeSet;
-    return {
-      ...changeSet,
-      changedBookIds: [...(changeSet.changedBookIds ?? []), ...error.attemptedBookIds],
-    };
-  }
-  return {changedBookIds: requestedBookIds};
-}
-
 export interface SetAllBookMetadataLocksVariables {
   readonly bookIds: readonly number[];
   readonly locked: boolean;
-}
-
-export interface SetAllBookMetadataLocksResult {
-  readonly bookId: number;
-  readonly metadataLocks: Readonly<Record<string, boolean>>;
 }

@@ -8,7 +8,6 @@ import {createQueryClientHarness} from '../../../../core/testing/query-testing';
 import {getTranslocoModule} from '../../../../core/testing/transloco-testing';
 import {UserService} from '../../../settings/user-management/user.service';
 import {MetadataRefreshSubmissionService} from '../../../metadata/data/metadata-refresh-submission.service';
-import {BookBackgroundSubmissionService} from '../../data/book-background-submission.service';
 import {BookCommandService} from '../../data/book-command.service';
 import {BookShelfCommandService} from '../../data/book-shelf-command.service';
 import {ShelfDefinitionQueryService} from '../../data/shelf-definition-query.service';
@@ -62,16 +61,15 @@ describe('BookMenuComponent row gating', () => {
         {provide: UserService, useValue: {currentUser: () => ({id: 1, permissions: permissions()})}},
         {provide: ShelfDefinitionQueryService, useValue: {definitions: () => ({queryKey: ['shelves'], queryFn: () => []})}},
         {provide: MetadataRefreshSubmissionService, useValue: {refreshMetadata: () => ({mutationFn: () => Promise.resolve()})}},
-        {provide: BookBackgroundSubmissionService, useValue: {
-          changeCovers: () => ({mutationFn: () => Promise.resolve()}),
-          quickSend: () => ({mutationFn: () => Promise.resolve()}),
-        }},
         {provide: BookCommandService, useValue: {
           setReadStatus: () => ({mutationFn: () => Promise.resolve([])}),
           deleteBooks: () => ({mutationFn: () => Promise.resolve({removedBookIds: []})}),
           deleteAdditionalFile: () => ({mutationFn: () => Promise.resolve({bookId: 1, fileId: 10})}),
           setAllMetadataLocks: () => ({mutationFn: () => Promise.reject(new Error('failed'))}),
           resetProgress: () => ({mutationFn: () => Promise.resolve([])}),
+          bulkRegenerateCovers: () => ({mutationFn: () => Promise.resolve()}),
+          bulkGenerateCovers: () => ({mutationFn: () => Promise.resolve()}),
+          quickSend: () => ({mutationFn: () => Promise.resolve()}),
         }},
         {provide: BookShelfCommandService, useValue: {
           updateMembership: () => ({

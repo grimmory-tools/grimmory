@@ -58,7 +58,7 @@ describe('DuplicateMergerComponent', () => {
   it('keeps failed deletions visible and selected after a partial deletion', async () => {
     component.groups.set([{...group(1, 2, 3), selectedForDeletion: new Set([2, 3])}]);
     remove.mockRejectedValue(new DeleteBooksPartialError(
-      {removedBookIds: [2], fileCleanupFailedBookIds: []}, [3], new Error('Book 3 could not be deleted'),
+      {removedBookIds: [2], fileCleanupFailedBookIds: []}, new Error('Book 3 could not be deleted'),
     ));
     confirmationService.confirm.mockImplementation(config => config.accept());
 

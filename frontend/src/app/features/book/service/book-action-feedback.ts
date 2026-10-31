@@ -2,7 +2,7 @@ import {HttpErrorResponse} from '@angular/common/http';
 import {inject} from '@angular/core';
 import {TranslocoService} from '@jsverse/transloco';
 import {MessageService} from '@openng/optimus-ui/api';
-import {BulkBookCommandPartialError} from '../data/book-command.models';
+import {DeleteBooksPartialError} from '../data/book-command.models';
 
 export function injectBookActionFeedback() {
   const messages = inject(MessageService);
@@ -20,7 +20,7 @@ export function injectBookActionFeedback() {
   return {
     show,
     error: (key: string, error: unknown) => {
-      show('error', key, undefined, errorDetail(error instanceof BulkBookCommandPartialError ? error.cause : error));
+      show('error', key, undefined, errorDetail(error instanceof DeleteBooksPartialError ? error.cause : error));
     },
   };
 }

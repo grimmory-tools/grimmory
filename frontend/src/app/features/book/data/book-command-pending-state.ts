@@ -51,7 +51,7 @@ function injectPendingBookValues<TVariables extends BookIdsVariables, TValue>(
 
 export function injectPendingBookReadStatuses(): Signal<ReadonlyMap<number, BookReadStatus>> {
   return injectPendingBookValues<SetBookReadStatusVariables, BookReadStatus>(
-    bookCommandKeys.readStatus(),
+    bookCommandKeys.setReadStatus(),
     (_, variables) => variables.status,
   );
 }
