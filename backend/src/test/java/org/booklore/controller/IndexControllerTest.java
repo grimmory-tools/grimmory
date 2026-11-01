@@ -57,6 +57,15 @@ class IndexControllerTest {
             // Route parameters may contain dots; they are not asset extensions.
             mvc.perform(get(prefix + "/series/Dr.%20Who").contextPath(prefix).accept("text/html"))
                     .andExpect(status().isOk()).andExpect(content().bytes(index));
+            for (String missing : new String[]{"/missing.js", "/assets/missing.woff2", "/api/v1/missing",
+                    "/komga/missing", "/unknown-route"}) {
+                mvc.perform(get(prefix + missing).contextPath(prefix).accept("text/html"))
+                        .andExpect(status().isNotFound());
+            }
+            mvc.perform(get(prefix + "/library/42/books").contextPath(prefix).accept("application/json"))
+                    .andExpect(status().isNotFound());
+            mvc.perform(get(prefix + "/library/42/books").contextPath(prefix).accept("text/html"))
+                    .andExpect(status().isOk());
             mvc.perform(get(prefix + "/manifest.webmanifest").contextPath(prefix))
                     .andExpect(status().isOk())
                     .andExpect(content().contentTypeCompatibleWith("application/manifest+json"))
