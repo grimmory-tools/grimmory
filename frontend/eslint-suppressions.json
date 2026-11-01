@@ -1,55 +1,12 @@
 {
-  "src/app/app.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 15
-    },
-    "@angular-eslint/prefer-signals": {
-      "count": 2
-    }
-  },
-  "src/app/features/author/detail/author-detail/author-detail.component.html": {
-    "@angular-eslint/template/prefer-class-binding": {
-      "count": 1
-    },
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 8
-    }
-  },
-  "src/app/features/author/detail/author-detail/author-detail.component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 1
-    }
-  },
   "src/app/features/author/detail/author-editor/author-editor.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 3
-    },
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 1
-    },
     "@angular-eslint/prefer-signals": {
-      "count": 4
+      "count": 3
     }
   },
   "src/app/features/author/detail/author-match/author-match.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 2
-    },
-    "@angular-eslint/prefer-output-emitter-ref": {
-      "count": 1
-    },
     "@angular-eslint/prefer-signals": {
-      "count": 6
-    }
-  },
-  "src/app/features/author/detail/author-photo-search/author-photo-search.component.html": {
-    "@angular-eslint/template/prefer-self-closing-tags": {
-      "count": 5
-    }
-  },
-  "src/app/features/author/detail/author-photo-search/author-photo-search.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 5
+      "count": 2
     }
   },
   "src/app/features/book/components/additional-file-uploader/additional-file-uploader.component.ts": {
@@ -173,11 +130,8 @@
     }
   },
   "src/app/features/metadata/component/book-metadata-center/metadata-viewer/metadata-viewer.component.ts": {
-    "@angular-eslint/inject-at-top": {
-      "count": 18
-    },
     "@angular-eslint/prefer-signals": {
-      "count": 4
+      "count": 3
     }
   },
   "src/app/features/metadata/component/metadata-options-dialog/metadata-advanced-fetch-options/metadata-advanced-fetch-options.component.ts": {

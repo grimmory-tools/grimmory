@@ -1,6 +1,5 @@
 import { AfterViewChecked, Component, computed, effect, ElementRef, inject, OnInit, viewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgClass } from '@angular/common';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@openng/optimus-ui/tabs';
 import { ProgressSpinner } from '@openng/optimus-ui/progressspinner';
 import { Button } from '@openng/optimus-ui/button';
@@ -27,7 +26,6 @@ import { createVirtualGrid } from '../../../../shared/util/virtual-grid.util';
   templateUrl: './author-detail.component.html',
   styleUrls: ['./author-detail.component.scss'],
   imports: [
-    NgClass,
     Tabs,
     TabList,
     Tab,
@@ -49,13 +47,13 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
 
   private static readonly GRID_GAP = 21;
 
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private bookService = inject(BookService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly bookService = inject(BookService);
   protected coverScalePreferenceService = inject(CoverScalePreferenceService);
   protected bookCardOverlayPreferenceService = inject(BookCardOverlayPreferenceService);
   protected userService = inject(UserService);
-  private pageTitle = inject(PageTitleService);
+  private readonly pageTitle = inject(PageTitleService);
 
   readonly descriptionContentRef = viewChild<ElementRef<HTMLElement>>('descriptionContent');
   private readonly scrollElement = viewChild<ElementRef<HTMLElement>>('scrollElement');
@@ -70,7 +68,7 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
   hasPhoto = true;
   photoTimestamp = Date.now();
   protected readonly authorQuickMatch = injectAuthorQuickMatch();
-  authorBooks = computed(() => {
+  readonly authorBooks = computed(() => {
     const authorName = this.author()?.name?.toLowerCase();
     if (!authorName) {
       return [];

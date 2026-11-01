@@ -14,9 +14,6 @@
     },
     "typescript/no-unsafe-member-access": {
       "count": 1
-    },
-    "typescript/prefer-readonly": {
-      "count": 17
     }
   },
   "src/app/core/config/transloco-loader.ts": {
@@ -94,9 +91,6 @@
   "src/app/features/author/detail/author-detail/author-detail.component.ts": {
     "typescript/no-unnecessary-condition": {
       "count": 3
-    },
-    "typescript/prefer-readonly": {
-      "count": 4
     }
   },
   "src/app/features/author/detail/author-editor/author-editor.component.ts": {
@@ -111,14 +105,6 @@
     },
     "typescript/no-unsafe-member-access": {
       "count": 7
-    },
-    "typescript/prefer-readonly": {
-      "count": 3
-    }
-  },
-  "src/app/features/author/detail/author-match/author-match.component.ts": {
-    "typescript/prefer-readonly": {
-      "count": 2
     }
   },
   "src/app/features/author/detail/author-photo-search/author-photo-search.component.ts": {
@@ -127,9 +113,6 @@
     },
     "typescript/no-unsafe-member-access": {
       "count": 3
-    },
-    "typescript/prefer-readonly": {
-      "count": 4
     }
   },
   "src/app/features/book/browse/book-browse-column-width-preference.service.ts": {
@@ -683,9 +666,6 @@
     },
     "typescript/no-unsafe-member-access": {
       "count": 3
-    },
-    "typescript/prefer-readonly": {
-      "count": 17
     }
   },
   "src/app/features/metadata/component/bulk-metadata-update/bulk-metadata-update-component.ts": {

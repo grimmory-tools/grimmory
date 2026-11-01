@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, signal, SimpleChanges} from '@angular/core';
+import {Component, inject, Input, OnChanges, OnInit, output, signal, SimpleChanges} from '@angular/core';
 import {injectMutation, QueryClient} from '@tanstack/angular-query-experimental';
 import {FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
@@ -41,20 +41,19 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
   private readonly urlHelper = inject(UrlHelperService);
   private readonly authorCommands = inject(AuthorCommandService);
   private readonly queryClient = inject(QueryClient);
+  private readonly messageService = inject(MessageService);
+  private readonly dialogService = inject(DialogService);
+  private readonly t = inject(TranslocoService);
 
   @Input({required: true}) authorId!: number;
   @Input({required: true}) author!: AuthorDetail;
   @Input({required: true}) photoTimestamp!: number;
-  @Output() authorUpdated = new EventEmitter<void>();
-
-  private messageService = inject(MessageService);
-  private dialogService = inject(DialogService);
-  private t = inject(TranslocoService);
+  readonly authorUpdated = output<void>();
 
   form!: FormGroup;
   private readonly updateMutation = injectMutation(() => this.authorCommands.update());
   readonly isSaving = this.updateMutation.isPending;
-  isUploading = signal(false);
+  readonly isUploading = signal(false);
   hasPhoto = true;
 
   get photoUrl(): string {

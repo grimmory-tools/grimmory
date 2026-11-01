@@ -31,13 +31,13 @@ export class AuthorPhotoSearchComponent implements OnInit {
   private readonly authorQueries = inject(AuthorQueryService);
   private readonly authorCommands = inject(AuthorCommandService);
   private readonly queryClient = inject(QueryClient);
-  searchForm: FormGroup;
-
-  private fb = inject(FormBuilder);
-  private dynamicDialogConfig = inject(DynamicDialogConfig);
+  private readonly fb = inject(FormBuilder);
+  private readonly dynamicDialogConfig = inject(DynamicDialogConfig);
   protected dynamicDialogRef = inject(DynamicDialogRef);
-  private messageService = inject(MessageService);
-  private t = inject(TranslocoService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
+
+  searchForm: FormGroup;
 
   private readonly authorId: number = this.dynamicDialogConfig.data.authorId;
   private readonly submitted = signal<string | null>(null);
