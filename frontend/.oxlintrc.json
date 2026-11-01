@@ -167,6 +167,46 @@
         "no-nonoctal-decimal-escape": "error",
         "no-prototype-builtins": "error",
         "no-regex-spaces": "error",
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "rxjs",
+                "importNames": [
+                  "BehaviorSubject",
+                  "ReplaySubject"
+                ],
+                "message": "Hold state in a signal (signal, computed, linkedSignal); use a plain Subject for event streams."
+              },
+              {
+                "name": "@angular/common",
+                "importNames": [
+                  "CommonModule"
+                ],
+                "message": "Import the directives and pipes the template uses."
+              }
+            ]
+          }
+        ],
+        "no-restricted-properties": [
+          "error",
+          {
+            "property": "bypassSecurityTrustHtml"
+          },
+          {
+            "property": "bypassSecurityTrustScript"
+          },
+          {
+            "property": "bypassSecurityTrustStyle"
+          },
+          {
+            "property": "bypassSecurityTrustUrl"
+          },
+          {
+            "property": "bypassSecurityTrustResourceUrl"
+          }
+        ],
         "no-self-assign": "error",
         "no-shadow-restricted-names": "error",
         "no-sparse-arrays": "error",
