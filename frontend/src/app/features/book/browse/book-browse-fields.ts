@@ -442,6 +442,6 @@ export function bookColumn(key: BookColumnKey): ColumnEntry {
 
 export const COLUMNS: readonly ColumnEntry[] = COLUMN_ORDER.map(bookColumn);
 
-export function bookReadStatusLabelKey(status: BookSummary['readStatus']): string | null {
+export function bookReadStatusLabelKey(status: string): string | null {
   return status && status !== CLEAR_BOOK_READ_STATUS ? readStatusLabelKey(status) : null;
 }

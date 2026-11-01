@@ -2,7 +2,7 @@ import {provideHttpClient} from '@angular/common/http';
 import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
 import {TestBed} from '@angular/core/testing';
 import {QueryClient} from '@tanstack/angular-query-experimental';
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it} from 'vitest';
 
 import {ResetProgressTypes} from '../../../shared/constants/reset-progress-type';
 import {Book, ReadStatus} from '../model/book.model';
@@ -190,19 +190,6 @@ describe('BookPatchService', () => {
 
     expect(cachedBook(1)).toMatchObject({readStatus: ReadStatus.READ, dateFinished: '2026-03-04'});
     expect(cachedBook(2)).toMatchObject({readStatus: ReadStatus.READ, dateFinished: '2026-03-05'});
-  });
-
-  it('updates the cached last read timestamp without calling the backend', () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2026-03-26T12:00:00Z'));
-    queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, [buildBook(3)]);
-
-    service.updateLastReadTime(3);
-
-    expect(cachedBook(3).lastReadTime).toBe('2026-03-26T12:00:00.000Z');
-    httpTestingController.expectNone(req => req.url.includes('/api/v1/books'));
-
-    vi.useRealTimers();
   });
 
   it('refreshes shelf counts after changing book membership', () => {

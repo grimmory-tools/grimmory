@@ -1,6 +1,5 @@
 import {HttpTestingController} from '@angular/common/http/testing';
 import {TestBed} from '@angular/core/testing';
-import {Router} from '@angular/router';
 import {TranslocoService} from '@jsverse/transloco';
 import {MessageService} from '@openng/optimus-ui/api';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
@@ -71,7 +70,6 @@ describe('BookService', () => {
         BookService,
         {provide: AuthService, useValue: authService},
         {provide: MessageService, useValue: {add: vi.fn()}},
-        {provide: Router, useValue: {navigate: vi.fn()}},
         {
           provide: BookSocketService,
           useValue: {
@@ -87,7 +85,6 @@ describe('BookService', () => {
         {
           provide: BookPatchService,
           useValue: {
-            updateLastReadTime: vi.fn(),
             savePdfProgress: vi.fn(),
             saveCbxProgress: vi.fn(),
             updateDateFinished: vi.fn(),
@@ -159,8 +156,6 @@ describe('BookService', () => {
     await flushBooksQuery();
 
     expect(service.books()).toEqual(response);
-    expect(service.findBookById(2)).toEqual(response[1]);
-    expect(service.findBookById(999)).toBeUndefined();
     expect(service.getBooksByIds([2, 999, 1])).toEqual(response);
     expect(service.isBooksLoading()).toBe(false);
     expect(service.booksError()).toBeNull();

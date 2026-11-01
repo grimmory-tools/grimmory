@@ -2,13 +2,12 @@ import {computed, effect, inject, Service} from '@angular/core';
 import {first, from, lastValueFrom, Observable, throwError} from 'rxjs';
 import {HttpClient, HttpErrorResponse, HttpParams} from '@angular/common/http';
 import {catchError, map, tap} from 'rxjs/operators';
-import {Book, BookDeletionResponse, BookRecommendation, BookSetting, BookStatusUpdateResponse, BookType, CreatePhysicalBookRequest, PersonalRatingUpdateResponse, ReadStatus} from '../model/book.model';
+import {Book, BookDeletionResponse, BookRecommendation, BookSetting, BookStatusUpdateResponse, CreatePhysicalBookRequest, PersonalRatingUpdateResponse, ReadStatus} from '../model/book.model';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {MessageService} from '@openng/optimus-ui/api';
 import {ResetProgressType} from '../../../shared/constants/reset-progress-type';
 import {AuthService} from '../../../shared/service/auth.service';
 import {TaskProgressPayload} from '../../settings/task-management/task.service';
-import {Router} from '@angular/router';
 import {BookSocketService} from './book-socket.service';
 import type {BookCoverPatch} from './legacy-book-cache';
 import {BookPatchService} from './book-patch.service';
@@ -31,7 +30,6 @@ export class BookService {
   private readonly http = inject(HttpClient);
   private readonly messageService = inject(MessageService);
   private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
   private readonly bookSocketService = inject(BookSocketService);
   private readonly bookPatchService = inject(BookPatchService);
   private readonly queryClient = inject(QueryClient);
@@ -124,10 +122,6 @@ export class BookService {
   }
 
   /*------------------ Book Retrieval ------------------*/
-
-  findBookById(bookId: number): Book | undefined {
-    return this.books().find(book => +book.id === +bookId);
-  }
 
   getBooksByIds(bookIds: number[]): Book[] {
     if (bookIds.length === 0) return [];
@@ -227,71 +221,6 @@ export class BookService {
 
   /*------------------ Reading & Viewer Settings ------------------*/
 
-  readBook(bookId: number, reader?: 'epub-streaming', explicitBookType?: BookType): void {
-    const book = this.findBookById(bookId);
-
-    if (book) {
-      this.navigateToReader(book, bookId, reader, explicitBookType);
-      return;
-    }
-
-    this.ensureBookDetail(bookId, false).then(detail => {
-      this.navigateToReader(detail, bookId, reader, explicitBookType);
-    }).catch(() => {
-      console.error('Book not found:', bookId);
-    });
-  }
-
-  private navigateToReader(book: Book, bookId: number, reader?: 'epub-streaming', explicitBookType?: BookType): void {
-
-    const bookType: BookType | undefined = explicitBookType ?? book.primaryFile?.bookType;
-    const isAlternativeFormat = explicitBookType && explicitBookType !== book.primaryFile?.bookType;
-
-    let baseUrl: string | null = null;
-    const queryParams: Partial<{streaming: true; bookType: BookType}> = {};
-
-    switch (bookType) {
-      case 'PDF':
-        baseUrl = 'pdf-reader';
-        break;
-
-      case 'EPUB':
-        baseUrl = 'ebook-reader';
-        if (reader === 'epub-streaming') {
-          queryParams.streaming = true;
-        }
-        break;
-
-      case 'FB2':
-      case 'MOBI':
-      case 'AZW3':
-        baseUrl = 'ebook-reader';
-        break;
-
-      case 'CBX':
-        baseUrl = 'cbx-reader';
-        break;
-
-      case 'AUDIOBOOK':
-        baseUrl = 'audiobook-player';
-        break;
-    }
-
-    if (!baseUrl) {
-      console.error('Unsupported book type:', bookType);
-      return;
-    }
-
-    if (isAlternativeFormat) {
-      queryParams.bookType = bookType;
-    }
-
-    const hasQueryParams = Object.keys(queryParams).length > 0;
-    this.router.navigate([`/${baseUrl}/book/${book.id}`], hasQueryParams ? {queryParams} : undefined);
-
-    this.updateLastReadTime(book.id);
-  }
-
   getBookSetting(bookId: number, bookFileId: number): Observable<BookSetting> {
     return this.http.get<BookSetting>(`${this.url}/${bookId}/viewer-setting?bookFileId=${bookFileId}`);
   }
@@ -301,10 +230,6 @@ export class BookService {
   }
 
   /*------------------ Progress & Status Tracking ------------------*/
-
-  updateLastReadTime(bookId: number): void {
-    this.bookPatchService.updateLastReadTime(bookId);
-  }
 
   savePdfProgress(bookId: number, page: number, percentage: number, bookFileId?: number): Observable<void> {
     return this.bookPatchService.savePdfProgress(bookId, page, percentage, bookFileId);

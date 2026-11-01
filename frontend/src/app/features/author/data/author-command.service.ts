@@ -1,9 +1,9 @@
 import {HttpClient} from '@angular/common/http';
 import {inject, Service} from '@angular/core';
+import {mutationOptions} from '@tanstack/angular-query-experimental';
 import {lastValueFrom} from 'rxjs';
 
 import {API_CONFIG} from '../../../core/config/api-config';
-import {reconcilingMutationOptions} from '../../../core/data/command-options';
 import {postSseJson} from '../../../core/data/query-transport';
 import {AuthService} from '../../../shared/service/auth.service';
 import {reconcileAllBookCaches} from '../../book/service/legacy-book-cache';
@@ -71,12 +71,12 @@ export class AuthorCommandService {
   }
 
   deleteAuthors() {
-    return reconcilingMutationOptions({
+    return mutationOptions({
       mutationKey: authorCommandKeys.delete(),
       mutationFn: ({authorIds}: AuthorIdsVariables) =>
         lastValueFrom(this.http.delete<void>(this.baseUrl, {body: authorIds})),
-      reconcile: async (outcome, {authorIds}, client) => {
-        if (outcome.status === 'success') {
+      onSettled: async (_data, error, {authorIds}, _onMutateResult, {client}) => {
+        if (error === null) {
           for (const authorId of authorIds) {
             client.removeQueries({queryKey: authorQueryKeys.detail(authorId)});
           }
@@ -87,16 +87,16 @@ export class AuthorCommandService {
   }
 
   quickMatch() {
-    return reconcilingMutationOptions({
+    return mutationOptions({
       mutationKey: authorCommandKeys.quickMatch(),
       mutationFn: ({authorId}: QuickMatchAuthorVariables) =>
         lastValueFrom(this.http.post<AuthorDetail>(`${this.baseUrl}/${authorId}/quick-match`, null)),
-      reconcile: (_outcome, {authorId}, client) => invalidateAuthors(client, [authorId]),
+      onSettled: (_data, _error, {authorId}, _onMutateResult, {client}) => invalidateAuthors(client, [authorId]),
     });
   }
 
   autoMatch() {
-    return reconcilingMutationOptions({
+    return mutationOptions({
       mutationKey: authorCommandKeys.autoMatch(),
       mutationFn: async ({authorIds}: AuthorIdsVariables) => {
         const stream = await postSseJson<AuthorSummary>(
@@ -110,34 +110,34 @@ export class AuthorCommandService {
         }
         return matched;
       },
-      reconcile: (_outcome, {authorIds}, client) => invalidateAuthors(client, authorIds),
+      onSettled: (_data, _error, {authorIds}, _onMutateResult, {client}) => invalidateAuthors(client, authorIds),
     });
   }
 
   update() {
-    return reconcilingMutationOptions({
+    return mutationOptions({
       mutationKey: authorCommandKeys.update(),
       mutationFn: ({authorId, request}: UpdateAuthorVariables) =>
         lastValueFrom(this.http.put<AuthorDetail>(`${this.baseUrl}/${authorId}`, request)),
-      reconcile: (_outcome, _variables, client) => reconcileAllBookCaches(client),
+      onSettled: (_data, _error, _variables, _onMutateResult, {client}) => reconcileAllBookCaches(client),
     });
   }
 
   match() {
-    return reconcilingMutationOptions({
+    return mutationOptions({
       mutationKey: authorCommandKeys.match(),
       mutationFn: ({authorId, request}: MatchAuthorVariables) =>
         lastValueFrom(this.http.post<AuthorDetail>(`${this.baseUrl}/${authorId}/match`, request)),
-      reconcile: (_outcome, {authorId}, client) => invalidateAuthors(client, [authorId]),
+      onSettled: (_data, _error, {authorId}, _onMutateResult, {client}) => invalidateAuthors(client, [authorId]),
     });
   }
 
   uploadPhotoFromUrl() {
-    return reconcilingMutationOptions({
+    return mutationOptions({
       mutationKey: authorCommandKeys.uploadPhoto(),
       mutationFn: ({authorId, url}: UploadAuthorPhotoVariables) =>
         lastValueFrom(this.http.post<void>(`${this.baseUrl}/${authorId}/photo/url`, null, {params: {url}})),
-      reconcile: (_outcome, {authorId}, client) => invalidateAuthors(client, [authorId]),
+      onSettled: (_data, _error, {authorId}, _onMutateResult, {client}) => invalidateAuthors(client, [authorId]),
     });
   }
 }

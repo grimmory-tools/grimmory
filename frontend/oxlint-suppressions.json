@@ -286,12 +286,6 @@
     },
     "typescript/no-unsafe-member-access": {
       "count": 1
-    },
-    "typescript/prefer-nullish-coalescing": {
-      "count": 1
-    },
-    "typescript/prefer-readonly": {
-      "count": 14
     }
   },
   "src/app/features/book/components/shelf-assigner/shelf-assigner.component.ts": {
@@ -343,11 +337,6 @@
       "count": 1
     },
     "typescript/no-unnecessary-type-parameters": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/data/book-command.service.ts": {
-    "anti-slop/no-unsafe-dictionary-type": {
       "count": 1
     }
   },
@@ -414,9 +403,6 @@
     }
   },
   "src/app/features/book/service/book.service.ts": {
-    "anti-slop/no-known-value-widening": {
-      "count": 1
-    },
     "typescript/no-unnecessary-condition": {
       "count": 1
     },
@@ -428,9 +414,6 @@
     },
     "typescript/no-unsafe-return": {
       "count": 2
-    },
-    "typescript/switch-exhaustiveness-check": {
-      "count": 1
     }
   },
   "src/app/features/book/service/library-health.service.ts": {

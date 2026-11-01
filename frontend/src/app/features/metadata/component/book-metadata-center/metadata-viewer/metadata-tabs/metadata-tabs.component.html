@@ -223,7 +223,7 @@
                           severity="primary"
                           [pTooltip]="t('readTooltip')"
                           tooltipPosition="top"
-                          (onClick)="read(currentBook.id)" />
+                          (onClick)="readBook(currentBook)" />
                         <p-button
                           icon="pi pi-play"
                           size="small"
@@ -231,7 +231,7 @@
                           severity="info"
                           [pTooltip]="t('streamingReaderTooltip')"
                           tooltipPosition="top"
-                          (onClick)="read(currentBook.id, 'epub-streaming')" />
+                          (onClick)="readBook(currentBook, {streaming: true})" />
                       } @else if (currentBook.primaryFile.bookType && ['PDF', 'FB2', 'MOBI', 'AZW3', 'CBX'].includes(currentBook.primaryFile.bookType)) {
                         <p-button
                           icon="pi pi-book"
@@ -240,7 +240,7 @@
                           severity="primary"
                           [pTooltip]="t('readTooltip')"
                           tooltipPosition="top"
-                          (onClick)="read(currentBook.id)" />
+                          (onClick)="readBook(currentBook)" />
                       } @else if (currentBook.primaryFile.bookType === 'AUDIOBOOK') {
                         <p-button
                           icon="pi pi-play"
@@ -249,7 +249,7 @@
                           severity="primary"
                           [pTooltip]="t('playTooltip')"
                           tooltipPosition="top"
-                          (onClick)="read(currentBook.id)" />
+                          (onClick)="readBook(currentBook)" />
                       }
                       <p-button
                         icon="pi pi-download"
@@ -304,7 +304,7 @@
                             severity="primary"
                             [pTooltip]="t('readTooltip')"
                             tooltipPosition="top"
-                            (onClick)="read(currentBook.id, undefined, format.bookType)" />
+                            (onClick)="readBook(currentBook, {bookType: format.bookType})" />
                           <p-button
                             icon="pi pi-play"
                             size="small"
@@ -312,7 +312,7 @@
                             severity="info"
                             [pTooltip]="t('streamingReaderTooltip')"
                             tooltipPosition="top"
-                            (onClick)="read(currentBook.id, 'epub-streaming', format.bookType)" />
+                            (onClick)="readBook(currentBook, {bookType: format.bookType, streaming: true})" />
                         } @else if (format.bookType && ['PDF', 'FB2', 'MOBI', 'AZW3', 'CBX'].includes(format.bookType)) {
                           <p-button
                             icon="pi pi-book"
@@ -321,7 +321,7 @@
                             severity="primary"
                             [pTooltip]="t('readTooltip')"
                             tooltipPosition="top"
-                            (onClick)="read(currentBook.id, undefined, format.bookType)" />
+                            (onClick)="readBook(currentBook, {bookType: format.bookType})" />
                         } @else if (format.bookType === 'AUDIOBOOK') {
                           <p-button
                             icon="pi pi-play"
@@ -330,7 +330,7 @@
                             severity="primary"
                             [pTooltip]="t('playTooltip')"
                             tooltipPosition="top"
-                            (onClick)="read(currentBook.id, undefined, format.bookType)" />
+                            (onClick)="readBook(currentBook, {bookType: format.bookType})" />
                         }
                         <p-button
                           icon="pi pi-download"

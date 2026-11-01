@@ -1,8 +1,8 @@
 export const BOOK_FILE_TYPES = ['PDF', 'EPUB', 'CBX', 'FB2', 'MOBI', 'AZW3', 'AUDIOBOOK'] as const;
-export type BookFileType = typeof BOOK_FILE_TYPES[number] | (string & {});
+export type BookFileType = typeof BOOK_FILE_TYPES[number];
 
 export const BOOK_ARCHIVE_TYPES = ['ZIP', 'RAR', 'SEVEN_ZIP', 'UNKNOWN'] as const;
-export type BookArchiveType = typeof BOOK_ARCHIVE_TYPES[number] | (string & {});
+export type BookArchiveType = typeof BOOK_ARCHIVE_TYPES[number];
 
 export const BOOK_READ_STATUSES = [
   'UNREAD',
@@ -15,8 +15,7 @@ export const BOOK_READ_STATUSES = [
   'ABANDONED',
   'UNSET',
 ] as const;
-export type KnownBookReadStatus = typeof BOOK_READ_STATUSES[number];
-export type BookReadStatus = KnownBookReadStatus | (string & {});
+export type BookReadStatus = typeof BOOK_READ_STATUSES[number];
 
 export interface BookFileResponse {
   id: number;
@@ -319,4 +318,18 @@ export interface BookDetail extends BookRecord<BookDetailMetadata> {
 export interface BookRecommendation {
   book: BookDetail;
   similarityScore: number;
+}
+
+export interface BookReviewResponse {
+  readonly id: number;
+  readonly metadataProvider?: string;
+  readonly reviewerName?: string;
+  readonly title?: string;
+  readonly rating?: number;
+  readonly date?: string;
+  readonly body?: string;
+  readonly country?: string;
+  readonly spoiler?: boolean;
+  readonly followersCount?: number;
+  readonly textReviewsCount?: number;
 }

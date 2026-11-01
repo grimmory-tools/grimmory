@@ -185,8 +185,8 @@
                           class="next-up-card"
                           role="button"
                           tabindex="0"
-                          (click)="readBook(nextUp.book.id)"
-                          (keydown.enter)="readBook(nextUp.book.id)">
+                          (click)="readBook(nextUp.book)"
+                          (keydown.enter)="readBook(nextUp.book)">
                           <app-cover
                             class="next-up-thumb"
                             aria-hidden="true"
@@ -374,7 +374,7 @@
                   }
                 </div>
                 <div class="list-actions">
-                  <button type="button" class="list-action-btn btn-read" (click)="readBook(book.id); $event.stopPropagation()"
+                  <button type="button" class="list-action-btn btn-read" (click)="readBook(book); $event.stopPropagation()"
                     [pTooltip]="t('readButton')" tooltipPosition="top">
                     <i class="pi pi-book"></i>
                   </button>

@@ -75,7 +75,7 @@ export class BookBrowsePageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly detailLines = inject(BookBrowseDetailLineService);
   private readonly libraryService = inject(LibraryService);
-  protected readonly bookNavigation = inject(BookNavigationService);
+  private readonly bookNavigation = inject(BookNavigationService);
   private readonly urlHelper = inject(UrlHelperService);
   private readonly coverScale = inject(CoverScalePreferenceService);
   private readonly pendingReadStatuses = injectPendingBookReadStatuses();
@@ -177,6 +177,10 @@ export class BookBrowsePageComponent {
     }
     return books.length > 0
       && books.every(book => book.primaryFile?.bookType === 'AUDIOBOOK');
+  }
+
+  protected readBook(book: BookSummary): void {
+    this.bookNavigation.readBook(book);
   }
 
   protected onBookDetailRequested(book: BookSummary): void {
