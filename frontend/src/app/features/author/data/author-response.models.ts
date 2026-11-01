@@ -3,7 +3,7 @@ export interface AuthorSummary {
   name: string;
   asin?: string;
   bookCount: number;
-  photoUpdatedOn?: string;
+  hasPhoto: boolean;
 }
 
 export interface AuthorDetail {

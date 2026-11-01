@@ -24,9 +24,8 @@ export class UrlHelperService {
     return this.appendToken(`${this.mediaBaseUrl}/author/${authorId}/photo${version ? `?${version}` : ''}`);
   }
 
-  getAuthorThumbnailUrl(authorId: number, photoUpdatedOn?: string): string | null {
-    if (!photoUpdatedOn) return null;
-    return this.appendToken(`${this.mediaBaseUrl}/author/${authorId}/thumbnail?${photoUpdatedOn}`);
+  getAuthorThumbnailUrl(authorId: number): string {
+    return this.appendToken(`${this.mediaBaseUrl}/author/${authorId}/thumbnail`);
   }
 
   getThumbnailUrl(bookId: number, coverUpdatedOn?: string): string | null {

@@ -82,7 +82,7 @@ public class AuthorMetadataService {
                     .name(author.getName())
                     .asin(author.getAsin())
                     .bookCount((int) bookCount)
-                    .photoUpdatedOn(fileService.getAuthorPhotoUpdatedOn(author.getId()))
+                    .hasPhoto(Files.exists(Paths.get(fileService.getAuthorThumbnailFile(author.getId()))))
                     .build());
         }
         return summaries;
@@ -168,7 +168,7 @@ public class AuthorMetadataService {
                                     .id(details.getId())
                                     .name(details.getName())
                                     .asin(details.getAsin())
-                                    .photoUpdatedOn(fileService.getAuthorPhotoUpdatedOn(authorId))
+                                    .hasPhoto(Files.exists(Paths.get(fileService.getAuthorThumbnailFile(authorId))))
                                     .build();
                         })
                         .subscribeOn(Schedulers.boundedElastic())

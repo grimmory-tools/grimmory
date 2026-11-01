@@ -21,7 +21,7 @@ const FACETS_URL = `${API_CONFIG.BASE_URL}/api/v1/authors/facets`;
 
 function authorPage(ids: number[]) {
   return {
-    content: ids.map(id => ({id, name: `Author ${id}`, bookCount: id})),
+    content: ids.map(id => ({id, name: `Author ${id}`, bookCount: id, hasPhoto: false})),
     page: {number: 0, size: 60, totalElements: ids.length, totalPages: 1},
     links: [],
   };

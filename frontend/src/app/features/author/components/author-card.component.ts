@@ -21,7 +21,7 @@ import {type AuthorSummary} from '../data/author-response.models';
 import {AUTHOR_CARD_PHOTO_CLASS} from './author-card.layout';
 
 export function authorCardPhotoSrc(author: AuthorSummary, urlHelper: UrlHelperService): string | null {
-  return urlHelper.getAuthorThumbnailUrl(author.id, author.photoUpdatedOn);
+  return author.hasPhoto ? urlHelper.getAuthorThumbnailUrl(author.id) : null;
 }
 
 @Component({

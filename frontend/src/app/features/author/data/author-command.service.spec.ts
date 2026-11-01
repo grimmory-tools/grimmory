@@ -76,8 +76,8 @@ describe('AuthorCommandService', () => {
 
   it('auto-matches the authors from the stream and refreshes the author lists', async () => {
     const fetchMock = vi.fn().mockResolvedValue(sseResponse(sseStream([
-      'data:{"id":1,"name":"Ada","asin":"B1","bookCount":0,"photoUpdatedOn":"2026-01-02T03:04:05Z"}\n\n',
-      'data:{"id":3,"name":"Grace","asin":"B3","bookCount":0}\n\n',
+      'data:{"id":1,"name":"Ada","asin":"B1","bookCount":0,"hasPhoto":true}\n\n',
+      'data:{"id":3,"name":"Grace","asin":"B3","bookCount":0,"hasPhoto":false}\n\n',
     ])));
     vi.stubGlobal('fetch', fetchMock);
     queryClient.setQueryData(authorIdsKey, [1, 2, 3]);
