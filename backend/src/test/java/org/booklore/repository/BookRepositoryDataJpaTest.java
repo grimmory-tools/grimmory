@@ -7,19 +7,26 @@ import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.service.task.TaskCronService;
 import org.flywaydb.core.Flyway;
+import org.hibernate.SessionFactory;
+import org.hibernate.stat.Statistics;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -121,7 +128,7 @@ class BookRepositoryDataJpaTest {
 
         entityManager.clear();
 
-        Optional<BookEntity> result = bookRepository.findByIdForKoboDownload(1L);
+        Optional<BookEntity> result = bookRepository.findByIdForKoboDownload(book.getId());
 
         TestTransaction.end();
 
@@ -130,5 +137,73 @@ class BookRepositoryDataJpaTest {
         BookEntity bookEntity = result.get();
         assertThat(bookEntity.getId()).isEqualTo(book.getId());
         assertThat(bookEntity.getPrimaryBookFile()).isNotNull();
+    }
+
+    private record LibraryFixture(Long libraryId, List<Long> bookIds, List<Long> comicBookIds) {
+    }
+
+    private LibraryFixture persistLibraryWithBooksAndComics() {
+        LibraryEntity library = LibraryEntity.builder()
+                .name("Test Library")
+                .icon("book")
+                .watch(false)
+                .formatPriority(List.of(BookFileType.EPUB, BookFileType.CBX))
+                .build();
+        entityManager.persist(library);
+
+        List<Long> bookIds = new ArrayList<>();
+        List<Long> comicBookIds = new ArrayList<>();
+        for (int i = 0; i < 20; i++) {
+            BookEntity book = BookEntity.builder().library(library).addedOn(Instant.now()).deleted(false).build();
+            entityManager.persist(book);
+            BookMetadataEntity metadata = BookMetadataEntity.builder().book(book).title("Book " + i).build();
+            entityManager.persist(metadata);
+            entityManager.flush();
+            bookIds.add(book.getId());
+            if (i % 2 == 0) {
+                entityManager.persist(ComicMetadataEntity.builder()
+                        .bookId(book.getId())
+                        .bookMetadata(metadata)
+                        .issueNumber("Issue " + book.getId())
+                        .build());
+                comicBookIds.add(book.getId());
+            }
+        }
+        entityManager.flush();
+        entityManager.clear();
+        return new LibraryFixture(library.getId(), bookIds, comicBookIds);
+    }
+
+    private void assertLoadsComicMetadataInOneStatement(String query, Supplier<List<BookEntity>> load, LibraryFixture fixture) {
+        entityManager.clear();
+        Statistics statistics = entityManager.getEntityManagerFactory().unwrap(SessionFactory.class).getStatistics();
+        statistics.setStatisticsEnabled(true);
+        statistics.clear();
+
+        List<BookEntity> books = load.get();
+
+        assertThat(books).as(query).extracting(BookEntity::getId).containsExactlyInAnyOrderElementsOf(fixture.bookIds());
+        for (BookEntity book : books) {
+            ComicMetadataEntity comic = book.getMetadata().getComicMetadata();
+            assertThat(comic == null ? null : comic.getIssueNumber())
+                    .as(query + " book " + book.getId())
+                    .isEqualTo(fixture.comicBookIds().contains(book.getId()) ? "Issue " + book.getId() : null);
+        }
+        assertThat(statistics.getPrepareStatementCount()).as(query + " statements").isEqualTo(1);
+    }
+
+    @Test
+    void bookQueries_loadComicMetadataWithTheBooks() {
+        LibraryFixture fixture = persistLibraryWithBooksAndComics();
+        Long libraryId = fixture.libraryId();
+
+        Map<String, Supplier<List<BookEntity>>> queries = Map.of(
+                "findAllWithMetadata", bookRepository::findAllWithMetadata,
+                "findAllWithMetadataByIds", () -> bookRepository.findAllWithMetadataByIds(new HashSet<>(fixture.bookIds())),
+                "findAllWithMetadataByLibraryIds", () -> bookRepository.findAllWithMetadataByLibraryIds(List.of(libraryId)),
+                "findAllWithMetadataPage", () -> bookRepository.findAllWithMetadataPage(PageRequest.of(0, 50)).getContent(),
+                "findAllWithMetadataByLibraryId", () -> bookRepository.findAllWithMetadataByLibraryId(libraryId));
+
+        queries.forEach((query, load) -> assertLoadsComicMetadataInOneStatement(query, load, fixture));
     }
 }
