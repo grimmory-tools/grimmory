@@ -460,7 +460,7 @@ export const OPEN_RAIL_FACETS: ReadonlySet<BookQueryFacetKey> = new Set(
 );
 export const COLUMNS: readonly ColumnEntry[] = COLUMN_ORDER.map(key => COLUMNS_BY_KEY.get(key)!);
 
-export function bookReadStatusLabelKey(status: BookSummary['readStatus']): string | null {
+export function bookReadStatusLabelKey(status: string): string | null {
   const key = status && status !== 'UNSET' ? READ_STATUS_LABEL_KEYS.get(status) : undefined;
   return key ? `book.filter.readStatus.${key}` : null;
 }
