@@ -3361,9 +3361,6 @@
         "failedDetail": "Ett fel uppstod vid uppdatering av fältlåsstatusar."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Spara som standard"
-    },
     "fileAttacher": {
       "title": "Bifoga fil till annan bok",
       "titleBulk": "Bifoga filer till annan bok",
@@ -3389,7 +3386,6 @@
     },
     "searcher": {
       "placeholder": "Titel, författare, serie, genre eller ISBN...",
-      "clearSearch": "Rensa sökning",
       "bookCoverAlt": "Bokomslag",
       "byPrefix": "av",
       "noResults": "Inga resultat hittades",
@@ -5100,74 +5096,6 @@
     }
   },
   "authorBrowser": {
-    "pageTitle": "",
-    "browseAllAuthors": "",
-    "searchPlaceholder": "",
-    "noAuthorsFound": "",
-    "sort": {
-      "name": "",
-      "bookCount": "",
-      "matched": "",
-      "recentlyAdded": "",
-      "recentlyRead": "",
-      "readingProgress": "",
-      "avgRating": "",
-      "photo": "",
-      "seriesCount": ""
-    },
-    "filters": {
-      "all": "",
-      "matchStatus": "",
-      "matched": "",
-      "unmatched": "",
-      "photoStatus": "",
-      "hasPhoto": "",
-      "noPhoto": "",
-      "readStatus": "",
-      "allRead": "",
-      "someRead": "",
-      "inProgress": "",
-      "unread": "",
-      "bookCount": "",
-      "library": "",
-      "genre": "",
-      "reset": ""
-    },
-    "footer": {
-      "selected": "",
-      "autoMatch": "",
-      "deleteSelected": "",
-      "selectAll": "",
-      "deselectAll": ""
-    },
-    "toast": {
-      "deleteSuccessSummary": "",
-      "deleteSuccessDetail": "",
-      "deleteFailedSummary": "",
-      "deleteFailedDetail": "",
-      "autoMatchSuccessSummary": "",
-      "autoMatchSuccessDetail": "",
-      "autoMatchFailedSummary": "",
-      "autoMatchFailedDetail": "",
-      "quickMatchSuccessSummary": "",
-      "quickMatchSuccessDetail": "",
-      "quickMatchFailedSummary": "",
-      "quickMatchFailedDetail": "",
-      "deleteSelectedSuccessSummary": "",
-      "deleteSelectedSuccessDetail": ""
-    },
-    "card": {
-      "matched": "",
-      "quickMatch": "",
-      "book": "",
-      "books": "",
-      "menu": {
-        "viewAuthor": "",
-        "editAuthor": "",
-        "quickMatch": "",
-        "deleteAuthor": ""
-      }
-    },
     "editor": {
       "nameLabel": "",
       "asinLabel": "",
@@ -5240,6 +5168,14 @@
       }
     }
   },
+  "author": {
+    "quickMatch": {
+      "successSummary": "",
+      "successDetail": "",
+      "failedSummary": "",
+      "failedDetail": ""
+    }
+  },
   "browse": {
     "showAll": "Visa alla",
     "showMore": "",
@@ -5251,6 +5187,7 @@
       "multiSort": "",
       "addField": "",
       "apply": "Tillämpa",
+      "saveAsDefault": "Spara som standard",
       "moveUp": "",
       "moveDown": "",
       "flipDirection": ""
@@ -5259,6 +5196,7 @@
       "removeSearch": ""
     },
     "rail": {
+      "clearSearch": "Rensa sökning",
       "searchValues": "",
       "searchFields": "",
       "searchScope": {

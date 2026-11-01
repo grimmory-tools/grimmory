@@ -3361,9 +3361,6 @@
         "failedDetail": ""
       }
     },
-    "sorting": {
-      "saveAsDefault": ""
-    },
     "fileAttacher": {
       "title": "",
       "titleBulk": "",
@@ -3389,7 +3386,6 @@
     },
     "searcher": {
       "placeholder": "",
-      "clearSearch": "",
       "bookCoverAlt": "",
       "byPrefix": "",
       "noResults": "",
@@ -5100,74 +5096,6 @@
     }
   },
   "authorBrowser": {
-    "pageTitle": "Paginatitel",
-    "browseAllAuthors": "",
-    "searchPlaceholder": "",
-    "noAuthorsFound": "",
-    "sort": {
-      "name": "",
-      "bookCount": "",
-      "matched": "",
-      "recentlyAdded": "",
-      "recentlyRead": "",
-      "readingProgress": "",
-      "avgRating": "",
-      "photo": "",
-      "seriesCount": ""
-    },
-    "filters": {
-      "all": "",
-      "matchStatus": "",
-      "matched": "",
-      "unmatched": "",
-      "photoStatus": "",
-      "hasPhoto": "",
-      "noPhoto": "",
-      "readStatus": "",
-      "allRead": "",
-      "someRead": "",
-      "inProgress": "",
-      "unread": "",
-      "bookCount": "",
-      "library": "",
-      "genre": "",
-      "reset": ""
-    },
-    "footer": {
-      "selected": "",
-      "autoMatch": "",
-      "deleteSelected": "",
-      "selectAll": "",
-      "deselectAll": ""
-    },
-    "toast": {
-      "deleteSuccessSummary": "",
-      "deleteSuccessDetail": "",
-      "deleteFailedSummary": "",
-      "deleteFailedDetail": "",
-      "autoMatchSuccessSummary": "",
-      "autoMatchSuccessDetail": "",
-      "autoMatchFailedSummary": "",
-      "autoMatchFailedDetail": "",
-      "quickMatchSuccessSummary": "",
-      "quickMatchSuccessDetail": "",
-      "quickMatchFailedSummary": "",
-      "quickMatchFailedDetail": "",
-      "deleteSelectedSuccessSummary": "",
-      "deleteSelectedSuccessDetail": ""
-    },
-    "card": {
-      "matched": "",
-      "quickMatch": "",
-      "book": "",
-      "books": "",
-      "menu": {
-        "viewAuthor": "",
-        "editAuthor": "",
-        "quickMatch": "",
-        "deleteAuthor": ""
-      }
-    },
     "editor": {
       "nameLabel": "",
       "asinLabel": "",
@@ -5240,6 +5168,14 @@
       }
     }
   },
+  "author": {
+    "quickMatch": {
+      "successSummary": "",
+      "successDetail": "",
+      "failedSummary": "",
+      "failedDetail": ""
+    }
+  },
   "browse": {
     "showAll": "Alles weergeven",
     "showMore": "",
@@ -5248,6 +5184,7 @@
     "filter": "",
     "moreActions": "Meer acties",
     "sort": {
+      "saveAsDefault": "",
       "multiSort": "",
       "addField": "",
       "apply": "",
@@ -5259,6 +5196,7 @@
       "removeSearch": ""
     },
     "rail": {
+      "clearSearch": "",
       "searchValues": "",
       "searchFields": "",
       "searchScope": {

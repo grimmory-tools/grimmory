@@ -20,6 +20,14 @@ export class UrlHelperService {
     return token ? `${url}${url.includes('?') ? '&' : '?'}token=${token}` : url;
   }
 
+  getAuthorPhotoUrl(authorId: number, version?: number): string {
+    return this.appendToken(`${this.mediaBaseUrl}/author/${authorId}/photo${version ? `?${version}` : ''}`);
+  }
+
+  getAuthorThumbnailUrl(authorId: number): string {
+    return this.appendToken(`${this.mediaBaseUrl}/author/${authorId}/thumbnail`);
+  }
+
   getThumbnailUrl(bookId: number, coverUpdatedOn?: string): string | null {
     if (!coverUpdatedOn) return null;
     return this.appendToken(`${this.mediaBaseUrl}/book/${bookId}/thumbnail?${coverUpdatedOn}`);

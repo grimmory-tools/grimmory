@@ -1,10 +1,9 @@
 <div
   [class]="rootClass()"
   [attr.data-active]="menuPinned() ? 'true' : null"
-  (contextmenu)="requestContextMenu($event)"
-  (pointerdown)="startLongPress($event)"
-  (pointerup)="endLongPress()"
-  (pointercancel)="endLongPress()"
+  [appCardMenu]="overlays()"
+  [appCardMenuLongPress]="!selectionActive()"
+  (cardMenuRequested)="menuRequested.emit($event)"
 >
   <div [class]="slotClass()" data-testid="slot">
     <div [class]="coverClass()" data-testid="cover">

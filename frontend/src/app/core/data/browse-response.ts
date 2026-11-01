@@ -13,7 +13,7 @@ interface RawLink {
   type: string;
 }
 
-interface RawBrowsePage<T> {
+export interface RawBrowsePage<T> {
   content: T[];
   page: BrowsePageMetadata;
   links: RawLink[];
@@ -31,7 +31,7 @@ interface RawFacetGroup {
   links: RawFacetLink[];
 }
 
-interface RawFacetResponse {
+export interface RawFacetResponse {
   links: RawLink[];
   facets: RawFacetGroup[];
 }

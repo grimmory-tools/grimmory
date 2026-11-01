@@ -1,15 +1,10 @@
 {
-  "src/app/features/author-browser/components/author-card/author-card.component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 7
-    }
-  },
-  "src/app/features/author-browser/components/author-editor/author-editor.component.ts": {
+  "src/app/features/author/detail/author-editor/author-editor.component.ts": {
     "@angular-eslint/prefer-signals": {
       "count": 2
     }
   },
-  "src/app/features/author-browser/components/author-match/author-match.component.ts": {
+  "src/app/features/author/detail/author-match/author-match.component.ts": {
     "@angular-eslint/prefer-signals": {
       "count": 2
     }

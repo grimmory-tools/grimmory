@@ -9,7 +9,7 @@ import { MessageService } from '@openng/optimus-ui/api';
 import { createQueryClientHarness } from '../../core/testing/query-testing';
 import { getTranslocoModule } from '../../core/testing/transloco-testing';
 import { BookDialogHelperService } from '../book/service/book-dialog-helper.service';
-import { BookPage } from '../book/data/book-query.models';
+import { BrowsePage } from '../../core/data/browse.models';
 import { BookQueryService } from '../book/data/book-query.service';
 import { BookSummary } from '../book/data/book-response.models';
 import { LibraryService } from '../book/service/library.service';
@@ -105,7 +105,7 @@ describe('CommandPaletteService', () => {
     vi.restoreAllMocks();
   });
 
-  function makeBookPage(books: BookSummary[]): BookPage {
+  function makeBookPage(books: BookSummary[]): BrowsePage<BookSummary> {
     return {
       content: books,
       page: {

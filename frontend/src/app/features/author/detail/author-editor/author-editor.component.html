@@ -1,0 +1,127 @@
+<ng-container *transloco="let t; prefix: 'authorBrowser.editor'">
+  <div class="editor-container">
+    <div class="cover-section">
+      @if (hasPhoto()) {
+        <p-image
+          [src]="photoUrl"
+          alt="Author Photo"
+          width="200"
+          appendTo="body"
+          [preview]="true"
+          (onImageError)="onPhotoError()" />
+      } @else {
+        <div class="photo-placeholder">
+          <i class="pi pi-user"></i>
+        </div>
+      }
+
+      @if (isUploading()) {
+        <p-progressSpinner class="upload-spinner" strokeWidth="4" fill="transparent" animationDuration=".8s" />
+      }
+
+      <div class="cover-actions">
+        <p-fileupload
+          [chooseStyleClass]="'p-button-sm p-button-outlined p-button-danger'"
+          [pTooltip]="t('uploadPhotoTooltip')"
+          tooltipPosition="top"
+          [disabled]="form.get('photoLocked')?.value"
+          name="file"
+          [url]="uploadUrl"
+          mode="basic"
+          chooseIcon="pi pi-upload"
+          accept="image/jpeg,image/png"
+          (onUpload)="onUpload()"
+          (onError)="onUploadError()"
+          [auto]="true"
+          (onBeforeUpload)="onBeforeUpload()" />
+
+        <p-button
+          [pTooltip]="t('searchPhotoTooltip')"
+          tooltipPosition="top"
+          size="small"
+          icon="pi pi-search"
+          [outlined]="true"
+          [disabled]="form.get('photoLocked')?.value"
+          (onClick)="openPhotoSearch()"
+          severity="info" />
+
+        @if (!form.get('photoLocked')?.value) {
+          <p-button
+            [pTooltip]="t('lockField')"
+            tooltipPosition="top"
+            size="small"
+            icon="pi pi-lock-open"
+            [outlined]="true"
+            (onClick)="togglePhotoLock()"
+            severity="success" />
+        }
+        @else {
+          <p-button
+            [pTooltip]="t('unlockField')"
+            tooltipPosition="top"
+            size="small"
+            icon="pi pi-lock"
+            [outlined]="true"
+            (onClick)="togglePhotoLock()"
+            severity="warn" />
+        }
+      </div>
+    </div>
+
+    <form class="fields-section" [formGroup]="form" (ngSubmit)="onSave()">
+      <div class="field-group">
+        <label for="authorName">{{ t('nameLabel') }}</label>
+        <div class="field-with-lock">
+          <input pInputText id="authorName" formControlName="name"/>
+          @if (!form.get('nameLocked')?.value) {
+            <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('name')" severity="success" />
+          }
+          @else {
+            <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('name')" severity="warn" />
+          }
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label for="authorAsin">{{ t('asinLabel') }}</label>
+        <div class="field-with-lock">
+          <input pInputText id="authorAsin" formControlName="asin"/>
+          @if (!form.get('asinLocked')?.value) {
+            <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('asin')" severity="success" />
+          }
+          @else {
+            <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('asin')" severity="warn" />
+          }
+        </div>
+      </div>
+
+      <div class="field-group description-group">
+        <label for="authorDescription">{{ t('descriptionLabel') }}</label>
+        <div class="field-with-lock description-with-lock">
+          <textarea pTextarea id="authorDescription" formControlName="description"
+            [rows]="8" [autoResize]="true"></textarea>
+          @if (!form.get('descriptionLocked')?.value) {
+            <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('description')" severity="success" size="small" />
+          }
+          @else {
+            <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('description')" severity="warn" size="small" />
+          }
+        </div>
+      </div>
+
+      <div class="form-footer">
+        <p-divider />
+        <div class="footer-actions">
+          <p-button [label]="t('unlockAllBtn')" icon="pi pi-lock-open" [outlined]="true" severity="success" (onClick)="unlockAll()" />
+          <p-button [label]="t('lockAllBtn')" icon="pi pi-lock" [outlined]="true" severity="warn" (onClick)="lockAll()" />
+          <p-divider layout="vertical"/>
+          <p-button
+            type="submit"
+            [label]="isSaving() ? t('saving') : t('saveBtn')"
+            [icon]="isSaving() ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
+            [disabled]="isSaving()" />
+        </div>
+      </div>
+    </form>
+  </div>
+</ng-container>

@@ -7,6 +7,7 @@ import {
   COLUMNS,
   COLUMNS_BY_KEY,
   COLUMN_GROUP_ORDER,
+  bookColumn,
   bookReadStatusLabelKey,
   type BookBrowseColumnGroupId,
   type BookColumnKey,
@@ -98,11 +99,11 @@ export function bookColumnSortKey(field: string): BookQuerySortKey | undefined {
 }
 
 export function bookColumnKind(field: string): BookColumnKind {
-  return COLUMNS_BY_KEY.get(field)?.column.kind ?? 'text';
+  return COLUMNS_BY_KEY.get(field)?.display.kind ?? 'text';
 }
 
 export function bookColumnSizing(field: BookColumnKey): BookColumnSizing {
-  const {defaultWidth, minWidth, maxWidth} = COLUMNS_BY_KEY.get(field)!.column;
+  const {defaultWidth, minWidth, maxWidth} = bookColumn(field).column;
   return {
     size: defaultWidth,
     minSize: minWidth ?? DEFAULT_COLUMN_MIN_WIDTH,
@@ -114,7 +115,7 @@ export function bookColumnValue(
   book: BookSummary,
   field: string,
 ): BookColumnValue {
-  return COLUMNS_BY_KEY.get(field)?.column.value(book);
+  return COLUMNS_BY_KEY.get(field)?.display.value(book);
 }
 
 export function formatBookValue(

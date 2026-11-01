@@ -42,7 +42,7 @@
         variant="ghost"
         size="md"
         [disabled]="isResolving()"
-        [label]="'book.menu.metadata' | transloco"
+        [label]="'common.metadata' | transloco"
         [appMenuTriggerFor]="bulkMetadataMenu">
         <svg lucideDatabase aria-hidden="true"></svg>
       </app-button>
@@ -84,7 +84,7 @@
     <app-menu-item value="edit-one-by-one" [disabled]="isResolving()" (selected)="commands.editOneByOne()">{{ 'browse.bulk.editOneByOne' | transloco }}</app-menu-item>
   </app-menu>
 
-  <app-menu #bulkMetadataMenu [ariaLabel]="'book.menu.metadata' | transloco">
+  <app-menu #bulkMetadataMenu [ariaLabel]="'common.metadata' | transloco">
     @if (bulkPermissions().canAutoFetchMetadata) {
       <app-menu-item value="fetch-metadata" [disabled]="isResolving()" (selected)="commands.fetchMetadata()">{{ 'book.menu.fetchMetadata' | transloco }}</app-menu-item>
     }
@@ -115,7 +115,7 @@
       <app-menu-item value="edit" [disabled]="isResolving()" [submenu]="bulkEditMenu.menu">{{ 'common.edit' | transloco }}</app-menu-item>
     }
     @if (overflowed().has('metadata')) {
-      <app-menu-item value="metadata" [disabled]="isResolving()" [submenu]="bulkMetadataMenu.menu">{{ 'book.menu.metadata' | transloco }}</app-menu-item>
+      <app-menu-item value="metadata" [disabled]="isResolving()" [submenu]="bulkMetadataMenu.menu">{{ 'common.metadata' | transloco }}</app-menu-item>
     }
     <app-menu-separator [class]="autoSeparatorClass" />
     @if (actionPermissions().canResetGrimmoryProgress) {

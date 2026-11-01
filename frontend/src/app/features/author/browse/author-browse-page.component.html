@@ -1,0 +1,69 @@
+<app-browse-page
+  viewMode="grid"
+  [page]="page"
+  [title]="labels.title()"
+  [estimateItemHeight]="estimateItemHeight"
+  [messages]="messages"
+  [searchHint]="labels.searchHintKey">
+  <ng-template appBrowsePageToolbar>
+    <app-browse-sort-control
+      [sortOptions]="page.sortOptions()"
+      [sortTerms]="page.sortTerms()"
+      [sortField]="sortField"
+      (sortTermsChange)="page.setSortTerms($event)"
+      (shuffleRequested)="page.shuffle()" />
+
+    <app-button
+      variant="soft"
+      [label]="'browse.filter' | transloco"
+      [ariaExpanded]="page.rail.visible()"
+      (clicked)="page.rail.toggle()">
+      <svg lucideFunnel [attr.fill]="page.rail.visible() ? 'currentColor' : 'none'" aria-hidden="true"></svg>
+    </app-button>
+
+    <app-button
+      class="sm:hidden"
+      variant="soft"
+      [label]="'common.select' | transloco"
+      (clicked)="page.toggleMobileSelect()" />
+
+    <span class="hidden h-6 w-px bg-border sm:block" aria-hidden="true"></span>
+    <app-button
+      class="ml-auto sm:ml-0"
+      variant="ghost"
+      iconOnly
+      [ariaLabel]="'browse.moreActions' | transloco"
+      [appMenuTriggerFor]="moreMenu">
+      <svg lucideEllipsis aria-hidden="true"></svg>
+    </app-button>
+    <app-menu #moreMenu [ariaLabel]="'browse.moreActions' | transloco">
+      <app-menu-section>{{ 'browse.toolbar.viewMode' | transloco }}</app-menu-section>
+      <app-browse-density-menu-items
+        [smallerDisabled]="page.density.smallerDisabled()"
+        [largerDisabled]="page.density.largerDisabled()"
+        (densityChange)="page.density.adjust($event)" />
+    </app-menu>
+  </ng-template>
+
+  <app-author-menu (deleted)="page.selection.pruneDeleted($event)" />
+
+  <app-author-browse-bulk-bar
+    [selection]="page.selection"
+    [total]="page.results.total()"
+    [fetchIds]="page.fetchMatchingIds" />
+
+  <ng-template [appBrowseGridItemOf]="page.results.items()" let-author let-index="index">
+    <app-author-card
+      [author]="author"
+      [selectable]="page.selectionEnabled()"
+      [selected]="page.isSelected(author.id)"
+      [selectionActive]="page.selectionActive()"
+      [menuOpen]="menuOpenAuthorId() === author.id"
+      (toggleSelect)="page.selection.toggle(author, index, $event.shiftKey)"
+      (menuRequested)="authorMenu()?.openFor(author, $event)" />
+  </ng-template>
+
+  <ng-template appBrowseGridSkeleton>
+    <app-author-card-skeleton />
+  </ng-template>
+</app-browse-page>
