@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, HostListener, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, HostListener, inject, OnDestroy, OnInit, signal, untracked, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { QueryClient } from '@tanstack/angular-query-experimental';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
@@ -44,6 +44,7 @@ import {
 } from './core/cbx-reader-storage';
 import {computeCbxSpreads, findCbxSpreadForPage} from './core/cbx-spread.util';
 import {isPageTurnSwipe} from './core/cbx-swipe.util';
+import {CBX_DOUBLE_TAP_ZOOM, CBX_MIN_ZOOM, CbxPageZoom, toPoint} from './core/cbx-page-zoom';
 import {isPrimaryButtonHeld} from '../../../shared/util/pointer-gestures';
 import {isTouchScreen, setupReaderEdges} from '../shared/reader-edges.util';
 
@@ -188,7 +189,11 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   // Double-tap zoom
   private readonly lastTapTime = 0;
+  /** Infinite scroll: fit mode to restore on the next double-tap. */
   private originalFitMode: CbxFitMode | null = null;
+  /** Paginated: transient zoom at the tap point. */
+  private readonly pageZoom = new CbxPageZoom(() => this.getImageScrollContainer());
+  private lastWindowWidth = window.innerWidth;
 
   // Shortcuts help dialog
   readonly showShortcutsHelp = signal(false);
@@ -352,6 +357,22 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       this.imagesLoaded();
       this.isMagnifierActive();
       this.afterNextPaint(() => this.refreshPanCursor());
+    });
+
+    // Zoom is per page: drop it on page turn, when the shown images change (a slow page turn
+    // swaps them after currentPage) and whenever the page layout changes.
+    effect(() => {
+      this.bookId();
+      this.currentPage();
+      this.currentImageUrls();
+      this.fitMode();
+      this.scrollMode();
+      this.pageViewMode();
+      this.pageSpread();
+      untracked(() => {
+        this.pageZoom.reset();
+        this.afterNextPaint(() => this.refreshPanCursor());
+      });
     });
   }
 
@@ -1961,6 +1982,11 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   @HostListener('window:resize')
   onResize() {
+    // Only width changes invalidate zoom (the mobile URL bar only resizes height).
+    if (window.innerWidth !== this.lastWindowWidth) {
+      this.lastWindowWidth = window.innerWidth;
+      this.pageZoom.reset();
+    }
     this.refreshPanCursor();
     this.visibilityManager.updateWindowHeight(window.innerHeight);
     this.enforcePortraitSinglePageView();
@@ -2241,7 +2267,13 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   }
 
   // Double-tap zoom
-  onImageDoubleClick(): void {
+  onImageDoubleClick(event: MouseEvent): void {
+    if (this.scrollMode() === CbxScrollMode.PAGINATED) {
+      // Zooms where you tapped without touching the saved fit mode; again returns to fit.
+      this.pageZoom.zoomTo(this.pageZoom.isZoomed ? CBX_MIN_ZOOM : CBX_DOUBLE_TAP_ZOOM, toPoint(event));
+      this.refreshPanCursor();
+      return;
+    }
     if (this.originalFitMode === null) {
       // Store current fit mode and switch to actual size
       this.originalFitMode = this.fitMode();
