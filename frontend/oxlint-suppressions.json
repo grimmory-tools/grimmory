@@ -94,9 +94,6 @@
     }
   },
   "src/app/features/author/detail/author-editor/author-editor.component.ts": {
-    "typescript/no-unnecessary-condition": {
-      "count": 1
-    },
     "typescript/no-unsafe-assignment": {
       "count": 8
     },

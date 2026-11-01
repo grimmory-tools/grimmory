@@ -1,4 +1,3 @@
-import {SimpleChange} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {TranslocoService} from '@jsverse/transloco';
 import {MessageService} from '@openng/optimus-ui/api';
@@ -30,11 +29,11 @@ describe('AuthorEditorComponent', () => {
   };
 
   const createComponent = (author: Partial<AuthorDetail> = {}) => {
-    const component = TestBed.runInInjectionContext(() => new AuthorEditorComponent());
-    component.authorId = 9;
-    component.author = {...baseAuthor, ...author};
-    component.photoTimestamp = 1;
-    return component;
+    const fixture = TestBed.createComponent(AuthorEditorComponent);
+    fixture.componentRef.setInput('authorId', 9);
+    fixture.componentRef.setInput('author', {...baseAuthor, ...author});
+    fixture.componentRef.setInput('photoTimestamp', 1);
+    return {fixture, component: fixture.componentInstance};
   };
 
   beforeEach(() => {
@@ -62,6 +61,7 @@ describe('AuthorEditorComponent', () => {
         {provide: TranslocoService, useValue: {translate: (key: string) => key}},
       ],
     });
+    TestBed.overrideComponent(AuthorEditorComponent, {set: {template: '', imports: [], providers: []}});
   });
 
   afterEach(() => {
@@ -70,7 +70,7 @@ describe('AuthorEditorComponent', () => {
   });
 
   it('initializes the form and disables controls whose lock flags start enabled', () => {
-    const component = createComponent({nameLocked: true, asinLocked: true});
+    const {component} = createComponent({nameLocked: true, asinLocked: true});
 
     component.ngOnInit();
 
@@ -82,7 +82,7 @@ describe('AuthorEditorComponent', () => {
 
   it('saves the trimmed form values, tells the page, and reports success', async () => {
     updateAuthor.mockResolvedValue(baseAuthor);
-    const component = createComponent();
+    const {component} = createComponent();
     const updated = vi.fn();
     component.authorUpdated.subscribe(updated);
     component.ngOnInit();
@@ -108,17 +108,18 @@ describe('AuthorEditorComponent', () => {
   });
 
   it('shows the photo again when the page refreshes its photo timestamp', () => {
-    const component = createComponent();
-    component.hasPhoto = false;
+    const {fixture, component} = createComponent();
+    component.onPhotoError();
+    expect(component.hasPhoto()).toBe(false);
 
-    component.ngOnChanges({photoTimestamp: new SimpleChange(1, 2, false)});
+    fixture.componentRef.setInput('photoTimestamp', 2);
 
-    expect(component.hasPhoto).toBe(true);
+    expect(component.hasPhoto()).toBe(true);
   });
 
   it('refreshes the author lists after a direct photo upload', () => {
     const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
-    const component = createComponent();
+    const {component} = createComponent();
     const updated = vi.fn();
     component.authorUpdated.subscribe(updated);
 

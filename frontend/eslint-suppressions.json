@@ -1,7 +1,7 @@
 {
   "src/app/features/author/detail/author-editor/author-editor.component.ts": {
     "@angular-eslint/prefer-signals": {
-      "count": 3
+      "count": 2
     }
   },
   "src/app/features/author/detail/author-match/author-match.component.ts": {

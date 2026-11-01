@@ -1,4 +1,4 @@
-import {Component, inject, Input, OnChanges, OnInit, output, signal, SimpleChanges} from '@angular/core';
+import {Component, inject, input, Input, linkedSignal, OnInit, output, signal} from '@angular/core';
 import {injectMutation, QueryClient} from '@tanstack/angular-query-experimental';
 import {FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
@@ -37,7 +37,7 @@ import {AuthorPhotoSearchComponent} from '../author-photo-search/author-photo-se
   ],
   providers: [DialogService]
 })
-export class AuthorEditorComponent implements OnInit, OnChanges {
+export class AuthorEditorComponent implements OnInit {
   private readonly urlHelper = inject(UrlHelperService);
   private readonly authorCommands = inject(AuthorCommandService);
   private readonly queryClient = inject(QueryClient);
@@ -47,27 +47,21 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
 
   @Input({required: true}) authorId!: number;
   @Input({required: true}) author!: AuthorDetail;
-  @Input({required: true}) photoTimestamp!: number;
+  readonly photoTimestamp = input.required<number>();
   readonly authorUpdated = output<void>();
 
   form!: FormGroup;
   private readonly updateMutation = injectMutation(() => this.authorCommands.update());
   readonly isSaving = this.updateMutation.isPending;
   readonly isUploading = signal(false);
-  hasPhoto = true;
+  readonly hasPhoto = linkedSignal({source: this.photoTimestamp, computation: () => true});
 
   get photoUrl(): string {
-    return this.urlHelper.getAuthorPhotoUrl(this.authorId, this.photoTimestamp);
+    return this.urlHelper.getAuthorPhotoUrl(this.authorId, this.photoTimestamp());
   }
 
   get uploadUrl(): string {
     return this.authorCommands.photoUploadUrl(this.authorId);
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['photoTimestamp'] && !changes['photoTimestamp'].firstChange) {
-      this.hasPhoto = true;
-    }
   }
 
   ngOnInit(): void {
@@ -150,7 +144,7 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
   }
 
   onPhotoError(): void {
-    this.hasPhoto = false;
+    this.hasPhoto.set(false);
   }
 
   onBeforeUpload(): void {

@@ -1,7 +1,7 @@
 <ng-container *transloco="let t; prefix: 'authorBrowser.editor'">
   <div class="editor-container">
     <div class="cover-section">
-      @if (hasPhoto) {
+      @if (hasPhoto()) {
         <p-image
           [src]="photoUrl"
           alt="Author Photo"
