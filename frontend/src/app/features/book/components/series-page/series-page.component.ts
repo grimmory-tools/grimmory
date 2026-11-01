@@ -17,6 +17,7 @@ import {UserService} from "../../../settings/user-management/user.service";
 import {BookMenuService} from "../../service/book-menu.service";
 import {LoadingService} from "../../../../core/services/loading.service";
 import {BookDialogHelperService} from "../../service/book-dialog-helper.service";
+import {BookNavigationService} from "../../service/book-navigation.service";
 import {TaskHelperService} from "../../../settings/task-management/task-helper.service";
 import {MetadataRefreshType} from "../../../metadata/model/request/metadata-refresh-type.enum";
 import {TieredMenu} from "@openng/optimus-ui/tieredmenu";
@@ -110,6 +111,7 @@ export class SeriesPageComponent implements AfterViewChecked {
   protected urlHelper = inject(UrlHelperService);
   private readonly authorService = inject(AuthorService);
   private readonly layoutService = inject(LayoutService);
+  private readonly bookNavigation = inject(BookNavigationService);
 
   private readonly DEFAULT_SERIES_CARD_WIDTH = 135;
   private readonly DEFAULT_SERIES_CARD_HEIGHT = 220;
@@ -558,8 +560,8 @@ export class SeriesPageComponent implements AfterViewChecked {
       : this.urlHelper.getThumbnailUrl(book.id, book.metadata?.coverUpdatedOn);
   }
 
-  readBook(bookId: number): void {
-    this.bookService.readBook(bookId);
+  protected readBook(book: Book): void {
+    this.bookNavigation.readBook(book);
   }
 
   viewBookDetails(bookId: number): void {

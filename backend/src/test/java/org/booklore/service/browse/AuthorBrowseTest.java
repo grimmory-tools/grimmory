@@ -70,11 +70,11 @@ import static org.mockito.Mockito.when;
         "app.task.process-bookdrop-cron=*/1 * * * * *",
         "app.features.oidc-enabled=false"
 })
-@Import(AuthorBrowseServiceTest.TestConfig.class)
-class AuthorBrowseServiceTest {
+@Import(AuthorBrowseTest.TestConfig.class)
+class AuthorBrowseTest {
 
     @Autowired
-    private AuthorBrowseService browseService;
+    private BrowseService<AuthorEntity, AuthorSummary> authorBrowse;
     @MockitoBean
     private AuthenticationService authenticationService;
 
@@ -191,7 +191,7 @@ class AuthorBrowseServiceTest {
     }
 
     private BrowsePage<AuthorSummary> browse(String sort, List<String> facet, String facetLogic, String query, String cursor, int page, int size) {
-        return browseService.browse(sort, facet, facetLogic, query, cursor, PageRequest.of(page, size));
+        return authorBrowse.browse(sort, facet, facetLogic, query, cursor, PageRequest.of(page, size));
     }
 
     private List<Long> ids(BrowsePage<AuthorSummary> page) {
@@ -374,9 +374,9 @@ class AuthorBrowseServiceTest {
         em.flush();
 
         assertThat(ids(browse(null, List.of("book_count:1"), null, null, 0, 20))).containsExactly(one.getId());
-        assertThat(ids(browse(null, List.of("book_count:2-"), null, null, 0, 20))).containsExactly(three.getId());
-        assertThat(ids(browse(null, List.of("book_count:-2"), null, null, 0, 20))).containsExactly(one.getId());
-        assertThat(ids(browse(null, List.of("book_count:1-3"), null, null, 0, 20)))
+        assertThat(ids(browse(null, List.of("book_count:2..*"), null, null, 0, 20))).containsExactly(three.getId());
+        assertThat(ids(browse(null, List.of("book_count:*..2"), null, null, 0, 20))).containsExactly(one.getId());
+        assertThat(ids(browse(null, List.of("book_count:1..3"), null, null, 0, 20)))
                 .containsExactlyInAnyOrder(one.getId(), three.getId());
     }
 
@@ -384,7 +384,7 @@ class AuthorBrowseServiceTest {
     void invalidBookCountRangeIsRejected() {
         assertThatThrownBy(() -> browse(null, List.of("book_count:abc"), null, null, 0, 20))
                 .isInstanceOfSatisfying(APIException.class, e -> assertThat(e.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST));
-        assertThatThrownBy(() -> browse(null, List.of("book_count:5-2"), null, null, 0, 20))
+        assertThatThrownBy(() -> browse(null, List.of("book_count:5..2"), null, null, 0, 20))
                 .isInstanceOfSatisfying(APIException.class, e -> assertThat(e.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST));
     }
 
@@ -451,7 +451,7 @@ class AuthorBrowseServiceTest {
     }
 
     @Test
-    void nonAdminSeesOnlyAuthorsWithVisibleBooks() {
+    void onlyAuthorsWithVisibleBooksAreListed() {
         LibraryEntity otherLibrary = LibraryEntity.builder().name("Other").icon("book").watch(false)
                 .formatPriority(List.of(BookFileType.EPUB)).build();
         em.persist(otherLibrary);
@@ -460,7 +460,7 @@ class AuthorBrowseServiceTest {
 
         AuthorEntity visible = author("Visible");
         AuthorEntity hidden = author("Hidden");
-        AuthorEntity bookless = author("Bookless");
+        author("Bookless");
         book("In", library, libraryPath, List.of(visible));
         book("Out", otherLibrary, otherPath, List.of(hidden));
         em.flush();
@@ -469,7 +469,7 @@ class AuthorBrowseServiceTest {
 
         when(authenticationService.getAuthenticatedUser()).thenReturn(adminUser());
         assertThat(ids(browse("name", null, null, null, 0, 20)))
-                .containsExactly(bookless.getId(), hidden.getId(), visible.getId());
+                .containsExactly(hidden.getId(), visible.getId());
     }
 
     @Test
@@ -488,7 +488,7 @@ class AuthorBrowseServiceTest {
         BrowsePage<AuthorSummary> result = browse(null, null, null, null, 0, 20);
         assertThat(result.content()).isEmpty();
         assertThat(result.page().totalElements()).isZero();
-        assertThat(browseService.findAllIds(null, null, null, null)).isEmpty();
+        assertThat(authorBrowse.findAllIds(null, null, null, null)).isEmpty();
     }
 
     @Test
@@ -567,7 +567,7 @@ class AuthorBrowseServiceTest {
         em.flush();
 
         List<Long> pageIds = ids(browse("name", null, null, null, 0, 20));
-        assertThat(browseService.findAllIds("name", null, null, null)).isEqualTo(pageIds);
+        assertThat(authorBrowse.findAllIds("name", null, null, null)).isEqualTo(pageIds);
     }
 
     @Test
@@ -579,7 +579,7 @@ class AuthorBrowseServiceTest {
         book("B", library, libraryPath, List.of(unmatched));
         em.flush();
 
-        assertThat(browseService.findAllIds(null, List.of("has_asin:true"), null, null))
+        assertThat(authorBrowse.findAllIds(null, List.of("has_asin:true"), null, null))
                 .containsExactly(matched.getId());
     }
 }

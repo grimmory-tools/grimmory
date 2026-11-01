@@ -72,7 +72,7 @@
     @if (pages().length > 0) {
     @if (scrollMode() === CbxScrollMode.PAGINATED) {
     <div class="pages-wrapper" role="button" tabindex="0" (click)="onImageClick()" (keydown.enter)="onImageClick()"
-      (dblclick)="onImageDoubleClick()">
+      (dblclick)="onImageDoubleClick($event)">
       @if (isPageTransitioning() && previousImageUrls().length > 0) {
       <div class="previous-page-layer" [class.single-page-layer]="isPreviousSinglePageLayer()">
         @for (url of previousImageUrls(); track url) {
@@ -133,7 +133,7 @@
         <img [src]="getPageImageUrl(pageIdx)" alt="Page {{ pageIdx + 1 }}" class="page-image"
           [attr.data-page]="pageIdx" role="button" tabindex="0" draggable="false"
           [attr.loading]="pageIdx === currentPage() ? 'eager' : 'lazy'" decoding="async"
-          (click)="onImageClick()" (keydown.enter)="onImageClick()" (dblclick)="onImageDoubleClick()"
+          (click)="onImageClick()" (keydown.enter)="onImageClick()" (dblclick)="onImageDoubleClick($event)"
           (load)="onPageImageLoad($event, pageIdx)" />
         }
         @if (isLoadingMore()) {

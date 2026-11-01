@@ -8,7 +8,7 @@ import {BookCardSkeletonComponent} from '../../../book/components/cards/book-car
 import {BookMenuComponent} from '../../../book/components/book-menu/book-menu.component';
 import {BookQueryService} from '../../../book/data/book-query.service';
 import {type BookSummary} from '../../../book/data/book-response.models';
-import {BookNavigationService} from '../../../book/service/book-navigation.service';
+import {BookNavigationService, type ReadOptions} from '../../../book/service/book-navigation.service';
 import {UserService} from '../../../settings/user-management/user.service';
 import {createBrowseSkeletonDelay} from '../../../../shared/browse/skeleton-delay';
 import {ArtworkRevealGroupDirective} from '../../../../shared/components/cover/artwork-reveal-group.directive';
@@ -39,7 +39,7 @@ type ScrollerViewState = 'idle' | 'skeleton' | 'error' | 'empty' | 'books';
 export class DashboardScrollerComponent {
   private readonly bookQuery = inject(BookQueryService);
   private readonly userService = inject(UserService);
-  protected readonly bookNavigation = inject(BookNavigationService);
+  private readonly bookNavigation = inject(BookNavigationService);
 
   readonly config = input.required<ScrollerConfig>();
   protected readonly bookMenu = viewChild(BookMenuComponent);
@@ -48,7 +48,7 @@ export class DashboardScrollerComponent {
   private readonly rowQuery = injectQuery(() => {
     const params = this.params();
     return {
-      ...this.bookQuery.page(params ?? {facets: {}, facetLogic: 'or', sort: [], size: 1}),
+      ...this.bookQuery.page(params ?? {facets: {}, sort: [], size: 1}),
       enabled: params !== null,
     };
   });
@@ -95,6 +95,10 @@ export class DashboardScrollerComponent {
 
   protected retry(): void {
     void this.rowQuery.refetch();
+  }
+
+  protected readBook(book: BookSummary, options?: ReadOptions): void {
+    this.bookNavigation.readBook(book, options);
   }
 
   protected openBook(book: BookSummary): void {

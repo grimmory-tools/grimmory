@@ -83,7 +83,7 @@ export class ViewPreferencesComponent implements OnInit {
   autoSaveMetadata: boolean = false;
   globalSortTerms: readonly BookSortTerm[] = [];
   private readonly sortTokensQuery = injectQuery(() =>
-    this.bookQuery.facetIndex({facets: EMPTY_FACET_SELECTION, facetLogic: 'or'}));
+    this.bookQuery.facetIndex({facets: EMPTY_FACET_SELECTION}));
   readonly editorSortOptions = computed(() =>
     bookSortOptions(this.sortTokensQuery.data()?.sortTokens ?? []));
 

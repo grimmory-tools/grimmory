@@ -7,7 +7,7 @@ import {injectQuery} from '@tanstack/angular-query-experimental';
 import {BrowseFilterRailComponent} from '../../../shared/browse/filter-rail/filter-rail.component';
 import {
   countBrowseFacetValues,
-  toggleBrowseFacetValue,
+  type BrowseFilterMatchAll,
   type BrowseFilterRangeCommit,
   type BrowseFilterToggle,
 } from '../../../shared/browse/facets';
@@ -55,6 +55,7 @@ import {createBookBrowseUrlState} from './book-browse-url-state';
             [openKeys]="queries.openKeys()"
             [searchTerms]="queries.searchTerms()"
             (toggleValue)="onToggle($event)"
+            (matchAllChange)="onMatchAll($event)"
             (commitRange)="onCommitRange($event)"
             (openChange)="queries.setOpen($event)"
             (searchChange)="queries.setSearch($event)" />
@@ -130,18 +131,15 @@ export class BookBrowseFilterPageComponent {
   });
 
   protected onToggle(toggle: BrowseFilterToggle<BookQueryFacetKey>): void {
-    this.staged.update(current =>
-      toggleBrowseFacetValue(
-        current,
-        toggle.key,
-        toggle.value,
-        toggle.selected,
-      ),
-    );
+    this.staged.set(this.queries.withState(toggle));
+  }
+
+  protected onMatchAll(change: BrowseFilterMatchAll<BookQueryFacetKey>): void {
+    this.staged.set(this.queries.chooseMatchAll(change));
   }
 
   protected onCommitRange(commit: BrowseFilterRangeCommit<BookQueryFacetKey>): void {
-    this.staged.update(current => this.queries.withRange(current, commit));
+    this.staged.set(this.queries.withRange(commit));
   }
 
   protected onClear(): void {

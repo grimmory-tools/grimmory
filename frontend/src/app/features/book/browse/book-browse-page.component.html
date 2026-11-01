@@ -48,7 +48,7 @@
             [chips]="chipsBand().chips"
             [query]="chipsBand().query"
             [mobile]="isMobile()"
-            (removeChip)="onToggleFacet({key: $event.key, value: $event.value, selected: false})"
+            (removeChip)="onToggleFacet({key: $event.key, value: $event.value, state: null})"
             (removeSearch)="onClearQuery()"
             (clearAll)="onClearAllFilters()" />
         </div>
@@ -73,7 +73,7 @@
           [selectMode]="mobileSelectMode()"
           [openMenuBookId]="menuOpenBookId()"
           (sortTermsChange)="preferences.setSortTerms($event)"
-          (facetRequested)="onToggleFacet({key: $event.key, value: $event.value, selected: true})"
+          (facetRequested)="onToggleFacet({key: $event.key, value: $event.value, state: 'included'})"
           (menuRequested)="bookMenu()?.openFor($event.book, $event.request)"
           (detailRequested)="onBookDetailRequested($event)"
           (retryInitial)="presentation.retryInitial()"
@@ -112,7 +112,7 @@
             [detailMode]="'request'"
             [menuOpen]="menuOpenBookId() === book.id"
             (toggleSelect)="selection.toggle(book, index, $event.shiftKey)"
-            (action)="bookNavigation.readBook(book)"
+            (action)="readBook(book)"
             (detailRequested)="onBookDetailRequested(book)"
             (menuRequested)="bookMenu()?.openFor(book, $event)" />
         </ng-template>
@@ -151,6 +151,7 @@
               [openKeys]="queries.openKeys()"
               [searchTerms]="queries.searchTerms()"
               (toggleValue)="onToggleFacet($event)"
+              (matchAllChange)="onFacetMatchAll($event)"
               (commitRange)="onCommitFacetRange($event)"
               (openChange)="queries.setOpen($event)"
               (searchChange)="queries.setSearch($event)" />

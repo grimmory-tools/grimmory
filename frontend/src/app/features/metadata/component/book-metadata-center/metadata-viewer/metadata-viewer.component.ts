@@ -36,11 +36,11 @@ import {
   CONTENT_RATING_LABELS,
   PAGE_COUNT_RANGES,
 } from '../../../../book/model/book-value-labels';
-import {BookNavigationService} from '../../../../book/service/book-navigation.service';
+import {BookNavigationService, type ReadOptions} from '../../../../book/service/book-navigation.service';
 import {BookMetadataHostService} from '../../../../../shared/service/book-metadata-host.service';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
 import {LanguageResolverService} from '../../../../../shared/service/language-resolver.service';
-import {DeleteBookFileEvent, DeleteSupplementaryFileEvent, DetachBookFileEvent, DownloadAdditionalFileEvent, DownloadAllFilesEvent, DownloadEvent, MetadataTabsComponent, ReadEvent} from './metadata-tabs/metadata-tabs.component';
+import {DeleteBookFileEvent, DeleteSupplementaryFileEvent, DetachBookFileEvent, DownloadAdditionalFileEvent, DownloadAllFilesEvent, DownloadEvent, MetadataTabsComponent} from './metadata-tabs/metadata-tabs.component';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {AuthorService} from '../../../../author-browser/service/author.service';
 import {Dialog} from '@openng/optimus-ui/dialog';
@@ -192,7 +192,7 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
       items.push({
         label: this.t.translate('metadata.viewer.menuStreamingReader'),
         icon: 'pi pi-play',
-        command: () => this.read(book.id, 'epub-streaming')
+        command: () => this.bookNavigationService.readBook(book, {streaming: true})
       });
     }
 
@@ -214,12 +214,12 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
             {
               label: this.t.translate('metadata.viewer.menuStandardReader'),
               icon: 'pi pi-book',
-              command: () => this.read(book.id, undefined, formatType)
+              command: () => this.bookNavigationService.readBook(book, {bookType: formatType})
             },
             {
               label: this.t.translate('metadata.viewer.menuStreamingReader'),
               icon: 'pi pi-play',
-              command: () => this.read(book.id, 'epub-streaming', formatType)
+              command: () => this.bookNavigationService.readBook(book, {bookType: formatType, streaming: true})
             }
           ]
         });
@@ -229,7 +229,7 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
       items.push({
         label: formatType,
         icon: this.getFileIcon(formatType ?? null),
-        command: () => this.read(book.id, undefined, formatType)
+        command: () => this.bookNavigationService.readBook(book, {bookType: formatType})
       });
     });
 
@@ -532,8 +532,8 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
     return html ? DOMPurify.sanitize(html) : '';
   }
 
-  read(bookId: number | undefined, reader?: "epub-streaming", bookType?: BookType): void {
-    if (bookId) this.bookService.readBook(bookId, reader, bookType);
+  protected readBook(book: Book, options?: ReadOptions): void {
+    this.bookNavigationService.readBook(book, options);
   }
 
   isInProgressStatus(): boolean {
@@ -562,10 +562,6 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   }
 
   // Event handlers for MetadataTabsComponent
-  onReadBook(event: ReadEvent): void {
-    this.read(event.bookId, event.reader, event.bookType);
-  }
-
   onDownloadBook(event: DownloadEvent): void {
     this.download(event.book);
   }

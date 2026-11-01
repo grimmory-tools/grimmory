@@ -24,11 +24,6 @@
       "count": 3
     }
   },
-  "src/app/features/book/components/book-file-attacher/book-file-attacher.component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 2
-    }
-  },
   "src/app/features/book/components/book-notes/book-notes-component.ts": {
     "@angular-eslint/prefer-signals": {
       "count": 1

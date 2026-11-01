@@ -109,6 +109,7 @@ public class SidecarMetadataMapper {
                     .lubimyczytacId(ids.getLubimyczytacId())
                     .ranobedbId(ids.getRanobedbId())
                     .applebooksId(ids.getApplebooksId())
+                    .doubanId(ids.getDoubanId())
                     .audibleId(ids.getAudibleId());
         }
 
@@ -139,6 +140,10 @@ public class SidecarMetadataMapper {
             if (r.getApplebooks() != null) {
                 builder.applebooksRating(r.getApplebooks().getAverage())
                         .applebooksReviewCount(r.getApplebooks().getCount());
+            }
+            if (r.getDouban() != null) {
+                builder.doubanRating(r.getDouban().getAverage())
+                        .doubanReviewCount(r.getDouban().getCount());
             }
         }
 
@@ -203,6 +208,7 @@ public class SidecarMetadataMapper {
                 .ranobedbId(entity.getRanobedbId())
                 .audibleId(entity.getAudibleId())
                 .applebooksId(entity.getApplebooksId())
+                .doubanId(entity.getDoubanId())
                 .openlibraryId(entity.getOpenlibraryId())
                 .build();
     }
@@ -216,6 +222,7 @@ public class SidecarMetadataMapper {
                 .ranobedb(buildRating(entity.getRanobedbRating(), null))
                 .audible(buildRating(entity.getAudibleRating(), entity.getAudibleReviewCount()))
                 .applebooks(buildRating(entity.getApplebooksRating(), entity.getApplebooksReviewCount()))
+                .douban(buildRating(entity.getDoubanRating(), entity.getDoubanReviewCount()))
                 .build();
     }
 

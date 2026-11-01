@@ -159,7 +159,7 @@ class BookBrowseRegistryTest {
     }
 
     private Set<Long> facetIds(String facet, List<String> values, Long userId) {
-        return bookRepository.findAll(facetRegistry.matching(facet, values, userId)).stream()
+        return bookRepository.findAll(facetRegistry.registry().find(facet).filter().matching(values, new BrowseScope(userId, true, Set.of(), null))).stream()
                 .map(BookEntity::getId).collect(Collectors.toSet());
     }
 
@@ -202,9 +202,8 @@ class BookBrowseRegistryTest {
         Long c = book("Charlie", null, null, Instant.now(), List.of(), List.of("Haily Yelp"), null).getId();
         em.flush();
 
-        // These are the same because of how the sorting works with multiple authors.
-        // `b` has both the highest and lowest.
-        assertThat(sortedIds("authorName", user.getId())).containsExactly(b, a, c);
+        // Books with multiple authors sort by their first credited author.
+        assertThat(sortedIds("authorName", user.getId())).containsExactly(c, a, b);
         assertThat(sortedIds("-authorName", user.getId())).containsExactly(b, a, c);
     }
 

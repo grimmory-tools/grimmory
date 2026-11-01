@@ -46,7 +46,7 @@
                 [showFormatPill]="showFormatPill()"
                 [detailMode]="'request'"
                 [menuOpen]="menuOpenBookId() === rowBook.book.id"
-                (action)="bookNavigation.readBook(rowBook.book, rowBook.file)"
+                (action)="readBook(rowBook.book, {bookType: rowBook.file?.bookType})"
                 (detailRequested)="openBook(rowBook.book)"
                 (menuRequested)="bookMenu()?.openFor(rowBook.book, $event, rowBook.file)" />
             </div>

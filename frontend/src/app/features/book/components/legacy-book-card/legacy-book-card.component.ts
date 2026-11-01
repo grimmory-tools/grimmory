@@ -212,14 +212,10 @@ export class LegacyBookCardComponent {
   }
 
   readBook(book: Book): void {
-    if (this.forceEbookMode() && book.primaryFile?.bookType === 'AUDIOBOOK') {
-      const ebookType = this.getEbookType(book);
-      if (ebookType) {
-        this.bookService.readBook(book.id, undefined, ebookType);
-        return;
-      }
-    }
-    this.bookService.readBook(book.id);
+    const bookType = this.forceEbookMode() && book.primaryFile?.bookType === 'AUDIOBOOK'
+      ? this.getEbookType(book)
+      : undefined;
+    this.bookNavigationService.readBook(book, {bookType});
   }
 
   private getEbookType(book: Book): BookType | undefined {

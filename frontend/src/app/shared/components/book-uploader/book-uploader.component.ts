@@ -232,19 +232,14 @@ export class BookUploaderComponent {
       }
 
       const req = mitigateWebkitUploadBug(
-        new HttpRequest('POST', uploadUrl, formData, { reportUploadProgress: true, reportDownloadProgress: true })
+        new HttpRequest('POST', uploadUrl, formData)
       );
 
       mitigateWebkitUploadBug(req);
 
       this.http.request(req).subscribe({
         next: (event) => {
-          if (event.type === HttpEventType.UploadProgress) {
-            if (event.total) {
-              uploadFile.progress = Math.round((event.loaded / event.total) * 100);
-            }
-            this.cdr.detectChanges();
-          } else if (event.type === HttpEventType.Response) {
+          if (event.type === HttpEventType.Response) {
             uploadFile.status = 'Uploaded';
             uploadFile.progress = 100;
             this.cdr.detectChanges();

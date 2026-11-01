@@ -2,6 +2,7 @@ import {Component, booleanAttribute, input, output} from '@angular/core';
 
 import {
   type BrowseFilterGroup,
+  type BrowseFilterMatchAll,
   type BrowseFilterOpen,
   type BrowseFilterRangeCommit,
   type BrowseFilterSearch,
@@ -23,6 +24,7 @@ import {BrowseFilterSectionComponent} from './filter-section.component';
         (isOpenChange)="openChange.emit({key: group.key, open: $event})"
         (searchChange)="searchChange.emit({key: group.key, term: $event})"
         (toggleValue)="toggleValue.emit($event)"
+        (matchAllChange)="matchAllChange.emit($event)"
         (commitRange)="commitRange.emit($event)" />
     }
   `,
@@ -33,6 +35,7 @@ export class BrowseFilterRailComponent<K extends string = string> {
   readonly searchTerms = input.required<Readonly<Partial<Record<K, string>>>>();
   readonly alwaysShowBoxes = input(false, {transform: booleanAttribute});
   readonly toggleValue = output<BrowseFilterToggle<K>>();
+  readonly matchAllChange = output<BrowseFilterMatchAll<K>>();
   readonly commitRange = output<BrowseFilterRangeCommit<K>>();
   readonly openChange = output<BrowseFilterOpen<K>>();
   readonly searchChange = output<BrowseFilterSearch<K>>();

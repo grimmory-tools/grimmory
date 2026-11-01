@@ -49,8 +49,8 @@ import {BrowseSearchInputComponent} from '../../../shared/browse/search-input/se
 import {BrowseFilterRailComponent} from '../../../shared/browse/filter-rail/filter-rail.component';
 import {
   countBrowseFacetValues,
-  toggleBrowseFacetValue,
   type BrowseFilterChip,
+  type BrowseFilterMatchAll,
   type BrowseFilterRangeCommit,
   type BrowseFilterToggle,
 } from '../../../shared/browse/facets';
@@ -134,7 +134,7 @@ export class BookBrowsePageComponent {
   private readonly coverScale = inject(CoverScalePreferenceService);
   private readonly detailLines = inject(BookBrowseDetailLineService);
   private readonly libraryService = inject(LibraryService);
-  protected readonly bookNavigation = inject(BookNavigationService);
+  private readonly bookNavigation = inject(BookNavigationService);
   private readonly urlHelper = inject(UrlHelperService);
   private readonly dialogLauncher = inject(DialogLauncherService);
   private readonly pendingReadStatuses = injectPendingBookReadStatuses();
@@ -410,6 +410,10 @@ export class BookBrowsePageComponent {
     this.mobileSelectMode.set(true);
   }
 
+  protected readBook(book: BookSummary): void {
+    this.bookNavigation.readBook(book);
+  }
+
   protected onBookDetailRequested(book: BookSummary): void {
     this.bookNavigation.openBook(book.id, this.books().map(presented => presented.id));
   }
@@ -425,16 +429,15 @@ export class BookBrowsePageComponent {
   }
 
   protected onToggleFacet(toggle: BrowseFilterToggle<BookQueryFacetKey>): void {
-    this.urlState.setFacets(toggleBrowseFacetValue(
-      this.urlState.facets(),
-      toggle.key,
-      toggle.value,
-      toggle.selected,
-    ));
+    this.urlState.setFacets(this.queries.withState(toggle));
+  }
+
+  protected onFacetMatchAll(change: BrowseFilterMatchAll<BookQueryFacetKey>): void {
+    this.urlState.setFacets(this.queries.chooseMatchAll(change));
   }
 
   protected onCommitFacetRange(commit: BrowseFilterRangeCommit<BookQueryFacetKey>): void {
-    this.urlState.setFacetRange(this.queries.withRange(this.urlState.facets(), commit));
+    this.urlState.setFacetRange(this.queries.withRange(commit));
   }
 
   protected onClearQuery(): void {

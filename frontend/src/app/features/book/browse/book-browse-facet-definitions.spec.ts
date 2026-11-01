@@ -26,7 +26,7 @@ describe('book browse facets', () => {
       AVAILABLE,
       [group('genre', [['Drama', 90], ['Gothic', 5]])],
       definitions,
-      {genre: ['Comedy', 'Farce']},
+      {genre: {include: ['Comedy'], exclude: ['Farce']}},
     );
     expect(genres[0].values.map(item => [item.value, item.count]))
       .toEqual([['Drama', 90], ['Gothic', 5], ['Comedy', 0], ['Farce', 0]]);
@@ -37,7 +37,7 @@ describe('book browse facets', () => {
       AVAILABLE,
       [group('author', [['Pratchett', 12]], false)],
       definitions,
-      {author: ['Lindbergh']},
+      {author: {include: ['Lindbergh'], exclude: []}},
     ).find(item => item.key === 'author')!;
     expect(authors.values.map(item => [item.value, item.count]))
       .toEqual([['Pratchett', 12], ['Lindbergh', null]]);
@@ -45,12 +45,12 @@ describe('book browse facets', () => {
 
   it('replaces a numeric range token rather than stacking it, and keeps band selections', () => {
     let selection = withBrowseFacetRange({}, 'page_count', 100, 400, new Set());
-    expect(selection).toEqual({page_count: ['100..400']});
+    expect(selection).toEqual({page_count: {include: ['100..400'], exclude: []}});
     selection = withBrowseFacetRange(selection, 'page_count', null, 200, new Set());
-    expect(selection).toEqual({page_count: ['*..200']});
+    expect(selection).toEqual({page_count: {include: ['*..200'], exclude: []}});
     expect(withBrowseFacetRange(selection, 'page_count', null, null, new Set())).toEqual({});
-    expect(withBrowseFacetRange({match_score: ['70..<80', '10..20']}, 'match_score', 30, 90, new Set(['70..<80'])))
-      .toEqual({match_score: ['70..<80', '30..90']});
+    expect(withBrowseFacetRange({match_score: {include: ['70..<80', '10..20'], exclude: []}}, 'match_score', 30, 90, new Set(['70..<80'])))
+      .toEqual({match_score: {include: ['70..<80', '30..90'], exclude: []}});
   });
 
   it('labels bands that exclude their upper bound', () => {

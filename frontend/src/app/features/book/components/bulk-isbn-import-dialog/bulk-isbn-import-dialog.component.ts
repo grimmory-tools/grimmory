@@ -22,7 +22,7 @@ const MAX_FILE_SIZE_BYTES = 1_048_576; // 1 MB
 const DELAY_BETWEEN_REQUESTS_MS = 300;
 const RETRY_DELAY_MS = 2000;
 
-export type IsbnEntryStatus = 'pending' | 'looking-up' | 'created' | 'created-no-metadata' | 'failed';
+export type IsbnEntryStatus = 'pending' | 'looking-up' | 'created' | 'created-no-metadata' | 'already-exists' | 'failed';
 
 export interface IsbnEntry {
   isbn: string;
@@ -79,6 +79,7 @@ export class BulkIsbnImportDialogComponent {
   readonly processedCount = signal(0);
   readonly createdCount = signal(0);
   readonly noMetadataCount = signal(0);
+  readonly alreadyExistsCount = signal(0);
   readonly failedCount = signal(0);
   cancelled = false;
 
@@ -145,6 +146,7 @@ export class BulkIsbnImportDialogComponent {
     this.processedCount.set(0);
     this.createdCount.set(0);
     this.noMetadataCount.set(0);
+    this.alreadyExistsCount.set(0);
     this.failedCount.set(0);
     this.cancelled = false;
 
@@ -200,8 +202,13 @@ export class BulkIsbnImportDialogComponent {
           this.noMetadataCount.update(v => v + 1);
         }
       } catch (err: unknown) {
-        updateEntry(i, { status: 'failed', error: err instanceof Error ? err.message : 'Unknown error' })
-        this.failedCount.update(v => v + 1);
+        if (err instanceof HttpErrorResponse && err.status === 409) {
+          updateEntry(i, { status: 'already-exists' })
+          this.alreadyExistsCount.update(v => v + 1);
+        } else {
+          updateEntry(i, { status: 'failed', error: err instanceof Error ? err.message : 'Unknown error' })
+          this.failedCount.update(v => v + 1);
+        }
       }
 
       this.processedCount.update(v => v + 1);
@@ -249,7 +256,6 @@ export class BulkIsbnImportDialogComponent {
       isbns = lines.map(l => l.trim()).filter(l => l.length > 0 && !l.startsWith('#'));
     }
 
-    const existingIsbns = this.getExistingIsbnsForLibrary();
     const validEntries: IsbnEntry[] = [];
     const seen = new Set<string>();
 
@@ -263,11 +269,6 @@ export class BulkIsbnImportDialogComponent {
 
       if (seen.has(normalized)) {
         this.duplicatesRemoved.update(v => v + 1);
-        continue;
-      }
-
-      if (existingIsbns.has(normalized)) {
-        this.skipped.update(s => [...s, {value: normalized, reason: 'alreadyExists'}]);
         continue;
       }
 
@@ -321,21 +322,6 @@ export class BulkIsbnImportDialogComponent {
       }
     }
     return result;
-  }
-
-  private getExistingIsbnsForLibrary(): Set<string> {
-    const isbns = new Set<string>();
-    if (!this.selectedLibraryId) return isbns;
-
-    const books = this.bookService.books();
-    for (const book of books) {
-      if (book.libraryId !== this.selectedLibraryId) continue;
-      const isbn13 = book.metadata?.isbn13;
-      const isbn10 = book.metadata?.isbn10;
-      if (isbn13) isbns.add(isbn13.toUpperCase());
-      if (isbn10) isbns.add(isbn10.toUpperCase());
-    }
-    return isbns;
   }
 
   private normalizeIsbn(raw: string): string {

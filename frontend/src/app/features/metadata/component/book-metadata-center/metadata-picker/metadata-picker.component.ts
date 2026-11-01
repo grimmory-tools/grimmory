@@ -8,7 +8,8 @@ import {InputText} from '@openng/optimus-ui/inputtext';
 import {forkJoin, Observable} from 'rxjs';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
-import {BookService} from '../../../../book/service/book.service';
+import {type BookQueryFacetKey} from '../../../../book/data/book-query-params';
+import {FacetSuggestionsDirective} from '../../../../book/components/facet-suggestions.directive';
 import {BookMetadataManageService} from '../../../../book/service/book-metadata-manage.service';
 import {Textarea} from '@openng/optimus-ui/textarea';
 
@@ -40,11 +41,11 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
     TranslocoDirective,
     CdkDropList,
     CdkDrag,
+    FacetSuggestionsDirective,
   ]
 })
 export class MetadataPickerComponent {
   private readonly messageService = inject(MessageService);
-  private readonly bookService = inject(BookService);
   private readonly bookMetadataManageService = inject(BookMetadataManageService);
   protected urlHelper = inject(UrlHelperService);
   private readonly destroyRef = inject(DestroyRef);
@@ -96,8 +97,11 @@ export class MetadataPickerComponent {
 
   currentBook: Book | null = null;
 
-  private get allItems(): Record<string, string[]> { return this.uniqueMetadata(); }
-  filteredItems: Record<string, string[]> = {};
+  protected readonly facetByField: Record<string, BookQueryFacetKey> = {
+    categories: 'genre',
+    moods: 'mood',
+    tags: 'tag',
+  };
   authorInputValue = '';
 
   metadataForm!: FormGroup;
@@ -107,8 +111,6 @@ export class MetadataPickerComponent {
   originalMetadata!: BookMetadata;
   isSaving = false;
   hoveredFields: Record<string, boolean> = {};
-  private readonly uniqueMetadata = computed(() => this.bookService.uniqueMetadata());
-
 
   private readonly enabledProviderFields = signal<MetadataProviderSpecificFields | null>(null);
   private readonly allFields = computed(() => allMetadataFields(this.providerFields.fields()));
@@ -129,16 +131,6 @@ export class MetadataPickerComponent {
     this.comicTextFields = COMIC_TEXT_METADATA_FIELDS;
     this.comicArrayFields = COMIC_ARRAY_METADATA_FIELDS;
     this.comicTextareaFields = COMIC_TEXTAREA_METADATA_FIELDS;
-  }
-
-  getFiltered(controlName: string): string[] {
-    return this.filteredItems[controlName] ?? [];
-  }
-
-  filterItems(event: { query: string }, controlName: string): void {
-    const query = event.query.toLowerCase();
-    this.filteredItems[controlName] = (this.allItems[controlName] ?? [])
-      .filter(item => item.toLowerCase().includes(query));
   }
 
   private readonly syncProviderFieldsEffect = effect(() => {

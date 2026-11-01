@@ -17,8 +17,6 @@ interface GenericMatchWeights {
   language: number;
   pageCount: number;
   categories: number;
-  doubanRating: number;
-  doubanReviewCount: number;
   coverImage: number;
 }
 

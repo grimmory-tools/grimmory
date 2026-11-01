@@ -21,8 +21,7 @@ import {BookQueryService} from './book-query.service';
 
 const PARAMS: BookPageParams = {
   query: 'dune',
-  facets: {genre: ['Science Fiction']},
-  facetLogic: 'or',
+  facets: {genre: {include: ['Science Fiction'], exclude: []}},
   sort: [{key: 'title', direction: 'asc'}],
   size: 20,
 };
@@ -89,7 +88,7 @@ describe('BookQueryService', () => {
 
   it('fetches one bounded summary page with normalized parameters', async () => {
     const resultPromise = queryClient.fetchQuery(service.page(PARAMS));
-    const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/page?facet_logic=or&query=dune&facet=genre:Science%20Fiction&sort=title&size=20`);
+    const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/page?query=dune&facet=genre:Science%20Fiction&sort=title&size=20`);
     request.flush(page([1, 2]));
 
     await expect(resultPromise).resolves.toMatchObject({
@@ -101,12 +100,12 @@ describe('BookQueryService', () => {
     const resultPromise = queryClient.fetchQuery(service.page({
       ...PARAMS,
       facets: {
-        genre: ['Science Fiction'],
-        language: ['English'],
+        genre: {include: ['Science Fiction'], exclude: []},
+        language: {include: ['English'], exclude: []},
       },
     }));
     const request = http.expectOne(
-      `${API_CONFIG.BASE_URL}/api/v1/books/page?facet_logic=or&query=dune&facet=genre:Science%20Fiction&facet=language:English&sort=title&size=20`,
+      `${API_CONFIG.BASE_URL}/api/v1/books/page?query=dune&facet=genre:Science%20Fiction&facet=language:English&sort=title&size=20`,
     );
     request.flush(page([1]));
 
@@ -115,7 +114,7 @@ describe('BookQueryService', () => {
 
   it('fetches the facet index as the keys of facets with items and sort tokens', async () => {
     const resultPromise = queryClient.fetchQuery(service.facetIndex(PARAMS));
-    const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/facets?facet_logic=or&query=dune&facet=genre:Science%20Fiction`);
+    const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/facets?query=dune&facet=genre:Science%20Fiction`);
     request.flush({
       links: [{rel: 'self', href: '/api/v1/books/facets?query=dune', type: 'application/json'}],
       facets: [{
@@ -142,7 +141,7 @@ describe('BookQueryService', () => {
   it('fetches one facet page with its search, noting whether more values follow', async () => {
     const resultPromise = queryClient.fetchQuery(service.facet('author', PARAMS, ' tolk '));
     const request = http.expectOne(
-      `${API_CONFIG.BASE_URL}/api/v1/books/facets/author?facet_logic=or&query=dune&facet=genre:Science%20Fiction&size=100&search=tolk`,
+      `${API_CONFIG.BASE_URL}/api/v1/books/facets/author?query=dune&facet=genre:Science%20Fiction&size=100&search=tolk`,
     );
     request.flush({
       links: [
@@ -187,7 +186,7 @@ describe('BookQueryService', () => {
 
   it('fetches matching IDs with sort but no size', async () => {
     const resultPromise = queryClient.fetchQuery(service.ids(PARAMS));
-    const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/ids?facet_logic=or&query=dune&facet=genre:Science%20Fiction&sort=title`);
+    const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/ids?query=dune&facet=genre:Science%20Fiction&sort=title`);
     request.flush([3, 1, 2]);
 
     await expect(resultPromise).resolves.toEqual([3, 1, 2]);
@@ -197,7 +196,7 @@ describe('BookQueryService', () => {
     const host = TestBed.inject(InfiniteQueryHost);
     flushSignalAndQueryEffects();
 
-    const firstRequest = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/page?facet_logic=or&query=dune&facet=genre:Science%20Fiction&sort=title&size=20`);
+    const firstRequest = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/page?query=dune&facet=genre:Science%20Fiction&sort=title&size=20`);
     expect(firstRequest.request.params.has('cursor')).toBe(false);
     firstRequest.flush({
       ...page([1]),
@@ -229,7 +228,7 @@ describe('BookQueryService', () => {
     const host = TestBed.inject(InfiniteQueryHost);
     flushSignalAndQueryEffects();
 
-    http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/page?facet_logic=or&query=dune&facet=genre:Science%20Fiction&sort=title&size=20`)
+    http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/page?query=dune&facet=genre:Science%20Fiction&sort=title&size=20`)
       .flush(page([1]));
     await vi.waitFor(() => expect(host.query.isSuccess()).toBe(true));
 
