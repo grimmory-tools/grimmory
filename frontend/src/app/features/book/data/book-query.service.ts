@@ -1,4 +1,4 @@
-import {HttpClient, HttpParams} from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {effect, inject, Service} from '@angular/core';
 import {
   type InfiniteData,
@@ -7,10 +7,8 @@ import {
   queryOptions,
   QueryClient,
 } from '@tanstack/angular-query-experimental';
-import {lastValueFrom, Observable, map, takeUntil} from 'rxjs';
-
 import {API_CONFIG} from '../../../core/config/api-config';
-import {BrowseFacetGroup, BrowseFacetIndex, findBrowsePageLink} from '../../../core/data/browse.models';
+import {findBrowsePageLink} from '../../../core/data/browse.models';
 import {mapBrowseFacetIndex, mapBrowseFacetPage, mapBrowsePage} from '../../../core/data/browse-response';
 import {browseFacetValues, withBrowseFacetValues} from '../../../shared/browse/facets';
 import {bookQueryKeys} from './book-query-keys';
@@ -32,8 +30,8 @@ import {
   BookDuplicateRequest,
   BookPage,
 } from './book-query.models';
-import {BookDetail, BookRecommendation, BookSummary} from './book-response.models';
-import {abortSignal, QUERY_DEFAULTS} from '../../../core/data/query-transport';
+import {BookDetail, BookRecommendation, BookReviewResponse, BookSummary} from './book-response.models';
+import {httpGet, QUERY_DEFAULTS, toAbortablePromise} from '../../../core/data/query-transport';
 import {AuthService} from '../../../shared/service/auth.service';
 
 const FACET_PAGE_SIZE = 100;
@@ -44,7 +42,8 @@ export class BookQueryService {
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
   private readonly queryClient = inject(QueryClient);
-  private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/books`;
+  private readonly booksUrl = `${API_CONFIG.BASE_URL}/api/v1/books`;
+  private readonly reviewsUrl = `${API_CONFIG.BASE_URL}/api/v1/reviews`;
 
   constructor() {
     effect(() => {
@@ -98,12 +97,12 @@ export class BookQueryService {
 
     return queryOptions({
       queryKey: bookQueryKeys.facetIndex(normalized),
-      queryFn: ({signal}): Promise<BrowseFacetIndex> => this.getMapped(
-        `${this.baseUrl}/facets`,
+      queryFn: async ({signal}) => mapBrowseFacetIndex(await httpGet(
+        this.http,
+        `${this.booksUrl}/facets`,
         signal,
-        mapBrowseFacetIndex,
         toCollectionHttpParams(normalized),
-      ),
+      )),
       ...QUERY_DEFAULTS,
     });
   }
@@ -120,12 +119,12 @@ export class BookQueryService {
 
     return queryOptions({
       queryKey: bookQueryKeys.facet(key, normalized, term),
-      queryFn: ({signal}): Promise<BrowseFacetGroup> => this.getMapped(
-        `${this.baseUrl}/facets/${encodeURIComponent(key)}`,
+      queryFn: async ({signal}) => mapBrowseFacetPage(await httpGet(
+        this.http,
+        `${this.booksUrl}/facets/${encodeURIComponent(key)}`,
         signal,
-        mapBrowseFacetPage,
         httpParams,
-      ),
+      )),
       ...QUERY_DEFAULTS,
     });
   }
@@ -135,8 +134,9 @@ export class BookQueryService {
 
     return queryOptions({
       queryKey: bookQueryKeys.ids(normalized),
-      queryFn: ({signal}) => this.get<number[]>(
-        `${this.baseUrl}/ids`,
+      queryFn: ({signal}) => httpGet<number[]>(
+        this.http,
+        `${this.booksUrl}/ids`,
         signal,
         toIdsHttpParams(normalized),
       ),
@@ -149,11 +149,21 @@ export class BookQueryService {
   detail(bookId: number, {withDescription}: BookDescriptionOptions) {
     return queryOptions({
       queryKey: bookQueryKeys.detail(bookId, withDescription),
-      queryFn: ({signal}): Promise<BookDetail> => this.get<BookDetail>(
-        `${this.baseUrl}/${bookId}`,
+      queryFn: ({signal}) => httpGet<BookDetail>(
+        this.http,
+        `${this.booksUrl}/${bookId}`,
         signal,
-        new HttpParams().set('withDescription', withDescription.toString()),
+        {withDescription},
       ),
+      ...QUERY_DEFAULTS,
+    });
+  }
+
+  reviews(bookId: number) {
+    return queryOptions({
+      queryKey: bookQueryKeys.reviews(bookId),
+      queryFn: async ({signal}): Promise<readonly BookReviewResponse[]> =>
+        (await httpGet<readonly BookReviewResponse[] | null>(this.http, `${this.reviewsUrl}/book/${bookId}`, signal)) ?? [],
       ...QUERY_DEFAULTS,
     });
   }
@@ -162,7 +172,7 @@ export class BookQueryService {
     const distinctIds = [...new Set(ids)];
     return queryOptions({
       queryKey: bookQueryKeys.batch(distinctIds),
-      queryFn: ({signal}): Promise<BookSummary[]> => this.fetchBatch(distinctIds, signal),
+      queryFn: ({signal}) => this.fetchBatch(distinctIds, signal),
       ...QUERY_DEFAULTS,
     });
   }
@@ -170,74 +180,54 @@ export class BookQueryService {
   recommendations(bookId: number, limit: number) {
     return queryOptions({
       queryKey: bookQueryKeys.recommendation(bookId, limit),
-      queryFn: ({signal}): Promise<BookRecommendation[]> => this.get<BookRecommendation[]>(
-        `${this.baseUrl}/${bookId}/recommendations`,
+      queryFn: ({signal}) => httpGet<BookRecommendation[]>(
+        this.http,
+        `${this.booksUrl}/${bookId}/recommendations`,
         signal,
-        new HttpParams().set('limit', limit.toString()),
+        {limit},
       ),
       ...QUERY_DEFAULTS,
     });
   }
 
   duplicates(request: BookDuplicateRequest) {
-    const criteria = {...request};
     return queryOptions({
+      queryKey: bookQueryKeys.duplicates(request),
+      queryFn: ({signal}) => toAbortablePromise(
+        this.http.post<BookDuplicateGroup[]>(`${this.booksUrl}/duplicates`, request), signal),
       ...QUERY_DEFAULTS,
-      queryKey: bookQueryKeys.duplicates(criteria),
-      queryFn: ({signal}) => this.finalize(
-        this.http.post<BookDuplicateGroup[]>(`${this.baseUrl}/duplicates`, criteria), signal),
       staleTime: 0,
     });
   }
 
-  private fetchPage(
+  private async fetchPage(
     params: BookPageParams,
     nextHref: string | null,
     signal: AbortSignal,
   ): Promise<BookPage> {
     if (nextHref !== null) {
-      return this.getMapped(
-        `${API_CONFIG.BASE_URL}${nextHref}`,
-        signal,
-        mapBrowsePage<BookSummary>,
-      );
+      return mapBrowsePage<BookSummary>(await httpGet(this.http, `${API_CONFIG.BASE_URL}${nextHref}`, signal));
     }
 
-    return this.getMapped(
-      `${this.baseUrl}/page`,
+    return mapBrowsePage<BookSummary>(await httpGet(
+      this.http,
+      `${this.booksUrl}/page`,
       signal,
-      mapBrowsePage<BookSummary>,
       toPageHttpParams(params),
-    );
+    ));
   }
 
   private async fetchBatch(ids: readonly number[], signal: AbortSignal): Promise<BookSummary[]> {
     const books: BookSummary[] = [];
     for (let offset = 0; offset < ids.length; offset += BOOK_BATCH_CHUNK_SIZE) {
       const chunk = ids.slice(offset, offset + BOOK_BATCH_CHUNK_SIZE);
-      books.push(...await this.get<BookSummary[]>(
-        `${this.baseUrl}/batch`,
+      books.push(...await httpGet<BookSummary[]>(
+        this.http,
+        `${this.booksUrl}/batch`,
         signal,
-        new HttpParams().set('ids', chunk.join(',')),
+        {ids: chunk.join(',')},
       ));
     }
     return books;
-  }
-
-  private get<T>(url: string, signal: AbortSignal, params?: HttpParams): Promise<T> {
-    return this.finalize(this.http.get<T>(url, {params}), signal);
-  }
-
-  private getMapped<TRaw, T>(
-    url: string,
-    signal: AbortSignal,
-    project: (value: TRaw) => T,
-    params?: HttpParams,
-  ): Promise<T> {
-    return this.finalize(this.http.get<TRaw>(url, {params}).pipe(map(project)), signal);
-  }
-
-  private finalize<T>(source: Observable<T>, signal: AbortSignal): Promise<T> {
-    return lastValueFrom(source.pipe(takeUntil(abortSignal(signal))));
   }
 }

@@ -59,7 +59,7 @@ import {
 import {
   type BookFileResponse,
   type BookSummary,
-  type KnownBookReadStatus,
+  type BookReadStatus,
 } from '../../data/book-response.models';
 import {ShelfDefinitionQueryService} from '../../data/shelf-definition-query.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
@@ -306,7 +306,7 @@ export class BookMenuComponent {
     void this.dialogHelper.openShelfCreatorDialog();
   }
 
-  protected onSetReadStatus(status: KnownBookReadStatus): void {
+  protected onSetReadStatus(status: BookReadStatus): void {
     this.readStatusMutation.mutate({bookIds: [this.book()!.id], status});
   }
 

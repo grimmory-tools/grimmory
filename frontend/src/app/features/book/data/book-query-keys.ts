@@ -31,6 +31,8 @@ export const bookQueryKeys = {
     [...bookQueryKeys.details(), bookId] as const,
   detail: (bookId: number, withDescription: boolean) =>
     [...bookQueryKeys.detailQueries(bookId), {withDescription}] as const,
+  reviews: (bookId: number) =>
+    [...bookQueryKeys.detailQueries(bookId), 'reviews'] as const,
   batches: () => [...bookQueryKeys.collections(), 'batch'] as const,
   batch: (ids: readonly number[]) =>
     [...bookQueryKeys.batches(), ids] as const,

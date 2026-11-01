@@ -12,7 +12,7 @@ import {
 import {DeleteBooksPartialError, type BookProgressSource} from '../data/book-command.models';
 import {BookCommandService} from '../data/book-command.service';
 import {BookShelfCommandService} from '../data/book-shelf-command.service';
-import {type BookSummary, type KnownBookReadStatus} from '../data/book-response.models';
+import {type BookSummary, type BookReadStatus} from '../data/book-response.models';
 import {MetadataRefreshSubmissionService} from '../../metadata/data/metadata-refresh-submission.service';
 import {type BookFileAttacherSourceBook} from '../components/book-file-attacher/book-file-attacher.component';
 import {BookDialogHelperService} from '../service/book-dialog-helper.service';
@@ -201,7 +201,7 @@ export function createBookBrowseBulkCommands({selection, books, fetchIds}: BookB
       });
     },
 
-    markAs(status: KnownBookReadStatus): void {
+    markAs(status: BookReadStatus): void {
       const statusLabel = transloco.translate(
         status === 'UNSET' ? CLEAR_BOOK_READ_STATUS_LABEL_KEY : BOOK_READ_STATUS_LABEL_KEYS[status],
       );
