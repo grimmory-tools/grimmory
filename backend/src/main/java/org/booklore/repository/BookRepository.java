@@ -101,7 +101,7 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
     @Query("SELECT b FROM BookEntity b WHERE b.library.id = :libraryId AND (b.deleted IS NULL OR b.deleted = false)")
     List<BookEntity> findAllWithMetadataByLibraryId(@Param("libraryId") Long libraryId);
 
-    @EntityGraph(attributePaths = {"metadata", "bookFiles", "library"})
+    @EntityGraph(attributePaths = {"metadata", "metadata.comicMetadata", "bookFiles", "library"})
     @Query("SELECT b FROM BookEntity b WHERE b.library.id = :libraryId AND (b.deleted IS NULL OR b.deleted = false)")
     List<BookEntity> findAllByLibraryIdWithFiles(@Param("libraryId") Long libraryId);
 
@@ -114,7 +114,7 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
     List<BookEntity> findDeletedByLibraryIdWithFiles(@Param("libraryId") Long libraryId);
 
     // Only ToOne paths in EntityGraph; collections (authors, bookFiles) loaded via @BatchSize.
-    @EntityGraph(attributePaths = {"metadata", "libraryPath"})
+    @EntityGraph(attributePaths = {"metadata", "metadata.comicMetadata", "libraryPath"})
     @Query("SELECT b FROM BookEntity b WHERE b.library.id = :libraryId AND (b.deleted IS NULL OR b.deleted = false)")
     List<BookEntity> findAllForDuplicateDetection(@Param("libraryId") Long libraryId);
 
@@ -479,6 +479,7 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
     @Query("""
             SELECT DISTINCT b FROM BookEntity b
             LEFT JOIN FETCH b.metadata m
+            LEFT JOIN FETCH m.comicMetadata
             LEFT JOIN FETCH m.authors
             LEFT JOIN FETCH m.categories
             WHERE (b.deleted IS NULL OR b.deleted = false)

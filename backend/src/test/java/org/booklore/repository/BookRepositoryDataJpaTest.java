@@ -62,6 +62,9 @@ class BookRepositoryDataJpaTest {
     @Autowired
     private BookRepository bookRepository;
 
+    @Autowired
+    private BookOpdsRepository bookOpdsRepository;
+
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -202,7 +205,12 @@ class BookRepositoryDataJpaTest {
                 "findAllWithMetadataByIds", () -> bookRepository.findAllWithMetadataByIds(new HashSet<>(fixture.bookIds())),
                 "findAllWithMetadataByLibraryIds", () -> bookRepository.findAllWithMetadataByLibraryIds(List.of(libraryId)),
                 "findAllWithMetadataPage", () -> bookRepository.findAllWithMetadataPage(PageRequest.of(0, 50)).getContent(),
-                "findAllWithMetadataByLibraryId", () -> bookRepository.findAllWithMetadataByLibraryId(libraryId));
+                "findAllWithMetadataByLibraryId", () -> bookRepository.findAllWithMetadataByLibraryId(libraryId),
+                "findAllByLibraryIdWithFiles", () -> bookRepository.findAllByLibraryIdWithFiles(libraryId),
+                "findAllForDuplicateDetection", () -> bookRepository.findAllForDuplicateDetection(libraryId),
+                "findAllForRecommendation", () -> bookRepository.findAllForRecommendation(-1L),
+                "opds findAllWithMetadataByIds", () -> bookOpdsRepository.findAllWithMetadataByIds(fixture.bookIds()),
+                "opds findAllWithFullMetadataByIds", () -> bookOpdsRepository.findAllWithFullMetadataByIds(fixture.bookIds()));
 
         queries.forEach((query, load) -> assertLoadsComicMetadataInOneStatement(query, load, fixture));
     }
