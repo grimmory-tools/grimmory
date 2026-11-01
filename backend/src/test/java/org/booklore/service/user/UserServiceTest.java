@@ -135,7 +135,7 @@ class UserServiceTest {
     void updateUserProfile_rejectsUnsupportedLocale() {
         BookLoreUserEntity user = userEntity(1L);
         UserProfileUpdateRequest request = new UserProfileUpdateRequest();
-        request.setLocale("zz");
+        request.setLocale("z");
 
         when(userRepository.findByIdWithDetails(1L)).thenReturn(Optional.of(user));
         when(authenticationService.getAuthenticatedUser()).thenReturn(currentUser(1L, false));

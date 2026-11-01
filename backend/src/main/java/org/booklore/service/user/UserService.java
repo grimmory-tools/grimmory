@@ -26,15 +26,12 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private static final Set<String> SUPPORTED_LOCALES = Set.of(
-            "en", "es", "it", "de", "fr", "nl", "pl", "pt", "ru", "hr",
-            "sv", "zh", "ja", "hu", "sl", "sk", "uk", "id", "da"
-    );
     private static final Set<String> SUPPORTED_THEMES = Set.of(
             "grimmory", "cobalt", "ember", "crimson", "rose", "forest",
             "meadow", "teal", "lagoon", "violet", "fuchsia", "slate", "custom"
@@ -245,7 +242,7 @@ public class UserService {
     }
 
     private void validateLocale(String locale) {
-        if (!SUPPORTED_LOCALES.contains(locale)) {
+        if (!locale.equals(locale.toLowerCase(Locale.ROOT)) || locale.length() < 2 || locale.length() > 3) {
             throw ApiError.INVALID_INPUT.createException("Unsupported locale: " + locale);
         }
     }
