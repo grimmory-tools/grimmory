@@ -250,7 +250,7 @@
           [icon]="moveFilesMutation.isPending() ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
           severity="success"
           (click)="saveChanges()"
-          [disabled]="moveFilesMutation.isPending()" />
+          [disabled]="moveFilesMutation.isPending() || !booksQuery.isSuccess() || bookIds.length === 0" />
       } @else {
         <p-button
           label="Close"
