@@ -242,7 +242,7 @@ public class UserService {
     }
 
     private void validateLocale(String locale) {
-        if (!locale.equals(locale.toLowerCase(Locale.ROOT)) || locale.length() < 2 || locale.length() > 3) {
+        if (!locale.matches("^[a-z]{2,3}$")) {
             throw ApiError.INVALID_INPUT.createException("Unsupported locale: " + locale);
         }
     }

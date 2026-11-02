@@ -12,6 +12,8 @@ import org.booklore.repository.UserRepository;
 import org.booklore.service.audit.AuditService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -131,11 +133,12 @@ class UserServiceTest {
         verify(userRepository).save(user);
     }
 
-    @Test
-    void updateUserProfile_rejectsUnsupportedLocale() {
+    @ParameterizedTest(name = "Rejects unsupported locale {0}")
+    @ValueSource(strings = { "z", "zzzz", "-", "--", "---", "ZZ", "  ", "1", "12", "123" })
+    void updateUserProfile_rejectsUnsupportedLocale(String locale) {
         BookLoreUserEntity user = userEntity(1L);
         UserProfileUpdateRequest request = new UserProfileUpdateRequest();
-        request.setLocale("z");
+        request.setLocale(locale);
 
         when(userRepository.findByIdWithDetails(1L)).thenReturn(Optional.of(user));
         when(authenticationService.getAuthenticatedUser()).thenReturn(currentUser(1L, false));
