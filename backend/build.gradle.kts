@@ -141,7 +141,7 @@ dependencies {
     implementation("org.grimmory:epub4j-core:2.1.0")
 
     // --- Audio Metadata (Audiobook Support) ---
-    implementation("com.github.RouHim:jaudiotagger:2.0.27")
+    implementation("com.github.RouHim:jaudiotagger:2.0.40")
 
     // --- Archive Support ---
     implementation("com.github.junrar:junrar:8.1.2")
