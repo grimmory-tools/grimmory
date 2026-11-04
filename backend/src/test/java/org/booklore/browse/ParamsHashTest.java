@@ -49,6 +49,12 @@ class ParamsHashTest {
     }
 
     @Test
+    void facetPrefixChangesHash() {
+        assertThat(ParamsHash.compute(null, Map.of("author", List.of("A")), FacetLogic.OR))
+                .isNotEqualTo(ParamsHash.compute(null, Map.of("-author", List.of("A")), FacetLogic.OR));
+    }
+
+    @Test
     void facetSelectionChangesHash() {
         assertThat(ParamsHash.compute(null, Map.of("author", List.of("A")), FacetLogic.AND))
                 .isNotEqualTo(ParamsHash.compute(null, Map.of("author", List.of("B")), FacetLogic.AND));

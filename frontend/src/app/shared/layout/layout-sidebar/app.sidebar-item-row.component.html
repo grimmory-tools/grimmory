@@ -4,7 +4,7 @@
   [class.menu-open]="menuOpen()"
 >
   @let currentItem = item();
-  @let count = displayCount();
+  @let count = currentItem.bookCount;
 
   @if (currentItem.action) {
     <button

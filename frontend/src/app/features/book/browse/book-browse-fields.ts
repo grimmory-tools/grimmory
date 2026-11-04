@@ -15,7 +15,7 @@ import {
   type BookQuerySortKey,
   type SortDirection,
 } from '../data/book-query-params';
-import {type BookSummary, type KnownBookReadStatus} from '../data/book-response.models';
+import {type BookSummary, type BookReadStatus} from '../data/book-response.models';
 import {MATCH_SCORE_BANDS} from '../model/book-value-labels';
 
 export type BookColumnKind = 'text' | 'number' | 'rating' | 'date' | 'fileSize' | 'readStatus';
@@ -46,6 +46,7 @@ interface FacetField {
   readonly stars?: number;
   readonly fileSize?: true;
   readonly openByDefault?: true;
+  readonly multiValued?: true;
   readonly bookValues?: (book: BookSummary) => readonly string[];
   readonly valueLabel?: (value: string, deps: BookFacetLabelDeps) => string | null;
   readonly valueIcon?: (value: string, deps: BookFacetLabelDeps) => IconSelection | null;
@@ -96,7 +97,7 @@ const READ_STATUS_LABEL_KEYS = new Map<string, string>(Object.entries({
   WONT_READ: 'wontRead',
   ABANDONED: 'abandoned',
   UNSET: 'unset',
-} satisfies Record<KnownBookReadStatus, string>));
+} satisfies Record<BookReadStatus, string>));
 
 const CONTENT_RATING_LABEL_KEYS = new Map([
   ['EVERYONE', 'everyone'],
@@ -140,7 +141,7 @@ const FIELDS = [
   },
   {
     labelKey: 'book.fields.author',
-    facet: {key: 'author', openByDefault: true, bookValues: book => book.metadata?.authors ?? []},
+    facet: {key: 'author', multiValued: true, openByDefault: true, bookValues: book => book.metadata?.authors ?? []},
     sort: {key: 'authorName', group: 'common', defaultDirection: 'asc', kind: 'alphabetical', detailLine: false},
     column: {key: 'authorName', group: 'publishing', defaultVisible: true,
       defaultWidth: 220, value: book => book.metadata?.authors?.join(', ') ?? ''},
@@ -171,17 +172,17 @@ const FIELDS = [
   },
   {
     labelKey: 'book.fields.genre',
-    facet: {key: 'genre', openByDefault: true, bookValues: book => book.metadata?.categories ?? []},
+    facet: {key: 'genre', multiValued: true, openByDefault: true, bookValues: book => book.metadata?.categories ?? []},
     column: {key: 'categories', group: 'categorization', defaultVisible: true,
       defaultWidth: 220, value: book => book.metadata?.categories?.join(', ') ?? ''},
   },
   {
     labelKey: 'book.fields.tag',
-    facet: {key: 'tag', openByDefault: true},
+    facet: {key: 'tag', multiValued: true, openByDefault: true},
   },
   {
     labelKey: 'book.fields.mood',
-    facet: {key: 'mood'},
+    facet: {key: 'mood', multiValued: true},
   },
   {
     labelKey: 'book.fields.language',
@@ -197,7 +198,7 @@ const FIELDS = [
   },
   {
     labelKey: 'book.fields.fileType',
-    facet: {key: 'file_type'},
+    facet: {key: 'file_type', multiValued: true},
   },
   {
     labelKey: 'book.fields.readStatus',
@@ -348,6 +349,7 @@ const FIELDS = [
     labelKey: 'book.fields.shelf',
     facet: {
       key: 'shelf',
+      multiValued: true,
       valueLabel: (value, deps) => deps.shelf(value)?.name ?? null,
       valueIcon: (value, deps) => entityIcon(deps.shelf(value)),
     },
@@ -386,10 +388,10 @@ const FIELDS = [
           : null,
     },
   },
-  {labelKey: 'book.fields.comicCharacter', facet: {key: 'comic_character'}},
-  {labelKey: 'book.fields.comicTeam', facet: {key: 'comic_team'}},
-  {labelKey: 'book.fields.comicLocation', facet: {key: 'comic_location'}},
-  {labelKey: 'book.fields.comicCreator', facet: {key: 'comic_creator'}},
+  {labelKey: 'book.fields.comicCharacter', facet: {key: 'comic_character', multiValued: true}},
+  {labelKey: 'book.fields.comicTeam', facet: {key: 'comic_team', multiValued: true}},
+  {labelKey: 'book.fields.comicLocation', facet: {key: 'comic_location', multiValued: true}},
+  {labelKey: 'book.fields.comicCreator', facet: {key: 'comic_creator', multiValued: true}},
 ] as const satisfies readonly BookBrowseField[];
 
 const COLUMN_ORDER = [
@@ -458,7 +460,7 @@ export const OPEN_RAIL_FACETS: ReadonlySet<BookQueryFacetKey> = new Set(
 );
 export const COLUMNS: readonly ColumnEntry[] = COLUMN_ORDER.map(key => COLUMNS_BY_KEY.get(key)!);
 
-export function bookReadStatusLabelKey(status: BookSummary['readStatus']): string | null {
+export function bookReadStatusLabelKey(status: string): string | null {
   const key = status && status !== 'UNSET' ? READ_STATUS_LABEL_KEYS.get(status) : undefined;
   return key ? `book.filter.readStatus.${key}` : null;
 }

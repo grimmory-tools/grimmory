@@ -5,7 +5,6 @@ import {MagicShelfComponent, Rule, RuleOperator} from './magic-shelf-component';
 import {TranslocoService} from '@jsverse/transloco';
 import {LibraryService} from '../../book/service/library.service';
 import {ShelfService} from '../../book/service/shelf.service';
-import {BookService} from '../../book/service/book.service';
 import {MagicShelfService} from '../service/magic-shelf.service';
 import {MessageService} from '@openng/optimus-ui/api';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
@@ -29,7 +28,6 @@ describe('MagicShelfComponent (Part 3)', () => {
         {provide: TranslocoService, useValue: mockTransloco},
         {provide: LibraryService, useValue: {getLibrariesFromState: vi.fn(() => [])}},
         {provide: ShelfService, useValue: {shelves$: of([])}},
-        {provide: BookService, useValue: {bookState$: of({loaded: false, books: []})}},
         {provide: MagicShelfService, useValue: {}},
         {provide: MessageService, useValue: {add: vi.fn()}},
         {provide: DynamicDialogRef, useValue: {close: vi.fn()}},

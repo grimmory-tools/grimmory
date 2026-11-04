@@ -50,6 +50,7 @@ export function bookFacetDefinitions(deps: BookFacetLabelDeps): BrowseFacetDefin
     valueOrder: key => FACET_FIELDS.get(key)?.facet.order,
     valueDomain: key => FACET_FIELDS.get(key)?.facet.domain,
     banded: key => FACET_FIELDS.get(key)?.facet.banded ?? false,
+    multiValued: key => FACET_FIELDS.get(key)?.facet.multiValued ?? false,
     starScale: key => FACET_FIELDS.get(key)?.facet.stars,
     fileSize: key => FACET_FIELDS.get(key)?.facet.fileSize ?? false,
     valueLabel: (key, value) => FACET_FIELDS.get(key)?.facet.valueLabel?.(value, deps) ?? null,

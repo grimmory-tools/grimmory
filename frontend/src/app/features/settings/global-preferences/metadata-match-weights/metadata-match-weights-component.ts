@@ -16,8 +16,6 @@ const GENERIC_WEIGHT_KEYS = [
   'language', 'isbn13', 'isbn10', 'pageCount',
 ];
 
-const DOUBAN_WEIGHT_KEYS = ['doubanRating', 'doubanReviewCount'];
-
 @Component({
   selector: 'app-metadata-match-weights-component',
   imports: [
@@ -42,7 +40,6 @@ export class MetadataMatchWeightsComponent {
   readonly orderedKeys = computed(() => [
     ...GENERIC_WEIGHT_KEYS,
     ...this.providerFields.scoreFields().map(field => field.name),
-    ...DOUBAN_WEIGHT_KEYS,
   ]);
 
   form: FormGroup = this.buildForm();

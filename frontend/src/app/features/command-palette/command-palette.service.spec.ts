@@ -127,7 +127,6 @@ describe('CommandPaletteService', () => {
     TestBed.flushEffects();
 
     const request = http.expectOne(request => request.url.endsWith('/api/v1/books/page'));
-    expect(request.request.params.get('facet_logic')).toBe('or');
     expect(request.request.params.get('query')).toBe(query);
     expect(request.request.params.get('sort')).toBe('title');
     expect(request.request.params.get('size')).toBe('50');
@@ -148,7 +147,6 @@ describe('CommandPaletteService', () => {
     await vi.advanceTimersByTimeAsync(1);
     TestBed.flushEffects();
     const request = http.expectOne(request => request.url.endsWith('/api/v1/books/page'));
-    expect(request.request.params.get('facet_logic')).toBe('or');
     expect(request.request.params.get('query')).toBe('it');
     expect(request.request.params.get('sort')).toBe('title');
     expect(request.request.params.get('size')).toBe('50');

@@ -3,7 +3,6 @@ import {signal} from '@angular/core';
 import {provideHttpClient} from '@angular/common/http';
 import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
 import {TestBed} from '@angular/core/testing';
-import type {AutoCompleteCompleteEvent} from '@openng/optimus-ui/autocomplete';
 import {MessageService} from '@openng/optimus-ui/api';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {TranslocoService} from '@jsverse/transloco';
@@ -48,28 +47,12 @@ describe('AddPhysicalBookDialogComponent', () => {
   function createHarness(options: {
     dialogData?: {libraryId?: number};
     librariesData?: Library[];
-    metadataValues?: {
-      authors: string[];
-      categories: string[];
-      moods: string[];
-      tags: string[];
-      publishers: string[];
-      series: string[];
-    };
     createResult$?: Observable<Book>;
   } = {}) {
     const libraries = signal<Library[]>(options.librariesData ?? [
       createLibrary({id: 1, name: 'Main Library'}),
       createLibrary({id: 2, name: 'Branch Library'}),
     ]);
-    const uniqueMetadata = signal(options.metadataValues ?? {
-      authors: ['Ursula Le Guin', 'Octavia Butler', 'Robin Hobb'],
-      categories: ['Science Fiction', 'Epic Fantasy', 'Mystery'],
-      moods: [],
-      tags: [],
-      publishers: [],
-      series: [],
-    });
     const createResult$ = options.createResult$ ?? new Subject<Book>();
     const createPhysicalBook = vi.fn(() => createResult$);
     const dialogRef = {close: vi.fn()};
@@ -83,7 +66,7 @@ describe('AddPhysicalBookDialogComponent', () => {
         {provide: DynamicDialogRef, useValue: dialogRef},
         {provide: AppSettingsService, useValue: {appSettings: signal(null)}},
         {provide: AuthService, useValue: createAuthServiceStub()},
-        {provide: BookService, useValue: {uniqueMetadata, createPhysicalBook}},
+        {provide: BookService, useValue: {createPhysicalBook}},
         {provide: LibraryService, useValue: {libraries}},
         {provide: MessageService, useValue: {add: vi.fn()}},
         {provide: TranslocoService, useValue: {translate: (key: string) => key}},
@@ -96,7 +79,6 @@ describe('AddPhysicalBookDialogComponent', () => {
     return {
       component,
       libraries,
-      uniqueMetadata,
       createResult$,
       createPhysicalBook,
       dialogRef,
@@ -142,16 +124,6 @@ describe('AddPhysicalBookDialogComponent', () => {
     });
 
     expect(component.selectedLibraryId).toBe(1);
-  });
-
-  it('filters authors and categories with case-insensitive substring matches', () => {
-    const {component} = createHarness();
-
-    component.filterAuthors({query: 'taV', originalEvent: new Event('input')} as AutoCompleteCompleteEvent);
-    component.filterCategories({query: 'fic', originalEvent: new Event('input')} as AutoCompleteCompleteEvent);
-
-    expect(component.filteredAuthors).toEqual(['Octavia Butler']);
-    expect(component.filteredCategories).toEqual(['Science Fiction']);
   });
 
   it('adds entered autocomplete values once and clears the input after Enter', () => {

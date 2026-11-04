@@ -23,20 +23,25 @@ import {libraryShelfMenuAvailable} from '../components/library-shelf-menu/librar
 import {
   browseFilterGroups,
   browseFilterChips,
+  browseFacetPicks,
+  browseFacetValues,
+  withBrowseFacetMatchAll,
+  withBrowseFacetState,
   withBrowseFacetRange,
   type BrowseFacetDefinitions,
   type BrowseFilterChip,
   type BrowseFilterGroup,
+  type BrowseFilterMatchAll,
   type BrowseFilterOpen,
   type BrowseFilterRangeCommit,
   type BrowseFilterSearch,
+  type BrowseFilterToggle,
 } from '../../../shared/browse/facets';
 import {bookFacetDefinitions, bookFacetLabelDeps} from './book-browse-facet-definitions';
 import {FACET_FIELDS, OPEN_RAIL_FACETS} from './book-browse-fields';
 import {
   bookBrowseScopeMenuTarget,
   bookBrowseScopeTitle,
-  scopedFacetSelection,
   type BookBrowseScope,
 } from './book-browse-scope';
 
@@ -57,20 +62,20 @@ export function createBookBrowseQueries({selection, query, scope, enabled}: Book
   const activeLang = toSignal(transloco.langChanges$, {initialValue: transloco.getActiveLang()});
 
   const collectionParams = computed<BookCollectionFilterParams>(() => ({
-    facets: scopedFacetSelection(selection(), scope()),
-    facetLogic: 'or',
+    facets: selection(),
+    scope: scope() ?? undefined,
     query: normalizeRemoteSearchTerm(query()) || undefined,
   }));
   const scopeParams = computed<BookCollectionFilterParams>(() => ({
-    facets: scopedFacetSelection(EMPTY_FACET_SELECTION, scope()),
-    facetLogic: 'or',
+    facets: EMPTY_FACET_SELECTION,
+    scope: scope() ?? undefined,
   }));
   const isEnabled = () => enabled?.() ?? true;
 
   const indexQuery = injectQuery(() => bookQuery.facetIndex(scopeParams()));
   const available = computed<ReadonlySet<string>>(() => new Set(indexQuery.data()?.facetKeys));
 
-  const selectedKeys = BOOK_QUERY_FACET_KEYS.filter(key => (selection()[key]?.length ?? 0) > 0);
+  const selectedKeys = BOOK_QUERY_FACET_KEYS.filter(key => selection()[key] !== undefined);
   const openKeys = signal<ReadonlySet<BookQueryFacetKey>>(new Set([...OPEN_RAIL_FACETS, ...selectedKeys]));
   const searchTerms = signal<Readonly<Partial<Record<BookQueryFacetKey, string>>>>({});
   const debouncedSearchTerms = debouncedSignal(searchTerms, SEARCH_DEBOUNCE_MS);
@@ -119,7 +124,7 @@ export function createBookBrowseQueries({selection, query, scope, enabled}: Book
   const definitions = computed<BrowseFacetDefinitions<BookQueryFacetKey>>(() => {
     activeLang();
     return bookFacetDefinitions(bookFacetLabelDeps(
-      shelfDefinitions(),
+      [...shelfDefinitions(), ...magicShelfService.shelves().map(shelf => ({...shelf, id: `magic:${shelf.id}`}))],
       libraryService.libraries(),
       key => transloco.translate(key),
     ));
@@ -128,10 +133,17 @@ export function createBookBrowseQueries({selection, query, scope, enabled}: Book
     () => browseFilterGroups(available(), served(), definitions(), selection()),
     stale,
   );
+  const matchAllKeys = signal<ReadonlySet<BookQueryFacetKey>>(
+    new Set(BOOK_QUERY_FACET_KEYS.filter(key => selection()[key]?.matchAll)));
+  const isMatchAll = (key: BookQueryFacetKey) => {
+    const values = browseFacetValues(selection(), key);
+    return values.include.length > 0 ? values.matchAll === true : matchAllKeys().has(key);
+  };
   const railGroups = computed<BrowseFilterGroup<BookQueryFacetKey>[]>(() =>
     frame().map(group => ({
       ...group,
-      picks: new Set(selection()[group.key] ?? []),
+      picks: browseFacetPicks(browseFacetValues(selection(), group.key)),
+      matchAll: isMatchAll(group.key),
       loading: loadingKeys().has(group.key),
     })));
   const chips = computed<BrowseFilterChip<BookQueryFacetKey>[]>(() =>
@@ -173,9 +185,16 @@ export function createBookBrowseQueries({selection, query, scope, enabled}: Book
       open ? new Set([...keys, key]) : new Set([...keys].filter(openKey => openKey !== key))),
     setSearch: ({key, term}: BrowseFilterSearch<BookQueryFacetKey>) =>
       searchTerms.update(terms => ({...terms, [key]: term})),
-    withRange: (current: FacetValueMap, {key, min, max}: BrowseFilterRangeCommit<BookQueryFacetKey>) => {
+    withState: ({key, value, state}: BrowseFilterToggle<BookQueryFacetKey>) =>
+      withBrowseFacetState(selection(), key, value, state, isMatchAll(key)),
+    chooseMatchAll: ({key, matchAll}: BrowseFilterMatchAll<BookQueryFacetKey>) => {
+      matchAllKeys.update(keys =>
+        matchAll ? new Set([...keys, key]) : new Set([...keys].filter(matchKey => matchKey !== key)));
+      return withBrowseFacetMatchAll(selection(), key, matchAll);
+    },
+    withRange: ({key, min, max}: BrowseFilterRangeCommit<BookQueryFacetKey>) => {
       const bands = served().find(group => group.key === key)?.values ?? [];
-      return withBrowseFacetRange(current, key, min, max, new Set(bands.map(value => value.value)));
+      return withBrowseFacetRange(selection(), key, min, max, new Set(bands.map(value => value.value)));
     },
   };
 }

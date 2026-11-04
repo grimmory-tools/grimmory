@@ -1,5 +1,6 @@
 package org.booklore.service.browse;
 
+import org.booklore.browse.FacetLogic;
 import org.booklore.exception.ApiError;
 
 import java.net.URLEncoder;
@@ -65,7 +66,18 @@ final class BrowseParams {
         if (colon <= 0 || colon == entry.length() - 1) {
             return false;
         }
-        return entry.substring(0, colon).equals(key) && entry.substring(colon + 1).equalsIgnoreCase(value);
+        return unmarked(entry.substring(0, colon)).equals(key) && entry.substring(colon + 1).equalsIgnoreCase(value);
+    }
+
+    static String unmarked(String key) {
+        return key.startsWith("+") || key.startsWith("-") ? key.substring(1) : key;
+    }
+
+    static FacetLogic logic(String key, FacetLogic unmarked) {
+        if (key.startsWith("+")) {
+            return FacetLogic.AND;
+        }
+        return key.startsWith("-") ? FacetLogic.NOT : unmarked;
     }
 
     static String encode(String value) {

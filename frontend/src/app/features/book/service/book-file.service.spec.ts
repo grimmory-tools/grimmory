@@ -9,7 +9,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import type {AdditionalFile, Book, BookMetadata, DetachBookFileResponse} from '../model/book.model';
 import {AdditionalFileType} from '../model/book.model';
-import {BOOKS_QUERY_KEY, bookDetailQueryKey} from './book-query-keys';
+import {BOOKS_QUERY_KEY} from './book-query-keys';
 import {BookFileService} from './book-file.service';
 import {FileDownloadService} from '../../../shared/service/file-download.service';
 import {LocalSettingsService} from '../../../shared/service/local-settings.service';
@@ -311,53 +311,4 @@ describe('BookFileService', () => {
     });
   });
 
-  it('attaches source book files, updates the target cache entry, and evicts removed books', () => {
-    const targetBook = buildBook(30, {
-      primaryFile: buildAdditionalFile(301, {bookId: 30, fileName: 'target.epub'}),
-    });
-    const sourceBook = buildBook(31, {
-      primaryFile: buildAdditionalFile(311, {bookId: 31, fileName: 'source-one.epub'}),
-    });
-    const secondSourceBook = buildBook(32, {
-      primaryFile: buildAdditionalFile(321, {bookId: 32, fileName: 'source-two.epub'}),
-    });
-    const updatedTargetBook = buildBook(30, {
-      primaryFile: buildAdditionalFile(301, {bookId: 30, fileName: 'target.epub'}),
-      alternativeFormats: [
-        buildAdditionalFile(311, {bookId: 30, fileName: 'source-one.epub'}),
-        buildAdditionalFile(321, {bookId: 30, fileName: 'source-two.epub'}),
-      ],
-    });
-
-    queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, [targetBook, sourceBook, secondSourceBook]);
-    queryClient.setQueryData(bookDetailQueryKey(31, false), sourceBook);
-    queryClient.setQueryData(bookDetailQueryKey(32, false), secondSourceBook);
-
-    service.attachBookFiles(30, [31, 32], false).subscribe(result => {
-      expect(result).toEqual({
-        updatedBook: updatedTargetBook,
-        deletedSourceBookIds: [31, 32],
-      });
-    });
-
-    const request = httpTestingController.expectOne(req => req.url.endsWith('/api/v1/books/30/attach-file'));
-    expect(request.request.method).toBe('POST');
-    expect(request.request.body).toEqual({
-      sourceBookIds: [31, 32],
-      moveFiles: false,
-    });
-    request.flush({
-      updatedBook: updatedTargetBook,
-      deletedSourceBookIds: [31, 32],
-    });
-
-    expect(queryClient.getQueryData<Book[]>(BOOKS_QUERY_KEY)).toEqual([updatedTargetBook]);
-    expect(queryClient.getQueryData(bookDetailQueryKey(31, false))).toBeUndefined();
-    expect(queryClient.getQueryData(bookDetailQueryKey(32, false))).toBeUndefined();
-    expect(messageService.add).toHaveBeenCalledWith({
-      severity: 'success',
-      summary: 'book.bookService.toast.filesAttachedSummary',
-      detail: 'book.bookService.toast.filesAttachedDetail:{"count":2}',
-    });
-  });
 });

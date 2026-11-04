@@ -82,9 +82,7 @@ export class MagicShelfService {
     return this.http.post<MagicShelf>(this.url, payload).pipe(
       tap(() => {
         void this.queryClient.invalidateQueries({queryKey: MAGIC_SHELVES_QUERY_KEY, exact: true});
-        if (data.id != null) {
-          void invalidateBookCollections(this.queryClient);
-        }
+        void invalidateBookCollections(this.queryClient);
       })
     );
   }

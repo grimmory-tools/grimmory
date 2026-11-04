@@ -10,12 +10,12 @@ import {
   type BookFileResponse,
   type BookFileType,
   type BookSummary,
-  type KnownBookReadStatus,
+  type BookReadStatus,
 } from '../book/data/book-response.models';
 import {DEFAULT_MAX_ITEMS, type ScrollerConfig, ScrollerType} from './models/dashboard-config.model';
 
-const IN_PROGRESS_STATUSES: readonly KnownBookReadStatus[] = ['READING', 'RE_READING', 'PAUSED'];
-const RANDOM_EXCLUDED_STATUSES: readonly KnownBookReadStatus[] = [
+const IN_PROGRESS_STATUSES: readonly BookReadStatus[] = ['READING', 'RE_READING', 'PAUSED'];
+const RANDOM_EXCLUDED_STATUSES: readonly BookReadStatus[] = [
   'READ',
   'PARTIALLY_READ',
   'READING',
@@ -54,14 +54,12 @@ export function dashboardRowQueryParams(config: ScrollerConfig): BookPageParams 
     case ScrollerType.LATEST_ADDED:
       return {
         facets: {},
-        facetLogic: 'or',
         sort: [{key: 'addedOn', direction: 'desc'}],
         size,
       };
     case ScrollerType.RANDOM:
       return {
-        facets: {read_status: RANDOM_EXCLUDED_STATUSES},
-        facetLogic: 'not',
+        facets: {read_status: {include: [], exclude: RANDOM_EXCLUDED_STATUSES}},
         sort: [{key: 'random', direction: 'asc'}],
         size,
       };
@@ -70,8 +68,7 @@ export function dashboardRowQueryParams(config: ScrollerConfig): BookPageParams 
         return null;
       }
       return {
-        facets: {shelf: [`magic:${config.magicShelfId}`]},
-        facetLogic: 'or',
+        facets: {shelf: {include: [`magic:${config.magicShelfId}`], exclude: []}},
         sort: magicShelfSort(config),
         size,
       };
@@ -111,8 +108,7 @@ function rowSize(config: ScrollerConfig): number {
 
 function inProgressParams(fileTypes: readonly BookFileType[], rowSize: number): BookPageParams {
   return {
-    facets: {read_status: IN_PROGRESS_STATUSES, file_type: fileTypes},
-    facetLogic: 'or',
+    facets: {read_status: {include: IN_PROGRESS_STATUSES, exclude: []}, file_type: {include: fileTypes, exclude: []}},
     sort: [{key: 'lastReadTime', direction: 'desc'}],
     size: rowSize * PROGRESS_QUERY_SIZE_MULTIPLIER,
   };

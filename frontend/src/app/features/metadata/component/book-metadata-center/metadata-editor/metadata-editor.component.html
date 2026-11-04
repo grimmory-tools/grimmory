@@ -224,10 +224,9 @@
                       class="author-add-input"
                       [(ngModel)]="authorInputValue"
                       [ngModelOptions]="{ standalone: true }"
-                      [suggestions]="filteredAuthors"
+                      appFacetSuggestions="author"
                       [forceSelection]="false"
                       [dropdown]="false"
-                      (completeMethod)="filterAuthors($event)"
                       (onKeyUp)="onAuthorInputKeyUp($event)"
                       (onSelect)="onAuthorInputSelect($event)"
                       placeholder="Add author..."
@@ -251,10 +250,9 @@
                   inputId="publisher"
                   [multiple]="false"
                   [dropdown]="false"
-                  [suggestions]="filteredPublishers"
+                  appFacetSuggestions="publisher"
                   [forceSelection]="false"
-                  [showClear]="false"
-                  (completeMethod)="filterPublishers($event)" />
+                  [showClear]="false" />
                 @if (!book.metadata!['publisherLocked']) {
                   <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('publisher')" severity="success" />
                 }
@@ -295,10 +293,9 @@
                     formControlName="categories"
                     [multiple]="true"
                     [dropdown]="false"
-                    [suggestions]="filteredCategories"
+                    appFacetSuggestions="genre"
                     [forceSelection]="false"
                     [showClear]="true"
-                    (completeMethod)="filterCategories($event)"
                     (onKeyUp)="onAutoCompleteKeyUp('categories', $event)"
                     (onSelect)="onAutoCompleteSelect('categories', $event)" />
                 </div>
@@ -321,10 +318,9 @@
                     formControlName="moods"
                     [multiple]="true"
                     [dropdown]="false"
-                    [suggestions]="filteredMoods"
+                    appFacetSuggestions="mood"
                     [forceSelection]="false"
                     [showClear]="true"
-                    (completeMethod)="filterMoods($event)"
                     (onKeyUp)="onAutoCompleteKeyUp('moods', $event)"
                     (onSelect)="onAutoCompleteSelect('moods', $event)" />
                 </div>
@@ -344,10 +340,9 @@
                     formControlName="tags"
                     [multiple]="true"
                     [dropdown]="false"
-                    [suggestions]="filteredTags"
+                    appFacetSuggestions="tag"
                     [forceSelection]="false"
                     [showClear]="true"
-                    (completeMethod)="filterTags($event)"
                     (onKeyUp)="onAutoCompleteKeyUp('tags', $event)"
                     (onSelect)="onAutoCompleteSelect('tags', $event)" />
                 </div>
@@ -371,10 +366,9 @@
                   inputId="seriesName"
                   [multiple]="false"
                   [dropdown]="false"
-                  [suggestions]="filteredSeries"
+                  appFacetSuggestions="series"
                   [forceSelection]="false"
-                  [showClear]="false"
-                  (completeMethod)="filterSeries($event)" />
+                  [showClear]="false" />
                 @if (!book.metadata!['seriesNameLocked']) {
                   <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('seriesName')" severity="success" />
                 }

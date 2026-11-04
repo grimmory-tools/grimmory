@@ -40,6 +40,9 @@ reviews:
     - "!**/*.pdf"
     - "!**/coverage/**"
     - "!**/__snapshots__/**"
+    - "!frontend/eslint-suppressions.json"
+    - "!frontend/oxlint-suppressions.json"
+    - "!**/gradle.lockfile"
 
   path_instructions:
     - path: "**/*"
@@ -49,8 +52,16 @@ reviews:
         - Spring Boot 4 (latest major version, check APIs accordingly)
         - Jackson 3 (new package: tools.jackson.* instead of com.fasterxml.jackson.*)
         - Hibernate 7.3.x (Jakarta Persistence 3.2, new APIs; avoid deprecated Hibernate 5/6 patterns)
-        - Angular 21 (signals-based reactivity, no NgModules unless legacy)
+        - Angular 22 (zoneless, signals-based reactivity, TanStack Query for server data)
 
+        ## Do NOT comment on
+        - Code formatting
+        - Import ordering (handled by IDE/tools)
+        - Javadoc on private methods
+        - Minor naming style unless actively misleading
+
+    - path: "backend/**"
+      instructions: |
         ## Grimmory Internal Tools
         - epub4j and pdfium4j are our own internal tools developed by the Grimmory team.
         - Always verify behavior and API changes against the upstream repositories:
@@ -108,24 +119,7 @@ reviews:
         - Flag missing database indexes on frequently queried foreign key columns.
         - Prefer Hibernate's @SQLRestriction over @Where (deprecated in 7.x).
 
-        ## Angular 21 rules
-        - Prefer Angular Signals (signal(), computed(), effect()) over RxJS Subjects for local state.
-        - Prefer the new @if / @for / @switch control flow syntax over *ngIf / *ngFor structural directives.
-        - Prefer inject() function over constructor-based dependency injection.
-        - Localization: use Transloco (TranslocoService, transloco directive) for all user-facing strings.
-        - Prefer HttpClient with typed generics and explicit error handling.
-        - Prefer OnPush change detection strategy on all components.
-        - Flag any direct DOM manipulation; use Angular's Renderer2 or signal-driven templates.
-        - Flag missing trackBy (or track expression in @for) in list rendering.
-        - Prefer lazy-loaded routes for all feature modules.
-
-        ## Do NOT comment on
-        - Code formatting (handled by tools: Checkstyle, Prettier, etc.)
-        - Import ordering (handled by IDE/tools)
-        - Javadoc on private methods
-        - Minor naming style unless actively misleading
-
-    - path: "**/entity/**/*.java"
+    - path: "backend/**/entity/**/*.java"
       instructions: |
         Hibernate 7.3 entity review:
         - Jakarta Persistence (jakarta.persistence.*) only; never javax.
@@ -136,7 +130,7 @@ reviews:
         - Flag @Where usage; use @SQLRestriction instead (Hibernate 7.x).
         - Flag any mutable collection field that is not initialized (e.g., new ArrayList<>()).
 
-    - path: "**/repository/**/*.java"
+    - path: "backend/**/repository/**/*.java"
       instructions: |
         Spring Data / Hibernate repository review:
         - Prefer Spring Data JPA repository interfaces with typed methods.
@@ -145,7 +139,7 @@ reviews:
         - Flag any native query with string concatenation; use named parameters only.
         - Prefer @Query with JPQL over native SQL unless performance-critical.
 
-    - path: "**/service/**/*.java"
+    - path: "backend/**/service/**/*.java"
       instructions: |
         Spring Framework 7 service layer review:
         - Flag missing @Transactional on methods that perform multiple writes.
@@ -156,7 +150,7 @@ reviews:
         - Prefer virtual threads (Thread.ofVirtual()) for I/O-bound operations.
         - Flag mutable shared state in singleton beans.
 
-    - path: "**/controller/**/*.java"
+    - path: "backend/**/controller/**/*.java"
       instructions: |
         Spring Framework 7 REST controller review:
         - Prefer @RestController + @RequestMapping with ResponseEntity<T>.
@@ -166,7 +160,7 @@ reviews:
         - Check for missing authorization checks on sensitive endpoints.
         - Flag any logging of request body that may contain PII or credentials.
 
-    - path: "**/metadata/**/*.java"
+    - path: "backend/**/metadata/**/*.java"
       instructions: |
         Metadata and Sidecar review:
         - Ensure perfect official compliance with Dublin Core and ANSI standards.
@@ -174,7 +168,7 @@ reviews:
         - Sidecar files must be written in a way that is compatible with widespread e-reader standards.
         - Avoid proprietary or non-standard XML tags unless absolutely necessary for internal tracking.
 
-    - path: "**/dto/**/*.java"
+    - path: "backend/**/dto/**/*.java"
       instructions: |
         DTO review; prefer records:
         - Prefer Java records over classes for DTOs.
@@ -183,7 +177,7 @@ reviews:
         - Flag ObjectMapper instantiation inside a DTO; must never happen.
         - New Jackson 3 package is tools.jackson.*; flag any com.fasterxml.jackson.* in new files.
 
-    - path: "**/security/**/*.java"
+    - path: "backend/**/security/**/*.java"
       instructions: |
         Security-critical code; maximum scrutiny:
         - Check token validation, expiration, and signature verification.
@@ -193,7 +187,7 @@ reviews:
         - Check for timing attack vulnerabilities in comparison logic (use MessageDigest.isEqual or similar constant-time methods).
         - Flag missing @PreAuthorize / @Secured on protected endpoints.
 
-    - path: "**/config/**/*.java"
+    - path: "backend/**/config/**/*.java"
       instructions: |
         Spring Framework 7 configuration review:
         - Flag hardcoded values that should be @Value or @ConfigurationProperties.
@@ -201,7 +195,7 @@ reviews:
         - Flag RestTemplate bean for new code; prefer RestClient.
         - Flag missing @Primary or @Qualifier on ambiguous beans.
 
-    - path: "**/*Test.java"
+    - path: "backend/**/*Test.java"
       instructions: |
         Java test review:
         - Prefer @ExtendWith(SpringExtension.class) or @SpringBootTest for integration tests.
@@ -212,40 +206,45 @@ reviews:
         - Prefer AssertJ over JUnit's built-in assertions for readability.
         - Prefer @Sql or Testcontainers for database state; not hand-rolled setup/teardown.
 
-    - path: "**/*.component.ts"
+    - path: "frontend/**"
       instructions: |
-        Angular 21 component review:
-        - Must be standalone (standalone: true); flag NgModule-based declarations.
-        - Prefer OnPush change detection strategy.
-        - Prefer inject() over constructor DI.
-        - Localization: use Transloco for all UI strings.
-        - Prefer Angular Signals (signal, computed, effect) for local/reactive state.
-        - Flag missing trackBy / track expression in list rendering.
-        - Prefer @if / @for / @switch over *ngIf / *ngFor / *ngSwitch structural directives.
+        Server data:
+        - Components get server data through the query and command services, not `HttpClient`.
+        - Services return query options. They don't call `injectQuery()` or hold server data in signals; the
+          component that needs the data runs the query.
+        - A command updates or invalidates the queries whose data it changes.
+        - A query key includes every value its query function uses.
+        - Query options read changing signals inside the options callback, so the query reruns when they change.
+        - Components don't copy query results into their own state, except for an editable draft or a deliberate
+          snapshot.
+        - Data that has loaded stays on screen during a background refetch, instead of a spinner or error state.
 
-    - path: "**/*.service.ts"
-      instructions: |
-        Angular 21 service review:
-        - Prefer providedIn: 'root' unless scope is intentionally limited.
-        - Prefer inject() over constructor DI.
-        - Prefer Signals or lightweight RxJS (takeUntilDestroyed) over manual subscription management.
-        - Flag unsubscribed Observables (missing takeUntilDestroyed or explicit unsubscribe).
-        - Prefer typed HttpClient responses with explicit error handling (catchError).
-        - Flag any state mutation outside a defined signal or BehaviorSubject.
+        Signals:
+        - Values derived from other signals use `computed()` or `linkedSignal()`, not an effect that sets a signal.
+        - Objects and arrays held in signals are replaced, not changed in place.
+        - `untracked()` doesn't hide a signal the UI needs to react to.
+        - Long-lived Observable subscriptions are cleaned up, with `takeUntilDestroyed()`, `DestroyRef.onDestroy()`
+          or an explicit unsubscribe.
 
-    - path: "**/*routing*.ts"
-      instructions: |
-        Angular 21 routing review:
-        - All feature routes must use lazy loading (loadComponent / loadChildren).
-        - Flag missing route guards on protected paths.
-        - Flag any route without a defined title for accessibility.
+        Templates and the DOM:
+        - DOM structure and state come from templates and `host` bindings, not direct DOM changes.
+        - DOM work that needs Angular to finish rendering first uses `afterRenderEffect()` or `afterNextRender()`.
+        - Untrusted content is escaped or sanitized before it reaches `innerHTML` or a third-party HTML API.
+        - `@for` tracks something that identifies each item, such as its ID, when the list can be reordered or
+          filtered.
+        - Pages use a separate `.html` template; small self-contained components can keep theirs inline.
 
-    - path: "**/*.spec.ts"
+        Routing:
+        - Feature pages are lazy-loaded, apart from the landing page.
+        - Protected routes have a guard, on the route itself or on a parent route.
+
+    - path: "frontend/src/**/*.spec.ts"
       instructions: |
-        Angular 21 test review:
-        - Flag tests with no expect() calls.
-        - Flag hardcoded async timeouts; prefer fakeAsync/tick or signal-based testing.
-        - Flag missing fixture.detectChanges() after state mutations.
+        Unit tests run on Vitest through `ng test`, in a zoneless app.
+        - Every test has at least one `expect()`.
+        - Component tests change a signal, input or the DOM, then `await fixture.whenStable()` before checking
+          what rendered.
+        - Time-based tests use Vitest fake timers.
 
     - path: "**/Dockerfile*"
       instructions: |
@@ -270,6 +269,10 @@ reviews:
     auto_incremental_review: true
 
   tools:
+    eslint:
+      enabled: false
+    oxc:
+      enabled: false
     shellcheck:
       enabled: true
     markdownlint:
@@ -286,5 +289,10 @@ chat:
 
 knowledge_base:
   opt_out: false
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - "frontend/DEVELOPMENT.md"
+      - "backend/DEVELOPMENT.md"
   learnings:
     scope: auto

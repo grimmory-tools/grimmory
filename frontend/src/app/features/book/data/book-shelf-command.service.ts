@@ -1,10 +1,10 @@
 import {HttpClient} from '@angular/common/http';
 import {inject, Service} from '@angular/core';
+import {mutationOptions} from '@tanstack/angular-query-experimental';
 import {lastValueFrom} from 'rxjs';
 
 import {API_CONFIG} from '../../../core/config/api-config';
-import {reconcilingMutationOptions} from '../../../core/data/command-options';
-import {bookCommandChangeSet, requireBookIds} from './book-command.models';
+import {requireBookIds} from './book-command.models';
 import {bookShelfCommandKeys, bookShelfCommandScopes} from './book-shelf-command-keys';
 import {
   UpdateBookShelfMembershipResult,
@@ -20,7 +20,7 @@ export class BookShelfCommandService {
   private readonly membershipUrl = `${API_CONFIG.BASE_URL}/api/v1/books/shelves`;
 
   updateMembership() {
-    return reconcilingMutationOptions({
+    return mutationOptions({
       mutationKey: bookShelfCommandKeys.updateMembership(),
       scope: bookShelfCommandScopes.regularShelves,
       mutationFn: (variables: UpdateBookShelfMembershipVariables) => this.postMembership(
@@ -28,14 +28,9 @@ export class BookShelfCommandService {
         variables.assignShelfIds,
         variables.unassignShelfIds,
       ),
-      reconcile: async (outcome, variables, client) => {
+      onSettled: async (_data, _error, variables, _onMutateResult, {client}) => {
         await Promise.all([
-          applyBookQueryChangeSet(
-            client,
-            bookCommandChangeSet(outcome, variables.bookIds, ({confirmedBookIds}) => ({
-              changedBookIds: confirmedBookIds,
-            })),
-          ),
+          applyBookQueryChangeSet(client, {changedBookIds: variables.bookIds}),
           invalidateShelfDefinitions(client),
         ]);
       },

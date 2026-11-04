@@ -1,7 +1,8 @@
 import {ChangeDetectionStrategy, computed, Component, DestroyRef, effect, inject, input, linkedSignal, output, untracked} from '@angular/core';
 import {UpperCasePipe} from '@angular/common';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {Book, BookRecommendation, BookType, FileInfo} from '../../../../../book/model/book.model';
+import {Book, BookRecommendation, FileInfo} from '../../../../../book/model/book.model';
+import {BookNavigationService, type ReadOptions} from '../../../../../book/service/book-navigation.service';
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from '@openng/optimus-ui/tabs';
 import {InfiniteScrollDirective} from 'ngx-infinite-scroll';
 import {BookCardLiteComponent} from '../../../../../book/components/book-card-lite/book-card-lite-component';
@@ -17,12 +18,6 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {AudiobookService} from '../../../../../readers/audiobook-player/audiobook.service';
 import {AudiobookInfo} from '../../../../../readers/audiobook-player/audiobook.model';
 import {finalize} from 'rxjs/operators';
-
-export interface ReadEvent {
-  bookId: number;
-  reader?: 'epub-streaming';
-  bookType?: BookType;
-}
 
 export interface DownloadEvent {
   book: Book;
@@ -92,6 +87,7 @@ const metadataTab = (value: MetadataTabValue, icon: string, labelKey: string): M
 })
 export class MetadataTabsComponent {
   protected urlHelper = inject(UrlHelperService);
+  private readonly bookNavigation = inject(BookNavigationService);
   private readonly bookMetadataManageService = inject(BookMetadataManageService);
   private readonly audiobookService = inject(AudiobookService);
   private readonly t = inject(TranslocoService);
@@ -110,7 +106,6 @@ export class MetadataTabsComponent {
     computation: () => false,
   });
 
-  readonly readBook = output<ReadEvent>();
   readonly downloadBook = output<DownloadEvent>();
   readonly downloadFile = output<DownloadAdditionalFileEvent>();
   readonly downloadAllFiles = output<DownloadAllFilesEvent>();
@@ -159,8 +154,8 @@ export class MetadataTabsComponent {
     });
   }
 
-  read(bookId: number, reader?: 'epub-streaming', bookType?: BookType): void {
-    this.readBook.emit({ bookId, reader, bookType });
+  protected readBook(book: Book, options?: ReadOptions): void {
+    this.bookNavigation.readBook(book, options);
   }
 
   download(book: Book): void {

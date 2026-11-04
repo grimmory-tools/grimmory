@@ -550,9 +550,9 @@
               @if (hasDigitalFile(book)) {
                 <div class="action-group primary-actions">
                   @if (readMenuItems().length > 0) {
-                    <p-splitbutton [label]="getReadButtonLabel(book)" [icon]="getReadButtonIcon(book)" [model]="readMenuItems()" (onClick)="read(book.id)" severity="primary" class="read-button-responsive"/>
+                    <p-splitbutton [label]="getReadButtonLabel(book)" [icon]="getReadButtonIcon(book)" [model]="readMenuItems()" (onClick)="readBook(book)" severity="primary" class="read-button-responsive"/>
                   } @else {
-                    <p-button [label]="getReadButtonLabel(book)" [icon]="getReadButtonIcon(book)" (onClick)="read(book.id)" severity="primary" class="read-button-responsive"/>
+                    <p-button [label]="getReadButtonLabel(book)" [icon]="getReadButtonIcon(book)" (onClick)="readBook(book)" severity="primary" class="read-button-responsive"/>
                   }
                 </div>
               }
@@ -837,7 +837,6 @@
       [bookInSeries]="bookInSeries"
       [hasSeries]="!!book.metadata?.seriesName"
       [recommendedBooks]="filteredRecommendedBooks()"
-      (readBook)="onReadBook($event)"
       (downloadBook)="onDownloadBook($event)"
       (downloadFile)="onDownloadFile($event)"
       (downloadAllFiles)="onDownloadAllFiles($event)"

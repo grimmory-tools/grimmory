@@ -1,10 +1,8 @@
 import {inject} from '@angular/core';
 import {Router, type CanActivateChildFn, type ParamMap} from '@angular/router';
 
-import {pinBrowseFacetValue} from '../../../shared/browse/facets';
 import {type LibraryShelfMenuTarget} from '../../../shared/layout/navigation/library-shelf-menu-target.model';
 import {type EntityViewPreferenceContext} from '../../settings/user-management/entity-view-preferences';
-import {type FacetValueMap} from '../data/book-query-params';
 
 export type BookBrowseScope =
   | {kind: 'library'; entityId: number; facetKey: 'library'; facetValue: string}
@@ -61,13 +59,6 @@ export function bookBrowseScope(
   }
 
   return null;
-}
-
-export function scopedFacetSelection(
-  selection: FacetValueMap,
-  scope: BookBrowseScope | null,
-): FacetValueMap {
-  return scope ? pinBrowseFacetValue(selection, scope.facetKey, scope.facetValue) : selection;
 }
 
 export function bookBrowseScopeTitle(

@@ -82,7 +82,6 @@
 </app-menu>
 
 <app-button
-  class="sm:hidden"
   variant="soft"
   [label]="'browse.filter' | transloco"
   [ariaExpanded]="filtersOpen()"
@@ -130,9 +129,11 @@
         [attr.aria-label]="'browse.toolbar.largerCards' | transloco"
         (selected)="densityChange.emit('larger')" />
     </div>
-    <app-menu-separator />
   }
   <div class="contents sm:hidden">
+    @if (viewMode() === 'grid') {
+      <app-menu-separator />
+    }
     <app-menu-radio-group [value]="viewMode()" (valueSelected)="selectView($event)">
       <app-menu-radio value="grid">{{ 'book.viewMode.grid' | transloco }}</app-menu-radio>
       <app-menu-radio value="table">{{ 'book.viewMode.table' | transloco }}</app-menu-radio>
@@ -142,14 +143,6 @@
     <app-menu-separator class="sm:hidden" />
     <app-menu-item value="columns" [submenu]="columnsMenu">{{ 'browse.toolbar.columns' | transloco }}</app-menu-item>
   }
-  <div class="hidden sm:contents">
-    <app-menu-checkbox
-      value="show-filters"
-      [checked]="filtersOpen()"
-      (selected)="filtersToggle.emit()">
-      {{ 'browse.toolbar.showFilters' | transloco }}
-    </app-menu-checkbox>
-  </div>
   @if (actionTarget(); as target) {
     <app-menu-separator />
     <app-menu-section>{{ target.entity.name }}</app-menu-section>

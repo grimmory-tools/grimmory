@@ -69,6 +69,9 @@ describe('metadata-field.config', () => {
       applebooksId: false,
       applebooksRating: false,
       applebooksReviewCount: false,
+      doubanId: false,
+      doubanRating: false,
+      doubanReviewCount: false,
     };
 
     expect(getProviderFields(allFields, enabledFields).map((field) => field.controlName)).toEqual(['googleId']);

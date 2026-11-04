@@ -147,6 +147,15 @@ public class BookMetadataEntity {
     @Column(name = "applebooks_review_count")
     private Integer applebooksReviewCount;
 
+    @Column(name = "douban_id", length = 100)
+    private String doubanId;
+
+    @Column(name = "douban_rating")
+    private Double doubanRating;
+
+    @Column(name = "douban_review_count")
+    private Integer doubanReviewCount;
+
     @Column(name = "title_locked")
     @Builder.Default
     private Boolean titleLocked = Boolean.FALSE;
@@ -311,6 +320,18 @@ public class BookMetadataEntity {
     @Builder.Default
     private Boolean applebooksReviewCountLocked = Boolean.FALSE;
 
+    @Column(name = "douban_id_locked")
+    @Builder.Default
+    private Boolean doubanIdLocked = Boolean.FALSE;
+
+    @Column(name = "douban_rating_locked")
+    @Builder.Default
+    private Boolean doubanRatingLocked = Boolean.FALSE;
+
+    @Column(name = "douban_review_count_locked")
+    @Builder.Default
+    private Boolean doubanReviewCountLocked = Boolean.FALSE;
+
     @Column(name = "narrator", length = 500)
     private String narrator;
 
@@ -382,6 +403,7 @@ public class BookMetadataEntity {
         this.ranobedbId = trimOrNull(this.ranobedbId);
         this.audibleId = trimOrNull(this.audibleId);
         this.applebooksId = trimOrNull(this.applebooksId);
+        this.doubanId = trimOrNull(this.doubanId);
         this.contentRating = trimOrNull(this.contentRating);
         this.narrator = trimOrNull(this.narrator);
     }
@@ -489,6 +511,9 @@ public class BookMetadataEntity {
         this.applebooksIdLocked = lock;
         this.applebooksRatingLocked = lock;
         this.applebooksReviewCountLocked = lock;
+        this.doubanIdLocked = lock;
+        this.doubanRatingLocked = lock;
+        this.doubanReviewCountLocked = lock;
         this.reviewsLocked = lock;
         this.narratorLocked = lock;
         this.abridgedLocked = lock;
@@ -541,6 +566,9 @@ public class BookMetadataEntity {
                 && Boolean.TRUE.equals(this.applebooksIdLocked)
                 && Boolean.TRUE.equals(this.applebooksRatingLocked)
                 && Boolean.TRUE.equals(this.applebooksReviewCountLocked)
+                && Boolean.TRUE.equals(this.doubanIdLocked)
+                && Boolean.TRUE.equals(this.doubanRatingLocked)
+                && Boolean.TRUE.equals(this.doubanReviewCountLocked)
                 && Boolean.TRUE.equals(this.reviewsLocked)
                 && Boolean.TRUE.equals(this.narratorLocked)
                 && Boolean.TRUE.equals(this.abridgedLocked)

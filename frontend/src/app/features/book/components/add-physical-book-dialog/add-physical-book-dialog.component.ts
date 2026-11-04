@@ -1,4 +1,5 @@
-import {Component, computed, effect, inject, signal} from '@angular/core';
+import {Component, effect, inject, signal} from '@angular/core';
+import {HttpErrorResponse} from '@angular/common/http';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {FormsModule} from '@angular/forms';
 import {Button} from '@openng/optimus-ui/button';
@@ -7,14 +8,16 @@ import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {Select} from '@openng/optimus-ui/select';
 import {Textarea} from '@openng/optimus-ui/textarea';
 import {InputNumber} from '@openng/optimus-ui/inputnumber';
-import {AutoComplete, AutoCompleteCompleteEvent} from '@openng/optimus-ui/autocomplete';
+import {AutoComplete} from '@openng/optimus-ui/autocomplete';
 import {QueryClient} from '@tanstack/angular-query-experimental';
 import {BookService} from '../../service/book.service';
+import {FacetSuggestionsDirective} from '../facet-suggestions.directive';
 import {LibraryService} from '../../service/library.service';
 import {Library} from '../../model/library.model';
 import {CreatePhysicalBookRequest} from '../../model/book.model';
 import {MetadataSourceQueryService} from '../../../metadata/sources/metadata-source-query.service';
-import {TranslocoDirective} from '@jsverse/transloco';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {MessageService} from '@openng/optimus-ui/api';
 
 @Component({
   selector: 'app-add-physical-book-dialog',
@@ -29,7 +32,8 @@ import {TranslocoDirective} from '@jsverse/transloco';
     Textarea,
     InputNumber,
     AutoComplete,
-    TranslocoDirective
+    TranslocoDirective,
+    FacetSuggestionsDirective
   ],
   styleUrl: './add-physical-book-dialog.component.scss',
 })
@@ -40,6 +44,8 @@ export class AddPhysicalBookDialogComponent {
   private readonly queryClient = inject(QueryClient);
   private readonly sources = inject(MetadataSourceQueryService);
   private readonly libraryService = inject(LibraryService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
 
   selectedLibraryId: number | null = null;
   title: string = '';
@@ -51,12 +57,6 @@ export class AddPhysicalBookDialogComponent {
   language: string = '';
   pageCount: number | null = null;
   categories: string[] = [];
-
-  private readonly metadata = computed(() => this.bookService.uniqueMetadata());
-  get allAuthors(): string[] { return this.metadata().authors; }
-  get allCategories(): string[] { return this.metadata().categories; }
-  filteredAuthors: string[] = [];
-  filteredCategories: string[] = [];
 
   coverUrl: string | null = null;
   readonly isLoading = signal(false);
@@ -80,20 +80,6 @@ export class AddPhysicalBookDialogComponent {
 
   get libraries(): Library[] {
     return this.libraryService.libraries();
-  }
-
-  filterAuthors(event: AutoCompleteCompleteEvent): void {
-    const query = event.query.toLowerCase();
-    this.filteredAuthors = this.allAuthors.filter((author) =>
-      author.toLowerCase().includes(query)
-    );
-  }
-
-  filterCategories(event: AutoCompleteCompleteEvent): void {
-    const query = event.query.toLowerCase();
-    this.filteredCategories = this.allCategories.filter((category) =>
-      category.toLowerCase().includes(query)
-    );
   }
 
   onAutoCompleteKeyUp(fieldName: 'authors' | 'categories', event: KeyboardEvent): void {
@@ -179,8 +165,15 @@ export class AddPhysicalBookDialogComponent {
         this.isLoading.set(false);
         this.dynamicDialogRef.close(book);
       },
-      error: () => {
+      error: (err: unknown) => {
         this.isLoading.set(false);
+        if (err instanceof HttpErrorResponse && err.status === 409) {
+          this.messageService.add({
+            severity: 'error',
+            summary: this.t.translate('book.bookService.toast.creationFailedSummary'),
+            detail: this.t.translate('book.bulkIsbnImport.reason.alreadyExists')
+          });
+        }
       }
     });
   }
