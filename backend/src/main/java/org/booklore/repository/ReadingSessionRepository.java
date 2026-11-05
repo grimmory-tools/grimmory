@@ -151,6 +151,8 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
             @Param("bookId") Long bookId,
             Pageable pageable);
 
+    boolean existsByUser_IdAndBook_IdAndStartTimeAndEndTime(Long userId, Long bookId, Instant startTime, Instant endTime);
+
     @QueryHints(@QueryHint(name = "org.hibernate.fetchSize", value = "200"))
     @Query("""
             SELECT
