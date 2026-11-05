@@ -202,11 +202,11 @@ public class LibraryService {
         LibraryEntity lib = libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
         auditService.log(AuditAction.LIBRARY_SCANNED, "Library", libraryId, "Scanned library: " + lib.getName());
 
+        if (!scanningLibraries.add(libraryId)) {
+            log.warn("Library {} is already being scanned, skipping duplicate rescan request", libraryId);
+            return;
+        }
         libraryScanExecutor.execute(() -> {
-            if (!scanningLibraries.add(libraryId)) {
-                log.warn("Library {} is already being scanned, skipping duplicate rescan request", libraryId);
-                return;
-            }
             try {
                 RescanLibraryContext context = RescanLibraryContext.builder()
                         .libraryId(libraryId)
@@ -360,11 +360,11 @@ public class LibraryService {
     }
 
     private void startBackgroundScan(long libraryId) {
+        if (!scanningLibraries.add(libraryId)) {
+            log.warn("Library {} is already being scanned, skipping duplicate process request", libraryId);
+            return;
+        }
         libraryScanExecutor.execute(() -> {
-            if (!scanningLibraries.add(libraryId)) {
-                log.warn("Library {} is already being scanned, skipping duplicate process request", libraryId);
-                return;
-            }
             try {
                 libraryProcessingService.processLibrary(libraryId);
             } catch (InvalidDataAccessApiUsageException e) {
