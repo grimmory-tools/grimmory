@@ -66,7 +66,7 @@ public class LibraryService {
     private final UserRepository userRepository;
     private final AuditService auditService;
     private final LibraryProcessingService libraryProcessingService;
-    private final Executor taskExecutor;
+    private final Executor libraryScanExecutor;
     private final Set<Long> scanningLibraries = ConcurrentHashMap.newKeySet();
 
     @Transactional
@@ -202,7 +202,7 @@ public class LibraryService {
         LibraryEntity lib = libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
         auditService.log(AuditAction.LIBRARY_SCANNED, "Library", libraryId, "Scanned library: " + lib.getName());
 
-        taskExecutor.execute(() -> {
+        libraryScanExecutor.execute(() -> {
             if (!scanningLibraries.add(libraryId)) {
                 log.warn("Library {} is already being scanned, skipping duplicate rescan request", libraryId);
                 return;
@@ -360,7 +360,7 @@ public class LibraryService {
     }
 
     private void startBackgroundScan(long libraryId) {
-        taskExecutor.execute(() -> {
+        libraryScanExecutor.execute(() -> {
             if (!scanningLibraries.add(libraryId)) {
                 log.warn("Library {} is already being scanned, skipping duplicate process request", libraryId);
                 return;

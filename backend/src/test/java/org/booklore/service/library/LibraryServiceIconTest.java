@@ -68,7 +68,7 @@ class LibraryServiceIconTest {
     @Mock
     private ApplicationEventPublisher eventPublisher;
     @Mock
-    private Executor taskExecutor;
+    private Executor libraryScanExecutor;
 
     @InjectMocks
     private LibraryService libraryService;
