@@ -209,6 +209,9 @@ public class KoboController {
                 .build());
     }
 
+    /**
+     * Records reading sessions from the posted analytics events. Events are never forwarded to Kobo.
+     */
     @Operation(summary = "Publish analytics event", description = "Publish an analytics event for Kobo.")
     @ApiResponse(responseCode = "200", description = "Analytics event pushed successfully")
     @PostMapping("/v1/analytics/event")

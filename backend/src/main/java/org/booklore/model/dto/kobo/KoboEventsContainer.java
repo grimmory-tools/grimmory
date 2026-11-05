@@ -1,24 +1,35 @@
 package org.booklore.model.dto.kobo;
 
 import java.time.Instant;
-import java.util.HashMap;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.PropertyNamingStrategies;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonNaming;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
+/**
+ * Payload a Kobo device posts to {@code /v1/analytics/event}.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonNaming(PropertyNamingStrategies.UpperCamelCaseStrategy.class)
 public class KoboEventsContainer {
     private String affiliateName;
@@ -30,29 +41,22 @@ public class KoboEventsContainer {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
     @JsonNaming(PropertyNamingStrategies.UpperCamelCaseStrategy.class)
     public static class Event {
         private String clientApplicationVersion;
         private String eventType;
         private String id;
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssX")
+        @JsonDeserialize(using = LenientInstantDeserializer.class)
         private Instant timestamp;
         private Attributes attributes;
         private Metrics metrics;
-
-        private Map<String, Object> unknownProperties;
-        @JsonAnySetter
-        public void addUnknown(String name, Object value) {
-            if (unknownProperties == null) {
-                unknownProperties = new HashMap<>();
-            }
-            unknownProperties.put(name, value);
-        }
     }
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
     @JsonNaming(PropertyNamingStrategies.UpperCamelCaseStrategy.class)
     public static class Attributes {
         private String contentFormat;
@@ -70,20 +74,12 @@ public class KoboEventsContainer {
         private Float progress;
         @JsonProperty("volumeid")
         private String volumeid;
-
-        private Map<String, Object> unknownProperties;
-        @JsonAnySetter
-        public void addUnknown(String name, Object value) {
-            if (unknownProperties == null) {
-                unknownProperties = new HashMap<>();
-            }
-            unknownProperties.put(name, value);
-        }
     }
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
     @JsonNaming(PropertyNamingStrategies.UpperCamelCaseStrategy.class)
     public static class Metrics {
         private Integer idleTime;
@@ -91,14 +87,44 @@ public class KoboEventsContainer {
         private Integer secondsRead;
         @JsonAlias("stars")
         private Integer stars;
+    }
 
-        private Map<String, Object> unknownProperties;
-        @JsonAnySetter
-        public void addUnknown(String name, Object value) {
-            if (unknownProperties == null) {
-                unknownProperties = new HashMap<>();
+    /**
+     * Parses an event timestamp without failing the whole batch: a timestamp that cannot be parsed becomes
+     * {@code null}, and events without a timestamp are skipped when sessions are recorded.
+     */
+    @Slf4j
+    public static class LenientInstantDeserializer extends StdDeserializer<Instant> {
+        private static final DateTimeFormatter KOBO_TIMESTAMP = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss[.SSS]X");
+
+        public LenientInstantDeserializer() {
+            super(Instant.class);
+        }
+
+        /**
+         * Reads the timestamp as ISO-8601 instant or offset date-time.
+         *
+         * @return the parsed instant, or {@code null} if the value is not a parseable timestamp
+         */
+        @Override
+        public Instant deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+            JsonNode node = p.readValueAsTree();
+            if (node == null || !node.isString()) {
+                log.debug("Ignoring non-string Kobo event timestamp: {}", node);
+                return null;
             }
-            unknownProperties.put(name, value);
+            String raw = node.stringValue().trim();
+            try {
+                return Instant.parse(raw);
+            } catch (DateTimeParseException ignored) {
+                // fall through to the offset formats Kobo has been seen to send
+            }
+            try {
+                return OffsetDateTime.parse(raw, KOBO_TIMESTAMP).toInstant();
+            } catch (DateTimeParseException e) {
+                log.debug("Ignoring unparseable Kobo event timestamp \"{}\"", raw);
+                return null;
+            }
         }
     }
 }
