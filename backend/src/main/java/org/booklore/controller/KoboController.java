@@ -16,7 +16,6 @@ import org.booklore.model.dto.kobo.KoboReadingStateList;
 import org.booklore.model.dto.kobo.KoboReadingStateRequest;
 import org.booklore.model.dto.kobo.KoboResources;
 import org.booklore.model.dto.kobo.KoboTestResponse;
-import org.booklore.model.dto.kobo.KoboUserProfile;
 import org.booklore.service.ShelfService;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.book.BookDownloadService;
@@ -30,6 +29,7 @@ import org.booklore.service.kobo.KoboRatingService;
 import org.booklore.service.kobo.KoboReadingStateService;
 import org.booklore.service.kobo.KoboServerProxy;
 import org.booklore.service.kobo.KoboThumbnailService;
+import org.booklore.service.kobo.KoboUserProfileService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -81,6 +81,7 @@ public class KoboController {
     private final ShelfService shelfService;
     private final BookDownloadService bookDownloadService;
     private final KoboEventsService koboEventsService;
+    private final KoboUserProfileService koboUserProfileService;
 
     private boolean isForwardingToKoboStore() {
         return appSettingService.getAppSettings().getKoboSettings().isForwardToKoboStore();
@@ -261,17 +262,15 @@ public class KoboController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * Returns the Kobo store profile when forwarding to the Kobo store is enabled, otherwise a default profile; both
+     * grant the analytics permission.
+     */
     @Operation(summary = "Get user profile", description = "Get Kobo user configuration.")
     @ApiResponse(responseCode = "200", description = "Retrieved Kobo User configuration")
     @GetMapping("/v1/user/profile")
     public ResponseEntity<?> getUserProfile() {
-        if (isForwardingToKoboStore()) {
-            return koboServerProxy.proxyCurrentRequest(null, false);
-        }
-
-        return ResponseEntity.ok()
-                .body(KoboUserProfile.builder().build());
-
+        return koboUserProfileService.getUserProfile(isForwardingToKoboStore());
     }
 
     @Operation(summary = "Get Kobo Deals", description = "Get promotional deals on Kobo entitlements.")

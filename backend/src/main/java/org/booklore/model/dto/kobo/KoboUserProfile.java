@@ -17,6 +17,9 @@ import java.util.List;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class KoboUserProfile {
+    /** Privacy permission that makes the device post the reading analytics events Grimmory records as sessions. */
+    public static final String ANALYTICS_PLATFORM_FEATURES = "analytics.platform.features";
+
     @Builder.Default
     private String affiliateName = "Grimmory";
 
@@ -63,7 +66,7 @@ public class KoboUserProfile {
     private String koboCrmOptInSettings = "ExplicitlyConsentedNo";
 
     @Builder.Default
-    private List<String> privatePermissions = List.of();
+    private List<String> privacyPermissions = List.of(ANALYTICS_PLATFORM_FEATURES);
 
     @Builder.Default
     private List<String> linkedAccounts = List.of();
