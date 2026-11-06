@@ -30,6 +30,7 @@ import org.booklore.service.kobo.KoboRatingService;
 import org.booklore.service.kobo.KoboReadingStateService;
 import org.booklore.service.kobo.KoboServerProxy;
 import org.booklore.service.kobo.KoboThumbnailService;
+import org.booklore.service.kobo.KoboUserProfileService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -81,6 +82,7 @@ public class KoboController {
     private final ShelfService shelfService;
     private final BookDownloadService bookDownloadService;
     private final KoboEventsService koboEventsService;
+    private final KoboUserProfileService koboUserProfileService;
 
     private boolean isForwardingToKoboStore() {
         return appSettingService.getAppSettings().getKoboSettings().isForwardToKoboStore();
@@ -263,7 +265,7 @@ public class KoboController {
     @GetMapping("/v1/user/profile")
     public ResponseEntity<?> getUserProfile() {
         if (isForwardingToKoboStore()) {
-            return koboServerProxy.proxyCurrentRequest(null, false);
+            return koboUserProfileService.getProxiedUserProfile();
         }
 
         return ResponseEntity.ok()
