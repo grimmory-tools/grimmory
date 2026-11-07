@@ -241,7 +241,7 @@ public class BookCoverService {
         taskExecutor.execute(() -> processBulkCoverOperation(unlockedBooks, username,
                 new BulkCoverMessages("Started updating covers for %d selected book(s)", "Updating cover for",
                         "Finished updating covers for selected books"),
-                book -> applyUploadedCoverSlots(book, coverImageBytes)));
+                book -> applyUploadedCoverSlots(book, coverImageBytes, false)));
     }
 
     // =========================
@@ -277,7 +277,7 @@ public class BookCoverService {
         return regenerateCoverSlots(book, replaceMode != MetadataReplaceMode.REPLACE_ALL);
     }
 
-    public void saveRegeneratedCovers(List<BookEntity> books) {
+    public void saveUpdatedCovers(List<BookEntity> books) {
         if (!books.isEmpty()) {
             bookRepository.saveAll(books);
             notifyBookCoverUpdates(books.stream().map(BookEntity::getId).toList());
@@ -392,9 +392,10 @@ public class BookCoverService {
         }
     }
 
-    private boolean applyUploadedCoverSlots(BookEntity book, byte[] coverBytes) {
+    public boolean applyUploadedCoverSlots(BookEntity book, byte[] coverBytes, boolean primaryOnly) {
         boolean updated = false;
-        if (hasUnlockedEbookSlot(book)) {
+        if (hasUnlockedEbookSlot(book)
+                && (!primaryOnly || book.getPrimaryBookFile().getBookType() != BookFileType.AUDIOBOOK)) {
             try {
                 fileService.createThumbnailFromBytes(book.getId(), coverBytes);
                 writeCoverToBookFile(book, coverBytes);
@@ -404,7 +405,8 @@ public class BookCoverService {
                 log.error("Failed to update ebook cover slot for book ID {}: {}", book.getId(), e.getMessage(), e);
             }
         }
-        if (hasUnlockedAudiobookSlot(book)) {
+        if (hasUnlockedAudiobookSlot(book)
+                && (!primaryOnly || book.getPrimaryBookFile().getBookType() == BookFileType.AUDIOBOOK)) {
             try {
                 fileService.createAudiobookThumbnailFromBytes(book.getId(), coverBytes);
                 writeAudiobookCoverToFile(book, coverBytes);

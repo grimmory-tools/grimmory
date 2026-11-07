@@ -7,12 +7,18 @@ import org.booklore.model.dto.settings.SidecarSettings;
 import org.booklore.model.dto.sidecar.SidecarMetadata;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
+import org.booklore.model.enums.BookFileType;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.util.FileService;
+import org.booklore.util.FileUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -67,8 +73,10 @@ public class SidecarMetadataWriter {
 
             String coverFileName = null;
             if (settings.isIncludeCoverFile()) {
-                coverFileName = mapper.getCoverFileName(bookPath);
-                writeCoverFile(book, bookPath.getParent().resolve(coverFileName));
+                String fileName = mapper.getCoverFileName(bookPath);
+                if (writeCoverFile(book, bookPath.getParent().resolve(fileName))) {
+                    coverFileName = fileName;
+                }
             }
 
             SidecarMetadata sidecarMetadata = mapper.toSidecarMetadata(metadata, coverFileName);
@@ -90,6 +98,15 @@ public class SidecarMetadataWriter {
         try {
             Path sidecarPath = getSidecarPath(bookPath);
             if (Files.exists(sidecarPath)) {
+                try {
+                    String declaredCoverPath = objectMapper.readTree(Files.readString(sidecarPath)).path("cover").path("path").asText();
+                    if (StringUtils.hasText(declaredCoverPath)
+                            && Files.deleteIfExists(FileUtils.resolvePathWithinBase(bookPath.getParent(), declaredCoverPath))) {
+                        log.info("Deleted sidecar cover file declared by {}", sidecarPath);
+                    }
+                } catch (IOException | JacksonException | IllegalArgumentException e) {
+                    log.warn("Failed to delete declared sidecar cover for {}: {}", bookPath, e.getMessage());
+                }
                 Files.delete(sidecarPath);
                 log.info("Deleted sidecar file: {}", sidecarPath);
             }
@@ -110,22 +127,56 @@ public class SidecarMetadataWriter {
         }
 
         try {
+            oldBookPath = oldBookPath.toAbsolutePath().normalize();
+            newBookPath = newBookPath.toAbsolutePath().normalize();
             Path oldSidecarPath = getSidecarPath(oldBookPath);
-            if (Files.exists(oldSidecarPath)) {
-                Path newSidecarPath = getSidecarPath(newBookPath);
+            Path newSidecarPath = getSidecarPath(newBookPath);
+            boolean hasSidecar = Files.exists(oldSidecarPath);
+            if (hasSidecar) {
                 Files.createDirectories(newSidecarPath.getParent());
                 Files.move(oldSidecarPath, newSidecarPath, StandardCopyOption.REPLACE_EXISTING);
                 log.info("Moved sidecar file from {} to {}", oldSidecarPath, newSidecarPath);
             }
 
             Path oldCoverPath = getCoverPath(oldBookPath);
+            Path newCoverPath = getCoverPath(newBookPath);
             if (Files.exists(oldCoverPath)) {
-                Path newCoverPath = getCoverPath(newBookPath);
                 Files.move(oldCoverPath, newCoverPath, StandardCopyOption.REPLACE_EXISTING);
                 log.info("Moved sidecar cover from {} to {}", oldCoverPath, newCoverPath);
             }
-        } catch (IOException e) {
-            log.warn("Failed to move sidecar files from {} to {}: {}", oldBookPath, newBookPath, e.getMessage());
+
+            if (!hasSidecar) {
+                return;
+            }
+            JsonNode sidecar = objectMapper.readTree(Files.readString(newSidecarPath));
+            String declaredCoverPath = sidecar.path("cover").path("path").asText();
+            if (!(sidecar.path("cover") instanceof ObjectNode cover) || !StringUtils.hasText(declaredCoverPath)) {
+                return;
+            }
+
+            Path oldDirectory = oldBookPath.getParent();
+            Path newDirectory = newBookPath.getParent();
+            Path oldCover = FileUtils.resolvePathWithinBase(oldDirectory, declaredCoverPath);
+            Path newCover;
+            if (oldCover.equals(oldCoverPath)) {
+                newCover = newCoverPath;
+            } else if (oldCover.startsWith(oldBookPath)) {
+                newCover = newBookPath.resolve(oldBookPath.relativize(oldCover));
+            } else {
+                newCover = newDirectory.resolve(oldDirectory.relativize(oldCover));
+                if (!newCover.equals(oldCover) && Files.isRegularFile(oldCover)) {
+                    Files.createDirectories(newCover.getParent());
+                    Files.move(oldCover, newCover, StandardCopyOption.REPLACE_EXISTING);
+                    log.info("Moved sidecar cover from {} to {}", oldCover, newCover);
+                }
+            }
+
+            if (!newCover.equals(newDirectory.resolve(declaredCoverPath).normalize())) {
+                cover.put("path", newDirectory.relativize(newCover).toString());
+                Files.writeString(newSidecarPath, objectMapper.writeValueAsString(sidecar));
+            }
+        } catch (IOException | JacksonException | IllegalArgumentException e) {
+            log.warn("Failed to move or update sidecar files from {} to {}: {}", oldBookPath, newBookPath, e.getMessage());
         }
     }
 
@@ -143,17 +194,20 @@ public class SidecarMetadataWriter {
         return bookPath.getParent().resolve(baseName + ".cover.jpg");
     }
 
-    private void writeCoverFile(BookEntity book, Path coverPath) {
+    private boolean writeCoverFile(BookEntity book, Path coverPath) {
         try {
-            String coverFile = fileService.getCoverFile(book.getId());
+            String coverFile = book.getPrimaryBookFile().getBookType() == BookFileType.AUDIOBOOK
+                    ? fileService.getAudiobookCoverFile(book.getId()) : fileService.getCoverFile(book.getId());
             Path sourceCoverPath = Path.of(coverFile);
             if (Files.exists(sourceCoverPath)) {
                 Files.copy(sourceCoverPath, coverPath, StandardCopyOption.REPLACE_EXISTING);
                 log.info("Wrote cover file to: {}", coverPath);
+                return true;
             }
         } catch (IOException e) {
             log.warn("Failed to write cover file for book ID {}: {}", book.getId(), e.getMessage());
         }
+        return false;
     }
 
     private SidecarSettings getSidecarSettings() {
