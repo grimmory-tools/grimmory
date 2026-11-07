@@ -164,7 +164,7 @@ class AdditionalFileServiceTest {
     }
 
     @Test
-    void deleteAdditionalFile_WhenFileExists_ShouldDeleteSuccessfully() {
+    void deleteAdditionalFile_WhenFileIsAlternativeFormat_ShouldDeleteSuccessfully() {
         Long bookId = 100L;
         Long fileId = 1L;
         Path parentPath = fileEntity.getFullFilePath().getParent();
@@ -309,20 +309,54 @@ class AdditionalFileServiceTest {
     }
 
     @Test
-    void deleteAdditionalFile_WhenFileIsPrimaryBookFile_ShouldThrowException() {
+    void deleteAdditionalFile_WhenPrimaryHasAlternativeAndSupplementaryFile_ShouldDeleteAndPromoteReadableAlternative() {
         Long bookId = 100L;
         Long fileId = 1L;
-        bookEntity.setBookFiles(Set.of(fileEntity));
+        BookFileEntity supplementaryFile = createBookFile(2L, "notes.txt");
+        supplementaryFile.setBookFormat(false);
+        BookFileEntity alternativeFormat = createBookFile(3L, "alternative.epub");
+        bookEntity.setBookFiles(new HashSet<>(Set.of(fileEntity, supplementaryFile, alternativeFormat)));
+        Path parentPath = fileEntity.getFullFilePath().getParent();
+        assertEquals(fileEntity, bookEntity.getPrimaryBookFile());
+
         when(additionalFileRepository.findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId)).thenReturn(Optional.of(fileEntity));
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> additionalFileService.deleteAdditionalFile(bookId, fileId)
-        );
+        try (MockedStatic<Files> filesMock = mockStatic(Files.class)) {
+            filesMock.when(() -> Files.deleteIfExists(fileEntity.getFullFilePath())).thenReturn(true);
 
-        assertEquals("Primary book file cannot be processed as an additional file: 1", exception.getMessage());
-        verify(additionalFileRepository, never()).delete(any());
-        verify(monitoringRegistrationService, never()).unregisterSpecificPath(any());
+            additionalFileService.deleteAdditionalFile(bookId, fileId);
+
+            verify(monitoringRegistrationService).unregisterSpecificPath(parentPath);
+            filesMock.verify(() -> Files.deleteIfExists(fileEntity.getFullFilePath()));
+            verify(additionalFileRepository).delete(fileEntity);
+        }
+
+        assertEquals(alternativeFormat, bookEntity.getPrimaryBookFile());
+    }
+
+    @Test
+    void deleteAdditionalFile_WhenFileIsSupplementary_ShouldDeleteSuccessfully() {
+        Long bookId = 100L;
+        Long fileId = 1L;
+        fileEntity.setBookFormat(false);
+        BookFileEntity readableFormat = createBookFile(0L, "book.epub");
+        bookEntity.setBookFiles(new HashSet<>(Set.of(fileEntity, readableFormat)));
+        Path parentPath = fileEntity.getFullFilePath().getParent();
+        assertEquals(readableFormat, bookEntity.getPrimaryBookFile());
+
+        when(additionalFileRepository.findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId)).thenReturn(Optional.of(fileEntity));
+
+        try (MockedStatic<Files> filesMock = mockStatic(Files.class)) {
+            filesMock.when(() -> Files.deleteIfExists(fileEntity.getFullFilePath())).thenReturn(true);
+
+            additionalFileService.deleteAdditionalFile(bookId, fileId);
+
+            verify(monitoringRegistrationService).unregisterSpecificPath(parentPath);
+            filesMock.verify(() -> Files.deleteIfExists(fileEntity.getFullFilePath()));
+            verify(additionalFileRepository).delete(fileEntity);
+        }
+
+        assertEquals(readableFormat, bookEntity.getPrimaryBookFile());
     }
 
     @Test
