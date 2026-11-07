@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, HostListener, inject, OnDestroy, OnInit, signal, untracked, viewChild } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, HostListener, inject, Injector, OnDestroy, OnInit, signal, untracked, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { QueryClient } from '@tanstack/angular-query-experimental';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
@@ -94,6 +94,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private static readonly TOUCH_MOUSE_EMULATION_MS = 800;
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
   private readonly hostRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -1256,46 +1257,82 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
         return;
       }
 
-      // Trimming the DOM window below can drop pages above the viewport (see
-      // trimInfiniteScrollPages). With overflow-anchor disabled on this container,
-      // the browser won't compensate on its own, so anchor on the last already-loaded
-      // page — guaranteed to survive a tail trim — and restore its position after the
-      // trim, same technique as loadPreviousPages. We don't anchor on currentPage()
-      // here: it's updated on a debounce and can still reference a page that's about
-      // to fall off the (soon to be trimmed) head.
-      const container = this.getImageScrollContainer();
-      const anchorEl = container?.querySelector(
-        `.infinite-scroll-wrapper img.page-image[data-page="${lastLoadedIndex}"]`
-      ) as HTMLElement | null;
-      const beforeTop = anchorEl?.getBoundingClientRect().top;
-
       const added: number[] = [];
       for (let i = lastLoadedIndex + 1; i < endIndex; i++) {
         added.push(i);
       }
-      this.infiniteScrollPages.update(p => [...p, ...added]);
+      const nextPages = [...this.infiniteScrollPages(), ...added];
+      const max = CbxReaderComponent.INFINITE_SCROLL_MAX_DOM_PAGES;
+
+      if (nextPages.length <= max) {
+        // Pure append below the viewport: nothing above the reader moves.
+        this.infiniteScrollPages.set(nextPages);
+        this.isLoadingMore.set(false);
+        return;
+      }
+
+      // The tail trim drops pages from the head, above the viewport. With
+      // overflow-anchor disabled on this container the browser won't compensate,
+      // so we do it: anchor on the page at the top of the viewport (among those
+      // that survive the trim) and shift scrollTop by however far it moved in
+      // content coordinates. Anchoring on a page further down (e.g. the last loaded
+      // one) is wrong: any height change between the viewport and that page — a
+      // lazy image finishing loading — would be "compensated" and make the reader
+      // jump.
+      const container = this.getImageScrollContainer();
+      const anchor = container ? this.findInfiniteScrollAnchor(container, nextPages[nextPages.length - max]) : null;
+      const beforeTop = container && anchor ? this.contentTopOf(container, anchor) : null;
+      const scrollTopBefore = container?.scrollTop ?? 0;
+
+      this.infiniteScrollPages.set(nextPages);
       this.trimInfiniteScrollPages('tail');
 
-      if (container && anchorEl?.isConnected && beforeTop !== undefined) {
-        this.afterNextPaint(() => {
+      if (!container || !anchor || beforeTop === null) {
+        this.isLoadingMore.set(false);
+        return;
+      }
+
+      // Runs once Angular has removed the trimmed pages from the DOM, before the
+      // browser paints them shifted, so the correction is never visible.
+      afterNextRender({
+        mixedReadWrite: () => {
           if (windowVersion !== this.infiniteScrollWindowVersion) {
             return;
           }
-          if (layoutGen !== this.readerLayoutGeneration() || this.scrollMode() !== scrollModeAtStart) {
-            this.isLoadingMore.set(false);
-            return;
+          if (layoutGen === this.readerLayoutGeneration()
+            && this.scrollMode() === scrollModeAtStart
+            && anchor.isConnected) {
+            // Absolute, not +=: the new tail images have no height until they load,
+            // so the trim can make the content shorter than scrollTop and the browser
+            // clamps it before we get here.
+            container.scrollTop = scrollTopBefore + this.contentTopOf(container, anchor) - beforeTop;
           }
-          if (!anchorEl.isConnected) {
-            this.isLoadingMore.set(false);
-            return;
-          }
-          container.scrollTop += anchorEl.getBoundingClientRect().top - beforeTop;
           this.isLoadingMore.set(false);
-        });
-      } else {
-        this.isLoadingMore.set(false);
-      }
+        }
+      }, { injector: this.injector });
     });
+  }
+
+  /**
+   * First page image at or below the top edge of the viewport, restricted to
+   * pages >= firstSurvivingPage so it is still in the DOM after a head trim.
+   */
+  private findInfiniteScrollAnchor(container: HTMLElement, firstSurvivingPage: number): HTMLImageElement | null {
+    const viewportTop = container.getBoundingClientRect().top;
+    const images = container.querySelectorAll<HTMLImageElement>('.infinite-scroll-wrapper img.page-image[data-page]');
+    for (const img of images) {
+      if (Number(img.dataset['page']) < firstSurvivingPage) continue;
+      if (img.getBoundingClientRect().bottom > viewportTop) return img;
+    }
+    return null;
+  }
+
+  /**
+   * Position of an element relative to the start of the scrolled content, i.e.
+   * independent of the current scrollTop (including a browser clamp of it).
+   */
+  private contentTopOf(container: HTMLElement, el: HTMLElement): number {
+    return el.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop;
   }
 
   /**
