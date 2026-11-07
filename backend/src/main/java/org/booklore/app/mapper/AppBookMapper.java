@@ -9,6 +9,7 @@ import org.booklore.app.dto.AppMagicShelfSummary;
 import org.booklore.app.dto.AppShelfSummary;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
+import org.booklore.util.RequestUtils;
 import org.mapstruct.*;
 
 import java.util.Collections;
@@ -173,7 +174,7 @@ public interface AppBookMapper {
         if (book == null || book.getId() == null) {
             return null;
         }
-        return "/api/books/" + book.getId() + "/cover";
+        return RequestUtils.withContextPath("/api/v1/media/book/" + book.getId() + "/cover");
     }
 
     @Named("mapFileSizeKb")

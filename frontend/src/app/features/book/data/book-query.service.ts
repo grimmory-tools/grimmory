@@ -206,7 +206,11 @@ export class BookQueryService {
     signal: AbortSignal,
   ): Promise<BookPage> {
     if (nextHref !== null) {
-      return mapBrowsePage<BookSummary>(await httpGet(this.http, `${API_CONFIG.BASE_URL}${nextHref}`, signal));
+      return mapBrowsePage<BookSummary>(await httpGet(
+        this.http,
+        new URL(nextHref, `${API_CONFIG.BASE_URL}/`).href,
+        signal,
+      ));
     }
 
     return mapBrowsePage<BookSummary>(await httpGet(

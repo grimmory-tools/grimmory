@@ -1,5 +1,7 @@
 package org.booklore.service.browse;
 
+import org.booklore.util.RequestUtils;
+
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import jakarta.persistence.EntityManager;
@@ -75,7 +77,7 @@ public class BrowseService<E, T> {
         Specification<E> filter = entity.filter(query, facets, facetLogic, scope, null);
 
         PageFetcher.FetchedPage<T> fetched = entity.pages().fetch(scope, filter, sorts, sortTerms, window);
-        return pager.assemble(entity.pagePath(), entity.facetPath(), BrowseParams.preserved(facet, facetLogicParam, query),
+        return pager.assemble(RequestUtils.withContextPath(entity.pagePath()), RequestUtils.withContextPath(entity.facetPath()), BrowseParams.preserved(facet, facetLogicParam, query),
                 window, fetched.total(), fetched.items());
     }
 
@@ -120,7 +122,7 @@ public class BrowseService<E, T> {
         // Pass a null random seed for the legacy case - we don't actually store a seed value and
         // this is good enough for most use cases.
         BrowsePager.Window window = new BrowsePager.Window(pageable.getOffset(), pageable.getPageSize(), null, paramsHash, null);
-        return pager.assemble(entity.pagePath(), entity.facetPath(), "", window, page.getTotalElements(), page.getContent());
+        return pager.assemble(RequestUtils.withContextPath(entity.pagePath()), RequestUtils.withContextPath(entity.facetPath()), "", window, page.getTotalElements(), page.getContent());
     }
 
     public FacetGroupsResponse getFacets(List<String> facet, String facetLogicParam, String query) {

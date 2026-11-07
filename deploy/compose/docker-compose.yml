@@ -19,6 +19,8 @@ services:
       - SWAGGER_ENABLED=false
       - FORCE_DISABLE_OIDC=false
       # ALLOWED_ORIGINS=
+      # For subpath reverse proxy deployments (e.g., mydomain.com/grimmory):
+      # - BASE_PATH=/grimmory
       # Override JVM memory defaults (the image ships sensible defaults for ~512 MB heap).
       # Uncomment and adjust if you want a tighter or looser cap:
       # - JDK_JAVA_OPTIONS=-Xmx256m
@@ -34,17 +36,7 @@ services:
       - ./data:/app/data
       - ./books:/books
       - ./bookdrop:/bookdrop
-    # Uncomment the block below if you need to override the defaults:
-    #healthcheck:
-    #  test: wget -q --spider http://localhost:6060/api/v1/healthcheck
-    #  interval: 60s
-    #  retries: 5
-    #  start_period: 60s
-    #  timeout: 10s
-    #
-    # Uncomment the block below if you want to disable healthchecks:
-    #healthcheck:
-    #  disable: true
+    # The image healthcheck respects BASE_PATH and SERVER_PORT.
     restart: unless-stopped
 
   mariadb:

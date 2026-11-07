@@ -15,7 +15,7 @@ public class OpdsEnabledInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String uri = request.getRequestURI();
+        String uri = request.getServletPath();
         if (uri.startsWith("/api/v1/opds") || uri.startsWith("/api/v2/opds")) {
             if (!appSettingService.getAppSettings().isOpdsServerEnabled()) {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, "OPDS Server is disabled.");
