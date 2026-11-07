@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {API_CONFIG} from '../../../core/config/api-config';
@@ -76,12 +76,10 @@ export interface SessionScatterResponse {
   dayOfWeek: number;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class UserStatsService {
+  private readonly http = inject(HttpClient);
   private readonly readingSessionsUrl = `${API_CONFIG.BASE_URL}/api/v1/user-stats`;
-  private http = inject(HttpClient);
 
   getHeatmapForYear(year: number): Observable<ReadingSessionHeatmapResponse[]> {
     return this.http.get<ReadingSessionHeatmapResponse[]>(

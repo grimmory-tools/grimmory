@@ -49,7 +49,6 @@ class KoboReadingStateBuilderTest {
     @BeforeEach
     void setUp() {
         KoboSyncSettings settings = new KoboSyncSettings();
-        settings.setTwoWayProgressSync(true);
         when(koboSettingsService.getCurrentUserSettings()).thenReturn(settings);
         when(bookmarkLocationResolver.resolve(any(), any(), any())).thenReturn(Optional.empty());
         builder = new KoboReadingStateBuilder(koboSettingsService, bookmarkLocationResolver);

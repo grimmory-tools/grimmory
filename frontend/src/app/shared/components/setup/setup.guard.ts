@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {
   CanActivate,
   Router,
@@ -9,15 +9,12 @@ import {map} from 'rxjs/operators';
 import {HttpClient} from '@angular/common/http';
 import {API_CONFIG} from '../../../core/config/api-config';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class SetupGuard implements CanActivate {
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
 
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/setup`;
-
-  private http = inject(HttpClient);
-  private router = inject(Router);
 
   canActivate(): Observable<boolean | UrlTree> {
     return this.http.get<{ data: boolean }>(`${this.url}/status`).pipe(

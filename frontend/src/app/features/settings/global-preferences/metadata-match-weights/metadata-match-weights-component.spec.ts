@@ -56,7 +56,7 @@ describe('MetadataMatchWeightsComponent', () => {
 
     expect(component.form.get('title')?.value).toBe(10);
     expect(component.form.get('authors')?.value).toBe(9);
-    expect(component.orderedKeys[0]).toBe('title');
+    expect(component.orderedKeys()[0]).toBe('title');
   });
 
   it('hydrates the reactive form when weights resolve after initial render', () => {

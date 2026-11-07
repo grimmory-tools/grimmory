@@ -44,8 +44,4 @@ public class KoboUserSettingsEntity {
     @Column(name = "hardcover_sync_enabled")
     @Builder.Default
     private boolean hardcoverSyncEnabled = false;
-
-    @Column(name = "two_way_progress_sync")
-    @Builder.Default
-    private boolean twoWayProgressSync = false;
 }

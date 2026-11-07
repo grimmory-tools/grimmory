@@ -1,8 +1,8 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {ConfirmationService, MenuItem, MessageService} from '@openng/optimus-ui/api';
 import {BookService} from './book.service';
 import {BookMetadataManageService} from './book-metadata-manage.service';
-import {AGE_RATING_OPTIONS, CONTENT_RATING_LABELS, readStatusLabels} from '../components/book-browser/book-filter/book-filter.config';
+import {AGE_RATING_OPTIONS, CONTENT_RATING_LABELS, READ_STATUS_LABELS} from '../model/book-value-labels';
 import {ReadStatus} from '../model/book.model';
 import {ResetProgressTypes} from '../../../shared/constants/reset-progress-type';
 import {finalize} from 'rxjs';
@@ -12,9 +12,7 @@ import {APIException} from '../../../shared/models/api-exception.model';
 import {HttpErrorResponse} from '@angular/common/http';
 import {TranslocoService} from '@jsverse/transloco';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class BookMenuService {
 
   confirmationService = inject(ConfirmationService);
@@ -90,7 +88,7 @@ export class BookMenuService {
       items.push({
         label: this.t.translate('book.menuService.menu.updateReadStatus'),
         icon: 'pi pi-book',
-        items: Object.entries(readStatusLabels).map(([status, label]) => ({
+        items: Object.entries(READ_STATUS_LABELS).map(([status, label]) => ({
           label,
           command: () => {
             this.confirmationService.confirm({

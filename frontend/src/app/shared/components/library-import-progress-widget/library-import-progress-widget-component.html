@@ -9,8 +9,7 @@
         </div>
         <p-tag
           [value]="t(getStatusLabelKey(progress.status))"
-          [severity]="getTagSeverity(progress.status)">
-        </p-tag>
+          [severity]="getTagSeverity(progress.status)" />
       </div>
 
       <div class="mb-1.5 break-words text-sm text-zinc-200">
@@ -30,8 +29,7 @@
       <p-progressBar
         [style]="{ height: '15px' }"
         [value]="getProgressPercent(progress)"
-        [showValue]="false">
-      </p-progressBar>
+        [showValue]="false" />
 
       @if (progress.status !== 'IN_PROGRESS') {
         <div class="mt-3.5 flex flex-wrap justify-end gap-1.5">

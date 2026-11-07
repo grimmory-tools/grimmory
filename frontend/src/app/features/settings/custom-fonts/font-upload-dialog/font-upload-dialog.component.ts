@@ -16,11 +16,11 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
   styleUrls: ['./font-upload-dialog.component.scss']
 })
 export class FontUploadDialogComponent implements OnDestroy {
-  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
-  private customFontService = inject(CustomFontService);
-  private messageService = inject(MessageService);
-  private dialogRef = inject(DynamicDialogRef);
+  private readonly customFontService = inject(CustomFontService);
+  private readonly messageService = inject(MessageService);
+  private readonly dialogRef = inject(DynamicDialogRef);
   private readonly t = inject(TranslocoService);
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   isUploading = false;
   uploadedFontName = '';

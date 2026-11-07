@@ -1,4 +1,5 @@
-import {Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {Component, computed, inject, Input, OnChanges, output, SimpleChanges} from '@angular/core';
+import {toSignal} from '@angular/core/rxjs-interop';
 import {Select} from '@openng/optimus-ui/select';
 import {FormsModule} from '@angular/forms';
 
@@ -13,6 +14,10 @@ import {
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
+import {MetadataProviderFieldsService} from '../../../../../shared/metadata';
+import type {MetadataProviderId} from '../../../../../shared/metadata/metadata-providers';
+import {MetadataSourceQueryService} from '../../../sources/metadata-source-query.service';
+
 @Component({
   selector: 'app-metadata-advanced-fetch-options',
   templateUrl: './metadata-advanced-fetch-options.component.html',
@@ -22,38 +27,15 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 })
 export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
 
-  @Output() metadataOptionsSubmitted = new EventEmitter<MetadataRefreshOptions>();
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
+  private readonly sources = inject(MetadataSourceQueryService);
+  private readonly providerFields = inject(MetadataProviderFieldsService);
+  private readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
+
+  readonly metadataOptionsSubmitted = output<MetadataRefreshOptions>();
   @Input() currentMetadataOptions!: MetadataRefreshOptions;
   @Input() submitButtonLabel!: string;
-
-  fields: (keyof FieldOptions)[] = [
-    'title', 'subtitle', 'description', 'authors', 'publisher', 'publishedDate',
-    'seriesName', 'seriesNumber', 'seriesTotal', 'isbn13', 'isbn10',
-    'language', 'categories', 'cover', 'pageCount',
-    'openlibraryId',
-    'asin', 'amazonRating', 'amazonReviewCount',
-    'googleId',
-    'goodreadsId', 'goodreadsRating', 'goodreadsReviewCount',
-    'hardcoverId', 'hardcoverBookId', 'hardcoverRating', 'hardcoverReviewCount', 'moods', 'tags',
-    'comicvineId',
-    'lubimyczytacId', 'lubimyczytacRating',
-    'ranobedbId', 'ranobedbRating',
-    'audibleId', 'audibleRating', 'audibleReviewCount',
-    'applebooksId', 'applebooksRating', 'applebooksReviewCount',
-  ];
-
-  providerSpecificFields: (keyof FieldOptions)[] = [
-    'openlibraryId',
-    'asin', 'amazonRating', 'amazonReviewCount',
-    'googleId',
-    'goodreadsId', 'goodreadsRating', 'goodreadsReviewCount',
-    'hardcoverId', 'hardcoverBookId', 'hardcoverRating', 'hardcoverReviewCount', 'moods', 'tags',
-    'comicvineId',
-    'lubimyczytacId', 'lubimyczytacRating',
-    'ranobedbId', 'ranobedbRating',
-    'audibleId', 'audibleRating', 'audibleReviewCount',
-    'applebooksId', 'applebooksRating', 'applebooksReviewCount',
-  ];
 
   nonProviderSpecificFields: (keyof FieldOptions)[] = [
     'title', 'subtitle', 'description', 'authors', 'publisher', 'publishedDate',
@@ -61,33 +43,34 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
     'language', 'categories', 'cover', 'pageCount',
   ];
 
-  providers: string[] = [
-    'OpenLibrary',
-    'Amazon',
-    'Google',
-    'GoodReads',
-    'Hardcover',
-    'Comicvine',
-    'Douban',
-    'Lubimyczytac',
-    'Ranobedb',
-    'Audible',
-    'AppleBooks'
-  ];
-  providersWithClear: string[] = [
-    'Clear All',
-    'OpenLibrary',
-    'Amazon',
-    'Google',
-    'GoodReads',
-    'Hardcover',
-    'Comicvine',
-    'Douban',
-    'Lubimyczytac',
-    'Ranobedb',
-    'Audible',
-    'AppleBooks'
-  ];
+  readonly providerSpecificFields = computed<(keyof FieldOptions)[]>(() => [
+    ...this.providerFields.fields().map(field => field.name),
+    'moods', 'tags',
+  ]);
+
+  readonly fields = computed<(keyof FieldOptions)[]>(() => [...this.nonProviderSpecificFields, ...this.providerSpecificFields()]);
+
+  readonly providerOptions = computed(() => this.sources.enabledProviders().map(provider => ({
+    value: provider.id,
+    label: this.t.translate(provider.labelKey, {}, this.activeLang()),
+  })));
+  readonly providerOptionsWithClear = computed(() => [
+    {value: 'Clear All', label: 'Clear All'},
+    ...this.providerOptions(),
+  ]);
+
+  providerOptionsFor(selected: string | null) {
+    const enabled = this.providerOptions();
+    if (!selected || enabled.some(option => option.value === selected)) return enabled;
+
+    const provider = this.sources.providers().find(provider => provider.id === selected);
+    const label = provider ? this.t.translate(provider.labelKey, {}, this.activeLang()) : selected;
+    return [...enabled, {
+      value: selected,
+      label: this.t.translate('metadata.advancedFetchOptions.inactiveProvider', {provider: label}, this.activeLang()),
+      disabled: true,
+    }];
+  }
 
   refreshCovers: boolean = false;
   mergeCategories: boolean = false;
@@ -110,55 +93,17 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
   bulkP3: string | null = null;
   bulkP4: string | null = null;
 
-  private messageService = inject(MessageService);
-  private readonly t = inject(TranslocoService);
-
   private justSubmitted = false;
 
-  private providerSpecificFieldsList = [
-    // OpenLibrary
-    'openlibraryId',
-
-    // Amazon
-    'asin', 'amazonRating', 'amazonReviewCount',
-
-    // Google
-    'googleId',
-
-    // Goodreads
-    'goodreadsId', 'goodreadsRating', 'goodreadsReviewCount',
-
-    // Hardcover
-    'hardcoverId', 'hardcoverBookId', 'hardcoverRating', 'hardcoverReviewCount',
-
-    // Comicvine
-    'comicvineId',
-
-    // Lubimyczytac
-    'lubimyczytacId', 'lubimyczytacRating',
-
-    // Ranobedb
-    'ranobedbId', 'ranobedbRating',
-
-    // Audible
-    'audibleId', 'audibleRating', 'audibleReviewCount',
-
-    // Apple Books
-    'applebooksId', 'applebooksRating', 'applebooksReviewCount',
-
-    // Generic provider-specific
-    'moods', 'tags'
-  ];
-
   private initializeFieldOptions(): FieldOptions {
-    return this.fields.reduce((acc, field) => {
+    return this.fields().reduce((acc, field) => {
       acc[field] = {p1: null, p2: null, p3: null, p4: null};
       return acc;
     }, {} as FieldOptions);
   }
 
   private initializeEnabledFields(): Record<keyof FieldOptions, boolean> {
-    return this.fields.reduce((acc, field) => {
+    return this.fields().reduce((acc, field) => {
       acc[field] = true;
       return acc;
     }, {} as Record<keyof FieldOptions, boolean>);
@@ -172,7 +117,7 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
       this.replaceMode = this.currentMetadataOptions.replaceMode || 'REPLACE_MISSING';
 
       const backendFieldOptions = this.deepCloneFieldOptions(this.currentMetadataOptions.fieldOptions as FieldOptions || {});
-      for (const field of this.fields) {
+      for (const field of this.fields()) {
         if (!backendFieldOptions[field]) {
           backendFieldOptions[field] = {p1: null, p2: null, p3: null, p4: null};
         } else {
@@ -191,7 +136,7 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
 
   private deepCloneFieldOptions(fieldOptions: FieldOptions): FieldOptions {
     const cloned = {} as FieldOptions;
-    for (const field of this.fields) {
+    for (const field of this.fields()) {
       cloned[field] = {
         p1: fieldOptions[field]?.p1 || null,
         p2: fieldOptions[field]?.p2 || null,
@@ -237,7 +182,7 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
     }
   }
 
-  setBulkProvider(priority: 'p1' | 'p2' | 'p3' | 'p4', provider: string | null): void {
+  setBulkProvider(priority: 'p1' | 'p2' | 'p3' | 'p4', provider: MetadataProviderId | 'Clear All' | null): void {
     if (!provider) return;
 
     const value = provider === 'Clear All' ? null : provider;
@@ -303,37 +248,19 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
       'pageCount': 'Page Count',
       'rating': 'Rating',
       'reviewCount': 'Review Count',
-      'openlibraryId': 'OpenLibrary ID',
-      'asin': 'Amazon ASIN',
-      'goodreadsId': 'Goodreads ID',
-      'comicvineId': 'Comicvine ID',
-      'hardcoverId': 'Hardcover ID',
-      'hardcoverBookId': 'Hardcover Book ID',
-      'googleId': 'Google Books ID',
-      'amazonRating': 'Amazon Rating',
-      'amazonReviewCount': 'Amazon Review Count',
-      'goodreadsRating': 'Goodreads Rating',
-      'goodreadsReviewCount': 'Goodreads Review Count',
-      'hardcoverRating': 'Hardcover Rating',
-      'hardcoverReviewCount': 'Hardcover Review Count',
-      'lubimyczytacId': 'Lubimyczytac ID',
-      'lubimyczytacRating': 'Lubimyczytac Rating',
-      'ranobedbId': 'Ranobedb ID',
-      'ranobedbRating': 'Ranobedb Rating',
-      'audibleId': 'Audible ID',
-      'audibleRating': 'Audible Rating',
-      'audibleReviewCount': 'Audible Review Count',
-      'applebooksId': 'Apple Books ID',
-      'applebooksRating': 'Apple Books Rating',
-      'applebooksReviewCount': 'Apple Books Review Count',
       'moods': 'Moods (Hardcover)',
       'tags': 'Tags (Hardcover)'
     };
 
-    return fieldLabels[field] || field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).trim();
+    if (fieldLabels[field]) return fieldLabels[field];
+
+    const providerField = this.providerFields.fields().find(providerField => providerField.name === field);
+    return providerField
+      ? this.providerFields.label(providerField.name)
+      : field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).trim();
   }
 
   isProviderSpecificField(field: keyof FieldOptions): boolean {
-    return this.providerSpecificFieldsList.includes(field as string);
+    return this.providerSpecificFields().includes(field);
   }
 }

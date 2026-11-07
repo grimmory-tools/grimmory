@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, Input, OnInit, Output, Renderer2} from '@angular/core';
+import {Component, inject, Input, OnInit, output, Renderer2} from '@angular/core';
 import {DecimalPipe, DOCUMENT} from '@angular/common';
 import {TranslocoDirective} from '@jsverse/transloco';
 import {ReaderStateService} from '../state/reader-state.service';
@@ -21,11 +21,15 @@ interface AnnotationColor {
   styleUrls: ['./settings-dialog.component.scss']
 })
 export class ReaderSettingsDialogComponent implements OnInit {
+  private readonly bookService = inject(BookService);
+  private readonly customFontService = inject(EpubCustomFontService);
+  private readonly renderer = inject(Renderer2);
+  private readonly document = inject(DOCUMENT);
   @Input() stateService!: ReaderStateService;
   @Input() viewManager!: ReaderViewManagerService;
   @Input() bookId!: number;
 
-  @Output() closed = new EventEmitter<void>();
+  readonly closed = output<void>();
 
   activeTab: 'theme' | 'typography' | 'layout' = 'theme';
 
@@ -38,11 +42,6 @@ export class ReaderSettingsDialogComponent implements OnInit {
     {name: 'pink', value: '#FFB6C1', label: 'Pink'},
     {name: 'orange', value: '#FFD580', label: 'Orange'}
   ];
-
-  private bookService = inject(BookService);
-  private customFontService = inject(EpubCustomFontService);
-  private renderer = inject(Renderer2);
-  private document = inject(DOCUMENT);
 
   ngOnInit() {
     this.customFontService.injectCustomFontsStylesheet(this.renderer, this.document);

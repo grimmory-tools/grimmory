@@ -42,6 +42,8 @@ describe('app-settings.model', () => {
       ranobedbRating: 1,
       audibleRating: 1,
       audibleReviewCount: 1,
+      applebooksRating: 1,
+      applebooksReviewCount: 1,
       coverImage: 6
     };
 

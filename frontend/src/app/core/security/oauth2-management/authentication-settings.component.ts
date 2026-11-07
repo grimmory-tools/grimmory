@@ -45,6 +45,11 @@ import {Chip} from '@openng/optimus-ui/chip';
   styleUrls: ['./authentication-settings.component.scss']
 })
 export class AuthenticationSettingsComponent {
+  private readonly appSettingsService = inject(AppSettingsService);
+  private readonly messageService = inject(MessageService);
+  private readonly libraryService = inject(LibraryService);
+  private readonly groupMappingService = inject(OidcGroupMappingService);
+  private readonly t = inject(TranslocoService);
   readonly defaultMobileRedirectUri = 'grimmory://oauth2-callback';
   readonly wildcardMobileRedirectUri = '*';
   availablePermissions = [
@@ -127,12 +132,6 @@ export class AuthenticationSettingsComponent {
       groups: ''
     }
   };
-
-  private appSettingsService = inject(AppSettingsService);
-  private messageService = inject(MessageService);
-  private libraryService = inject(LibraryService);
-  private groupMappingService = inject(OidcGroupMappingService);
-  private t = inject(TranslocoService);
   get allLibraries() { return this.libraryService.libraries(); }
 
   private readonly loadSettingsEffect = effect(() => {

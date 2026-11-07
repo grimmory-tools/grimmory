@@ -33,7 +33,7 @@ describe('DialogLauncherService', () => {
   });
 
   it('merges the default dialog options with caller overrides', async () => {
-    await service.openDialog(LibraryCreatorComponent, {
+    service.openDialog(LibraryCreatorComponent, {
       showHeader: false,
       data: {mode: 'create'},
     });

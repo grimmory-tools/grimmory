@@ -581,9 +581,8 @@ class KoboReadingStateServiceTest {
     }
 
     @Test
-    @DisplayName("Should overlay web reader bookmark when two-way sync is ON and web reader data exists")
+    @DisplayName("Should overlay web reader bookmark when web reader data exists")
     void testGetReadingState_overlayWebReaderBookmark() {
-        testSettings.setTwoWayProgressSync(true);
         String entitlementId = "100";
         BookFileEntity primaryFile = setPrimaryEpub(10L);
 
@@ -630,34 +629,8 @@ class KoboReadingStateServiceTest {
     }
 
     @Test
-    @DisplayName("Should NOT overlay web reader bookmark when two-way sync is OFF")
-    void testGetReadingState_noOverlayWhenToggleOff() {
-        testSettings.setTwoWayProgressSync(false);
-        String entitlementId = "100";
-
-        KoboReadingState existingState = KoboReadingState.builder()
-                .entitlementId(entitlementId)
-                .currentBookmark(KoboReadingState.CurrentBookmark.builder()
-                        .progressPercent(30)
-                        .lastModified("2025-01-01T00:00:00Z")
-                        .build())
-                .build();
-
-        KoboReadingStateEntity entity = new KoboReadingStateEntity();
-        when(repository.findByEntitlementIdAndUserId(entitlementId, 1L)).thenReturn(Optional.of(entity));
-        when(mapper.toDto(entity)).thenReturn(existingState);
-
-        List<KoboReadingState> result = service.getReadingState(entitlementId);
-
-        assertEquals(1, result.size());
-        assertEquals(30, result.getFirst().getCurrentBookmark().getProgressPercent());
-        verify(readingStateBuilder, never()).buildBookmarkFromProgress(any(), any());
-    }
-
-    @Test
     @DisplayName("Should overlay web reader location when available")
     void testGetReadingState_overlayWebReaderBookmark_replacesLocation() {
-        testSettings.setTwoWayProgressSync(true);
         String entitlementId = "100";
         BookFileEntity primaryFile = setPrimaryEpub(10L);
 
@@ -716,7 +689,6 @@ class KoboReadingStateServiceTest {
     @Test
     @DisplayName("Should keep stored Kobo bookmark when mirrored EPUB progress is not newer")
     void testGetReadingState_preservesStoredKoboBookmarkWhenKoboIsFreshest() {
-        testSettings.setTwoWayProgressSync(true);
         String entitlementId = "100";
         BookFileEntity primaryFile = setPrimaryEpub(10L);
 
@@ -767,9 +739,8 @@ class KoboReadingStateServiceTest {
     }
 
     @Test
-    @DisplayName("Should cross-populate chapter-aware EPUB fields from Kobo when two-way sync is ON")
+    @DisplayName("Should cross-populate chapter-aware EPUB fields from Kobo")
     void testSyncKoboProgress_crossPopulateEpubFields() {
-        testSettings.setTwoWayProgressSync(true);
         String entitlementId = "100";
 
         BookFileEntity primaryFile = setPrimaryEpub(10L);
@@ -831,47 +802,8 @@ class KoboReadingStateServiceTest {
     }
 
     @Test
-    @DisplayName("Should NOT cross-populate epub fields when two-way sync is OFF")
-    void testSyncKoboProgress_noCrossPopulateWhenToggleOff() {
-        testSettings.setTwoWayProgressSync(false);
-        String entitlementId = "100";
-
-        UserBookProgressEntity existingProgress = new UserBookProgressEntity();
-        existingProgress.setUser(testUserEntity);
-        existingProgress.setBook(testBook);
-        existingProgress.setEpubProgressPercent(40f);
-        existingProgress.setEpubProgress("epubcfi(/6/4)");
-
-        KoboReadingState readingState = KoboReadingState.builder()
-                .entitlementId(entitlementId)
-                .currentBookmark(KoboReadingState.CurrentBookmark.builder()
-                        .progressPercent(70)
-                        .build())
-                .build();
-
-        KoboReadingStateEntity entity = new KoboReadingStateEntity();
-        when(mapper.toEntity(any())).thenReturn(entity);
-        when(mapper.toDto(any(KoboReadingStateEntity.class))).thenReturn(readingState);
-        when(repository.findByEntitlementIdAndUserId(entitlementId, 1L)).thenReturn(Optional.empty());
-        when(repository.save(any())).thenReturn(entity);
-        when(bookRepository.findById(100L)).thenReturn(Optional.of(testBook));
-        when(userRepository.findById(1L)).thenReturn(Optional.of(testUserEntity));
-        when(progressRepository.findByUserIdAndBookId(1L, 100L)).thenReturn(Optional.of(existingProgress));
-
-        ArgumentCaptor<UserBookProgressEntity> captor = ArgumentCaptor.forClass(UserBookProgressEntity.class);
-        when(progressRepository.save(captor.capture())).thenReturn(existingProgress);
-
-        service.saveReadingState(List.of(readingState));
-
-        UserBookProgressEntity saved = captor.getValue();
-        assertEquals(40f, saved.getEpubProgressPercent());
-        assertEquals("epubcfi(/6/4)", saved.getEpubProgress());
-    }
-
-    @Test
     @DisplayName("Should clear stale EPUB CFI but keep chapter source when Kobo sends newer KoboSpan")
     void testSyncKoboProgress_clearEpubCfiWhenKoboSendsKoboSpan() {
-        testSettings.setTwoWayProgressSync(true);
         String entitlementId = "100";
 
         BookFileEntity primaryFile = setPrimaryEpub(10L);
@@ -938,7 +870,6 @@ class KoboReadingStateServiceTest {
     @Test
     @DisplayName("Should clear stale chapter progress when Kobo bookmark omits content source progress")
     void testSyncKoboProgress_clearStaleContentSourceProgressPercent() {
-        testSettings.setTwoWayProgressSync(true);
         String entitlementId = "100";
 
         BookFileEntity primaryFile = setPrimaryEpub(10L);
@@ -993,7 +924,6 @@ class KoboReadingStateServiceTest {
     @Test
     @DisplayName("Should not cross-populate when web reader has newer progress")
     void testSyncKoboProgress_skipCrossPopulateWhenWebReaderNewer() {
-        testSettings.setTwoWayProgressSync(true);
         String entitlementId = "100";
 
         BookFileEntity primaryFile = setPrimaryEpub(10L);
@@ -1040,9 +970,8 @@ class KoboReadingStateServiceTest {
     }
 
     @Test
-    @DisplayName("Should construct reading state from web reader progress when toggle ON and no Kobo data")
+    @DisplayName("Should construct reading state from web reader progress when no Kobo data")
     void testGetReadingState_constructFromWebReaderProgress_whenToggleOn() {
-        testSettings.setTwoWayProgressSync(true);
         String entitlementId = "100";
 
         UserBookProgressEntity progress = new UserBookProgressEntity();
@@ -1078,26 +1007,6 @@ class KoboReadingStateServiceTest {
 
         assertEquals(1, result.size());
         verify(readingStateBuilder).buildReadingStateFromProgress(entitlementId, progress, fileProgress);
-    }
-
-    @Test
-    @DisplayName("Should NOT construct reading state from web reader progress when toggle OFF")
-    void testGetReadingState_noConstructFromWebReaderProgress_whenToggleOff() {
-        testSettings.setTwoWayProgressSync(false);
-        String entitlementId = "100";
-
-        UserBookProgressEntity progress = new UserBookProgressEntity();
-        progress.setKoboProgressPercent(null);
-        progress.setKoboLocation(null);
-        progress.setEpubProgressPercent(60f);
-
-        when(repository.findByEntitlementIdAndUserId(entitlementId, 1L)).thenReturn(Optional.empty());
-        when(progressRepository.findByUserIdAndBookId(1L, 100L)).thenReturn(Optional.of(progress));
-
-        List<KoboReadingState> result = service.getReadingState(entitlementId);
-
-        assertTrue(result.isEmpty());
-        verify(readingStateBuilder, never()).buildReadingStateFromProgress(any(), any(), any());
     }
 
     @Test

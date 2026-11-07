@@ -55,6 +55,7 @@ import { appTextareaVariants } from './app-textarea.variants';
   `,
 })
 export class AppTextareaComponent implements FormValueControl<string> {
+  private readonly fieldContext = inject(APP_FIELD, { optional: true });
   readonly value = model('');
   readonly disabled = input(false, { transform: booleanAttribute });
   readonly required = input(false, { transform: booleanAttribute });
@@ -74,8 +75,6 @@ export class AppTextareaComponent implements FormValueControl<string> {
   readonly maxLength = input<number | undefined>(undefined);
   readonly minLength = input<number | undefined>(undefined);
   readonly autoResize = input(false, { transform: booleanAttribute });
-
-  private readonly fieldContext = inject(APP_FIELD, { optional: true });
   protected readonly resolvedInputId = computed(() => this.inputId() || this.fieldContext?.controlId() || null);
   protected readonly resolvedDescribedBy = computed(
     () => this.ariaDescribedBy() || this.fieldContext?.describedById() || null,

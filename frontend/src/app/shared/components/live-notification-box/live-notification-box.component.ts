@@ -22,11 +22,10 @@ import {TagComponent} from '../tag/tag.component';
 export class LiveNotificationBoxComponent implements OnDestroy {
   private readonly t = inject(TranslocoService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly notificationService = inject(NotificationEventService);
   private readonly destroy$ = new Subject<void>();
   latestNotification: LogNotification = {message: this.t.translate('shared.liveNotification.defaultMessage')};
   private hasReceivedNotification = false;
-
-  private notificationService = inject(NotificationEventService);
 
   constructor() {
     this.notificationService.latestNotification$.pipe(takeUntil(this.destroy$)).subscribe(notification => {

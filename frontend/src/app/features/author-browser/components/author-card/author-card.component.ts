@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {ChangeDetectorRef, Component, inject, Input, OnChanges, output, SimpleChanges} from '@angular/core';
 import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {CheckboxChangeEvent, Checkbox} from '@openng/optimus-ui/checkbox';
@@ -17,26 +17,25 @@ import {AuthorService} from '../../service/author.service';
   imports: [TranslocoPipe, Tooltip, Checkbox, FormsModule, TieredMenu, Button]
 })
 export class AuthorCardComponent implements OnChanges {
+  private readonly authorService = inject(AuthorService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   @Input({required: true}) author!: AuthorSummary;
   @Input() canQuickMatch = false;
   @Input() canDelete = false;
   @Input() isCheckboxEnabled = false;
   @Input() isSelected = false;
-  @Output() cardClick = new EventEmitter<AuthorSummary>();
-  @Output() quickMatched = new EventEmitter<AuthorSummary>();
-  @Output() checkboxClick = new EventEmitter<{ index: number; author: AuthorSummary; selected: boolean; shiftKey: boolean }>();
-  @Output() viewAuthor = new EventEmitter<AuthorSummary>();
-  @Output() editAuthor = new EventEmitter<AuthorSummary>();
-  @Output() deleteAuthor = new EventEmitter<AuthorSummary>();
-  @Output() menuToggled = new EventEmitter<boolean>();
+  readonly cardClick = output<AuthorSummary>();
+  readonly quickMatched = output<AuthorSummary>();
+  readonly checkboxClick = output<{ index: number; author: AuthorSummary; selected: boolean; shiftKey: boolean }>();
+  readonly viewAuthor = output<AuthorSummary>();
+  readonly editAuthor = output<AuthorSummary>();
+  readonly deleteAuthor = output<AuthorSummary>();
+  readonly menuToggled = output<boolean>();
   @Input() index = 0;
   @Input() cacheBuster = 0;
-
-  private authorService = inject(AuthorService);
-  private messageService = inject(MessageService);
-  private t = inject(TranslocoService);
-  private cdr = inject(ChangeDetectorRef);
   private lastShiftKey = false;
 
   hasPhoto = false;

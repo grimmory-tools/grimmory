@@ -5,5 +5,6 @@ import java.time.Instant;
 public interface BookCoverUpdateProjection {
     Long getId();
     Instant getCoverUpdatedOn();
+    Instant getAudiobookCoverUpdatedOn();
 }
 

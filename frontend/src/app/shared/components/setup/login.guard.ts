@@ -1,16 +1,14 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map, catchError, of } from 'rxjs';
 import { API_CONFIG } from '../../../core/config/api-config';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class LoginGuard implements CanActivate {
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/setup`;
-  private http = inject(HttpClient);
-  private router = inject(Router);
 
   canActivate(): Observable<boolean> {
     return this.http.get<{ data: boolean }>(`${this.url}/status`).pipe(

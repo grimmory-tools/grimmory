@@ -5,8 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.booklore.model.MetadataClearFlags;
 import org.booklore.model.dto.settings.MetadataPersistenceSettings;
-import org.booklore.model.entity.BookEntity;
-import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.service.appsettings.AppSettingService;
@@ -17,14 +15,11 @@ import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.images.Artwork;
 import org.jaudiotagger.tag.images.ArtworkFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Comparator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,17 +35,7 @@ public class AudiobookMetadataWriter implements MetadataWriter {
     private final AppSettingService appSettingService;
 
     @Override
-    public void saveMetadataToFile(File audioFile, BookMetadataEntity metadata, String thumbnailUrl, MetadataClearFlags clear) {
-        if (audioFile.isDirectory()) {
-            if (StringUtils.isNotBlank(thumbnailUrl)) {
-                byte[] coverData = loadImage(thumbnailUrl);
-                if (coverData != null) {
-                    saveCoverToFolder(audioFile.toPath(), coverData);
-                }
-            }
-            return;
-        }
-
+    public void saveMetadataToFile(File audioFile, BookMetadataEntity metadata, MetadataClearFlags clear) {
         if (!shouldSaveMetadataToFile(audioFile)) {
             return;
         }
@@ -122,22 +107,6 @@ public class AudiobookMetadataWriter implements MetadataWriter {
                 String trackTotal = val != null ? String.valueOf(val) : null;
                 setTagField(tag, FieldKey.TRACK_TOTAL, trackTotal, hasChanges);
             });
-
-            if (StringUtils.isNotBlank(thumbnailUrl)) {
-                byte[] coverData = loadImage(thumbnailUrl);
-                if (coverData != null) {
-                    try {
-                        tag.deleteArtworkField();
-                        Artwork artwork = ArtworkFactory.getNew();
-                        artwork.setBinaryData(coverData);
-                        artwork.setMimeType(detectMimeType(coverData));
-                        tag.setField(artwork);
-                        hasChanges[0] = true;
-                    } catch (Exception e) {
-                        log.warn("Failed to set cover art for {}: {}", audioFile.getName(), e.getMessage());
-                    }
-                }
-            }
 
             if (hasChanges[0]) {
                 f.commit();
@@ -219,63 +188,18 @@ public class AudiobookMetadataWriter implements MetadataWriter {
     }
 
     @Override
-    public void replaceCoverImageFromBytes(BookEntity bookEntity, byte[] coverData) {
-        if (coverData == null || coverData.length == 0) {
-            log.warn("Cover update failed: empty or null byte array.");
+    public void replaceCoverImageFromBytes(File bookFile, byte[] coverData) {
+        if (!shouldSaveMetadataToFile(bookFile)) {
             return;
         }
 
-        BookFileEntity audioFile = getAudiobookFile(bookEntity);
-        if (audioFile == null) {
-            return;
-        }
-
-        if (audioFile.isFolderBased()) {
-            Path folderPath = audioFile.getFullFilePath();
-            saveCoverToFolder(folderPath, coverData);
-        } else {
-            File file = audioFile.getFullFilePath().toFile();
-            if (!shouldSaveMetadataToFile(file)) {
-                return;
-            }
-            replaceCoverImageInternal(file, coverData, "byte array");
-        }
-    }
-
-    @Override
-    public void replaceCoverImageFromUpload(BookEntity bookEntity, MultipartFile multipartFile) {
-        if (multipartFile == null || multipartFile.isEmpty()) {
-            log.warn("Cover upload failed: empty or null file.");
+        if (bookFile.isDirectory()) {
+            saveCoverToFolder(bookFile.toPath(), coverData);
             return;
         }
 
         try {
-            byte[] coverData = multipartFile.getBytes();
-            replaceCoverImageFromBytes(bookEntity, coverData);
-        } catch (IOException e) {
-            log.warn("Failed to read uploaded cover image: {}", e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void replaceCoverImageFromUrl(BookEntity bookEntity, String url) {
-        if (url == null || url.isBlank()) {
-            log.warn("Cover update via URL failed: empty or null URL.");
-            return;
-        }
-
-        byte[] coverData = loadImage(url);
-        if (coverData == null) {
-            log.warn("Failed to load image from URL: {}", url);
-            return;
-        }
-
-        replaceCoverImageFromBytes(bookEntity, coverData);
-    }
-
-    private void replaceCoverImageInternal(File audioFile, byte[] coverData, String source) {
-        try {
-            AudioFile f = AudioFileIO.read(audioFile);
+            AudioFile f = AudioFileIO.read(bookFile);
             Tag tag = f.getTagOrCreateAndSetDefault();
 
             tag.deleteArtworkField();
@@ -285,20 +209,10 @@ public class AudiobookMetadataWriter implements MetadataWriter {
             tag.setField(artwork);
             f.commit();
 
-            log.info("Cover image updated in audiobook from {}: {}", source, audioFile.getName());
+            log.info("Cover image updated in audiobook: {}", bookFile.getName());
         } catch (Exception e) {
-            log.warn("Failed to update audiobook cover image from {}: {}", source, e.getMessage(), e);
+            log.warn("Failed to update audiobook cover image: {}", e.getMessage(), e);
         }
-    }
-
-    private BookFileEntity getAudiobookFile(BookEntity bookEntity) {
-        if (bookEntity == null || bookEntity.getBookFiles() == null) {
-            return null;
-        }
-        return bookEntity.getBookFiles().stream()
-                .filter(bf -> bf.getBookType() == BookFileType.AUDIOBOOK)
-                .min(Comparator.comparingLong(BookFileEntity::getId))
-                .orElse(null);
     }
 
     @Override
@@ -317,6 +231,10 @@ public class AudiobookMetadataWriter implements MetadataWriter {
             return false;
         }
 
+        if (audioFile.isDirectory()) {
+            return true;
+        }
+
         long fileSizeInMb = audioFile.length() / (1024 * 1024);
         if (fileSizeInMb > audiobookSettings.getMaxFileSizeInMb()) {
             log.info("Audiobook file {} ({} MB) exceeds max size limit ({} MB). Skipping metadata write.",
@@ -325,17 +243,6 @@ public class AudiobookMetadataWriter implements MetadataWriter {
         }
 
         return true;
-    }
-
-    private byte[] loadImage(String pathOrUrl) {
-        try (InputStream stream = pathOrUrl.startsWith("http")
-                ? URI.create(pathOrUrl).toURL().openStream()
-                : new FileInputStream(pathOrUrl)) {
-            return stream.readAllBytes();
-        } catch (IOException e) {
-            log.warn("Failed to load image from {}: {}", pathOrUrl, e.getMessage());
-            return null;
-        }
     }
 
     private String detectMimeType(byte[] data) {

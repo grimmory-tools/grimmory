@@ -203,6 +203,7 @@
         <div class="progress-stats">
           <span class="stat-created"><i class="pi pi-check-circle"></i> {{ createdCount() }}</span>
           <span class="stat-no-metadata"><i class="pi pi-exclamation-triangle"></i> {{ noMetadataCount() }}</span>
+          <span class="stat-already-exists"><i class="pi pi-copy"></i> {{ alreadyExistsCount() }}</span>
           <span class="stat-failed"><i class="pi pi-times-circle"></i> {{ failedCount() }}</span>
         </div>
       </div>
@@ -216,15 +217,19 @@
                 @case ('looking-up') { <i class="pi pi-spin pi-spinner"></i> }
                 @case ('created') { <i class="pi pi-check-circle"></i> }
                 @case ('created-no-metadata') { <i class="pi pi-exclamation-triangle"></i> }
+                @case ('already-exists') { <i class="pi pi-copy"></i> }
                 @case ('failed') { <i class="pi pi-times-circle"></i> }
+                @default never;
               }
             </div>
             <code class="progress-item-isbn">{{ entry.isbn }}</code>
             <span class="progress-item-detail">
-              @if (entry.status === 'created' && entry.title) {
-                {{ entry.title }}
+              @if (entry.status === 'created') {
+                {{ entry.title || t('summaryCreated') }}
               } @else if (entry.status === 'created-no-metadata') {
                 {{ t('createdNoMetadata') }}
+              } @else if (entry.status === 'already-exists') {
+                {{ t('reason.alreadyExists') }}
               } @else if (entry.status === 'failed') {
                 {{ entry.error || t('unknownError') }}
               } @else if (entry.status === 'looking-up') {
@@ -284,6 +289,15 @@
             </div>
           </div>
         }
+        @if (alreadyExistsCount() > 0) {
+          <div class="summary-card info">
+            <i class="pi pi-copy"></i>
+            <div class="summary-card-content">
+              <span class="summary-card-count">{{ alreadyExistsCount() }}</span>
+              <span class="summary-card-label">{{ t('reason.alreadyExists') }}</span>
+            </div>
+          </div>
+        }
         @if (failedCount() > 0) {
           <div class="summary-card error">
             <i class="pi pi-times-circle"></i>
@@ -312,15 +326,18 @@
                 @switch (entry.status) {
                   @case ('created') { <i class="pi pi-check-circle"></i> }
                   @case ('created-no-metadata') { <i class="pi pi-exclamation-triangle"></i> }
+                  @case ('already-exists') { <i class="pi pi-copy"></i> }
                   @case ('failed') { <i class="pi pi-times-circle"></i> }
                 }
               </div>
               <code class="summary-detail-isbn">{{ entry.isbn }}</code>
               <span class="summary-detail-info">
-                @if (entry.status === 'created' && entry.title) {
-                  {{ entry.title }}
+                @if (entry.status === 'created') {
+                  {{ entry.title || t('summaryCreated') }}
                 } @else if (entry.status === 'created-no-metadata') {
                   {{ t('createdNoMetadata') }}
+                } @else if (entry.status === 'already-exists') {
+                  {{ t('reason.alreadyExists') }}
                 } @else if (entry.status === 'failed') {
                   {{ entry.error || t('unknownError') }}
                 }

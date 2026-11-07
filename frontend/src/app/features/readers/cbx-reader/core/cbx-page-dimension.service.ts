@@ -1,5 +1,5 @@
 import {HttpClient} from '@angular/common/http';
-import {Injectable, inject} from '@angular/core';
+import {Service, inject} from '@angular/core';
 import {Observable, of, tap} from 'rxjs';
 import {API_CONFIG} from '../../../../core/config/api-config';
 import {AuthService} from '../../../../shared/service/auth.service';
@@ -12,14 +12,14 @@ export interface WebtoonDetectionResult {
   score: number;
 }
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class CbxPageDimensionService {
+  private readonly http = inject(HttpClient);
+  private readonly authService = inject(AuthService);
 
   private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/cbx`;
-  private http = inject(HttpClient);
-  private authService = inject(AuthService);
 
-  private dimensionCache = new Map<string, CbxPageDimension[]>();
+  private readonly dimensionCache = new Map<string, CbxPageDimension[]>();
 
   private getToken(): string | null {
     return this.authService.getInternalAccessToken();

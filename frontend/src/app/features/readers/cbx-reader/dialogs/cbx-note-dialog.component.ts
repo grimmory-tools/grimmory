@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, Input, Output, OnChanges, SimpleChanges} from '@angular/core';
+import {Component, inject, Input, output, OnChanges, SimpleChanges} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {TranslocoService, TranslocoPipe} from '@jsverse/transloco';
 import {ReaderIconComponent} from '../../ebook-reader/shared/icon.component';
@@ -26,8 +26,8 @@ export class CbxNoteDialogComponent implements OnChanges {
   private readonly t = inject(TranslocoService);
 
   @Input() data: CbxNoteDialogData | null = null;
-  @Output() saved = new EventEmitter<CbxNoteDialogResult>();
-  @Output() cancelled = new EventEmitter<void>();
+  readonly saved = output<CbxNoteDialogResult>();
+  readonly cancelled = output<void>();
 
   noteContent = '';
   selectedColor = '#FFC107';

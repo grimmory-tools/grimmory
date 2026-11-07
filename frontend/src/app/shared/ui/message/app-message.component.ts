@@ -94,15 +94,14 @@ type SummaryLayout = 'list' | 'inline';
   `,
 })
 export class AppMessageComponent {
+  private readonly transloco = inject(TranslocoService);
+  private readonly document = inject(DOCUMENT);
   readonly color = input<MessageColor>('neutral');
   readonly field = input<AppFieldLike | undefined>(undefined);
   readonly summary = input(false, { transform: booleanAttribute });
   readonly summaryLayout = input<SummaryLayout>('list');
   readonly inline = input(false, { transform: booleanAttribute });
   readonly styleClass = input('');
-
-  private readonly transloco = inject(TranslocoService);
-  private readonly document = inject(DOCUMENT);
   private readonly activeLang = toSignal(this.transloco.langChanges$, { initialValue: this.transloco.getActiveLang() });
   private readonly summaryIssueIndex = signal(0);
 

@@ -57,6 +57,7 @@ import { AppControlTransitionDirective, invisibleControlInputClass, neutralContr
   `,
 })
 export class AppSliderComponent implements FormValueControl<number> {
+  private readonly fieldContext = inject(APP_FIELD, { optional: true });
   readonly value = model(0);
   readonly disabled = input(false, { transform: booleanAttribute });
   readonly required = input(false, { transform: booleanAttribute });
@@ -79,8 +80,6 @@ export class AppSliderComponent implements FormValueControl<number> {
   protected readonly thumbClass =
     `pointer-events-none absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border pointer-coarse:size-5 ${neutralControlBorderClass} ` +
     'bg-white shadow-control transition-shadow peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary';
-
-  private readonly fieldContext = inject(APP_FIELD, { optional: true });
   protected readonly resolvedInputId = computed(() => this.inputId() || this.fieldContext?.controlId() || null);
   protected readonly resolvedDescribedBy = computed(
     () => this.ariaDescribedBy() || this.fieldContext?.describedById() || null,

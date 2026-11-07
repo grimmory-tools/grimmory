@@ -1,6 +1,7 @@
-import {QueryClient, QueryObserver} from '@tanstack/angular-query-experimental';
+import {QueryClient} from '@tanstack/angular-query-experimental';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 
+import {observeActiveQuery} from '../../../core/testing/query-testing';
 import {
   invalidateAllBookQueries,
   invalidateBookCollections,
@@ -13,7 +14,6 @@ const firstBook = {id: 1};
 const secondBook = {id: 2};
 const pageKey = bookQueryKeys.boundedPage(normalizeBookPageParams({
   facets: {},
-  facetLogic: 'or',
   sort: [],
   size: 20,
 }));
@@ -28,35 +28,6 @@ function seedAllQueryFamilies(queryClient: QueryClient): void {
   queryClient.setQueryData(secondDetailKey, secondBook);
   queryClient.setQueryData(firstRecommendationKey, [secondBook]);
   queryClient.setQueryData(secondRecommendationKey, [firstBook]);
-}
-
-function observeActiveQuery(queryClient: QueryClient, queryKey: readonly unknown[], data: unknown) {
-  let fetchCount = 0;
-  let abortCount = 0;
-  const pendingResolutions: (() => void)[] = [];
-
-  queryClient.setQueryData(queryKey, data);
-  const observer = new QueryObserver(queryClient, {
-    queryKey,
-    staleTime: Infinity,
-    queryFn: ({signal}) => new Promise(resolve => {
-      fetchCount += 1;
-      signal.addEventListener('abort', () => {
-        abortCount += 1;
-      });
-      pendingResolutions.push(() => resolve(data));
-    }),
-  });
-  const unsubscribe = observer.subscribe(() => undefined);
-
-  return {
-    fetchCount: () => fetchCount,
-    abortCount: () => abortCount,
-    finish: () => {
-      pendingResolutions.splice(0).forEach(resolve => resolve());
-      unsubscribe();
-    },
-  };
 }
 
 describe('book query cache', () => {

@@ -9,7 +9,7 @@ on:
         description: 'Post the Discord nightly announcement'
         required: false
         type: boolean
-        default: true
+        default: false
 
 jobs:
   resolve_ref:
@@ -20,7 +20,6 @@ jobs:
       contents: read
 
     outputs:
-      base_tag: ${{ steps.resolve.outputs.base_tag }}
       commit_sha: ${{ steps.resolve.outputs.commit_sha }}
       from_ref: ${{ steps.resolve.outputs.from_ref }}
       nightly_tag: ${{ steps.resolve.outputs.nightly_tag }}
@@ -42,10 +41,8 @@ jobs:
           short_sha="$(git rev-parse --short HEAD)"
           build_date="$(date -u +%Y%m%d)"
           nightly_tag="nightly-${build_date}-${short_sha}"
-          base_tag="$(git describe --tags --abbrev=0 --match 'v*' origin/main)"
-          from_ref="$base_tag"
+          from_ref="$(git describe --tags --abbrev=0 --match 'v*' origin/main)"
 
-          echo "base_tag=${base_tag}" >> "$GITHUB_OUTPUT"
           echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           echo "from_ref=${from_ref}" >> "$GITHUB_OUTPUT"
           echo "nightly_tag=${nightly_tag}" >> "$GITHUB_OUTPUT"
@@ -80,22 +77,22 @@ jobs:
           echo "Nightly tag: ${NIGHTLY_TAG}"
 
       - name: Set Up QEMU for Multi-Arch Builds
-        uses: docker/setup-qemu-action@1f40c72289eff860ee54a304f1438e3cff362e0a # v4.3.0
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
         with:
           cache-image: false
 
       - name: Set Up Docker Buildx
-        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - name: Authenticate to Docker Hub
         if: ${{ vars.DOCKERHUB_REGISTRY != '' }}
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Authenticate to GitHub Container Registry
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -113,7 +110,7 @@ jobs:
             type=raw,value=${{ env.nightly_tag }}
 
       - name: Build and push Stable image
-        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           file: Dockerfile
@@ -153,61 +150,32 @@ jobs:
           app_version: ${{ needs.resolve_ref.outputs.nightly_tag }}
 
       - name: Upload Nightly OpenAPI Artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: openapi-${{ needs.resolve_ref.outputs.nightly_tag }}
           path: backend/build/openapi/grimmory-openapi.json
           retention-days: 30
 
   generate-notes:
-    name: Nightly Changelog
-    if: ${{ always() && needs.test-suite.result == 'success' }}
-    needs: [resolve_ref, test-suite]
-    runs-on: ubuntu-latest
+    name: Generate Notes
+    needs:
+      - resolve_ref
+    uses: ./.github/workflows/compute-release-notes.yml
     permissions:
       contents: read
-    outputs:
-      compare_url: ${{ steps.notes.outputs.compare_url }}
-      details_url: ${{ steps.notes.outputs.details_url }}
-      predicted_version: ${{ steps.notes.outputs.predicted_version }}
-      release_notes: ${{ steps.notes.outputs.release_notes }}
-      release_type: ${{ steps.notes.outputs.release_type }}
-      released: ${{ steps.notes.outputs.released }}
-      to_sha: ${{ steps.notes.outputs.to_sha }}
-      available: ${{ steps.webhook_secrets_check.outputs.available }}
-    steps:
-      - name: Check Discord Webhook secrets
-        id: webhook_secrets_check
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_NIGHTLY_WEBHOOK != '' && secrets.DISCORD_NIGHTLY_WEBHOOK || secrets.DISCORD_RELEASE_WEBHOOK }}
-        run: |
-          # Check here rather than in the `if`.
-          # Github actions does not support the `secrets` context in `if` blocks.
-          if [[ -n "${DISCORD_WEBHOOK}" ]]; then
-            echo "available=true" >> $GITHUB_OUTPUT
-          else
-            echo "available=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Checkout Workflow Repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 1
-
-      - name: Build Full Changelog
-        if: ${{ steps.webhook_secrets_check.outputs.available == 'true' }}
-        id: notes
-        uses: ./.github/actions/compute-release-notes
-        with:
-          base_tag: ${{ needs.resolve_ref.outputs.base_tag }}
-          from_ref: ${{ needs.resolve_ref.outputs.from_ref }}
-          repository_url: ${{ format('{0}/{1}', github.server_url, github.repository) }}
-          to_ref: ${{ needs.resolve_ref.outputs.commit_sha }}
+    with:
+      from-ref: ${{ needs.resolve_ref.outputs.from_ref }}
+      to-ref: ${{ needs.resolve_ref.outputs.commit_sha }}
+    secrets: inherit
 
   notify-discord:
     name: Notify Discord (Nightly)
-    if: ${{ always() && (github.event_name == 'schedule' || inputs.post_discord) && needs.generate-notes.result == 'success' && needs.build-and-push.result == 'success' && needs.export-openapi.result == 'success' && needs.generate-notes.outputs.available == 'true' && needs.generate-notes.outputs.predicted_version != '' }}
-    needs: [resolve_ref, build-and-push, export-openapi, generate-notes]
+    if: ${{ always() && (github.event_name == 'schedule' || inputs.post_discord) && needs.generate-notes.result == 'success' && needs.build-and-push.result == 'success' && needs.export-openapi.result == 'success' }}
+    needs:
+      - resolve_ref
+      - build-and-push
+      - export-openapi
+      - generate-notes
     permissions: {}
     uses: ./.github/workflows/notify-discord-release-notes.yml
     secrets:
@@ -215,12 +183,11 @@ jobs:
     with:
       channel: nightly
       candidate_sha: ${{ needs.resolve_ref.outputs.commit_sha }}
-      base_tag: ${{ needs.resolve_ref.outputs.base_tag }}
       current_version: ${{ needs.resolve_ref.outputs.nightly_tag }}
-      details_url: ${{ needs.generate-notes.outputs.details_url }}
-      compare_url: ${{ needs.generate-notes.outputs.compare_url }}
+      details_url: ${{ needs.generate-notes.outputs.details-url }}
+      compare_url: ${{ needs.generate-notes.outputs.compare-url }}
       mention_text: ${{ vars.DISCORD_NIGHTLY_MENTIONS }}
-      predicted_version: ${{ needs.generate-notes.outputs.predicted_version }}
+      predicted_version: ${{ needs.generate-notes.outputs.version }}
 
   test-suite:
     name: Test Suite

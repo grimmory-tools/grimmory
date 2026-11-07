@@ -7,8 +7,8 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: 48px;
-  padding: 0 12px;
+  height: var(--reader-footer-height);
+  padding: 0 calc(12px + var(--safe-edge-right)) var(--safe-edge-bottom) calc(12px + var(--safe-edge-left));
   display: flex;
   align-items: center;
   gap: 8px;
@@ -167,7 +167,7 @@
   @include text;
 
   position: absolute;
-  bottom: 60px;
+  bottom: calc(var(--reader-footer-height) + 12px);
   left: 50%;
   transform: translateX(-50%);
   background: var(--reader-chrome-bg);
@@ -413,8 +413,7 @@
 
 @media (width <= 600px) {
   .reader-navbar {
-    padding: 0 8px;
-    height: 44px;
+    padding: 0 calc(8px + var(--safe-edge-right)) var(--safe-edge-bottom) calc(8px + var(--safe-edge-left));
   }
 
   .location-popover {

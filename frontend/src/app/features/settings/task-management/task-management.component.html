@@ -4,7 +4,7 @@
     <h2 class="settings-title">
       <i class="pi pi-list-check"></i>
       {{ t('title') }}
-      <app-external-doc-link docType="taskManagement"></app-external-doc-link>
+      <app-external-doc-link docType="taskManagement" />
     </h2>
     <p class="settings-description" [innerHTML]="t('description')"></p>
   </div>
@@ -41,7 +41,7 @@
             <div class="task-header">
               <div class="task-info">
                 <div class="task-icon">
-                  <i class="pi" [ngClass]="getTaskIcon(taskInfo.taskType)"></i>
+                  <i class="pi" [class]="getTaskIcon(taskInfo.taskType)"></i>
                 </div>
                 <div class="task-details">
                   <div class="task-name-row">
@@ -57,7 +57,7 @@
                         {{ t('status.stale') }}
                       </span>
                     } @else if (getTaskHistory(taskInfo.taskType)?.id) {
-                      <span class="status-badge" [ngClass]="getLastRunInfoClass(taskInfo.taskType)">
+                      <span class="status-badge" [class]="getLastRunInfoClass(taskInfo.taskType)">
                         <span class="status-dot"></span>
                         {{ getLastRunMessage(taskInfo.taskType) }}
                       </span>
@@ -86,8 +86,7 @@
                           severity="info"
                           [disabled]="cronUpdating"
                           [pTooltip]="t('cron.edit')"
-                          (onClick)="startEditingCron(taskInfo.taskType)">
-                        </p-button>
+                          (onClick)="startEditingCron(taskInfo.taskType)" />
                       } @else {
                         <div class="cron-edit">
                           <input
@@ -105,22 +104,19 @@
                             [rounded]="true"
                             severity="success"
                             [disabled]="!!cronValidationError || cronUpdating"
-                            (onClick)="saveCronExpression(taskInfo.taskType)">
-                          </p-button>
+                            (onClick)="saveCronExpression(taskInfo.taskType)" />
                           <p-button
                             icon="pi pi-times"
                             size="small"
                             [rounded]="true"
                             severity="secondary"
-                            (onClick)="cancelEditingCron()">
-                          </p-button>
+                            (onClick)="cancelEditingCron()" />
                         </div>
                       }
                       <p-toggleswitch
                         [ngModel]="getCronConfig(taskInfo.taskType)?.enabled ?? false"
                         [disabled]="isEditingCron(taskInfo.taskType) || cronUpdating"
-                        (ngModelChange)="toggleCronEnabled(taskInfo.taskType)">
-                      </p-toggleswitch>
+                        (ngModelChange)="toggleCronEnabled(taskInfo.taskType)" />
                     </div>
                     @if (isEditingCron(taskInfo.taskType) && cronValidationError) {
                       <div class="cron-error">
@@ -139,8 +135,7 @@
                       severity="info"
                       [outlined]="true"
                       [disabled]="isTaskExecuting(taskInfo.taskType)"
-                      (onClick)="executeTask(taskInfo.taskType)">
-                    </p-button>
+                      (onClick)="executeTask(taskInfo.taskType)" />
                   }
                   @if (canCancelTask(getTaskHistory(taskInfo.taskType)) && !isTaskStale(getTaskHistory(taskInfo.taskType))) {
                     <p-button
@@ -149,8 +144,7 @@
                       severity="danger"
                       [outlined]="true"
                       [disabled]="isTaskExecuting(taskInfo.taskType)"
-                      (onClick)="cancelTask(taskInfo.taskType)">
-                    </p-button>
+                      (onClick)="cancelTask(taskInfo.taskType)" />
                   }
                 </div>
               </div>
@@ -159,7 +153,7 @@
             <div class="task-body">
               @if (!isTaskRunning(taskInfo.taskType) && hasMetadata(taskInfo.taskType)) {
                 <div class="task-metadata">
-                  <i class="pi" [ngClass]="getMetadataIcon(taskInfo.taskType)"></i>
+                  <i class="pi" [class]="getMetadataIcon(taskInfo.taskType)"></i>
                   <span>{{ getTaskMetadata(taskInfo.taskType) }}</span>
                 </div>
               }
@@ -203,7 +197,7 @@
                     <div class="progress-row">
                       <span class="progress-label">{{ t('progress.progressLabel') }}</span>
                       <div class="progress-bar-container">
-                        <p-progressbar [value]="getTaskProgressPercentage(taskInfo.taskType)!"></p-progressbar>
+                        <p-progressbar [value]="getTaskProgressPercentage(taskInfo.taskType)!" />
                         <span class="progress-percent">{{ getTaskProgressPercentage(taskInfo.taskType) }}%</span>
                       </div>
                     </div>

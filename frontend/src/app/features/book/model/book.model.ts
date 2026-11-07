@@ -172,7 +172,8 @@ export interface BookMetadata {
   goodreadsId?: string;
   comicvineId?: string;
   hardcoverId?: string;
-  hardcoverBookId?: number | null;
+  hardcoverBookId?: string | null;
+  doubanId?: string;
   googleId?: string;
   pageCount?: number | null;
   language?: string;
@@ -183,6 +184,8 @@ export interface BookMetadata {
   goodreadsRating?: number | null;
   goodreadsReviewCount?: number | null;
   hardcoverReviewCount?: number | null;
+  doubanRating?: number | null;
+  doubanReviewCount?: number | null;
   lubimyczytacId?: string;
   lubimyczytacRating?: number | null;
   ranobedbId?: string;
@@ -227,6 +230,7 @@ export interface BookMetadata {
   goodreadsIdLocked?: boolean;
   hardcoverIdLocked?: boolean;
   hardcoverBookIdLocked?: boolean;
+  doubanIdLocked?: boolean;
   googleIdLocked?: boolean;
   pageCountLocked?: boolean;
   languageLocked?: boolean;
@@ -236,6 +240,8 @@ export interface BookMetadata {
   goodreadsReviewCountLocked?: boolean;
   hardcoverRatingLocked?: boolean;
   hardcoverReviewCountLocked?: boolean;
+  doubanRatingLocked?: boolean;
+  doubanReviewCountLocked?: boolean;
   lubimyczytacIdLocked?: boolean;
   lubimyczytacRatingLocked?: boolean;
   ranobedbIdLocked?: boolean;
@@ -299,6 +305,9 @@ export interface MetadataClearFlags {
   applebooksId?: boolean;
   applebooksRating?: boolean;
   applebooksReviewCount?: boolean;
+  doubanId?: boolean;
+  doubanRating?: boolean;
+  doubanReviewCount?: boolean;
   narrator?: boolean;
   abridged?: boolean;
   authors?: boolean;
@@ -347,6 +356,7 @@ export interface EbookViewerSetting {
   fontFamily: string | null;
   isDark: boolean;
   flow: 'paginated' | 'scrolled';
+  tapToTurnPage?: boolean;
 }
 
 export interface CbxViewerSetting {
@@ -466,21 +476,6 @@ export interface BookStatusUpdateResponse {
 export interface PersonalRatingUpdateResponse {
   bookId: number;
   personalRating?: number;
-}
-
-export interface DuplicateDetectionRequest {
-  libraryId: number;
-  matchByIsbn: boolean;
-  matchByExternalId: boolean;
-  matchByTitleAuthor: boolean;
-  matchByDirectory: boolean;
-  matchByFilename: boolean;
-}
-
-export interface DuplicateGroup {
-  suggestedTargetBookId: number;
-  matchReason: string;
-  books: Book[];
 }
 
 export interface DetachBookFileResponse {

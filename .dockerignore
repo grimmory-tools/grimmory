@@ -7,10 +7,6 @@ scratch
 node_modules
 .pnpm-store
 pnpm-debug.log
-tools/*
-!tools/release/
-tools/release/*
-!tools/release/package.json
 
 frontend/.angular
 frontend/dist

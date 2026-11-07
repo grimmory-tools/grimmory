@@ -1,12 +1,10 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { filter } from 'rxjs/operators';
 
-@Injectable({
-    providedIn: 'root'
-})
+@Service()
 export class PwaUpdateService {
-    private swUpdate = inject(SwUpdate);
+    private readonly swUpdate = inject(SwUpdate);
 
     constructor() {
         if (this.swUpdate.isEnabled) {
@@ -36,7 +34,7 @@ export class PwaUpdateService {
             const guardStr = sessionStorage.getItem(key);
             const guard = guardStr ? JSON.parse(guardStr) : null;
 
-            if (guard && guard.reason === reason && now - guard.timestamp < 10000) {
+            if (guard?.reason === reason && now - guard.timestamp < 10000) {
                 console.error(`PWA reload guard triggered for reason: ${reason}. Stopped reloading to avoid loop.`);
                 return false;
             }

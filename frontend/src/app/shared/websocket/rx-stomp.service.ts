@@ -1,13 +1,11 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {RxStomp, RxStompConfig} from '@stomp/rx-stomp';
 import { AuthService } from '../service/auth.service';
 import { createRxStompConfig } from './rx-stomp.config';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class RxStompService extends RxStomp {
-  private authService = inject(AuthService);
+  private readonly authService = inject(AuthService);
 
   constructor() {
     super();

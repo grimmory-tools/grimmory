@@ -1,4 +1,4 @@
-import {computed, inject, Injectable, DestroyRef} from '@angular/core';
+import {computed, inject, Service, DestroyRef} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {HttpClient} from '@angular/common/http';
 import {lastValueFrom} from 'rxjs';
@@ -8,22 +8,22 @@ import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-ex
 
 const LIBRARY_HEALTH_QUERY_KEY = ['libraryHealth'] as const;
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class LibraryHealthService {
+  private readonly http = inject(HttpClient);
+  private readonly rxStompService = inject(RxStompService);
+  private readonly queryClient = inject(QueryClient);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/libraries/health`;
-  private http = inject(HttpClient);
-  private rxStompService = inject(RxStompService);
-  private queryClient = inject(QueryClient);
-  private destroyRef = inject(DestroyRef);
 
   private socketInitialized = false;
 
-  private healthQuery = injectQuery(() => ({
+  private readonly healthQuery = injectQuery(() => ({
     ...this.getHealthQueryOptions(),
     enabled: false, // manually triggered via initialize()
   }));
 
-  health = computed(() => this.healthQuery.data() ?? {});
+  readonly health = computed(() => this.healthQuery.data() ?? {});
 
   private getHealthQueryOptions() {
     return queryOptions({
@@ -33,7 +33,7 @@ export class LibraryHealthService {
   }
 
   fetchHealth(): void {
-    void this.queryClient.fetchQuery(this.getHealthQueryOptions());
+    void this.queryClient.query(this.getHealthQueryOptions());
   }
 
   initWebsocket(): void {

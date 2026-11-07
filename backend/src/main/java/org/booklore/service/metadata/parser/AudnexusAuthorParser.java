@@ -20,6 +20,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public class AudnexusAuthorParser implements AuthorParser {
 
     private static final String BASE_URL = "https://api.audnex.us";
+    private static final String PATH_AUTHORS = "/authors";
+    private static final String PATH_AUTHOR_ASIN = "/authors/{asin}";
     private static final long MIN_REQUEST_INTERVAL_MS = 150;
 
     private final HttpClient httpClient;
@@ -36,7 +38,8 @@ public class AudnexusAuthorParser implements AuthorParser {
         try {
             waitForRateLimit();
 
-            URI uri = UriComponentsBuilder.fromUriString(BASE_URL + "/authors")
+            URI uri = UriComponentsBuilder.fromUriString(BASE_URL)
+                    .path(PATH_AUTHORS)
                     .queryParam("name", name)
                     .queryParam("region", region)
                     .build()
@@ -84,7 +87,8 @@ public class AudnexusAuthorParser implements AuthorParser {
         try {
             waitForRateLimit();
 
-            URI uri = UriComponentsBuilder.fromUriString(BASE_URL + "/authors")
+            URI uri = UriComponentsBuilder.fromUriString(BASE_URL)
+                    .path(PATH_AUTHORS)
                     .queryParam("name", name)
                     .queryParam("region", region)
                     .build()
@@ -121,10 +125,10 @@ public class AudnexusAuthorParser implements AuthorParser {
         try {
             waitForRateLimit();
 
-            URI uri = UriComponentsBuilder.fromUriString(BASE_URL + "/authors/" + asin)
+            URI uri = UriComponentsBuilder.fromUriString(BASE_URL)
+                    .path(PATH_AUTHOR_ASIN)
                     .queryParam("region", region)
-                    .build()
-                    .toUri();
+                    .build(asin);
 
             log.info("Audnexus author detail URL: {}", uri);
 

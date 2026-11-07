@@ -50,7 +50,7 @@ class PdfMetadataExtractorTest {
                         xmlns:xmp="http://ns.adobe.com/xap/1.0/"
                         xmlns:xmpidq="http://ns.adobe.com/xmp/Identifier/qual/1.0/"
                         xmlns:calibre="http://calibre-ebook.com/xmp-namespace"
-                        xmlns:calibreSI="http://calibre-ebook.com/xmp-namespace/seriesIndex"
+                        xmlns:calibreSI="http://calibre-ebook.com/xmp-namespace-series-index"
                         xmlns:booklore="http://booklore.org/metadata/1.0/">
                       %s
                     </rdf:Description>

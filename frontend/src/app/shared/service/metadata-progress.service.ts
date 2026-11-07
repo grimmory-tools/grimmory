@@ -1,23 +1,22 @@
-import {effect, inject, Injectable, OnDestroy} from '@angular/core';
+import {effect, inject, Service, OnDestroy} from '@angular/core';
 import {BehaviorSubject, Subject, Subscription} from 'rxjs';
 import {MetadataBatchProgressNotification} from '../model/metadata-batch-progress.model';
 import {MetadataTaskService} from '../../features/book/service/metadata-task';
 import {UserService} from '../../features/settings/user-management/user.service';
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class MetadataProgressService implements OnDestroy {
-  private progressMap = new Map<string, BehaviorSubject<MetadataBatchProgressNotification>>();
+  private readonly metadataTaskService = inject(MetadataTaskService);
+  private readonly userService = inject(UserService);
+  private readonly progressMap = new Map<string, BehaviorSubject<MetadataBatchProgressNotification>>();
 
-  private progressUpdatesSubject = new Subject<MetadataBatchProgressNotification>();
+  private readonly progressUpdatesSubject = new Subject<MetadataBatchProgressNotification>();
   progressUpdates$ = this.progressUpdatesSubject.asObservable();
 
-  private activeTasksSubject = new BehaviorSubject<Record<string, MetadataBatchProgressNotification>>({});
+  private readonly activeTasksSubject = new BehaviorSubject<Record<string, MetadataBatchProgressNotification>>({});
   activeTasks$ = this.activeTasksSubject.asObservable();
 
-  private metadataTaskService = inject(MetadataTaskService);
-  private userService = inject(UserService);
-
-  private subscriptions = new Subscription();
+  private readonly subscriptions = new Subscription();
   private hasInitialized = false;
 
   constructor() {

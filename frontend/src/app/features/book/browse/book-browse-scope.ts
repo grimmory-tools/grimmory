@@ -1,0 +1,138 @@
+import {inject} from '@angular/core';
+import {Router, type CanActivateChildFn, type ParamMap} from '@angular/router';
+
+import {type LibraryShelfMenuTarget} from '../../../shared/layout/navigation/library-shelf-menu-target.model';
+import {type EntityViewPreferenceContext} from '../../settings/user-management/entity-view-preferences';
+
+export type BookBrowseScope =
+  | {kind: 'library'; entityId: number; facetKey: 'library'; facetValue: string}
+  | {kind: 'shelf'; entityId: number; facetKey: 'shelf'; facetValue: string}
+  | {kind: 'magicShelf'; entityId: number; facetKey: 'shelf'; facetValue: string}
+  | {kind: 'unshelved'; facetKey: 'shelf_status'; facetValue: 'unshelved'};
+
+export interface BookBrowseRouteData {
+  browseScope?: 'unshelved';
+}
+
+export const validBookBrowseScope: CanActivateChildFn = route => {
+  const invalid = ['libraryId', 'shelfId', 'magicShelfId'].some(key =>
+    route.paramMap.has(key) && positiveId(route.paramMap.get(key)) === null);
+  return invalid ? inject(Router).createUrlTree(['/dashboard']) : true;
+};
+
+export const UNSHELVED_BROWSE_SCOPE: BookBrowseScope =
+  {kind: 'unshelved', facetKey: 'shelf_status', facetValue: 'unshelved'};
+
+export function libraryBrowseScope(entityId: number): BookBrowseScope {
+  return {kind: 'library', entityId, facetKey: 'library', facetValue: `${entityId}`};
+}
+
+export function shelfBrowseScope(entityId: number): BookBrowseScope {
+  return {kind: 'shelf', entityId, facetKey: 'shelf', facetValue: `${entityId}`};
+}
+
+export function magicShelfBrowseScope(entityId: number): BookBrowseScope {
+  return {kind: 'magicShelf', entityId, facetKey: 'shelf', facetValue: `magic:${entityId}`};
+}
+
+export function bookBrowseScope(
+  paramMap: ParamMap,
+  routeData: BookBrowseRouteData,
+): BookBrowseScope | null {
+  const libraryId = positiveId(paramMap.get('libraryId'));
+  if (libraryId !== null) {
+    return libraryBrowseScope(libraryId);
+  }
+
+  const shelfId = positiveId(paramMap.get('shelfId'));
+  if (shelfId !== null) {
+    return shelfBrowseScope(shelfId);
+  }
+
+  const magicShelfId = positiveId(paramMap.get('magicShelfId'));
+  if (magicShelfId !== null) {
+    return magicShelfBrowseScope(magicShelfId);
+  }
+
+  if (routeData.browseScope === 'unshelved') {
+    return UNSHELVED_BROWSE_SCOPE;
+  }
+
+  return null;
+}
+
+export function bookBrowseScopeTitle(
+  scope: BookBrowseScope | null,
+  libraries: readonly {id?: number | null; name: string}[],
+  shelves: readonly {id?: number | null; name: string}[],
+  magicShelves: readonly {id?: number | null; name: string}[],
+  labels: {readonly allBooks: string; readonly unshelved: string},
+): string {
+  switch (scope?.kind) {
+    case 'library':
+      return libraries.find(library => library.id === scope.entityId)?.name ?? '';
+    case 'shelf':
+      return shelves.find(shelf => shelf.id === scope.entityId)?.name ?? '';
+    case 'magicShelf':
+      return magicShelves.find(shelf => shelf.id === scope.entityId)?.name ?? '';
+    case 'unshelved':
+      return labels.unshelved;
+    case undefined:
+      return labels.allBooks;
+  }
+}
+
+export function bookBrowseScopePreferenceContext(
+  scope: BookBrowseScope | null,
+): EntityViewPreferenceContext | null {
+  switch (scope?.kind) {
+    case 'library':
+      return {entityType: 'LIBRARY', entityId: scope.entityId};
+    case 'shelf':
+      return {entityType: 'SHELF', entityId: scope.entityId};
+    case 'magicShelf':
+      return {entityType: 'MAGIC_SHELF', entityId: scope.entityId};
+    case 'unshelved':
+    case undefined:
+      return null;
+  }
+}
+
+export function bookBrowseScopeMenuTarget(
+  scope: BookBrowseScope | null,
+  libraries: readonly {id?: number | null; name: string}[],
+  shelves: readonly {id: number; name: string; userId: number; publicShelf?: boolean}[],
+  magicShelves: readonly {id?: number | null; name: string; filterJson: string; isPublic?: boolean}[],
+): LibraryShelfMenuTarget | null {
+  switch (scope?.kind) {
+    case 'library': {
+      const library = libraries.find(candidate => candidate.id === scope.entityId);
+      return library?.id == null
+        ? null
+        : {type: 'library', entity: {id: library.id, name: library.name}};
+    }
+    case 'shelf': {
+      const shelf = shelves.find(candidate => candidate.id === scope.entityId);
+      return shelf
+        ? {type: 'shelf', entity: {id: shelf.id, name: shelf.name, userId: shelf.userId, publicShelf: shelf.publicShelf}}
+        : null;
+    }
+    case 'magicShelf': {
+      const shelf = magicShelves.find(candidate => candidate.id === scope.entityId);
+      return shelf?.id == null
+        ? null
+        : {
+            type: 'magicShelf',
+            entity: {id: shelf.id, name: shelf.name, filterJson: shelf.filterJson, isPublic: shelf.isPublic},
+          };
+    }
+    case 'unshelved':
+    case undefined:
+      return null;
+  }
+}
+
+function positiveId(raw: string | null): number | null {
+  const id = Number(raw);
+  return raw !== null && Number.isSafeInteger(id) && id > 0 ? id : null;
+}

@@ -18,24 +18,27 @@ import org.booklore.service.metadata.writer.MetadataWriter;
 import org.booklore.service.metadata.writer.MetadataWriterFactory;
 import org.booklore.service.file.FileFingerprint;
 import org.booklore.util.FileService;
+import org.booklore.util.MimeDetector;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.model.dto.BookLoreUser;
-import org.booklore.model.enums.PermissionType;
-import org.booklore.model.websocket.LogNotification;
-import org.booklore.model.websocket.Topic;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.Executor;
 
@@ -66,10 +69,22 @@ class BookCoverServiceTest {
     @InjectMocks
     private BookCoverService service;
 
+    private MockedStatic<Files> filesMock;
+    private MockedStatic<MimeDetector> mimeDetectorMock;
+
     @BeforeEach
     void setUp() {
+        mimeDetectorMock = mockStatic(MimeDetector.class);
+        filesMock = mockStatic(Files.class);
+
         lenient().when(appProperties.isLocalStorage()).thenReturn(true);
         lenient().when(authenticationService.getAuthenticatedUser()).thenReturn(BookLoreUser.builder().username("testuser").build());
+    }
+
+    @AfterEach
+    void tearDown() {
+        filesMock.close();
+        mimeDetectorMock.close();
     }
 
     private BookEntity buildBook(long id, boolean coverLocked) {
@@ -95,6 +110,29 @@ class BookCoverServiceTest {
                 .metadata(metadata)
                 .bookFiles(new HashSet<>())
                 .build();
+    }
+
+    private void runAsyncInline() {
+        doAnswer(inv -> {
+            inv.<Runnable>getArgument(0).run();
+            return null;
+        }).when(taskExecutor).execute(any(Runnable.class));
+    }
+
+    private void runTransactionsInline() {
+        when(transactionTemplate.execute(any())).thenAnswer(inv -> {
+            var callback = inv.getArgument(0, TransactionCallback.class);
+            return callback.doInTransaction(null);
+        });
+    }
+
+    private MultipartFile validPngFile() throws Exception {
+        MultipartFile file = mock(MultipartFile.class);
+        when(file.isEmpty()).thenReturn(false);
+        when(file.getSize()).thenReturn(1024L);
+        when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[]{(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}));
+        when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
+        return file;
     }
 
     @Nested
@@ -418,6 +456,8 @@ class BookCoverServiceTest {
                 when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
             } catch (Exception _) {}
 
+            mimeDetectorMock.when(() -> MimeDetector.detect(any(InputStream.class))).thenReturn("image/jpeg");
+
             service.updateCoverFromFileForBooks(Set.of(1L, 2L), file);
 
             verify(bookQueryService).findAllWithMetadataByIds(Set.of(1L, 2L));
@@ -446,6 +486,8 @@ class BookCoverServiceTest {
             when(file.isEmpty()).thenReturn(false);
             when(file.getSize()).thenReturn(1024L);
             when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[]{1, 2, 3}));
+
+            mimeDetectorMock.when(() -> MimeDetector.detect(any(InputStream.class))).thenReturn("application/wad");
 
             assertThatThrownBy(() -> service.updateCoverFromFileForBooks(Set.of(1L), file))
                     .isInstanceOf(APIException.class)
@@ -479,6 +521,8 @@ class BookCoverServiceTest {
                 when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
             } catch (Exception _) {}
 
+            mimeDetectorMock.when(() -> MimeDetector.detect(any(InputStream.class))).thenReturn("image/jpeg");
+
             when(bookQueryService.findAllWithMetadataByIds(any())).thenReturn(List.of());
 
             service.updateCoverFromFileForBooks(Set.of(1L), file);
@@ -498,6 +542,8 @@ class BookCoverServiceTest {
             } catch (Exception _) {}
 
             when(bookQueryService.findAllWithMetadataByIds(any())).thenReturn(List.of());
+
+            mimeDetectorMock.when(() -> MimeDetector.detect(any(InputStream.class))).thenReturn("image/png");
 
             service.updateCoverFromFileForBooks(Set.of(1L), file);
         }
@@ -526,6 +572,7 @@ class BookCoverServiceTest {
             BookEntity book = buildBook(1L, false);
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+            when(fileService.getCoverFile(1)).thenReturn("cover.jpg");
 
             service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
 
@@ -544,6 +591,7 @@ class BookCoverServiceTest {
             BookEntity book = buildBook(1L, false);
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+            when(fileService.getCoverFile(1)).thenReturn("cover.jpg");
             MultipartFile file = mock(MultipartFile.class);
 
             service.updateCoverFromFile(1L, file);
@@ -562,6 +610,8 @@ class BookCoverServiceTest {
             BookEntity book = buildBookWithAudiobookLock(1L, false);
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+            when(fileService.getAudiobookCoverFile(1)).thenReturn("cover.jpg");
+
             MultipartFile file = mock(MultipartFile.class);
 
             service.updateAudiobookCoverFromFile(1L, file);
@@ -590,6 +640,7 @@ class BookCoverServiceTest {
             BookEntity book = buildBookWithAudiobookLock(1L, false);
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+            when(fileService.getAudiobookCoverFile(1)).thenReturn("cover.jpg");
 
             service.updateAudiobookCoverFromUrl(1L, "https://example.com/audiobook-cover.jpg");
 
@@ -688,23 +739,44 @@ class BookCoverServiceTest {
     class BulkRegenerateCoversForBooks {
 
         @Test
-        void delegatesToAsyncExecutorWithUnlockedBooks() {
-            BookEntity unlocked = buildBook(1L, false);
-            unlocked.setBookFiles(Set.of(BookFileEntity.builder().bookType(BookFileType.EPUB).isBookFormat(true).build()));
-            unlocked.setLibrary(LibraryEntity.builder().build());
-            BookEntity locked = buildBook(2L, true);
+        void regeneratesBothBooksInMixedBookAndAudiobookSelection() {
+            BookEntity ebook = buildBook(1L, false);
+            BookFileEntity ebookFile = BookFileEntity.builder()
+                    .bookType(BookFileType.EPUB)
+                    .isBookFormat(true)
+                    .build();
+            ebook.setBookFiles(Set.of(ebookFile));
+            BookEntity audiobook = buildBookWithAudiobookLock(2L, false);
+            audiobook.setBookFiles(Set.of(BookFileEntity.builder()
+                    .bookType(BookFileType.AUDIOBOOK)
+                    .isBookFormat(true)
+                    .build()));
 
+            BookFileProcessor ebookProcessor = mock(BookFileProcessor.class);
+            BookFileProcessor audiobookProcessor = mock(BookFileProcessor.class);
             when(bookQueryService.findAllWithMetadataByIds(Set.of(1L, 2L)))
-                    .thenReturn(List.of(unlocked, locked));
-
-            doAnswer(inv -> {
-                inv.<Runnable>getArgument(0).run();
-                return null;
-            }).when(taskExecutor).execute(any(Runnable.class));
+                    .thenReturn(List.of(ebook, audiobook));
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(ebook));
+            when(bookRepository.findByIdWithBookFiles(2L)).thenReturn(Optional.of(audiobook));
+            when(processorRegistry.getProcessorOrThrow(BookFileType.EPUB)).thenReturn(ebookProcessor);
+            when(processorRegistry.getProcessorOrThrow(BookFileType.AUDIOBOOK)).thenReturn(audiobookProcessor);
+            when(ebookProcessor.generateCover(ebook, ebookFile)).thenReturn(true);
+            when(audiobookProcessor.generateAudiobookCover(audiobook)).thenReturn(true);
+            when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+            runAsyncInline();
+            runTransactionsInline();
 
             service.regenerateCoversForBooks(Set.of(1L, 2L));
 
-            verify(taskExecutor).execute(any(Runnable.class));
+            verify(ebookProcessor).generateCover(ebook, ebookFile);
+            verify(audiobookProcessor).generateAudiobookCover(audiobook);
+            verify(bookRepository).save(ebook);
+            verify(bookRepository).save(audiobook);
+            assertThat(ebook.getMetadata().getCoverUpdatedOn()).isNotNull();
+            assertThat(audiobook.getMetadata().getAudiobookCoverUpdatedOn()).isNotNull();
+            assertThat(audiobook.getAudiobookCoverHash()).isNotNull();
+            assertThat(audiobook.getMetadata().getCoverUpdatedOn()).isNull();
+            assertThat(audiobook.getBookCoverHash()).isNull();
         }
     }
 
@@ -712,21 +784,39 @@ class BookCoverServiceTest {
     class BulkGenerateCustomCoversForBooks {
 
         @Test
-        void delegatesToAsyncExecutorWithUnlockedBooks() {
-            BookEntity unlocked = buildBook(1L, false);
-            BookEntity locked = buildBook(2L, true);
+        void generatesTheCorrectCoverShapeForMixedBookAndAudiobookSelection() {
+            when(appProperties.isLocalStorage()).thenReturn(false);
+            BookEntity ebook = buildBook(1L, false);
+            ebook.setBookFiles(Set.of(BookFileEntity.builder()
+                    .bookType(BookFileType.EPUB)
+                    .isBookFormat(true)
+                    .build()));
+            BookEntity audiobook = buildBookWithAudiobookLock(2L, false);
+            audiobook.setBookFiles(Set.of(BookFileEntity.builder()
+                    .bookType(BookFileType.AUDIOBOOK)
+                    .isBookFormat(true)
+                    .build()));
 
             when(bookQueryService.findAllWithMetadataByIds(Set.of(1L, 2L)))
-                    .thenReturn(List.of(unlocked, locked));
-
-            doAnswer(inv -> {
-                inv.<Runnable>getArgument(0).run();
-                return null;
-            }).when(taskExecutor).execute(any(Runnable.class));
+                    .thenReturn(List.of(ebook, audiobook));
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(ebook));
+            when(bookRepository.findByIdWithBookFiles(2L)).thenReturn(Optional.of(audiobook));
+            when(coverImageGenerator.generateCover("Test Book", null)).thenReturn(new byte[]{1});
+            when(coverImageGenerator.generateSquareCover("Test Audiobook", null)).thenReturn(new byte[]{2});
+            when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+            runAsyncInline();
+            runTransactionsInline();
 
             service.generateCustomCoversForBooks(Set.of(1L, 2L));
 
-            verify(taskExecutor).execute(any(Runnable.class));
+            verify(coverImageGenerator).generateCover("Test Book", null);
+            verify(coverImageGenerator).generateSquareCover("Test Audiobook", null);
+            verify(fileService).createThumbnailFromBytes(eq(1L), any());
+            verify(fileService).createAudiobookThumbnailFromBytes(eq(2L), any());
+            verify(fileService, never()).createThumbnailFromBytes(eq(2L), any());
+            verify(fileService, never()).createAudiobookThumbnailFromBytes(eq(1L), any());
+            verify(bookRepository).save(ebook);
+            verify(bookRepository).save(audiobook);
         }
     }
 
@@ -734,30 +824,32 @@ class BookCoverServiceTest {
     class BulkUpdateCoverFromFileForBooks {
 
         @Test
-        void processesOnlyUnlockedBooks() throws Exception {
+        void appliesUploadedCoverToAudiobookSlotForAudiobookOnlyBooks() throws Exception {
             when(appSettingService.getAppSettings()).thenReturn(appSettings);
             when(appSettings.getMaxFileUploadSizeInMb()).thenReturn(5);
 
-            BookEntity unlocked = buildBook(1L, false);
-            BookEntity locked = buildBook(2L, true);
+            BookEntity audiobook = buildBookWithAudiobookLock(1L, false);
+            audiobook.setBookFiles(Set.of(BookFileEntity.builder()
+                    .bookType(BookFileType.AUDIOBOOK)
+                    .isBookFormat(true)
+                    .build()));
 
-            when(bookQueryService.findAllWithMetadataByIds(Set.of(1L, 2L)))
-                    .thenReturn(List.of(unlocked, locked));
+            when(bookQueryService.findAllWithMetadataByIds(Set.of(1L))).thenReturn(List.of(audiobook));
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(audiobook));
+            when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+            MultipartFile file = validPngFile();
+            runAsyncInline();
+            runTransactionsInline();
 
-            MultipartFile file = mock(MultipartFile.class);
-            when(file.isEmpty()).thenReturn(false);
-            when(file.getSize()).thenReturn(1024L);
-            when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[]{(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}));
-            when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
+            mimeDetectorMock.when(() -> MimeDetector.detect(any(InputStream.class))).thenReturn("image/jpeg");
 
-            doAnswer(inv -> {
-                inv.<Runnable>getArgument(0).run();
-                return null;
-            }).when(taskExecutor).execute(any(Runnable.class));
+            service.updateCoverFromFileForBooks(Set.of(1L), file);
 
-            service.updateCoverFromFileForBooks(Set.of(1L, 2L), file);
-
-            verify(taskExecutor).execute(any(Runnable.class));
+            verify(fileService).createAudiobookThumbnailFromBytes(eq(1L), any());
+            verify(fileService, never()).createThumbnailFromBytes(eq(1L), any());
+            verify(bookRepository).save(audiobook);
+            assertThat(audiobook.getMetadata().getAudiobookCoverUpdatedOn()).isNotNull();
+            assertThat(audiobook.getAudiobookCoverHash()).isNotNull();
         }
     }
 
@@ -781,13 +873,10 @@ class BookCoverServiceTest {
             });
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(processorRegistry.getProcessorOrThrow(BookFileType.EPUB)).thenReturn(processor);
-            when(processor.generateCover(book)).thenReturn(true);
+            when(processor.generateCover(book, ebookFile)).thenReturn(true);
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
 
-            doAnswer(inv -> {
-                inv.<Runnable>getArgument(0).run();
-                return null;
-            }).when(taskExecutor).execute(any(Runnable.class));
+            runAsyncInline();
 
             service.regenerateCovers(false);
 
@@ -805,10 +894,7 @@ class BookCoverServiceTest {
 
             when(bookQueryService.getAllFullBookEntitiesWithFiles()).thenReturn(List.of(locked));
 
-            doAnswer(inv -> {
-                inv.<Runnable>getArgument(0).run();
-                return null;
-            }).when(taskExecutor).execute(any(Runnable.class));
+            runAsyncInline();
 
             service.regenerateCovers(false);
 
@@ -840,13 +926,10 @@ class BookCoverServiceTest {
             });
             when(bookRepository.findByIdWithBookFiles(2L)).thenReturn(Optional.of(withoutCover));
             when(processorRegistry.getProcessorOrThrow(BookFileType.EPUB)).thenReturn(processor);
-            when(processor.generateCover(withoutCover)).thenReturn(true);
+            when(processor.generateCover(withoutCover, ebookFile2)).thenReturn(true);
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
 
-            doAnswer(inv -> {
-                inv.<Runnable>getArgument(0).run();
-                return null;
-            }).when(taskExecutor).execute(any(Runnable.class));
+            runAsyncInline();
 
             service.regenerateCovers(true);
 
@@ -863,10 +946,7 @@ class BookCoverServiceTest {
 
             when(bookQueryService.getAllFullBookEntitiesWithFiles()).thenReturn(List.of(book));
 
-            doAnswer(inv -> {
-                inv.<Runnable>getArgument(0).run();
-                return null;
-            }).when(taskExecutor).execute(any(Runnable.class));
+            runAsyncInline();
 
             service.regenerateCovers(false);
 
@@ -885,10 +965,7 @@ class BookCoverServiceTest {
 
             when(bookQueryService.getAllFullBookEntitiesWithFiles()).thenReturn(List.of(book));
 
-            doAnswer(inv -> {
-                inv.<Runnable>getArgument(0).run();
-                return null;
-            }).when(taskExecutor).execute(any(Runnable.class));
+            runAsyncInline();
 
             service.regenerateCovers(false);
 
@@ -904,19 +981,17 @@ class BookCoverServiceTest {
             BookEntity book = BookEntity.builder().id(1L).metadata(null).build();
             when(bookQueryService.findAllWithMetadataByIds(any())).thenReturn(List.of(book));
 
-            // Test getUnlockedBookCoverInfos via updateCoverFromFileForBooks (async)
-            doAnswer(inv -> {
-                inv.<Runnable>getArgument(0).run();
-                return null;
-            }).when(taskExecutor).execute(any(Runnable.class));
-            
+            runAsyncInline();
+
             MultipartFile file = mock(MultipartFile.class);
             when(file.isEmpty()).thenReturn(false);
             when(file.getSize()).thenReturn(1024L);
             when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF}));
             when(appSettingService.getAppSettings()).thenReturn(appSettings);
             when(appSettings.getMaxFileUploadSizeInMb()).thenReturn(10);
-            
+
+            mimeDetectorMock.when(() -> MimeDetector.detect(any(InputStream.class))).thenReturn("image/jpeg");
+
             service.updateCoverFromFileForBooks(Set.of(1L), file);
             
             verify(bookQueryService).findAllWithMetadataByIds(any());
@@ -1027,13 +1102,17 @@ class BookCoverServiceTest {
     class WriteCoverToBookFile {
 
         @Test
-        void writesAndUpdatesHashWhenWriterExists() {
+        void ebookCoverWriteTargetsEbookFileNotPrimaryAudiobook() {
             BookEntity book = buildBook(1L, false);
-            BookFileEntity primaryFile = BookFileEntity.builder()
-                    .bookType(BookFileType.EPUB).isBookFormat(true)
-                    .fileName("test.epub").fileSubPath("sub")
+            BookFileEntity audiobookFile = BookFileEntity.builder()
+                    .id(1L).book(book).bookType(BookFileType.AUDIOBOOK).isBookFormat(true)
+                    .fileName("audio.m4b").fileSubPath("sub")
                     .build();
-            book.setBookFiles(Set.of(primaryFile));
+            BookFileEntity epubFile = BookFileEntity.builder()
+                    .id(2L).book(book).bookType(BookFileType.EPUB).isBookFormat(true)
+                    .fileName("book.epub").fileSubPath("sub")
+                    .build();
+            book.setBookFiles(Set.of(audiobookFile, epubFile));
             book.setLibrary(LibraryEntity.builder().build());
             book.setLibraryPath(LibraryPathEntity.builder().path("/lib").build());
 
@@ -1042,18 +1121,23 @@ class BookCoverServiceTest {
             when(appSettings.getMetadataPersistenceSettings()).thenReturn(persistSettings);
             when(persistSettings.isConvertCbrCb7ToCbz()).thenReturn(false);
 
-            MetadataWriter writer = mock(MetadataWriter.class);
-            when(metadataWriterFactory.getWriter(BookFileType.EPUB)).thenReturn(Optional.of(writer));
+            MetadataWriter epubWriter = mock(MetadataWriter.class);
+            when(metadataWriterFactory.getWriter(BookFileType.EPUB)).thenReturn(Optional.of(epubWriter));
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+            when(fileService.getCoverFile(1)).thenReturn("cover.jpg");
+
+            filesMock.when(() -> Files.readAllBytes(any())).thenReturn(new byte[]{});
 
             try (MockedStatic<FileFingerprint> fpMock = mockStatic(FileFingerprint.class)) {
-                fpMock.when(() -> FileFingerprint.generateHash(any())).thenReturn("abc123");
+                fpMock.when(() -> FileFingerprint.generateHash(epubFile.getFullFilePath())).thenReturn("hash");
 
                 service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
 
-                verify(metadataWriterFactory).getWriter(BookFileType.EPUB);
-                assertThat(primaryFile.getCurrentHash()).isEqualTo("abc123");
+                verify(epubWriter).replaceCoverImageFromBytes(eq(epubFile.getFullFilePath().toFile()), any(byte[].class));
+                verify(metadataWriterFactory, never()).getWriter(BookFileType.AUDIOBOOK);
+                assertThat(epubFile.getCurrentHash()).isEqualTo("hash");
+                assertThat(audiobookFile.getCurrentHash()).isNull();
             }
         }
 
@@ -1063,6 +1147,7 @@ class BookCoverServiceTest {
             book.setBookFiles(new HashSet<>());
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+            when(fileService.getCoverFile(1)).thenReturn("cover.jpg");
 
             service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
 
@@ -1081,9 +1166,35 @@ class BookCoverServiceTest {
             BookCoverUpdateProjection projection = mock(BookCoverUpdateProjection.class);
             when(bookRepository.findCoverUpdateInfoByIds(List.of(1L))).thenReturn(List.of(projection));
 
+            when(fileService.getCoverFile(1)).thenReturn("cover.jpg");
+
             service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
 
             verify(notificationService).sendMessage(any(), eq(List.of(projection)));
+        }
+
+        @Test
+        void sendsNotificationAfterCommitNotBefore() {
+            BookEntity book = buildBook(1L, false);
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
+            BookCoverUpdateProjection projection = mock(BookCoverUpdateProjection.class);
+            when(bookRepository.findCoverUpdateInfoByIds(List.of(1L))).thenReturn(List.of(projection));
+            when(fileService.getCoverFile(1)).thenReturn("cover.jpg");
+
+            TransactionSynchronizationManager.initSynchronization();
+            try {
+                service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
+
+                verify(notificationService, never()).sendMessage(any(), anyList());
+
+                List<TransactionSynchronization> syncs = TransactionSynchronizationManager.getSynchronizations();
+                assertThat(syncs).hasSize(1);
+
+                syncs.forEach(TransactionSynchronization::afterCommit);
+                verify(notificationService).sendMessage(any(), eq(List.of(projection)));
+            } finally {
+                TransactionSynchronizationManager.clearSynchronization();
+            }
         }
 
         @Test
@@ -1091,6 +1202,8 @@ class BookCoverServiceTest {
             BookEntity book = buildBook(1L, false);
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+
+            when(fileService.getCoverFile(1)).thenReturn("cover.jpg");
 
             service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
 
@@ -1147,6 +1260,7 @@ class BookCoverServiceTest {
             book.setBookFiles(Set.of(bookFile));
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+            when(fileService.getCoverFile(1)).thenReturn("cover.jpg");
 
             service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
 
@@ -1165,6 +1279,7 @@ class BookCoverServiceTest {
             book.setBookFiles(Set.of(audiobookFile));
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+            when(fileService.getAudiobookCoverFile(1)).thenReturn("cover.jpg");
 
             service.updateAudiobookCoverFromUrl(1L, "https://example.com/audiobook-cover.jpg");
 
@@ -1182,6 +1297,7 @@ class BookCoverServiceTest {
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
             when(sidecarMetadataWriter.isWriteOnUpdateEnabled()).thenReturn(true);
+            when(fileService.getCoverFile(1)).thenReturn("cover.jpg");
 
             service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
 
@@ -1194,6 +1310,7 @@ class BookCoverServiceTest {
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
             when(sidecarMetadataWriter.isWriteOnUpdateEnabled()).thenReturn(true);
+            when(fileService.getAudiobookCoverFile(1)).thenReturn("cover.jpg");
 
             service.updateAudiobookCoverFromUrl(1L, "https://example.com/audiobook-cover.jpg");
 
@@ -1206,6 +1323,7 @@ class BookCoverServiceTest {
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
             when(sidecarMetadataWriter.isWriteOnUpdateEnabled()).thenReturn(false);
+            when(fileService.getCoverFile(1)).thenReturn("cover.jpg");
 
             service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");
 
@@ -1218,6 +1336,7 @@ class BookCoverServiceTest {
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
             when(sidecarMetadataWriter.isWriteOnUpdateEnabled()).thenReturn(true);
+            when(fileService.getCoverFile(1)).thenReturn("cover.jpg");
             doThrow(new RuntimeException("sidecar unavailable")).when(sidecarMetadataWriter).writeSidecarMetadata(book);
 
             service.updateCoverFromUrl(1L, "https://example.com/cover.jpg");

@@ -23,8 +23,7 @@
         outlined
         (click)="rescanBookdrop()"
         [pTooltip]="t('rescanTooltip')"
-        tooltipPosition="top">
-      </p-button>
+        tooltipPosition="top" />
     </div>
   </div>
   <div class="card-body">
@@ -54,7 +53,7 @@
       @if (bookdropFileUis.length !== 0) {
         <div class="controls-row">
           <div class="action-buttons">
-            <p-inputgroup class="importmetadata" [ngClass]="!hasSelectedFiles ? 'disabled' : ''">
+            <p-inputgroup class="importmetadata" [class]="!hasSelectedFiles ? 'disabled' : ''">
               <p-button
                 size="small"
                 outlined
@@ -64,15 +63,13 @@
                 [disabled]="!hasSelectedFiles"
                 (click)="copyMetadata()"
                 [pTooltip]="t('importMetadataTooltip')"
-                tooltipPosition="top">
-              </p-button>
+                tooltipPosition="top" />
               <p-inputgroup-addon [pTooltip]="t('includeCoversTooltip')" tooltipPosition="top">
                 <p-checkbox
                   inputId="includecovers"
                   [disabled]="!hasSelectedFiles"
                   [binary]="true"
-                  [(ngModel)]="includeCoversOnCopy">
-                </p-checkbox>
+                  [(ngModel)]="includeCoversOnCopy" />
                 <label for="includecovers"><i class="pi pi-image icon-padding-left"></i></label>
               </p-inputgroup-addon>
             </p-inputgroup>
@@ -87,8 +84,7 @@
               [disabled]="!hasSelectedFiles"
               (click)="openBulkEditDialog()"
               [pTooltip]="t('bulkEditTooltip')"
-              tooltipPosition="top">
-            </p-button>
+              tooltipPosition="top" />
 
             <p-button
               size="small"
@@ -100,8 +96,7 @@
               [disabled]="!hasSelectedFiles"
               (click)="openPatternExtractDialog()"
               [pTooltip]="t('extractPatternTooltip')"
-              tooltipPosition="top">
-            </p-button>
+              tooltipPosition="top" />
           </div>
 
           <div class="default-controls">
@@ -116,8 +111,7 @@
               optionValue="value"
               [placeholder]="t('libraryPlaceholder')"
               appendTo="body"
-              [(ngModel)]="defaultLibraryId">
-            </p-select>
+              [(ngModel)]="defaultLibraryId" />
 
             <p-select
               size="small"
@@ -126,8 +120,7 @@
               optionValue="value"
               [placeholder]="t('subpathPlaceholder')"
               appendTo="body"
-              [(ngModel)]="defaultPathId">
-            </p-select>
+              [(ngModel)]="defaultPathId" />
 
             <p-button
               size="small"
@@ -136,28 +129,22 @@
               [disabled]="!canApplyDefaults"
               (click)="applyLibraryDefaults()"
               [pTooltip]="t('applyLibraryTooltip')"
-              tooltipPosition="top">
-            </p-button>
+              tooltipPosition="top" />
           </div>
         </div>
       }
     </div>
 
     <div class="content-area">
-      @if (bookdropFileUis.length === 0) {
-        <div class="empty-state">
-          {{ t('emptyState') }}
-        </div>
-      } @else {
+      
         @for (file of bookdropFileUis; track file.file.id) {
 
           <div class="file-item">
-            <div class="file-row" [ngClass]="file.showDetails ? ' expanded' : ''">
+            <div class="file-row" [class]="file.showDetails ? ' expanded' : ''">
               <p-checkbox
                 [binary]="true"
                 [(ngModel)]="file.selected"
-                (ngModelChange)="toggleFileSelection(file.file.id, $event)">
-              </p-checkbox>
+                (ngModelChange)="toggleFileSelection(file.file.id, $event)" />
 
               @if (file.metadataForm.get('thumbnailUrl')?.value) {
                 <img
@@ -221,8 +208,7 @@
                   class="library-select"
                   appendTo="body"
                   [(ngModel)]="file.selectedLibraryId"
-                  (onChange)="onLibraryChange(file)">
-                </p-select>
+                  (onChange)="onLibraryChange(file)" />
 
                 <p-select
                   size="small"
@@ -232,8 +218,7 @@
                   [placeholder]="t('subpathPlaceholder')"
                   class="path-select"
                   appendTo="body"
-                  [(ngModel)]="file.selectedPathId">
-                </p-select>
+                  [(ngModel)]="file.selectedPathId" />
 
                 <p-button
                   size="small"
@@ -245,8 +230,7 @@
                     : file.file.fetchedMetadata?.title
                       ? t('reviewMetadataTooltip')
                       : t('showMetadataTooltip')"
-                  tooltipPosition="left">
-                </p-button>
+                  tooltipPosition="left" />
               </div>
             </div>
 
@@ -259,18 +243,21 @@
                 [copiedFields]="file.copiedFields"
                 [savedFields]="file.savedFields"
                 [bookdropFileId]="file.file.id"
-                (metadataCopied)="onMetadataCopied(file.file.id, $event)">
-              </app-bookdrop-file-metadata-picker-component>
+                (metadataCopied)="onMetadataCopied(file.file.id, $event)" />
             }
           </div>
-        }
+        } @empty {
+        <div class="empty-state">
+          {{ t('emptyState') }}
+        </div>
+      
       }
     </div>
   }
   </div>
 
   @if (!loading()) {
-    <p-divider></p-divider>
+    <p-divider />
 
     <div class="footer">
 
@@ -287,8 +274,7 @@
               (click)="selectAll(true)"
               outlined
               [pTooltip]="t('selectAllTooltip')"
-              tooltipPosition="top">
-            </p-button>
+              tooltipPosition="top" />
           </p-inputgroup>
 
           <p-button
@@ -299,8 +285,7 @@
             (click)="selectAll(false)"
             outlined
             [pTooltip]="t('clearTooltip')"
-            tooltipPosition="top">
-          </p-button>
+            tooltipPosition="top" />
         } @else {
           <div class="spacer"></div>
         }
@@ -316,8 +301,7 @@
             [showJumpToPageDropdown]="true"
             [showPageLinks]="false"
             [showFirstLastIcon]="false"
-            currentPageReportTemplate="Page {currentPage} of {totalPages}">
-          </p-paginator>
+            currentPageReportTemplate="Page {currentPage} of {totalPages}" />
         </div>
       }
 
@@ -330,8 +314,7 @@
           outlined
           (click)="confirmReset()"
           [pTooltip]="t('resetTooltip')"
-          tooltipPosition="top">
-        </p-button>
+          tooltipPosition="top" />
         <p-button
           [label]="t('delete')"
           icon="pi pi-times"
@@ -340,8 +323,7 @@
           outlined
           (click)="confirmDelete()"
           [pTooltip]="t('deleteTooltip')"
-          tooltipPosition="top">
-        </p-button>
+          tooltipPosition="top" />
         <p-button
           [label]="t('finalize')"
           [icon]="saving ? 'pi pi-spin pi-spinner' : 'pi pi-save'"
@@ -350,8 +332,7 @@
           [disabled]="!canFinalize || saving"
           (click)="confirmFinalize()"
           [pTooltip]="t('finalizeTooltip')"
-          tooltipPosition="top">
-        </p-button>
+          tooltipPosition="top" />
       </div>
 
     </div>

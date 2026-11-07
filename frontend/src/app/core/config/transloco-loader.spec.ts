@@ -11,7 +11,7 @@ describe('TranslocoInlineLoader', () => {
     const translation = await firstValueFrom(loader.getTranslation('en'));
 
     expect(translation).toBe(EN_TRANSLATIONS);
-    expect(translation['auth']['login']['sessionRevoked']).toBe(en['auth']['login']['sessionRevoked']);
+    expect(translation['auth']['login']['sessionRevoked']).toBe(en.auth.login.sessionRevoked);
   });
 
   it('falls back to english for unsupported languages', async () => {
@@ -25,9 +25,9 @@ describe('TranslocoInlineLoader', () => {
     const loader = new TranslocoInlineLoader();
     const translation = await firstValueFrom(loader.getTranslation('de'));
 
-    expect(translation['auth']['login']['oidcInitError']).toBe(de['auth']['login']['oidcInitError']);
-    expect(translation['auth']['login']['sessionRevoked']).toBe(de['auth']['login']['sessionRevoked']);
-    expect(translation['auth']['login']['oidcErrors']['providerUnreachable']).toBe(de['auth']['login']['oidcErrors']['providerUnreachable']);
+    expect(translation['auth']['login']['oidcInitError']).toBe(de.auth.login.oidcInitError);
+    expect(translation['auth']['login']['sessionRevoked']).toBe(de.auth.login.sessionRevoked);
+    expect(translation['auth']['login']['oidcErrors']['providerUnreachable']).toBe(de.auth.login.oidcErrors.providerUnreachable);
   });
 
   it('exposes the available language metadata', () => {

@@ -111,7 +111,7 @@ public class BookMetadataUpdater {
         updateMoodsIfNeeded(newMetadata, metadata, clearFlags, mergeMoods, replaceMode);
         updateTagsIfNeeded(newMetadata, metadata, clearFlags, mergeTags, replaceMode);
         bookReviewUpdateService.updateBookReviews(newMetadata, metadata, clearFlags, mergeCategories);
-        updateThumbnailIfNeeded(bookId, bookEntity, newMetadata, metadata, updateThumbnail, bookType);
+        boolean hasUpdatedThumbnail = updateThumbnailIfNeeded(bookId, bookEntity, newMetadata, metadata, updateThumbnail, bookType);
         updateAudiobookMetadataIfNeeded(bookEntity, newMetadata, metadata, clearFlags, replaceMode);
         updateComicMetadataIfNeeded(newMetadata, metadata, replaceMode);
         updateLocks(newMetadata, metadata);
@@ -128,13 +128,20 @@ public class BookMetadataUpdater {
         if (appProperties.isLocalStorage() && primaryFile != null && bookType != null && ((writeToFile.isAnyFormatEnabled() && hasValueChangesForFileWrite) || thumbnailRequiresUpdate)) {
             metadataWriterFactory.getWriter(bookType).ifPresent(writer -> {
                 try {
-                    String thumbnailUrl = updateThumbnail ? newMetadata.getThumbnailUrl() : null;
-                    if ((StringUtils.hasText(thumbnailUrl) && isLocalOrPrivateUrl(thumbnailUrl) || Boolean.TRUE.equals(metadata.getCoverLocked()))) {
-                        log.debug("Blocked local/private thumbnail URL: {}", thumbnailUrl);
-                        thumbnailUrl = null;
+                    File file = bookEntity.getFullFilePath().toFile();
+
+                    if (hasUpdatedThumbnail) {
+                        Path imagePath;
+                        if (bookType == BookFileType.AUDIOBOOK) {
+                            imagePath = Path.of(fileService.getAudiobookCoverFile(bookEntity.getId()));
+                        } else {
+                            imagePath = Path.of(fileService.getCoverFile(bookEntity.getId()));
+                        }
+                        byte[] coverContents = Files.readAllBytes(imagePath);
+                        writer.replaceCoverImageFromBytes(file, coverContents);
                     }
-                    File file = new File(bookEntity.getFullFilePath().toUri());
-                    writer.saveMetadataToFile(file, metadata, thumbnailUrl, clearFlags);
+
+                    writer.saveMetadataToFile(file, metadata, clearFlags);
                     updateFileNameIfConverted(primaryFile, file.toPath());
                     String newHash = file.isDirectory()
                             ? FileFingerprint.generateFolderHash(bookEntity.getFullFilePath())
@@ -213,6 +220,9 @@ public class BookMetadataUpdater {
         handleFieldUpdate(e.getApplebooksIdLocked(), clear.isApplebooksId(), m.getApplebooksId(), v -> e.setApplebooksId(nullIfBlank(v)), e::getApplebooksId, replaceMode);
         handleFieldUpdate(e.getApplebooksRatingLocked(), clear.isApplebooksRating(), m.getApplebooksRating(), e::setApplebooksRating, e::getApplebooksRating, replaceMode);
         handleFieldUpdate(e.getApplebooksReviewCountLocked(), clear.isApplebooksReviewCount(), m.getApplebooksReviewCount(), e::setApplebooksReviewCount, e::getApplebooksReviewCount, replaceMode);
+        handleFieldUpdate(e.getDoubanIdLocked(), clear.isDoubanId(), m.getDoubanId(), v -> e.setDoubanId(nullIfBlank(v)), e::getDoubanId, replaceMode);
+        handleFieldUpdate(e.getDoubanRatingLocked(), clear.isDoubanRating(), m.getDoubanRating(), e::setDoubanRating, e::getDoubanRating, replaceMode);
+        handleFieldUpdate(e.getDoubanReviewCountLocked(), clear.isDoubanReviewCount(), m.getDoubanReviewCount(), e::setDoubanReviewCount, e::getDoubanReviewCount, replaceMode);
         handleFieldUpdate(e.getAgeRatingLocked(), clear.isAgeRating(), m.getAgeRating(), e::setAgeRating, e::getAgeRating, replaceMode);
         handleFieldUpdate(e.getContentRatingLocked(), clear.isContentRating(), m.getContentRating(), v -> e.setContentRating(nullIfBlank(v)), e::getContentRating, replaceMode);
     }
@@ -664,24 +674,36 @@ public class BookMetadataUpdater {
         }
     }
 
-    private void updateThumbnailIfNeeded(long bookId, BookEntity bookEntity, BookMetadata m, BookMetadataEntity e, boolean set, BookFileType bookType) {
-        if (Boolean.TRUE.equals(e.getCoverLocked())) {
-            return;
+    private boolean updateThumbnailIfNeeded(long bookId, BookEntity bookEntity, BookMetadata m, BookMetadataEntity e, boolean set, BookFileType bookType) {
+        if (!set) {
+            return false;
         }
-        if (!set) return;
-        if (!StringUtils.hasText(m.getThumbnailUrl()) || isLocalOrPrivateUrl(m.getThumbnailUrl())) return;
+
+        if (!StringUtils.hasText(m.getThumbnailUrl())) {
+            return false;
+        }
+
         try {
             if (bookType == BookFileType.AUDIOBOOK) {
-                if (Boolean.TRUE.equals(e.getAudiobookCoverLocked())) return;
+                if (Boolean.TRUE.equals(e.getAudiobookCoverLocked())) {
+                    return false;
+                }
+
                 fileService.createAudiobookThumbnailFromUrl(bookId, m.getThumbnailUrl());
                 bookEntity.getMetadata().setAudiobookCoverUpdatedOn(Instant.now());
             } else {
+                if (Boolean.TRUE.equals(e.getCoverLocked())) {
+                    return false;
+                }
+
                 fileService.createThumbnailFromUrl(bookId, m.getThumbnailUrl());
                 bookEntity.getMetadata().setCoverUpdatedOn(Instant.now());
             }
             bookEntity.setBookCoverHash(BookCoverUtils.generateCoverHash());
+            return true;
         } catch (Exception ex) {
             log.warn("Failed to download cover for book {}: {}", bookId, ex.getMessage());
+            return false;
         }
     }
 
@@ -722,6 +744,9 @@ public class BookMetadataUpdater {
                 Pair.of(m.getApplebooksIdLocked(), e::setApplebooksIdLocked),
                 Pair.of(m.getApplebooksRatingLocked(), e::setApplebooksRatingLocked),
                 Pair.of(m.getApplebooksReviewCountLocked(), e::setApplebooksReviewCountLocked),
+                Pair.of(m.getDoubanIdLocked(), e::setDoubanIdLocked),
+                Pair.of(m.getDoubanRatingLocked(), e::setDoubanRatingLocked),
+                Pair.of(m.getDoubanReviewCountLocked(), e::setDoubanReviewCountLocked),
                 Pair.of(m.getCoverLocked(), e::setCoverLocked),
                 Pair.of(m.getAudiobookCoverLocked(), e::setAudiobookCoverLocked),
                 Pair.of(m.getAuthorsLocked(), e::setAuthorsLocked),
@@ -754,19 +779,6 @@ public class BookMetadataUpdater {
         if (Files.exists(cbzPath)) {
             log.info("File converted from {} to {}, updating book file record", fileName, cbzFileName);
             bookFile.setFileName(cbzFileName);
-        }
-    }
-
-    private boolean isLocalOrPrivateUrl(String url) {
-        try {
-            URI uri = new URI(url);
-            String host = uri.getHost();
-            if ("localhost".equalsIgnoreCase(host) || "127.0.0.1".equals(host)) return true;
-            InetAddress addr = InetAddress.getByName(host);
-            return addr.isLoopbackAddress() || addr.isSiteLocalAddress();
-        } catch (Exception e) {
-            log.warn("Invalid thumbnail URL '{}': {}", url, e.getMessage());
-            return true;
         }
     }
 }

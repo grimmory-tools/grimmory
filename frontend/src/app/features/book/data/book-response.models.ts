@@ -1,8 +1,8 @@
 export const BOOK_FILE_TYPES = ['PDF', 'EPUB', 'CBX', 'FB2', 'MOBI', 'AZW3', 'AUDIOBOOK'] as const;
-export type BookFileType = typeof BOOK_FILE_TYPES[number] | (string & {});
+export type BookFileType = typeof BOOK_FILE_TYPES[number];
 
 export const BOOK_ARCHIVE_TYPES = ['ZIP', 'RAR', 'SEVEN_ZIP', 'UNKNOWN'] as const;
-export type BookArchiveType = typeof BOOK_ARCHIVE_TYPES[number] | (string & {});
+export type BookArchiveType = typeof BOOK_ARCHIVE_TYPES[number];
 
 export const BOOK_READ_STATUSES = [
   'UNREAD',
@@ -15,21 +15,7 @@ export const BOOK_READ_STATUSES = [
   'ABANDONED',
   'UNSET',
 ] as const;
-export type KnownBookReadStatus = typeof BOOK_READ_STATUSES[number];
-export type BookReadStatus = KnownBookReadStatus | (string & {});
-
-export const BOOK_METADATA_PROVIDERS = [
-  'Amazon',
-  'GoodReads',
-  'Google',
-  'Hardcover',
-  'Comicvine',
-  'Douban',
-  'Lubimyczytac',
-  'Ranobedb',
-  'Audible',
-] as const;
-export type BookMetadataProvider = typeof BOOK_METADATA_PROVIDERS[number] | (string & {});
+export type BookReadStatus = typeof BOOK_READ_STATUSES[number];
 
 export interface BookFileResponse {
   id: number;
@@ -128,6 +114,7 @@ export interface BookSummaryComicMetadata {
 interface BookMetadataFields {
   bookId: number;
   title?: string;
+  subtitle?: string;
   publisher?: string;
   publishedDate?: string;
   seriesName?: string;
@@ -144,6 +131,9 @@ interface BookMetadataFields {
   hardcoverRating?: number;
   hardcoverReviewCount?: number;
   ranobedbRating?: number;
+  lubimyczytacRating?: number;
+  audibleRating?: number;
+  audibleReviewCount?: number;
   coverUpdatedOn?: string;
   audiobookCoverUpdatedOn?: string;
   authors?: string[];
@@ -242,7 +232,6 @@ export interface BookDetailComicMetadata extends BookSummaryComicMetadata {
 }
 
 export interface BookDetailMetadata extends BookMetadataFields {
-  subtitle?: string;
   description?: string;
   seriesTotal?: number;
   asin?: string;
@@ -267,7 +256,7 @@ export interface BookDetailMetadata extends BookMetadataFields {
   abridged?: boolean;
   audiobookMetadata?: BookDetailAudiobookMetadata;
   comicMetadata?: BookDetailComicMetadata;
-  provider?: BookMetadataProvider;
+  provider?: string;
   externalUrl?: string;
   thumbnailUrl?: string;
   titleLocked?: boolean;
@@ -329,4 +318,18 @@ export interface BookDetail extends BookRecord<BookDetailMetadata> {
 export interface BookRecommendation {
   book: BookDetail;
   similarityScore: number;
+}
+
+export interface BookReviewResponse {
+  readonly id: number;
+  readonly metadataProvider?: string;
+  readonly reviewerName?: string;
+  readonly title?: string;
+  readonly rating?: number;
+  readonly date?: string;
+  readonly body?: string;
+  readonly country?: string;
+  readonly spoiler?: boolean;
+  readonly followersCount?: number;
+  readonly textReviewsCount?: number;
 }

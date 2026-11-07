@@ -6,6 +6,14 @@
         <form ngNoForm action="." class="command-palette-form" (submit)="$event.preventDefault()">
           <div class="command-palette-input-row">
             <svg lucideSearch class="command-palette-search-icon" aria-hidden="true"></svg>
+            <button
+              type="button"
+              class="command-palette-close-button"
+              [attr.aria-label]="'close' | transloco"
+              (click)="svc.hide()"
+            >
+              <svg lucideX aria-hidden="true"></svg>
+            </button>
             <input
               #paletteInput
               type="search"
@@ -21,14 +29,6 @@
               (ngModelChange)="onQueryChange($event)"
               (keydown)="onKeydown($event)"
             />
-            <button
-              type="button"
-              class="command-palette-close-button"
-              [attr.aria-label]="'close' | transloco"
-              (click)="svc.hide()"
-            >
-              <svg lucideX aria-hidden="true"></svg>
-            </button>
           </div>
         </form>
 
@@ -38,7 +38,9 @@
 
         @if (hasQuery) {
           <div class="command-palette-results" role="listbox">
-            @if (!isSearching && groups.length === 0) {
+            @if (svc.bookSearchFailed()) {
+              <div class="command-palette-empty">{{ t('bookSearchError') }}</div>
+            } @else if (!isSearching && groups.length === 0) {
               <div class="command-palette-empty">{{ t('empty') }}</div>
             }
 
@@ -88,7 +90,7 @@
                         [icon]="item.icon ?? null"
                         size="18px"
                         [displayEmpty]="true"
-                      ></app-icon-display>
+                      />
                       <span class="command-palette-item-title">{{ item.title }}</span>
                       @if (item.subtitle) {
                         <span class="command-palette-item-subtitle">{{ item.subtitle }}</span>

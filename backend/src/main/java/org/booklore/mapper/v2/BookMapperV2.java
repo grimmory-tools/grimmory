@@ -35,7 +35,13 @@ public interface BookMapperV2 {
     @Mapping(target = "categories", source = "categories", qualifiedByName = "mapCategories")
     @Mapping(target = "moods", source = "moods", qualifiedByName = "mapMoods")
     @Mapping(target = "tags", source = "tags", qualifiedByName = "mapTags")
+    @Mapping(target = "allMetadataLocked", source = ".", qualifiedByName = "mapAllMetadataLocked")
     BookMetadata mapMetadata(BookMetadataEntity metadataEntity);
+
+    @Named("mapAllMetadataLocked")
+    default boolean mapAllMetadataLocked(BookMetadataEntity metadataEntity) {
+        return metadataEntity.areAllFieldsLocked();
+    }
 
     @AfterMapping
     default void mapAudiobookMetadata(BookEntity bookEntity, @MappingTarget Book book) {

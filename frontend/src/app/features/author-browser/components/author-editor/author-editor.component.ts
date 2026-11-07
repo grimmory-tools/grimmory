@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, signal, SimpleChanges} from '@angular/core';
+import {Component, inject, Input, OnChanges, OnInit, output, signal, SimpleChanges} from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {Button} from '@openng/optimus-ui/button';
@@ -35,19 +35,18 @@ import {AuthorPhotoSearchComponent} from '../author-photo-search/author-photo-se
   providers: [DialogService]
 })
 export class AuthorEditorComponent implements OnInit, OnChanges {
+  private readonly authorService = inject(AuthorService);
+  private readonly messageService = inject(MessageService);
+  private readonly dialogService = inject(DialogService);
+  private readonly t = inject(TranslocoService);
 
   @Input({required: true}) authorId!: number;
   @Input({required: true}) author!: AuthorDetails;
-  @Output() authorUpdated = new EventEmitter<AuthorDetails>();
-
-  private authorService = inject(AuthorService);
-  private messageService = inject(MessageService);
-  private dialogService = inject(DialogService);
-  private t = inject(TranslocoService);
+  readonly authorUpdated = output<AuthorDetails>();
 
   form!: FormGroup;
-  isSaving = signal(false);
-  isUploading = signal(false);
+  readonly isSaving = signal(false);
+  readonly isUploading = signal(false);
   hasPhoto = true;
   photoTimestamp = Date.now();
 

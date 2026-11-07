@@ -54,6 +54,8 @@ import {
   `,
 })
 export class AppMenuCheckboxComponent {
+  private readonly menuItem = inject(AppMenuAriaItemDirective);
+  private readonly owner = inject(AppMenuComponent);
   readonly checked = model(false);
   readonly mixed = model(false);
   readonly shortcut = input('');
@@ -61,9 +63,6 @@ export class AppMenuCheckboxComponent {
   readonly searchLabel = input('');
 
   readonly selected = output<boolean>();
-
-  private readonly menuItem = inject(AppMenuAriaItemDirective);
-  private readonly owner = inject(AppMenuComponent);
 
   protected readonly rowClass = appMenuItemRowClass('default');
   protected readonly leadingSlotClass = appMenuLeadingSlotClass;

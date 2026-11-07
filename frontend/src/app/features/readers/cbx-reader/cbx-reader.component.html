@@ -1,11 +1,18 @@
-<div #readerRoot class="comic-reader-container" tabindex="0"
+<div class="comic-reader-container" tabindex="0"
   [class.rtl-reading]="readingDirection() === CbxReadingDirection.RTL"
   [class.fullscreen-mode]="isFullscreen()" [class.slideshow-active]="isSlideshowActive()">
+  @for (color of [topBarColor()]; track color) {
+  <div class="browser-bar top-0" [style.background]="color" aria-hidden="true"></div>
+  }
+  @for (color of [bottomBarColor()]; track color) {
+  <div class="browser-bar bottom-0" [style.background]="color" aria-hidden="true"></div>
+  }
+
   <app-cbx-header [isCurrentPageBookmarked]="isCurrentPageBookmarked()"
     [currentPageHasNotes]="currentPageHasNotes()"
-    (hoverChange)="onHeaderHovered($event)"></app-cbx-header>
+    (hoverChange)="onHeaderHovered($event)" />
 
-  <app-cbx-sidebar></app-cbx-sidebar>
+  <app-cbx-sidebar />
 
   @if (showWebtoonSuggestion()) {
   <div class="webtoon-suggestion-banner" role="region" [attr.aria-label]="'readerCbx.webtoonHint.regionLabel' | transloco">
@@ -25,7 +32,7 @@
   }
 
   @if (showQuickSettings()) {
-  <app-cbx-quick-settings></app-cbx-quick-settings>
+  <app-cbx-quick-settings />
   }
 
   @if (isCurrentPageBookmarked()) {
@@ -38,11 +45,11 @@
 
   @if (showNoteDialog()) {
   <app-cbx-note-dialog [data]="noteDialogData()" (saved)="onNoteSave($event)"
-    (cancelled)="onNoteCancel()"></app-cbx-note-dialog>
+    (cancelled)="onNoteCancel()" />
   }
 
   @if (showShortcutsHelp()) {
-  <app-cbx-shortcuts-help (closed)="onShortcutsHelpClose()"></app-cbx-shortcuts-help>
+  <app-cbx-shortcuts-help (closed)="onShortcutsHelpClose()" />
   }
 
   @if (isSlideshowActive()) {
@@ -58,19 +65,18 @@
     [class.long-strip]="scrollMode() === CbxScrollMode.LONG_STRIP"
     [class.fit-actual-size]="fitMode() === CbxFitMode.ACTUAL_SIZE" [class.fit-page]="fitMode() === CbxFitMode.FIT_PAGE"
     [class.fit-width]="fitMode() === CbxFitMode.FIT_WIDTH" [class.fit-height]="fitMode() === CbxFitMode.FIT_HEIGHT"
-    [class.fit-auto]="fitMode() === CbxFitMode.AUTO" [class.bg-black]="backgroundColor() === CbxBackgroundColor.BLACK"
-    [class.bg-gray]="backgroundColor() === CbxBackgroundColor.GRAY"
-    [class.bg-white]="backgroundColor() === CbxBackgroundColor.WHITE" [class.emulate-book]="emulateBook() && isTwoPageView()"
+    [class.fit-auto]="fitMode() === CbxFitMode.AUTO" [style.background-color]="pageColor()"
+    [class.emulate-book]="emulateBook() && isTwoPageView()"
     [style.filter]="brightness() < 100 ? 'brightness(' + brightness() + '%)' : null" (scroll)="onScroll($event)">
     @if (!isLoading()) {
     @if (pages().length > 0) {
     @if (scrollMode() === CbxScrollMode.PAGINATED) {
     <div class="pages-wrapper" role="button" tabindex="0" (click)="onImageClick()" (keydown.enter)="onImageClick()"
-      (dblclick)="onImageDoubleClick()">
+      (dblclick)="onImageDoubleClick($event)">
       @if (isPageTransitioning() && previousImageUrls().length > 0) {
       <div class="previous-page-layer" [class.single-page-layer]="isPreviousSinglePageLayer()">
         @for (url of previousImageUrls(); track url) {
-        <img [src]="url" alt="Previous Page" class="page-image previous-image" />
+        <img [src]="url" alt="Previous Page" class="page-image previous-image" draggable="false" />
         }
       </div>
       }
@@ -78,18 +84,17 @@
         [class.single-page-layer]="isSinglePageLayer()">
         @if (shouldUseCanvasRenderer()) {
         <app-canvas-renderer [imageUrl]="currentImageUrls()[0]" [splitState]="canvasSplitState()"
-          [splitOption]="pageSplitOption()">
-        </app-canvas-renderer>
+          [splitOption]="pageSplitOption()" />
         } @else {
         @for (url of currentImageUrls(); track url; let i = $index) {
-        <img [src]="url" alt="Page Image" class="page-image" (load)="onPageImageLoad($event, currentPage() + i)" />
+        <img [src]="url" alt="Page Image" class="page-image" draggable="false" (load)="onPageImageLoad($event, currentPage() + i)" />
         }
         }
       </div>
     </div>
     @if (isAtLastPage() && nextBookInSeries()) {
     <div class="end-of-comic-action">
-      <button class="next-book-action-button" (click)="navigateToNextBook()">
+      <button type="button" class="next-book-action-button" (click)="navigateToNextBook()">
         <span class="action-icon">📖</span>
         <span class="action-text">{{ 'readerCbx.reader.continueToNextBook' | transloco }}</span>
         <span class="book-title">{{ getBookDisplayTitle(nextBookInSeries()) }}</span>
@@ -112,7 +117,7 @@
         }
         @if (isAtEndOfLongStrip() && nextBookInSeries()) {
       <div class="end-of-comic-action">
-        <button class="next-book-action-button" (click)="navigateToNextBook()">
+        <button type="button" class="next-book-action-button" (click)="navigateToNextBook()">
           <span class="action-icon">📖</span>
           <span class="action-text">{{ 'readerCbx.reader.continueToNextBook' | transloco }}</span>
           <span class="book-title">{{ getBookDisplayTitle(nextBookInSeries()) }}</span>
@@ -128,12 +133,12 @@
         <img [src]="getPageImageUrl(pageIdx)" alt="Page {{ pageIdx + 1 }}" class="page-image"
           [attr.data-page]="pageIdx" role="button" tabindex="0" draggable="false"
           [attr.loading]="pageIdx === currentPage() ? 'eager' : 'lazy'" decoding="async"
-          (click)="onImageClick()" (keydown.enter)="onImageClick()" (dblclick)="onImageDoubleClick()"
+          (click)="onImageClick()" (keydown.enter)="onImageClick()" (dblclick)="onImageDoubleClick($event)"
           (load)="onPageImageLoad($event, pageIdx)" />
         }
         @if (isLoadingMore()) {
         <div class="loading-more">
-          <p-progressSpinner class="small-spinner"></p-progressSpinner>
+          <p-progressSpinner class="small-spinner" />
         </div>
         }
         @if (nextBookInSeries()) {
@@ -144,7 +149,7 @@
         }
         @if (isAtEndOfInfiniteScroll() && nextBookInSeries()) {
       <div class="end-of-comic-action">
-        <button class="next-book-action-button" (click)="navigateToNextBook()">
+        <button type="button" class="next-book-action-button" (click)="navigateToNextBook()">
           <span class="action-icon">📖</span>
           <span class="action-text">{{ 'readerCbx.reader.continueToNextBook' | transloco }}</span>
           <span class="book-title">{{ getBookDisplayTitle(nextBookInSeries()) }}</span>
@@ -187,5 +192,5 @@
   </div>
 
   <app-cbx-footer
-    (hoverChange)="onFooterHovered($event)"></app-cbx-footer>
+    (hoverChange)="onFooterHovered($event)" />
 </div>

@@ -1,13 +1,6 @@
 @if (book; as book) {
   <form [formGroup]="metadataForm" (ngSubmit)="onSave()" class="metadata-picker" *transloco="let t; prefix: 'metadata.picker'">
     <div class="dialog-body">
-      @if (detailLoading) {
-        <div class="detail-loading-banner">
-          <i class="pi pi-spin pi-spinner"></i>
-          <span>{{ t('loadingMetadata') }}</span>
-        </div>
-      }
-
       <!-- Column Headers -->
       <div class="column-headers">
         <div class="column-label current">
@@ -282,10 +275,9 @@
                           class="author-add-input"
                           [(ngModel)]="authorInputValue"
                           [ngModelOptions]="{ standalone: true }"
-                          [suggestions]="getFiltered('authors')"
+                          appFacetSuggestions="author"
                           [forceSelection]="false"
                           [dropdown]="false"
-                          (completeMethod)="filterItems($event, 'authors')"
                           (onKeyUp)="onAuthorInputKeyUp($event)"
                           (onSelect)="onAuthorInputSelect($event)"
                           placeholder="Add author..."
@@ -300,8 +292,7 @@
                       [dropdown]="false"
                       [forceSelection]="false"
                       [showClear]="true"
-                      [suggestions]="getFiltered(field.controlName)"
-                      (completeMethod)="filterItems($event, field.controlName)"
+                      [appFacetSuggestions]="facetByField[field.controlName]"
                       (onKeyUp)="onAutoCompleteKeyUp(field.controlName, $event)"
                       (onSelect)="onAutoCompleteSelect(field.controlName, $event)"
                     />
@@ -572,8 +563,7 @@
                         [dropdown]="false"
                         [forceSelection]="false"
                         [showClear]="true"
-                        [suggestions]="getFiltered(field.controlName)"
-                        (completeMethod)="filterItems($event, field.controlName)"
+                        [typeahead]="false"
                         (onKeyUp)="onAutoCompleteKeyUp(field.controlName, $event)"
                         (onSelect)="onAutoCompleteSelect(field.controlName, $event)"
                       />
@@ -716,7 +706,7 @@
       }
 
       <!-- Provider Metadata Section -->
-      @if (metadataProviderFields.length > 0) {
+      @if (metadataProviderFields().length > 0) {
         <section class="form-section">
           <div class="section-header">
             <i class="pi pi-cloud"></i>
@@ -724,9 +714,9 @@
           </div>
 
           <div class="section-content">
-            @for (field of metadataProviderFields; track field) {
+            @for (field of metadataProviderFields(); track field) {
               <div class="field-row">
-                <span class="field-label">{{ field.label }}</span>
+                <span class="field-label">{{ providerFields.label(field.providerKey!) }}</span>
                 <div class="field-content">
                   <div class="field-side current">
                     <button

@@ -13,8 +13,7 @@
       [text]="true"
       severity="secondary"
       (click)="ref.close()"
-      class="close-button">
-    </p-button>
+      class="close-button" />
   </div>
 
   <div class="dialog-content">
@@ -107,7 +106,7 @@
           class="select-library"
           size="small"
           appendTo="body"
-        ></p-select>
+        />
         @if (defaultAvailableLibraryPaths.length > 0) {
           <p-select
             [options]="defaultAvailableLibraryPaths"
@@ -119,7 +118,7 @@
             class="select-path"
             size="small"
             appendTo="body"
-          ></p-select>
+          />
         }
       </div>
     </section>
@@ -178,7 +177,7 @@
                   class="select-full-width"
                   appendTo="body"
                   size="small"
-                ></p-select>
+                />
               </td>
               <td>
                 @if (preview.availableLibraryPaths.length > 0) {
@@ -193,7 +192,7 @@
                     class="select-full-width"
                     appendTo="body"
                     size="small"
-                  ></p-select>
+                  />
                 } @else {
                   <span class="no-paths">No paths</span>
                 }
@@ -229,21 +228,21 @@
           severity="secondary"
           [outlined]="true"
           (click)="cancel()"
-        ></p-button>
+        />
         <p-button
           [label]="loading() ? 'Moving...' : 'Move Files'"
           [icon]="loading() ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
           severity="success"
           (click)="saveChanges()"
           [disabled]="loading() || filePreviews().length === 0"
-        ></p-button>
+        />
       } @else {
         <p-button
           label="Close"
           icon="pi pi-check"
           severity="primary"
           (click)="cancel()"
-        ></p-button>
+        />
       }
     </div>
   </div>

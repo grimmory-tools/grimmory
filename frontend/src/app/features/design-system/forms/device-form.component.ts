@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { JsonPipe } from '@angular/common';
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Router } from '@angular/router';
-import { form, FormField, FormRoot, hidden, max, min, minLength, required, validate } from '@angular/forms/signals';
+import { form, FormField, FormRoot, hidden, max, min, minLength, required } from '@angular/forms/signals';
 import { AppButtonComponent } from '../../../shared/ui/button/app-button.component';
 import { AppFieldComponent } from '../../../shared/ui/field/app-field.component';
 import { AppInputComponent } from '../../../shared/ui/input/app-input.component';
@@ -17,13 +17,12 @@ interface DeviceFormModel {
   hardcover: { enabled: boolean; apiKey: string };
   kobo: {
     enabled: boolean;
-    twoWaySync: boolean;
     convertToKepub: boolean;
     markAsReading: number;
     markAsFinished: number;
     conversionLimitMb: number | null;
   };
-  koreader: { enabled: boolean; syncWithWebReader: boolean; username: string; password: string };
+  koreader: { enabled: boolean; username: string; password: string };
 }
 
 function createInitialModel(): DeviceFormModel {
@@ -31,13 +30,12 @@ function createInitialModel(): DeviceFormModel {
     hardcover: { enabled: false, apiKey: '' },
     kobo: {
       enabled: true,
-      twoWaySync: false,
       convertToKepub: true,
       markAsReading: 3,
       markAsFinished: 95,
       conversionLimitMb: 50,
     },
-    koreader: { enabled: false, syncWithWebReader: false, username: '', password: '' },
+    koreader: { enabled: false, username: '', password: '' },
   };
 }
 
@@ -73,7 +71,7 @@ export class DeviceFormExampleComponent {
 
   readonly model = signal<DeviceFormModel>(createInitialModel());
   readonly deviceForm = form(this.model, path => {
-    hidden(path.hardcover.apiKey, ({ valueOf }) => !valueOf(path.hardcover.enabled));
+    hidden(path.hardcover.apiKey, {when: ({ valueOf }) => !valueOf(path.hardcover.enabled)});
     required(path.hardcover.apiKey, { message: 'Enter your Hardcover API key' });
     minLength(path.hardcover.apiKey, 20, { message: 'Hardcover keys are at least 20 characters' });
 
@@ -83,20 +81,13 @@ export class DeviceFormExampleComponent {
     max(path.kobo.markAsFinished, 100);
     min(path.kobo.conversionLimitMb, 1);
     max(path.kobo.conversionLimitMb, 250);
-    hidden(path.kobo.twoWaySync, ({ valueOf }) => !valueOf(path.kobo.enabled));
-    hidden(path.kobo.convertToKepub, ({ valueOf }) => !valueOf(path.kobo.enabled));
-    hidden(path.kobo.markAsReading, ({ valueOf }) => !valueOf(path.kobo.enabled));
-    hidden(path.kobo.markAsFinished, ({ valueOf }) => !valueOf(path.kobo.enabled));
-    hidden(path.kobo.conversionLimitMb, ({ valueOf }) => !valueOf(path.kobo.enabled));
-    validate(path.kobo.twoWaySync, ({ value, valueOf }) =>
-      value() && !valueOf(path.kobo.convertToKepub)
-        ? { kind: 'needsKepub', message: 'Two-way sync needs KEPUB conversion turned on' }
-        : null,
-    );
+    hidden(path.kobo.convertToKepub, {when: ({ valueOf }) => !valueOf(path.kobo.enabled)});
+    hidden(path.kobo.markAsReading, {when: ({ valueOf }) => !valueOf(path.kobo.enabled)});
+    hidden(path.kobo.markAsFinished, {when: ({ valueOf }) => !valueOf(path.kobo.enabled)});
+    hidden(path.kobo.conversionLimitMb, {when: ({ valueOf }) => !valueOf(path.kobo.enabled)});
 
-    hidden(path.koreader.syncWithWebReader, ({ valueOf }) => !valueOf(path.koreader.enabled));
-    hidden(path.koreader.username, ({ valueOf }) => !valueOf(path.koreader.enabled));
-    hidden(path.koreader.password, ({ valueOf }) => !valueOf(path.koreader.enabled));
+    hidden(path.koreader.username, {when: ({ valueOf }) => !valueOf(path.koreader.enabled)});
+    hidden(path.koreader.password, {when: ({ valueOf }) => !valueOf(path.koreader.enabled)});
     required(path.koreader.username, { message: 'Choose a sync username' });
     required(path.koreader.password, { message: 'Set a sync password' });
     minLength(path.koreader.password, 6, { message: 'Use at least 6 characters' });

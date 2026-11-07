@@ -20,6 +20,8 @@ import {CommandPaletteComponent} from './features/command-palette/command-palett
 import {CommandPaletteService} from './features/command-palette/command-palette.service';
 import {LibraryImportProgressService} from './shared/service/library-import-progress.service';
 import {AuthorService} from './features/author-browser/service/author.service';
+import {MetadataRefreshSubmissionService} from './features/metadata/data/metadata-refresh-submission.service';
+import {RxStompState} from '@stomp/rx-stomp';
 
 @Component({
   selector: 'app-root',
@@ -29,27 +31,27 @@ import {AuthorService} from './features/author-browser/service/author.service';
   imports: [ConfirmDialog, Toast, RouterOutlet, TranslocoDirective, TranslocoPipe, CommandPaletteComponent]
 })
 export class AppComponent implements OnInit, OnDestroy {
-
-  loading = signal(true);
-  offline = signal(false);
-  private subscriptions: Subscription[] = [];
-  private subscriptionsInitialized = false;
-
-  private appThemeService = inject(AppThemeService); // DO NOT REMOVE: Used to initialize app theme on startup
-  private authInit = inject(AuthInitializationService);
-  private bookService = inject(BookService);
-  private authorService = inject(AuthorService);
-  private rxStompService = inject(RxStompService);
-  private notificationEventService = inject(NotificationEventService);
-  private metadataProgressService = inject(MetadataProgressService);
-  private bookdropFileService = inject(BookdropFileService);
-  private taskService = inject(TaskService);
-  private libraryHealthService = inject(LibraryHealthService);
-  private authService = inject(AuthService);
-  private commandPaletteService = inject(CommandPaletteService);
+  private readonly appThemeService = inject(AppThemeService); // DO NOT REMOVE: Used to initialize app theme on startup
+  private readonly authInit = inject(AuthInitializationService);
+  private readonly bookService = inject(BookService);
+  private readonly authorService = inject(AuthorService);
+  private readonly rxStompService = inject(RxStompService);
+  private readonly notificationEventService = inject(NotificationEventService);
+  private readonly metadataProgressService = inject(MetadataProgressService);
+  private readonly bookdropFileService = inject(BookdropFileService);
+  private readonly taskService = inject(TaskService);
+  private readonly metadataRefreshSubmissionService = inject(MetadataRefreshSubmissionService);
+  private readonly libraryHealthService = inject(LibraryHealthService);
+  private readonly authService = inject(AuthService);
+  private readonly commandPaletteService = inject(CommandPaletteService);
   private readonly libraryImportProgressService = inject(LibraryImportProgressService);
   private readonly translocoService = inject(TranslocoService);
-  private destroyRef = inject(DestroyRef);
+  private readonly destroyRef = inject(DestroyRef);
+
+  readonly loading = signal(true);
+  readonly offline = signal(false);
+  private readonly subscriptions: Subscription[] = [];
+  private subscriptionsInitialized = false;
   private readonly syncAuthInitializationEffect = effect(() => {
     const ready = this.authInit.initialized();
     this.loading.set(!ready);
@@ -76,7 +78,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.destroyRef.onDestroy(() => document.removeEventListener('keydown', this.onGlobalKeydown));
   }
 
-  private onGlobalKeydown = (event: KeyboardEvent): void => {
+  private readonly onGlobalKeydown = (event: KeyboardEvent): void => {
     if (event.repeat) return;
     const combo = (event.metaKey || event.ctrlKey) && !event.shiftKey && !event.altKey;
     if (!combo) return;
@@ -85,11 +87,11 @@ export class AppComponent implements OnInit, OnDestroy {
     this.commandPaletteService.toggle();
   };
 
-  private onOnline = () => {
+  private readonly onOnline = () => {
     this.offline.set(false);
   };
 
-  private onOffline = () => {
+  private readonly onOffline = () => {
     this.checkServerReachable().then(reachable => {
       this.offline.set(!reachable);
     });
@@ -106,6 +108,20 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private setupWebSocketSubscriptions(): void {
+    let hasConnected = false;
+    this.subscriptions.push(
+      this.rxStompService.connectionState$.subscribe(state => {
+        if (state !== RxStompState.OPEN) {
+          return;
+        }
+        if (hasConnected) {
+          this.bookService.handleReconnect();
+          this.authorService.invalidateAuthors();
+          return;
+        }
+        hasConnected = true;
+      })
+    );
     this.subscriptions.push(
       this.rxStompService.watch('/user/queue/book-add').subscribe(msg => {
         const book = JSON.parse(msg.body);
@@ -135,14 +151,11 @@ export class AppComponent implements OnInit, OnDestroy {
       )
     );
     this.subscriptions.push(
-      this.rxStompService.watch('/user/queue/book-metadata-batch-update').subscribe(msg =>
-        this.bookService.handleMultipleBookUpdates(JSON.parse(msg.body))
-      )
-    );
-    this.subscriptions.push(
-      this.rxStompService.watch('/user/queue/book-metadata-batch-progress').subscribe(msg =>
-        this.metadataProgressService.handleIncomingProgress(JSON.parse(msg.body) as MetadataBatchProgressNotification)
-      )
+      this.rxStompService.watch('/user/queue/book-metadata-batch-progress').subscribe(msg => {
+        const progress = JSON.parse(msg.body) as MetadataBatchProgressNotification;
+        this.metadataProgressService.handleIncomingProgress(progress);
+        this.metadataRefreshSubmissionService.handleBatchProgress(progress);
+      })
     );
     this.subscriptions.push(
       this.rxStompService.watch('/user/queue/log').subscribe(msg => {
@@ -160,6 +173,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.rxStompService.watch('/user/queue/task-progress').subscribe(msg => {
         const progress = JSON.parse(msg.body) as TaskProgressPayload;
         this.taskService.handleTaskProgress(progress);
+        this.bookService.handleTaskProgress(progress);
       })
     );
     this.subscriptions.push(

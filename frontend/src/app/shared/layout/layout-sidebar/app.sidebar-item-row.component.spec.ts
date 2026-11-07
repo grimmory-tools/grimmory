@@ -13,7 +13,9 @@ describe('AppSidebarItemRowComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [AppSidebarItemRowComponent],
-      providers: [{provide: LayoutService, useValue: {currentPath}}],
+      providers: [
+        {provide: LayoutService, useValue: {currentPath}},
+      ],
     });
     TestBed.overrideComponent(AppSidebarItemRowComponent, {set: {template: ''}});
     fixture = TestBed.createComponent(AppSidebarItemRowComponent);

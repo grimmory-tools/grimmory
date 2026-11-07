@@ -2,11 +2,13 @@ import {ApplicationRef, provideZonelessChangeDetection, signal, type Environment
 import {provideHttpClient} from '@angular/common/http';
 import {provideHttpClientTesting} from '@angular/common/http/testing';
 import {TestBed} from '@angular/core/testing';
-import {provideTanStackQuery, QueryClient} from '@tanstack/angular-query-experimental';
+import {provideTanStackQuery, QueryClient, QueryObserver} from '@tanstack/angular-query-experimental';
+import {of, type Observable} from 'rxjs';
 
 interface AuthServiceStub {
   token: WritableSignal<string | null>;
   getInternalAccessToken: () => string | null;
+  ensureAccessToken: (options?: {forceRefresh?: boolean}) => Observable<string>;
 }
 
 export interface QueryClientHarness {
@@ -19,6 +21,7 @@ export function createAuthServiceStub(initialToken: string | null = 'token-123')
   return {
     token,
     getInternalAccessToken: () => token(),
+    ensureAccessToken: () => of(token() ?? ''),
   };
 }
 
@@ -37,7 +40,36 @@ export function createQueryClientHarness(): QueryClientHarness {
 }
 
 export function flushSignalAndQueryEffects(): void {
-  TestBed.flushEffects();
+  TestBed.tick();
+}
+
+export function observeActiveQuery(queryClient: QueryClient, queryKey: readonly unknown[], data: unknown) {
+  let fetchCount = 0;
+  let abortCount = 0;
+  const pendingResolutions: (() => void)[] = [];
+
+  queryClient.setQueryData(queryKey, data);
+  const observer = new QueryObserver(queryClient, {
+    queryKey,
+    staleTime: Infinity,
+    queryFn: ({signal}) => new Promise(resolve => {
+      fetchCount += 1;
+      signal.addEventListener('abort', () => {
+        abortCount += 1;
+      });
+      pendingResolutions.push(() => resolve(data));
+    }),
+  });
+  const unsubscribe = observer.subscribe(() => undefined);
+
+  return {
+    fetchCount: () => fetchCount,
+    abortCount: () => abortCount,
+    finish: () => {
+      pendingResolutions.splice(0).forEach(resolve => resolve());
+      unsubscribe();
+    },
+  };
 }
 
 /**
@@ -50,11 +82,27 @@ export function flushSignalAndQueryEffects(): void {
 export async function flushQueryAsync(rounds = 5): Promise<void> {
   const appRef = TestBed.inject(ApplicationRef);
   for (let i = 0; i < rounds; i++) {
-    TestBed.flushEffects();
+    TestBed.tick();
     appRef.tick();
     await Promise.resolve();
     await new Promise(resolve => setTimeout(resolve, 0));
   }
-  TestBed.flushEffects();
+  TestBed.tick();
   appRef.tick();
+}
+
+export function sseStream(chunks: readonly string[]): ReadableStream<Uint8Array> {
+  const encoder = new TextEncoder();
+  return new ReadableStream<Uint8Array>({
+    start(controller) {
+      for (const chunk of chunks) {
+        controller.enqueue(encoder.encode(chunk));
+      }
+      controller.close();
+    },
+  });
+}
+
+export function sseResponse(body: ReadableStream<Uint8Array>, status = 200): Response {
+  return new Response(body, {status, headers: {'Content-Type': 'text/event-stream'}});
 }

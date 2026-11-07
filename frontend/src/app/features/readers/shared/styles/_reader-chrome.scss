@@ -35,3 +35,34 @@
     color: inherit;
   }
 }
+
+@mixin safe-area {
+  --reader-browser-bar: 8px;
+
+  @media (pointer: coarse) {
+    --safe-edge-top: max(var(--safe-area-top), var(--reader-browser-bar));
+  }
+}
+
+@mixin browser-bar {
+  @include tokens;
+
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: var(--reader-browser-bar);
+  z-index: 9999;
+  pointer-events: none;
+
+  @media (pointer: coarse) {
+    display: block;
+  }
+}
+
+@mixin sidebar-edge($side, $width) {
+  width: calc(#{$width} + var(--safe-edge-#{$side}));
+  padding-top: var(--safe-edge-top);
+  padding-bottom: var(--safe-edge-bottom);
+  padding-#{$side}: var(--safe-edge-#{$side});
+}

@@ -28,9 +28,9 @@ export interface SelectionDetail {
 
 @Injectable()
 export class ReaderSelectionService {
-  private viewManager = inject(ReaderViewManagerService);
-  private annotationService = inject(ReaderAnnotationHttpService);
-  private leftSidebarService = inject(ReaderLeftSidebarService);
+  private readonly viewManager = inject(ReaderViewManagerService);
+  private readonly annotationService = inject(ReaderAnnotationHttpService);
+  private readonly leftSidebarService = inject(ReaderLeftSidebarService);
 
   private readonly destroyRef = inject(DestroyRef);
   private bookId!: number;
@@ -58,7 +58,7 @@ export class ReaderSelectionService {
   private readonly _state = signal<SelectionState>(this.defaultState);
   readonly state = this._state.asReadonly();
 
-  private annotationsChangedSubject = new Subject<Annotation[]>();
+  private readonly annotationsChangedSubject = new Subject<Annotation[]>();
   public annotationsChanged$ = this.annotationsChangedSubject.asObservable();
 
   initialize(bookId: number): void {
@@ -70,10 +70,13 @@ export class ReaderSelectionService {
   }
 
   handleTextSelected(detail: SelectionDetail, popupPosition?: { x: number; y: number; showBelow?: boolean }): void {
+    if (this.previewCfi && this.previewCfi !== detail.cfi && this.previewColor && this.previewStyle) {
+      this.updatePreview(detail.cfi, this.previewColor, this.previewStyle);
+    }
     this.currentSelection = detail;
     this._overlappingAnnotationId = this.findOverlappingAnnotation(detail.cfi);
     this._visible = true;
-    this._position = popupPosition || { x: 0, y: 0 };
+    this._position = popupPosition ?? { x: 0, y: 0 };
     this._showBelow = popupPosition?.showBelow || false;
 
     this.emitState();

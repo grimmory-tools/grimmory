@@ -1,27 +1,38 @@
-import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
-import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {Component, inject, Input, output} from '@angular/core';
+import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {Book} from '../../../book/model/book.model';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {LanguageResolverService} from '../../../../shared/service/language-resolver.service';
 import {CoverComponent} from '../../../../shared/components/cover/cover.component';
+import {MetadataCatalogService} from '../../../../shared/metadata/metadata-catalog.service';
 
 @Component({
   selector: 'app-reader-book-metadata-dialog',
   standalone: true,
-  imports: [TranslocoDirective, CoverComponent],
+  imports: [TranslocoDirective, TranslocoPipe, CoverComponent],
   templateUrl: './metadata-dialog.component.html',
   styleUrls: ['./metadata-dialog.component.scss']
 })
 export class ReaderBookMetadataDialogComponent {
-  @Input() book: Book | null = null;
-  @Output() closed = new EventEmitter<void>();
-
-  private urlHelperService = inject(UrlHelperService);
+  private readonly urlHelperService = inject(UrlHelperService);
   private readonly t = inject(TranslocoService);
+  protected readonly catalog = inject(MetadataCatalogService);
   protected readonly languageResolver = inject(LanguageResolverService);
+  @Input() book: Book | null = null;
+  readonly closed = output<void>();
 
   get metadata() {
     return this.book?.metadata;
+  }
+
+  get providerRatings() {
+    const metadata = this.metadata;
+    return this.catalog.providers().flatMap(provider => {
+      const rating = provider.book?.rating ? metadata?.[provider.book.rating] : undefined;
+      if (typeof rating !== 'number') return [];
+      const reviewCount = provider.book?.reviewCount ? metadata?.[provider.book.reviewCount] : undefined;
+      return [{labelKey: provider.labelKey, rating, reviewCount}];
+    });
   }
 
   get bookCoverUrl(): string | null {

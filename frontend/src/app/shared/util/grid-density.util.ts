@@ -4,11 +4,11 @@ import {scaleForGridColumns} from './virtual-grid.util';
 
 const FIXED_COLUMN_GAP = 8;
 
-type GridDensityDirection = 'smaller' | 'larger';
+export type GridDensityDirection = 'smaller' | 'larger';
 
 interface GridDensityOptions {
   useFixedColumns: Signal<boolean>;
-  screenWidth: Signal<number>;
+  screenWidth: () => number;
   storageKey: string;
   defaultColumns: number;
   minColumns: number;
@@ -17,11 +17,11 @@ interface GridDensityOptions {
   minScale: number;
   maxScale: number;
   gap: number;
-  baseWidth: Signal<number>;
+  baseWidth: () => number;
   setScale: (scale: number) => void;
 }
 
-interface GridDensityGrid {
+export interface GridDensityGrid {
   gridColumns: Signal<number>;
   viewportWidth: Signal<number>;
   updatePreservingScrollPosition: (update: () => void) => void;

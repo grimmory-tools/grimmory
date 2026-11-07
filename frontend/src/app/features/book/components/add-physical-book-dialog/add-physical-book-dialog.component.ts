@@ -1,4 +1,5 @@
-import {Component, computed, effect, inject, signal} from '@angular/core';
+import {Component, effect, inject, signal} from '@angular/core';
+import {HttpErrorResponse} from '@angular/common/http';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {FormsModule} from '@angular/forms';
 import {Button} from '@openng/optimus-ui/button';
@@ -7,13 +8,16 @@ import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {Select} from '@openng/optimus-ui/select';
 import {Textarea} from '@openng/optimus-ui/textarea';
 import {InputNumber} from '@openng/optimus-ui/inputnumber';
-import {AutoComplete, AutoCompleteCompleteEvent} from '@openng/optimus-ui/autocomplete';
+import {AutoComplete} from '@openng/optimus-ui/autocomplete';
+import {QueryClient} from '@tanstack/angular-query-experimental';
 import {BookService} from '../../service/book.service';
-import {BookMetadataService} from '../../service/book-metadata.service';
+import {FacetSuggestionsDirective} from '../facet-suggestions.directive';
 import {LibraryService} from '../../service/library.service';
 import {Library} from '../../model/library.model';
 import {CreatePhysicalBookRequest} from '../../model/book.model';
-import {TranslocoDirective} from '@jsverse/transloco';
+import {MetadataSourceQueryService} from '../../../metadata/sources/metadata-source-query.service';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {MessageService} from '@openng/optimus-ui/api';
 
 @Component({
   selector: 'app-add-physical-book-dialog',
@@ -28,16 +32,20 @@ import {TranslocoDirective} from '@jsverse/transloco';
     Textarea,
     InputNumber,
     AutoComplete,
-    TranslocoDirective
+    TranslocoDirective,
+    FacetSuggestionsDirective
   ],
   styleUrl: './add-physical-book-dialog.component.scss',
 })
 export class AddPhysicalBookDialogComponent {
-  private dynamicDialogRef = inject(DynamicDialogRef);
-  private dialogConfig = inject(DynamicDialogConfig);
-  private bookService = inject(BookService);
-  private bookMetadataService = inject(BookMetadataService);
-  private libraryService = inject(LibraryService);
+  private readonly dynamicDialogRef = inject(DynamicDialogRef);
+  private readonly dialogConfig = inject(DynamicDialogConfig);
+  private readonly bookService = inject(BookService);
+  private readonly queryClient = inject(QueryClient);
+  private readonly sources = inject(MetadataSourceQueryService);
+  private readonly libraryService = inject(LibraryService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
 
   selectedLibraryId: number | null = null;
   title: string = '';
@@ -50,15 +58,10 @@ export class AddPhysicalBookDialogComponent {
   pageCount: number | null = null;
   categories: string[] = [];
 
-  private readonly metadata = computed(() => this.bookService.uniqueMetadata());
-  get allAuthors(): string[] { return this.metadata().authors; }
-  get allCategories(): string[] { return this.metadata().categories; }
-  filteredAuthors: string[] = [];
-  filteredCategories: string[] = [];
-
   coverUrl: string | null = null;
-  isLoading = signal(false);
-  isFetchingMetadata = signal(false);
+  readonly isLoading = signal(false);
+  readonly isFetchingMetadata = signal(false);
+  readonly metadataLookupMessage = signal<'metadataNotFound' | 'metadataLookupFailed' | null>(null);
   private readonly initializeSelectedLibraryEffect = effect(() => {
     const libraries = this.libraries;
     if (libraries.length === 0) {
@@ -77,20 +80,6 @@ export class AddPhysicalBookDialogComponent {
 
   get libraries(): Library[] {
     return this.libraryService.libraries();
-  }
-
-  filterAuthors(event: AutoCompleteCompleteEvent): void {
-    const query = event.query.toLowerCase();
-    this.filteredAuthors = this.allAuthors.filter((author) =>
-      author.toLowerCase().includes(query)
-    );
-  }
-
-  filterCategories(event: AutoCompleteCompleteEvent): void {
-    const query = event.query.toLowerCase();
-    this.filteredCategories = this.allCategories.filter((category) =>
-      category.toLowerCase().includes(query)
-    );
   }
 
   onAutoCompleteKeyUp(fieldName: 'authors' | 'categories', event: KeyboardEvent): void {
@@ -115,28 +104,33 @@ export class AddPhysicalBookDialogComponent {
     (event.originalEvent.target as HTMLInputElement).value = '';
   }
 
-  fetchMetadataByIsbn(): void {
+  async fetchMetadataByIsbn(): Promise<void> {
     const isbnValue = this.isbn.trim();
     if (!isbnValue || this.isFetchingMetadata()) return;
 
     this.isFetchingMetadata.set(true);
-    this.bookMetadataService.lookupByIsbn(isbnValue).subscribe({
-      next: (metadata) => {
-        if (metadata.title) this.title = metadata.title;
-        if (metadata.authors?.length) this.authors = [...metadata.authors];
-        if (metadata.description) this.description = metadata.description;
-        if (metadata.publisher) this.publisher = metadata.publisher;
-        if (metadata.publishedDate) this.publishedDate = metadata.publishedDate;
-        if (metadata.language) this.language = metadata.language;
-        if (metadata.pageCount) this.pageCount = metadata.pageCount;
-        if (metadata.categories?.length) this.categories = [...metadata.categories];
-        this.coverUrl = metadata.thumbnailUrl || null;
-        this.isFetchingMetadata.set(false);
-      },
-      error: () => {
-        this.isFetchingMetadata.set(false);
+    this.metadataLookupMessage.set(null);
+    try {
+      const metadata = await this.queryClient.query(this.sources.isbnLookup(isbnValue));
+      if (!metadata) {
+        this.metadataLookupMessage.set('metadataNotFound');
+        return;
       }
-    });
+
+      if (metadata.title) this.title = metadata.title;
+      if (metadata.authors?.length) this.authors = [...metadata.authors];
+      if (metadata.description) this.description = metadata.description;
+      if (metadata.publisher) this.publisher = metadata.publisher;
+      if (metadata.publishedDate) this.publishedDate = metadata.publishedDate;
+      if (metadata.language) this.language = metadata.language;
+      if (metadata.pageCount) this.pageCount = metadata.pageCount;
+      if (metadata.categories?.length) this.categories = [...metadata.categories];
+      this.coverUrl = metadata.thumbnailUrl || null;
+    } catch {
+      this.metadataLookupMessage.set('metadataLookupFailed');
+    } finally {
+      this.isFetchingMetadata.set(false);
+    }
   }
 
   cancel(): void {
@@ -171,8 +165,15 @@ export class AddPhysicalBookDialogComponent {
         this.isLoading.set(false);
         this.dynamicDialogRef.close(book);
       },
-      error: () => {
+      error: (err: unknown) => {
         this.isLoading.set(false);
+        if (err instanceof HttpErrorResponse && err.status === 409) {
+          this.messageService.add({
+            severity: 'error',
+            summary: this.t.translate('book.bookService.toast.creationFailedSummary'),
+            detail: this.t.translate('book.bulkIsbnImport.reason.alreadyExists')
+          });
+        }
       }
     });
   }

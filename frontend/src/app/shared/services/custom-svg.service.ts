@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { finalize, map, shareReplay, tap } from 'rxjs/operators';
@@ -24,16 +24,13 @@ interface SvgIconBatchResponse {
   results: IconSaveResult[];
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class CustomSvgService {
+  private readonly http = inject(HttpClient);
+  private readonly customSvgCache = inject(CustomSvgCacheService);
 
   private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/icons`;
   private readonly requestCache = new Map<string, Observable<string>>();
-
-  private readonly http = inject(HttpClient);
-  private readonly customSvgCache = inject(CustomSvgCacheService);
 
   private sanitizeSvgContent(content: string): string {
     return DOMPurify.sanitize(content, {

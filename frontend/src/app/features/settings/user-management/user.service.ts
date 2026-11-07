@@ -1,4 +1,4 @@
-import { computed, effect, inject, Injectable } from '@angular/core';
+import { computed, effect, inject, Service } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom, Observable, throwError } from 'rxjs';
 import { API_CONFIG } from '../../../core/config/api-config';
@@ -13,7 +13,7 @@ import {DEFAULT_UI_FONT, normalizeUiFont, type UiFontPreference} from '../../../
 
 export interface EntityViewPreferences {
   global: EntityViewPreference;
-  overrides: EntityViewPreferenceOverride[];
+  overrides: EntityViewPreferenceOverride[] | null;
 }
 
 export interface SortCriterion {
@@ -60,7 +60,6 @@ export interface PerBookSetting {
 }
 
 export type PageSpread = 'off' | 'even' | 'odd';
-export type BookFilterMode = 'and' | 'or' | 'single' | 'not';
 
 
 export enum CbxPageViewMode {
@@ -186,6 +185,7 @@ export interface EbookReaderSetting {
   fontFamily: string;
   isDark: boolean;
   flow: 'paginated' | 'scrolled';
+  tapToTurnPage?: boolean;
 }
 
 export interface EpubReaderSetting {
@@ -223,77 +223,6 @@ export interface TableColumnPreference {
   order: number;
 }
 
-export type VisibleFilterType =
-  | 'author' | 'category' | 'series' | 'bookType' | 'readStatus'
-  | 'personalRating' | 'publisher' | 'matchScore' | 'library' | 'shelf'
-  | 'shelfStatus' | 'tag' | 'publishedDate' | 'fileSize' | 'amazonRating'
-  | 'goodreadsRating' | 'hardcoverRating' | 'lubimyczytacRating' | 'ranobedbRating'
-  | 'audibleRating' | 'language' | 'pageCount' | 'mood'
-  | 'ageRating' | 'contentRating'
-  | 'narrator'
-  | 'comicCharacter' | 'comicTeam' | 'comicLocation' | 'comicCreator';
-
-export const DEFAULT_VISIBLE_FILTERS: VisibleFilterType[] = [
-  'author', 'category', 'series', 'bookType', 'readStatus',
-  'personalRating', 'amazonRating', 'goodreadsRating', 'hardcoverRating',
-  'lubimyczytacRating', 'ranobedbRating', 'audibleRating',
-  'library', 'shelf', 'tag', 'ageRating', 'contentRating',
-  'matchScore', 'publisher', 'publishedDate', 'fileSize',
-  'pageCount', 'shelfStatus', 'language', 'mood', 'narrator',
-  'comicCharacter', 'comicTeam', 'comicLocation', 'comicCreator'
-];
-
-// Translation key for each filter option — use book.filter.labels.<value>
-export const ALL_FILTER_OPTION_VALUES: VisibleFilterType[] = [
-  'author', 'category', 'series', 'bookType', 'readStatus',
-  'personalRating', 'library', 'tag', 'ageRating', 'contentRating',
-  'matchScore', 'publisher', 'publishedDate', 'fileSize', 'shelf',
-  'shelfStatus', 'language', 'pageCount', 'mood', 'amazonRating',
-  'goodreadsRating', 'hardcoverRating', 'lubimyczytacRating', 'ranobedbRating',
-  'audibleRating', 'narrator',
-  'comicCharacter', 'comicTeam', 'comicLocation', 'comicCreator'
-];
-
-export const ALL_FILTER_OPTIONS: { label: string; value: VisibleFilterType }[] = [
-  { label: 'Author', value: 'author' },
-  { label: 'Genre', value: 'category' },
-  { label: 'Series', value: 'series' },
-  { label: 'Book Type', value: 'bookType' },
-  { label: 'Read Status', value: 'readStatus' },
-  { label: 'Personal Rating', value: 'personalRating' },
-  { label: 'Library', value: 'library' },
-  { label: 'Tag', value: 'tag' },
-  { label: 'Age Rating', value: 'ageRating' },
-  { label: 'Content Rating', value: 'contentRating' },
-  { label: 'Metadata Match Score', value: 'matchScore' },
-  { label: 'Publisher', value: 'publisher' },
-  { label: 'Published Year', value: 'publishedDate' },
-  { label: 'File Size', value: 'fileSize' },
-  { label: 'Shelf', value: 'shelf' },
-  { label: 'Shelf Status', value: 'shelfStatus' },
-  { label: 'Language', value: 'language' },
-  { label: 'Page Count', value: 'pageCount' },
-  { label: 'Mood', value: 'mood' },
-  { label: 'Amazon Rating', value: 'amazonRating' },
-  { label: 'Goodreads Rating', value: 'goodreadsRating' },
-  { label: 'Hardcover Rating', value: 'hardcoverRating' },
-  { label: 'Lubimyczytac Rating', value: 'lubimyczytacRating' },
-  { label: 'RanobeDB Rating', value: 'ranobedbRating' },
-  { label: 'Audible Rating', value: 'audibleRating' },
-  { label: 'Narrator', value: 'narrator' },
-  { label: 'Comic Character', value: 'comicCharacter' },
-  { label: 'Comic Team', value: 'comicTeam' },
-  { label: 'Comic Location', value: 'comicLocation' },
-  { label: 'Comic Creator', value: 'comicCreator' }
-];
-
-export const DEFAULT_VISIBLE_SORT_FIELDS: string[] = [
-  'title', 'seriesName', 'fileName', 'filePath',
-  'author', 'authorSurnameVorname', 'seriesNumber',
-  'lastReadTime', 'personalRating', 'addedOn',
-  'fileSizeKb', 'locked', 'publisher', 'publishedDate', 'pageCount', 'random'
-];
-
 export interface UserSettings {
   perBookSetting: PerBookSetting;
   pdfReaderSetting: PdfReaderSetting;
@@ -304,9 +233,6 @@ export interface UserSettings {
   sidebarLibrarySorting: SidebarLibrarySorting;
   sidebarShelfSorting: SidebarShelfSorting;
   sidebarMagicShelfSorting: SidebarMagicShelfSorting;
-  filterMode: BookFilterMode;
-  visibleFilters?: VisibleFilterType[];
-  visibleSortFields?: string[];
   metadataCenterViewMode: 'route' | 'dialog';
   enableSeriesView: boolean;
   entityViewPreferences: EntityViewPreferences;
@@ -387,16 +313,13 @@ export interface UserProfileUpdateRequest {
   uiFont?: UiFontPreference;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class UserService {
+  private readonly http = inject(HttpClient);
+  private readonly authService = inject(AuthService);
+  private readonly queryClient = inject(QueryClient);
   private readonly apiUrl = `${API_CONFIG.BASE_URL}/api/v1/auth/register`;
   private readonly userUrl = `${API_CONFIG.BASE_URL}/api/v1/users`;
-
-  private http = inject(HttpClient);
-  private authService = inject(AuthService);
-  private queryClient = inject(QueryClient);
   private readonly token = this.authService.token;
 
   private readonly userQuery = injectQuery(() => ({
@@ -404,9 +327,9 @@ export class UserService {
     enabled: !!this.token(),
   }));
 
-  currentUser = computed(() => this.userQuery.data() ?? null);
-  isUserLoading = computed(() => !!this.token() && this.userQuery.isPending());
-  userError = computed<string | null>(() => {
+  readonly currentUser = computed(() => this.userQuery.data() ?? null);
+  readonly isUserLoading = computed(() => !!this.token() && this.userQuery.isPending());
+  readonly userError = computed<string | null>(() => {
     if (!this.token() || !this.userQuery.isError()) return null;
     const error = this.userQuery.error();
     return error instanceof Error ? error.message : 'Failed to load user';
@@ -511,7 +434,7 @@ export class UserService {
     );
   }
 
-  updateUserSetting(userId: number, key: string, value: unknown): void {
+  updateUserSetting(userId: number, key: string, value: unknown, onError?: () => void): void {
     const payload = {
       key,
       value
@@ -519,13 +442,16 @@ export class UserService {
     this.http.put<void>(`${this.userUrl}/${userId}/settings`, payload, {
       headers: { 'Content-Type': 'application/json' },
       responseType: 'text' as 'json'
-    }).subscribe(() => {
-      const currentUser = this.currentUser();
-      if (currentUser) {
-        const updatedSettings = { ...currentUser.userSettings, [key]: value };
-        const updatedUser = { ...currentUser, userSettings: updatedSettings };
-        this.queryClient.setQueryData(CURRENT_USER_QUERY_KEY, updatedUser);
-      }
+    }).subscribe({
+      next: () => {
+        const currentUser = this.currentUser();
+        if (currentUser) {
+          const updatedSettings = { ...currentUser.userSettings, [key]: value };
+          const updatedUser = { ...currentUser, userSettings: updatedSettings };
+          this.queryClient.setQueryData(CURRENT_USER_QUERY_KEY, updatedUser);
+        }
+      },
+      error: onError,
     });
   }
 

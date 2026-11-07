@@ -1,4 +1,4 @@
-import {Component, DestroyRef, effect, inject, Input, OnChanges, OnInit, signal, SimpleChanges} from '@angular/core';
+import {Component, DestroyRef, inject, Input, OnChanges, OnInit, signal, SimpleChanges} from '@angular/core';
 
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {finalize} from 'rxjs';
@@ -9,62 +9,47 @@ import {Rating} from '@openng/optimus-ui/rating';
 import {Tag} from '@openng/optimus-ui/tag';
 import {Button} from '@openng/optimus-ui/button';
 import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
-import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {UserService} from '../../../settings/user-management/user.service';
 import {FormsModule} from '@angular/forms';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
-import {BookService} from '../../service/book.service';
 import {BookMetadataManageService} from '../../service/book-metadata-manage.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
+import {MetadataCatalogService} from '../../../../shared/metadata/metadata-catalog.service';
 
 @Component({
   selector: 'app-book-reviews',
   standalone: true,
-  imports: [ProgressSpinner, Rating, Tag, Button, FormsModule, Tooltip, TranslocoDirective],
+  imports: [ProgressSpinner, Rating, Tag, Button, FormsModule, Tooltip, TranslocoDirective, TranslocoPipe],
   templateUrl: './book-reviews.component.html',
   styleUrl: './book-reviews.component.scss'
 })
 export class BookReviewsComponent implements OnInit, OnChanges {
+  private readonly reviewService = inject(BookReviewService);
+  private readonly bookMetadataManageService = inject(BookMetadataManageService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly messageService = inject(MessageService);
+  private readonly userService = inject(UserService);
+  private readonly appSettingsService = inject(AppSettingsService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly t = inject(TranslocoService);
+  protected readonly catalog = inject(MetadataCatalogService);
   @Input() bookId!: number;
   @Input() reviews: BookReview[] | undefined = [];
   @Input() active: boolean = false;
-
-  private reviewService = inject(BookReviewService);
-  private bookService = inject(BookService);
-  private bookMetadataManageService = inject(BookMetadataManageService);
-  private confirmationService = inject(ConfirmationService);
-  private messageService = inject(MessageService);
-  private userService = inject(UserService);
-  private appSettingsService = inject(AppSettingsService);
-  private destroyRef = inject(DestroyRef);
-  private readonly t = inject(TranslocoService);
-  private bookIdState = signal<number | null>(null);
+  @Input() reviewsLocked = false;
   private loadingBookId: number | null = null;
   private loadingRequestSeq = 0;
   private activeLoadingRequestSeq: number | null = null;
 
 
 
-  loading = signal(false);
+  readonly loading = signal(false);
   hasPermission = false;
   revealedSpoilers = new Set<number>();
   sortAscending = false;
-  reviewsLocked = false;
   allSpoilersRevealed = false;
   reviewDownloadEnabled = true;
-
-  constructor() {
-    effect(() => {
-      const bookId = this.bookIdState();
-      if (!bookId) {
-        this.reviewsLocked = false;
-        return;
-      }
-
-      const book = this.bookService.findBookById(bookId);
-      this.reviewsLocked = book?.metadata?.reviewsLocked ?? false;
-    });
-  }
 
   ngOnInit(): void {
     this.checkUserPermissions();
@@ -72,8 +57,7 @@ export class BookReviewsComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['bookId'] && changes['bookId'].currentValue) {
-      this.bookIdState.set(changes['bookId'].currentValue);
+    if (changes['bookId']?.currentValue) {
       this.loadReviews();
     }
   }
@@ -335,7 +319,7 @@ export class BookReviewsComponent implements OnInit, OnChanges {
   }
 
   private updateSpoilerState(): void {
-    const spoilerReviews = this.reviews?.filter(r => r.spoiler) || [];
+    const spoilerReviews = this.reviews?.filter(r => r.spoiler) ?? [];
     const revealedSpoilerReviews = spoilerReviews.filter(r => r.id && this.revealedSpoilers.has(r.id));
     this.allSpoilersRevealed = spoilerReviews.length > 0 && spoilerReviews.length === revealedSpoilerReviews.length;
   }

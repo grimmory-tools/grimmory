@@ -1,0 +1,149 @@
+@let group = this.group();
+<div class="group/ghead relative mb-1 flex items-center rounded-md px-2 hover:bg-surface-hover">
+  <button
+    type="button"
+    [class]="headerButtonClass()"
+    [attr.aria-expanded]="isOpen()"
+    (click)="toggleOpen()">
+    <h3 class="m-0 text-[13px] font-semibold text-text-secondary group-hover/ghead:text-text pointer-coarse:text-base">{{ group.labelKey | transloco }}</h3>
+    @if (group.matchAll) {
+      <app-tag size="sm" styleClass="px-1! py-px! text-[10px]!">{{ 'browse.rail.all' | transloco }}</app-tag>
+    }
+    @if (!isOpen() && selectedCount() > 0) {
+      <app-tag color="primary" size="sm" styleClass="min-w-4 justify-center px-1! py-px! text-[10px]! tabular-nums">
+        {{ selectedCount() }}
+      </app-tag>
+    }
+    <svg
+      lucideChevronDown
+      class="size-3.5 text-text-muted transition-transform duration-200 motion-reduce:transition-none"
+      [class.-rotate-90]="!isOpen()"
+      aria-hidden="true"></svg>
+  </button>
+  <div class="absolute inset-y-0 right-1 my-auto flex h-fit items-center gap-0.5">
+    @if (headerSearchable()) {
+      <app-button
+        variant="ghost"
+        size="sm"
+        iconOnly
+        styleClass="size-7 pointer-coarse:size-10 pointer-coarse:text-base"
+        [ariaLabel]="'browse.rail.searchValues' | transloco"
+        [ariaExpanded]="searching()"
+        (clicked)="toggleSearch(searchInput)">
+        @if (searching()) {
+          <svg lucideX aria-hidden="true"></svg>
+        } @else {
+          <svg lucideSearch aria-hidden="true"></svg>
+        }
+      </app-button>
+    }
+    @if (matchable()) {
+      <app-button
+        variant="ghost"
+        size="sm"
+        iconOnly
+        styleClass="size-7 pointer-coarse:size-10 pointer-coarse:text-base"
+        [ariaLabel]="'browse.rail.matchOptions' | transloco"
+        [title]="'browse.rail.matchOptions' | transloco"
+        [appMenuTriggerFor]="matchMenu">
+        <svg lucideSlidersHorizontal aria-hidden="true"></svg>
+      </app-button>
+      <app-menu #matchMenu [ariaLabel]="'browse.rail.matchOptions' | transloco">
+        <app-menu-radio-group [value]="group.matchAll ? 'all' : 'any'" (valueSelected)="onMatchAll($event)">
+          <app-menu-radio value="any">{{ 'browse.rail.matchAny' | transloco }}</app-menu-radio>
+          <app-menu-radio value="all">{{ 'browse.rail.matchAll' | transloco }}</app-menu-radio>
+        </app-menu-radio-group>
+      </app-menu>
+    }
+  </div>
+</div>
+
+<div [class]="revealClass(revealed())" [attr.inert]="revealed() ? null : ''">
+  <div class="min-h-0 overflow-hidden">
+    <div [class]="revealClass(searching())" [attr.inert]="searching() ? null : ''" data-search-wrap>
+      <div class="min-h-0 overflow-hidden pt-px">
+        <div class="mb-1.5">
+          <app-input
+            #searchInput
+            size="sm"
+            [placeholder]="'browse.rail.searchValues' | transloco"
+            [ariaLabel]="'browse.rail.searchValues' | transloco"
+            [value]="search()"
+            (valueChange)="search.set($event)">
+            <svg lucideSearch appInputLeading class="size-3.5" aria-hidden="true"></svg>
+          </app-input>
+        </div>
+      </div>
+    </div>
+
+    @if (hasEverOpened()) {
+      <span [id]="excludedLabelId()" hidden>{{ 'browse.rail.excluded' | transloco }}</span>
+      <div [class]="foldClass()">
+        <ul class="m-0 flex list-none flex-col p-0">
+          @for (row of rows(); track row.item.value) {
+            @let item = row.item;
+            <li [class]="row.rowClass">
+              <button
+                type="button"
+                [class]="includeClass()"
+                [disabled]="row.zero"
+                [attr.title]="item.label"
+                [attr.aria-label]="item.stars ? item.label : null"
+                [attr.aria-pressed]="row.state === 'included'"
+                [attr.aria-describedby]="row.state === 'excluded' ? excludedLabelId() : null"
+                (click)="onRowToggle($index, 'included')">
+                <span [class]="row.boxClass" aria-hidden="true">
+                  @if (row.state === 'included') {
+                    <svg lucideCheck [class]="checkIconClass" aria-hidden="true"></svg>
+                  }
+                </span>
+                @if (item.icon) {
+                  <app-icon-display class="shrink-0 text-text-muted" [icon]="item.icon" size="14px" />
+                }
+                <span [class]="row.labelClass">
+                  @if (item.stars; as stars) {
+                    <app-rating readonly size="sm" [value]="stars.value" [stars]="stars.max" />
+                  } @else {
+                    {{ item.label }}
+                  }
+                </span>
+                <span [class]="row.countClass">{{ item.count }}</span>
+              </button>
+              <button
+                type="button"
+                [class]="row.excludeClass"
+                [disabled]="row.zero"
+                [attr.title]="'browse.rail.exclude' | transloco"
+                [attr.aria-label]="'browse.rail.excludeValue' | transloco: {value: item.label}"
+                [attr.aria-pressed]="row.state === 'excluded'"
+                (click)="onRowToggle($index, 'excluded')">
+                <span [class]="row.excludeBoxClass" aria-hidden="true">
+                  <svg lucideMinus [class]="checkIconClass" aria-hidden="true"></svg>
+                </span>
+              </button>
+            </li>
+          } @empty {
+            @if (activeQuery()) {
+              <li class="px-1.5 py-1.5 text-xs text-text-muted pointer-coarse:px-2 pointer-coarse:text-[13px]">
+                {{ 'browse.rail.noMatches' | transloco }}
+              </li>
+            }
+          }
+        </ul>
+        @if (!activeQuery() && group.values.length > foldLimit()) {
+          <button type="button" [class]="expandRowClass" (click)="onExpandToggle()">
+            {{ (expanded() ? 'browse.showFewer' : 'browse.showMore') | transloco }}
+          </button>
+        }
+      </div>
+      @if (group.range; as range) {
+        <app-browse-facet-range-inputs
+          [class]="rangeRowClass(group)"
+          [facetKey]="group.key"
+          [range]="range"
+          (commit)="commitRange.emit($event)" />
+      }
+    }
+    <div class="h-4" aria-hidden="true"></div>
+  </div>
+</div>

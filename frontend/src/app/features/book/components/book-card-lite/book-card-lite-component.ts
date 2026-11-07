@@ -5,7 +5,6 @@ import {CoverComponent} from '../../../../shared/components/cover/cover.componen
 import {Button} from '@openng/optimus-ui/button';
 import {UserService} from '../../../settings/user-management/user.service';
 import {Router} from '@angular/router';
-import {NgClass} from '@angular/common';
 import {BookMetadataHostService} from '../../../../shared/service/book-metadata-host.service';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 
@@ -14,7 +13,6 @@ import {Tooltip} from '@openng/optimus-ui/tooltip';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     Button,
-    NgClass,
     Tooltip,
     CoverComponent
   ],
@@ -22,16 +20,15 @@ import {Tooltip} from '@openng/optimus-ui/tooltip';
   styleUrl: './book-card-lite-component.scss'
 })
 export class BookCardLiteComponent {
+  private readonly router = inject(Router);
+  protected urlHelper = inject(UrlHelperService);
+  private readonly userService = inject(UserService);
+  private readonly bookMetadataHostService = inject(BookMetadataHostService);
   @Input() book!: Book;
   @Input() isActive: boolean = false;
   @Input() showSeriesNumber: boolean = false;
 
-  private router = inject(Router);
-  protected urlHelper = inject(UrlHelperService);
-  private userService = inject(UserService);
-  private bookMetadataHostService = inject(BookMetadataHostService);
-
-  private metadataCenterViewMode = computed(() =>
+  private readonly metadataCenterViewMode = computed(() =>
     this.userService.currentUser()?.userSettings.metadataCenterViewMode ?? 'route'
   );
   isHovered: boolean = false;

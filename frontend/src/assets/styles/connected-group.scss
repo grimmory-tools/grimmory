@@ -18,9 +18,8 @@
 .app-cg-item.app-cg-prominent:not(.app-cg-last, :hover, .app-cg-active):has(
   + .app-cg-item.app-cg-prominent
 ),
-.app-cg-group > *:has(+ * > .app-cg-item:is(:hover, .app-cg-active)) > .app-cg-item:not(:hover),
-.app-cg-group
-  > *:has(+ * > .app-cg-item.app-cg-prominent)
+:is(.app-cg-group > *):has(+ * > .app-cg-item:is(:hover, .app-cg-active)) > .app-cg-item:not(:hover),
+:is(.app-cg-group > *):has(+ * > .app-cg-item.app-cg-prominent)
   > .app-cg-item.app-cg-prominent:not(.app-cg-last, :hover, .app-cg-active) {
   border-right-color: transparent;
 }
@@ -30,12 +29,10 @@
   border-left-color: transparent;
 }
 
-.app-cg-group
-  > *:has(> .app-cg-item:is(:hover, .app-cg-active))
+:is(.app-cg-group > *):has(> .app-cg-item:is(:hover, .app-cg-active))
   + *
   > .app-cg-item:not(:hover, .app-cg-active),
-.app-cg-group
-  > *:has(> .app-cg-item.app-cg-prominent)
+:is(.app-cg-group > *):has(> .app-cg-item.app-cg-prominent)
   + *
   > .app-cg-item:not(:hover, .app-cg-active, .app-cg-prominent) {
   border-left-color: transparent;

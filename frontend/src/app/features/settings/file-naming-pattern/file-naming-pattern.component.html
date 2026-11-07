@@ -4,7 +4,7 @@
     <h2 class="settings-title">
       <i class="pi pi-file"></i>
       {{ t('title') }}
-      <app-external-doc-link docType="fileNamePatterns"></app-external-doc-link>
+      <app-external-doc-link docType="fileNamePatterns" />
     </h2>
     <p class="settings-description">
       {{ t('description') }}
@@ -44,8 +44,7 @@
               (onClick)="savePatterns()"
               severity="success"
               [outlined]="true"
-              [disabled]="!!defaultErrorMessage">
-            </p-button>
+              [disabled]="!!defaultErrorMessage" />
           </div>
           @if (defaultErrorMessage) {
             <span class="error-text">{{ defaultErrorMessage }}</span>
@@ -104,8 +103,7 @@
                   [rounded]="true"
                   (onClick)="clearLibraryPattern(library)"
                   [disabled]="!library.fileNamingPattern"
-                  [pTooltip]="t('libraryOverrides.clearPattern')">
-                </p-button>
+                  [pTooltip]="t('libraryOverrides.clearPattern')" />
               </div>
               <div class="library-body">
                 <div class="pattern-input-container">
@@ -134,8 +132,7 @@
             (onClick)="saveLibraryPatterns()"
             severity="success"
             icon="pi pi-save"
-            [outlined]="true">
-          </p-button>
+            [outlined]="true" />
         </div>
       }
     </div>
@@ -183,7 +180,7 @@
           <div class="example-block">
             <div class="example-pattern">
               <span class="pattern-prefix">{{ t('placeholders.pattern') }}</span>
-              <code class="text-orange-700 dark:text-orange-300">{{ '{<{seriesIndex} - >{title}' }}</code>
+              <code class="text-orange-700 dark:text-orange-300">{{ '<{seriesIndex} - >{title}' }}</code>
             </div>
             <div class="example-results">
               <div class="result-item text-emerald-700 dark:text-emerald-300">
@@ -208,7 +205,7 @@
           <div class="example-block">
             <div class="example-pattern">
               <span class="pattern-prefix">{{ t('placeholders.pattern') }}</span>
-              <code class="text-orange-700 dark:text-orange-300">{{ '{<{series}|Standalone>/{title}' }}</code>
+              <code class="text-orange-700 dark:text-orange-300">{{ '<{series}|Standalone>/{title}' }}</code>
             </div>
             <div class="example-results">
               <div class="result-item text-emerald-700 dark:text-emerald-300">

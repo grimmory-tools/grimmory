@@ -13,6 +13,8 @@ jobs:
   migration-check:
     name: Flyway Migration Check
     uses: ./.github/workflows/migrations-check.yml
+    permissions:
+      contents: read
     with:
       base_ref: ${{ github.event.before }}
       head_ref: ${{ github.sha }}
@@ -28,18 +30,16 @@ jobs:
     with:
       checkout_ref: ${{ github.sha }}
 
-  semantic-version:
-    name: Compute Release and Changelog
-    needs:
-      - migration-check
-      - test-suite
+  resolve-refs:
+    name: Resolve release ref
     runs-on: ubuntu-latest
 
     permissions:
       contents: read
 
     outputs:
-      version: ${{ steps.notes.outputs.predicted_version }}
+      commit-sha: ${{ steps.resolve.outputs.commit_sha }}
+      from-ref: ${{ steps.resolve.outputs.from_ref }}
 
     steps:
       - name: Checkout Repository
@@ -56,21 +56,24 @@ jobs:
           set -eu
 
           git fetch origin main --tags --force
-          base_tag="$(git describe --tags --abbrev=0 --match 'v*' origin/main)"
-          from_ref="$base_tag"
+          from_ref="$(git describe --tags --abbrev=0 --match 'v*' origin/main)"
 
-          echo "base_tag=${base_tag}" >> "$GITHUB_OUTPUT"
           echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           echo "from_ref=${from_ref}" >> "$GITHUB_OUTPUT"
 
-      - name: Build Changelog
-        id: notes
-        uses: ./.github/actions/compute-release-notes
-        with:
-          base_tag: ${{ steps.resolve.outputs.base_tag }}
-          from_ref: ${{ steps.resolve.outputs.from_ref }}
-          repository_url: ${{ format('{0}/{1}', github.server_url, github.repository) }}
-          to_ref: ${{ steps.resolve.outputs.commit_sha }}
+  semantic-version:
+    name: Generate Notes
+    needs:
+      - resolve-refs
+      - migration-check
+    uses: ./.github/workflows/compute-release-notes.yml
+    permissions:
+      contents: read
+    with:
+      bump: true
+      from-ref: ${{ needs.resolve-refs.outputs.from-ref }}
+      to-ref: ${{ needs.resolve-refs.outputs.commit-sha }}
+    secrets: inherit
 
   build-frontend:
     name: Build frontend
@@ -88,19 +91,11 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Set Up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v6
+      - name: Set Up pnpm and Node.js
+        uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
         with:
           node-version-file: .nvmrc
-
-      - name: Set Up pnpm
-        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
-        with:
-          version: 11
           cache: true
-          run_install: |
-            - cwd: frontend/
-          package_json_file: frontend/package.json
 
       - name: Build frontend
         working-directory: frontend/
@@ -114,7 +109,7 @@ jobs:
           cp LICENSE NOTICE frontend/dist/
 
       - name: Upload Frontend Artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: frontend
           path: frontend/dist/
@@ -137,7 +132,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: frontend
           path: /tmp/frontend-dist/
@@ -150,7 +145,7 @@ jobs:
           task-extra-params: "-PfrontendDistDir=/tmp/frontend-dist/grimmory/browser"
 
       - name: Upload Backend Jar Artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: backend
           path: backend/build/libs/
@@ -179,7 +174,7 @@ jobs:
           task: buildOpenApiArtifacts
 
       - name: Upload Nightly OpenAPI Artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: openapi
           path: backend/build/openapi/
@@ -204,22 +199,18 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: range-release-notes
-
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: frontend
           skip-decompress: true
           path: artifacts/
 
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: backend
           path: artifacts/
 
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: openapi
           path: artifacts/
@@ -237,14 +228,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN != '' && secrets.RELEASE_BOT_TOKEN || github.token }}
           GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN != '' && secrets.RELEASE_BOT_TOKEN || github.token }}
+          RELEASE_NOTES: ${{ needs.semantic-version.outputs.release-notes }}
           RELEASE_VERSION: ${{ needs.semantic-version.outputs.version }}
           TARGET_REF: ${{ github.sha }}
         run: |
           gh release create \
-            "v${RELEASE_VERSION}" \
-            --title "Release v${RELEASE_VERSION}" \
+            "${RELEASE_VERSION}" \
+            --title "Release ${RELEASE_VERSION}" \
             --draft \
             --latest \
             --target "${TARGET_REF}" \
-            --notes-file ./range-release-notes.md \
+            --notes "${RELEASE_NOTES}" \
             release-assets/*

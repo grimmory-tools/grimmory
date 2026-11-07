@@ -1,9 +1,10 @@
-import {inject, Injectable, Type} from '@angular/core';
+import {inject, Service, Type} from '@angular/core';
 import {DialogService, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {TranslocoService} from '@jsverse/transloco';
 import {MessageService} from '@openng/optimus-ui/api';
 import {MetadataRefreshType} from '../../features/metadata/model/request/metadata-refresh-type.enum';
 import {BookdropFinalizeResult} from '../../features/bookdrop/service/bookdrop.service';
+import type {BookBrowseMultiSortDialogData} from '../../features/book/browse/book-browse-multi-sort-dialog.component';
 
 /**
  * Dialog size classes - use these to control dialog dimensions
@@ -24,16 +25,14 @@ export const DialogStyle = {
   MINIMAL: 'dialog-minimal', // removes padding for custom headers
 } as const;
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class DialogLauncherService {
 
   private readonly dialogService = inject(DialogService);
   private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
 
-  private defaultDialogOptions = {
+  private readonly defaultDialogOptions = {
     baseZIndex: 10,
     closable: true,
     dismissableMask: true,
@@ -52,7 +51,7 @@ export class DialogLauncherService {
   }
 
   launchLazyDialog(dialogFn: () => Promise<DynamicDialogRef | null>): Promise<DynamicDialogRef | null> {
-    return dialogFn().catch(err => {
+    return dialogFn().catch((err: unknown) => {
       console.error('Failed to load dialog', err);
       this.messageService.add({
         severity: 'error',
@@ -230,6 +229,17 @@ export class DialogLauncherService {
         data: {
           taskId,
         },
+      });
+    });
+  }
+
+  async openMultiSortDialog(data: BookBrowseMultiSortDialogData): Promise<DynamicDialogRef | null> {
+    return this.launchLazyDialog(async () => {
+      const {BookBrowseMultiSortDialogComponent} = await import('../../features/book/browse/book-browse-multi-sort-dialog.component');
+      return this.openDialog(BookBrowseMultiSortDialogComponent, {
+        showHeader: false,
+        styleClass: `${DialogSize.SM} ${DialogStyle.MINIMAL}`,
+        data,
       });
     });
   }

@@ -216,6 +216,7 @@ interface Star {
   `,
 })
 export class AppRatingComponent implements FormValueControl<number> {
+  private readonly fieldContext = inject(APP_FIELD, { optional: true });
   readonly value = model(0);
   readonly stars = input(5, { transform: numberAttribute });
   readonly readonly = input(false, { transform: booleanAttribute });
@@ -245,8 +246,6 @@ export class AppRatingComponent implements FormValueControl<number> {
   private lastPointerType = 'mouse';
   protected readonly isExpanded = computed(() => this.expandable() && this.expanded());
   protected readonly preview = computed(() => this.hoverValue() ?? this.value());
-
-  private readonly fieldContext = inject(APP_FIELD, { optional: true });
   protected readonly resolvedInputId = computed(() => this.inputId() || this.fieldContext?.controlId() || null);
   protected readonly resolvedDescribedBy = computed(
     () => this.ariaDescribedBy() || this.fieldContext?.describedById() || null,

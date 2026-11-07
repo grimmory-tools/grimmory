@@ -11,7 +11,6 @@ import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.appsettings.AppSettingService;
 import org.jsoup.Jsoup;
-import org.jsoup.safety.Safelist;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -196,20 +195,9 @@ public class AppleBooksParser implements BookParser {
     }
 
     private String getCountry() {
-        var settings = appSettingService.getAppSettings()
-                .getMetadataProviderSettings();
-
-        if (settings == null) {
-            return DEFAULT_COUNTRY;
-        }
-
-        var appleBooks = settings.getAppleBooks();
-
-        if (appleBooks == null) {
-            return DEFAULT_COUNTRY;
-        }
-
-        var country = appleBooks.getCountry();
+        var country = getSettings()
+                .map(MetadataProviderSettings.AppleBooks::getCountry)
+                .orElse(null);
 
          if (country == null || country.isBlank()) {
              return DEFAULT_COUNTRY;
@@ -236,6 +224,24 @@ public class AppleBooksParser implements BookParser {
             return matcher.replaceFirst(width + "x" + height + "bb");
         }
         return url;
+    }
+
+    private Optional<MetadataProviderSettings.AppleBooks> getSettings() {
+        var appSettings = appSettingService.getAppSettings();
+
+        if (
+                appSettings == null ||
+                appSettings.getMetadataProviderSettings() == null
+        ) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(appSettings.getMetadataProviderSettings().getAppleBooks());
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return getSettings().map(MetadataProviderSettings.AppleBooks::isEnabled).orElse(false);
     }
 
     @Override

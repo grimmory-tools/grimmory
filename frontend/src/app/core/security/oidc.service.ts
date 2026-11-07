@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {firstValueFrom, Observable} from 'rxjs';
 import {API_CONFIG} from '../config/api-config';
@@ -17,11 +17,11 @@ interface OidcTokenResponse {
   expires?: number
 }
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class OidcService {
 
-  private http = inject(HttpClient);
-  private appSettingsService = inject(AppSettingsService);
+  private readonly http = inject(HttpClient);
+  private readonly appSettingsService = inject(AppSettingsService);
 
   async generatePkce(): Promise<{codeVerifier: string; codeChallenge: string}> {
     const array = new Uint8Array(32);

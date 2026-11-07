@@ -1,38 +1,38 @@
-import {computed, effect, inject, Injectable} from '@angular/core';
+import {computed, effect, inject, Service} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {lastValueFrom, Observable} from 'rxjs';
 import {tap} from 'rxjs/operators';
 import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
 
 import {Shelf} from '../model/shelf.model';
+import {invalidateShelfDefinitions} from '../data/shelf-definition-query-cache';
+import {invalidateAllBookCaches} from './legacy-book-cache';
+import {SHELVES_QUERY_KEY} from './shelf-query-keys';
 import {BookService} from './book.service';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {Book} from '../model/book.model';
-import {UserService} from '../../settings/user-management/user.service';
 import {AuthService} from '../../../shared/service/auth.service';
 
-const SHELVES_QUERY_KEY = ['shelves'] as const;
 const KOBO_SHELF_NAME = 'Kobo';
 const KOBO_SHELF_ICON = 'pi pi-tablet';
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class ShelfService {
+  private readonly http = inject(HttpClient);
+  private readonly bookService = inject(BookService);
+  private readonly authService = inject(AuthService);
+  private readonly queryClient = inject(QueryClient);
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/shelves`;
-  private http = inject(HttpClient);
-  private bookService = inject(BookService);
-  private userService = inject(UserService);
-  private authService = inject(AuthService);
-  private queryClient = inject(QueryClient);
   private readonly token = this.authService.token;
 
-  private shelvesQuery = injectQuery(() => ({
+  private readonly shelvesQuery = injectQuery(() => ({
     ...this.getShelvesQueryOptions(),
     enabled: !!this.token(),
   }));
 
-  shelves = computed(() => this.shelvesQuery.data() ?? []);
+  readonly shelves = computed(() => this.shelvesQuery.data() ?? []);
 
-  shelvesError = computed<string | null>(() => {
+  readonly shelvesError = computed<string | null>(() => {
     if (!this.token() || !this.shelvesQuery.isError()) {
       return null;
     }
@@ -41,7 +41,7 @@ export class ShelfService {
     return error instanceof Error ? error.message : 'Failed to load shelves';
   });
 
-  isShelvesLoading = computed(() => !!this.token() && this.shelvesQuery.isPending());
+  readonly isShelvesLoading = computed(() => !!this.token() && this.shelvesQuery.isPending());
 
   constructor() {
     effect(() => {
@@ -67,6 +67,7 @@ export class ShelfService {
     return this.http.post<Shelf>(this.url, shelf).pipe(
       tap(() => {
         void this.queryClient.invalidateQueries({queryKey: SHELVES_QUERY_KEY, exact: true});
+        void invalidateShelfDefinitions(this.queryClient);
       })
     );
   }
@@ -75,6 +76,8 @@ export class ShelfService {
     return this.http.put<Shelf>(`${this.url}/${id}`, shelf).pipe(
       tap(() => {
         void this.queryClient.invalidateQueries({queryKey: SHELVES_QUERY_KEY, exact: true});
+        void invalidateShelfDefinitions(this.queryClient);
+        invalidateAllBookCaches(this.queryClient);
       })
     );
   }
@@ -84,58 +87,14 @@ export class ShelfService {
       tap(() => {
         this.bookService.removeBooksFromShelf(id);
         void this.queryClient.invalidateQueries({queryKey: SHELVES_QUERY_KEY, exact: true});
+        void invalidateShelfDefinitions(this.queryClient);
       })
     );
-  }
-
-  getBookCountValue(shelfId: number): number {
-    const shelf = this.shelves().find(currentShelf => currentShelf.id === shelfId);
-    if (!shelf) return 0;
-
-    const currentUserId = this.userService.getCurrentUser()?.id;
-    const isOwner = currentUserId === shelf.userId;
-
-    if (isOwner) {
-      return this.bookService.books().filter(book =>
-        book.shelves?.some(currentShelf => currentShelf.id === shelfId)
-      ).length;
-    }
-
-    return shelf.bookCount || 0;
   }
 
   getBooksOnShelf(shelfId: number): Observable<Book[]> {
     return this.http.get<Book[]>(`${this.url}/${shelfId}/books`);
   }
-
-  getUnshelvedBookCountValue(): number {
-    return this.bookService.books().filter(book => !book.shelves || book.shelves.length === 0).length;
-  }
-
-  readonly bookCountByShelfId = computed(() => {
-    const currentUserId = this.userService.getCurrentUser()?.id;
-    const counts = new Map<number, number>();
-
-    for (const book of this.bookService.books()) {
-      for (const shelf of book.shelves ?? []) {
-        if (shelf.id != null) {
-          counts.set(shelf.id, (counts.get(shelf.id) ?? 0) + 1);
-        }
-      }
-    }
-
-    for (const shelf of this.shelves()) {
-      if (shelf.userId !== currentUserId && shelf.id != null) {
-        counts.set(shelf.id, shelf.bookCount ?? 0);
-      }
-    }
-
-    return counts;
-  });
-
-  readonly unshelvedBookCount = computed(() =>
-    this.bookService.books().filter(book => !book.shelves || book.shelves.length === 0).length
-  );
 
   private decorateShelves(shelves: Shelf[]): Shelf[] {
     return shelves.map((shelf) => ({

@@ -51,6 +51,7 @@ describe('ReaderStyleService', () => {
       fontFamily: 'custom:7',
       isDark: true,
       flow: 'paginated',
+      tapToTurnPage: true,
     });
 
     expect(epubCustomFontService.getCustomFontById).toHaveBeenCalledWith(7);
@@ -76,6 +77,7 @@ describe('ReaderStyleService', () => {
       fontFamily: 'serif',
       isDark: false,
       flow: 'scrolled',
+      tapToTurnPage: true,
     });
 
     expect(epubCustomFontService.getCustomFontById).not.toHaveBeenCalled();
@@ -105,6 +107,7 @@ describe('ReaderStyleService', () => {
       fontFamily: null,
       isDark: true,
       flow: 'paginated',
+      tapToTurnPage: true,
     });
 
     expect(renderer.setAttribute).toHaveBeenCalledWith('max-column-count', 3);
@@ -127,6 +130,7 @@ describe('ReaderStyleService', () => {
       fontFamily: null,
       isDark: true,
       flow: 'scrolled',
+      tapToTurnPage: true,
     });
 
     expect(renderer.removeAttribute).toHaveBeenCalledWith('margin');
@@ -143,6 +147,7 @@ describe('ReaderStyleService', () => {
       fontFamily: null,
       isDark: true,
       flow: 'scrolled',
+      tapToTurnPage: true,
     })).not.toThrow();
   });
 });

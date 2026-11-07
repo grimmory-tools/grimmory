@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   ReadingSessionApiService,
@@ -17,9 +17,7 @@ export interface AudiobookSession {
   lastPlayStartTime?: Date;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class AudiobookSessionService {
   private readonly apiService = inject(ReadingSessionApiService);
 
@@ -84,7 +82,7 @@ export class AudiobookSessionService {
    * Called when playback is paused - accumulates listening time
    */
   pauseSession(currentPositionMs: number): void {
-    if (!this.currentSession || !this.currentSession.lastPlayStartTime) {
+    if (!this.currentSession?.lastPlayStartTime) {
       return;
     }
 
@@ -258,7 +256,7 @@ export class AudiobookSessionService {
     this.stopPeriodicSave();
 
     this.periodicSaveInterval = setInterval(() => {
-      if (this.currentSession && this.currentSession.lastPlayStartTime) {
+      if (this.currentSession?.lastPlayStartTime) {
         // Send intermediate session data
         this.sendIntermediateSession();
       }

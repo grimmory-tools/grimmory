@@ -12,6 +12,7 @@ import {UserSettings} from '../../user-management/user.service';
   imports: [TranslocoDirective]
 })
 export class SettingsApplicationModeComponent implements OnInit {
+  private readonly readerPreferencesService = inject(ReaderPreferencesService);
   @Input() userSettings!: UserSettings;
 
   readonly scopeOptions = [
@@ -23,8 +24,6 @@ export class SettingsApplicationModeComponent implements OnInit {
   selectedNewPdfScope!: string;
   selectedEpubScope!: string;
   selectedCbxScope!: string;
-
-  private readonly readerPreferencesService = inject(ReaderPreferencesService);
 
   ngOnInit(): void {
     this.loadPreferences();

@@ -21,12 +21,11 @@ type FavoriteDaysChartData = ChartData<'bar', number[], string>;
   styleUrls: ['./favorite-days-chart.component.scss']
 })
 export class FavoriteDaysChartComponent implements OnInit, OnDestroy {
+  private readonly userStatsService = inject(UserStatsService);
+  private readonly t = inject(TranslocoService);
   public readonly chartType = 'bar' as const;
   public readonly chartData$: Observable<FavoriteDaysChartData>;
   public readonly chartOptions: ChartConfiguration['options'];
-
-  private readonly userStatsService = inject(UserStatsService);
-  private readonly t = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
   private readonly chartDataSubject: BehaviorSubject<FavoriteDaysChartData>;
 

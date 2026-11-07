@@ -1,4 +1,4 @@
-import {inject, Injectable, signal} from '@angular/core';
+import {inject, Service, signal} from '@angular/core';
 import {forkJoin, Observable} from 'rxjs';
 import {map, tap} from 'rxjs/operators';
 import {Theme, themes} from './themes.constant';
@@ -19,19 +19,18 @@ export interface ReaderState {
   fontFamily: string | null;
   isDark: boolean;
   flow: 'paginated' | 'scrolled';
+  tapToTurnPage: boolean;
 }
 
 interface LegacyViewerSetting {
   customFontId?: string | number | null;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class ReaderStateService {
-  private bookService = inject(BookService);
-  private userService = inject(UserService);
-  private epubCustomFontService = inject(EpubCustomFontService);
+  private readonly bookService = inject(BookService);
+  private readonly userService = inject(UserService);
+  private readonly epubCustomFontService = inject(EpubCustomFontService);
 
   private readonly BASE_FONTS = [
     {name: 'Publisher\'s', value: null},
@@ -59,6 +58,7 @@ export class ReaderStateService {
     fontFamily: null,
     isDark: true,
     flow: 'paginated',
+    tapToTurnPage: true,
   };
 
   private readonly _state = signal<ReaderState>(this.defaultState);
@@ -101,7 +101,7 @@ export class ReaderStateService {
         const settingScope = myself.userSettings.perBookSetting.epub;
         const globalSettings = myself.userSettings.ebookReaderSetting;
         const individualSetting = bookSetting?.ebookSettings;
-        const settings = settingScope === 'Global' ? globalSettings : (individualSetting || globalSettings);
+        const settings = settingScope === 'Global' ? globalSettings : (individualSetting ?? globalSettings);
         const newState: Partial<ReaderState> = {};
         if (settings.fontSize != null) newState.fontSize = settings.fontSize;
         if (settings.lineHeight != null) newState.lineHeight = settings.lineHeight;
@@ -131,6 +131,7 @@ export class ReaderStateService {
         if (settings.maxInlineSize != null) newState.maxInlineSize = settings.maxInlineSize;
         if (settings.maxBlockSize != null) newState.maxBlockSize = settings.maxBlockSize;
         if (settings.isDark != null) newState.isDark = settings.isDark;
+       newState.tapToTurnPage = globalSettings.tapToTurnPage ?? true;
         if (settings.flow) newState.flow = settings.flow;
         if (settings.theme) {
           const theme = this.themes.find(t => t.name === settings.theme);
@@ -235,6 +236,10 @@ export class ReaderStateService {
 
   setFlow(flow: 'paginated' | 'scrolled'): void {
     this.updateState({flow});
+  }
+
+  setTapToTurnPage(enabled: boolean): void {
+    this.updateState({tapToTurnPage: enabled});
   }
 
   private updateState(partial: Partial<ReaderState>): void {

@@ -276,6 +276,10 @@
     color: var(--p-yellow-500);
   }
 
+  .stat-already-exists {
+    color: var(--p-blue-500);
+  }
+
   .stat-failed {
     color: var(--p-red-500);
   }
@@ -330,6 +334,7 @@
   .status-looking-up & { color: var(--p-blue-500); }
   .status-created & { color: var(--p-green-500); }
   .status-created-no-metadata & { color: var(--p-yellow-500); }
+  .status-already-exists & { color: var(--p-blue-500); }
   .status-failed & { color: var(--p-red-500); }
 }
 
@@ -471,6 +476,7 @@
 
   .status-created & { color: var(--p-green-500); }
   .status-created-no-metadata & { color: var(--p-yellow-500); }
+  .status-already-exists & { color: var(--p-blue-500); }
   .status-failed & { color: var(--p-red-500); }
 }
 

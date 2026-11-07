@@ -4,7 +4,7 @@
     <h2 class="settings-title">
       <i class="pi pi-database"></i>
       {{ t('title') }}
-      <app-external-doc-link docType="fetchConfig"></app-external-doc-link>
+      <app-external-doc-link docType="fetchConfig" />
     </h2>
     <p class="settings-description">
       {{ t('description') }}
@@ -27,8 +27,7 @@
         <app-metadata-advanced-fetch-options
           [currentMetadataOptions]="defaultMetadataOptions"
           [submitButtonLabel]="t('defaultSettings.saveButton')"
-          (metadataOptionsSubmitted)="onDefaultMetadataOptionsSubmitted($event)">
-        </app-metadata-advanced-fetch-options>
+          (metadataOptionsSubmitted)="onDefaultMetadataOptionsSubmitted($event)" />
       </div>
     </div>
 
@@ -100,8 +99,7 @@
                       <app-metadata-advanced-fetch-options
                         [currentMetadataOptions]="getLibraryOptions(library.id!)"
                         [submitButtonLabel]="t('libraryOverrides.saveLibraryButton', {name: library.name})"
-                        (metadataOptionsSubmitted)="onLibraryMetadataOptionsSubmitted(library.id!, $event)">
-                      </app-metadata-advanced-fetch-options>
+                        (metadataOptionsSubmitted)="onLibraryMetadataOptionsSubmitted(library.id!, $event)" />
                     }
                   </div>
                 </p-accordion-content>

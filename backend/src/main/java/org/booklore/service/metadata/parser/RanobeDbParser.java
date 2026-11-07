@@ -9,6 +9,7 @@ import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.request.FetchMetadataRequest;
 import org.booklore.model.dto.response.ranobedbapi.RanobedbBookResponse;
 import org.booklore.model.dto.response.ranobedbapi.RanobedbSearchResponse;
+import org.booklore.model.dto.settings.MetadataProviderSettings;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.util.BookUtils;
@@ -30,6 +31,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -62,8 +64,14 @@ public class RanobeDbParser implements BookParser {
     private record SearchTerms(String title, Integer authorId) {}
 
     @Override
-    public List<BookMetadata> fetchMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
+    public boolean isEnabled() {
+        return getSettings()
+                .map(MetadataProviderSettings.Ranobedb::isEnabled)
+                .orElse(false);
+    }
 
+    @Override
+    public List<BookMetadata> fetchMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {
         SearchTerms searchTerm = getSearchTerm(book, fetchMetadataRequest);
         if (searchTerm == null) {
             log.warn("No valid search term provided for metadata fetch.");
@@ -252,20 +260,23 @@ public class RanobeDbParser implements BookParser {
         }
     }
 
-    private boolean isPreferringRomaji() {
+    private Optional<MetadataProviderSettings.Ranobedb> getSettings() {
         var appSettings = appSettingService.getAppSettings();
 
-        if (appSettings == null || appSettings.getMetadataProviderSettings() == null) {
-            return false;
+        if (
+                appSettings == null ||
+                appSettings.getMetadataProviderSettings() == null
+        ) {
+            return Optional.empty();
         }
 
-        var ranobedbSettings = appSettings.getMetadataProviderSettings().getRanobedb();
+        return Optional.ofNullable(appSettings.getMetadataProviderSettings().getRanobedb());
+    }
 
-        if (ranobedbSettings == null) {
-            return false;
-        }
-
-        return ranobedbSettings.isPreferRomaji();
+    private boolean isPreferringRomaji() {
+        return getSettings()
+                .map(MetadataProviderSettings.Ranobedb::isPreferRomaji)
+                .orElse(false);
     }
 
     private String getPreferredValue(String romaji, String normal) {

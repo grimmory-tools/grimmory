@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, Output} from '@angular/core';
+import {Component, inject, output} from '@angular/core';
 import {TranslocoService, TranslocoPipe} from '@jsverse/transloco';
 import {ReaderIconComponent} from '../../ebook-reader/shared/icon.component';
 
@@ -23,7 +23,7 @@ interface ShortcutGroup {
 export class CbxShortcutsHelpComponent {
   private readonly t = inject(TranslocoService);
 
-  @Output() closed = new EventEmitter<void>();
+  readonly closed = output<void>();
 
   get shortcutGroups(): ShortcutGroup[] {
     return [

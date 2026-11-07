@@ -49,27 +49,21 @@
           </div>
         </div>
 
-        @if (!deviceForm.kobo.twoWaySync().hidden()) {
-          <app-field [field]="deviceForm.kobo.twoWaySync" label="Two-way progress sync" hint="Requires KEPUB.">
-            <app-switch [formField]="deviceForm.kobo.twoWaySync" />
-          </app-field>
+        <app-field [field]="deviceForm.kobo.convertToKepub" label="Convert to KEPUB" hint="Needed for proper sync.">
+          <app-switch [formField]="deviceForm.kobo.convertToKepub" />
+        </app-field>
 
-          <app-field [field]="deviceForm.kobo.convertToKepub" label="Convert to KEPUB" hint="Needed for two-way sync.">
-            <app-switch [formField]="deviceForm.kobo.convertToKepub" />
-          </app-field>
+        <app-field [field]="deviceForm.kobo.markAsReading" label="Mark as reading at {{ model().kobo.markAsReading }}%" hint="1-10%.">
+          <app-slider [formField]="deviceForm.kobo.markAsReading" ariaLabel="Mark as reading threshold" />
+        </app-field>
 
-          <app-field [field]="deviceForm.kobo.markAsReading" label="Mark as reading at {{ model().kobo.markAsReading }}%" hint="1-10%.">
-            <app-slider [formField]="deviceForm.kobo.markAsReading" ariaLabel="Mark as reading threshold" />
-          </app-field>
+        <app-field [field]="deviceForm.kobo.markAsFinished" label="Mark as finished at {{ model().kobo.markAsFinished }}%" hint="90-100%.">
+          <app-slider [formField]="deviceForm.kobo.markAsFinished" ariaLabel="Mark as finished threshold" />
+        </app-field>
 
-          <app-field [field]="deviceForm.kobo.markAsFinished" label="Mark as finished at {{ model().kobo.markAsFinished }}%" hint="90-100%.">
-            <app-slider [formField]="deviceForm.kobo.markAsFinished" ariaLabel="Mark as finished threshold" />
-          </app-field>
-
-          <app-field [field]="deviceForm.kobo.conversionLimitMb" label="Conversion size limit" hint="1-250 MB.">
-            <app-number-input [formField]="deviceForm.kobo.conversionLimitMb" unit="MB" />
-          </app-field>
-        }
+        <app-field [field]="deviceForm.kobo.conversionLimitMb" label="Conversion size limit" hint="1-250 MB.">
+          <app-number-input [formField]="deviceForm.kobo.conversionLimitMb" unit="MB" />
+        </app-field>
       </section>
 
       <section class="flex flex-col gap-5 py-7">
@@ -83,10 +77,6 @@
         </div>
 
         @if (!deviceForm.koreader.username().hidden()) {
-          <app-field [field]="deviceForm.koreader.syncWithWebReader" label="Also sync with the web reader" hint="Shares progress.">
-            <app-switch [formField]="deviceForm.koreader.syncWithWebReader" />
-          </app-field>
-
           <app-field [field]="deviceForm.koreader.username" label="Sync username" hint="Required when enabled.">
             <app-input [formField]="deviceForm.koreader.username" placeholder="reader" />
           </app-field>

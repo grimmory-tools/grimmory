@@ -41,8 +41,7 @@
         <div class="setting-header">
           <p-toggleswitch
             [formControl]="form.controls.saveToOriginalFile.controls.epub.controls.enabled"
-            (onChange)="onSaveToOriginalFileToggle('epub', $event.checked)">
-          </p-toggleswitch>
+            (onChange)="onSaveToOriginalFileToggle('epub', $event.checked)" />
           <span class="setting-label">{{ t('writeEpub') }}</span>
         </div>
         <p class="setting-description">{{ t('writeEpubDesc') }}</p>
@@ -73,8 +72,7 @@
         <div class="setting-header">
           <p-toggleswitch
             [formControl]="form.controls.saveToOriginalFile.controls.cbx.controls.enabled"
-            (onChange)="onSaveToOriginalFileToggle('cbx', $event.checked)">
-          </p-toggleswitch>
+            (onChange)="onSaveToOriginalFileToggle('cbx', $event.checked)" />
           <span class="setting-label">{{ t('writeCbx') }}</span>
         </div>
         <p class="setting-description">{{ t('writeCbxDesc') }}</p>
@@ -105,8 +103,7 @@
         <div class="setting-header">
           <p-toggleswitch
             [formControl]="form.controls.saveToOriginalFile.controls.pdf.controls.enabled"
-            (onChange)="onSaveToOriginalFileToggle('pdf', $event.checked)">
-          </p-toggleswitch>
+            (onChange)="onSaveToOriginalFileToggle('pdf', $event.checked)" />
           <span class="setting-label">{{ t('writePdf') }}</span>
         </div>
         <p class="setting-description">
@@ -140,8 +137,7 @@
         <div class="setting-header">
           <p-toggleswitch
             [formControl]="form.controls.saveToOriginalFile.controls.audiobook.controls.enabled"
-            (onChange)="onSaveToOriginalFileToggle('audiobook', $event.checked)">
-          </p-toggleswitch>
+            (onChange)="onSaveToOriginalFileToggle('audiobook', $event.checked)" />
           <span class="setting-label">{{ t('writeAudiobook') }}</span>
         </div>
         <p class="setting-description">
@@ -176,8 +172,7 @@
           <div class="setting-header">
             <p-toggleswitch
               [formControl]="form.controls.moveFilesToLibraryPattern"
-              (onChange)="onPersistenceToggle('moveFilesToLibraryPattern', $event.checked)">
-            </p-toggleswitch>
+              (onChange)="onPersistenceToggle('moveFilesToLibraryPattern', $event.checked)" />
             <span class="setting-label">{{ t('autoMove') }}</span>
           </div>
           <p class="setting-description">{{ t('autoMoveDesc') }}</p>
@@ -200,8 +195,7 @@
         <div class="setting-header">
           <p-toggleswitch
             [formControl]="form.controls.sidecarSettings.controls.enabled"
-            (onChange)="onSidecarToggle('enabled', $event.checked)">
-          </p-toggleswitch>
+            (onChange)="onSidecarToggle('enabled', $event.checked)" />
           <span class="setting-label">{{ t('enableSidecar') }}</span>
         </div>
         <p class="setting-description" [innerHTML]="t('enableSidecarDesc')"></p>
@@ -212,8 +206,7 @@
           <div class="setting-header">
             <p-toggleswitch
               [formControl]="form.controls.sidecarSettings.controls.writeOnUpdate"
-              (onChange)="onSidecarToggle('writeOnUpdate', $event.checked)">
-            </p-toggleswitch>
+              (onChange)="onSidecarToggle('writeOnUpdate', $event.checked)" />
             <span class="setting-label">{{ t('writeOnUpdate') }}</span>
           </div>
           <p class="setting-description">{{ t('writeOnUpdateDesc') }}</p>
@@ -223,8 +216,7 @@
           <div class="setting-header">
             <p-toggleswitch
               [formControl]="form.controls.sidecarSettings.controls.writeOnScan"
-              (onChange)="onSidecarToggle('writeOnScan', $event.checked)">
-            </p-toggleswitch>
+              (onChange)="onSidecarToggle('writeOnScan', $event.checked)" />
             <span class="setting-label">{{ t('writeOnScan') }}</span>
           </div>
           <p class="setting-description">{{ t('writeOnScanDesc') }}</p>
@@ -234,8 +226,7 @@
           <div class="setting-header">
             <p-toggleswitch
               [formControl]="form.controls.sidecarSettings.controls.includeCoverFile"
-              (onChange)="onSidecarToggle('includeCoverFile', $event.checked)">
-            </p-toggleswitch>
+              (onChange)="onSidecarToggle('includeCoverFile', $event.checked)" />
             <span class="setting-label">{{ t('includeCover') }}</span>
           </div>
           <p class="setting-description" [innerHTML]="t('includeCoverDesc')"></p>

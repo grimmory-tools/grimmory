@@ -1,0 +1,114 @@
+<div class="book-card surface-card-outline"
+     [class.selected]="isSelected()"
+     role="button"
+     tabindex="0"
+     (click)="onCardClick($event)"
+     (keydown.enter)="onCardClick($event)">
+
+  <div class="cover-container" [class]="{ 'center-info-btn': isSeriesViewActive() || !hasDigitalFile(), 'audiobook-cover': isAudiobook(), 'square-library-cover': useSquareCovers() }">
+    <app-cover
+      class="book-cover"
+      [class.square-cover]="isAudiobook() || useSquareCovers()"
+      [src]="coverImageUrl()"
+      [title]="displayTitle()"
+      [authors]="book().metadata?.authors ?? []"
+      [fit]="(isAudiobook() || useSquareCovers()) ? 'contain' : 'cover'"
+      [alt]="('book.card.alt.cover' | transloco: { title: displayTitle() })"/>
+
+    <div class="top-left-overlay-stack">
+      @if (showBookTypePill() && displayFormat(); as fmt) {
+        <div class="book-type-pill-overlay" [class]="'book-type-' + fmt.toLowerCase()">
+          {{ fmt }}
+        </div>
+      }
+      @if (!book().seriesCount && book().metadata?.seriesNumber !== null && book().metadata?.seriesNumber !== undefined) {
+        <div class="series-number-overlay">
+          #{{ book().metadata?.seriesNumber }}
+        </div>
+      }
+      @if (book().seriesCount && book().seriesCount! >= 1) {
+        <div class="series-items-count-overlay">
+          <i class="pi pi-book series-items-count-icon"></i>{{ book().seriesCount }}
+        </div>
+      }
+    </div>
+
+    @if (isSeriesViewActive()) {
+      <button pButton type="button" class="p-button p-component p-button-rounded info-btn" (click)="openSeriesInfo()" [attr.aria-label]="'book.card.alt.viewSeriesInfo' | transloco">
+        <i class="pi pi-info"></i>
+      </button>
+    } @else {
+      <button pButton type="button" class="p-button p-component p-button-rounded info-btn" (click)="openBookInfo(book())" [attr.aria-label]="'book.card.alt.viewDetails' | transloco">
+        <i class="pi pi-info"></i>
+      </button>
+    }
+
+    @if (!isSeriesViewActive() && hasDigitalFile()) {
+      <a pButton [routerLink]="readingUrl()" (click)="readBook(book())"
+         class="p-button p-component p-button-rounded read-btn"
+         [pTooltip]="isContinueReading() ? ('book.card.alt.continueReading' | transloco) : ''"
+         tooltipPosition="bottom"
+         [attr.aria-label]="isContinueReading() ? ('book.card.alt.continueReading' | transloco) : (isAudiobook() ? ('book.card.alt.playAudiobook' | transloco) : ('book.card.alt.readBook' | transloco))">
+        <i [class]="readButtonIcon()"></i>
+      </a>
+    }
+
+    @if (isCheckboxEnabled()) {
+      <p-checkbox
+        [binary]="true"
+        class="select-checkbox"
+        (click)="captureMouseEvent($event)"
+        [ngModel]="isSelected()"
+        (onChange)="toggleSelection($event)" />
+    }
+
+    @if (hasProgress()) {
+      <div class="cover-progress-bar-container" [pTooltip]="progressTooltip()" tooltipPosition="top">
+        @if (progressPercentage() !== null) {
+          <div class="cover-progress-bar" [class]="{ 'progress-complete': progressPercentage() === 100, 'progress-incomplete': progressPercentage()! < 100 }">
+            <div class="progress-fill" [style.width.%]="progressPercentage()!"></div>
+          </div>
+        }
+        @if (koProgressPercentage() !== null) {
+          <div class="cover-progress-bar" [class]="koProgressPercentage() === 100 ? 'progress-complete-ko' : 'progress-incomplete-ko'">
+            <div class="progress-fill" [style.width.%]="koProgressPercentage()!"></div>
+          </div>
+        }
+        @if (koboProgressPercentage() !== null) {
+          <div class="cover-progress-bar" [class]="koboProgressPercentage() === 100 ? 'progress-complete-kobo' : 'progress-incomplete-kobo'">
+            <div class="progress-fill" [style.width.%]="koboProgressPercentage()!"></div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  @if (!bottomBarHidden()) {
+    <div class="book-title-container">
+      <div class="read-status-indicator"
+           [class]="readStatusClass()"
+           [pTooltip]="readStatusTooltip()"
+           tooltipPosition="bottom"
+           (click)="toggleReadStatusMenu($event, readStatusMenu)"
+           (keydown.enter)="toggleReadStatusMenu($event, readStatusMenu)"
+           role="button"
+           tabindex="0"
+           [attr.aria-label]="'book.card.alt.readStatusMenu' | transloco">
+        <i [class]="readStatusIcon()" style="font-size: 0.9rem"></i>
+      </div>
+      <p-tieredmenu #readStatusMenu [model]="readStatusMenuItems()" [popup]="true" appendTo="body" />
+      <h4 class="book-title"
+          tooltipPosition="bottom"
+          [pTooltip]="titleTooltip()">
+        {{ displayTitle() }}
+      </h4>
+      <p-tieredmenu #menu [model]="items()" [popup]="true" appendTo="body" (onShow)="onMenuShow()" (onHide)="onMenuHide()" />
+      <button pButton type="button"
+        class="p-button p-component p-button-text p-button-sm custom-button-padding"
+        (click)="onMenuToggle($event, menu)"
+        [attr.aria-label]="'book.card.alt.bookMenu' | transloco">
+        <i class="pi pi-ellipsis-v"></i>
+      </button>
+    </div>
+  }
+</div>

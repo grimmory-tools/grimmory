@@ -4,15 +4,8 @@ import {ToggleSwitch} from "@openng/optimus-ui/toggleswitch";
 import {AppSettingKey, AppSettings, PublicReviewSettings, ReviewProviderConfig} from '../../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {SettingsHelperService} from '../../../../shared/service/settings-helper.service';
-import {TranslocoDirective} from '@jsverse/transloco';
-
-const DEFAULT_PROVIDERS: readonly ReviewProviderConfig[] = [
-  {provider: 'Amazon', enabled: true, maxReviews: 5},
-  {provider: 'GoodReads', enabled: false, maxReviews: 5},
-  {provider: 'Douban', enabled: false, maxReviews: 5}
-] as const;
-
-const REQUIRED_PROVIDERS = ['Amazon', 'GoodReads', 'Douban'] as const;
+import {TranslocoDirective, TranslocoPipe} from '@jsverse/transloco';
+import {MetadataCatalogService} from '../../../../shared/metadata/metadata-catalog.service';
 
 type ReviewProviderFormGroup = FormGroup<{
   provider: FormControl<string>;
@@ -22,7 +15,7 @@ type ReviewProviderFormGroup = FormGroup<{
 
 @Component({
   selector: 'app-public-reviews-settings-component',
-  imports: [ReactiveFormsModule, ToggleSwitch, TranslocoDirective],
+  imports: [ReactiveFormsModule, ToggleSwitch, TranslocoDirective, TranslocoPipe],
   templateUrl: './public-reviews-settings-component.html',
   styleUrl: './public-reviews-settings-component.scss'
 })
@@ -31,6 +24,7 @@ export class PublicReviewsSettingsComponent {
   private readonly fb = inject(FormBuilder);
   private readonly appSettingsService = inject(AppSettingsService);
   private readonly settingsHelper = inject(SettingsHelperService);
+  protected readonly catalog = inject(MetadataCatalogService);
 
   readonly form = this.fb.nonNullable.group({
     downloadEnabled: [{value: true, disabled: true}],
@@ -117,24 +111,20 @@ export class PublicReviewsSettingsComponent {
   }
 
   private buildReviewSettings(settings: AppSettings): PublicReviewSettings {
-    const baseSettings = settings.metadataPublicReviewsSettings
-      ? {
-        ...settings.metadataPublicReviewsSettings,
-        providers: settings.metadataPublicReviewsSettings.providers.map(provider => ({...provider}))
-      }
-      : {
-        downloadEnabled: true,
-        autoDownloadEnabled: false,
-        providers: DEFAULT_PROVIDERS.map(provider => ({...provider}))
-      };
+    const saved = settings.metadataPublicReviewsSettings;
+    const baseSettings = {
+      downloadEnabled: saved.downloadEnabled,
+      autoDownloadEnabled: saved.autoDownloadEnabled,
+      providers: saved.providers.map(provider => ({...provider})),
+    };
 
-    REQUIRED_PROVIDERS.forEach(providerName => {
-      const exists = baseSettings.providers.some(provider => provider.provider === providerName);
+    this.catalog.reviewProviders().forEach(provider => {
+      const exists = baseSettings.providers.some(config => config.provider === provider.id);
       if (!exists) {
         baseSettings.providers.push({
-          provider: providerName,
+          provider: provider.id,
           enabled: false,
-          maxReviews: 10
+          maxReviews: 5
         });
       }
     });

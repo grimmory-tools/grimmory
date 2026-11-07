@@ -64,12 +64,17 @@ describe('MetadataProviderFieldSelectorComponent', () => {
     }]);
   });
 
-  it('translates provider and field labels through Transloco', () => {
+  it('groups the provider fields by provider, with translated labels', () => {
     const fixture = TestBed.createComponent(MetadataProviderFieldSelectorComponent);
     const component = fixture.componentInstance;
     fixture.detectChanges();
 
-    expect(component.getProviderLabel('amazon')).toBe('Amazon');
-    expect(component.getFieldLabel('asin')).toBeDefined();
+    const amazon = component.providerGroups().find(group => group.label === 'Amazon');
+
+    expect(amazon?.fields).toEqual([
+      {name: 'asin', label: 'Amazon ASIN'},
+      {name: 'amazonRating', label: 'Amazon Rating'},
+      {name: 'amazonReviewCount', label: 'Amazon Review Count'},
+    ]);
   });
 });

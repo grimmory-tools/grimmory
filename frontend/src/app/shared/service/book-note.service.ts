@@ -1,4 +1,4 @@
-import {Injectable, inject} from '@angular/core';
+import {Service, inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {API_CONFIG} from '../../core/config/api-config';
@@ -20,13 +20,11 @@ export interface CreateBookNoteRequest {
   content: string;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class BookNoteService {
+  private readonly http = inject(HttpClient);
 
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/book-notes`;
-  private readonly http = inject(HttpClient);
 
   getNotesForBook(bookId: number): Observable<BookNote[]> {
     return this.http.get<BookNote[]>(`${this.url}/book/${bookId}`);

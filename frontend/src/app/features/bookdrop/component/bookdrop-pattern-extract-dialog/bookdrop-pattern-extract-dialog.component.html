@@ -5,7 +5,7 @@
     <span [innerHTML]="t('infoBanner', { fileCount: fileCount })"></span>
   </div>
 
-  <p-divider></p-divider>
+  <p-divider />
 
   <div class="pattern-section">
     <h4>{{ t('patternTitle') }}</h4>
@@ -25,8 +25,7 @@
         severity="secondary"
         [disabled]="!hasValidPattern"
         [ariaLabel]="t('previewAriaLabel')"
-        (click)="previewPattern()">
-      </p-button>
+        (click)="previewPattern()" />
     </div>
   </div>
 
@@ -39,8 +38,7 @@
           [pTooltip]="getPlaceholderTooltip(placeholder)"
           tooltipPosition="top"
           class="placeholder-chip"
-          (click)="insertPlaceholder(placeholder.name)">
-        </p-chip>
+          (click)="insertPlaceholder(placeholder.name)" />
       }
     </div>
   </div>
@@ -54,23 +52,22 @@
           severity="secondary"
           size="small"
           outlined
-          (click)="applyCommonPattern(commonPattern.pattern)">
-        </p-button>
+          (click)="applyCommonPattern(commonPattern.pattern)" />
       }
     </div>
   </div>
 
-  <p-divider></p-divider>
+  <p-divider />
 
   @if (previewResults.length > 0) {
     <div class="preview-section">
       <h4>{{ t('previewTitle') }}</h4>
       <div class="preview-list">
         @for (preview of previewResults; track preview.fileName) {
-          <div class="preview-item" [ngClass]="getPreviewClass(preview)">
+          <div class="preview-item" [class]="getPreviewClass(preview)">
             <div class="preview-filename">
               <i class="pi"
-                 [ngClass]="getPreviewIconClass(preview)"
+                 [class]="getPreviewIconClass(preview)"
                  [pTooltip]="getErrorTooltip(preview)"
                  tooltipPosition="top"
                  [tooltipOptions]="{showDelay: 300}"></i>
@@ -93,13 +90,13 @@
       </div>
     </div>
 
-    <p-divider></p-divider>
+    <p-divider />
   }
 
   <div class="dialog-footer">
     @if (isExtracting) {
       <div class="extracting-indicator">
-        <p-progressSpinner strokeWidth="4" [style]="spinnerStyle"></p-progressSpinner>
+        <p-progressSpinner strokeWidth="4" [style]="spinnerStyle" />
         <span>{{ t('extractingMessage') }}</span>
       </div>
     }
@@ -108,15 +105,13 @@
       icon="pi pi-times"
       severity="secondary"
       [disabled]="isExtracting"
-      (click)="cancel()">
-    </p-button>
+      (click)="cancel()" />
     <p-button
       [label]="t('extractAndApply')"
       icon="pi pi-check"
       severity="success"
       [disabled]="!hasValidPattern || isExtracting"
-      (click)="extract()">
-    </p-button>
+      (click)="extract()" />
   </div>
 </div>
 </ng-container>

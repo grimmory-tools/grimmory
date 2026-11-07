@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {Observable} from 'rxjs';
 import {API_CONFIG} from '../../../../../core/config/api-config';
 import {HttpClient} from '@angular/common/http';
@@ -8,17 +8,13 @@ export interface KoreaderUser {
   username: string;
   password: string;
   syncEnabled: boolean;
-  syncWithWebReader?: boolean;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class KoreaderService {
+  private readonly http = inject(HttpClient);
 
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/koreader-users`;
-
-  private http = inject(HttpClient);
 
   createUser(username: string, password: string): Observable<KoreaderUser> {
     const payload: unknown = {username, password};

@@ -39,6 +39,8 @@ type SessionHeatmapChartData = ChartData<'matrix', MatrixDataPoint[], string>;
   styleUrls: ['./reading-session-heatmap.component.scss']
 })
 export class ReadingSessionHeatmapComponent implements OnInit, OnDestroy {
+  private readonly userStatsService = inject(UserStatsService);
+  private readonly translocoService = inject(TranslocoService);
   @Input() initialYear: number = new Date().getFullYear();
 
   public currentYear: number = new Date().getFullYear();
@@ -52,9 +54,6 @@ export class ReadingSessionHeatmapComponent implements OnInit, OnDestroy {
   public consistencyPercent = 0;
   public milestones: Milestone[] = [];
   public hasStreakData = false;
-
-  private readonly userStatsService = inject(UserStatsService);
-  private readonly translocoService = inject(TranslocoService);
   private readonly destroy$ = new Subject<void>();
   private readonly chartDataSubject: BehaviorSubject<SessionHeatmapChartData>;
   private maxSessionCount = 1;

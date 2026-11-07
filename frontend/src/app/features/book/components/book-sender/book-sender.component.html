@@ -14,8 +14,7 @@
       [text]="true"
       severity="secondary"
       (click)="dynamicDialogRef.close()"
-      class="close-button">
-    </p-button>
+      class="close-button" />
   </div>
 
   <div class="dialog-content">
@@ -29,8 +28,7 @@
           [placeholder]="t('selectProvider')"
           [(ngModel)]="selectedProvider"
           appendTo="body"
-          class="full-width">
-        </p-select>
+          class="full-width" />
       </div>
 
       <div class="form-field">
@@ -43,8 +41,7 @@
           [(ngModel)]="selectedRecipient"
           [disabled]="!selectedProvider"
           appendTo="body"
-          class="full-width">
-        </p-select>
+          class="full-width" />
       </div>
 
       @if (emailableFiles.length > 0) {
@@ -79,8 +76,7 @@
       icon="pi pi-envelope"
       [label]="t('sendBook')"
       [disabled]="!selectedProvider || !selectedRecipient"
-      (onClick)="sendBook()">
-    </p-button>
+      (onClick)="sendBook()" />
   </div>
 </div>
 </ng-container>

@@ -47,15 +47,14 @@ import {
   `,
 })
 export class AppMenuRadioComponent<T> {
+  private readonly group = inject<AppMenuRadioGroupComponent<T>>(AppMenuRadioGroupComponent);
+  private readonly menuItem = inject(AppMenuAriaItemDirective);
+  private readonly owner = inject(AppMenuComponent);
   readonly shortcut = input('');
   readonly closeOnSelect = input(true, { transform: booleanAttribute });
   readonly searchLabel = input('');
 
   readonly selected = output<T>();
-
-  private readonly group = inject<AppMenuRadioGroupComponent<T>>(AppMenuRadioGroupComponent);
-  private readonly menuItem = inject(AppMenuAriaItemDirective);
-  private readonly owner = inject(AppMenuComponent);
 
   protected readonly checked = computed(() => this.group.isSelected(this.menuValue()));
   protected readonly rowClass = appMenuItemRowClass('default');

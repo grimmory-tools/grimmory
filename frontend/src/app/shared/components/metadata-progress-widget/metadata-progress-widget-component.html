@@ -13,20 +13,18 @@
               <p-tag
                 [value]="t('tagReview')"
                 severity="warn"
-                class="task-tag">
-              </p-tag>
+                class="task-tag" />
             } @else {
               <p-tag
                 [value]="t('tagAuto')"
                 severity="success"
-                class="task-tag">
-              </p-tag>
+                class="task-tag" />
             }
             <p-tag
               [value]="getStatusLabel(task.value.status)"
               [severity]="getTagSeverity(task.value.status)"
               class="task-tag"
-            ></p-tag>
+            />
           </div>
         </div>
 
@@ -40,8 +38,7 @@
         <p-progressBar
           [style]="{ height: '15px' }"
           [value]="getProgressPercent(task.value)"
-          [showValue]="true">
-        </p-progressBar>
+          [showValue]="true" />
 
         @if (task.value.status === 'COMPLETED' || task.value.status === 'ERROR' || task.value.status === 'CANCELLED') {
           <div class="action-buttons">
@@ -52,8 +49,7 @@
                 icon="pi pi-search"
                 size="small"
                 outlined
-                (click)="reviewTask(task.key)">
-              </p-button>
+                (click)="reviewTask(task.key)" />
             }
 
             <p-button
@@ -64,8 +60,7 @@
               [pTooltip]="task.value.review ? t('discardTooltip') : ''"
               [tooltipPosition]="task.value.review ? 'top' : undefined"
               outlined
-              (click)="clearTask(task.key)">
-            </p-button>
+              (click)="clearTask(task.key)" />
           </div>
         } @else if (task.value.status === 'IN_PROGRESS') {
           <div class="action-buttons">
@@ -77,15 +72,14 @@
               [pTooltip]="t('cancelTooltip')"
               tooltipPosition="top"
               outlined
-              (click)="cancelTask(task.key)">
-            </p-button>
+              (click)="cancelTask(task.key)" />
           </div>
         }
 
       </div>
 
       @if (idx < Object.keys(activeTasks).length - 1) {
-        <p-divider></p-divider>
+        <p-divider />
       }
     }
   }

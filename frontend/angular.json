@@ -154,6 +154,7 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
+            "applySuppressions": true,
             "lintFilePatterns": [
               "src/**/*.ts",
               "src/**/*.html"

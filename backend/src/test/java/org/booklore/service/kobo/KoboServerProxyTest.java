@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -57,6 +58,9 @@ class KoboServerProxyTest {
     @InjectMocks
     private KoboServerProxy koboServerProxy;
 
+    @Captor
+    private ArgumentCaptor<HttpRequest> httpRequestArgumentCaptor;
+
     private MockHttpServletRequest mockRequest;
 
     @BeforeEach
@@ -87,6 +91,37 @@ class KoboServerProxyTest {
         when(objectMapper.readTree(anyString())).thenReturn(mock(JsonNode.class));
         when(httpClient.<String>send(any(HttpRequest.class), any()))
                 .thenReturn(httpResponse);
+    }
+
+    @Test
+    void proxyCurrentRequest_shouldPreserveEncodedQueryParameters() throws Exception {
+        String queryString = "Test&Filters=[%7BKey:TestKey%26ETag:W/TestEtagValue123%7D]";
+        mockRequest.setQueryString(queryString);
+        setupSuccessfulProxyResponse();
+
+        ResponseEntity<JsonNode> response = koboServerProxy.proxyCurrentRequest(null, false);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        verify(httpClient).<String>send(httpRequestArgumentCaptor.capture(), any());
+
+        var requestUri = httpRequestArgumentCaptor.getValue().uri();
+        assertThat(requestUri.getRawQuery()).isEqualTo(queryString);
+    }
+
+    @Test
+    void proxyCurrentRequest_shouldPreserveEncodedPath() throws Exception {
+        mockRequest.setRequestURI("/api/kobo/v1/library/test%20spaces");
+        setupSuccessfulProxyResponse();
+
+        ResponseEntity<JsonNode> response = koboServerProxy.proxyCurrentRequest(null, false);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        verify(httpClient).<String>send(httpRequestArgumentCaptor.capture(), any());
+
+        var requestUri = httpRequestArgumentCaptor.getValue().uri();
+        assertThat(requestUri.getRawPath()).isEqualTo("/library/test%20spaces");
     }
 
     @ParameterizedTest

@@ -156,7 +156,7 @@ export class CanvasRendererComponent implements OnChanges, AfterViewInit, OnDest
 
   private getMaxCanvasSize(): number {
     const ua = navigator.userAgent;
-    if (/Safari/.test(ua) && !/Chrome/.test(ua)) {
+    if (ua.includes('Safari') && !ua.includes('Chrome')) {
       return CanvasRendererComponent.MAX_CANVAS_SAFARI;
     }
     return CanvasRendererComponent.MAX_CANVAS_OTHER;

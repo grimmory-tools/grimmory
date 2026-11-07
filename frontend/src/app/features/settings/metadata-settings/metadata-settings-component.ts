@@ -29,12 +29,11 @@ import {TranslocoDirective} from '@jsverse/transloco';
   styleUrl: './metadata-settings-component.scss'
 })
 export class MetadataSettingsComponent {
-
-  currentMetadataOptions: MetadataRefreshOptions | undefined;
-
   private readonly fb = inject(FormBuilder);
   private readonly appSettingsService = inject(AppSettingsService);
   private readonly settingsHelper = inject(SettingsHelperService);
+
+  currentMetadataOptions: MetadataRefreshOptions | undefined;
 
   readonly form = this.fb.nonNullable.group({
     metadataDownloadOnBookdrop: [true],

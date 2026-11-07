@@ -21,12 +21,11 @@ type PersistenceToggleKey = Exclude<keyof MetadataPersistenceSettings, 'saveToOr
   styleUrl: './metadata-persistence-settings-component.scss'
 })
 export class MetadataPersistenceSettingsComponent {
-
-  isNetworkStorage = false;
-
   private readonly fb = inject(FormBuilder);
   private readonly appSettingsService = inject(AppSettingsService);
   private readonly settingsHelper = inject(SettingsHelperService);
+
+  isNetworkStorage = false;
 
   readonly form = this.fb.nonNullable.group({
     saveToOriginalFile: this.fb.nonNullable.group({

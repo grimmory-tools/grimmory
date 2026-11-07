@@ -58,12 +58,11 @@ interface DayTimeline {
   styleUrls: ['./reading-session-timeline.component.scss']
 })
 export class ReadingSessionTimelineComponent implements OnInit {
+  private readonly userStatsService = inject(UserStatsService);
+  private readonly urlHelperService = inject(UrlHelperService);
+  private readonly translocoService = inject(TranslocoService);
   @Input() initialYear: number = new Date().getFullYear();
   @Input() weekNumber: number = getISOWeek(new Date());
-
-  private userStatsService = inject(UserStatsService);
-  private urlHelperService = inject(UrlHelperService);
-  private translocoService = inject(TranslocoService);
 
   public daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   public hourLabels: string[] = [];
@@ -245,7 +244,7 @@ export class ReadingSessionTimelineComponent implements OnInit {
     const displayOrder = [1, 2, 3, 4, 5, 6, 0];
     for (let i = 0; i < 7; i++) {
       const dayOfWeek = displayOrder[i];
-      const sessionsForDay = dayMap.get(dayOfWeek) || [];
+      const sessionsForDay = dayMap.get(dayOfWeek) ?? [];
       const timelineSessions = this.layoutSessionsForDay(sessionsForDay);
 
       this.timelineData.push({

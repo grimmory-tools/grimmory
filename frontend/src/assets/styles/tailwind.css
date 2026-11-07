@@ -42,6 +42,26 @@
   }
 }
 
+@keyframes skeleton-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@utility animate-skeleton {
+  background-image: linear-gradient(
+    90deg,
+    var(--color-skeleton-base) 0%,
+    var(--color-skeleton-highlight) 50%,
+    var(--color-skeleton-base) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 2s linear infinite;
+}
+
 @font-face {
   font-family: "Inter";
   font-style: normal;
@@ -80,6 +100,7 @@
 
 @theme static {
   --font-sans: var(--font-ui, "Inter", sans-serif);
+  --font-cover-serif: Georgia, "Iowan Old Style", "Times New Roman", serif;
 
   --text-app-xs: 0.6563rem;
   --text-app-sm: 0.7656rem;
@@ -134,9 +155,15 @@
   --color-logo-start: var(--color-primary-400);
   --color-logo-end: var(--color-primary-600);
   --color-logo-bookmark: #FF2126;
+  --color-skeleton-base: var(--color-surface-200);
+  --color-skeleton-highlight: var(--color-surface-100);
 
   --shadow-control: 0 1px 2px -1px rgb(0 0 0 / 6%), 0 2px 4px 0 rgb(0 0 0 / 4%);
   --shadow-pop: 0 4px 12px -2px rgb(0 0 0 / 12%), 0 2px 6px -2px rgb(0 0 0 / 8%);
+  --shadow-float: 0 18px 50px -8px rgb(0 0 0 / 25%), 0 4px 16px rgb(0 0 0 / 10%);
+  --shadow-card: inset 0 0 0 1px rgb(255 255 255 / 6%), 0 1px 3px rgb(0 0 0 / 25%);
+  --shadow-card-hover: inset 0 0 0 1px rgb(255 255 255 / 8%), 0 6px 12px rgb(0 0 0 / 30%);
+  --ease-glide: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 :root {
@@ -146,6 +173,30 @@
   --app-text-sm: var(--text-app-sm);
   --app-text-base: var(--text-app-base);
   --app-text-lg: var(--text-app-lg);
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-edge-gap: 16px;
+  --safe-edge-top: var(--safe-area-top);
+  --safe-edge-right: var(--safe-area-right);
+  --safe-edge-bottom: var(--safe-area-bottom);
+  --safe-edge-left: var(--safe-area-left);
+  --safe-edge-panel-bottom: max(var(--safe-edge-bottom), var(--safe-edge-gap));
+}
+
+@media (pointer: coarse) {
+  :root {
+    --safe-edge-bottom: calc(var(--safe-area-bottom) + var(--safe-edge-gap));
+  }
+}
+
+@media (pointer: coarse) and (orientation: landscape) {
+  :root {
+    --safe-edge-right: max(var(--safe-area-right), var(--safe-edge-gap));
+    --safe-edge-bottom: max(var(--safe-area-bottom), var(--safe-edge-gap));
+    --safe-edge-left: max(var(--safe-area-left), var(--safe-edge-gap));
+  }
 }
 
 [data-ui-font="atkinson"] {
@@ -181,7 +232,7 @@
   --color-card: var(--color-surface-800);
   --color-border: var(--color-surface-700);
   --color-text: var(--color-surface-50);
-  --color-text-secondary: var(--color-surface-400);
+  --color-text-secondary: var(--color-surface-300);
   --color-text-muted: var(--color-surface-500);
   --color-text-strong: var(--color-surface-0);
   --color-primary: var(--color-primary-400);
@@ -192,10 +243,13 @@
   --color-logo-start: var(--color-primary-300);
   --color-logo-end: var(--color-primary-500);
   --color-logo-bookmark: var(--color-white);
+  --color-skeleton-base: var(--color-surface-700);
+  --color-skeleton-highlight: var(--color-surface-600);
   --color-warning: var(--color-amber-400);
   --color-info: var(--color-sky-400);
   --shadow-control: 0 1px 2px -1px rgb(0 0 0 / 50%), 0 2px 4px 0 rgb(0 0 0 / 40%);
   --shadow-pop: 0 4px 12px -2px rgb(0 0 0 / 55%), 0 2px 6px -2px rgb(0 0 0 / 45%);
+  --shadow-float: 0 18px 50px -8px rgb(0 0 0 / 60%), 0 4px 16px rgb(0 0 0 / 35%);
 }
 
 [data-app-theme="grimmory"] {
@@ -223,6 +277,8 @@
   --color-surface-800: var(--color-stone-800);
   --color-surface-900: var(--color-stone-900);
   --color-surface-950: var(--color-stone-950);
+  --color-logo-start: #fdba74;
+  --color-logo-end: #f97316;
 }
 
 .dark[data-app-theme="grimmory"] {
@@ -600,6 +656,7 @@
   --color-active-surface: color-mix(in srgb, var(--color-primary) 14%, transparent);
   --shadow-control: 0 1px 2px -1px rgb(0 0 0 / 60%), 0 2px 4px 0 rgb(0 0 0 / 50%);
   --shadow-pop: 0 4px 14px -2px rgb(0 0 0 / 70%), 0 2px 8px -2px rgb(0 0 0 / 55%);
+  --shadow-float: 0 18px 54px -8px rgb(0 0 0 / 75%), 0 4px 16px rgb(0 0 0 / 50%);
 }
 
 @source inline("bg-{red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}-{50,100,200,300,400,500,600,700,800,900,950}");

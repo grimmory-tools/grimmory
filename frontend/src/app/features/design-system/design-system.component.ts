@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Router } from '@angular/router';
 import { email, form, FormField, minLength, required, validate } from '@angular/forms/signals';
@@ -19,7 +19,7 @@ import {
   LucideShare2,
   LucideSmartphone,
   LucideTag,
-  LucideTrash2,
+  LucideTrash,
   LucideTriangleAlert,
   LucideX,
   LucideZap,
@@ -65,6 +65,14 @@ import { AppTabsComponent, type TabItem } from '../../shared/ui/tabs/app-tabs.co
 import { AppTagComponent } from '../../shared/ui/tag/app-tag.component';
 import { AppTextareaComponent } from '../../shared/ui/textarea/app-textarea.component';
 import { AppTooltipDirective } from '../../shared/ui/tooltip/app-tooltip.directive';
+import { injectQuery } from '@tanstack/angular-query-experimental';
+import { BookQueryService } from '../book/data/book-query.service';
+import { EMPTY_FACET_SELECTION } from '../book/data/book-query-params';
+import { type BookSummary } from '../book/data/book-response.models';
+import { BookCardComponent } from '../book/components/cards/book-card.component';
+import { BookCardSkeletonComponent } from '../book/components/cards/book-card-skeleton.component';
+import { BookMenuComponent } from '../book/components/book-menu/book-menu.component';
+import { BookNavigationService } from '../book/service/book-navigation.service';
 
 interface ButtonExample {
   tone: ButtonTone;
@@ -114,6 +122,9 @@ interface ButtonExample {
     AppTagComponent,
     AppTextareaComponent,
     AppTooltipDirective,
+    BookCardComponent,
+    BookCardSkeletonComponent,
+    BookMenuComponent,
     LucideFolder,
     LucideSmartphone,
     LucideList,
@@ -125,7 +136,7 @@ interface ButtonExample {
     LucideEllipsisVertical,
     LucideFolderOpen,
     LucideDownload,
-    LucideTrash2,
+    LucideTrash,
     LucideSearch,
     LucideX,
     LucideTriangleAlert,
@@ -137,6 +148,20 @@ interface ButtonExample {
 })
 export class DesignSystemComponent {
   private readonly router = inject(Router);
+  private readonly bookQueryService = inject(BookQueryService);
+  private readonly bookNavigation = inject(BookNavigationService);
+
+  private readonly bookCardsQuery = injectQuery(() => this.bookQueryService.page({
+    facets: EMPTY_FACET_SELECTION,
+    sort: [{ key: 'title', direction: 'asc' }],
+    size: 4,
+  }));
+  readonly bookCards = computed(() => this.bookCardsQuery.data()?.content ?? []);
+  readonly bookCardsPending = computed(() => this.bookCardsQuery.isPending());
+
+  readBook(book: BookSummary): void {
+    this.bookNavigation.readBook(book);
+  }
 
   openExample(path: string): void {
     void this.router.navigate(['/design-system', 'form', path]);
@@ -158,7 +183,7 @@ export class DesignSystemComponent {
   readonly iconCopy: LucideIconData = LucideCopy.icon;
   readonly iconPencil: LucideIconData = LucidePencil.icon;
   readonly iconDownload: LucideIconData = LucideDownload.icon;
-  readonly iconTrash: LucideIconData = LucideTrash2.icon;
+  readonly iconTrash: LucideIconData = LucideTrash.icon;
   readonly iconShare: LucideIconData = LucideShare2.icon;
   readonly iconFolderOpen: LucideIconData = LucideFolderOpen.icon;
 

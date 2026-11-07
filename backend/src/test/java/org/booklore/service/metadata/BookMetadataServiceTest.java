@@ -92,11 +92,27 @@ class BookMetadataServiceTest {
             Book book = Book.builder().build();
             FetchMetadataRequest request = FetchMetadataRequest.builder().build();
             List<BookMetadata> expected = List.of(BookMetadata.builder().title("Test").build());
+            when(parser.isEnabled()).thenReturn(true);
             when(parser.fetchMetadata(book, request)).thenReturn(expected);
 
             List<BookMetadata> result = service.fetchMetadataListFromAProvider(MetadataProvider.Google, book, request);
 
             assertThat(result).isEqualTo(expected);
+        }
+
+        @Test
+        void ignoresDisabledParser() {
+            BookParser parser = mock(BookParser.class);
+            when(parser.isEnabled()).thenReturn(false);
+
+            parserMap.put(MetadataProvider.Google, parser);
+            Book book = Book.builder().build();
+            FetchMetadataRequest request = FetchMetadataRequest.builder().build();
+
+            List<BookMetadata> result = service.fetchMetadataListFromAProvider(MetadataProvider.Google, book, request);
+
+            assertThat(result).isEmpty();
+            verify(parser, never()).fetchMetadata(book, request);
         }
 
         @Test
@@ -115,6 +131,7 @@ class BookMetadataServiceTest {
             parserMap.put(MetadataProvider.Google, parser);
             BookMetadata expected = BookMetadata.builder().title("Detailed").build();
             when(parser.fetchDetailedMetadata("item-123")).thenReturn(expected);
+            when(parser.isEnabled()).thenReturn(true);
 
             BookMetadata result = service.getDetailedProviderMetadata(MetadataProvider.Google, "item-123");
 
@@ -124,11 +141,27 @@ class BookMetadataServiceTest {
         @Test
         void returnsNullWhenParserDoesNotImplementDetailedProvider() {
             BookParser parser = mock(BookParser.class);
+
+            when(parser.isEnabled()).thenReturn(true);
+
             parserMap.put(MetadataProvider.Google, parser);
 
             BookMetadata result = service.getDetailedProviderMetadata(MetadataProvider.Google, "item-123");
 
             assertThat(result).isNull();
+        }
+
+        @Test
+        void returnsNullWhenParserIsNotEnabled() {
+            DetailedBookParser parser = mock(DetailedBookParser.class);
+            when(parser.isEnabled()).thenReturn(false);
+
+            parserMap.put(MetadataProvider.Google, parser);
+
+            BookMetadata result = service.getDetailedProviderMetadata(MetadataProvider.Google, "item-123");
+
+            assertThat(result).isNull();
+            verify(parser, never()).fetchDetailedMetadata(anyString());
         }
 
         @Test
@@ -160,6 +193,7 @@ class BookMetadataServiceTest {
             when(appSettingService.getAppSettings()).thenReturn(settings);
 
             BookMetadata expected = BookMetadata.builder().title("Found").build();
+            when(googleParser.isEnabled()).thenReturn(true);
             when(googleParser.fetchMetadata(any(Book.class), any(FetchMetadataRequest.class)))
                     .thenReturn(List.of(expected));
 
@@ -187,8 +221,10 @@ class BookMetadataServiceTest {
                     .build();
             when(appSettingService.getAppSettings()).thenReturn(settings);
 
+            when(googleParser.isEnabled()).thenReturn(true);
             when(googleParser.fetchMetadata(any(Book.class), any(FetchMetadataRequest.class)))
                     .thenThrow(new RuntimeException("timeout"));
+            when(amazonParser.isEnabled()).thenReturn(true);
             BookMetadata expected = BookMetadata.builder().title("Amazon Result").build();
             when(amazonParser.fetchMetadata(any(Book.class), any(FetchMetadataRequest.class)))
                     .thenReturn(List.of(expected));
@@ -213,6 +249,7 @@ class BookMetadataServiceTest {
                             .build())
                     .build();
             when(appSettingService.getAppSettings()).thenReturn(settings);
+            when(googleParser.isEnabled()).thenReturn(true);
             when(googleParser.fetchMetadata(any(Book.class), any(FetchMetadataRequest.class)))
                     .thenThrow(new RuntimeException("fail"));
 
@@ -236,6 +273,7 @@ class BookMetadataServiceTest {
                             .build())
                     .build();
             when(appSettingService.getAppSettings()).thenReturn(settings);
+            when(googleParser.isEnabled()).thenReturn(true);
             when(googleParser.fetchMetadata(any(Book.class), any(FetchMetadataRequest.class)))
                     .thenReturn(Collections.emptyList());
 
@@ -256,6 +294,7 @@ class BookMetadataServiceTest {
                     .build();
             when(appSettingService.getAppSettings()).thenReturn(settings);
 
+            when(googleParser.isEnabled()).thenReturn(true);
             BookMetadata expected = BookMetadata.builder().title("Google").build();
             when(googleParser.fetchMetadata(any(Book.class), any(FetchMetadataRequest.class)))
                     .thenReturn(List.of(expected));
@@ -273,6 +312,7 @@ class BookMetadataServiceTest {
             when(appSettingService.getAppSettings()).thenThrow(new RuntimeException("config error"));
 
             BookMetadata expected = BookMetadata.builder().title("Google").build();
+            when(googleParser.isEnabled()).thenReturn(true);
             when(googleParser.fetchMetadata(any(Book.class), any(FetchMetadataRequest.class)))
                     .thenReturn(List.of(expected));
 
@@ -295,6 +335,7 @@ class BookMetadataServiceTest {
                     .build();
             when(appSettingService.getAppSettings()).thenReturn(settings);
 
+            when(googleParser.isEnabled()).thenReturn(true);
             BookMetadata expected = BookMetadata.builder().title("Google").build();
             when(googleParser.fetchMetadata(any(Book.class), any(FetchMetadataRequest.class)))
                     .thenReturn(List.of(expected));
@@ -321,6 +362,7 @@ class BookMetadataServiceTest {
                             .build())
                     .build();
             when(appSettingService.getAppSettings()).thenReturn(settings);
+            when(googleParser.isEnabled()).thenReturn(true);
             when(googleParser.fetchMetadata(any(Book.class), any(FetchMetadataRequest.class)))
                     .thenReturn(Collections.emptyList());
 
@@ -337,6 +379,7 @@ class BookMetadataServiceTest {
             AppSettings settings = AppSettings.builder().defaultMetadataRefreshOptions(null).build();
             when(appSettingService.getAppSettings()).thenReturn(settings);
 
+            when(googleParser.isEnabled()).thenReturn(true);
             BookMetadata expected = BookMetadata.builder().title("Google").build();
             when(googleParser.fetchMetadata(any(Book.class), any(FetchMetadataRequest.class)))
                     .thenReturn(List.of(expected));

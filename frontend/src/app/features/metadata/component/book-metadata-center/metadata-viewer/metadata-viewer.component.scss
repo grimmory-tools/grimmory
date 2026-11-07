@@ -317,29 +317,16 @@
   }
 }
 
-.rating-link {
+.rating-badge {
   display: flex;
   align-items: center;
   gap: 0.3281rem;
-  text-decoration: none;
   color: var(--color-text);
-  transition: transform 0.2s ease;
 }
 
-.rating-link:hover {
-  transform: translateY(-2px);
-}
-
-.rating-link:hover .rating-favicon {
-  transform: scale(1.2);
-  filter: drop-shadow(0 2px 4px rgb(0 0 0 / 30%));
-}
-
-.rating-favicon {
-  width: 1.0938rem;
-  height: 1.0938rem;
-  object-fit: contain;
-  transition: transform 0.2s ease, filter 0.2s ease;
+.rating-provider {
+  font-size: var(--app-text-sm);
+  color: var(--color-text-secondary);
 }
 
 .rating-value {

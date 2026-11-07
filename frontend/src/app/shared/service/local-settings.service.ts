@@ -1,15 +1,13 @@
-import { inject, Injectable } from "@angular/core";
+import { inject, Service } from "@angular/core";
 import { LocalStorageService } from "./local-storage.service";
 
 export interface LocalSettings {
   cacheStorageEnabled: boolean;
 }
 
-@Injectable({
-  providedIn: "root",
-})
+@Service()
 export class LocalSettingsService {
-  private localStorage = inject(LocalStorageService);
+  private readonly localStorage = inject(LocalStorageService);
   public readonly storageName = "local_settings";
 
   public readonly defaultSettings: LocalSettings = {

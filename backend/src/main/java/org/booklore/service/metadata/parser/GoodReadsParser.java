@@ -2,6 +2,7 @@ package org.booklore.service.metadata.parser;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.booklore.model.dto.settings.MetadataProviderSettings;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
@@ -98,6 +99,26 @@ public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     private record GoodreadsAutocompleteEntry(String bookId) {}
+
+    private Optional<MetadataProviderSettings.Goodreads> getSettings() {
+        var appSettings = appSettingService.getAppSettings();
+
+        if (
+                appSettings == null ||
+                appSettings.getMetadataProviderSettings() == null
+        ) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(appSettings.getMetadataProviderSettings().getGoodReads());
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return getSettings()
+                .map(MetadataProviderSettings.Goodreads::isEnabled)
+                .orElse(false);
+    }
 
     @Override
     public BookMetadata fetchTopMetadata(Book book, FetchMetadataRequest fetchMetadataRequest) {

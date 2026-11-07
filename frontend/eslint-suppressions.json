@@ -1,0 +1,567 @@
+{
+  "src/app/core/security/oauth2-management/authentication-settings.component.html": {
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 1
+    }
+  },
+  "src/app/features/author-browser/components/author-browser/author-browser.component.ts": {
+    "@angular-eslint/prefer-host-metadata-property": {
+      "count": 1
+    }
+  },
+  "src/app/features/author-browser/components/author-card/author-card.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 7
+    }
+  },
+  "src/app/features/author-browser/components/author-editor/author-editor.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 2
+    }
+  },
+  "src/app/features/author-browser/components/author-match/author-match.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 2
+    }
+  },
+  "src/app/features/author-browser/components/author-photo-search/author-photo-search.component.html": {
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/browse/book-browse-multi-sort-editor.component.ts": {
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 3
+    }
+  },
+  "src/app/features/book/browse/book-browse-table.component.ts": {
+    "@angular-eslint/prefer-signal-model": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/browse/book-browse-toolbar.component.ts": {
+    "@angular-eslint/prefer-signal-model": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/components/additional-file-uploader/additional-file-uploader.component.html": {
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/components/additional-file-uploader/additional-file-uploader.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/components/book-card-lite/book-card-lite-component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 3
+    }
+  },
+  "src/app/features/book/components/book-notes/book-notes-component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/components/book-reviews/book-reviews.component.html": {
+    "@angular-eslint/template/no-non-null-assertion": {
+      "count": 5
+    }
+  },
+  "src/app/features/book/components/book-reviews/book-reviews.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 4
+    }
+  },
+  "src/app/features/book/components/bulk-isbn-import-dialog/bulk-isbn-import-dialog.component.html": {
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 1
+    },
+    "@angular-eslint/template/require-switch-default": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/components/cards/book-card.component.html": {
+    "@angular-eslint/template/no-non-null-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/components/legacy-book-card/legacy-book-card.component.html": {
+    "@angular-eslint/template/no-non-null-assertion": {
+      "count": 5
+    }
+  },
+  "src/app/features/book/components/library-shelf-menu/library-shelf-menu-items.component.ts": {
+    "@angular-eslint/template/require-switch-default": {
+      "count": 1
+    }
+  },
+  "src/app/features/book/components/series-page/series-page.component.html": {
+    "@angular-eslint/template/no-non-null-assertion": {
+      "count": 4
+    },
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 3
+    }
+  },
+  "src/app/features/bookdrop/component/bookdrop-file-metadata-picker/bookdrop-file-metadata-picker.component.html": {
+    "@angular-eslint/template/no-non-null-assertion": {
+      "count": 3
+    },
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 4
+    }
+  },
+  "src/app/features/bookdrop/component/bookdrop-file-metadata-picker/bookdrop-file-metadata-picker.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 6
+    }
+  },
+  "src/app/features/bookdrop/component/bookdrop-file-review/bookdrop-file-review.component.html": {
+    "@angular-eslint/template/no-non-null-assertion": {
+      "count": 1
+    }
+  },
+  "src/app/features/bookdrop/component/bookdrop-file-review/bookdrop-file-review.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/bookdrop/component/bookdrop-pattern-extract-dialog/bookdrop-pattern-extract-dialog.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/dashboard/components/dashboard-scroller/dashboard-scroller.component.html": {
+    "@angular-eslint/template/require-switch-default": {
+      "count": 1
+    }
+  },
+  "src/app/features/dashboard/components/main-dashboard/main-dashboard.component.html": {
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 1
+    }
+  },
+  "src/app/features/design-system/design-system.component.html": {
+    "@angular-eslint/template/no-any": {
+      "count": 4
+    }
+  },
+  "src/app/features/library-creator/library-creator.component.html": {
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 2
+    }
+  },
+  "src/app/features/magic-shelf/component/magic-shelf-component.html": {
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 1
+    }
+  },
+  "src/app/features/metadata/component/book-metadata-center/book-reading-sessions/book-reading-sessions.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/metadata/component/book-metadata-center/metadata-editor/metadata-editor.component.html": {
+    "@angular-eslint/template/no-non-null-assertion": {
+      "count": 31
+    }
+  },
+  "src/app/features/metadata/component/book-metadata-center/metadata-editor/metadata-editor.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 4
+    }
+  },
+  "src/app/features/metadata/component/book-metadata-center/metadata-picker/metadata-picker.component.html": {
+    "@angular-eslint/template/no-non-null-assertion": {
+      "count": 4
+    },
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 2
+    }
+  },
+  "src/app/features/metadata/component/book-metadata-center/metadata-picker/metadata-picker.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 3
+    }
+  },
+  "src/app/features/metadata/component/book-metadata-center/metadata-viewer/metadata-tabs/metadata-tabs.component.html": {
+    "@angular-eslint/template/no-non-null-assertion": {
+      "count": 4
+    }
+  },
+  "src/app/features/metadata/component/book-metadata-center/metadata-viewer/metadata-viewer.component.html": {
+    "@angular-eslint/template/no-non-null-assertion": {
+      "count": 62
+    },
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 3
+    }
+  },
+  "src/app/features/metadata/component/book-metadata-center/metadata-viewer/metadata-viewer.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 3
+    }
+  },
+  "src/app/features/metadata/component/cover-search/cover-search.component.html": {
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 1
+    }
+  },
+  "src/app/features/metadata/component/metadata-options-dialog/metadata-advanced-fetch-options/metadata-advanced-fetch-options.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 2
+    }
+  },
+  "src/app/features/metadata/component/metadata-options-dialog/metadata-fetch-options/metadata-fetch-options.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/metadata/component/metadata-provider-field-selector/metadata-provider-field-selector.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/metadata/component/metadata-review-dialog/metadata-review-dialog-component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/metadata/component/multi-book-metadata-fetch/multi-book-metadata-fetch-component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/audiobook-player/audiobook-player.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/cbx-reader/cbx-reader.component.html": {
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/cbx-reader/cbx-reader.component.ts": {
+    "@angular-eslint/prefer-host-metadata-property": {
+      "count": 10
+    }
+  },
+  "src/app/features/readers/cbx-reader/dialogs/cbx-note-dialog.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/cbx-reader/layout/header/cbx-header.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 2
+    }
+  },
+  "src/app/features/readers/cbx-reader/layout/sidebar/cbx-sidebar.component.html": {
+    "@angular-eslint/template/no-non-null-assertion": {
+      "count": 2
+    },
+    "@angular-eslint/template/require-switch-default": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/cbx-reader/renderers/canvas-renderer.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 4
+    }
+  },
+  "src/app/features/readers/ebook-reader/dialogs/metadata-dialog.component.html": {
+    "@angular-eslint/template/no-non-null-assertion": {
+      "count": 2
+    }
+  },
+  "src/app/features/readers/ebook-reader/dialogs/metadata-dialog.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/ebook-reader/dialogs/note-dialog.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/ebook-reader/dialogs/settings-dialog.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 3
+    }
+  },
+  "src/app/features/readers/ebook-reader/ebook-reader.component.ts": {
+    "@angular-eslint/prefer-host-metadata-property": {
+      "count": 5
+    },
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/ebook-reader/layout/footer/footer.component.ts": {
+    "@angular-eslint/prefer-host-metadata-property": {
+      "count": 2
+    },
+    "@angular-eslint/prefer-signals": {
+      "count": 3
+    }
+  },
+  "src/app/features/readers/ebook-reader/layout/header/quick-settings.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 2
+    }
+  },
+  "src/app/features/readers/ebook-reader/layout/panel/panel.component.html": {
+    "@angular-eslint/template/require-switch-default": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/ebook-reader/layout/sidebar/sidebar.component.html": {
+    "@angular-eslint/template/no-non-null-assertion": {
+      "count": 2
+    },
+    "@angular-eslint/template/require-switch-default": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/ebook-reader/shared/icon.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 4
+    }
+  },
+  "src/app/features/readers/ebook-reader/shared/selection-popup.component.ts": {
+    "@angular-eslint/prefer-host-metadata-property": {
+      "count": 1
+    },
+    "@angular-eslint/prefer-signals": {
+      "count": 6
+    }
+  },
+  "src/app/features/readers/pdf-reader/components/pdf-sidebar.component.html": {
+    "@angular-eslint/template/require-switch-default": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/pdf-reader/components/pdf-sidebar.component.ts": {
+    "@angular-eslint/prefer-output-readonly": {
+      "count": 4
+    }
+  },
+  "src/app/features/readers/pdf-reader/pdf-reader.component.html": {
+    "@angular-eslint/template/no-non-null-assertion": {
+      "count": 2
+    },
+    "@angular-eslint/template/require-switch-default": {
+      "count": 1
+    }
+  },
+  "src/app/features/readers/pdf-reader/pdf-reader.component.ts": {
+    "@angular-eslint/prefer-host-metadata-property": {
+      "count": 1
+    }
+  },
+  "src/app/features/series-browser/components/series-browser/series-browser.component.ts": {
+    "@angular-eslint/prefer-host-metadata-property": {
+      "count": 1
+    }
+  },
+  "src/app/features/series-browser/components/series-card/series-card.component.html": {
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 1
+    }
+  },
+  "src/app/features/series-browser/components/series-card/series-card.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/series-browser/components/series-scroller/series-scroller.component.ts": {
+    "@angular-eslint/prefer-output-emitter-ref": {
+      "count": 1
+    },
+    "@angular-eslint/prefer-output-readonly": {
+      "count": 1
+    },
+    "@angular-eslint/prefer-signals": {
+      "count": 2
+    }
+  },
+  "src/app/features/settings/custom-fonts/font-upload-dialog/font-upload-dialog.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/settings/global-preferences/metadata-provider-settings/metadata-provider-settings.component.html": {
+    "@angular-eslint/template/require-switch-default": {
+      "count": 1
+    }
+  },
+  "src/app/features/settings/library-metadata-settings/library-metadata-settings.component.html": {
+    "@angular-eslint/template/no-non-null-assertion": {
+      "count": 7
+    },
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 1
+    }
+  },
+  "src/app/features/settings/reader-preferences/cbx-reader-preferences/cbx-reader-preferences-component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/settings/reader-preferences/local-settings/local-settings.component.ts": {
+    "@angular-eslint/no-async-lifecycle-method": {
+      "count": 1
+    }
+  },
+  "src/app/features/settings/reader-preferences/pdf-reader-preferences/pdf-reader-preferences-component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/settings/reader-preferences/settings-application-mode/settings-application-mode.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/settings/task-management/task-management.component.html": {
+    "@angular-eslint/template/no-non-null-assertion": {
+      "count": 3
+    }
+  },
+  "src/app/features/settings/user-management/content-restrictions-editor/content-restrictions-editor.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 2
+    }
+  },
+  "src/app/features/settings/view-preferences-parent/dashboard-preferences/dashboard-preferences.component.html": {
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 3
+    }
+  },
+  "src/app/features/stats/component/library-stats/charts/top-items-chart/top-items-chart.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/stats/component/library-stats/library-stats.component.html": {
+    "@angular-eslint/template/require-switch-default": {
+      "count": 1
+    }
+  },
+  "src/app/features/stats/component/user-stats/charts/book-flow-chart/book-flow-chart.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/stats/component/user-stats/charts/completion-race-chart/completion-race-chart.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/stats/component/user-stats/charts/completion-timeline-chart/completion-timeline-chart.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/stats/component/user-stats/charts/genre-stats-chart/genre-stats-chart.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/stats/component/user-stats/charts/page-turner-chart/page-turner-chart.component.html": {
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 1
+    }
+  },
+  "src/app/features/stats/component/user-stats/charts/reading-session-heatmap/reading-session-heatmap.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/stats/component/user-stats/charts/reading-session-timeline/reading-session-timeline.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 2
+    }
+  },
+  "src/app/features/stats/component/user-stats/charts/session-archetypes-chart/session-archetypes-chart.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/features/stats/component/user-stats/user-stats.component.html": {
+    "@angular-eslint/template/require-switch-default": {
+      "count": 1
+    }
+  },
+  "src/app/shared/browse/grid/grid-item.component.ts": {
+    "@angular-eslint/template/require-switch-default": {
+      "count": 1
+    }
+  },
+  "src/app/shared/browse/search-input/search-input.component.ts": {
+    "@angular-eslint/prefer-signal-model": {
+      "count": 1
+    }
+  },
+  "src/app/shared/components/book-uploader/book-uploader.component.html": {
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 1
+    }
+  },
+  "src/app/shared/components/book-uploader/book-uploader.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 1
+    }
+  },
+  "src/app/shared/components/external-doc-link/external-doc-link.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 4
+    }
+  },
+  "src/app/shared/components/icon-display/icon-display.component.ts": {
+    "@angular-eslint/prefer-signals": {
+      "count": 6
+    },
+    "@angular-eslint/template/prefer-style-binding": {
+      "count": 3
+    }
+  },
+  "src/app/shared/components/icon-picker/icon-picker-component.html": {
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 1
+    }
+  },
+  "src/app/shared/components/metadata-progress-widget/metadata-progress-widget-component.html": {
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 1
+    }
+  },
+  "src/app/shared/layout/layout-sidebar/app.sidebar-section.component.html": {
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 1
+    }
+  },
+  "src/app/shared/layout/layout-sidebar/app.sidebar-section.component.ts": {
+    "@angular-eslint/prefer-host-metadata-property": {
+      "count": 1
+    }
+  },
+  "src/app/shared/layout/page-header/app.page-header-breadcrumbs.component.ts": {
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 1
+    }
+  },
+  "src/app/shared/ui/accordion/app-accordion.component.ts": {
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 1
+    }
+  },
+  "src/app/shared/ui/radio-group/app-radio-group.component.ts": {
+    "@angular-eslint/template/prefer-contextual-for-variables": {
+      "count": 1
+    }
+  }
+}

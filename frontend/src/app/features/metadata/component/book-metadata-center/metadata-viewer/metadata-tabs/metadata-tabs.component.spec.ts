@@ -3,6 +3,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {AudiobookService} from '../../../../../readers/audiobook-player/audiobook.service';
 import {BookMetadataManageService} from '../../../../../book/service/book-metadata-manage.service';
+import {BookNavigationService} from '../../../../../book/service/book-navigation.service';
 import {UrlHelperService} from '../../../../../../shared/service/url-helper.service';
 import {MetadataTabsComponent} from './metadata-tabs.component';
 import {Book} from '../../../../../book/model/book.model';
@@ -32,6 +33,7 @@ describe('MetadataTabsComponent default tab selection', () => {
         {provide: UrlHelperService, useValue: {getCoverUrl: () => null, getAudiobookCoverUrl: () => null}},
         {provide: BookMetadataManageService, useValue: {supportsDualCovers: () => false}},
         {provide: AudiobookService, useValue: {getAudiobookInfo: () => undefined}},
+        {provide: BookNavigationService, useValue: {readBook: vi.fn()}},
       ],
     });
 

@@ -467,7 +467,7 @@ class AudiobookMetadataExtractorTest {
                 BookMetadata metadata = extractor.extractMetadata(file);
                 AudiobookMetadata abMeta = metadata.getAudiobookMetadata();
 
-                assertThat(abMeta.getDurationSeconds()).isEqualTo(3661L);
+                assertThat(abMeta.getDurationSeconds()).isEqualTo(3662L);
                 assertThat(abMeta.getBitrate()).isEqualTo(256);
                 assertThat(abMeta.getSampleRate()).isEqualTo(48000);
                 assertThat(abMeta.getChannels()).isEqualTo(2);

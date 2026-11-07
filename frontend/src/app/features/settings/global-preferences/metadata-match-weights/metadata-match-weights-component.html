@@ -23,8 +23,7 @@
             [label]="t('recalculateBtn')"
             [disabled]="isRecalculating"
             (click)="recalculate()"
-            outlined>
-          </p-button>
+            outlined />
         </div>
       </div>
 
@@ -36,7 +35,7 @@
 
         <form [formGroup]="form" class="weights-form">
           <div class="weights-grid">
-            @for (key of orderedKeys; track key) {
+            @for (key of orderedKeys(); track key) {
               <div class="weight-field">
                 <label class="field-label" [for]="'metadata-weight-' + key">{{ getFieldLabel(key) }}</label>
                 <p-inputNumber
@@ -58,8 +57,7 @@
               icon="pi pi-save"
               outlined
               [disabled]="isSaving"
-              (click)="save()">
-            </p-button>
+              (click)="save()" />
           </div>
         </form>
       </div>

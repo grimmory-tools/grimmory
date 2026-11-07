@@ -1,6 +1,5 @@
 import {HttpTestingController} from '@angular/common/http/testing';
 import {TestBed} from '@angular/core/testing';
-import {Router} from '@angular/router';
 import {TranslocoService} from '@jsverse/transloco';
 import {MessageService} from '@openng/optimus-ui/api';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
@@ -8,6 +7,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {createAuthServiceStub, createQueryClientHarness, flushSignalAndQueryEffects, flushQueryAsync} from '../../../core/testing/query-testing';
 import type {Book, BookMetadata} from '../model/book.model';
 import type {Shelf} from '../model/shelf.model';
+import {bookQueryKeys} from '../data/book-query-keys';
 import {AuthService} from '../../../shared/service/auth.service';
 import {BookPatchService} from './book-patch.service';
 import {BOOKS_QUERY_KEY} from './book-query-keys';
@@ -70,22 +70,21 @@ describe('BookService', () => {
         BookService,
         {provide: AuthService, useValue: authService},
         {provide: MessageService, useValue: {add: vi.fn()}},
-        {provide: Router, useValue: {navigate: vi.fn()}},
         {
           provide: BookSocketService,
           useValue: {
             handleNewlyCreatedBook: vi.fn(),
             handleRemovedBookIds: vi.fn(),
             handleBookUpdate: vi.fn(),
-            handleMultipleBookUpdates: vi.fn(),
             handleBookMetadataUpdate: vi.fn(),
             handleMultipleBookCoverPatches: vi.fn(),
+            handleTaskProgress: vi.fn(),
+            handleReconnect: vi.fn(),
           },
         },
         {
           provide: BookPatchService,
           useValue: {
-            updateLastReadTime: vi.fn(),
             savePdfProgress: vi.fn(),
             saveCbxProgress: vi.fn(),
             updateDateFinished: vi.fn(),
@@ -121,7 +120,7 @@ describe('BookService', () => {
     vi.restoreAllMocks();
   });
 
-  it('eagerly fetches books and hydrates query-backed state, loading state, and unique metadata', async () => {
+  it('eagerly fetches books and hydrates query-backed state and loading state', async () => {
     setup();
 
     const response = [
@@ -157,17 +156,7 @@ describe('BookService', () => {
     await flushBooksQuery();
 
     expect(service.books()).toEqual(response);
-    expect(service.findBookById(2)).toEqual(response[1]);
-    expect(service.findBookById(999)).toBeUndefined();
     expect(service.getBooksByIds([2, 999, 1])).toEqual(response);
-    expect(service.uniqueMetadata()).toEqual({
-      authors: ['Le Guin', 'Pratchett'],
-      categories: ['Fantasy', 'Humor'],
-      moods: ['Calm', 'Funny'],
-      tags: ['Classic', 'Satire'],
-      publishers: ['Ace', 'Corgi'],
-      series: ['Earthsea', 'Discworld'],
-    });
     expect(service.isBooksLoading()).toBe(false);
     expect(service.booksError()).toBeNull();
   });
@@ -218,17 +207,18 @@ describe('BookService', () => {
     httpTestingController.expectOne(req => req.url.endsWith('/api/v1/books')).flush(initialBooks);
     await flushBooksQuery();
 
+    queryClientHarness.queryClient.setQueryData(bookQueryKeys.detail(1, false), {id: 1});
     service.removeBooksFromShelf(10);
     await flushBooksQuery();
-
-    expect(queryClientHarness.queryClient.getQueryData<Book[]>(BOOKS_QUERY_KEY)).toEqual([
+    const reconciledBooks = [
       buildBook(1, {shelves: [untouchedShelf]}),
       buildBook(2, {shelves: []}),
-    ]);
-    expect(service.books()).toEqual([
-      buildBook(1, {shelves: [untouchedShelf]}),
-      buildBook(2, {shelves: []}),
-    ]);
+    ];
+    expect(queryClientHarness.queryClient.getQueryData<Book[]>(BOOKS_QUERY_KEY)).toEqual(reconciledBooks);
+    expect(service.books()).toEqual(reconciledBooks);
+    expect(queryClientHarness.queryClient.getQueryState(bookQueryKeys.detail(1, false))?.isInvalidated).toBe(true);
+    expect(queryClientHarness.queryClient.getQueryState(BOOKS_QUERY_KEY)?.isInvalidated).toBe(false);
+    httpTestingController.expectNone(req => req.url.endsWith('/api/v1/books'));
   });
 
   it('removes the books query cache when the auth token is cleared', async () => {

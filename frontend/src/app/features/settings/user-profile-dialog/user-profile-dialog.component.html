@@ -17,8 +17,7 @@
       [rounded]="true"
       severity="secondary"
       (onClick)="closeDialog()"
-      class="close-button">
-    </p-button>
+      class="close-button" />
   </div>
 
   <div class="form-container">
@@ -66,12 +65,12 @@
 
       <div class="edit-actions">
         @if (!isEditing) {
-          <p-button [label]="t('editProfile')" severity="info" icon="pi pi-pencil" [outlined]="true" (onClick)="toggleEdit()"></p-button>
+          <p-button [label]="t('editProfile')" severity="info" icon="pi pi-pencil" [outlined]="true" (onClick)="toggleEdit()" />
         }
-        @if (isEditing) {
+        @else {
           <div class="edit-buttons">
-            <p-button [label]="'common.cancel' | transloco" severity="secondary" [outlined]="true" icon="pi pi-times" (onClick)="toggleEdit()"></p-button>
-            <p-button [label]="t('saveChanges')" severity="success" [outlined]="true" icon="pi pi-check" (onClick)="updateProfile()"></p-button>
+            <p-button [label]="'common.cancel' | transloco" severity="secondary" [outlined]="true" icon="pi pi-times" (onClick)="toggleEdit()" />
+            <p-button [label]="t('saveChanges')" severity="success" [outlined]="true" icon="pi pi-check" (onClick)="updateProfile()" />
           </div>
         }
       </div>
@@ -93,8 +92,7 @@
             formControlName="currentPassword"
             [feedback]="false"
             class="field-input"
-            [inputStyle]="{'width': '100%'}">
-          </p-password>
+            [inputStyle]="{'width': '100%'}" />
           @if (changePasswordForm.get('currentPassword')?.invalid &&
                 (changePasswordForm.get('currentPassword')?.dirty || changePasswordForm.get('currentPassword')?.touched)) {
             <small class="field-error">
@@ -113,8 +111,7 @@
             formControlName="newPassword"
             [feedback]="false"
             class="field-input"
-            [inputStyle]="{'width': '100%'}">
-          </p-password>
+            [inputStyle]="{'width': '100%'}" />
           @if (changePasswordForm.get('newPassword')?.invalid &&
                 (changePasswordForm.get('newPassword')?.dirty || changePasswordForm.get('newPassword')?.touched)) {
             <small class="field-error">
@@ -136,8 +133,7 @@
             formControlName="confirmNewPassword"
             [feedback]="false"
             class="field-input"
-            [inputStyle]="{'width': '100%'}">
-          </p-password>
+            [inputStyle]="{'width': '100%'}" />
           @if (changePasswordForm.get('confirmNewPassword')?.invalid &&
                 (changePasswordForm.get('confirmNewPassword')?.dirty || changePasswordForm.get('confirmNewPassword')?.touched)) {
             <small class="field-error">
@@ -157,7 +153,7 @@
         </div>
 
         <div class="password-actions">
-          <p-button type="submit" severity="info" [outlined]="true" [label]="t('changePassword')" icon="pi pi-key" [disabled]="changePasswordForm.invalid"></p-button>
+          <p-button type="submit" severity="info" [outlined]="true" [label]="t('changePassword')" icon="pi pi-key" [disabled]="changePasswordForm.invalid" />
         </div>
       </form>
     </div>

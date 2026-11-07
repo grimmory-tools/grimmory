@@ -3,7 +3,7 @@
   <div class="chart-header">
     <div class="chart-title">
       <h3>
-        <i class="pi" [ngClass]="selectedDataType.icon" [style.color]="selectedDataType.color"></i>
+        <i class="pi" [class]="selectedDataType.icon" [style.color]="selectedDataType.color"></i>
         {{ t('titlePrefix') }} {{ selectedDataType.label }}
       </h3>
       <p class="chart-description">{{ t('descriptionPrefix') }} {{ selectedDataType.label.toLowerCase() }} {{ t('descriptionSuffix') }}</p>
@@ -20,14 +20,14 @@
         <ng-template pTemplate="selectedItem">
           @if (selectedDataType) {
             <div class="select-item">
-              <i class="pi" [ngClass]="selectedDataType.icon"></i>
+              <i class="pi" [class]="selectedDataType.icon"></i>
               <span>{{ selectedDataType.label }}</span>
             </div>
           }
         </ng-template>
         <ng-template pTemplate="item" let-option>
           <div class="select-item">
-            <i class="pi" [ngClass]="option.icon" [style.color]="option.color"></i>
+            <i class="pi" [class]="option.icon" [style.color]="option.color"></i>
             <span>{{ option.label }}</span>
           </div>
         </ng-template>
@@ -54,7 +54,7 @@
       <div class="insights-grid">
         @for (insight of insights; track insight.label) {
           <div class="insight-card">
-            <i class="pi" [ngClass]="insight.icon" [style.color]="selectedDataType.color"></i>
+            <i class="pi" [class]="insight.icon" [style.color]="selectedDataType.color"></i>
             <div class="insight-content">
               <span class="insight-label">{{ insight.label }}</span>
               <span class="insight-value">{{ insight.value }}</span>

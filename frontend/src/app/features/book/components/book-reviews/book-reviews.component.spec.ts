@@ -6,7 +6,6 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
 
-import {BookService} from '../../service/book.service';
 import {BookMetadataManageService} from '../../service/book-metadata-manage.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {UserService} from '../../../settings/user-management/user.service';
@@ -44,9 +43,6 @@ describe('BookReviewsComponent', () => {
     delete: ReturnType<typeof vi.fn>;
     deleteAllByBookId: ReturnType<typeof vi.fn>;
   };
-  let bookService: {
-    findBookById: ReturnType<typeof vi.fn>;
-  };
   let bookMetadataManageService: {
     toggleFieldLocks: ReturnType<typeof vi.fn>;
   };
@@ -76,9 +72,6 @@ describe('BookReviewsComponent', () => {
       refreshReviews: vi.fn(),
       delete: vi.fn(),
       deleteAllByBookId: vi.fn(),
-    };
-    bookService = {
-      findBookById: vi.fn(),
     };
     bookMetadataManageService = {
       toggleFieldLocks: vi.fn(),
@@ -113,7 +106,6 @@ describe('BookReviewsComponent', () => {
     TestBed.configureTestingModule({
       providers: [
         {provide: BookReviewService, useValue: reviewService},
-        {provide: BookService, useValue: bookService},
         {provide: BookMetadataManageService, useValue: bookMetadataManageService},
         {provide: ConfirmationService, useValue: confirmationService},
         {provide: MessageService, useValue: messageService},
@@ -132,26 +124,18 @@ describe('BookReviewsComponent', () => {
     TestBed.resetTestingModule();
   });
 
-  it('loads reviews on book changes, sorts them by date, and mirrors the current lock state', () => {
+  it('loads reviews on book changes and sorts them by date', () => {
     const undated = createReview(1, {date: undefined});
     const oldest = createReview(2, {date: '2026-03-02T12:00:00.000Z'});
     const newest = createReview(3, {date: '2026-03-03T12:00:00.000Z'});
     reviewService.getByBookId.mockReturnValue(of([oldest, undated, newest]));
-    bookService.findBookById.mockReturnValue({
-      metadata: {
-        reviewsLocked: true,
-      },
-    });
 
     component.ngOnChanges({
       bookId: new SimpleChange(undefined, 42, true),
     });
-    TestBed.flushEffects();
 
-    expect(bookService.findBookById).toHaveBeenCalledWith(42);
     expect(reviewService.getByBookId).toHaveBeenCalledWith(42);
     expect(component.reviews?.map(review => review.id)).toEqual([3, 2, 1]);
-    expect(component.reviewsLocked).toBe(true);
     expect(component.loading()).toBe(false);
   });
 

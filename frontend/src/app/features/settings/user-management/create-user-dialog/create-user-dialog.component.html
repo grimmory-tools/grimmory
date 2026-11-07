@@ -149,8 +149,7 @@
             optionLabel="name"
             display="chip"
             class="field-input"
-            appendTo="body">
-          </p-multiselect>
+            appendTo="body" />
           @if (userForm.get('selectedLibraries')?.invalid && (userForm.get('selectedLibraries')?.dirty || userForm.get('selectedLibraries')?.touched)) {
             <small class="field-error">
               <i class="pi pi-exclamation-circle"></i>
@@ -176,7 +175,7 @@
             </h4>
             <div class="permission-group-items">
               <div class="permission-item">
-                <p-checkbox formControlName="permissionUpload" [binary]="true" inputId="perm-upload"></p-checkbox>
+                <p-checkbox formControlName="permissionUpload" [binary]="true" inputId="perm-upload" />
                 <label for="perm-upload" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-upload permission-icon"></i>
@@ -186,7 +185,7 @@
               </div>
 
               <div class="permission-item">
-                <p-checkbox formControlName="permissionDownload" [binary]="true" inputId="perm-download"></p-checkbox>
+                <p-checkbox formControlName="permissionDownload" [binary]="true" inputId="perm-download" />
                 <label for="perm-download" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-download permission-icon"></i>
@@ -196,7 +195,7 @@
               </div>
 
               <div class="permission-item">
-                <p-checkbox formControlName="permissionDeleteBook" [binary]="true" inputId="perm-delete"></p-checkbox>
+                <p-checkbox formControlName="permissionDeleteBook" [binary]="true" inputId="perm-delete" />
                 <label for="perm-delete" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-trash permission-icon"></i>
@@ -206,7 +205,7 @@
               </div>
 
               <div class="permission-item">
-                <p-checkbox formControlName="permissionEditMetadata" [binary]="true" inputId="perm-edit"></p-checkbox>
+                <p-checkbox formControlName="permissionEditMetadata" [binary]="true" inputId="perm-edit" />
                 <label for="perm-edit" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-pencil permission-icon"></i>
@@ -216,7 +215,7 @@
               </div>
 
               <div class="permission-item">
-                <p-checkbox formControlName="permissionManipulateLibrary" [binary]="true" inputId="perm-library"></p-checkbox>
+                <p-checkbox formControlName="permissionManipulateLibrary" [binary]="true" inputId="perm-library" />
                 <label for="perm-library" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-folder permission-icon"></i>
@@ -226,7 +225,7 @@
               </div>
 
               <div class="permission-item">
-                <p-checkbox formControlName="permissionEmailBook" [binary]="true" inputId="perm-email"></p-checkbox>
+                <p-checkbox formControlName="permissionEmailBook" [binary]="true" inputId="perm-email" />
                 <label for="perm-email" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-envelope permission-icon"></i>
@@ -244,7 +243,7 @@
             </h4>
             <div class="permission-group-items">
               <div class="permission-item">
-                <p-checkbox formControlName="permissionSyncKoreader" [binary]="true" inputId="perm-koreader"></p-checkbox>
+                <p-checkbox formControlName="permissionSyncKoreader" [binary]="true" inputId="perm-koreader" />
                 <label for="perm-koreader" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-sync permission-icon"></i>
@@ -254,7 +253,7 @@
               </div>
 
               <div class="permission-item">
-                <p-checkbox formControlName="permissionSyncKobo" [binary]="true" inputId="perm-kobo"></p-checkbox>
+                <p-checkbox formControlName="permissionSyncKobo" [binary]="true" inputId="perm-kobo" />
                 <label for="perm-kobo" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-tablet permission-icon"></i>
@@ -264,7 +263,7 @@
               </div>
 
               <div class="permission-item">
-                <p-checkbox formControlName="permissionAccessOpds" [binary]="true" inputId="perm-opds"></p-checkbox>
+                <p-checkbox formControlName="permissionAccessOpds" [binary]="true" inputId="perm-opds" />
                 <label for="perm-opds" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-globe permission-icon"></i>
@@ -282,7 +281,7 @@
             </h4>
             <div class="permission-group-items">
               <div class="permission-item">
-                <p-checkbox formControlName="permissionAccessBookdrop" [binary]="true" inputId="perm-bookdrop"></p-checkbox>
+                <p-checkbox formControlName="permissionAccessBookdrop" [binary]="true" inputId="perm-bookdrop" />
                 <label for="perm-bookdrop" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-cloud-upload permission-icon"></i>
@@ -292,7 +291,7 @@
               </div>
 
               <div class="permission-item">
-                <p-checkbox formControlName="permissionAccessLibraryStats" [binary]="true" inputId="perm-library-stats"></p-checkbox>
+                <p-checkbox formControlName="permissionAccessLibraryStats" [binary]="true" inputId="perm-library-stats" />
                 <label for="perm-library-stats" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-chart-bar permission-icon"></i>
@@ -302,7 +301,7 @@
               </div>
 
               <div class="permission-item">
-                <p-checkbox formControlName="permissionAccessUserStats" [binary]="true" inputId="perm-user-stats"></p-checkbox>
+                <p-checkbox formControlName="permissionAccessUserStats" [binary]="true" inputId="perm-user-stats" />
                 <label for="perm-user-stats" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-chart-line permission-icon"></i>
@@ -320,7 +319,7 @@
             </h4>
             <div class="permission-group-items">
               <div class="permission-item">
-                <p-checkbox formControlName="permissionManageMetadataConfig" [binary]="true" inputId="perm-metadata-config"></p-checkbox>
+                <p-checkbox formControlName="permissionManageMetadataConfig" [binary]="true" inputId="perm-metadata-config" />
                 <label for="perm-metadata-config" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-cog permission-icon"></i>
@@ -330,7 +329,7 @@
               </div>
 
               <div class="permission-item">
-                <p-checkbox formControlName="permissionManageGlobalPreferences" [binary]="true" inputId="perm-global-prefs"></p-checkbox>
+                <p-checkbox formControlName="permissionManageGlobalPreferences" [binary]="true" inputId="perm-global-prefs" />
                 <label for="perm-global-prefs" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-sliders-h permission-icon"></i>
@@ -340,7 +339,7 @@
               </div>
 
               <div class="permission-item">
-                <p-checkbox formControlName="permissionAccessTaskManager" [binary]="true" inputId="perm-task-manager"></p-checkbox>
+                <p-checkbox formControlName="permissionAccessTaskManager" [binary]="true" inputId="perm-task-manager" />
                 <label for="perm-task-manager" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-list-check permission-icon"></i>
@@ -350,7 +349,7 @@
               </div>
 
               <div class="permission-item">
-                <p-checkbox formControlName="permissionManageIcons" [binary]="true" inputId="perm-icons"></p-checkbox>
+                <p-checkbox formControlName="permissionManageIcons" [binary]="true" inputId="perm-icons" />
                 <label for="perm-icons" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-images permission-icon"></i>
@@ -359,7 +358,7 @@
                 </label>
               </div>
               <div class="permission-item">
-                <p-checkbox formControlName="permissionManageFonts" [binary]="true" inputId="perm-fonts"></p-checkbox>
+                <p-checkbox formControlName="permissionManageFonts" [binary]="true" inputId="perm-fonts" />
                 <label for="perm-fonts" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-palette permission-icon"></i>
@@ -377,7 +376,7 @@
             </h4>
             <div class="permission-group-items">
               <div class="permission-item">
-                <p-checkbox formControlName="permissionBulkAutoFetchMetadata" [binary]="true" inputId="perm-bulk-auto-fetch"></p-checkbox>
+                <p-checkbox formControlName="permissionBulkAutoFetchMetadata" [binary]="true" inputId="perm-bulk-auto-fetch" />
                 <label for="perm-bulk-auto-fetch" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-sync permission-icon"></i>
@@ -386,7 +385,7 @@
                 </label>
               </div>
               <div class="permission-item">
-                <p-checkbox formControlName="permissionBulkCustomFetchMetadata" [binary]="true" inputId="perm-bulk-custom-fetch"></p-checkbox>
+                <p-checkbox formControlName="permissionBulkCustomFetchMetadata" [binary]="true" inputId="perm-bulk-custom-fetch" />
                 <label for="perm-bulk-custom-fetch" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-cog permission-icon"></i>
@@ -395,7 +394,7 @@
                 </label>
               </div>
               <div class="permission-item">
-                <p-checkbox formControlName="permissionBulkEditMetadata" [binary]="true" inputId="perm-bulk-edit-metadata"></p-checkbox>
+                <p-checkbox formControlName="permissionBulkEditMetadata" [binary]="true" inputId="perm-bulk-edit-metadata" />
                 <label for="perm-bulk-edit-metadata" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-pencil permission-icon"></i>
@@ -404,7 +403,7 @@
                 </label>
               </div>
               <div class="permission-item">
-                <p-checkbox formControlName="permissionBulkRegenerateCover" [binary]="true" inputId="perm-bulk-regenerate-cover"></p-checkbox>
+                <p-checkbox formControlName="permissionBulkRegenerateCover" [binary]="true" inputId="perm-bulk-regenerate-cover" />
                 <label for="perm-bulk-regenerate-cover" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-image permission-icon"></i>
@@ -413,7 +412,7 @@
                 </label>
               </div>
               <div class="permission-item">
-                <p-checkbox formControlName="permissionMoveOrganizeFiles" [binary]="true" inputId="perm-move-organize-files"></p-checkbox>
+                <p-checkbox formControlName="permissionMoveOrganizeFiles" [binary]="true" inputId="perm-move-organize-files" />
                 <label for="perm-move-organize-files" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-folder-open permission-icon"></i>
@@ -422,7 +421,7 @@
                 </label>
               </div>
               <div class="permission-item">
-                <p-checkbox formControlName="permissionBulkLockUnlockMetadata" [binary]="true" inputId="perm-bulk-lock-unlock"></p-checkbox>
+                <p-checkbox formControlName="permissionBulkLockUnlockMetadata" [binary]="true" inputId="perm-bulk-lock-unlock" />
                 <label for="perm-bulk-lock-unlock" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-lock-open permission-icon"></i>
@@ -440,7 +439,7 @@
             </h4>
             <div class="permission-group-items">
               <div class="permission-item">
-                <p-checkbox formControlName="permissionBulkResetGrimmoryReadProgress" [binary]="true" inputId="perm-bulk-reset-grimmory"></p-checkbox>
+                <p-checkbox formControlName="permissionBulkResetGrimmoryReadProgress" [binary]="true" inputId="perm-bulk-reset-grimmory" />
                 <label for="perm-bulk-reset-grimmory" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-history permission-icon"></i>
@@ -449,7 +448,7 @@
                 </label>
               </div>
               <div class="permission-item">
-                <p-checkbox formControlName="permissionBulkResetKoReaderReadProgress" [binary]="true" inputId="perm-bulk-reset-koreader"></p-checkbox>
+                <p-checkbox formControlName="permissionBulkResetKoReaderReadProgress" [binary]="true" inputId="perm-bulk-reset-koreader" />
                 <label for="perm-bulk-reset-koreader" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-tablet permission-icon"></i>
@@ -458,7 +457,7 @@
                 </label>
               </div>
               <div class="permission-item">
-                <p-checkbox formControlName="permissionBulkResetBookReadStatus" [binary]="true" inputId="perm-bulk-reset-read-status"></p-checkbox>
+                <p-checkbox formControlName="permissionBulkResetBookReadStatus" [binary]="true" inputId="perm-bulk-reset-read-status" />
                 <label for="perm-bulk-reset-read-status" class="permission-label">
                   <div class="permission-icon-wrapper">
                     <i class="pi pi-check-square permission-icon"></i>
@@ -476,7 +475,7 @@
             </h4>
             <div class="permission-group-items">
               <div class="permission-item admin-permission">
-                <p-checkbox formControlName="permissionAdmin" [binary]="true" inputId="perm-admin"></p-checkbox>
+                <p-checkbox formControlName="permissionAdmin" [binary]="true" inputId="perm-admin" />
                 <label for="perm-admin" class="permission-label">
                   <div class="permission-icon-wrapper admin-icon">
                     <i class="pi pi-shield permission-icon"></i>

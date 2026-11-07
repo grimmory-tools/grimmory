@@ -30,20 +30,18 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
   styleUrls: ['./koreader-settings-component.scss']
 })
 export class KoreaderSettingsComponent {
-  editMode = signal(true);
-  showPassword = signal(false);
-  koReaderSyncEnabled = signal(false);
-  syncWithWebReader = signal(false);
-  koReaderUsername = signal('');
-  koReaderPassword = signal('');
-  credentialsSaved = signal(false);
-  readonly koreaderEndpoint = `${window.location.origin}/api/koreader`;
-
   private readonly messageService = inject(MessageService);
   private readonly koreaderService = inject(KoreaderService);
   private readonly userService = inject(UserService);
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
+  readonly editMode = signal(true);
+  readonly showPassword = signal(false);
+  readonly koReaderSyncEnabled = signal(false);
+  readonly koReaderUsername = signal('');
+  readonly koReaderPassword = signal('');
+  readonly credentialsSaved = signal(false);
+  readonly koreaderEndpoint = `${window.location.origin}/api/koreader`;
 
   readonly hasPermission = computed(() => {
     const user = this.userService.currentUser();
@@ -75,7 +73,6 @@ export class KoreaderSettingsComponent {
         this.koReaderUsername.set(koreaderUser.username);
         this.koReaderPassword.set(koreaderUser.password);
         this.koReaderSyncEnabled.set(koreaderUser.syncEnabled);
-        this.syncWithWebReader.set(koreaderUser.syncWithWebReader ?? false);
         this.credentialsSaved.set(true);
       },
       error: err => {
@@ -115,31 +112,6 @@ export class KoreaderSettingsComponent {
     });
   }
 
-  onToggleSyncWithWebReader(enabled: boolean) {
-    const previousSyncWithWebReader = this.syncWithWebReader();
-    this.syncWithWebReader.set(enabled);
-    this.koreaderService.toggleSyncProgressWithWebReader(enabled).pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe({
-      next: () => {
-        this.syncWithWebReader.set(enabled);
-        this.messageService.add({
-          severity: 'success',
-          summary: this.t.translate('settingsDevice.koreader.syncUpdated'),
-          detail: enabled ? this.t.translate('settingsDevice.koreader.grimmoryReaderEnabled') : this.t.translate('settingsDevice.koreader.grimmoryReaderDisabled')
-        });
-      },
-      error: () => {
-        this.syncWithWebReader.set(previousSyncWithWebReader);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.t.translate('settingsDevice.koreader.syncUpdateFailed'),
-          detail: this.t.translate('settingsDevice.koreader.grimmoryReaderError')
-        });
-      }
-    });
-  }
-
   toggleShowPassword() {
     this.showPassword.update(showPassword => !showPassword);
   }
@@ -169,7 +141,7 @@ export class KoreaderSettingsComponent {
         summary: this.t.translate('settingsDevice.copied'),
         detail: this.t.translate('settingsDevice.copiedDetail', {label})
       });
-    }).catch(err => {
+    }).catch((err: unknown) => {
       console.error('Copy failed', err);
       this.messageService.add({
         severity: 'error',

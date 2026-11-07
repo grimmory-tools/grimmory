@@ -30,12 +30,12 @@ jobs:
           ref: ${{ inputs.checkout_ref }}
 
       - name: Install just
-        uses: taiki-e/install-action@5bf6ce016fd2e72eefc647cbca1e4213f65955b8 # v2.87.5
+        uses: taiki-e/install-action@c509219cf42fba86913069efd0ade2458c59337b # v2.90.1
         with:
           tool: just
 
       - name: Set Up JDK 25
-        uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c # v6.0.0
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           java-version: '25'
           distribution: 'temurin'
@@ -64,14 +64,14 @@ jobs:
         continue-on-error: true
 
       - name: Publish Backend Test Results
-        uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2
+        uses: EnricoMi/publish-unit-test-result-action@7622c5bf3d112a72ab4fa3951c2aa5723d8ab92d # v2
         if: ${{ always() && inputs.publish_test_results }}
         with:
           files: backend/build/test-results/**/*.xml
           check_name: Backend Test Results
 
       - name: Upload Backend Test Reports
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: backend-test-reports
@@ -102,17 +102,16 @@ jobs:
           ref: ${{ inputs.checkout_ref }}
 
       - name: Install just
-        uses: taiki-e/install-action@5bf6ce016fd2e72eefc647cbca1e4213f65955b8 # v2.87.5
+        uses: taiki-e/install-action@c509219cf42fba86913069efd0ade2458c59337b # v2.90.1
         with:
           tool: just
 
-      - name: Set Up pnpm
-        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
-
-      - name: Set Up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v6
+      - name: Set Up pnpm and Node.js
+        uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
         with:
           node-version-file: .nvmrc
+          cache: true
+          install: false
 
       - name: Install Frontend Dependencies
         run: just ui install-ci
@@ -131,14 +130,14 @@ jobs:
         continue-on-error: true
 
       - name: Publish Frontend Test Results
-        uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2
+        uses: EnricoMi/publish-unit-test-result-action@7622c5bf3d112a72ab4fa3951c2aa5723d8ab92d # v2
         if: ${{ always() && inputs.publish_test_results }}
         with:
           files: frontend/test-results/vitest-results.xml
           check_name: Frontend Test Results
 
       - name: Upload Frontend Test Reports
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: frontend-test-reports

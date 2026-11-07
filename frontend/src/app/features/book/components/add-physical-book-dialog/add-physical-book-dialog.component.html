@@ -88,6 +88,9 @@
                 [pTooltip]="t('fetchMetadataTooltip')"
                 tooltipPosition="top"/>
             </div>
+            @if (metadataLookupMessage(); as message) {
+              <small role="status">{{ t(message) }}</small>
+            }
           </div>
         </div>
 
@@ -103,14 +106,12 @@
               [multiple]="true"
               [fluid]="true"
               [dropdown]="false"
-              [suggestions]="filteredAuthors"
+              appFacetSuggestions="author"
               [forceSelection]="false"
               [showClear]="false"
               [placeholder]="t('authorsPlaceholder')"
-              (completeMethod)="filterAuthors($event)"
               (onKeyUp)="onAutoCompleteKeyUp('authors', $event)"
-              (onSelect)="onAutoCompleteSelect('authors', $event)">
-            </p-autoComplete>
+              (onSelect)="onAutoCompleteSelect('authors', $event)" />
           </div>
         </div>
       </div>
@@ -189,8 +190,7 @@
           [(ngModel)]="pageCount"
           [useGrouping]="false"
           [placeholder]="t('pageCountPlaceholder')"
-          class="input-full">
-        </p-inputnumber>
+          class="input-full" />
       </div>
     </div>
 
@@ -208,14 +208,12 @@
           [multiple]="true"
           [fluid]="true"
           [dropdown]="false"
-          [suggestions]="filteredCategories"
+          appFacetSuggestions="genre"
           [forceSelection]="false"
           [showClear]="true"
           [placeholder]="t('categoriesPlaceholder')"
-          (completeMethod)="filterCategories($event)"
           (onKeyUp)="onAutoCompleteKeyUp('categories', $event)"
-          (onSelect)="onAutoCompleteSelect('categories', $event)">
-        </p-autoComplete>
+          (onSelect)="onAutoCompleteSelect('categories', $event)" />
       </div>
     </div>
   </div>

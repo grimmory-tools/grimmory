@@ -94,7 +94,7 @@ export class AppAutocompleteComponent extends AppAutocompleteBaseDirective imple
   protected readonly selectedLabel = computed(() => {
     const value = this.value();
     const committed = this.committedOption();
-    if (committed && committed.value === value) return committed.label;
+    if (committed?.value === value) return committed.label;
     return this.normalizedSuggestions().find((option) => option.value === value)?.label ?? value;
   });
 

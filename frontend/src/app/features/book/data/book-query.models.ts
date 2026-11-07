@@ -1,21 +1,19 @@
-import {InfiniteData} from '@tanstack/angular-query-experimental';
-
-import {BrowseFacetGroup, BrowsePage} from '../../../core/data/browse.models';
-import {BookSummary} from './book-response.models';
+import {BrowsePage} from '../../../core/data/browse.models';
+import {BookDetail, BookSummary} from './book-response.models';
 
 export type BookPage = BrowsePage<BookSummary>;
-export type BookFacetGroup = BrowseFacetGroup;
 
-export function flattenBookPages(
-  data: InfiniteData<BookPage> | undefined,
-): BookSummary[] {
-  const books = data?.pages.flatMap(page => page.content) ?? [];
-  const seen = new Set<number>();
-  return books.filter(book => {
-    if (seen.has(book.id)) {
-      return false;
-    }
-    seen.add(book.id);
-    return true;
-  });
+export interface BookDuplicateRequest {
+  readonly libraryId: number;
+  readonly matchByIsbn: boolean;
+  readonly matchByExternalId: boolean;
+  readonly matchByTitleAuthor: boolean;
+  readonly matchByDirectory: boolean;
+  readonly matchByFilename: boolean;
+}
+
+export interface BookDuplicateGroup {
+  readonly suggestedTargetBookId: number;
+  readonly matchReason: string;
+  readonly books: readonly BookDetail[];
 }

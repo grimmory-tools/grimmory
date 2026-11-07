@@ -71,7 +71,7 @@
                   [toggleMask]="true"
                   [fluid]="true"
                   autocomplete="current-password"
-                ></p-password>
+                />
               </div>
 
               <p-button
@@ -80,8 +80,7 @@
                 [label]="t('signIn')"
                 icon="pi pi-sign-in"
                 [disabled]="!loginForm.valid || !username || !password"
-                class="login-button">
-              </p-button>
+                class="login-button" />
 
               @if (oidcEnabled) {
                 <div class="divider">

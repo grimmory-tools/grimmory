@@ -1,5 +1,5 @@
 import {DOCUMENT, isPlatformBrowser} from '@angular/common';
-import {DestroyRef, inject, Injectable, PLATFORM_ID, signal} from '@angular/core';
+import {DestroyRef, inject, Service, PLATFORM_ID, signal} from '@angular/core';
 import {Chart, ChartConfiguration, registerables} from 'chart.js';
 import {ThemeService} from 'ng2-charts';
 
@@ -16,9 +16,7 @@ let cachedSignature = '';
 let cachedColors: StatsChartThemeColors | null = null;
 let chartDefaultsRegistered = false;
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class StatsChartThemeService {
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);

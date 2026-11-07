@@ -28,12 +28,12 @@ $transition-fast: 150ms ease;
 
 .sidebar {
   @include surface;
+  @include sidebar-edge(left, $sidebar-width);
 
   position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
-  width: $sidebar-width;
   display: flex;
   flex-direction: column;
   box-shadow: 12px 0 32px rgb(0 0 0 / 40%);

@@ -8,6 +8,7 @@ import reactor.core.publisher.Flux;
 import java.util.List;
 
 public interface BookParser {
+    boolean isEnabled();
 
     List<BookMetadata> fetchMetadata(Book book, FetchMetadataRequest fetchMetadataRequest);
 

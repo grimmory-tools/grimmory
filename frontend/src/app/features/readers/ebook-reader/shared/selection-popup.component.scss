@@ -7,6 +7,12 @@
   background: transparent;
 }
 
+@media (pointer: coarse) {
+  .popup-backdrop {
+    pointer-events: none;
+  }
+}
+
 .text-selection-popup {
   @include surface;
 

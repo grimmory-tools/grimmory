@@ -203,6 +203,7 @@ public class AppSettingService {
 
             Map<String, String> loadedSettings = appSettingsRepository.findAll()
                     .stream()
+                    .filter(e -> e.getVal() != null)
                     .collect(
                             Collectors.toMap(
                                     AppSettingEntity::getName,
@@ -465,6 +466,9 @@ public class AppSettingService {
                 .applebooksId(nullProvider)
                 .applebooksRating(nullProvider)
                 .applebooksReviewCount(nullProvider)
+                .doubanId(nullProvider)
+                .doubanRating(nullProvider)
+                .doubanReviewCount(nullProvider)
                 .moods(nullProvider)
                 .tags(nullProvider)
                 .build();
@@ -508,6 +512,9 @@ public class AppSettingService {
                 .applebooksId(true)
                 .applebooksRating(true)
                 .applebooksReviewCount(true)
+                .doubanId(true)
+                .doubanRating(true)
+                .doubanReviewCount(true)
                 .moods(true)
                 .tags(true)
                 .build();
@@ -661,6 +668,9 @@ public class AppSettingService {
         fields.setApplebooksId(true);
         fields.setApplebooksRating(true);
         fields.setApplebooksReviewCount(true);
+        fields.setDoubanId(true);
+        fields.setDoubanRating(true);
+        fields.setDoubanReviewCount(true);
         return fields;
     }
 }

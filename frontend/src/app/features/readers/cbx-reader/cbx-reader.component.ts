@@ -1,11 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, HostListener, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, HostListener, inject, OnDestroy, OnInit, signal, untracked, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { QueryClient } from '@tanstack/angular-query-experimental';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { forkJoin, from, Subject } from 'rxjs';
 import { debounceTime, map, switchMap, tap } from 'rxjs/operators';
 import { PageTitleService } from "../../../shared/service/page-title.service";
 import { CbxReaderService } from '../../book/service/cbx-reader.service';
 import { BookService } from '../../book/service/book.service';
+import { BookQueryService } from '../../book/data/book-query.service';
+import { type BookSortTerm } from '../../book/data/book-query-params';
 import { CbxBackgroundColor, CbxFitMode, CbxMagnifierLensSize, CbxMagnifierZoom, CbxPageSpread, CbxPageSplitOption, CbxPageViewMode, CbxScrollMode, CbxReadingDirection, CbxSlideshowInterval, UserService } from '../../settings/user-management/user.service';
 import { CbxPageDimensionService } from './core/cbx-page-dimension.service';
 import { CbxPageDimension } from './models/cbx-page-dimension.model';
@@ -40,7 +43,12 @@ import {
   writeStripWidthPercentPerBook
 } from './core/cbx-reader-storage';
 import {computeCbxSpreads, findCbxSpreadForPage} from './core/cbx-spread.util';
+import {isPageTurnSwipe} from './core/cbx-swipe.util';
+import {CBX_DOUBLE_TAP_ZOOM, CBX_MIN_ZOOM, CbxPageZoom, toPoint} from './core/cbx-page-zoom';
+import {isPrimaryButtonHeld} from '../../../shared/util/pointer-gestures';
+import {isTouchScreen, setupReaderEdges} from '../shared/reader-edges.util';
 
+const SERIES_SORT: readonly BookSortTerm[] = [{key: 'seriesNumber', direction: 'asc'}];
 
 @Component({
   selector: 'app-cbx-reader',
@@ -80,161 +88,177 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private static readonly AUTO_CLOSE_MENU_TIMEOUT = 3000;
   /** Max pages kept in DOM for infinite scroll; pages outside this window are removed. */
   private static readonly INFINITE_SCROLL_MAX_DOM_PAGES = 18;
+  private static readonly DRAG_THRESHOLD_PX = 5;
+  private static readonly DRAG_CLICK_SUPPRESS_MS = 300;
+  /** Mouse events this soon after a touch are the browser's emulated ones and are ignored. */
+  private static readonly TOUCH_MOUSE_EMULATION_MS = 800;
 
   private readonly destroyRef = inject(DestroyRef);
-  private progressSaveSubject$ = new Subject<void>();
+  private readonly hostRef = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly cbxReaderService = inject(CbxReaderService);
+  private readonly bookService = inject(BookService);
+  private readonly bookQuery = inject(BookQueryService);
+  private readonly queryClient = inject(QueryClient);
+  private readonly userService = inject(UserService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
+  private readonly pageTitle = inject(PageTitleService);
+  private readonly readingSessionService = inject(ReadingSessionService);
+  private readonly headerService = inject(CbxHeaderService);
+  private readonly sidebarService = inject(CbxSidebarService);
+  private readonly footerService = inject(CbxFooterService);
+  private readonly quickSettingsService = inject(CbxQuickSettingsService);
+  private readonly pageDimensionService = inject(CbxPageDimensionService);
+  private readonly wakeLockService = inject(WakeLockService);
+  private readonly readerPreferencesService = inject(ReaderPreferencesService);
+  private readonly progressSaveSubject$ = new Subject<void>();
 
-  bookType = signal<BookType | null>(null);
-  bookId = signal<number | null>(null);
-  bookFileId = signal<number | null>(null);
-  altBookType = signal<string | undefined>(undefined);
-  pages = signal<number[]>([]);
-  currentPage = signal(0);
-  isLoading = signal(true);
+  readonly bookType = signal<BookType | null>(null);
+  readonly bookId = signal<number | null>(null);
+  readonly bookFileId = signal<number | null>(null);
+  readonly altBookType = signal<string | undefined>(undefined);
+  readonly pages = signal<number[]>([]);
+  readonly currentPage = signal(0);
+  readonly isLoading = signal(true);
 
-  pageSpread = signal<CbxPageSpread>(CbxPageSpread.EVEN);
-  pageViewMode = signal<CbxPageViewMode>(CbxPageViewMode.SINGLE_PAGE);
-  backgroundColor = signal<CbxBackgroundColor>(CbxBackgroundColor.GRAY);
-  fitMode = signal<CbxFitMode>(CbxFitMode.FIT_PAGE);
-  scrollMode = signal<CbxScrollMode>(CbxScrollMode.PAGINATED);
+  readonly pageSpread = signal<CbxPageSpread>(CbxPageSpread.EVEN);
+  readonly pageViewMode = signal<CbxPageViewMode>(CbxPageViewMode.SINGLE_PAGE);
+  readonly backgroundColor = signal<CbxBackgroundColor>(CbxBackgroundColor.GRAY);
+  readonly fitMode = signal<CbxFitMode>(CbxFitMode.FIT_PAGE);
+  readonly scrollMode = signal<CbxScrollMode>(CbxScrollMode.PAGINATED);
 
   private touchStartX = 0;
-  private touchEndX = 0;
+  private touchStartY = 0;
+  private touchStartScrollLeft = 0;
+  private lastTouchTime = 0;
 
-  currentBook = signal<Book | null>(null);
-  nextBookInSeries = signal<Book | null>(null);
-  previousBookInSeries = signal<Book | null>(null);
+  // Mouse drag-to-pan
+  private mouseDrag: {startX: number; startY: number; lastX: number; lastY: number; moved: boolean} | null = null;
+  /** performance.now() deadline; clicks before it end a drag. */
+  private suppressClicksUntil = 0;
 
-  infiniteScrollPages = signal<number[]>([]);
+  readonly currentBook = signal<Book | null>(null);
+  readonly nextBookInSeries = signal<Book | null>(null);
+  readonly previousBookInSeries = signal<Book | null>(null);
+
+  readonly infiniteScrollPages = signal<number[]>([]);
   preloadCount: number = CbxReaderComponent.PRELOAD_PAGE_WINDOW;
   /** True while a chunk of pages is being prepended/appended (does not block scroll UX). */
-  isLoadingMore = signal(false);
+  readonly isLoadingMore = signal(false);
   private infiniteScrollPageDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   // Long-strip state (Kavita-inspired webtoon reader)
-  longStripImages = signal<{ src: string; page: number }[]>([]);
-  private longStripLoadedPages = new Set<number>();
+  readonly longStripImages = signal<{ src: string; page: number }[]>([]);
+  private readonly longStripLoadedPages = new Set<number>();
   private longStripIntersectionObserver: IntersectionObserver | null = null;
   private longStripScrollHandler: (() => void) | null = null;
   private longStripScrollEndHandler: (() => void) | null = null;
   private longStripScrollDebounceTimer: ReturnType<typeof setTimeout> | null = null;
   private longStripScrollEndDebounceTimer: ReturnType<typeof setTimeout> | null = null;
-  private longStripIsScrolling = signal(false);
-  private longStripAllImagesLoaded = signal(false);
-  private longStripInitFinished = signal(false);
+  private readonly longStripIsScrolling = signal(false);
+  private readonly longStripAllImagesLoaded = signal(false);
+  private readonly longStripInitFinished = signal(false);
   private longStripPrevScrollTop = 0;
 
-  private preloadedImages = new Map<string, HTMLImageElement>();
-  previousImageUrls = signal<string[]>([]);
-  currentImageUrls = signal<string[]>([]);
-  isPageTransitioning = signal(false);
-  imagesLoaded = signal(false);
+  private readonly preloadedImages = new Map<string, HTMLImageElement>();
+  readonly previousImageUrls = signal<string[]>([]);
+  readonly currentImageUrls = signal<string[]>([]);
+  readonly isPageTransitioning = signal(false);
+  readonly imagesLoaded = signal(false);
 
   private visibilityManager!: ReaderHeaderFooterVisibilityManager;
 
-  isCurrentPageBookmarked = signal(false);
-  currentPageHasNotes = signal(false);
-  showNoteDialog = signal(false);
-  noteDialogData = signal<CbxNoteDialogData | null>(null);
-  private editingNote = signal<BookNoteV2 | null>(null);
+  readonly isCurrentPageBookmarked = signal(false);
+  readonly currentPageHasNotes = signal(false);
+  readonly showNoteDialog = signal(false);
+  readonly noteDialogData = signal<CbxNoteDialogData | null>(null);
+  private readonly editingNote = signal<BookNoteV2 | null>(null);
 
   // Fullscreen state
-  isFullscreen = signal(false);
+  readonly isFullscreen = signal(false);
 
   // Reading direction
-  readingDirection = signal<CbxReadingDirection>(CbxReadingDirection.LTR);
+  readonly readingDirection = signal<CbxReadingDirection>(CbxReadingDirection.LTR);
 
   // Slideshow state
-  isSlideshowActive = signal(false);
-  slideshowInterval = signal<CbxSlideshowInterval>(CbxSlideshowInterval.FIVE_SECONDS);
+  readonly isSlideshowActive = signal(false);
+  readonly slideshowInterval = signal<CbxSlideshowInterval>(CbxSlideshowInterval.FIVE_SECONDS);
   private slideshowTimer: ReturnType<typeof setInterval> | null = null;
 
   // Double-tap zoom
-  private lastTapTime = 0;
+  private readonly lastTapTime = 0;
+  /** Infinite scroll: fit mode to restore on the next double-tap. */
   private originalFitMode: CbxFitMode | null = null;
+  /** Paginated: transient zoom at the tap point. */
+  private readonly pageZoom = new CbxPageZoom(() => this.getImageScrollContainer());
+  private lastWindowWidth = window.innerWidth;
 
   // Shortcuts help dialog
-  showShortcutsHelp = signal(false);
+  readonly showShortcutsHelp = signal(false);
 
   // Magnifier
-  isMagnifierActive = signal(false);
-  private magnifierLensRef = viewChild<ElementRef<HTMLDivElement>>('magnifierLens');
-  private readerRootRef = viewChild<ElementRef<HTMLElement>>('readerRoot');
-  private imageScrollHostRef = viewChild<ElementRef<HTMLElement>>('imageScrollHost');
-  magnifierZoom = signal<CbxMagnifierZoom>(CbxMagnifierZoom.ZOOM_3X);
-  magnifierLensSize = signal<CbxMagnifierLensSize>(CbxMagnifierLensSize.MEDIUM);
+  readonly isMagnifierActive = signal(false);
+  private readonly magnifierLensRef = viewChild<ElementRef<HTMLDivElement>>('magnifierLens');
+  private readonly imageScrollHostRef = viewChild<ElementRef<HTMLElement>>('imageScrollHost');
+  readonly magnifierZoom = signal<CbxMagnifierZoom>(CbxMagnifierZoom.ZOOM_3X);
+  readonly magnifierLensSize = signal<CbxMagnifierLensSize>(CbxMagnifierLensSize.MEDIUM);
   private lastMouseEvent: MouseEvent | null = null;
 
   // Page split option for wide pages
-  pageSplitOption = signal<CbxPageSplitOption>(CbxPageSplitOption.NO_SPLIT);
+  readonly pageSplitOption = signal<CbxPageSplitOption>(CbxPageSplitOption.NO_SPLIT);
 
   // Brightness filter (0-100, default 100)
-  brightness = signal(100);
+  readonly brightness = signal(100);
 
   /** 50–100: max width of strip column (infinite / long strip). */
-  stripMaxWidthPercent = signal(100);
+  readonly stripMaxWidthPercent = signal(100);
 
   /** Kavita-style hint when archive looks like vertical webtoon strips. */
-  showWebtoonSuggestion = signal(false);
+  readonly showWebtoonSuggestion = signal(false);
 
   /** Near bottom of strip + next in series: show subtle continuation hint. */
-  continuationHintVisible = signal(false);
+  readonly continuationHintVisible = signal(false);
 
-  private cbxSettingsUsesGlobal = signal(true);
-  private readerLayoutGraceUntilMs = signal(0);
+  private readonly cbxSettingsUsesGlobal = signal(true);
+  private readonly readerLayoutGraceUntilMs = signal(0);
   /** Invalidates delayed scroll/layout work after book or scroll-mode changes. */
-  private readerLayoutGeneration = signal(0);
+  private readonly readerLayoutGeneration = signal(0);
   /** Invalidates a pending loadMorePages() append whenever infiniteScrollPages is wholesale replaced
    *  (ensurePageLoaded, scroll-mode teardown/init) rather than appended-to in place. */
   private infiniteScrollWindowVersion = 0;
   /** Avoid continuation hint flicker when scroll height changes (hysteresis). */
-  private continuationHintLatched = signal(false);
+  private readonly continuationHintLatched = signal(false);
 
   // Emulate book mode (spine shadow in two-page view)
-  emulateBook = signal(false);
+  readonly emulateBook = signal(false);
 
   // Click-to-paginate overlay
-  clickToPaginate = signal(false);
+  readonly clickToPaginate = signal(false);
 
   // Auto-close menu after interaction
-  autoCloseMenu = signal(false);
+  readonly autoCloseMenu = signal(false);
   private autoCloseMenuTimer: ReturnType<typeof setTimeout> | null = null;
 
   // Page dimensions from backend
-  pageDimensions = signal<CbxPageDimension[]>([]);
+  readonly pageDimensions = signal<CbxPageDimension[]>([]);
   // Double page detection (fallback cache for pages without backend dims)
-  private pageDimensionsCache = new Map<number, { width: number, height: number }>();
+  private readonly pageDimensionsCache = new Map<number, { width: number, height: number }>();
 
   // Swipe double-action prevention
-  private hasHitRightScroll = signal(false);
-  private hasHitZeroScroll = signal(false);
+  private readonly hasHitRightScroll = signal(false);
+  private readonly hasHitZeroScroll = signal(false);
   private touchMoveCount = 0;
 
   // Canvas split state
-  canvasSplitState = signal<'NO_SPLIT' | 'LEFT_PART' | 'RIGHT_PART'>('NO_SPLIT');
+  readonly canvasSplitState = signal<'NO_SPLIT' | 'LEFT_PART' | 'RIGHT_PART'>('NO_SPLIT');
 
   protected readonly CbxReadingDirection = CbxReadingDirection;
   protected readonly CbxSlideshowInterval = CbxSlideshowInterval;
   protected readonly CbxPageSplitOption = CbxPageSplitOption;
-
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private cbxReaderService = inject(CbxReaderService);
-  private bookService = inject(BookService);
-  private userService = inject(UserService);
-  private messageService = inject(MessageService);
-  private readonly t = inject(TranslocoService);
-  private pageTitle = inject(PageTitleService);
-  private readingSessionService = inject(ReadingSessionService);
-  private headerService = inject(CbxHeaderService);
-  private sidebarService = inject(CbxSidebarService);
-  private footerService = inject(CbxFooterService);
-  private quickSettingsService = inject(CbxQuickSettingsService);
   /** Template reads this signal so strip width tracks the slider (same source as quick settings panel). */
   protected readonly cbxQuickSettingsState = this.quickSettingsService.state;
-  private pageDimensionService = inject(CbxPageDimensionService);
-  private wakeLockService = inject(WakeLockService);
-  private readerPreferencesService = inject(ReaderPreferencesService);
 
   protected readonly CbxScrollMode = CbxScrollMode;
   protected readonly CbxFitMode = CbxFitMode;
@@ -245,18 +269,34 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private static readonly TYPE_CBX = 'CBX';
   private static readonly SETTING_GLOBAL = 'Global';
 
-  isTwoPageView = computed(() => this.pageViewMode() === this.CbxPageViewMode.TWO_PAGE);
+  readonly isTwoPageView = computed(() => this.pageViewMode() === this.CbxPageViewMode.TWO_PAGE);
 
-  hasSeries = computed(() => !!this.currentBook()?.metadata?.seriesName);
+  readonly hasSeries = computed(() => !!this.currentBook()?.metadata?.seriesName);
 
-  isFooterVisible = computed(() => this.footerService.forceVisible());
+  readonly isFooterVisible = computed(() => this.footerService.forceVisible());
 
-  showQuickSettings = computed(() => this.quickSettingsService.visible());
+  private static readonly PAGE_COLORS: Record<CbxBackgroundColor, string> = {
+    [CbxBackgroundColor.BLACK]: '#000',
+    [CbxBackgroundColor.GRAY]: '#0f0f0f',
+    [CbxBackgroundColor.WHITE]: '#fff',
+  };
 
-  isAtLastPage = computed(() => this.currentPage() >= this.pages().length - 1);
+  readonly pageColor = computed(() => CbxReaderComponent.PAGE_COLORS[this.backgroundColor()]);
+
+  readonly stripColor = computed(() => this.brightness() < 100
+    ? `color-mix(in srgb, ${this.pageColor()} ${this.brightness()}%, black)`
+    : this.pageColor());
+
+  readonly topBarColor = computed(() => this.headerService.forceVisible() ? 'var(--reader-chrome-bg)' : this.stripColor());
+
+  readonly bottomBarColor = computed(() => this.isFooterVisible() ? 'var(--reader-chrome-bg)' : this.stripColor());
+
+  readonly showQuickSettings = computed(() => this.quickSettingsService.visible());
+
+  readonly isAtLastPage = computed(() => this.currentPage() >= this.pages().length - 1);
 
   /** Last loaded long-strip page is the archive's final page (show next-book CTA when in series). */
-  isAtEndOfLongStrip = computed(() => {
+  readonly isAtEndOfLongStrip = computed(() => {
     const images = this.longStripImages();
     if (images.length === 0) return false;
     const last = images[images.length - 1];
@@ -264,7 +304,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   });
 
   /** Last loaded infinite-scroll index is the archive's final page (show next-book CTA when in series). */
-  isAtEndOfInfiniteScroll = computed(() => {
+  readonly isAtEndOfInfiniteScroll = computed(() => {
     const pages = this.infiniteScrollPages();
     if (pages.length === 0) return false;
     const lastIdx = pages[pages.length - 1];
@@ -288,6 +328,8 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   }
 
   constructor() {
+    setupReaderEdges(this.stripColor);
+
     effect(() => {
       this.sidebarService.bookmarks();
       this.updateBookmarkState();
@@ -297,10 +339,48 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       this.sidebarService.notes();
       this.updateNotesState();
     });
+
+    // Capture phase: swallow the click that ends a mouse drag on the page (not toolbar clicks).
+    const suppressDragClick = (event: MouseEvent) => {
+      if (performance.now() < this.suppressClicksUntil && this.isOnPage(event.target)) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+    };
+    const host = this.hostRef.nativeElement;
+    host.addEventListener('click', suppressDragClick, true);
+    this.destroyRef.onDestroy(() => host.removeEventListener('click', suppressDragClick, true));
+
+    // Page, layout and magnifier changes can make the page draggable (or not) without a mouse move.
+    effect(() => {
+      this.currentPage();
+      this.fitMode();
+      this.scrollMode();
+      this.pageViewMode();
+      this.imagesLoaded();
+      this.isMagnifierActive();
+      this.afterNextPaint(() => this.refreshPanCursor());
+    });
+
+    // Zoom is per page: drop it on page turn, when the shown images change (a slow page turn
+    // swaps them after currentPage) and whenever the page layout changes.
+    effect(() => {
+      this.bookId();
+      this.currentPage();
+      this.currentImageUrls();
+      this.fitMode();
+      this.scrollMode();
+      this.pageViewMode();
+      this.pageSpread();
+      untracked(() => {
+        this.pageZoom.reset();
+        this.afterNextPaint(() => this.refreshPanCursor());
+      });
+    });
   }
 
   ngOnInit() {
-    this.visibilityManager = new ReaderHeaderFooterVisibilityManager(window.innerHeight);
+    this.visibilityManager = new ReaderHeaderFooterVisibilityManager(window.innerHeight, !isTouchScreen());
     this.visibilityManager.onStateChange((state) => {
       this.headerService.setForceVisible(state.headerVisible);
       this.footerService.setForceVisible(state.footerVisible);
@@ -386,8 +466,9 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
         // For now, keeping this.destroy$ as a Subject if it's still needed for sub-initializations, but I'll check sidebarService.
         this.sidebarService.initialize(this.bookId()!, book, this.altBookType());
 
-        if (book.metadata?.seriesName) {
-          this.loadSeriesNavigation(book);
+        const seriesName = book.metadata?.seriesName;
+        if (seriesName) {
+          this.loadSeriesNavigation(book, seriesName);
         }
 
         this.pages.set(pages);
@@ -641,12 +722,12 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     this.quickSettingsService.stripMaxWidthChange$
       .pipe(
         tap((value) => {
-          this.stripMaxWidthPercent.set(value as number);
+          this.stripMaxWidthPercent.set(value);
         }),
         debounceTime(CbxReaderComponent.STRIP_WIDTH_PERSIST_DEBOUNCE_MS),
         takeUntilDestroyed(this.destroyRef)
       )
-      .subscribe((value) => this.persistStripMaxWidth(value as number));
+      .subscribe((value) => this.persistStripMaxWidth(value));
   }
 
   private updateServiceStates(): void {
@@ -1866,14 +1947,16 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   @HostListener('document:fullscreenchange')
   onFullscreenChange(): void {
-    const target = this.readerRootRef()?.nativeElement ?? document.documentElement;
-    this.isFullscreen.set(document.fullscreenElement === target);
+    this.isFullscreen.set(!!document.fullscreenElement);
     this.headerService.updateState({ isFullscreen: this.isFullscreen(), isSlideshowActive: this.isSlideshowActive() });
   }
 
   @HostListener('touchstart', ['$event'])
   onTouchStart(event: TouchEvent) {
+    this.lastTouchTime = performance.now();
     this.touchStartX = event.changedTouches[0].screenX;
+    this.touchStartY = event.changedTouches[0].screenY;
+    this.touchStartScrollLeft = this.getImageScrollContainer()?.scrollLeft ?? 0;
     this.touchMoveCount = 0;
   }
 
@@ -1884,15 +1967,82 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   @HostListener('touchend', ['$event'])
   onTouchEnd(event: TouchEvent) {
-    this.touchEndX = event.changedTouches[0].screenX;
+    this.lastTouchTime = performance.now();
     // Filter tremor/jitter: ignore if fewer than 3 move events
     if (this.touchMoveCount >= 3) {
-      this.handleSwipeGesture();
+      this.handleSwipeGesture(event.changedTouches[0]);
     }
+  }
+
+  @HostListener('mousedown', ['$event'])
+  onMouseDown(event: MouseEvent): void {
+    if (performance.now() - this.lastTouchTime < CbxReaderComponent.TOUCH_MOUSE_EMULATION_MS) return;
+    if (event.button !== 0 || this.isMagnifierActive() || !this.isOnPage(event.target)) return;
+    if (event.target instanceof Element && event.target.closest('button, a, input, select, textarea')) return;
+    if (!this.canPanPage()) return;
+
+    // Stops the browser's native image drag and text selection.
+    event.preventDefault();
+    this.mouseDrag = {startX: event.clientX, startY: event.clientY, lastX: event.clientX, lastY: event.clientY, moved: false};
+    this.getImageScrollContainer()?.classList.add('is-dragging');
+  }
+
+  @HostListener('document:mouseup')
+  onMouseUp(): void {
+    if (!this.mouseDrag) return;
+    if (this.mouseDrag.moved) {
+      this.suppressClicksUntil = performance.now() + CbxReaderComponent.DRAG_CLICK_SUPPRESS_MS;
+    }
+    this.endMouseDrag();
+  }
+
+  private updateMouseDrag(event: MouseEvent): void {
+    const drag = this.mouseDrag;
+    if (!drag) return;
+    // The button was released where we never saw mouseup (e.g. focus left the window): drop the drag.
+    if (!isPrimaryButtonHeld(event)) {
+      this.endMouseDrag();
+      return;
+    }
+    const container = this.getImageScrollContainer();
+    if (container) {
+      container.scrollLeft -= event.clientX - drag.lastX;
+      container.scrollTop -= event.clientY - drag.lastY;
+    }
+    drag.lastX = event.clientX;
+    drag.lastY = event.clientY;
+    drag.moved ||= Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) > CbxReaderComponent.DRAG_THRESHOLD_PX;
+  }
+
+  private endMouseDrag(): void {
+    this.mouseDrag = null;
+    this.getImageScrollContainer()?.classList.remove('is-dragging');
+  }
+
+  /** Pan only starts on the page area, not header/footer/sidebar. */
+  private isOnPage(target: EventTarget | null): boolean {
+    return target instanceof Node && !!this.getImageScrollContainer()?.contains(target);
+  }
+
+  private canPanPage(): boolean {
+    const container = this.getImageScrollContainer();
+    return !!container && (
+      container.scrollWidth > container.clientWidth + 1 || container.scrollHeight > container.clientHeight + 1
+    );
+  }
+
+  private refreshPanCursor(): void {
+    this.getImageScrollContainer()?.classList.toggle('can-pan', !this.isMagnifierActive() && this.canPanPage());
   }
 
   @HostListener('window:resize')
   onResize() {
+    // Only width changes invalidate zoom (the mobile URL bar only resizes height).
+    if (window.innerWidth !== this.lastWindowWidth) {
+      this.lastWindowWidth = window.innerWidth;
+      this.pageZoom.reset();
+    }
+    this.refreshPanCursor();
     this.visibilityManager.updateWindowHeight(window.innerHeight);
     this.enforcePortraitSinglePageView();
   }
@@ -1900,6 +2050,11 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent): void {
     this.lastMouseEvent = event;
+    if (this.mouseDrag) {
+      this.updateMouseDrag(event);
+    } else {
+      this.refreshPanCursor();
+    }
     this.visibilityManager.handleMouseMove(event.clientY);
     if (this.isMagnifierActive()) {
       this.updateMagnifier(event);
@@ -1922,12 +2077,17 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     this.visibilityManager.setFooterHovered(hovered);
   }
 
-  private handleSwipeGesture() {
+  private handleSwipeGesture(touch: Touch) {
     if (this.scrollMode() === CbxScrollMode.INFINITE || this.scrollMode() === CbxScrollMode.LONG_STRIP) return;
 
-    const delta = this.touchEndX - this.touchStartX;
-    const threshold = Math.min(75, window.innerWidth * 0.1);
-    if (Math.abs(delta) < threshold) return;
+    const delta = touch.screenX - this.touchStartX;
+    const isSwipe = isPageTurnSwipe({
+      deltaX: delta,
+      deltaY: touch.screenY - this.touchStartY,
+      scrollDeltaX: (this.getImageScrollContainer()?.scrollLeft ?? 0) - this.touchStartScrollLeft,
+      threshold: Math.min(75, window.innerWidth * 0.1),
+    });
+    if (!isSwipe) return;
 
     const isRtl = this.readingDirection() === CbxReadingDirection.RTL;
     const shouldGoNext = isRtl ? delta > 0 : delta < 0;
@@ -1984,28 +2144,22 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  private loadSeriesNavigation(book: Book): void {
-    this.bookService.getBooksInSeries(book.id)
+  private loadSeriesNavigation(book: Book, seriesName: string): void {
+    from(this.findSeriesNeighbours(book.id, seriesName))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-      next: (seriesBooks) => {
+      next: (neighbours) => {
         if (this.currentBook()?.id !== book.id) {
           return;
         }
 
-        const sortedBySeriesNumber = this.sortBooksBySeriesNumber(seriesBooks);
-        const currentBookIndex = sortedBySeriesNumber.findIndex(b => b.id === book.id);
-
-        if (currentBookIndex === -1) {
+        if (!neighbours) {
           console.warn('[SeriesNav] Current book not found in series');
           return;
         }
 
-        const hasPreviousBook = currentBookIndex > 0;
-        const hasNextBook = currentBookIndex < sortedBySeriesNumber.length - 1;
-
-        this.previousBookInSeries.set(hasPreviousBook ? sortedBySeriesNumber[currentBookIndex - 1] : null);
-        this.nextBookInSeries.set(hasNextBook ? sortedBySeriesNumber[currentBookIndex + 1] : null);
+        this.previousBookInSeries.set(neighbours.previous);
+        this.nextBookInSeries.set(neighbours.next);
 
         this.footerService.setSeriesBooks(this.previousBookInSeries(), this.nextBookInSeries());
         this.footerService.setHasSeries(true);
@@ -2016,12 +2170,16 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     });
   }
 
-  private sortBooksBySeriesNumber(books: Book[]): Book[] {
-    return books.sort((bookA, bookB) => {
-      const seriesNumberA = bookA.metadata?.seriesNumber ?? Number.MAX_SAFE_INTEGER;
-      const seriesNumberB = bookB.metadata?.seriesNumber ?? Number.MAX_SAFE_INTEGER;
-      return seriesNumberA - seriesNumberB;
-    });
+  private async findSeriesNeighbours(bookId: number, seriesName: string): Promise<{previous: Book | null; next: Book | null} | null> {
+    const seriesIds = await this.queryClient.query(this.bookQuery.ids({facets: {series: {include: [seriesName], exclude: []}}, sort: SERIES_SORT}));
+    const index = seriesIds.indexOf(bookId);
+    if (index === -1) {
+      return null;
+    }
+
+    const loadBook = (id: number | undefined) => id === undefined ? Promise.resolve(null) : this.bookService.ensureBookDetail(id, false);
+    const [previous, next] = await Promise.all([loadBook(seriesIds[index - 1]), loadBook(seriesIds[index + 1])]);
+    return {previous, next};
   }
 
   getBookDisplayTitle(book: Book | null): string {
@@ -2050,7 +2208,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   }
 
   private enterFullscreen(): void {
-    const elem = this.readerRootRef()?.nativeElement ?? document.documentElement;
+    const elem = document.documentElement;
     if (elem.requestFullscreen) {
       void elem.requestFullscreen().catch(() => undefined);
     }
@@ -2146,32 +2304,38 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private cycleMagnifierZoom(direction: 1 | -1): void {
     const values = Object.values(CbxMagnifierZoom).filter(v => typeof v === 'number') as number[];
     values.sort((a, b) => a - b);
-    const currentIndex = values.indexOf(this.magnifierZoom() as number);
+    const currentIndex = values.indexOf(this.magnifierZoom());
     const newIndex = currentIndex + direction;
     if (newIndex >= 0 && newIndex < values.length) {
-      this.onMagnifierZoomChange(values[newIndex] as CbxMagnifierZoom);
+      this.onMagnifierZoomChange(values[newIndex]);
     }
   }
 
   private cycleMagnifierLensSize(direction: 1 | -1): void {
     const values = Object.values(CbxMagnifierLensSize).filter(v => typeof v === 'number') as number[];
     values.sort((a, b) => a - b);
-    const currentIndex = values.indexOf(this.magnifierLensSize() as number);
+    const currentIndex = values.indexOf(this.magnifierLensSize());
     const newIndex = currentIndex + direction;
     if (newIndex >= 0 && newIndex < values.length) {
-      this.onMagnifierLensSizeChange(values[newIndex] as CbxMagnifierLensSize);
+      this.onMagnifierLensSizeChange(values[newIndex]);
     }
   }
 
   // Double-tap zoom
-  onImageDoubleClick(): void {
+  onImageDoubleClick(event: MouseEvent): void {
+    if (this.scrollMode() === CbxScrollMode.PAGINATED) {
+      // Zooms where you tapped without touching the saved fit mode; again returns to fit.
+      this.pageZoom.zoomTo(this.pageZoom.isZoomed ? CBX_MIN_ZOOM : CBX_DOUBLE_TAP_ZOOM, toPoint(event));
+      this.refreshPanCursor();
+      return;
+    }
     if (this.originalFitMode === null) {
       // Store current fit mode and switch to actual size
       this.originalFitMode = this.fitMode();
       this.onFitModeChange(CbxFitMode.ACTUAL_SIZE);
     } else {
       // Restore original fit mode
-      this.onFitModeChange(this.originalFitMode as CbxFitMode);
+      this.onFitModeChange(this.originalFitMode);
       this.originalFitMode = null;
     }
   }

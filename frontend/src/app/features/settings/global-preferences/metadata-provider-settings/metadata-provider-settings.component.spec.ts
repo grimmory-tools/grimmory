@@ -8,6 +8,9 @@ import {MessageService} from '@openng/optimus-ui/api';
 import {getTranslocoModule} from '../../../../core/testing/transloco-testing';
 import {type AppSettings, AppSettingKey} from '../../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
+import {MetadataCatalogService} from '../../../../shared/metadata/metadata-catalog.service';
+import {METADATA_PROVIDER_LIST} from '../../../../shared/metadata/metadata-providers';
+import {MetadataSourceQueryService} from '../../../metadata/sources/metadata-source-query.service';
 import {MetadataProviderSettingsComponent} from './metadata-provider-settings.component';
 
 describe('MetadataProviderSettingsComponent', () => {
@@ -15,14 +18,21 @@ describe('MetadataProviderSettingsComponent', () => {
   let component: MetadataProviderSettingsComponent;
   let appSettingsSignal: WritableSignal<AppSettings | null>;
   let saveSettings: ReturnType<typeof vi.fn>;
+  let refreshProviders: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     appSettingsSignal = signal<AppSettings | null>(null);
     saveSettings = vi.fn(() => of(void 0));
+    refreshProviders = vi.fn(() => Promise.resolve());
 
     await TestBed.configureTestingModule({
       imports: [MetadataProviderSettingsComponent, getTranslocoModule()],
       providers: [
+        {provide: MetadataCatalogService, useValue: {providers: () => METADATA_PROVIDER_LIST}},
+        {
+          provide: MetadataSourceQueryService,
+          useValue: {refreshProviders},
+        },
         {
           provide: AppSettingsService,
           useValue: {
@@ -43,24 +53,8 @@ describe('MetadataProviderSettingsComponent', () => {
     vi.restoreAllMocks();
   });
 
-  it('does not hydrate Google Books as enabled without an API key', () => {
-    appSettingsSignal.set(buildSettings({enabled: true, apiKey: ''}));
-    fixture.detectChanges();
-
-    expect(component.googleEnabled).toBe(false);
-    expect(component.googleApiKeyConfigured).toBe(false);
-  });
-
-  it('hydrates Google Books as enabled with an API key', () => {
-    appSettingsSignal.set(buildSettings({enabled: true, apiKey: 'valid-key'}));
-    fixture.detectChanges();
-
-    expect(component.googleEnabled).toBe(true);
-    expect(component.googleApiKeyConfigured).toBe(true);
-  });
-
   it('persists Google Books as enabled when an API key is configured', () => {
-    component.googleEnabled = true;
+    component.enabled.Google = true;
     component.googleApiKey = '  configured-key  ';
 
     component.saveSettings();
@@ -73,10 +67,12 @@ describe('MetadataProviderSettingsComponent', () => {
     });
   });
 
-  it('does not persist Google Books as enabled without an API key', () => {
-    component.googleEnabled = true;
-    component.googleApiKey = '';
+  it('switches a provider off when its required key is cleared', () => {
+    component.googleApiKey = 'configured-key';
+    component.enabled.Google = true;
 
+    component.googleApiKey = '';
+    component.onKeyChange('Google', '');
     component.saveSettings();
 
     expect(getSavedProviderSettings().google.enabled).toBe(false);
@@ -92,14 +88,3 @@ describe('MetadataProviderSettingsComponent', () => {
     return payload[0].newValue;
   }
 });
-
-function buildSettings(google: {enabled: boolean; apiKey: string}): AppSettings {
-  return {
-    metadataProviderSettings: {
-      google: {
-        ...google,
-        language: '',
-      },
-    },
-  } as AppSettings;
-}

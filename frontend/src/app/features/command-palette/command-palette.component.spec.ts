@@ -26,6 +26,7 @@ class MockCommandPaletteService {
   readonly isOpen = this._isOpen.asReadonly();
   readonly query = signal('');
   readonly isSearching = signal(false);
+  readonly bookSearchFailed = signal(false);
   readonly items = signal<PaletteItem[]>([]);
   readonly groups = computed<PaletteGroup[]>(() =>
     this.query().trim()

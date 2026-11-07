@@ -1,13 +1,15 @@
 import { signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { TranslocoTestingModule } from "@jsverse/transloco";
-import { Subject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
+import { RxStompState } from "@stomp/rx-stomp";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AppComponent } from "./app.component";
 import { AuthInitializationService } from "./core/security/auth-initialization-service";
 import { RxStompService } from "./shared/websocket/rx-stomp.service";
 import { BookService } from "./features/book/service/book.service";
+import { MetadataRefreshSubmissionService } from "./features/metadata/data/metadata-refresh-submission.service";
 import { NotificationEventService } from "./shared/websocket/notification-event.service";
 import { AppThemeService } from "./shared/service/app-theme.service";
 import { MetadataProgressService } from "./shared/service/metadata-progress.service";
@@ -31,15 +33,23 @@ describe("AppComponent", () => {
   let fixture: ComponentFixture<AppComponent>;
   let component: AppComponent;
   let topics: Map<string, Subject<StompMessage>>;
-  let rxStompService: { watch: ReturnType<typeof vi.fn> };
+  let connectionState: BehaviorSubject<RxStompState>;
+  let rxStompService: {
+    watch: ReturnType<typeof vi.fn>;
+    connectionState$: BehaviorSubject<RxStompState>;
+  };
   let bookService: {
     handleNewlyCreatedBook: ReturnType<typeof vi.fn>;
     handleBookUpdate: ReturnType<typeof vi.fn>;
     handleMultipleBookCoverPatches: ReturnType<typeof vi.fn>;
     handleRemovedBookIds: ReturnType<typeof vi.fn>;
-    handleMultipleBookUpdates: ReturnType<typeof vi.fn>;
+    handleTaskProgress: ReturnType<typeof vi.fn>;
+    handleReconnect: ReturnType<typeof vi.fn>;
   };
-  let authorService: { handleNewlyCreatedBook: ReturnType<typeof vi.fn> };
+  let authorService: {
+    handleNewlyCreatedBook: ReturnType<typeof vi.fn>;
+    invalidateAuthors: ReturnType<typeof vi.fn>;
+  };
   let notificationEventService: {
     handleNewNotification: ReturnType<typeof vi.fn>;
   };
@@ -48,6 +58,7 @@ describe("AppComponent", () => {
   };
   let bookdropFileService: { handleIncomingFile: ReturnType<typeof vi.fn> };
   let taskService: { handleTaskProgress: ReturnType<typeof vi.fn> };
+  let metadataRefreshSubmissionService: { handleBatchProgress: ReturnType<typeof vi.fn> };
   let libraryHealthService: { initWebsocket: ReturnType<typeof vi.fn>, fetchHealth: ReturnType<typeof vi.fn> };
   let authService: { forceLogout: ReturnType<typeof vi.fn>, isAuthenticated: ReturnType<typeof signal> };
   let libraryImportProgressService: { recordBookAdded: ReturnType<typeof vi.fn> };
@@ -72,23 +83,27 @@ describe("AppComponent", () => {
     auth = DEFAULT_AUTH
   ): void {
     topics = new Map();
+    connectionState = new BehaviorSubject<RxStompState>(RxStompState.CLOSED);
     rxStompService = {
       watch: vi.fn((topic: string) =>
         (topics.get(topic) ?? createTopicStream(topic)).asObservable(),
       ),
+      connectionState$: connectionState,
     };
     bookService = {
       handleNewlyCreatedBook: vi.fn(),
       handleBookUpdate: vi.fn(),
       handleMultipleBookCoverPatches: vi.fn(),
       handleRemovedBookIds: vi.fn(),
-      handleMultipleBookUpdates: vi.fn(),
+      handleTaskProgress: vi.fn(),
+      handleReconnect: vi.fn(),
     };
-    authorService = { handleNewlyCreatedBook: vi.fn() };
+    authorService = { handleNewlyCreatedBook: vi.fn(), invalidateAuthors: vi.fn() };
     notificationEventService = { handleNewNotification: vi.fn() };
     metadataProgressService = { handleIncomingProgress: vi.fn() };
     bookdropFileService = { handleIncomingFile: vi.fn() };
     taskService = { handleTaskProgress: vi.fn() };
+    metadataRefreshSubmissionService = { handleBatchProgress: vi.fn() };
     libraryHealthService = { initWebsocket: vi.fn(), fetchHealth: vi.fn() };
     authService = { forceLogout: vi.fn(), isAuthenticated: signal(auth.authenticated) };
     libraryImportProgressService = { recordBookAdded: vi.fn() };
@@ -121,6 +136,7 @@ describe("AppComponent", () => {
         { provide: MetadataProgressService, useValue: metadataProgressService },
         { provide: BookdropFileService, useValue: bookdropFileService },
         { provide: TaskService, useValue: taskService },
+        { provide: MetadataRefreshSubmissionService, useValue: metadataRefreshSubmissionService },
         { provide: LibraryHealthService, useValue: libraryHealthService },
         { provide: AuthService, useValue: authService },
         { provide: LibraryImportProgressService, useValue: libraryImportProgressService },
@@ -181,7 +197,7 @@ describe("AppComponent", () => {
 
     topics
       .get("/user/queue/book-update")
-      ?.next({ body: JSON.stringify({ id: 1 }) });
+      ?.next({ body: JSON.stringify({ id: 1, libraryId: 1, libraryName: "Library" }) });
     topics
       .get("/user/queue/books-cover-update")
       ?.next({ body: JSON.stringify([{ id: 1 }]) });
@@ -190,10 +206,7 @@ describe("AppComponent", () => {
       ?.next({ body: JSON.stringify([1, 2]) });
     topics
       .get("/user/queue/book-metadata-update")
-      ?.next({ body: JSON.stringify({ id: 2 }) });
-    topics
-      .get("/user/queue/book-metadata-batch-update")
-      ?.next({ body: JSON.stringify([{ id: 3 }]) });
+      ?.next({ body: JSON.stringify({ id: 2, libraryId: 1, libraryName: "Library" }) });
     topics
       .get("/user/queue/book-metadata-batch-progress")
       ?.next({ body: JSON.stringify({ taskId: "task-1" }) });
@@ -207,13 +220,19 @@ describe("AppComponent", () => {
       .get("/user/queue/task-progress")
       ?.next({ body: JSON.stringify({ taskId: "task-2" }) });
 
-    expect(bookService.handleBookUpdate).toHaveBeenCalledWith({ id: 1 });
+    expect(bookService.handleBookUpdate).toHaveBeenCalledWith(
+      { id: 1, libraryId: 1, libraryName: "Library" },
+    );
+    expect(bookService.handleBookUpdate).toHaveBeenCalledWith(
+      { id: 2, libraryId: 1, libraryName: "Library" },
+    );
     expect(bookService.handleMultipleBookCoverPatches).toHaveBeenCalledWith([
       { id: 1 }]);
     expect(bookService.handleRemovedBookIds).toHaveBeenCalledWith([1, 2]);
-    expect(bookService.handleMultipleBookUpdates).toHaveBeenCalledWith([
-      { id: 3 }]);
     expect(metadataProgressService.handleIncomingProgress).toHaveBeenCalledWith(
+      { taskId: "task-1" },
+    );
+    expect(metadataRefreshSubmissionService.handleBatchProgress).toHaveBeenCalledWith(
       { taskId: "task-1" },
     );
     expect(notificationEventService.handleNewNotification).toHaveBeenCalledWith(
@@ -229,6 +248,22 @@ describe("AppComponent", () => {
     expect(taskService.handleTaskProgress).toHaveBeenCalledWith({
       taskId: "task-2",
     });
+    expect(bookService.handleTaskProgress).toHaveBeenCalledWith({
+      taskId: "task-2",
+    });
+  });
+
+  it("reconciles book caches after a websocket reconnect", () => {
+    configureComponent();
+
+    connectionState.next(RxStompState.OPEN);
+    expect(bookService.handleReconnect).not.toHaveBeenCalled();
+
+    connectionState.next(RxStompState.CLOSED);
+    connectionState.next(RxStompState.OPEN);
+
+    expect(bookService.handleReconnect).toHaveBeenCalledOnce();
+    expect(authorService.invalidateAuthors).toHaveBeenCalledOnce();
   });
 
   it("forces logout when the session is revoked", () => {

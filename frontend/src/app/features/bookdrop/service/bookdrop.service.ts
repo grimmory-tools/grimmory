@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {BookMetadata} from '../../book/model/book.model';
@@ -97,10 +97,10 @@ export interface BulkEditResult {
   failed: number;
 }
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class BookdropService {
+  private readonly http = inject(HttpClient);
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/bookdrop`;
-  private http = inject(HttpClient);
 
   getPendingFiles(page: number = 0, size: number = 50): Observable<Page<BookdropFile>> {
     return this.http.get<Page<BookdropFile>>(`${this.url}/files?status=pending&page=${page}&size=${size}`);

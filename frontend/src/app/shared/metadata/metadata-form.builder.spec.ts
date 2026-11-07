@@ -56,7 +56,10 @@ describe('MetadataFormBuilder', () => {
       titleLocked: true,
       narratorLocked: true,
       comicIssueNumberLocked: false,
-    });
+    }, [
+      {label: 'Title', controlName: 'title', lockedKey: 'titleLocked', fetchedKey: 'title', type: 'string'},
+      {label: 'Authors', controlName: 'authors', lockedKey: 'authorsLocked', fetchedKey: 'authors', type: 'array'},
+    ]);
 
     expect(form.get('title')?.disabled).toBe(true);
     expect(form.get('authors')?.enabled).toBe(true);

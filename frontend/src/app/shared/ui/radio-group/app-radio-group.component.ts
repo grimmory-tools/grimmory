@@ -84,6 +84,7 @@ let nextGroupId = 0;
   `,
 })
 export class AppRadioGroupComponent<T> implements FormValueControl<T | null> {
+  private readonly fieldContext = inject(APP_FIELD, { optional: true });
   readonly value = model<T | null>(null);
   readonly disabled = input(false, { transform: booleanAttribute });
   readonly invalid = input(false, { transform: booleanAttribute });
@@ -103,8 +104,6 @@ export class AppRadioGroupComponent<T> implements FormValueControl<T | null> {
   readonly ariaDescribedBy = input('');
   readonly styleClass = input('');
   readonly compareWith = input<(optionValue: T, selectedValue: T) => boolean>(defaultCompareWith);
-
-  private readonly fieldContext = inject(APP_FIELD, { optional: true });
   private readonly autoName = `app-radio-group-${++nextGroupId}`;
   private readonly radios = viewChildren<ElementRef<HTMLInputElement>>('radio');
 

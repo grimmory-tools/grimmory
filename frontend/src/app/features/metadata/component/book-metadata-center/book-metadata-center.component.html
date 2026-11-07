@@ -14,8 +14,7 @@
         [text]="true"
         severity="secondary"
         (click)="ref?.close()"
-        class="close-button">
-      </p-button>
+        class="close-button" />
     </div>
   }
   <div class="tabs-wrapper" [class.dialog-mode]="config">
@@ -48,24 +47,22 @@
       <p-tabpanel [value]="BookMetadataTab.View">
         <app-metadata-viewer
           [book]="book()"
-          [recommendedBooks]="recommendedBooks()">
-        </app-metadata-viewer>
+          [recommendedBooks]="recommendedBooks()" />
       </p-tabpanel>
       @if (canOpenTab(BookMetadataTab.Edit)) {
         <p-tabpanel [value]="BookMetadataTab.Edit">
           <app-metadata-editor
-            [book]="book()">
-          </app-metadata-editor>
+            [book]="book()" />
         </p-tabpanel>
       }
       @if (canOpenTab(BookMetadataTab.Match)) {
         <p-tabpanel [value]="BookMetadataTab.Match">
-          <app-metadata-searcher [book]="book()" [isActiveTab]="tab === BookMetadataTab.Match"></app-metadata-searcher>
+          <app-metadata-searcher [book]="book()" [isActiveTab]="tab === BookMetadataTab.Match" />
         </p-tabpanel>
       }
       @if (canOpenTab(BookMetadataTab.Sidecar)) {
         <p-tabpanel [value]="BookMetadataTab.Sidecar">
-          <app-sidecar-viewer [book]="book()"></app-sidecar-viewer>
+          <app-sidecar-viewer [book]="book()" />
         </p-tabpanel>
       }
     </p-tabpanels>

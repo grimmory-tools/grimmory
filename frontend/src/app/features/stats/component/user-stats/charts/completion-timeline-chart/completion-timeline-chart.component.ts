@@ -19,16 +19,15 @@ type CompletionChartData = ChartData<'bar', number[], string>;
   styleUrls: ['./completion-timeline-chart.component.scss']
 })
 export class CompletionTimelineChartComponent implements OnInit {
+  private readonly userStatsService = inject(UserStatsService);
+  private readonly t = inject(TranslocoService);
+  private readonly destroyRef = inject(DestroyRef);
   @Input() initialYear: number = new Date().getFullYear();
 
   public currentYear: number = new Date().getFullYear();
   public readonly chartType = 'bar' as const;
   public readonly chartData$: Observable<CompletionChartData>;
   public readonly chartOptions: ChartConfiguration['options'];
-
-  private readonly userStatsService = inject(UserStatsService);
-  private readonly t = inject(TranslocoService);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly chartDataSubject: BehaviorSubject<CompletionChartData>;
 
   private readonly monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

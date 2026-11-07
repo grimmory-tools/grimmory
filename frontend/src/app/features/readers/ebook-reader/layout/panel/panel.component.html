@@ -15,21 +15,21 @@
 
       <!-- Tab navigation -->
       <nav class="tabs">
-        <button
+        <button type="button"
           class="tab"
           [class.active]="activeTab() === 'search'"
           (click)="setActiveTab('search')">
-          <app-reader-icon name="search" class="tab-icon"></app-reader-icon>
+          <app-reader-icon name="search" class="tab-icon" />
           <span>{{ t('searchTab') }}</span>
           @if (searchState().results.length > 0) {
             <span class="badge">{{ searchState().results.length }}</span>
           }
         </button>
-        <button
+        <button type="button"
           class="tab"
           [class.active]="activeTab() === 'notes'"
           (click)="setActiveTab('notes')">
-          <app-reader-icon name="note" class="tab-icon"></app-reader-icon>
+          <app-reader-icon name="note" class="tab-icon" />
           <span>{{ t('notesTab') }}</span>
           @if (notes().length > 0) {
             <span class="badge">{{ notes().length }}</span>
@@ -43,7 +43,7 @@
           @case ('search') {
             <div class="search-container">
               <div class="search-input-wrapper">
-                <app-reader-icon name="search" class="search-icon" [size]="16"></app-reader-icon>
+                <app-reader-icon name="search" class="search-icon" [size]="16" />
                 <input
                   type="text"
                   class="search-input"
@@ -53,8 +53,8 @@
                   aria-label="{{ t('searchPlaceholder') }}"
                 />
                 @if (searchQuery) {
-                  <button class="clear-btn" (click)="clearSearch()" [attr.aria-label]="t('clearSearch')">
-                    <app-reader-icon name="close" [size]="14"></app-reader-icon>
+                  <button type="button" class="clear-btn" (click)="clearSearch()" [attr.aria-label]="t('clearSearch')">
+                    <app-reader-icon name="close" [size]="14" />
                   </button>
                 }
               </div>
@@ -66,8 +66,8 @@
                   </div>
                   <div class="progress-info">
                     <span class="progress-text">{{ t('searching') }} {{ (searchState().progress * 100) | number:'1.0-0' }}%</span>
-                    <button class="cancel-search-btn" (click)="onCancelSearch()" [title]="t('cancelSearch')">
-                      <app-reader-icon name="close" [size]="14"></app-reader-icon>
+                    <button type="button" class="cancel-search-btn" (click)="onCancelSearch()" [title]="t('cancelSearch')">
+                      <app-reader-icon name="close" [size]="14" />
                     </button>
                   </div>
                 </div>
@@ -95,13 +95,13 @@
                 </ul>
               } @else if (!searchState().isSearching && searchQuery) {
                 <div class="empty-state">
-                  <app-reader-icon name="search" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
+                  <app-reader-icon name="search" class="empty-icon" [size]="48" [strokeWidth]="1.5" />
                   <p>{{ t('noResultsFound') }}</p>
                   <span class="empty-hint">{{ t('tryDifferentKeywords') }}</span>
                 </div>
               } @else if (!searchQuery) {
                 <div class="empty-state">
-                  <app-reader-icon name="search" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
+                  <app-reader-icon name="search" class="empty-icon" [size]="48" [strokeWidth]="1.5" />
                   <p>{{ t('searchThisBook') }}</p>
                   <span class="empty-hint">{{ t('enterTextToFind') }}</span>
                 </div>
@@ -113,7 +113,7 @@
             <div class="notes-container">
               @if (notes().length > 0) {
                 <div class="notes-search-wrapper">
-                  <app-reader-icon name="search" class="search-icon" [size]="16"></app-reader-icon>
+                  <app-reader-icon name="search" class="search-icon" [size]="16" />
                   <input
                     type="text"
                     class="search-input"
@@ -123,8 +123,8 @@
                     aria-label="{{ t('searchNotes') }}"
                   />
                   @if (notesSearchQuery()) {
-                    <button class="clear-btn" (click)="clearNotesSearch()" [attr.aria-label]="t('clearSearch')">
-                      <app-reader-icon name="close" [size]="14"></app-reader-icon>
+                    <button type="button" class="clear-btn" (click)="clearNotesSearch()" [attr.aria-label]="t('clearSearch')">
+                      <app-reader-icon name="close" [size]="14" />
                     </button>
                   }
                 </div>
@@ -146,11 +146,11 @@
                         <span class="item-meta">{{ note.createdAt | date: 'MMM d, y' }}</span>
                       </div>
                       <div class="action-buttons">
-                        <button class="edit-btn" (click)="onEditNote($event, note)" [attr.aria-label]="t('editNote')">
-                          <app-reader-icon name="edit" [size]="16"></app-reader-icon>
+                        <button type="button" class="edit-btn" (click)="onEditNote($event, note)" [attr.aria-label]="t('editNote')">
+                          <app-reader-icon name="edit" [size]="16" />
                         </button>
-                        <button class="delete-btn" (click)="onDeleteNote($event, note.id)" [attr.aria-label]="t('deleteNote')">
-                          <app-reader-icon name="trash" [size]="16"></app-reader-icon>
+                        <button type="button" class="delete-btn" (click)="onDeleteNote($event, note.id)" [attr.aria-label]="t('deleteNote')">
+                          <app-reader-icon name="trash" [size]="16" />
                         </button>
                       </div>
                     </li>
@@ -158,13 +158,13 @@
                 </ul>
               } @else if (notes().length > 0 && notesSearchQuery()) {
                 <div class="empty-state">
-                  <app-reader-icon name="search" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
+                  <app-reader-icon name="search" class="empty-icon" [size]="48" [strokeWidth]="1.5" />
                   <p>{{ t('noMatchingNotes') }}</p>
                   <span class="empty-hint">{{ t('tryDifferentSearchTerms') }}</span>
                 </div>
               } @else {
                 <div class="empty-state">
-                  <app-reader-icon name="note" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
+                  <app-reader-icon name="note" class="empty-icon" [size]="48" [strokeWidth]="1.5" />
                   <p>{{ t('noNotesYet') }}</p>
                   <span class="empty-hint">{{ t('noNotesHint') }}</span>
                 </div>

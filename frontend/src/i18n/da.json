@@ -17,6 +17,7 @@
     "next": "",
     "submit": "",
     "remove": "",
+    "clear": "",
     "edit": "",
     "info": "",
     "select": "",
@@ -296,7 +297,10 @@
       "maxWidth": "",
       "maxWidthDesc": "",
       "maxHeight": "",
-      "maxHeightDesc": ""
+      "maxHeightDesc": "",
+      "navigation": "",
+      "tapToTurnPage": "",
+      "tapToTurnPageDesc": ""
     },
     "pdf": {
       "sectionTitle": "",
@@ -496,8 +500,6 @@
       },
       "sortFields": {
         "title": "",
-        "fileName": "",
-        "filePath": "",
         "addedOn": "",
         "author": "",
         "authorSurnameVorname": "",
@@ -510,7 +512,6 @@
         "readStatus": "",
         "dateFinished": "",
         "readingProgress": "",
-        "bookType": "",
         "pageCount": ""
       },
       "sortDirections": {
@@ -524,10 +525,9 @@
       "defaultPreferences": "",
       "defaultPreferencesDesc": "",
       "sortOrderLabel": "",
+      "formatOverlay": "",
       "ascending": "",
       "descending": "",
-      "remove": "",
-      "addSortField": "",
       "autoSave": "",
       "autoSaveDesc": "",
       "overrideManagement": "",
@@ -543,34 +543,6 @@
       "saveSettings": "",
       "saveSuccess": "",
       "saveSuccessDetail": "",
-      "sortTitle": "",
-      "sortFileName": "",
-      "sortFilePath": "",
-      "sortAuthor": "",
-      "sortAuthorSurname": "",
-      "sortSeriesName": "",
-      "sortSeriesNumber": "",
-      "sortLastRead": "",
-      "sortPersonalRating": "",
-      "sortAddedOn": "",
-      "sortFileSize": "",
-      "sortLocked": "",
-      "sortPublisher": "",
-      "sortPublishedDate": "",
-      "sortAmazonRating": "",
-      "sortAmazonCount": "",
-      "sortGoodreadsRating": "",
-      "sortGoodreadsCount": "",
-      "sortHardcoverRating": "",
-      "sortHardcoverCount": "",
-      "sortRanobedbRating": "",
-      "sortReadStatus": "",
-      "sortDateFinished": "",
-      "sortReadingProgress": "",
-      "sortBookType": "",
-      "sortNarrator": "",
-      "sortPages": "",
-      "sortRandom": "",
       "entityLibrary": "",
       "entityShelf": "",
       "entityMagicShelf": "",
@@ -580,25 +552,7 @@
       "sortSaved": "",
       "sortSavedDetail": "",
       "editSort": "",
-      "tableSortConfig": "",
-      "visibleSortFields": "",
-      "visibleSortFieldsDesc": "",
-      "sortFieldCount": "",
-      "resetToDefaults": ""
-    },
-    "filter": {
-      "sectionTitle": "",
-      "sectionDesc": "",
-      "filterMode": "",
-      "filterModeDesc": "",
-      "visibleFilters": "",
-      "visibleFiltersDesc": "",
-      "selectionCount": "",
-      "addFilter": "",
-      "resetToDefaults": "",
-      "modeAnd": "",
-      "modeOr": "",
-      "modeSingle": ""
+      "tableSortConfig": ""
     },
     "sidebarSort": {
       "sectionTitle": "",
@@ -748,62 +702,13 @@
         "isbn13": "",
         "isbn10": "",
         "pageCount": "",
-        "amazonRating": "",
-        "amazonReviewCount": "",
-        "goodreadsRating": "",
-        "goodreadsReviewCount": "",
-        "hardcoverRating": "",
-        "hardcoverReviewCount": "",
-        "audibleRating": "",
-        "audibleReviewCount": "",
-        "applebooksId": "",
-        "applebooksRating": "",
-        "applebooksReviewCount": "",
         "doubanRating": "",
-        "doubanReviewCount": "",
-        "ranobedbRating": ""
+        "doubanReviewCount": ""
       }
     },
     "fieldSelector": {
       "sectionTitle": "",
-      "sectionDesc": "",
-      "providers": {
-        "openlibrary": "",
-        "amazon": "",
-        "googleBooks": "",
-        "goodreads": "",
-        "hardcover": "",
-        "audible": "",
-        "applebooks": "",
-        "comicvine": "",
-        "lubimyczytac": "",
-        "ranobedb": ""
-      },
-      "fields": {
-        "openlibraryId": "",
-        "asin": "",
-        "amazonRating": "",
-        "amazonReviewCount": "",
-        "googleId": "",
-        "goodreadsId": "",
-        "goodreadsRating": "",
-        "goodreadsReviewCount": "",
-        "hardcoverId": "",
-        "hardcoverBookId": "",
-        "hardcoverRating": "",
-        "hardcoverReviewCount": "",
-        "comicvineId": "",
-        "lubimyczytacId": "",
-        "lubimyczytacRating": "",
-        "ranobedbId": "",
-        "ranobedbRating": "",
-        "audibleId": "",
-        "audibleRating": "",
-        "audibleReviewCount": "",
-        "applebooksId": "",
-        "applebooksRating": "",
-        "applebooksReviewCount": ""
-      }
+      "sectionDesc": ""
     }
   },
   "settingsLibMeta": {
@@ -1208,6 +1113,7 @@
     "deleteSuccess": "",
     "deleteError": "",
     "opdsCopied": "",
+    "copyFailed": "",
     "komgaCopied": "",
     "sortUpdateSuccess": "",
     "sortUpdateError": "",
@@ -1462,8 +1368,6 @@
       "syncConfigDesc": "",
       "enableSync": "",
       "enableSyncDesc": "",
-      "syncWithGrimmory": "",
-      "syncWithGrimmoryDesc": "",
       "apiPath": "",
       "apiPathDesc": "",
       "username": "",
@@ -1546,9 +1450,6 @@
       "syncEnabled": "",
       "syncDisabled": "",
       "progressUpdated": "",
-      "twoWaySyncLabel": "",
-      "twoWaySyncDesc": "",
-      "twoWaySyncNote": "",
       "twoWaySyncKepubWarning": "",
       "twoWaySyncKepubWarningAdmin": "",
       "twoWaySyncEnabled": "",
@@ -1813,7 +1714,8 @@
       },
       "shelfMenu": {
         "addToShelf": "",
-        "newShelf": ""
+        "newShelf": "",
+        "removeFromAllShelves": ""
       },
       "spinner": {
         "loading": ""
@@ -1832,6 +1734,9 @@
         "parse": "",
         "pattern": "",
         "required": ""
+      },
+      "bulkActions": {
+        "selectAll": ""
       }
     }
   },
@@ -1839,6 +1744,7 @@
     "commandPalette": {
       "placeholder": "",
       "empty": "",
+      "bookSearchError": "",
       "hintNavigate": "",
       "hintSelect": "",
       "ariaLabel": "",
@@ -2255,29 +2161,6 @@
       "audiobookDetails": "",
       "comicBookDetails": "",
       "providerMetadata": "",
-      "openlibraryId": "",
-      "amazonAsin": "",
-      "amazonRating": "",
-      "amazonReviewCount": "",
-      "googleBooksId": "",
-      "goodreadsId": "",
-      "goodreadsRating": "",
-      "goodreadsReviewCount": "",
-      "hardcoverId": "",
-      "hardcoverBookId": "",
-      "hardcoverRating": "",
-      "hardcoverReviewCount": "",
-      "lubimyczytacId": "",
-      "lubimyczytacRating": "",
-      "comicvineId": "",
-      "ranobedbId": "",
-      "ranobedbRating": "",
-      "audibleId": "",
-      "audibleRating": "",
-      "audibleReviewCount": "",
-      "applebooksId": "",
-      "applebooksRating": "",
-      "applebooksReviewCount": "",
       "closeBtn": "",
       "previousBookBtn": "",
       "nextBookBtn": "",
@@ -2338,7 +2221,6 @@
       }
     },
     "picker": {
-      "loadingMetadata": "",
       "columnCurrent": "",
       "columnFetched": "",
       "copyMissingTooltip": "",
@@ -2399,9 +2281,10 @@
       "fetching": "",
       "readyToSearch": "",
       "readyToSearchHint": "",
+      "noProviders": "",
       "noResultsFound": "",
       "noResultsHint": "",
-      "unknownProvider": "",
+      "searchFailed": "",
       "selectOverlay": ""
     },
     "tabs": {
@@ -2514,6 +2397,8 @@
       "goToPreviousBook": "",
       "goToNextBook": "",
       "personalRating": "",
+      "ratingTooltip": "",
+      "ratingTooltipNoReviews": "",
       "loadingBookDetails": "",
       "readStatusUnread": "",
       "readStatusPaused": "",
@@ -2619,6 +2504,7 @@
       "byLabel": "",
       "coverFileLabel": "",
       "loading": "",
+      "readFailed": "",
       "syncStatusInSync": "",
       "syncStatusOutdated": "",
       "syncStatusConflict": "",
@@ -2652,6 +2538,7 @@
       "searchingForCovers": "",
       "noCoversFound": "",
       "noCoversFoundDescription": "",
+      "searchFailed": "",
       "coversFoundSingular": "",
       "coversFoundPlural": "",
       "resultsHint": "",
@@ -2796,10 +2683,31 @@
       "toast": {
         "providerRequiredSummary": "",
         "providerRequiredDetail": ""
-      }
+      },
+      "inactiveProvider": ""
     },
     "fetchOptions": {
       "startRefresh": ""
+    },
+    "providers": {
+      "openLibrary": "",
+      "amazon": "",
+      "google": "",
+      "goodReads": "",
+      "hardcover": "",
+      "comicvine": "",
+      "douban": "",
+      "lubimyczytac": "",
+      "ranobedb": "",
+      "audible": "",
+      "appleBooks": ""
+    },
+    "providerFields": {
+      "id": "",
+      "rating": "",
+      "reviewCount": "",
+      "asin": "",
+      "hardcoverBookId": ""
     }
   },
   "notebook": {
@@ -2837,71 +2745,31 @@
         "customCoverHeader": ""
       },
       "toast": {
-        "sortSavedSummary": "",
-        "sortSavedGlobalDetail": "",
-        "sortSavedEntityDetail": "",
         "regenCoverStartedSummary": "",
         "regenCoverStartedDetail": "",
         "customCoverStartedSummary": "",
         "customCoverStartedDetail": "",
         "failedSummary": "",
         "regenCoverFailedDetail": "",
-        "customCoverFailedDetail": "",
-        "unshelveSuccessDetail": "",
-        "unshelveFailedDetail": "",
-        "noEligibleBooksSummary": "",
-        "noEligibleBooksDetail": "",
-        "multipleLibrariesSummary": "",
-        "multipleLibrariesDetail": ""
+        "customCoverFailedDetail": ""
       },
       "loading": {
-        "deleting": "",
-        "unshelving": ""
+        "deleting": ""
       },
       "labels": {
         "allBooks": "",
-        "unshelvedBooks": "",
-        "unshelvedBooksFiltered": "",
-        "filteredSuffix": "",
-        "seriesCollapsedInfo": "",
-        "item": "",
-        "items": "",
-        "selected": "",
-        "setAsDefault": "",
-        "save": "",
-        "collapseSeries": "",
-        "gridColumns": "",
-        "bookTypeOverlay": "",
-        "noBooks": "",
-        "failedLibrary": "",
-        "failedShelf": "",
-        "failedBooks": "",
-        "activeFilters": ""
-      },
-      "tooltip": {
-        "clearFilters": "",
-        "visibleColumns": "",
-        "selectSorting": "",
-        "toggleView": "",
-        "search": "",
-        "toggleSidebar": "",
-        "metadataActions": "",
-        "assignToShelf": "",
-        "removeFromShelf": "",
-        "lockUnlockMetadata": "",
-        "organizeFiles": "",
-        "attachToBook": "",
-        "moreActions": "",
-        "selectAll": "",
-        "deselectAll": "",
-        "deleteSelected": ""
-      },
-      "placeholder": {
-        "selectColumns": "",
-        "search": ""
+        "unshelvedBooks": ""
       }
     },
     "card": {
+      "book": {
+        "physical": "",
+        "unknownTitle": ""
+      },
+      "aria": {
+        "bookMenu": "",
+        "coverAlt": ""
+      },
       "menu": {
         "assignShelf": "",
         "viewDetails": "",
@@ -2967,6 +2835,61 @@
         "continueReading": "",
         "readStatusMenu": ""
       }
+    },
+    "menu": {
+      "label": "",
+      "openInNewTab": "",
+      "addToShelf": "",
+      "markAs": "",
+      "send": "",
+      "quickSend": "",
+      "customSend": "",
+      "download": "",
+      "metadata": "",
+      "editMetadata": "",
+      "fetchMetadata": "",
+      "fetchMetadataWithOptions": "",
+      "searchProviders": "",
+      "restoreCover": "",
+      "generateCover": "",
+      "lockMetadata": "",
+      "more": "",
+      "organizeFile": "",
+      "resetGrimmoryProgress": "",
+      "resetKoreaderProgress": "",
+      "deleteEntireBook": "",
+      "confirm": {
+        "deleteBookMessage": "",
+        "deleteBookHeader": "",
+        "deleteFileMessage": "",
+        "deleteFileHeader": "",
+        "largeFileMessage": "",
+        "largeFileHeader": "",
+        "sendAnyway": ""
+      }
+    },
+    "readAction": {
+      "read": {
+        "short": "",
+        "long": ""
+      },
+      "continueReading": {
+        "short": "",
+        "long": ""
+      },
+      "play": {
+        "short": "",
+        "long": ""
+      },
+      "continueListening": {
+        "short": "",
+        "long": ""
+      }
+    },
+    "selectBook": "",
+    "viewMode": {
+      "grid": "",
+      "table": ""
     },
     "notes": {
       "confirm": {
@@ -3095,7 +3018,8 @@
         "customFetchMetadata": "",
         "autoFetchMetadata": "",
         "findDuplicates": "",
-        "deleteLibrary": ""
+        "deleteLibrary": "",
+        "manageLibrary": ""
       },
       "shelf": {
         "publicShelfPrefix": "",
@@ -3136,46 +3060,10 @@
         "deletingLibrary": ""
       }
     },
-    "columnPref": {
-      "columns": {
-        "readStatus": "",
-        "title": "",
-        "authors": "",
-        "publisher": "",
-        "seriesName": "",
-        "seriesNumber": "",
-        "categories": "",
-        "publishedDate": "",
-        "lastReadTime": "",
-        "addedOn": "",
-        "fileName": "",
-        "fileSizeKb": "",
-        "language": "",
-        "isbn": "",
-        "pageCount": "",
-        "amazonRating": "",
-        "amazonReviewCount": "",
-        "goodreadsRating": "",
-        "goodreadsReviewCount": "",
-        "hardcoverRating": "",
-        "hardcoverReviewCount": "",
-        "ranobedbRating": ""
-      },
-      "toast": {
-        "savedSummary": "",
-        "savedDetail": ""
-      }
-    },
     "coverPref": {
       "toast": {
         "savedSummary": "",
         "savedDetail": "",
-        "saveFailedSummary": "",
-        "saveFailedDetail": ""
-      }
-    },
-    "filterPref": {
-      "toast": {
         "saveFailedSummary": "",
         "saveFailedDetail": ""
       }
@@ -3266,7 +3154,9 @@
       "validationReady": "",
       "cancelButton": "",
       "addButton": "",
-      "fetchMetadataTooltip": ""
+      "fetchMetadataTooltip": "",
+      "metadataNotFound": "",
+      "metadataLookupFailed": ""
     },
     "bulkIsbnImport": {
       "title": "",
@@ -3337,41 +3227,7 @@
       }
     },
     "filter": {
-      "title": "",
       "showingFirst100": "",
-      "footerNote": "",
-      "labels": {
-        "author": "",
-        "category": "",
-        "series": "",
-        "bookType": "",
-        "readStatus": "",
-        "personalRating": "",
-        "publisher": "",
-        "matchScore": "",
-        "library": "",
-        "shelf": "",
-        "shelfStatus": "",
-        "tag": "",
-        "publishedDate": "",
-        "fileSize": "",
-        "amazonRating": "",
-        "goodreadsRating": "",
-        "hardcoverRating": "",
-        "lubimyczytacRating": "",
-        "ranobedbRating": "",
-        "audibleRating": "",
-        "language": "",
-        "pageCount": "",
-        "mood": "",
-        "ageRating": "",
-        "contentRating": "",
-        "narrator": "",
-        "comicCharacter": "",
-        "comicTeam": "",
-        "comicLocation": "",
-        "comicCreator": ""
-      },
       "readStatus": {
         "unread": "",
         "reading": "",
@@ -3424,14 +3280,6 @@
       "shelfStatus": {
         "shelved": "",
         "unshelved": ""
-      },
-      "comicRoles": {
-        "penciller": "",
-        "inker": "",
-        "colorist": "",
-        "letterer": "",
-        "coverArtist": "",
-        "editor": ""
       }
     },
     "shelfAssigner": {
@@ -3494,27 +3342,6 @@
         "updateFailedDetail": ""
       }
     },
-    "table": {
-      "label": "",
-      "bookCoverAlt": "",
-      "selectBook": "",
-      "selectBookFallback": "",
-      "noRating": "",
-      "ratingOutOf": "",
-      "statusWithPrefix": "{{ status }}",
-      "locked": "",
-      "unlocked": "",
-      "toast": {
-        "metadataLockedSummary": "",
-        "metadataLockedDetail": "",
-        "metadataUnlockedSummary": "",
-        "metadataUnlockedDetail": "",
-        "lockFailedSummary": "",
-        "lockFailedDetail": "",
-        "unlockFailedSummary": "",
-        "unlockFailedDetail": ""
-      }
-    },
     "lockUnlockDialog": {
       "title": "",
       "selectedCount": "",
@@ -3535,42 +3362,7 @@
       }
     },
     "sorting": {
-      "sortOrder": "",
-      "removeTooltip": "",
-      "addSortFieldPlaceholder": "",
-      "saveAsDefault": "",
-      "ascendingTooltip": "",
-      "descendingTooltip": "",
-      "options": {
-        "title": "",
-        "fileName": "",
-        "filePath": "",
-        "author": "",
-        "authorSurnameVorname": "",
-        "seriesName": "",
-        "seriesNumber": "",
-        "lastReadTime": "",
-        "personalRating": "",
-        "addedOn": "",
-        "fileSizeKb": "",
-        "locked": "",
-        "publisher": "",
-        "publishedDate": "",
-        "readStatus": "",
-        "dateFinished": "",
-        "readingProgress": "",
-        "bookType": "",
-        "amazonRating": "",
-        "amazonReviewCount": "",
-        "goodreadsRating": "",
-        "goodreadsReviewCount": "",
-        "hardcoverRating": "",
-        "hardcoverReviewCount": "",
-        "ranobedbRating": "",
-        "narrator": "",
-        "pageCount": "",
-        "random": ""
-      }
+      "saveAsDefault": ""
     },
     "fileAttacher": {
       "title": "",
@@ -3734,6 +3526,53 @@
         "mergeFailedDetail": "",
         "mergePartialDetail": ""
       }
+    },
+    "fields": {
+      "random": "",
+      "title": "",
+      "author": "",
+      "authorSurname": "",
+      "genre": "",
+      "series": "",
+      "seriesNumber": "Series number",
+      "publisher": "",
+      "tag": "",
+      "mood": "",
+      "language": "",
+      "narrator": "",
+      "fileType": "",
+      "readStatus": "",
+      "personalRating": "",
+      "amazonRating": "",
+      "amazonReviewCount": "Amazon reviews",
+      "goodreadsRating": "",
+      "goodreadsReviewCount": "Goodreads reviews",
+      "hardcoverRating": "",
+      "hardcoverReviewCount": "Hardcover reviews",
+      "ranobedbRating": "",
+      "pageCount": "",
+      "publishedDate": "",
+      "publishedYear": "",
+      "addedOn": "",
+      "lastReadTime": "",
+      "dateFinished": "",
+      "readingProgress": "",
+      "fileName": "",
+      "fileSize": "",
+      "isbn": "",
+      "library": "",
+      "shelf": "",
+      "ageRating": "",
+      "contentRating": "",
+      "matchScore": "",
+      "shelfStatus": "",
+      "comicCharacter": "",
+      "comicTeam": "",
+      "comicLocation": "",
+      "comicCreator": "",
+      "lubimyczytacRating": "",
+      "audibleReviewCount": "",
+      "audibleRating": ""
     }
   },
   "readerAudiobook": {
@@ -5064,22 +4903,12 @@
       "fileSize": "",
       "fileType": "",
       "subtitle": "",
-      "amazonRating": "",
-      "amazonReviewCount": "",
-      "goodreadsRating": "",
-      "goodreadsReviewCount": "",
-      "hardcoverRating": "",
-      "hardcoverReviewCount": "",
-      "ranobedbRating": "",
       "genre": "",
       "addedOn": "",
-      "lubimyczytacRating": "",
       "description": "",
       "narrator": "",
       "ageRating": "",
       "contentRating": "",
-      "audibleRating": "",
-      "audibleReviewCount": "",
       "abridged": "",
       "audiobookDuration": "",
       "audiobookCodec": "",
@@ -5209,31 +5038,9 @@
       "seriesTotal": "",
       "isbn13": "",
       "isbn10": "",
-      "asin": "",
       "ageRating": "",
       "contentRating": "",
       "personalRating": "",
-      "amazonRating": "",
-      "goodreadsRating": "",
-      "hardcoverRating": "",
-      "ranobedbRating": "",
-      "lubimyczytacRating": "",
-      "audibleRating": "",
-      "applebooksRating": "",
-      "amazonReviewCount": "",
-      "goodreadsReviewCount": "",
-      "hardcoverReviewCount": "",
-      "audibleReviewCount": "",
-      "applebooksReviewCount": "",
-      "openlibraryId": "",
-      "goodreadsId": "",
-      "hardcoverId": "",
-      "googleId": "",
-      "audibleId": "",
-      "applebooksId": "",
-      "lubimyczytacId": "",
-      "ranobedbId": "",
-      "comicvineId": "",
       "narrator": "",
       "abridged": "",
       "audiobookDuration": "",
@@ -5431,6 +5238,84 @@
         "matchFailedSummary": "",
         "matchFailedDetail": ""
       }
+    }
+  },
+  "browse": {
+    "showAll": "",
+    "showMore": "",
+    "showFewer": "",
+    "clearFilters": "",
+    "filter": "",
+    "moreActions": "",
+    "sort": {
+      "multiSort": "",
+      "addField": "",
+      "apply": "",
+      "moveUp": "",
+      "moveDown": "",
+      "flipDirection": ""
+    },
+    "chips": {
+      "removeSearch": ""
+    },
+    "rail": {
+      "searchValues": "",
+      "searchFields": "",
+      "searchScope": {
+        "allBooks": "",
+        "library": "",
+        "shelf": "",
+        "magicShelf": "",
+        "unshelved": ""
+      },
+      "noMatches": "",
+      "minUnit": "",
+      "maxUnit": "",
+      "min": "",
+      "max": ""
+    },
+    "book": {
+      "empty": "",
+      "filteredEmpty": "",
+      "loadError": "",
+      "pageError": ""
+    },
+    "table": {
+      "moreValues": ""
+    },
+    "toolbar": {
+      "columnGroups": {
+        "reading": "",
+        "publishing": "",
+        "file": "",
+        "categorization": "",
+        "ratings": ""
+      },
+      "sort": "",
+      "sortAria": "",
+      "sortAscending": "",
+      "sortDescending": "",
+      "shuffleAgain": "",
+      "viewMode": "",
+      "density": "",
+      "smallerCards": "",
+      "largerCards": "",
+      "showFilters": "",
+      "columns": "",
+      "resetColumns": ""
+    },
+    "bulk": {
+      "markAsMessage": "",
+      "editAll": "",
+      "editOneByOne": "",
+      "selectionEmpty": "",
+      "selectionLoadError": "",
+      "organizeFiles": "",
+      "updateReadStatus": "",
+      "lockUnlockMetadata": ""
+    },
+    "filterPage": {
+      "show": ""
     }
   }
 }

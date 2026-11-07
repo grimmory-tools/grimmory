@@ -1,5 +1,5 @@
 import {HttpClient} from '@angular/common/http';
-import {Injectable, inject} from '@angular/core';
+import {Service, inject} from '@angular/core';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {AuthService} from '../../../shared/service/auth.service';
 
@@ -8,13 +8,13 @@ export interface CbxPageInfo {
   displayName: string;
 }
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class CbxReaderService {
+  private readonly authService = inject(AuthService);
+  private readonly http = inject(HttpClient);
 
   private readonly pagesUrl = `${API_CONFIG.BASE_URL}/api/v1/cbx`;
   private readonly imageUrl = `${API_CONFIG.BASE_URL}/api/v1/media/book`;
-  private authService = inject(AuthService);
-  private http = inject(HttpClient);
 
   private getToken(): string | null {
     return this.authService.getInternalAccessToken();

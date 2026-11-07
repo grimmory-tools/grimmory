@@ -28,28 +28,28 @@ export class CbxFooterService {
   private readonly _forceVisible = signal(false);
   readonly forceVisible = this._forceVisible.asReadonly();
 
-  private _previousPage = new Subject<void>();
+  private readonly _previousPage = new Subject<void>();
   previousPage$ = this._previousPage.asObservable();
 
-  private _nextPage = new Subject<void>();
+  private readonly _nextPage = new Subject<void>();
   nextPage$ = this._nextPage.asObservable();
 
-  private _goToPage = new Subject<number>();
+  private readonly _goToPage = new Subject<number>();
   goToPage$ = this._goToPage.asObservable();
 
-  private _firstPage = new Subject<void>();
+  private readonly _firstPage = new Subject<void>();
   firstPage$ = this._firstPage.asObservable();
 
-  private _lastPage = new Subject<void>();
+  private readonly _lastPage = new Subject<void>();
   lastPage$ = this._lastPage.asObservable();
 
-  private _previousBook = new Subject<void>();
+  private readonly _previousBook = new Subject<void>();
   previousBook$ = this._previousBook.asObservable();
 
-  private _nextBook = new Subject<void>();
+  private readonly _nextBook = new Subject<void>();
   nextBook$ = this._nextBook.asObservable();
 
-  private _sliderChange = new Subject<number>();
+  private readonly _sliderChange = new Subject<number>();
   sliderChange$ = this._sliderChange.asObservable();
 
   setForceVisible(visible: boolean): void {

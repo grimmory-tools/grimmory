@@ -1,6 +1,7 @@
 package org.booklore.app.specification;
 
 import org.booklore.exception.APIException;
+import org.booklore.exception.ApiError;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.ComicCreatorRole;
@@ -18,6 +19,8 @@ import java.util.Objects;
 import java.util.function.Function;
 
 public class AppBookSpecification {
+
+    private static final String PHYSICAL_FILE_TYPE = "PHYSICAL";
 
     private AppBookSpecification() {
     }
@@ -240,11 +243,27 @@ public class AppBookSpecification {
 
     /**
      * Filter books by multiple file types with mode support.
-     * OR  = books with at least one file of ANY listed type
-     * AND = books with files of ALL listed types
-     * NOT = books with NONE of the listed file types
+     * PHYSICAL matches the book's physical flag, alongside any digital file types.
+     * OR  = books matching ANY listed format
+     * AND = books matching ALL listed formats
+     * NOT = books matching NONE of the listed formats
      */
     public static Specification<BookEntity> withFileTypes(List<String> fileTypes, String mode) {
+        if (fileTypes.stream().anyMatch(s -> s != null && PHYSICAL_FILE_TYPE.equalsIgnoreCase(s.trim()))) {
+            List<String> digitalTypes = fileTypes.stream()
+                    .filter(s -> s != null && !s.isBlank() && !PHYSICAL_FILE_TYPE.equalsIgnoreCase(s.trim()))
+                    .toList();
+            Specification<BookEntity> physical = (root, query, cb) ->
+                    cb.isTrue(root.get("isPhysical"));
+            if ("not".equals(mode)) {
+                physical = Specification.not(physical);
+            }
+            if (digitalTypes.isEmpty()) {
+                return physical;
+            }
+            Specification<BookEntity> digital = withFileTypes(digitalTypes, mode);
+            return "and".equals(mode) || "not".equals(mode) ? physical.and(digital) : physical.or(digital);
+        }
         return (root, query, cb) -> {
             List<String> unknown = new ArrayList<>();
             List<BookFileType> parsed = fileTypes.stream()
@@ -261,7 +280,7 @@ public class AppBookSpecification {
                     .filter(Objects::nonNull)
                     .toList();
             if (!unknown.isEmpty()) {
-                throw new APIException("Invalid fileType values: " + unknown + ". Valid values: " + List.of(BookFileType.values()), HttpStatus.BAD_REQUEST);
+                throw ApiError.GENERIC_BAD_REQUEST.createException("Invalid fileType values: " + unknown + ". Valid values: " + List.of(BookFileType.values()) + ", " + PHYSICAL_FILE_TYPE);
             }
             if (parsed.isEmpty()) return cb.conjunction();
 

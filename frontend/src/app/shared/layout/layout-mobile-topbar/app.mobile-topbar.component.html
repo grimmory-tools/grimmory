@@ -1,14 +1,6 @@
 <ng-container *transloco="let t; prefix: 'layout'">
 <header class="mobile-topbar">
   <div class="mobile-topbar-side mobile-topbar-side-start flex flex-1 items-center gap-0.5">
-    <button
-      type="button"
-      class="mobile-topbar-button"
-      [attr.aria-label]="t('menu.toggleNavigation')"
-      (click)="layoutService.onMenuToggle()"
-    >
-      <svg lucideMenu aria-hidden="true"></svg>
-    </button>
     @if (hasBack()) {
       <button
         type="button"
@@ -17,6 +9,25 @@
         (click)="goBack()"
       >
         <svg lucideArrowLeft aria-hidden="true"></svg>
+      </button>
+    }
+    @if (commandPaletteService.isOpen()) {
+      <button
+        type="button"
+        class="mobile-topbar-button"
+        [attr.aria-label]="'common.close' | transloco"
+        (click)="closeSearch()"
+      >
+        <svg lucideX aria-hidden="true"></svg>
+      </button>
+    } @else {
+      <button
+        type="button"
+        class="mobile-topbar-button"
+        [attr.aria-label]="t('menu.search')"
+        (click)="openSearch()"
+      >
+        <svg lucideSearch aria-hidden="true"></svg>
       </button>
     }
   </div>
@@ -46,25 +57,14 @@
     }
   </div>
   <div class="mobile-topbar-side mobile-topbar-side-end flex flex-1 items-center justify-end gap-0.5">
-    @if (commandPaletteService.isOpen()) {
-      <button
-        type="button"
-        class="mobile-topbar-button"
-        [attr.aria-label]="'common.close' | transloco"
-        (click)="closeSearch()"
-      >
-        <svg lucideX aria-hidden="true"></svg>
-      </button>
-    } @else {
-      <button
-        type="button"
-        class="mobile-topbar-button"
-        [attr.aria-label]="t('menu.search')"
-        (click)="openSearch()"
-      >
-        <svg lucideSearch aria-hidden="true"></svg>
-      </button>
-    }
+    <button
+      type="button"
+      class="mobile-topbar-button"
+      [attr.aria-label]="t('menu.toggleNavigation')"
+      (click)="layoutService.onMenuToggle()"
+    >
+      <svg lucideMenu aria-hidden="true"></svg>
+    </button>
   </div>
 </header>
 </ng-container>

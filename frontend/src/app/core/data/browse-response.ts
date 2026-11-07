@@ -1,5 +1,6 @@
 import {
   BrowseFacetGroup,
+  BrowseFacetIndex,
   BrowseFacetValue,
   BrowseLink,
   BrowsePage,
@@ -19,17 +20,19 @@ interface RawBrowsePage<T> {
 }
 
 interface RawFacetLink extends RawLink {
+  templated?: boolean;
   title: string;
   value: string;
-  properties?: {numberOfItems?: number};
+  properties?: {numberOfItems?: number; min?: number; max?: number};
 }
 
 interface RawFacetGroup {
-  metadata: {rel: string; key: string; title: string};
+  metadata: {rel: string; key: string; hasItems?: boolean};
   links: RawFacetLink[];
 }
 
 interface RawFacetResponse {
+  links: RawLink[];
   facets: RawFacetGroup[];
 }
 
@@ -41,13 +44,29 @@ export function mapBrowsePage<T>(response: RawBrowsePage<T>): BrowsePage<T> {
   };
 }
 
-export function mapBrowseFacetGroups(response: RawFacetResponse): BrowseFacetGroup[] {
-  return response.facets.map(group => ({
-    rel: group.metadata.rel,
+export function mapBrowseFacetIndex(response: RawFacetResponse): BrowseFacetIndex {
+  const facetKeys: string[] = [];
+  const sortTokens: string[] = [];
+  for (const group of response.facets) {
+    if (group.metadata.rel === 'facet' && group.metadata.hasItems) {
+      facetKeys.push(group.metadata.key);
+    } else if (group.metadata.rel === 'sort') {
+      sortTokens.push(...group.links.map(link => link.value));
+    }
+  }
+  return {facetKeys, sortTokens};
+}
+
+export function mapBrowseFacetPage(response: RawFacetResponse): BrowseFacetGroup {
+  const group = response.facets[0];
+  const range = group.links.find(link => link.templated);
+  return {
     key: group.metadata.key,
-    title: group.metadata.title,
-    values: group.links.map(mapBrowseFacetValue),
-  }));
+    values: group.links.filter(link => !link.templated).map(mapBrowseFacetValue),
+    min: range?.properties?.min,
+    max: range?.properties?.max,
+    complete: !response.links.some(link => normalizeRel(link.rel).includes('next')),
+  };
 }
 
 function mapBrowseLink(raw: RawLink): BrowseLink {
@@ -59,12 +78,10 @@ function mapBrowseLink(raw: RawLink): BrowseLink {
 }
 
 function mapBrowseFacetValue(raw: RawFacetLink): BrowseFacetValue {
-  const count = raw.properties?.numberOfItems;
   return {
     value: raw.value,
     title: raw.title,
-    selected: normalizeRel(raw.rel).includes('self'),
-    ...(count === undefined ? {} : {count}),
+    count: raw.properties?.numberOfItems ?? 0,
   };
 }
 

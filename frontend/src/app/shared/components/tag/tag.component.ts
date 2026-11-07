@@ -21,21 +21,21 @@ export type TagVariant = 'label' | 'pill';
       [style.background-color]="customBgColor()"
       [style.color]="customTextColor()"
     >
-      <ng-content></ng-content>
+      <ng-content />
     </span>
   `,
   styleUrls: ['./tag.component.scss']
 })
 export class TagComponent {
-  color = input<TagColor>('primary');
-  size = input<TagSize>('m');
-  variant = input<TagVariant>('label');
-  rounded = input(false);
-  pill = input(false);
-  customBgColor = input<string>();
-  customTextColor = input<string>();
+  readonly color = input<TagColor>('primary');
+  readonly size = input<TagSize>('m');
+  readonly variant = input<TagVariant>('label');
+  readonly rounded = input(false);
+  readonly pill = input(false);
+  readonly customBgColor = input<string>();
+  readonly customTextColor = input<string>();
 
-  protected tagClasses = computed(() => {
+  protected readonly tagClasses = computed(() => {
     const classes = ['app-tag', `app-tag-${this.color()}`, `app-tag-${this.size()}`];
     if (this.variant() === 'pill') classes.push('app-tag-variant-pill');
     if (this.rounded()) classes.push('app-tag-rounded');

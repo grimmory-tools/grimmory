@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, computed, inject, input, viewChild} from '@angular/core';
-import {NgClass, NgTemplateOutlet} from '@angular/common';
+import {NgTemplateOutlet} from '@angular/common';
 import {Router, RouterLink} from '@angular/router';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {LucideArrowLeft, LucideEllipsisVertical} from '@lucide/angular';
@@ -19,7 +19,6 @@ const COLLAPSE_AFTER_ITEMS = 4;
     AppMenuItemComponent,
     LucideArrowLeft,
     LucideEllipsisVertical,
-    NgClass,
     NgTemplateOutlet,
     RouterLink,
     TranslocoPipe,
@@ -91,7 +90,7 @@ const COLLAPSE_AFTER_ITEMS = 4;
       @if (breadcrumb.commands?.length && !last) {
         <a
           class="inline-flex min-h-6 min-w-0 max-w-40 items-center rounded px-1 text-inherit transition-colors duration-150 hover:bg-text/8 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary md:max-w-72"
-          [ngClass]="mobile() ? touchTargetClass : ''"
+          [class]="mobile() ? touchTargetClass : ''"
           [routerLink]="routeCommands(breadcrumb)"
           [queryParamsHandling]="breadcrumb.queryParamsHandling"
         >
@@ -114,12 +113,11 @@ const COLLAPSE_AFTER_ITEMS = 4;
   `,
 })
 export class AppPageHeaderBreadcrumbsComponent {
+  private readonly router = inject(Router);
   readonly breadcrumbs = input.required<readonly PageHeaderBreadcrumb[]>();
   readonly mobile = input(false);
   readonly dropCurrent = input(false);
   readonly touchTargetClass = "relative after:absolute after:inset-x-0 after:-inset-y-3 after:content-['']";
-
-  private readonly router = inject(Router);
   protected readonly hiddenBreadcrumbMenu = viewChild<AppMenuComponent>('hiddenBreadcrumbMenu');
 
   readonly backButton = computed(() => {

@@ -97,7 +97,7 @@ class CbxComicInfoComplianceTest {
         metadata.setIsbn10("160690373X");
         metadata.setHardcoverRating(4.0d);
 
-        writer.saveMetadataToFile(cbz, metadata, null, new MetadataClearFlags());
+        writer.saveMetadataToFile(cbz, metadata, new MetadataClearFlags());
 
         String xmlContent = readComicInfoFromCbz(cbz);
         System.out.println("Generated XML:\n" + xmlContent);

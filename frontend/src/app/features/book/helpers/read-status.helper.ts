@@ -1,9 +1,7 @@
-import {Injectable} from '@angular/core';
+import {Service} from '@angular/core';
 import {ReadStatus} from '../model/book.model';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class ReadStatusHelper {
 
   getReadStatusIcon(readStatus: ReadStatus | undefined): string {

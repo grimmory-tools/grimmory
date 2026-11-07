@@ -1,6 +1,6 @@
 import {Component, inject, Input, OnInit, OnChanges, SimpleChanges, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef} from '@angular/core';
 import {IconSelection} from '../../icons/icon-selection';
-import {NgClass, NgStyle} from '@angular/common';
+import {NgStyle} from '@angular/common';
 import {CustomSvgCacheService} from '../../services/custom-svg-cache.service';
 import {CustomSvgService} from '../../services/custom-svg.service';
 import {AppIconDirective} from '../icon/app-icon.directive';
@@ -18,20 +18,20 @@ const ERROR_SVG = [
 @Component({
   selector: 'app-icon-display',
   standalone: true,
-  imports: [NgClass, NgStyle, AppIconDirective, SvgContentDirective],
+  imports: [NgStyle, AppIconDirective, SvgContentDirective],
   template: `
     @if (icon) {
       @if (icon.type === 'CUSTOM_SVG') {
         <div
           class="svg-icon-inline"
           [appSvgContent]="getSvgContent(icon.value)"
-          [ngClass]="iconClass"
+          [class]="iconClass"
           [ngStyle]="getSvgStyle()"
         ></div>
       } @else {
         <svg
           [appIcon]="icon.value"
-          [ngClass]="iconClass"
+          [class]="iconClass"
           [ngStyle]="getSvgStyle()"
         ></svg>
       }
@@ -75,17 +75,16 @@ const ERROR_SVG = [
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class IconDisplayComponent implements OnInit, OnChanges {
+  private readonly customSvgCache = inject(CustomSvgCacheService);
+  private readonly customSvgService = inject(CustomSvgService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
   @Input() icon: IconSelection | null = null;
   @Input() iconClass: string = 'icon';
   @Input() iconStyle: Record<string, string> = {};
   @Input() size: string = '16px';
   @Input() alt: string = 'Icon';
   @Input() displayEmpty: boolean = false;
-
-  private readonly customSvgCache = inject(CustomSvgCacheService);
-  private readonly customSvgService = inject(CustomSvgService);
-  private readonly cdr = inject(ChangeDetectorRef);
-  private readonly destroyRef = inject(DestroyRef);
   private lastLoadedIconName: string | null = null;
 
   ngOnInit(): void {

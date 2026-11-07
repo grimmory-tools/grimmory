@@ -32,9 +32,9 @@ describe('LibraryHealthService', () => {
   });
 
   async function fetchHealth(): Promise<void> {
-    const fetchQuerySpy = vi.spyOn(queryClient, 'fetchQuery');
+    const querySpy = vi.spyOn(queryClient, 'query');
     service.fetchHealth();
-    await fetchQuerySpy.mock.results[0]?.value;
+    await querySpy.mock.results[0]?.value;
   }
 
   it('fetches health', async () => {

@@ -5,7 +5,6 @@ import {MagicShelfComponent, Rule, RuleOperator} from './magic-shelf-component';
 import {TranslocoService} from '@jsverse/transloco';
 import {LibraryService} from '../../book/service/library.service';
 import {ShelfService} from '../../book/service/shelf.service';
-import {BookService} from '../../book/service/book.service';
 import {MagicShelfService} from '../service/magic-shelf.service';
 import {MessageService} from '@openng/optimus-ui/api';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
@@ -29,7 +28,6 @@ describe('MagicShelfComponent (Part 3)', () => {
         {provide: TranslocoService, useValue: mockTransloco},
         {provide: LibraryService, useValue: {getLibrariesFromState: vi.fn(() => [])}},
         {provide: ShelfService, useValue: {shelves$: of([])}},
-        {provide: BookService, useValue: {bookState$: of({loaded: false, books: []})}},
         {provide: MagicShelfService, useValue: {}},
         {provide: MessageService, useValue: {add: vi.fn()}},
         {provide: DynamicDialogRef, useValue: {close: vi.fn()}},
@@ -699,33 +697,33 @@ describe('MagicShelfComponent (Part 3)', () => {
 
   describe('numericFieldConfigMap', () => {
     it('should contain readingProgress with max 100', () => {
-      const config = component.numericFieldConfigMap.get('readingProgress');
+      const config = component.numericFieldConfigMap().get('readingProgress');
       expect(config).toBeDefined();
       expect(config!.type).toBe('decimal');
       expect(config!.max).toBe(100);
     });
 
     it('should contain personalRating with max 10', () => {
-      const config = component.numericFieldConfigMap.get('personalRating');
+      const config = component.numericFieldConfigMap().get('personalRating');
       expect(config).toBeDefined();
       expect(config!.type).toBe('decimal');
       expect(config!.max).toBe(10);
     });
 
     it('should contain pageCount with type number and no max', () => {
-      const config = component.numericFieldConfigMap.get('pageCount');
+      const config = component.numericFieldConfigMap().get('pageCount');
       expect(config).toBeDefined();
       expect(config!.type).toBe('number');
       expect(config!.max).toBeUndefined();
     });
 
     it('should not contain title', () => {
-      const config = component.numericFieldConfigMap.get('title');
+      const config = component.numericFieldConfigMap().get('title');
       expect(config).toBeUndefined();
     });
 
     it('should contain abridged with type boolean', () => {
-      const config = component.numericFieldConfigMap.get('abridged');
+      const config = component.numericFieldConfigMap().get('abridged');
       expect(config).toBeDefined();
       expect(config!.type).toBe('boolean');
     });

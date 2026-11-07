@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, Output} from '@angular/core';
+import {Component, inject, output} from '@angular/core';
 import {TranslocoDirective} from '@jsverse/transloco';
 import {ReaderHeaderService} from './header.service';
 import {ReaderIconComponent} from '../../shared/icon.component';
@@ -20,7 +20,7 @@ export class ReaderHeaderComponent {
   readonly isFullscreen = this.headerService.isFullscreen;
   readonly bookTitle = this.headerService.bookTitle;
   readonly theme = this.headerService.theme;
-  @Output() hoverChange = new EventEmitter<boolean>();
+  readonly hoverChange = output<boolean>();
   overflowOpen = false;
 
   onShowChapters(): void {

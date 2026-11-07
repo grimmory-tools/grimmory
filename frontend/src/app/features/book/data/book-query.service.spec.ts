@@ -21,8 +21,7 @@ import {BookQueryService} from './book-query.service';
 
 const PARAMS: BookPageParams = {
   query: 'dune',
-  facets: {genre: ['Science Fiction']},
-  facetLogic: 'or',
+  facets: {genre: {include: ['Science Fiction'], exclude: []}},
   sort: [{key: 'title', direction: 'asc'}],
   size: 20,
 };
@@ -89,7 +88,7 @@ describe('BookQueryService', () => {
 
   it('fetches one bounded summary page with normalized parameters', async () => {
     const resultPromise = queryClient.fetchQuery(service.page(PARAMS));
-    const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/page?facet_logic=or&query=dune&facet=genre:Science%20Fiction&sort=title&size=20`);
+    const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/page?query=dune&facet=genre:Science%20Fiction&sort=title&size=20`);
     request.flush(page([1, 2]));
 
     await expect(resultPromise).resolves.toMatchObject({
@@ -101,47 +100,93 @@ describe('BookQueryService', () => {
     const resultPromise = queryClient.fetchQuery(service.page({
       ...PARAMS,
       facets: {
-        genre: ['Science Fiction'],
-        language: ['English'],
+        genre: {include: ['Science Fiction'], exclude: []},
+        language: {include: ['English'], exclude: []},
       },
     }));
     const request = http.expectOne(
-      `${API_CONFIG.BASE_URL}/api/v1/books/page?facet_logic=or&query=dune&facet=genre:Science%20Fiction&facet=language:English&sort=title&size=20`,
+      `${API_CONFIG.BASE_URL}/api/v1/books/page?query=dune&facet=genre:Science%20Fiction&facet=language:English&sort=title&size=20`,
     );
     request.flush(page([1]));
 
     await expect(resultPromise).resolves.toMatchObject({content: [{id: 1}]});
   });
 
-  it('fetches facets without sort or size', async () => {
-    const resultPromise = queryClient.fetchQuery(service.facets(PARAMS));
-    const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/facets?facet_logic=or&query=dune&facet=genre:Science%20Fiction`);
+  it('fetches the facet index as the keys of facets with items and sort tokens', async () => {
+    const resultPromise = queryClient.fetchQuery(service.facetIndex(PARAMS));
+    const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/facets?query=dune&facet=genre:Science%20Fiction`);
     request.flush({
       links: [{rel: 'self', href: '/api/v1/books/facets?query=dune', type: 'application/json'}],
       facets: [{
-        metadata: {rel: 'facet', key: 'genre', title: 'Genre'},
-        links: [{
-          rel: ['self', 'facet'],
-          href: '/api/v1/books/page?facet=genre%3AFantasy',
-          type: 'application/json',
-          title: 'Fantasy',
-          value: 'Fantasy',
-          properties: {numberOfItems: 4},
-        }],
+        metadata: {rel: 'facet', key: 'genre', title: 'Genre', hasItems: true},
+        links: [],
+      }, {
+        metadata: {rel: 'facet', key: 'narrator', title: 'Narrator', hasItems: false},
+        links: [],
+      }, {
+        metadata: {rel: 'sort', key: 'sort', title: 'Sort'},
+        links: [
+          {rel: 'sort', href: '', type: '', title: 'title ascending', value: 'title'},
+          {rel: 'sort', href: '', type: '', title: 'title descending', value: '-title'},
+        ],
       }],
     });
 
-    await expect(resultPromise).resolves.toEqual([{
-      rel: 'facet',
-      key: 'genre',
-      title: 'Genre',
-      values: [{value: 'Fantasy', title: 'Fantasy', count: 4, selected: true}],
-    }]);
+    await expect(resultPromise).resolves.toEqual({
+      facetKeys: ['genre'],
+      sortTokens: ['title', '-title'],
+    });
+  });
+
+  it('fetches one facet page with its search, noting whether more values follow', async () => {
+    const resultPromise = queryClient.fetchQuery(service.facet('author', PARAMS, ' tolk '));
+    const request = http.expectOne(
+      `${API_CONFIG.BASE_URL}/api/v1/books/facets/author?query=dune&facet=genre:Science%20Fiction&size=100&search=tolk`,
+    );
+    request.flush({
+      links: [
+        {rel: 'self', href: '/api/v1/books/facets/author?page=0&size=100', type: 'application/json'},
+        {rel: 'next', href: '/api/v1/books/facets/author?page=1&size=100', type: 'application/json'},
+      ],
+      facets: [{
+        metadata: {rel: 'facet', key: 'author', title: 'Authors'},
+        links: [{rel: 'facet', href: '', type: '', title: 'J. R. R. Tolkien', value: 'J. R. R. Tolkien', properties: {numberOfItems: 3}}],
+      }],
+    });
+
+    await expect(resultPromise).resolves.toEqual({
+      key: 'author',
+      values: [{value: 'J. R. R. Tolkien', title: 'J. R. R. Tolkien', count: 3}],
+      complete: false,
+    });
+  });
+
+  it('reads a number facet\'s bounds from its templated range link, keeping bands as values', async () => {
+    const resultPromise = queryClient.fetchQuery(service.facet('goodreads_rating', PARAMS));
+    http.expectOne(request => request.url === `${API_CONFIG.BASE_URL}/api/v1/books/facets/goodreads_rating`).flush({
+      links: [{rel: 'self', href: '/api/v1/books/facets/goodreads_rating', type: 'application/json'}],
+      facets: [{
+        metadata: {rel: 'facet', key: 'goodreads_rating', title: 'Goodreads Rating'},
+        links: [
+          {rel: 'facet', href: '/api/v1/books/page?facet=goodreads_rating%3A{min}..{max}', type: 'application/json',
+            templated: true, title: 'Goodreads Rating', properties: {min: 3.5, max: 4.8}},
+          {rel: 'facet', href: '', type: '', title: '4..<4.5', value: '4..<4.5', properties: {numberOfItems: 1}},
+        ],
+      }],
+    });
+
+    await expect(resultPromise).resolves.toEqual({
+      key: 'goodreads_rating',
+      values: [{value: '4..<4.5', title: '4..<4.5', count: 1}],
+      min: 3.5,
+      max: 4.8,
+      complete: true,
+    });
   });
 
   it('fetches matching IDs with sort but no size', async () => {
     const resultPromise = queryClient.fetchQuery(service.ids(PARAMS));
-    const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/ids?facet_logic=or&query=dune&facet=genre:Science%20Fiction&sort=title`);
+    const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/ids?query=dune&facet=genre:Science%20Fiction&sort=title`);
     request.flush([3, 1, 2]);
 
     await expect(resultPromise).resolves.toEqual([3, 1, 2]);
@@ -151,7 +196,7 @@ describe('BookQueryService', () => {
     const host = TestBed.inject(InfiniteQueryHost);
     flushSignalAndQueryEffects();
 
-    const firstRequest = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/page?facet_logic=or&query=dune&facet=genre:Science%20Fiction&sort=title&size=20`);
+    const firstRequest = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/page?query=dune&facet=genre:Science%20Fiction&sort=title&size=20`);
     expect(firstRequest.request.params.has('cursor')).toBe(false);
     firstRequest.flush({
       ...page([1]),
@@ -183,7 +228,7 @@ describe('BookQueryService', () => {
     const host = TestBed.inject(InfiniteQueryHost);
     flushSignalAndQueryEffects();
 
-    http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/page?facet_logic=or&query=dune&facet=genre:Science%20Fiction&sort=title&size=20`)
+    http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/page?query=dune&facet=genre:Science%20Fiction&sort=title&size=20`)
       .flush(page([1]));
     await vi.waitFor(() => expect(host.query.isSuccess()).toBe(true));
 

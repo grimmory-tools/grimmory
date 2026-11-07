@@ -1,6 +1,6 @@
 <ng-container *transloco="let t; prefix: 'layout'">
-<div class="layout-wrapper" [ngClass]="containerClass()" [style.--sidebar-stored-width]="storedSidebarWidth()">
-  <app-mobile-topbar></app-mobile-topbar>
+<div class="layout-wrapper" [class]="containerClass()" [style.--sidebar-stored-width]="storedSidebarWidth()">
+  <app-mobile-topbar />
   <nav
     class="layout-sidebar"
     [attr.aria-label]="t('menu.primaryNav')"
@@ -8,7 +8,7 @@
     [attr.inert]="sidebarHidden() ? '' : null"
     [cdkTrapFocus]="layoutService.mobileDrawerOpen()"
   >
-    <app-sidebar></app-sidebar>
+    <app-sidebar />
     <div
       class="layout-sidebar-resize-handle"
       tabindex="0"
@@ -24,7 +24,7 @@
     ></div>
   </nav>
   <main cdkScrollable class="layout-main">
-    <router-outlet></router-outlet>
+    <router-outlet />
   </main>
   <button type="button" class="layout-mask" [attr.aria-label]="t('closeNavigation')" (click)="closeMobileSidebar()"></button>
 </div>

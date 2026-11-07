@@ -17,6 +17,7 @@
     "next": "Вперед",
     "submit": "Надіслати",
     "remove": "Прибрати",
+    "clear": "",
     "edit": "Редагувати",
     "info": "Інформація",
     "select": "Вибрати",
@@ -296,7 +297,10 @@
       "maxWidth": "Максимальна ширина",
       "maxWidthDesc": "Встановіть ліміт ширини області читання, щоб полегшити відстеження тексту.",
       "maxHeight": "Максимальна висота",
-      "maxHeightDesc": "Встановіть ліміт висоти області читання для оптимального заповнення екрана."
+      "maxHeightDesc": "Встановіть ліміт висоти області читання для оптимального заповнення екрана.",
+      "navigation": "",
+      "tapToTurnPage": "",
+      "tapToTurnPageDesc": ""
     },
     "pdf": {
       "sectionTitle": "PDF-рідер: Стандартні налаштування",
@@ -496,8 +500,6 @@
       },
       "sortFields": {
         "title": "Назва",
-        "fileName": "Назва файлу",
-        "filePath": "Шлях до файлу",
         "addedOn": "Дата додавання",
         "author": "Автор",
         "authorSurnameVorname": "Автор (Прізвище)",
@@ -510,7 +512,6 @@
         "readStatus": "Статус читання",
         "dateFinished": "Дата завершення",
         "readingProgress": "Прогрес читання",
-        "bookType": "Тип книги",
         "pageCount": "Сторінки"
       },
       "sortDirections": {
@@ -524,10 +525,9 @@
       "defaultPreferences": "Параметри за замовчуванням",
       "defaultPreferencesDesc": "Налаштуйте режим перегляду за замовчуванням і багатопольове сортування для всіх бібліотек і полиць. Перетягуйте, щоб змінити пріоритет сортування.",
       "sortOrderLabel": "Порядок сортування (перетягніть для зміни)",
+      "formatOverlay": "Накладення типу книги",
       "ascending": "За зростанням",
       "descending": "За спаданням",
-      "remove": "Видалити",
-      "addSortField": "Додати поле сортування...",
       "autoSave": "Автозбереження під час навігації",
       "autoSaveDesc": "Автоматично зберігати зміни під час переходу до наступної або попередньої книги в редакторі метаданих.",
       "overrideManagement": "Керування перевизначеннями",
@@ -543,34 +543,6 @@
       "saveSettings": "Зберегти налаштування",
       "saveSuccess": "Налаштування збережено",
       "saveSuccessDetail": "Ваші параметри сортування та перегляду успішно збережено.",
-      "sortTitle": "Назва",
-      "sortFileName": "Назва файлу",
-      "sortFilePath": "Шлях до файлу",
-      "sortAuthor": "Автор",
-      "sortAuthorSurname": "Автор (прізвище)",
-      "sortSeriesName": "Назва серії",
-      "sortSeriesNumber": "Номер у серії",
-      "sortLastRead": "Останнє читання",
-      "sortPersonalRating": "Особистий рейтинг",
-      "sortAddedOn": "Додано",
-      "sortFileSize": "Розмір файлу",
-      "sortLocked": "Заблоковано",
-      "sortPublisher": "Видавець",
-      "sortPublishedDate": "Дата публікації",
-      "sortAmazonRating": "Рейтинг Amazon",
-      "sortAmazonCount": "К-сть оцінок Amazon",
-      "sortGoodreadsRating": "Рейтинг Goodreads",
-      "sortGoodreadsCount": "К-сть оцінок Goodreads",
-      "sortHardcoverRating": "Рейтинг Hardcover",
-      "sortHardcoverCount": "К-сть оцінок Hardcover",
-      "sortRanobedbRating": "Рейтинг Ranobedb",
-      "sortReadStatus": "Статус читання",
-      "sortDateFinished": "Дата завершення",
-      "sortReadingProgress": "Прогрес читання",
-      "sortBookType": "Формат файлу",
-      "sortNarrator": "Диктор",
-      "sortPages": "Сторінки",
-      "sortRandom": "Випадково",
       "entityLibrary": "Бібліотека",
       "entityShelf": "Полиця",
       "entityMagicShelf": "Магічна полиця",
@@ -580,25 +552,7 @@
       "sortSaved": "Сортування збережено",
       "sortSavedDetail": "Конфігурацію сортування збережено для цього {{entityType}}.",
       "editSort": "Редагувати сортування",
-      "tableSortConfig": "Конфігурація сортування",
-      "visibleSortFields": "Видимі поля сортування",
-      "visibleSortFieldsDesc": "Виберіть, які поля сортування відображатимуться у випадаючому списку сортування в браузері книг, і перетягніть їх для зміни порядку.",
-      "sortFieldCount": "Вибрано {{count}} із {{total}}",
-      "resetToDefaults": "Скинути до стандартних"
-    },
-    "filter": {
-      "sectionTitle": "Налаштування фільтрів",
-      "sectionDesc": "Налаштуйте параметри за замовчуванням для елементів керування фільтрами, що відображаються у бічній панелі.",
-      "filterMode": "Режим фільтрації",
-      "filterModeDesc": "Виберіть режим за замовчуванням для поєднання фільтрів, вибраних у правій бічній панелі фільтрів.",
-      "visibleFilters": "Видимі фільтри",
-      "visibleFiltersDesc": "Виберіть, які фільтри з'являтимуться на бічній панелі, і перетягніть їх для зміни порядку. Від {{min}} до {{max}} фільтрів.",
-      "selectionCount": "Вибрано {{count}} із {{total}}",
-      "addFilter": "Додати фільтр...",
-      "resetToDefaults": "Скинути до стандартних",
-      "modeAnd": "І",
-      "modeOr": "Або",
-      "modeSingle": "Одиночний"
+      "tableSortConfig": "Конфігурація сортування"
     },
     "sidebarSort": {
       "sectionTitle": "Налаштування сортування бібліотек і полиць у бічній панелі",
@@ -748,62 +702,13 @@
         "isbn13": "",
         "isbn10": "",
         "pageCount": "Кількість сторінок",
-        "amazonRating": "Рейтинг Amazon",
-        "amazonReviewCount": "К-сть оцінок Amazon",
-        "goodreadsRating": "Рейтинг Goodreads",
-        "goodreadsReviewCount": "К-сть оцінок Goodreads",
-        "hardcoverRating": "Рейтинг Hardcover",
-        "hardcoverReviewCount": "К-сть оцінок Hardcover",
-        "audibleRating": "Рейтинг Audible",
-        "audibleReviewCount": "К-сть оцінок Audible",
-        "applebooksId": "",
-        "applebooksRating": "",
-        "applebooksReviewCount": "",
         "doubanRating": "Рейтинг Douban",
-        "doubanReviewCount": "К-сть оцінок Douban",
-        "ranobedbRating": "Рейтинг Ranobedb"
+        "doubanReviewCount": "К-сть оцінок Douban"
       }
     },
     "fieldSelector": {
       "sectionTitle": "Увімкнені поля в редакторі та виборі метаданих",
-      "sectionDesc": "Виберіть, які поля метаданих відображати під час редагування інформації про книгу або вибору метаданих від провайдерів. Вимкнені поля будуть приховані з інтерфейсу.",
-      "providers": {
-        "openlibrary": "",
-        "amazon": "",
-        "googleBooks": "",
-        "goodreads": "",
-        "hardcover": "",
-        "audible": "",
-        "applebooks": "",
-        "comicvine": "",
-        "lubimyczytac": "",
-        "ranobedb": ""
-      },
-      "fields": {
-        "openlibraryId": "",
-        "asin": "",
-        "amazonRating": "Рейтинг Amazon",
-        "amazonReviewCount": "Кількість відгуків Amazon",
-        "googleId": "ID Google Books",
-        "goodreadsId": "ID Goodreads",
-        "goodreadsRating": "Рейтинг Goodreads",
-        "goodreadsReviewCount": "Кількість відгуків Goodreads",
-        "hardcoverId": "ID Hardcover",
-        "hardcoverBookId": "ID книги Hardcover",
-        "hardcoverRating": "Рейтинг Hardcover",
-        "hardcoverReviewCount": "Кількість відгуків Hardcover",
-        "comicvineId": "ID Comicvine",
-        "lubimyczytacId": "ID Lubimyczytac",
-        "lubimyczytacRating": "Рейтинг Lubimyczytac",
-        "ranobedbId": "ID Ranobedb",
-        "ranobedbRating": "Рейтинг Ranobedb",
-        "audibleId": "ID Audible",
-        "audibleRating": "Рейтинг Audible",
-        "audibleReviewCount": "Кількість відгуків Audible",
-        "applebooksId": "",
-        "applebooksRating": "",
-        "applebooksReviewCount": ""
-      }
+      "sectionDesc": "Виберіть, які поля метаданих відображати під час редагування інформації про книгу або вибору метаданих від провайдерів. Вимкнені поля будуть приховані з інтерфейсу."
     }
   },
   "settingsLibMeta": {
@@ -1208,6 +1113,7 @@
     "deleteSuccess": "Користувача успішно видалено",
     "deleteError": "Не вдалося видалити користувача",
     "opdsCopied": "Ендпоінт OPDS скопійовано в буфер обміну",
+    "copyFailed": "",
     "komgaCopied": "Ендпоінт Komga API скопійовано в буфер обміну",
     "sortUpdateSuccess": "Порядок сортування успішно оновлено",
     "sortUpdateError": "Не вдалося оновити порядок сортування",
@@ -1462,8 +1368,6 @@
       "syncConfigDesc": "Увімкніть і налаштуйте синхронізацію між вашою бібліотекою Grimmory та пристроєм KOReader.",
       "enableSync": "Увімкнути синхронізацію KOReader",
       "enableSyncDesc": "Увімкніть синхронізацію, щоб автоматично синхронізувати ваш прогрес читання.",
-      "syncWithGrimmory": "Синхронізувати прогрес читання з рідером eBook Grimmory",
-      "syncWithGrimmoryDesc": "Увімкніть двосторонню синхронізацію між рідером eBook Grimmory і KOReader. <strong>Примітка:</strong> Синхронізація прогресу є приблизною і може оновлюватися за розділами, а не за точною сторінкою чи позицією.",
       "apiPath": "Шлях API KOReader",
       "apiPathDesc": "Шлях до API-ендпоінта вашого сервісу синхронізації KOReader.",
       "username": "Ім'я користувача KOReader",
@@ -1546,9 +1450,6 @@
       "syncEnabled": "Синхронізацію Kobo увімкнено",
       "syncDisabled": "Синхронізацію Kobo вимкнено",
       "progressUpdated": "Пороги прогресу успішно оновлено",
-      "twoWaySyncLabel": "Двостороння синхронізація прогресу читання",
-      "twoWaySyncDesc": "Увімкніть двосторонню синхронізацію між веб-рідером Grimmory та вашим пристроєм Kobo. Прогрес читання, зроблений на будь-якій платформі, буде відображений на іншій.",
-      "twoWaySyncNote": "Примітка: через різні формати позицій точність синхронізації є найкращим можливим наближенням. У більшості випадків прогрес буде точним до рівня розділу.",
       "twoWaySyncKepubWarning": "",
       "twoWaySyncKepubWarningAdmin": "",
       "twoWaySyncEnabled": "Двосторонню синхронізацію прогресу увімкнено",
@@ -1813,7 +1714,8 @@
       },
       "shelfMenu": {
         "addToShelf": "",
-        "newShelf": ""
+        "newShelf": "",
+        "removeFromAllShelves": ""
       },
       "spinner": {
         "loading": ""
@@ -1832,6 +1734,9 @@
         "parse": "",
         "pattern": "",
         "required": ""
+      },
+      "bulkActions": {
+        "selectAll": "Вибрати все"
       }
     }
   },
@@ -1839,6 +1744,7 @@
     "commandPalette": {
       "placeholder": "",
       "empty": "",
+      "bookSearchError": "",
       "hintNavigate": "",
       "hintSelect": "",
       "ariaLabel": "",
@@ -2255,29 +2161,6 @@
       "audiobookDetails": "Деталі аудіокниги",
       "comicBookDetails": "Деталі коміксу",
       "providerMetadata": "Метадані провайдера",
-      "openlibraryId": "",
-      "amazonAsin": "",
-      "amazonRating": "",
-      "amazonReviewCount": "",
-      "googleBooksId": "ID Google Books",
-      "goodreadsId": "ID Goodreads",
-      "goodreadsRating": "",
-      "goodreadsReviewCount": "",
-      "hardcoverId": "ID Hardcover",
-      "hardcoverBookId": "ID книги Hardcover",
-      "hardcoverRating": "",
-      "hardcoverReviewCount": "",
-      "lubimyczytacId": "ID Lubimyczytac",
-      "lubimyczytacRating": "",
-      "comicvineId": "ID Comicvine",
-      "ranobedbId": "ID Ranobedb",
-      "ranobedbRating": "",
-      "audibleId": "ID Audible",
-      "audibleRating": "",
-      "audibleReviewCount": "",
-      "applebooksId": "",
-      "applebooksRating": "",
-      "applebooksReviewCount": "",
       "closeBtn": "Закрити",
       "previousBookBtn": "Попередня книга",
       "nextBookBtn": "Наступна книга",
@@ -2338,7 +2221,6 @@
       }
     },
     "picker": {
-      "loadingMetadata": "Завантаження повних метаданих...",
       "columnCurrent": "Поточні",
       "columnFetched": "Отримані",
       "copyMissingTooltip": "Скопіювати відсутні поля",
@@ -2399,9 +2281,10 @@
       "fetching": "Отримання...",
       "readyToSearch": "Готово до пошуку",
       "readyToSearchHint": "Введіть критерії пошуку вище й натисніть Пошук, щоб знайти метадані",
+      "noProviders": "",
       "noResultsFound": "Результатів не знайдено",
       "noResultsHint": "Спробуйте змінити критерії пошуку або вибрати інших провайдерів",
-      "unknownProvider": "",
+      "searchFailed": "",
       "selectOverlay": "Вибрати"
     },
     "tabs": {
@@ -2514,6 +2397,8 @@
       "goToPreviousBook": "Перейти до попередньої книги",
       "goToNextBook": "Перейти до наступної книги",
       "personalRating": "Особистий рейтинг",
+      "ratingTooltip": "",
+      "ratingTooltipNoReviews": "",
       "loadingBookDetails": "Завантаження деталей книги...",
       "readStatusUnread": "Не прочитано",
       "readStatusPaused": "Пауза",
@@ -2619,6 +2504,7 @@
       "byLabel": "Ким:",
       "coverFileLabel": "Файл обкладинки:",
       "loading": "Завантаження даних sidecar...",
+      "readFailed": "",
       "syncStatusInSync": "Синхронізовано",
       "syncStatusOutdated": "Застаріло",
       "syncStatusConflict": "Конфлікт",
@@ -2652,6 +2538,7 @@
       "searchingForCovers": "Пошук обкладинок...",
       "noCoversFound": "Обкладинок не знайдено",
       "noCoversFoundDescription": "Спробуйте змінити пошукові запити або перевірте правопис.",
+      "searchFailed": "",
       "coversFoundSingular": "Знайдено {{ count }} обкладинку",
       "coversFoundPlural": "Знайдено {{ count }} обкладинок",
       "resultsHint": "Натисніть на зображення для попереднього перегляду або виберіть для застосування",
@@ -2796,10 +2683,31 @@
       "toast": {
         "providerRequiredSummary": "Помилка",
         "providerRequiredDetail": "Для кожного увімкненого поля книги потрібно вибрати щонайменше одного провайдера (P1-P4)."
-      }
+      },
+      "inactiveProvider": ""
     },
     "fetchOptions": {
       "startRefresh": "Почати оновлення"
+    },
+    "providers": {
+      "openLibrary": "",
+      "amazon": "",
+      "google": "",
+      "goodReads": "",
+      "hardcover": "",
+      "comicvine": "",
+      "douban": "",
+      "lubimyczytac": "",
+      "ranobedb": "",
+      "audible": "",
+      "appleBooks": ""
+    },
+    "providerFields": {
+      "id": "",
+      "rating": "",
+      "reviewCount": "",
+      "asin": "",
+      "hardcoverBookId": ""
     }
   },
   "notebook": {
@@ -2837,71 +2745,31 @@
         "customCoverHeader": "Підтвердження генерації власних обкладинок"
       },
       "toast": {
-        "sortSavedSummary": "Сортування збережено",
-        "sortSavedGlobalDetail": "Конфігурацію сортування за замовчуванням збережено.",
-        "sortSavedEntityDetail": "Конфігурацію сортування для цього {{ entityType }} збережено.",
         "regenCoverStartedSummary": "Перегенерацію обкладинок розпочато",
         "regenCoverStartedDetail": "Перегенерування обкладинок для {{ count }} кн. Оновіть сторінку після завершення.",
         "customCoverStartedSummary": "Запущено генерацію власних обкладинок",
         "customCoverStartedDetail": "Генерація власних обкладинок для {{ count }} кн.",
         "failedSummary": "Не вдалося",
         "regenCoverFailedDetail": "Не вдалося розпочати перегенерацію обкладинок.",
-        "customCoverFailedDetail": "Не вдалося розпочати створення власних обкладинок.",
-        "unshelveSuccessDetail": "Книжкові полиці оновлено",
-        "unshelveFailedDetail": "Не вдалося оновити книжкові полиці",
-        "noEligibleBooksSummary": "Немає відповідних книг",
-        "noEligibleBooksDetail": "Вибрані книги мають складатися з одного файлу (без альтернативних форматів).",
-        "multipleLibrariesSummary": "Кілька бібліотек",
-        "multipleLibrariesDetail": "Усі вибрані книги мають бути з однієї бібліотеки."
+        "customCoverFailedDetail": "Не вдалося розпочати створення власних обкладинок."
       },
       "loading": {
-        "deleting": "Видалення {{ count }} кн...",
-        "unshelving": "Вилучення {{ count }} кн. з полиць..."
+        "deleting": "Видалення {{ count }} кн..."
       },
       "labels": {
         "allBooks": "Усі книги",
-        "unshelvedBooks": "Вилучені з полиць",
-        "unshelvedBooksFiltered": "Вилучені з полиць (відфільтровані)",
-        "filteredSuffix": "(Відфільтровані)",
-        "seriesCollapsedInfo": "Відображено {{ count }} {{ itemWord }} (серії згорнуто)",
-        "item": "eлемент",
-        "items": "елементи",
-        "selected": "вибрано",
-        "setAsDefault": "Встановити за замовчуванням?",
-        "save": "Зберегти",
-        "collapseSeries": "Згорнути серії",
-        "gridColumns": "Стовпці сітки",
-        "bookTypeOverlay": "Накладення типу книги",
-        "noBooks": "У цій колекції немає книг!",
-        "failedLibrary": "Не вдалося завантажити книги з бібліотеки!",
-        "failedShelf": "Не вдалося завантажити книги з полиці!",
-        "failedBooks": "",
-        "activeFilters": "{{ count }} активних фільтрів"
-      },
-      "tooltip": {
-        "clearFilters": "Очистити застосовані фільтри",
-        "visibleColumns": "Видимі стовпці",
-        "selectSorting": "Вибрати сортування",
-        "toggleView": "Переключити вигляд (сітка/таблиця)",
-        "search": "Пошук",
-        "toggleSidebar": "Показати/приховати фільтри",
-        "metadataActions": "Дії з метаданими",
-        "assignToShelf": "Додати на полицю",
-        "removeFromShelf": "Прибрати з цієї полиці",
-        "lockUnlockMetadata": "Заблокувати/Розблокувати метадані",
-        "organizeFiles": "Організувати файли",
-        "attachToBook": "Приєднати до іншої книги",
-        "moreActions": "Додаткові дії",
-        "selectAll": "Вибрати всі книги",
-        "deselectAll": "Зняти виділення з усіх книг",
-        "deleteSelected": "Видалити вибрані книги"
-      },
-      "placeholder": {
-        "selectColumns": "Вибрати стовпці",
-        "search": "Назва, автор, серія, жанр або ISBN..."
+        "unshelvedBooks": "Вилучені з полиць"
       }
     },
     "card": {
+      "book": {
+        "physical": "",
+        "unknownTitle": "Невідома назва"
+      },
+      "aria": {
+        "bookMenu": "",
+        "coverAlt": "Обкладинка {{ title }}"
+      },
       "menu": {
         "assignShelf": "Додати до полиці",
         "viewDetails": "Переглянути деталі",
@@ -2967,6 +2835,61 @@
         "continueReading": "Продовжити читання",
         "readStatusMenu": "Змінити статус читання"
       }
+    },
+    "menu": {
+      "label": "",
+      "openInNewTab": "",
+      "addToShelf": "",
+      "markAs": "",
+      "send": "",
+      "quickSend": "Швидка відправка",
+      "customSend": "Налаштована відправка",
+      "download": "Завантажити",
+      "metadata": "Метадані",
+      "editMetadata": "Редагувати метадані",
+      "fetchMetadata": "",
+      "fetchMetadataWithOptions": "",
+      "searchProviders": "",
+      "restoreCover": "",
+      "generateCover": "",
+      "lockMetadata": "",
+      "more": "Більше",
+      "organizeFile": "Організувати файл",
+      "resetGrimmoryProgress": "Скинути прогрес у Grimmory",
+      "resetKoreaderProgress": "Скинути прогрес у KOReader",
+      "deleteEntireBook": "",
+      "confirm": {
+        "deleteBookMessage": "Ви впевнені, що хочете видалити \"{{ title }}\"?\n\nЦе назавжди видалить файл книги з вашої файлової системи.\n\nЦю дію неможливо скасувати.",
+        "deleteBookHeader": "Підтвердження видалення",
+        "deleteFileMessage": "Ви впевнені, що хочете видалити додатковий файл \"{{ fileName }}\"?",
+        "deleteFileHeader": "Підтвердження видалення файлу",
+        "largeFileMessage": "Розмір цього файлу перевищує 25 МБ. Деякі поштові сервіси можуть відхиляти великі вкладення.\n\nВсе одно надіслати?",
+        "largeFileHeader": "Попередження про великий файл",
+        "sendAnyway": "Все одно надіслати"
+      }
+    },
+    "readAction": {
+      "read": {
+        "short": "",
+        "long": "Читати книгу"
+      },
+      "continueReading": {
+        "short": "Продовжити",
+        "long": "Продовжити читання"
+      },
+      "play": {
+        "short": "Відтворити",
+        "long": "Слухати аудіокнигу"
+      },
+      "continueListening": {
+        "short": "Продовжити",
+        "long": "Продовжити прослуховування"
+      }
+    },
+    "selectBook": "",
+    "viewMode": {
+      "grid": "Сітка",
+      "table": "Таблиця"
     },
     "notes": {
       "confirm": {
@@ -3095,7 +3018,8 @@
         "customFetchMetadata": "Налаштовуване отримання метаданих",
         "autoFetchMetadata": "Автозавантаження метаданих",
         "findDuplicates": "Знайти дублікати",
-        "deleteLibrary": "Видалити бібліотеку"
+        "deleteLibrary": "Видалити бібліотеку",
+        "manageLibrary": "Керувати бібліотекою"
       },
       "shelf": {
         "publicShelfPrefix": "Публічна полиця - ",
@@ -3136,48 +3060,12 @@
         "deletingLibrary": "Видалення бібліотеки '{{ name }}'..."
       }
     },
-    "columnPref": {
-      "columns": {
-        "readStatus": "Статус",
-        "title": "Назва",
-        "authors": "Автори",
-        "publisher": "Видавець",
-        "seriesName": "Серія",
-        "seriesNumber": "№ у серії",
-        "categories": "Жанри",
-        "publishedDate": "Опубліковано",
-        "lastReadTime": "Останнє читання",
-        "addedOn": "Додано",
-        "fileName": "Назва файлу",
-        "fileSizeKb": "Розмір файлу",
-        "language": "Мова",
-        "isbn": "",
-        "pageCount": "Сторінки",
-        "amazonRating": "",
-        "amazonReviewCount": "",
-        "goodreadsRating": "",
-        "goodreadsReviewCount": "",
-        "hardcoverRating": "",
-        "hardcoverReviewCount": "",
-        "ranobedbRating": ""
-      },
-      "toast": {
-        "savedSummary": "Налаштування збережено",
-        "savedDetail": "Схему стовпців збережено."
-      }
-    },
     "coverPref": {
       "toast": {
         "savedSummary": "Розмір обкладинки збережено",
         "savedDetail": "Розмір обкладинки встановлено на {{ scale }}x.",
         "saveFailedSummary": "Не вдалося зберегти",
         "saveFailedDetail": "Не вдалося локально зберегти налаштування розміру обкладинки."
-      }
-    },
-    "filterPref": {
-      "toast": {
-        "saveFailedSummary": "Не вдалося зберегти",
-        "saveFailedDetail": "Не вдалося локально зберегти налаштування фільтра бокової панелі."
       }
     },
     "reviews": {
@@ -3266,7 +3154,9 @@
       "validationReady": "Готово до створення",
       "cancelButton": "Скасувати",
       "addButton": "Додати паперову книгу",
-      "fetchMetadataTooltip": "Отримати метадані за ISBN"
+      "fetchMetadataTooltip": "Отримати метадані за ISBN",
+      "metadataNotFound": "",
+      "metadataLookupFailed": ""
     },
     "bulkIsbnImport": {
       "title": "Імпорт ISBN",
@@ -3337,41 +3227,7 @@
       }
     },
     "filter": {
-      "title": "Фільтри",
       "showingFirst100": "Показано перші 100 елементів",
-      "footerNote": "Примітка: у кожній категорії фільтра показано топ-100 елементів",
-      "labels": {
-        "author": "Автор",
-        "category": "Жанр",
-        "series": "Серія",
-        "bookType": "Тип книги",
-        "readStatus": "Статус читання",
-        "personalRating": "Особистий рейтинг",
-        "publisher": "Видавець",
-        "matchScore": "Оцінка збігу метаданих",
-        "library": "Бібліотека",
-        "shelf": "Полиця",
-        "shelfStatus": "Статус полиці",
-        "tag": "Тег",
-        "publishedDate": "Рік видання",
-        "fileSize": "Розмір файлу",
-        "amazonRating": "Рейтинг Amazon",
-        "goodreadsRating": "Рейтинг Goodreads",
-        "hardcoverRating": "Рейтинг Hardcover",
-        "lubimyczytacRating": "",
-        "ranobedbRating": "",
-        "audibleRating": "",
-        "language": "Мова",
-        "pageCount": "Кількість сторінок",
-        "mood": "Настрій",
-        "ageRating": "Віковий рейтинг",
-        "contentRating": "Рейтинг контенту",
-        "narrator": "Оповідач",
-        "comicCharacter": "Персонаж коміксу",
-        "comicTeam": "Команда коміксу",
-        "comicLocation": "Локація коміксу",
-        "comicCreator": "Творець коміксу"
-      },
       "readStatus": {
         "unread": "Не прочитано",
         "reading": "Читаю",
@@ -3424,14 +3280,6 @@
       "shelfStatus": {
         "shelved": "На полиці",
         "unshelved": "Поза полицями"
-      },
-      "comicRoles": {
-        "penciller": "Пенсилер",
-        "inker": "Тушувальник",
-        "colorist": "Колорист",
-        "letterer": "Леттерер",
-        "coverArtist": "Художник обкладинки",
-        "editor": "Редактор"
       }
     },
     "shelfAssigner": {
@@ -3494,27 +3342,6 @@
         "updateFailedDetail": "Під час оновлення полиці сталася помилка. Спробуйте ще раз."
       }
     },
-    "table": {
-      "label": "",
-      "bookCoverAlt": "Обкладинка книги",
-      "selectBook": "",
-      "selectBookFallback": "",
-      "noRating": "",
-      "ratingOutOf": "",
-      "statusWithPrefix": "Статус: {{ status }}",
-      "locked": "Заблоковано",
-      "unlocked": "Розблоковано",
-      "toast": {
-        "metadataLockedSummary": "Метадані заблоковано",
-        "metadataLockedDetail": "Метадані книги успішно заблоковано.",
-        "metadataUnlockedSummary": "Метадані розблоковано",
-        "metadataUnlockedDetail": "Метадані книги успішно розблоковано.",
-        "lockFailedSummary": "Не вдалося заблокувати",
-        "lockFailedDetail": "Під час блокування метаданих сталася помилка.",
-        "unlockFailedSummary": "Не вдалося розблокувати",
-        "unlockFailedDetail": "Під час розблокування метаданих сталася помилка."
-      }
-    },
     "lockUnlockDialog": {
       "title": "Блокування або розблокування метаданих",
       "selectedCount": "Вибрано {{ count }} кн.",
@@ -3535,42 +3362,7 @@
       }
     },
     "sorting": {
-      "sortOrder": "Порядок сортування",
-      "removeTooltip": "Видалити",
-      "addSortFieldPlaceholder": "Додайте поле сортування...",
-      "saveAsDefault": "Зберегти як значення за замовчуванням",
-      "ascendingTooltip": "За зростанням - натисніть, щоб змінити",
-      "descendingTooltip": "За спаданням - натисніть, щоб змінити",
-      "options": {
-        "title": "Назва",
-        "fileName": "Назва файлу",
-        "filePath": "Шлях до файлу",
-        "author": "Автор",
-        "authorSurnameVorname": "Автор (Прізвище)",
-        "seriesName": "Назва серії",
-        "seriesNumber": "Номер у серії",
-        "lastReadTime": "Останнє читання",
-        "personalRating": "Особистий рейтинг",
-        "addedOn": "Додано",
-        "fileSizeKb": "Розмір файлу",
-        "locked": "Заблоковано",
-        "publisher": "Видавець",
-        "publishedDate": "Дата публікації",
-        "readStatus": "Статус читання",
-        "dateFinished": "Дата завершення",
-        "readingProgress": "Прогрес читання",
-        "bookType": "Тип книги",
-        "amazonRating": "Рейтинг Amazon",
-        "amazonReviewCount": "",
-        "goodreadsRating": "Рейтинг Goodreads",
-        "goodreadsReviewCount": "",
-        "hardcoverRating": "Рейтинг Hardcover",
-        "hardcoverReviewCount": "",
-        "ranobedbRating": "Рейтинг Ranobedb",
-        "narrator": "Оповідач",
-        "pageCount": "Сторінки",
-        "random": "Випадково"
-      }
+      "saveAsDefault": "Зберегти як значення за замовчуванням"
     },
     "fileAttacher": {
       "title": "Прикріпити файл до іншої книги",
@@ -3734,6 +3526,53 @@
         "mergeFailedDetail": "Не вдалося об'єднати цю групу.",
         "mergePartialDetail": "{{ success }} об'єднано, {{ failed }} не вдалося."
       }
+    },
+    "fields": {
+      "random": "Випадково",
+      "title": "Назва",
+      "author": "Автор",
+      "authorSurname": "Автор (Прізвище)",
+      "genre": "Жанр",
+      "series": "Серія",
+      "seriesNumber": "Номер у серії",
+      "publisher": "Видавець",
+      "tag": "Тег",
+      "mood": "Настрій",
+      "language": "Мова",
+      "narrator": "Оповідач",
+      "fileType": "Тип книги",
+      "readStatus": "Статус читання",
+      "personalRating": "Особистий рейтинг",
+      "amazonRating": "Рейтинг Amazon",
+      "amazonReviewCount": "Amazon #",
+      "goodreadsRating": "Рейтинг Goodreads",
+      "goodreadsReviewCount": "Goodreads #",
+      "hardcoverRating": "Рейтинг Hardcover",
+      "hardcoverReviewCount": "Hardcover #",
+      "ranobedbRating": "Рейтинг Ranobedb",
+      "pageCount": "Сторінки",
+      "publishedDate": "Дата публікації",
+      "publishedYear": "Рік видання",
+      "addedOn": "Додано",
+      "lastReadTime": "Останнє читання",
+      "dateFinished": "Дата завершення",
+      "readingProgress": "Прогрес читання",
+      "fileName": "Назва файлу",
+      "fileSize": "Розмір файлу",
+      "isbn": "",
+      "library": "Бібліотека",
+      "shelf": "Полиця",
+      "ageRating": "Віковий рейтинг",
+      "contentRating": "Рейтинг контенту",
+      "matchScore": "Оцінка збігу метаданих",
+      "shelfStatus": "Статус полиці",
+      "comicCharacter": "Персонаж коміксу",
+      "comicTeam": "Команда коміксу",
+      "comicLocation": "Локація коміксу",
+      "comicCreator": "Творець коміксу",
+      "lubimyczytacRating": "",
+      "audibleReviewCount": "Кількість відгуків Audible",
+      "audibleRating": ""
     }
   },
   "readerAudiobook": {
@@ -5064,22 +4903,12 @@
       "fileSize": "Розмір файлу (КБ)",
       "fileType": "Тип файлу",
       "subtitle": "Підзаголовок",
-      "amazonRating": "Рейтинг Amazon",
-      "amazonReviewCount": "Кількість відгуків Amazon",
-      "goodreadsRating": "Рейтинг Goodreads",
-      "goodreadsReviewCount": "Кількість відгуків Goodreads",
-      "hardcoverRating": "Рейтинг Hardcover",
-      "hardcoverReviewCount": "Кількість відгуків Hardcover",
-      "ranobedbRating": "Рейтинг Ranobedb",
       "genre": "Жанр",
       "addedOn": "Дата додавання",
-      "lubimyczytacRating": "Рейтинг Lubimyczytac",
       "description": "Опис",
       "narrator": "Оповідач",
       "ageRating": "Віковий рейтинг",
       "contentRating": "Рейтинг контенту",
-      "audibleRating": "Рейтинг Audible",
-      "audibleReviewCount": "Кількість відгуків Audible",
       "abridged": "Скорочена",
       "audiobookDuration": "Тривалість аудіокниги (с)",
       "audiobookCodec": "Кодек",
@@ -5209,31 +5038,9 @@
       "seriesTotal": "Всього в серії",
       "isbn13": "",
       "isbn10": "",
-      "asin": "",
       "ageRating": "Віковий рейтинг",
       "contentRating": "Рейтинг контенту",
       "personalRating": "Особистий рейтинг",
-      "amazonRating": "Рейтинг Amazon",
-      "goodreadsRating": "Рейтинг Goodreads",
-      "hardcoverRating": "Рейтинг Hardcover",
-      "ranobedbRating": "Рейтинг Ranobedb",
-      "lubimyczytacRating": "Рейтинг Lubimyczytac",
-      "audibleRating": "Рейтинг Audible",
-      "applebooksRating": "",
-      "amazonReviewCount": "Відгуки Amazon",
-      "goodreadsReviewCount": "Відгуки Goodreads",
-      "hardcoverReviewCount": "Відгуки Hardcover",
-      "audibleReviewCount": "Відгуки Audible",
-      "applebooksReviewCount": "",
-      "openlibraryId": "",
-      "goodreadsId": "ID Goodreads",
-      "hardcoverId": "ID Hardcover",
-      "googleId": "ID Google",
-      "audibleId": "ID Audible",
-      "applebooksId": "",
-      "lubimyczytacId": "ID Lubimyczytac",
-      "ranobedbId": "ID Ranobedb",
-      "comicvineId": "ID ComicVine",
       "narrator": "Оповідач",
       "abridged": "Скорочена",
       "audiobookDuration": "Тривалість",
@@ -5431,6 +5238,84 @@
         "matchFailedSummary": "Не вдалося зіставити",
         "matchFailedDetail": "Не вдалося зіставити автора із зовнішніми метаданими."
       }
+    }
+  },
+  "browse": {
+    "showAll": "Показати все",
+    "showMore": "",
+    "showFewer": "",
+    "clearFilters": "",
+    "filter": "",
+    "moreActions": "Додаткові дії",
+    "sort": {
+      "multiSort": "",
+      "addField": "",
+      "apply": "Застосувати",
+      "moveUp": "",
+      "moveDown": "",
+      "flipDirection": ""
+    },
+    "chips": {
+      "removeSearch": ""
+    },
+    "rail": {
+      "searchValues": "",
+      "searchFields": "",
+      "searchScope": {
+        "allBooks": "",
+        "library": "",
+        "shelf": "",
+        "magicShelf": "",
+        "unshelved": ""
+      },
+      "noMatches": "",
+      "minUnit": "",
+      "maxUnit": "",
+      "min": "",
+      "max": ""
+    },
+    "book": {
+      "empty": "",
+      "filteredEmpty": "",
+      "loadError": "",
+      "pageError": ""
+    },
+    "table": {
+      "moreValues": ""
+    },
+    "toolbar": {
+      "columnGroups": {
+        "reading": "",
+        "publishing": "",
+        "file": "Файл",
+        "categorization": "",
+        "ratings": "Рейтинги"
+      },
+      "sort": "",
+      "sortAria": "",
+      "sortAscending": "",
+      "sortDescending": "",
+      "shuffleAgain": "",
+      "viewMode": "Вигляд",
+      "density": "Розмір",
+      "smallerCards": "",
+      "largerCards": "",
+      "showFilters": "",
+      "columns": "",
+      "resetColumns": "Відновити стандартні"
+    },
+    "bulk": {
+      "markAsMessage": "",
+      "editAll": "",
+      "editOneByOne": "",
+      "selectionEmpty": "",
+      "selectionLoadError": "",
+      "organizeFiles": "Організувати файли",
+      "updateReadStatus": "Оновити статус читання",
+      "lockUnlockMetadata": "Заблокувати/Розблокувати метадані"
+    },
+    "filterPage": {
+      "show": ""
     }
   }
 }

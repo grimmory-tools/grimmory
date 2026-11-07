@@ -6,12 +6,11 @@
         [style]="{'width': '60px', 'height': '60px'}"
         strokeWidth="3"
         fill="transparent"
-        animationDuration="1.5s">
-      </p-progressSpinner>
+        animationDuration="1.5s" />
     </div>
   }
 
-  @if (!loading()) {
+  @else {
     <div class="browse-header">
       <h2 class="browse-title">{{ t('browseAllAuthors') }}</h2>
 
@@ -35,14 +34,13 @@
             (ngModelChange)="onSortChange($event)"
             optionLabel="label"
             optionValue="value"
-            class="sort-dropdown">
-          </p-select>
+            class="sort-dropdown" />
 
-          <button class="sort-direction-btn" (click)="toggleSortDirection()">
+          <button type="button" class="sort-direction-btn" (click)="toggleSortDirection()">
             <i class="pi" [class.pi-arrow-up]="sortDirection() === 'asc'" [class.pi-arrow-down]="sortDirection() === 'desc'"></i>
           </button>
 
-          <button class="filter-btn" (click)="filterPopover.toggle($event)">
+          <button type="button" class="filter-btn" (click)="filterPopover.toggle($event)">
             <i class="pi pi-filter"></i>
             @if (activeFilterCount() > 0) {
               <span class="filter-badge"></span>
@@ -84,8 +82,7 @@
                   (ngModelChange)="onFilterChange('matchStatus', $event)"
                   optionLabel="label"
                   optionValue="value"
-                  class="filter-dropdown">
-                </p-select>
+                  class="filter-dropdown" />
               </div>
 
               <div class="filter-group">
@@ -100,8 +97,7 @@
                   (ngModelChange)="onFilterChange('photoStatus', $event)"
                   optionLabel="label"
                   optionValue="value"
-                  class="filter-dropdown">
-                </p-select>
+                  class="filter-dropdown" />
               </div>
 
               <div class="filter-group">
@@ -118,8 +114,7 @@
                   (ngModelChange)="onFilterChange('readStatus', $event)"
                   optionLabel="label"
                   optionValue="value"
-                  class="filter-dropdown">
-                </p-select>
+                  class="filter-dropdown" />
               </div>
 
               <div class="filter-group">
@@ -142,8 +137,7 @@
                   (ngModelChange)="onFilterChange('bookCount', $event)"
                   optionLabel="label"
                   optionValue="value"
-                  class="filter-dropdown">
-                </p-select>
+                  class="filter-dropdown" />
               </div>
 
               <div class="filter-group">
@@ -154,8 +148,7 @@
                   (ngModelChange)="onFilterChange('library', $event)"
                   optionLabel="label"
                   optionValue="value"
-                  class="filter-dropdown">
-                </p-select>
+                  class="filter-dropdown" />
               </div>
 
               <div class="filter-group">
@@ -166,8 +159,7 @@
                   (ngModelChange)="onFilterChange('genre', $event)"
                   optionLabel="label"
                   optionValue="value"
-                  class="filter-dropdown">
-                </p-select>
+                  class="filter-dropdown" />
               </div>
 
               @if (activeFilterCount() > 0) {
@@ -178,8 +170,7 @@
                   [outlined]="true"
                   size="small"
                   (onClick)="resetFilters()"
-                  class="filter-reset-btn">
-                </p-button>
+                  class="filter-reset-btn" />
               }
             </div>
       </p-popover>
@@ -214,8 +205,7 @@
                     (editAuthor)="navigateToAuthorEdit($event)"
                     (deleteAuthor)="deleteAuthor($event)"
                     (quickMatched)="onAuthorQuickMatched($event)"
-                    (checkboxClick)="onCheckboxClicked($event)">
-                  </app-author-card>
+                    (checkboxClick)="onCheckboxClicked($event)" />
                 </div>
               }
             }
@@ -233,7 +223,7 @@
             <span class="selected-label">{{ t('footer.selected') }}</span>
           </div>
           @if (canEditMetadata || canDeleteBook) {
-            <p-divider layout="vertical"></p-divider>
+            <p-divider layout="vertical" />
             <div class="action-buttons-group">
               @if (canEditMetadata) {
                 <p-button
@@ -242,8 +232,7 @@
                   severity="info"
                   (onClick)="autoMatchSelected()"
                   [pTooltip]="t('footer.autoMatch')"
-                  tooltipPosition="top">
-                </p-button>
+                  tooltipPosition="top" />
               }
               @if (canDeleteBook) {
                 <p-button
@@ -252,12 +241,11 @@
                   severity="danger"
                   (onClick)="deleteSelected()"
                   [pTooltip]="t('footer.deleteSelected')"
-                  tooltipPosition="top">
-                </p-button>
+                  tooltipPosition="top" />
               }
             </div>
           }
-          <p-divider layout="vertical"></p-divider>
+          <p-divider layout="vertical" />
           <div class="action-buttons-group">
             <p-button
               outlined="true"
@@ -265,16 +253,14 @@
               severity="success"
               (click)="selectAllAuthors()"
               [pTooltip]="t('footer.selectAll')"
-              tooltipPosition="top">
-            </p-button>
+              tooltipPosition="top" />
             <p-button
               outlined="true"
               icon="pi pi-times"
               severity="warn"
               (click)="deselectAllAuthors()"
               [pTooltip]="t('footer.deselectAll')"
-              tooltipPosition="top">
-            </p-button>
+              tooltipPosition="top" />
           </div>
         </div>
       </div>

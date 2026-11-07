@@ -1,17 +1,15 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {API_CONFIG} from '../../core/config/api-config';
 import {AuthService} from './auth.service';
 import {Router} from '@angular/router';
 import {Book, BookType} from '../../features/book/model/book.model';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class UrlHelperService {
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
   private readonly baseUrl = API_CONFIG.BASE_URL;
   private readonly mediaBaseUrl = `${this.baseUrl}/api/v1/media`;
-  private authService = inject(AuthService);
-  private router = inject(Router);
 
   private getToken(): string | null {
     return this.authService.getInternalAccessToken();
@@ -107,21 +105,5 @@ export class UrlHelperService {
     }
 
     return this.router.createUrlTree([`/${baseUrl}/book/${book.id}`], undefined);
-  }
-
-  filterBooksBy(filterKey: string, filterValue: string) {
-    if (filterKey === 'series') {
-      return this.router.createUrlTree(['/series', filterValue])
-    }
-
-    return this.router.createUrlTree(['/all-books'], {
-      queryParams: {
-        view: 'grid',
-        sort: 'title',
-        direction: 'asc',
-        sidebar: true,
-        filter: `${filterKey}:${encodeURIComponent(filterValue)}`
-      }
-    });
   }
 }

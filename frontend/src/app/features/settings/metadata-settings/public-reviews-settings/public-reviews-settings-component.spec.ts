@@ -37,7 +37,7 @@ describe('PublicReviewsSettingsComponent', () => {
     TestBed.resetTestingModule();
   });
 
-  it('hydrates saved review settings and ensures all required providers exist', async () => {
+  it('preserves saved preferences and adds supported review providers as disabled choices', async () => {
     appSettingsSignal.set({
       metadataPublicReviewsSettings: {
         downloadEnabled: false,
@@ -52,10 +52,12 @@ describe('PublicReviewsSettingsComponent', () => {
     expect(component.publicReviewSettings.providers).toEqual(
       expect.arrayContaining([
         expect.objectContaining({provider: 'Amazon', enabled: true, maxReviews: 7}),
-        expect.objectContaining({provider: 'GoodReads', enabled: false, maxReviews: 10}),
-        expect.objectContaining({provider: 'Douban', enabled: false, maxReviews: 10}),
+        expect.objectContaining({provider: 'GoodReads', enabled: false, maxReviews: 5}),
+        expect.objectContaining({provider: 'Douban', enabled: false, maxReviews: 5}),
       ])
     );
+    expect(component.publicReviewSettings.providers).toHaveLength(3);
+    expect(settingsHelper.saveSetting).not.toHaveBeenCalled();
   });
 
   it('hydrates when review settings resolve after initial render', async () => {

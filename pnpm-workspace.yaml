@@ -1,6 +1,5 @@
 packages:
   - frontend
-  - tools/release
 
 minimumReleaseAge: 4320
 blockExoticSubdeps: true

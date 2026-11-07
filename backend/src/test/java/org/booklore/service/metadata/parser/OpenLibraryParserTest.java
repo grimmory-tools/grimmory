@@ -5,6 +5,7 @@ import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.request.FetchMetadataRequest;
 import org.booklore.service.SleepService;
+import org.booklore.service.appsettings.AppSettingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,6 +33,9 @@ public class OpenLibraryParserTest {
     @Mock
     private SleepService sleepService;
 
+    @Mock
+    private AppSettingService appSettingService;
+
     private OpenLibraryParser parser;
 
     @BeforeEach
@@ -39,6 +43,7 @@ public class OpenLibraryParserTest {
         parser = new OpenLibraryParser(
                 httpClient,
                 new ObjectMapper(),
+                appSettingService,
                 sleepService
         );
     }

@@ -5,13 +5,6 @@ const EBOOK_EMBEDDABLE: ReadonlySet<string> = new Set([
   'title', 'subtitle', 'authors', 'publisher', 'publishedDate', 'language',
   'categories', 'description', 'seriesName', 'seriesNumber', 'seriesTotal',
   'isbn10', 'isbn13', 'moods', 'tags', 'ageRating', 'contentRating', 'pageCount',
-  'openlibraryId', 'asin', 'amazonRating', 'amazonReviewCount', 'googleId',
-  'applebooksId', 'applebooksRating', 'applebooksReviewCount',
-  'goodreadsId', 'goodreadsRating', 'goodreadsReviewCount',
-  'hardcoverId', 'hardcoverBookId', 'hardcoverRating', 'hardcoverReviewCount',
-  'lubimyczytacId', 'lubimyczytacRating',
-  'comicvineId', 'ranobedbId', 'ranobedbRating',
-  'audibleId', 'audibleRating', 'audibleReviewCount',
 ]);
 
 const CBX_EMBEDDABLE: ReadonlySet<string> = new Set([
@@ -33,9 +26,12 @@ const EMBEDDABLE_FIELDS: Partial<Record<BookType, ReadonlySet<string>>> = {
   AUDIOBOOK: AUDIOBOOK_EMBEDDABLE,
 };
 
-export function isFieldEmbeddable(bookType: BookType | undefined, controlName: string): boolean {
+const PROVIDER_EMBEDDABLE_TYPES: ReadonlySet<BookType> = new Set<BookType>(['EPUB', 'PDF']);
+
+export function isFieldEmbeddable(bookType: BookType | undefined, controlName: string, providerFieldNames: ReadonlySet<string>): boolean {
   if (!bookType) return false;
-  return EMBEDDABLE_FIELDS[bookType]?.has(controlName) ?? false;
+  if (EMBEDDABLE_FIELDS[bookType]?.has(controlName)) return true;
+  return PROVIDER_EMBEDDABLE_TYPES.has(bookType) && providerFieldNames.has(controlName);
 }
 
 export function hasMetadataWriter(bookType: BookType | undefined): boolean {

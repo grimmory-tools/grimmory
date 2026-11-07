@@ -18,8 +18,7 @@
               (click)="fetchNewReviews()"
               [pTooltip]="t('tooltip.fetchReviews')"
               tooltipPosition="top"
-              class="action-btn floating-btn">
-            </p-button>
+              class="action-btn floating-btn" />
           }
         </div>
         <p class="empty-state-title">{{ t('empty.noReviews') }}</p>
@@ -55,9 +54,10 @@
                     <div class="reviewer-name-row">
                       <span class="reviewer-name">{{ review.reviewerName || t('labels.anonymous') }}</span>
                       @if (review.metadataProvider) {
+                        @let provider = catalog.provider(review.metadataProvider);
                         <p-tag
                           [rounded]="true"
-                          [value]="review.metadataProvider"
+                          [value]="provider ? (provider.labelKey | transloco) : review.metadataProvider"
                           [severity]="getProviderSeverity(review.metadataProvider)"/>
                       }
                       @if (review.country) {

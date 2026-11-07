@@ -1,8 +1,9 @@
-import {ChangeDetectionStrategy, Component, computed, DestroyRef, EventEmitter, inject, Input, OnChanges, OnInit, Output, signal, SimpleChanges} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, Input, OnChanges, OnInit, output, signal, SimpleChanges} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
 import {Button} from '@openng/optimus-ui/button';
 import {Select} from '@openng/optimus-ui/select';
+import {AutoComplete} from '@openng/optimus-ui/autocomplete';
 import {MessageService} from '@openng/optimus-ui/api';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {
@@ -13,7 +14,8 @@ import {
   ContentRestrictionType
 } from '../content-restriction.model';
 import {ContentRestrictionService} from '../content-restriction.service';
-import {BookService} from '../../../book/service/book.service';
+import {type BookQueryFacetKey} from '../../../book/data/book-query-params';
+import {FacetSuggestionsDirective} from '../../../book/components/facet-suggestions.directive';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 
 @Component({
@@ -23,6 +25,8 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
     FormsModule,
     Button,
     Select,
+    AutoComplete,
+    FacetSuggestionsDirective,
     Tooltip,
     TranslocoDirective,
     TranslocoPipe
@@ -32,31 +36,22 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
+  private readonly contentRestrictionService = inject(ContentRestrictionService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
+  private readonly destroyRef = inject(DestroyRef);
   @Input() userId!: number;
   @Input() isEditing = false;
-  @Output() restrictionsChanged = new EventEmitter<ContentRestriction[]>();
-
-  private contentRestrictionService = inject(ContentRestrictionService);
-  private bookService = inject(BookService);
-  private messageService = inject(MessageService);
-  private t = inject(TranslocoService);
-  private destroyRef = inject(DestroyRef);
-  private readonly sortedMetadata = computed(() => {
-    const md = this.bookService.uniqueMetadata();
-    return {
-      categories: [...md.categories].sort(),
-      tags: [...md.tags].sort(),
-      moods: [...md.moods].sort(),
-    };
-  });
+  readonly restrictionsChanged = output<ContentRestriction[]>();
+  private readonly valueFacets: Partial<Record<ContentRestrictionType, BookQueryFacetKey>> = {
+    [ContentRestrictionType.CATEGORY]: 'genre',
+    [ContentRestrictionType.TAG]: 'tag',
+    [ContentRestrictionType.MOOD]: 'mood',
+  };
 
   readonly restrictions = signal<ContentRestriction[]>([]);
   private readonly excludeRestrictions = computed(() => this.restrictions().filter(r => r.mode === ContentRestrictionMode.EXCLUDE));
   private readonly allowOnlyRestrictions = computed(() => this.restrictions().filter(r => r.mode === ContentRestrictionMode.ALLOW_ONLY));
-
-  get availableCategories(): string[] { return this.sortedMetadata().categories; }
-  get availableTags(): string[] { return this.sortedMetadata().tags; }
-  get availableMoods(): string[] { return this.sortedMetadata().moods; }
 
   newRestriction: Partial<ContentRestriction> = {
     restrictionType: ContentRestrictionType.CATEGORY,
@@ -116,14 +111,12 @@ export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
     });
   }
 
+  protected valueFacet(): BookQueryFacetKey | undefined {
+    return this.newRestriction.restrictionType && this.valueFacets[this.newRestriction.restrictionType];
+  }
+
   getValueOptions(): {label: string, value: string}[] {
     switch (this.newRestriction.restrictionType) {
-      case ContentRestrictionType.CATEGORY:
-        return this.availableCategories.map(c => ({label: c, value: c}));
-      case ContentRestrictionType.TAG:
-        return this.availableTags.map(t => ({label: t, value: t}));
-      case ContentRestrictionType.MOOD:
-        return this.availableMoods.map(m => ({label: m, value: m}));
       case ContentRestrictionType.AGE_RATING:
         return this.ageRatingOptions.map(o => ({label: o.label, value: o.value}));
       case ContentRestrictionType.CONTENT_RATING:
@@ -159,9 +152,9 @@ export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
 
     const restriction: ContentRestriction = {
       userId: this.userId,
-      restrictionType: this.newRestriction.restrictionType!,
-      mode: this.newRestriction.mode!,
-      value: this.newRestriction.value!
+      restrictionType: this.newRestriction.restrictionType,
+      mode: this.newRestriction.mode,
+      value: this.newRestriction.value
     };
     const requestedUserId = this.userId;
 

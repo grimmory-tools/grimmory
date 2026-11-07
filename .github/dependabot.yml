@@ -14,8 +14,23 @@ updates:
       - "backend"
     commit-message:
       prefix: "chore(deps)"
+    groups:
+      twelvemonkeys:
+        patterns:
+          - "com.twelvemonkeys.imageio:*"
+      mapstruct:
+        patterns:
+          - "org.mapstruct:*"
+      jaxb:
+        patterns:
+          - "jakarta.xml.bind:*"
+          - "org.glassfish.jaxb:*"
+      compress:
+        patterns:
+          - "org.apache.commons:commons-compress"
+          - "org.tukaani:xz"
 
-  # JavaScript – pnpm workspace (frontend + release tooling)
+  # JavaScript – pnpm workspace (frontend)
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -25,75 +40,85 @@ updates:
       timezone: "UTC"
     cooldown:
       default-days: 3
-    open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+    open-pull-requests-limit: 10
     labels:
       - "dependencies"
       - "frontend"
     commit-message:
       prefix: "chore(deps)"
     groups:
-      release-tooling:
+      lucide:
         patterns:
-          - "semantic-release"
-          - "@semantic-release/*"
-          - "conventional-changelog*"
+          - "lucide-static"
+          - "@lucide/*"
+      eslint:
+        patterns:
+          - "eslint"
+          - "@eslint/*"
+          - "typescript-eslint"
+          - "angular-eslint"
+      oxlint:
+        patterns:
+          - "oxlint"
+          - "@oxlint/*"
+          - "eslint-plugin-oxlint"
+          - "oxlint-tsgolint"
       angular:
         patterns:
           - "@angular/*"
-    ignore:
-      - dependency-name: "typescript"
-      - dependency-name: "@types/node"
-        versions: [">=25.0.0"]
-      - dependency-name: "@angular/animations"
-        versions: [">=22.0.0"]
-      - dependency-name: "@angular-devkit/architect"
-        versions: [">=0.2200.0"]
-      - dependency-name: "@angular-devkit/schematics"
-        versions: [">=22.0.0"]
-      - dependency-name: "@angular/aria"
-        versions: [">=22.0.0"]
-      - dependency-name: "@angular/build"
-        versions: [">=22.0.0"]
-      - dependency-name: "@angular/cdk"
-        versions: [">=22.0.0"]
-      - dependency-name: "@angular/cli"
-        versions: [">=22.0.0"]
-      - dependency-name: "@angular/common"
-        versions: [">=22.0.0"]
-      - dependency-name: "@angular/compiler"
-        versions: [">=22.0.0"]
-      - dependency-name: "@angular/compiler-cli"
-        versions: [">=22.0.0"]
-      - dependency-name: "@angular/core"
-        versions: [">=22.0.0"]
-      - dependency-name: "@angular/forms"
-        versions: [">=22.0.0"]
-      - dependency-name: "@angular/platform-browser"
-        versions: [">=22.0.0"]
-      - dependency-name: "@angular/platform-browser-dynamic"
-        versions: [">=22.0.0"]
-      - dependency-name: "@angular/router"
-        versions: [">=22.0.0"]
-      - dependency-name: "@angular/service-worker"
-        versions: [">=22.0.0"]
-      - dependency-name: "@tanstack/angular-table"
-        versions: [">=9.0.0"]
-      - dependency-name: "angular-eslint"
-        versions: [">=22.0.0"]
-      - dependency-name: "ngx-infinite-scroll"
-        versions: [">=22.0.0"]
+          - "@angular-devkit/*"
+          - "ng-mocks"
+      openng:
+        patterns:
+          - "@openng/*"
+      embedpdf:
+        patterns:
+          - "@embedpdf/*"
+      tailwind:
+        patterns:
+          - "tailwindcss"
+          - "@tailwindcss/*"
+      stylelint:
+        patterns:
+          - "stylelint"
+          - "stylelint-config-*"
+      stomp:
+        patterns:
+          - "@stomp/*"
+      vitest:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
-    directory: "/"
+    directories:
+      - "/"
+      - "/.github/actions/*"
     schedule:
       interval: "monthly"
     groups:
       codeql:
         patterns:
           - "github/codeql-action/*"
+      artifact:
+        patterns:
+          - "actions/upload-artifact"
+          - "actions/download-artifact"
+      docker:
+        patterns:
+          - "docker/*"
+      pnpm:
+        patterns:
+          - "pnpm/*"
     labels:
       - "dependencies"
       - "ci"
     commit-message:
       prefix: "chore(deps)"
+    open-pull-requests-limit: 10

@@ -5,22 +5,13 @@ import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicd
 
 import {AppSettings} from '../../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
-import {Book} from '../../../book/model/book.model';
-import {BookService} from '../../../book/service/book.service';
 import {MetadataRefreshType} from '../../model/request/metadata-refresh-type.enum';
 import {MultiBookMetadataFetchComponent} from './multi-book-metadata-fetch-component';
 
 describe('MultiBookMetadataFetchComponent', () => {
   const appSettings = signal<AppSettings | null>(null);
-  const getBooksByIds = vi.fn((bookIds: number[]) => bookIds.map(bookId => ({
-    id: bookId,
-    title: `Book ${bookId}`,
-    libraryId: 1,
-    libraryName: 'Library',
-  } satisfies Book)));
 
   beforeEach(() => {
-    getBooksByIds.mockClear();
     appSettings.set(null);
 
     TestBed.configureTestingModule({
@@ -35,23 +26,17 @@ describe('MultiBookMetadataFetchComponent', () => {
           },
         },
         {provide: DynamicDialogRef, useValue: {close: vi.fn()}},
-        {provide: BookService, useValue: {getBooksByIds}},
         {provide: AppSettingsService, useValue: {appSettings}},
       ]
     });
   });
 
-  it('reads dialog data and resolves the books to show on construction', () => {
+  it('reads dialog data on construction', () => {
     const component = TestBed.runInInjectionContext(() => new MultiBookMetadataFetchComponent());
     component.ngOnInit();
 
     expect(component.bookIds).toEqual([3, 5]);
     expect(component.metadataRefreshType).toBe(MetadataRefreshType.BOOKS);
-    expect(getBooksByIds).toHaveBeenCalledWith([3, 5]);
-    expect(component.booksToShow).toEqual([
-      {id: 3, title: 'Book 3', libraryId: 1, libraryName: 'Library'},
-      {id: 5, title: 'Book 5', libraryId: 1, libraryName: 'Library'},
-    ]);
   });
 
   it('gives precedence to dialogData Input over dynamicDialogConfig.data', () => {
@@ -63,7 +48,6 @@ describe('MultiBookMetadataFetchComponent', () => {
     component.ngOnInit();
 
     expect(component.bookIds).toEqual([10]);
-    expect(getBooksByIds).toHaveBeenCalledWith([10]);
   });
 
   it('adopts the default metadata refresh options when app settings become available', () => {

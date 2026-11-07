@@ -1,0 +1,143 @@
+@if (selection().active()) {
+  <app-browse-bulk-actions-bar
+    [count]="selection().count()"
+    [total]="total()"
+    [moreMenu]="bulkMoreMenu"
+    [moreAlways]="moreMenuOnlyItems()"
+    [moreDisabled]="isResolving()"
+    (clearSelection)="selection().clear()"
+    (selectAll)="selection().selectAll()">
+    <app-button
+      appBrowseBulkActionsItem="addToShelf"
+      variant="ghost"
+      size="md"
+      [disabled]="isResolving()"
+      [label]="'book.menu.addToShelf' | transloco"
+      [appMenuTriggerFor]="bulkShelfMenuHost.menu()">
+      <svg lucideBookmark aria-hidden="true"></svg>
+    </app-button>
+    <app-button
+      appBrowseBulkActionsItem="markAs"
+      variant="ghost"
+      size="md"
+      [disabled]="isResolving()"
+      [label]="'book.menu.markAs' | transloco"
+      [appMenuTriggerFor]="bulkMarkAsMenu">
+      <svg lucideCheck aria-hidden="true"></svg>
+    </app-button>
+    @if (bulkPermissions().canEditMetadata) {
+      <app-button
+        appBrowseBulkActionsItem="edit"
+        variant="ghost"
+        size="md"
+        [disabled]="isResolving()"
+        [label]="'common.edit' | transloco"
+        [appMenuTriggerFor]="bulkEditMenu">
+        <svg lucidePenLine aria-hidden="true"></svg>
+      </app-button>
+    }
+    @if (bulkMetadataAvailable()) {
+      <app-button
+        appBrowseBulkActionsItem="metadata"
+        variant="ghost"
+        size="md"
+        [disabled]="isResolving()"
+        [label]="'book.menu.metadata' | transloco"
+        [appMenuTriggerFor]="bulkMetadataMenu">
+        <svg lucideDatabase aria-hidden="true"></svg>
+      </app-button>
+    }
+    @if (actionPermissions().canDeleteBook) {
+      <span appBrowseBulkActionsItem="delete" appBrowseBulkActionsTrailing class="flex items-center gap-1">
+        <app-browse-bulk-actions-divider />
+        <app-button
+          variant="ghost"
+          tone="danger"
+          size="md"
+          [label]="'common.delete' | transloco"
+          [loading]="bulkDeleting()"
+          [disabled]="isResolving()"
+          (clicked)="commands.delete()" />
+      </span>
+    }
+  </app-browse-bulk-actions-bar>
+
+  <app-shelf-membership-menu
+    #bulkShelfMenuHost
+    [shelves]="bulkShelves()"
+    (toggleShelf)="commands.toggleShelf($event.shelfId, $event.checked)"
+    (createShelf)="commands.createShelf()"
+    (removeFromAllShelves)="commands.removeFromAllShelves(bulkShelfIds())" />
+
+  <app-menu #bulkMarkAsMenu [ariaLabel]="'book.menu.markAs' | transloco">
+    @for (status of readStatusTargets; track status) {
+      <app-menu-item [value]="status" [disabled]="isResolving()" (selected)="commands.markAs(status)">{{ statusLabelKey(status) | transloco }}</app-menu-item>
+    }
+    <app-menu-separator />
+    <app-menu-item value="clear-read-status" [disabled]="isResolving()" (selected)="commands.markAs(clearReadStatus)">
+      {{ clearReadStatusLabelKey | transloco }}
+    </app-menu-item>
+  </app-menu>
+
+  <app-menu #bulkEditMenu [ariaLabel]="'common.edit' | transloco">
+    <app-menu-item value="edit-all" [disabled]="isResolving()" (selected)="commands.editAll()">{{ 'browse.bulk.editAll' | transloco }}</app-menu-item>
+    <app-menu-item value="edit-one-by-one" [disabled]="isResolving()" (selected)="commands.editOneByOne()">{{ 'browse.bulk.editOneByOne' | transloco }}</app-menu-item>
+  </app-menu>
+
+  <app-menu #bulkMetadataMenu [ariaLabel]="'book.menu.metadata' | transloco">
+    @if (bulkPermissions().canAutoFetchMetadata) {
+      <app-menu-item value="fetch-metadata" [disabled]="isResolving()" (selected)="commands.fetchMetadata()">{{ 'book.menu.fetchMetadata' | transloco }}</app-menu-item>
+    }
+    @if (bulkPermissions().canCustomFetchMetadata) {
+      <app-menu-item value="fetch-metadata-with-options" [disabled]="isResolving()" (selected)="commands.fetchMetadataWithOptions()">{{ 'book.menu.fetchMetadataWithOptions' | transloco }}</app-menu-item>
+    }
+    <app-menu-separator [class]="autoSeparatorClass" />
+    @if (bulkPermissions().canLockUnlockMetadata) {
+      <app-menu-item value="lock-metadata" [disabled]="isResolving()" (selected)="commands.setMetadataLocks(true)">{{ 'metadata.editor.lockAllBtn' | transloco }}</app-menu-item>
+      <app-menu-item value="unlock-metadata" [disabled]="isResolving()" (selected)="commands.setMetadataLocks(false)">{{ 'metadata.editor.unlockAllBtn' | transloco }}</app-menu-item>
+      <app-menu-item value="lock-unlock-metadata" [disabled]="isResolving()" (selected)="commands.lockUnlockMetadata()">{{ 'browse.bulk.lockUnlockMetadata' | transloco }}</app-menu-item>
+    }
+    <app-menu-separator [class]="autoSeparatorClass" />
+    @if (bulkPermissions().canRegenerateCover) {
+      <app-menu-item value="restore-cover" [disabled]="isResolving()" (selected)="commands.changeCovers('regenerate')">{{ 'book.menu.restoreCover' | transloco }}</app-menu-item>
+      <app-menu-item value="generate-cover" [disabled]="isResolving()" (selected)="commands.changeCovers('generate')">{{ 'book.menu.generateCover' | transloco }}</app-menu-item>
+    }
+  </app-menu>
+
+  <app-menu #bulkMoreMenu [ariaLabel]="'browse.moreActions' | transloco">
+    @if (overflowed().has('addToShelf')) {
+      <app-menu-item value="add-to-shelf" [disabled]="isResolving()" [submenu]="bulkShelfMenuHost.ariaMenu()">{{ 'book.menu.addToShelf' | transloco }}</app-menu-item>
+    }
+    @if (overflowed().has('markAs')) {
+      <app-menu-item value="mark-as" [disabled]="isResolving()" [submenu]="bulkMarkAsMenu.menu">{{ 'book.menu.markAs' | transloco }}</app-menu-item>
+    }
+    @if (overflowed().has('edit')) {
+      <app-menu-item value="edit" [disabled]="isResolving()" [submenu]="bulkEditMenu.menu">{{ 'common.edit' | transloco }}</app-menu-item>
+    }
+    @if (overflowed().has('metadata')) {
+      <app-menu-item value="metadata" [disabled]="isResolving()" [submenu]="bulkMetadataMenu.menu">{{ 'book.menu.metadata' | transloco }}</app-menu-item>
+    }
+    <app-menu-separator [class]="autoSeparatorClass" />
+    @if (actionPermissions().canResetGrimmoryProgress) {
+      <app-menu-item value="reset-grimmory-progress" [disabled]="isResolving()" (selected)="commands.resetProgress('GRIMMORY')">{{ 'book.menu.resetGrimmoryProgress' | transloco }}</app-menu-item>
+    }
+    @if (actionPermissions().canResetKoreaderProgress) {
+      <app-menu-item value="reset-koreader-progress" [disabled]="isResolving()" (selected)="commands.resetProgress('KOREADER')">{{ 'book.menu.resetKoreaderProgress' | transloco }}</app-menu-item>
+    }
+    <app-menu-separator [class]="autoSeparatorClass" />
+    @if (bulkPermissions().canOrganizeFiles) {
+      <app-menu-item value="organize-files" [disabled]="isResolving()" (selected)="commands.organizeFiles()">{{ 'browse.bulk.organizeFiles' | transloco }}</app-menu-item>
+    }
+    @if (bulkPermissions().canAttachFiles) {
+      <app-menu-item value="attach-files" [disabled]="!bulkAttachEligible() || isResolving()" (selected)="commands.attachFiles()">
+        {{ 'book.fileAttacher.attachFilesBulk' | transloco }}
+      </app-menu-item>
+    }
+    <app-menu-separator [class]="autoSeparatorClass" />
+    @if (overflowed().has('delete')) {
+      <app-menu-item value="delete" variant="destructive" [loading]="bulkDeleting()" [disabled]="isResolving()" (selected)="commands.delete()">
+        {{ 'common.delete' | transloco }}
+      </app-menu-item>
+    }
+  </app-menu>
+}

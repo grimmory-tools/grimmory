@@ -23,18 +23,17 @@ import {DialogLauncherService} from '../../services/dialog-launcher.service';
   imports: [KeyValuePipe, ProgressBar, Button, Divider, Tooltip, Tag, TranslocoDirective]
 })
 export class MetadataProgressWidgetComponent implements OnInit, OnDestroy {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly dialogLauncherService = inject(DialogLauncherService);
+  private readonly metadataProgressService = inject(MetadataProgressService);
+  private readonly metadataTaskService = inject(MetadataTaskService);
+  private readonly taskService = inject(TaskService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
   activeTasks: Record<string, MetadataBatchProgressNotification> = {};
 
-  private readonly destroyRef = inject(DestroyRef);
-  private dialogLauncherService = inject(DialogLauncherService);
-  private metadataProgressService = inject(MetadataProgressService);
-  private metadataTaskService = inject(MetadataTaskService);
-  private taskService = inject(TaskService);
-  private messageService = inject(MessageService);
-  private readonly t = inject(TranslocoService);
-
-  private lastUpdateMap = new Map<string, number>();
-  private timeoutHandles = new Map<string, ReturnType<typeof setTimeout>>();
+  private readonly lastUpdateMap = new Map<string, number>();
+  private readonly timeoutHandles = new Map<string, ReturnType<typeof setTimeout>>();
   private readonly TASK_STALL_TIMEOUT_MS = 60 * 1000; // 1 minute
 
   ngOnInit(): void {
@@ -76,7 +75,7 @@ export class MetadataProgressWidgetComponent implements OnInit, OnDestroy {
   private markTaskStalled(taskId: string): void {
     const task = this.activeTasks[taskId];
     if (!task) return;
-    if (task.status !== MetadataBatchStatus.COMPLETED && task.status !== 'ERROR') {
+    if (task.status !== MetadataBatchStatus.COMPLETED && task.status !== MetadataBatchStatus.ERROR) {
       this.activeTasks[taskId] = {
         ...task,
         status: MetadataBatchStatus.ERROR,
@@ -88,7 +87,7 @@ export class MetadataProgressWidgetComponent implements OnInit, OnDestroy {
 
   getProgressPercent(task: MetadataBatchProgressNotification): number {
     if (task.total <= 0) return 0;
-    if (task.status === 'COMPLETED') return 100;
+    if (task.status === MetadataBatchStatus.COMPLETED) return 100;
     return Math.round((task.completed / task.total) * 100);
   }
 

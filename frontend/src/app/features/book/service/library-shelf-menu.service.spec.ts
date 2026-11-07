@@ -9,7 +9,7 @@ import {LoadingService} from '../../../core/services/loading.service';
 import {DialogLauncherService} from '../../../shared/services/dialog-launcher.service';
 import {MagicShelfService} from '../../magic-shelf/service/magic-shelf.service';
 import {TaskHelperService} from '../../settings/task-management/task-helper.service';
-import {BookDialogHelperService} from '../components/book-browser/book-dialog-helper.service';
+import {BookDialogHelperService} from './book-dialog-helper.service';
 import {LibraryService} from './library.service';
 import {LibraryShelfMenuService} from './library-shelf-menu.service';
 import {ShelfService} from './shelf.service';
@@ -112,6 +112,15 @@ describe('LibraryShelfMenuService', () => {
     confirmationService.confirm.mock.calls[3][0].accept();
     expect(router.navigate).toHaveBeenNthCalledWith(1, ['/']);
     expect(router.navigate).toHaveBeenNthCalledWith(2, ['/']);
+  });
+
+  it('returns home after deleting a shelf whose filter child route is open', () => {
+    router.url = '/shelf/11/books/filter?facet=genre:Fantasy';
+
+    service.deleteShelf({id: 11, name: 'Favorites'});
+    confirmationService.confirm.mock.calls[0][0].accept();
+
+    expect(router.navigate).toHaveBeenCalledWith(['/']);
   });
 
   it('copies magic-shelf JSON', async () => {
