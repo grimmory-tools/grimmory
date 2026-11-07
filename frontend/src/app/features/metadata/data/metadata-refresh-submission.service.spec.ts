@@ -71,7 +71,7 @@ describe('MetadataRefreshSubmissionService batch reconciliation', () => {
     expect(invalidate).not.toHaveBeenCalled();
 
     service.handleBatchProgress(batchProgress(MetadataBatchStatus.COMPLETED));
-    expect(invalidate).toHaveBeenCalledTimes(2);
+    expect(invalidate).toHaveBeenCalledTimes(3);
   });
 
 });
