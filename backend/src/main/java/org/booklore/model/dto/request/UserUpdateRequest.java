@@ -23,6 +23,7 @@ public class UserUpdateRequest {
         private boolean canAccessOpds;
         private boolean canSyncKoReader;
         private boolean canSyncKobo;
+        private boolean canSyncHardcover;
         private boolean canManageMetadataConfig;
         private boolean canAccessBookdrop;
         private boolean canAccessLibraryStats;

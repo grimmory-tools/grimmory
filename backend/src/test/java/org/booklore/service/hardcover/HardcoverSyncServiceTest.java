@@ -1,11 +1,17 @@
 package org.booklore.service.hardcover;
 
+import jakarta.persistence.EntityManager;
 import org.booklore.model.dto.HardcoverSyncSettings;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.repository.BookRepository;
+import org.booklore.repository.UserBookProgressRepository;
+import org.booklore.repository.UserRepository;
+import org.booklore.service.NotificationService;
+import org.booklore.util.TaskUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -14,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.client.RestClient;
 
 import java.lang.reflect.Field;
@@ -24,6 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,9 +59,17 @@ class HardcoverSyncServiceTest {
     @InjectMocks
     private HardcoverSyncService service;
 
+    @Mock 
+    private TaskUtils taskUtils;
+
+    @Mock 
+    private NotificationService notificationService;
+
     private BookEntity testBook;
     private BookMetadataEntity testMetadata;
     private HardcoverSyncSettings hardcoverSyncSettings;
+    private UserBookProgressRepository userBookProgressRepository;
+    private UserRepository userRepository;
 
     private static final Long TEST_BOOK_ID = 100L;
     private static final Long TEST_USER_ID = 1L;
@@ -61,7 +77,7 @@ class HardcoverSyncServiceTest {
     @BeforeEach
     void setUp() throws Exception {
         // Create service with mocked dependencies
-        service = new HardcoverSyncService(hardcoverSyncSettingsService, bookRepository, restClient);
+        service = new HardcoverSyncService(restClient, hardcoverSyncSettingsService, bookRepository, userRepository, userBookProgressRepository, notificationService);
 
         testBook = new BookEntity();
         testBook.setId(TEST_BOOK_ID);
