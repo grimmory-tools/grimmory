@@ -1,4 +1,5 @@
 export * from './metadata-field.config';
+export * from './metadata-fields';
 export * from './metadata-provider-fields';
 export * from './metadata-provider-fields.service';
 export * from './metadata-utils.service';
