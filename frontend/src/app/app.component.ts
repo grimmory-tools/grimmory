@@ -2,9 +2,10 @@ import {Component, DestroyRef, effect, inject, OnDestroy, OnInit, signal} from '
 import {RxStompService} from './shared/websocket/rx-stomp.service';
 import {BookService} from './features/book/service/book.service';
 import {NotificationEventService} from './shared/websocket/notification-event.service';
-import {parseLogNotification} from './shared/websocket/model/log-notification.model';
+import {LogNotification, parseLogNotification, Severity} from './shared/websocket/model/log-notification.model';
 import {ConfirmDialog} from '@openng/optimus-ui/confirmdialog';
 import {Toast} from '@openng/optimus-ui/toast';
+import {MessageService} from '@openng/optimus-ui/api';
 import {RouterOutlet} from '@angular/router';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {AuthInitializationService} from './core/security/auth-initialization-service';
@@ -46,6 +47,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private readonly commandPaletteService = inject(CommandPaletteService);
   private readonly libraryImportProgressService = inject(LibraryImportProgressService);
   private readonly translocoService = inject(TranslocoService);
+  private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly loading = signal(true);
@@ -161,6 +163,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.rxStompService.watch('/user/queue/log').subscribe(msg => {
         const logNotification = parseLogNotification(msg.body);
         this.notificationEventService.handleNewNotification(logNotification);
+        this.toastIfActionable(logNotification);
       })
     );
     this.subscriptions.push(
@@ -181,6 +184,21 @@ export class AppComponent implements OnInit, OnDestroy {
         this.authService.forceLogout('session_revoked');
       })
     );
+  }
+
+  // Warnings and errors need the user's attention; the notification popover alone is easy to miss.
+  // They stay until dismissed so the whole message can be read.
+  private toastIfActionable(notification: LogNotification): void {
+    if (notification.severity !== Severity.WARN && notification.severity !== Severity.ERROR) {
+      return;
+    }
+    const isError = notification.severity === Severity.ERROR;
+    this.messageService.add({
+      severity: isError ? 'error' : 'warn',
+      summary: this.translocoService.translate(isError ? 'common.error' : 'common.warning'),
+      detail: notification.message,
+      sticky: true,
+    });
   }
 
   ngOnDestroy(): void {

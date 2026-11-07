@@ -12,6 +12,8 @@ import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.entity.LibraryPathEntity;
 import org.booklore.model.enums.BookFileType;
+import org.booklore.model.websocket.LogNotification;
+import org.booklore.model.websocket.Severity;
 import org.booklore.model.websocket.Topic;
 import org.booklore.repository.BookAdditionalFileRepository;
 import org.booklore.repository.BookRepository;
@@ -31,6 +33,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -142,6 +145,18 @@ class FileMoveServiceTest {
         when(fileMoveHelper.moveFileWithBackup(any())).thenAnswer(inv -> ((Path) inv.getArgument(0)).resolveSibling("temp"));
         doNothing().when(fileMoveHelper).commitMove(any(), any());
         doNothing().when(fileMoveHelper).deleteEmptyParentDirsUpToLibraryFolders(any(), anySet());
+    }
+
+    /** Mirrors SidecarMetadataWriter's naming: base name + ".metadata.json" / ".cover.jpg". */
+    private void mockSidecarPaths() {
+        when(sidecarMetadataWriter.getSidecarPath(any())).thenAnswer(inv -> companion(inv.getArgument(0), ".metadata.json"));
+        when(sidecarMetadataWriter.getCoverPath(any())).thenAnswer(inv -> companion(inv.getArgument(0), ".cover.jpg"));
+    }
+
+    private static Path companion(Path bookPath, String suffix) {
+        String name = bookPath.getFileName().toString();
+        int dot = name.lastIndexOf('.');
+        return bookPath.resolveSibling((dot > 0 ? name.substring(0, dot) : name) + suffix);
     }
 
     private void mockUnmonitoredLibrary() {
@@ -830,6 +845,189 @@ class FileMoveServiceTest {
         }
 
         @Test
+        @DisplayName("does not move or update a book whose target is occupied by another file (#3013)")
+        void refusesToOverwriteExistingTarget() throws IOException {
+            BookFileEntity epub = createBookFile(1L, "Book.epub", "path", true, false);
+            BookEntity book = createBook(List.of(epub));
+            Path target = Paths.get("/target/new/NewName.epub");
+
+            mockBulkMoveSetup(book, target);
+            doThrow(new FileAlreadyExistsException(target.toString()))
+                    .when(fileMoveHelper).ensureTargetsAvailable(anyMap(), anySet());
+
+            FileMoveRequest request = new FileMoveRequest();
+            FileMoveRequest.Move move = new FileMoveRequest.Move();
+            move.setBookId(100L);
+            move.setTargetLibraryId(2L);
+            move.setTargetLibraryPathId(20L);
+            request.setMoves(List.of(move));
+
+            service.bulkMoveFiles(request);
+
+            verify(fileMoveHelper, never()).moveFileWithBackup(any());
+            verify(fileMoveHelper, never()).commitMove(any(), any());
+            verify(bookFileRepository, never()).updateFileNameAndSubPath(anyLong(), anyString(), anyString());
+            verify(bookRepository, never()).updateLibrary(anyLong(), anyLong(), any());
+            verify(notificationService).sendMessage(eq(Topic.LOG), argThat((Object o) -> o instanceof LogNotification n
+                    && n.getSeverity() == Severity.WARN
+                    && n.getMessage().equals("Not moved: \"new/NewName.epub\" is already taken by another file.")));
+            // Once to resolve the target, once to re-register it afterwards: the conflict handler must not
+            // query again (a failure there would escape and abort the rest of the bulk move).
+            verify(libraryRepository, times(2)).findByIdWithPaths(2L);
+        }
+
+        @Test
+        @DisplayName("bulk move keeps a tracked cover tracked and reserves the renamed book's cover slot")
+        void bulkMoveReservesSlotForTrackedCover() throws IOException {
+            BookFileEntity epub = createBookFile(1L, "Book.epub", "path", true, false);
+            BookFileEntity cover = createBookFile(2L, "Book.cover.jpg", "path", false, false);
+            BookEntity book = createBook(List.of(epub, cover));
+            Path target = Paths.get("/target/new/NewName.epub");
+
+            mockBulkMoveSetup(book, target);
+            mockSidecarPaths();
+
+            FileMoveRequest request = new FileMoveRequest();
+            FileMoveRequest.Move move = new FileMoveRequest.Move();
+            move.setBookId(100L);
+            move.setTargetLibraryId(2L);
+            move.setTargetLibraryPathId(20L);
+            request.setMoves(List.of(move));
+
+            service.bulkMoveFiles(request);
+
+            verify(fileMoveHelper).ensureTargetsAvailable(
+                    argThat(map -> Paths.get("/target/new/Book.cover.jpg").equals(map.get(Paths.get("/library/path/Book.cover.jpg")))
+                            && Paths.get("/target/new/NewName.metadata.json").equals(map.get(Paths.get("/library/path/Book.metadata.json")))),
+                    eq(Set.of(Paths.get("/target/new/NewName.cover.jpg"))));
+            verify(fileMoveHelper, times(1)).moveFileWithBackup(Paths.get("/library/path/Book.cover.jpg"));
+            verify(fileMoveHelper, never()).commitMove(any(), eq(Paths.get("/target/new/NewName.cover.jpg")));
+        }
+
+        @Test
+        @DisplayName("never folds a leftover temp file warning into the bulk summary")
+        void staleTempWarningSurvivesBulkSummary() throws IOException {
+            BookFileEntity epub = createBookFile(1L, "Book.epub", "path", true, false);
+            BookEntity book = createBook(List.of(epub));
+            Path target = Paths.get("/target/new/NewName.epub");
+
+            mockBulkMoveSetup(book, target);
+            doThrow(new FileAlreadyExistsException("/library/path/Book.epub.tmp_move"))
+                    .doThrow(new FileAlreadyExistsException(target.toString()))
+                    .doThrow(new FileAlreadyExistsException(target.toString()))
+                    .when(fileMoveHelper).ensureTargetsAvailable(anyMap(), anySet());
+
+            FileMoveRequest request = new FileMoveRequest();
+            List<FileMoveRequest.Move> moves = new ArrayList<>();
+            for (int i = 0; i < 3; i++) {
+                FileMoveRequest.Move move = new FileMoveRequest.Move();
+                move.setBookId(100L);
+                move.setTargetLibraryId(2L);
+                move.setTargetLibraryPathId(20L);
+                moves.add(move);
+            }
+            request.setMoves(moves);
+
+            service.bulkMoveFiles(request);
+
+            verify(notificationService).sendMessage(eq(Topic.LOG), argThat((Object o) -> o instanceof LogNotification n
+                    && n.getSeverity() == Severity.WARN
+                    && n.getMessage().equals("Not moved: leftover temporary file \"/library/path/Book.epub.tmp_move\" from an earlier failed move. "
+                            + "Check it before deleting it: it may be the only copy of the file.")));
+            verify(notificationService).sendMessage(eq(Topic.LOG), argThat((Object o) -> o instanceof LogNotification n
+                    && n.getMessage().equals("2 books were not moved: their target paths are already taken by other files.")));
+            verify(notificationService, times(2)).sendMessage(eq(Topic.LOG), any());
+        }
+
+        @Test
+        @DisplayName("a single path conflict next to a leftover temp file keeps its specific message")
+        void singleTakenPlusStaleTempKeepsSpecificMessage() throws IOException {
+            BookFileEntity epub = createBookFile(1L, "Book.epub", "path", true, false);
+            BookEntity book = createBook(List.of(epub));
+            Path target = Paths.get("/target/new/NewName.epub");
+
+            mockBulkMoveSetup(book, target);
+            doThrow(new FileAlreadyExistsException(target.toString()))
+                    .doThrow(new FileAlreadyExistsException("/library/path/Book.epub.tmp_move"))
+                    .when(fileMoveHelper).ensureTargetsAvailable(anyMap(), anySet());
+
+            FileMoveRequest request = new FileMoveRequest();
+            List<FileMoveRequest.Move> moves = new ArrayList<>();
+            for (int i = 0; i < 2; i++) {
+                FileMoveRequest.Move move = new FileMoveRequest.Move();
+                move.setBookId(100L);
+                move.setTargetLibraryId(2L);
+                move.setTargetLibraryPathId(20L);
+                moves.add(move);
+            }
+            request.setMoves(moves);
+
+            service.bulkMoveFiles(request);
+
+            verify(notificationService).sendMessage(eq(Topic.LOG), argThat((Object o) -> o instanceof LogNotification n
+                    && n.getMessage().equals("Not moved: \"new/NewName.epub\" is already taken by another file.")));
+            verify(notificationService).sendMessage(eq(Topic.LOG), argThat((Object o) -> o instanceof LogNotification n
+                    && n.getMessage().startsWith("Not moved: leftover temporary file")));
+            verify(notificationService, times(2)).sendMessage(eq(Topic.LOG), any());
+        }
+
+        @Test
+        @DisplayName("still reports refused books when re-registering a library fails")
+        void reportsConflictsEvenIfReRegistrationFails() throws IOException {
+            BookFileEntity epub = createBookFile(1L, "Book.epub", "path", true, false);
+            BookEntity book = createBook(List.of(epub));
+            Path target = Paths.get("/target/new/NewName.epub");
+
+            mockBulkMoveSetup(book, target);
+            doThrow(new FileAlreadyExistsException(target.toString()))
+                    .when(fileMoveHelper).ensureTargetsAvailable(anyMap(), anySet());
+            // First lookup resolves the target for the move; the re-registration lookup then fails
+            doReturn(Optional.of(targetLibrary)).doThrow(new RuntimeException("db down"))
+                    .when(libraryRepository).findByIdWithPaths(2L);
+
+            FileMoveRequest request = new FileMoveRequest();
+            FileMoveRequest.Move move = new FileMoveRequest.Move();
+            move.setBookId(100L);
+            move.setTargetLibraryId(2L);
+            move.setTargetLibraryPathId(20L);
+            request.setMoves(List.of(move));
+
+            Assertions.assertThatThrownBy(() -> service.bulkMoveFiles(request)).hasMessage("db down");
+
+            verify(notificationService).sendMessage(eq(Topic.LOG), argThat((Object o) -> o instanceof LogNotification n
+                    && n.getMessage().equals("Not moved: \"new/NewName.epub\" is already taken by another file.")));
+        }
+
+        @Test
+        @DisplayName("sends a single summary notification when several books conflict (#3013)")
+        void summarizesMultipleConflicts() throws IOException {
+            BookFileEntity epub = createBookFile(1L, "Book.epub", "path", true, false);
+            BookEntity book = createBook(List.of(epub));
+            Path target = Paths.get("/target/new/NewName.epub");
+
+            mockBulkMoveSetup(book, target);
+            doThrow(new FileAlreadyExistsException(target.toString()))
+                    .when(fileMoveHelper).ensureTargetsAvailable(anyMap(), anySet());
+
+            FileMoveRequest request = new FileMoveRequest();
+            List<FileMoveRequest.Move> moves = new ArrayList<>();
+            for (int i = 0; i < 3; i++) {
+                FileMoveRequest.Move move = new FileMoveRequest.Move();
+                move.setBookId(100L);
+                move.setTargetLibraryId(2L);
+                move.setTargetLibraryPathId(20L);
+                moves.add(move);
+            }
+            request.setMoves(moves);
+
+            service.bulkMoveFiles(request);
+
+            verify(notificationService, times(1)).sendMessage(eq(Topic.LOG), argThat((Object o) -> o instanceof LogNotification n
+                    && n.getSeverity() == Severity.WARN
+                    && n.getMessage().startsWith("3 books were not moved")));
+        }
+
+        @Test
         @DisplayName("moves multi-format book with all files")
         void movesMultiFormatBook() throws IOException {
             BookFileEntity epub = createBookFile(1L, "Book.epub", "path", true, false);
@@ -926,6 +1124,7 @@ class FileMoveServiceTest {
             Path target = Paths.get("/target/new/NewName.epub");
 
             mockBulkMoveSetup(book, target);
+            mockSidecarPaths();
 
             FileMoveRequest request = new FileMoveRequest();
             FileMoveRequest.Move move = new FileMoveRequest.Move();
@@ -936,8 +1135,8 @@ class FileMoveServiceTest {
 
             service.bulkMoveFiles(request);
 
-            InOrder inOrder = inOrder(sidecarMetadataWriter, fileMoveHelper);
-            inOrder.verify(sidecarMetadataWriter).moveSidecarFiles(any(), any());
+            InOrder inOrder = inOrder(fileMoveHelper);
+            inOrder.verify(fileMoveHelper).commitMove(any(), eq(Paths.get("/target/new/NewName.metadata.json")));
             inOrder.verify(fileMoveHelper).deleteEmptyParentDirsUpToLibraryFolders(any(), anySet());
         }
     }
@@ -1204,6 +1403,249 @@ class FileMoveServiceTest {
             Assertions.assertThatThrownBy(() -> service.bulkMoveFiles(request))
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessageContaining("File move operations are only supported on local storage");
+        }
+    }
+
+    @Nested
+    @DisplayName("moveSingleFile - Overwrite Protection (#3013)")
+    class OverwriteProtection {
+
+        @Test
+        @DisplayName("passes every planned source -> target pair to the pre-flight check")
+        void checksAllTargetsBeforeStaging() throws IOException {
+            BookFileEntity epub = createBookFile(1L, "Book.epub", "old", true, false);
+            BookFileEntity cover = createBookFile(2L, "cover.jpg", "old", false, false);
+            BookEntity book = createBook(List.of(epub, cover));
+            Path target = Paths.get("/library/new/path/NewName.epub");
+
+            mockStandardBehavior(book, target);
+            mockUnmonitoredLibrary();
+
+            service.moveSingleFile(book);
+
+            InOrder inOrder = inOrder(fileMoveHelper);
+            inOrder.verify(fileMoveHelper).ensureTargetsAvailable(argThat(map -> map.size() == 2
+                    && map.get(Paths.get("/library/old/Book.epub")).equals(Paths.get("/library/new/path/NewName.epub"))
+                    && map.get(Paths.get("/library/old/cover.jpg")).equals(Paths.get("/library/new/path/cover.jpg"))), anySet());
+            inOrder.verify(fileMoveHelper, times(2)).moveFileWithBackup(any());
+        }
+
+        @Test
+        @DisplayName("leaves files and database untouched when the target is occupied by another book")
+        void doesNothingWhenTargetOccupied() throws IOException {
+            BookFileEntity epub = createBookFile(1L, "Book.epub", "old", true, false);
+            BookEntity book = createBook(List.of(epub));
+            Path target = Paths.get("/library/new/path/NewName.epub");
+
+            mockStandardBehavior(book, target);
+            mockMonitoredLibrary();
+            doThrow(new FileAlreadyExistsException(target.toString()))
+                    .when(fileMoveHelper).ensureTargetsAvailable(anyMap(), anySet());
+
+            FileMoveResult result = service.moveSingleFile(book);
+
+            assertThat(result.isMoved()).isFalse();
+            verify(fileMoveHelper, never()).moveFileWithBackup(any());
+            verify(fileMoveHelper, never()).commitMove(any(), any());
+            verify(bookFileRepository, never()).updateFileNameAndSubPath(anyLong(), anyString(), anyString());
+            verify(monitoringRegistrationService).registerLibrary(any());
+            verify(notificationService).sendMessage(eq(Topic.LOG), argThat((Object o) -> o instanceof LogNotification n
+                    && n.getSeverity() == Severity.WARN
+                    && n.getMessage().equals("Not moved: \"new/path/NewName.epub\" is already taken by another file.")));
+        }
+
+        @Test
+        @DisplayName("reports a leftover .tmp_move as a stale temporary file, not as a taken path")
+        void reportsStaleTempDistinctly() throws IOException {
+            BookFileEntity epub = createBookFile(1L, "Book.epub", "old", true, false);
+            BookEntity book = createBook(List.of(epub));
+            Path target = Paths.get("/library/new/path/NewName.epub");
+
+            mockStandardBehavior(book, target);
+            mockUnmonitoredLibrary();
+            doThrow(new FileAlreadyExistsException("/library/old/Book.epub.tmp_move"))
+                    .when(fileMoveHelper).ensureTargetsAvailable(anyMap(), anySet());
+
+            FileMoveResult result = service.moveSingleFile(book);
+
+            assertThat(result.isMoved()).isFalse();
+            verify(fileMoveHelper, never()).moveFileWithBackup(any());
+            verify(notificationService).sendMessage(eq(Topic.LOG), argThat((Object o) -> o instanceof LogNotification n
+                    && n.getSeverity() == Severity.WARN
+                    && n.getMessage().equals("Not moved: leftover temporary file \"old/Book.epub.tmp_move\" from an earlier failed move. "
+                            + "Check it before deleting it: it may be the only copy of the file.")));
+        }
+
+        @Test
+        @DisplayName("does not send a conflict notification for unrelated failures")
+        void noConflictNotificationForOtherFailures() throws IOException {
+            BookFileEntity epub = createBookFile(1L, "Book.epub", "old", true, false);
+            BookEntity book = createBook(List.of(epub));
+            Path target = Paths.get("/library/new/path/NewName.epub");
+
+            mockStandardBehavior(book, target);
+            mockUnmonitoredLibrary();
+            doThrow(new IOException("disk on fire")).when(fileMoveHelper).commitMove(any(), any());
+
+            service.moveSingleFile(book);
+
+            verify(notificationService, never()).sendMessage(eq(Topic.LOG), any());
+        }
+
+        @Test
+        @DisplayName("reverts already-committed files when a later commit fails")
+        void revertsCommittedFilesOnPartialCommitFailure() throws IOException {
+            BookFileEntity epub = createBookFile(1L, "Book.epub", "old", true, false);
+            BookFileEntity pdf = createBookFile(2L, "Book.pdf", "old", true, false);
+            BookEntity book = createBook(List.of(epub, pdf));
+            Path target = Paths.get("/library/new/path/NewName.epub");
+
+            mockStandardBehavior(book, target);
+            mockUnmonitoredLibrary();
+            doAnswer(inv -> ((Path) inv.getArgument(0)).resolveSibling(((Path) inv.getArgument(0)).getFileName() + ".tmp_move"))
+                    .when(fileMoveHelper).moveFileWithBackup(any());
+
+            List<Path[]> commits = new ArrayList<>();
+            doAnswer(inv -> {
+                commits.add(new Path[]{inv.getArgument(0), inv.getArgument(1)});
+                if (commits.size() == 2) {
+                    throw new FileAlreadyExistsException(inv.getArgument(1).toString());
+                }
+                return null;
+            }).when(fileMoveHelper).commitMove(any(), any());
+
+            FileMoveResult result = service.moveSingleFile(book);
+
+            assertThat(result.isMoved()).isFalse();
+            assertThat(commits).hasSize(2);
+            Path committedTarget = commits.get(0)[1];
+            Path committedSource = Paths.get("/library/old").resolve(commits.get(0)[0].getFileName().toString().replace(".tmp_move", ""));
+            Path failedTemp = commits.get(1)[0];
+            Path failedSource = Paths.get("/library/old").resolve(failedTemp.getFileName().toString().replace(".tmp_move", ""));
+
+            verify(fileMoveHelper).moveFile(committedTarget, committedSource);
+            verify(fileMoveHelper).rollbackMove(failedTemp, failedSource);
+            verify(fileMoveHelper, never()).rollbackMove(eq(commits.get(0)[0]), any());
+            verify(bookFileRepository, never()).updateFileNameAndSubPath(anyLong(), anyString(), anyString());
+        }
+    }
+
+    @Nested
+    @DisplayName("moveSingleFile - Sidecars travel with the book (#3013)")
+    class SidecarMoves {
+
+        @Test
+        @DisplayName("existing sidecar files are checked, staged and committed with the book file")
+        void sidecarsArePartOfThePlan() throws IOException {
+            BookFileEntity epub = createBookFile(1L, "Book.epub", "old", true, false);
+            BookEntity book = createBook(List.of(epub));
+            Path target = Paths.get("/library/new/path/NewName.epub");
+
+            mockStandardBehavior(book, target);
+            mockSidecarPaths();
+            mockUnmonitoredLibrary();
+
+            FileMoveResult result = service.moveSingleFile(book);
+
+            assertThat(result.isMoved()).isTrue();
+            verify(fileMoveHelper).ensureTargetsAvailable(argThat(map -> map.size() == 3
+                    && Paths.get("/library/new/path/NewName.metadata.json").equals(map.get(Paths.get("/library/old/Book.metadata.json")))
+                    && Paths.get("/library/new/path/NewName.cover.jpg").equals(map.get(Paths.get("/library/old/Book.cover.jpg")))), anySet());
+            verify(fileMoveHelper).moveFileWithBackup(Paths.get("/library/old/Book.metadata.json"));
+            verify(fileMoveHelper).moveFileWithBackup(Paths.get("/library/old/Book.cover.jpg"));
+            verify(fileMoveHelper).commitMove(any(), eq(Paths.get("/library/new/path/NewName.metadata.json")));
+            verify(fileMoveHelper).commitMove(any(), eq(Paths.get("/library/new/path/NewName.cover.jpg")));
+        }
+
+        @Test
+        @DisplayName("sidecar target slots are claimed even when the book has no sidecar yet")
+        void absentSidecarStillClaimsTargetSlot() throws IOException {
+            BookFileEntity epub = createBookFile(1L, "Book.epub", "old", true, false);
+            BookEntity book = createBook(List.of(epub));
+            Path target = Paths.get("/library/new/path/NewName.epub");
+
+            mockStandardBehavior(book, target);
+            mockSidecarPaths();
+            mockUnmonitoredLibrary();
+            when(fileMoveHelper.validateSourceExists(argThat(p -> p != null && !p.toString().endsWith(".epub")), eq(false)))
+                    .thenReturn(false);
+
+            service.moveSingleFile(book);
+
+            verify(fileMoveHelper).ensureTargetsAvailable(argThat(map -> map.size() == 3
+                    && map.containsKey(Paths.get("/library/old/Book.metadata.json"))
+                    && map.containsKey(Paths.get("/library/old/Book.cover.jpg"))), anySet());
+            verify(fileMoveHelper, times(1)).moveFileWithBackup(any());
+            verify(fileMoveHelper).moveFileWithBackup(Paths.get("/library/old/Book.epub"));
+        }
+
+        @Test
+        @DisplayName("a tracked additional file that is also the sidecar cover is moved once, as an additional file")
+        void trackedCoverIsNotPlannedTwice() throws IOException {
+            BookFileEntity epub = createBookFile(1L, "Book.epub", "old", true, false);
+            BookFileEntity cover = createBookFile(2L, "Book.cover.jpg", "old", false, false);
+            BookEntity book = createBook(List.of(epub, cover));
+            Path target = Paths.get("/library/new/path/NewName.epub");
+
+            mockStandardBehavior(book, target);
+            mockSidecarPaths();
+            mockUnmonitoredLibrary();
+
+            FileMoveResult result = service.moveSingleFile(book);
+
+            assertThat(result.isMoved()).isTrue();
+            verify(fileMoveHelper, times(1)).moveFileWithBackup(Paths.get("/library/old/Book.cover.jpg"));
+            verify(fileMoveHelper).commitMove(any(), eq(Paths.get("/library/new/path/Book.cover.jpg")));
+            verify(fileMoveHelper, never()).commitMove(any(), eq(Paths.get("/library/new/path/NewName.cover.jpg")));
+            // The renamed book's own cover slot is still claimed, even though the tracked cover keeps its name
+            verify(fileMoveHelper).ensureTargetsAvailable(anyMap(),
+                    eq(Set.of(Paths.get("/library/new/path/NewName.cover.jpg"))));
+        }
+
+        @Test
+        @DisplayName("a tracked cover whose path does not change stays put when the book is renamed in place")
+        void trackedCoverStaysOnSameFolderRename() throws IOException {
+            BookFileEntity epub = createBookFile(1L, "Book.epub", "old", true, false);
+            BookFileEntity cover = createBookFile(2L, "Book.cover.jpg", "old", false, false);
+            BookEntity book = createBook(List.of(epub, cover));
+            Path target = Paths.get("/library/old/NewName.epub");
+
+            mockStandardBehavior(book, target);
+            mockSidecarPaths();
+            mockUnmonitoredLibrary();
+
+            FileMoveResult result = service.moveSingleFile(book);
+
+            assertThat(result.isMoved()).isTrue();
+            verify(fileMoveHelper, never()).moveFileWithBackup(Paths.get("/library/old/Book.cover.jpg"));
+            verify(fileMoveHelper, never()).commitMove(any(), eq(Paths.get("/library/old/NewName.cover.jpg")));
+            verify(fileMoveHelper).ensureTargetsAvailable(
+                    argThat(map -> map.size() == 2
+                            && Paths.get("/library/old/NewName.epub").equals(map.get(Paths.get("/library/old/Book.epub")))
+                            && Paths.get("/library/old/NewName.metadata.json").equals(map.get(Paths.get("/library/old/Book.metadata.json")))),
+                    eq(Set.of(Paths.get("/library/old/NewName.cover.jpg"))));
+            // The tracked cover's DB record keeps pointing at the file that is still there
+            verify(bookFileRepository).updateFileNameAndSubPath(eq(2L), eq("Book.cover.jpg"), anyString());
+        }
+
+        @Test
+        @DisplayName("no slot is reserved when the renamed book's sidecar slot is itself one of its tracked files")
+        void trackedFileAtSlotIsNotReserved() throws IOException {
+            BookFileEntity epub = createBookFile(1L, "Book.epub", "old", true, false);
+            BookFileEntity cover = createBookFile(2L, "Book.cover.jpg", "old", false, false);
+            BookFileEntity newCover = createBookFile(3L, "NewName.cover.jpg", "old", false, false);
+            BookEntity book = createBook(List.of(epub, cover, newCover));
+            Path target = Paths.get("/library/old/NewName.epub");
+
+            mockStandardBehavior(book, target);
+            mockSidecarPaths();
+            mockUnmonitoredLibrary();
+
+            service.moveSingleFile(book);
+
+            verify(fileMoveHelper).ensureTargetsAvailable(anyMap(), eq(Set.of()));
+            verify(fileMoveHelper, never()).moveFileWithBackup(Paths.get("/library/old/Book.cover.jpg"));
+            verify(fileMoveHelper, never()).moveFileWithBackup(Paths.get("/library/old/NewName.cover.jpg"));
         }
     }
 }
