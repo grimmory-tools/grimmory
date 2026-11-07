@@ -53,7 +53,9 @@
   </div>
 } @else {
   <p-confirmDialog />
-  <p-toast />
+  @if (localSettingsService.toastNotificationsEnabled()) {
+    <p-toast />
+  }
   <app-command-palette />
   <router-outlet />
 }

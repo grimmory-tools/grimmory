@@ -22,6 +22,7 @@ import {LibraryImportProgressService} from './shared/service/library-import-prog
 import {AuthorService} from './features/author-browser/service/author.service';
 import {MetadataRefreshSubmissionService} from './features/metadata/data/metadata-refresh-submission.service';
 import {RxStompState} from '@stomp/rx-stomp';
+import {LocalSettingsService} from './shared/service/local-settings.service';
 
 @Component({
   selector: 'app-root',
@@ -46,6 +47,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private readonly commandPaletteService = inject(CommandPaletteService);
   private readonly libraryImportProgressService = inject(LibraryImportProgressService);
   private readonly translocoService = inject(TranslocoService);
+  protected readonly localSettingsService = inject(LocalSettingsService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly loading = signal(true);

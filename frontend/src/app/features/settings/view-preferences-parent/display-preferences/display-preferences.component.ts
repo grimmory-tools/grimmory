@@ -19,6 +19,7 @@ import {UserService} from '../../user-management/user.service';
 import type {User, UserProfileUpdateRequest} from '../../user-management/user.service';
 import {AppUiFontService} from '../../../../shared/service/app-ui-font.service';
 import {ACCESSIBLE_UI_FONT, DEFAULT_UI_FONT} from '../../../../shared/model/ui-font.model';
+import {LocalSettingsService} from '../../../../shared/service/local-settings.service';
 
 @Component({
   selector: 'app-display-preferences',
@@ -40,7 +41,7 @@ export class DisplayPreferencesComponent {
   private readonly userService = inject(UserService);
   private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
-
+  private readonly localSettingsService = inject(LocalSettingsService);
   protected readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
   protected readonly appearanceOptions = computed(() => {
     const activeLang = this.activeLang();
@@ -164,6 +165,13 @@ export class DisplayPreferencesComponent {
 
   protected updateOledDarkMode(oledDarkMode: boolean): void {
     this.themeService.setOledDarkMode(oledDarkMode);
+  }
+
+  protected readonly toastNotificationsEnabled = this.localSettingsService.toastNotificationsEnabled;
+
+  protected onToastNotificationsChange(enabled: boolean): void {
+    this.localSettingsService.setToastNotificationsEnabled(enabled);
+    this.showSavedToast('settingsView.toastNotifications.savedDetail');
   }
 
   private applySyncedUserTheme(user: User): void {

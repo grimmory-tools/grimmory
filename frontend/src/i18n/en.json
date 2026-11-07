@@ -441,6 +441,11 @@
       "label": "Language",
       "savedDetail": "Your language preference has been saved."
     },
+    "toastNotifications": {
+      "label": "Toast Notifications",
+      "enabledLabel": "Enable toast notifications for this device",
+      "savedDetail": "Your toast notification preference has been saved."
+    },
     "uiFont": {
       "label": "Interface Font",
       "accessibleLabel": "Use accessible font",
