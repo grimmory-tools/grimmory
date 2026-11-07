@@ -6,7 +6,8 @@ import {injectQuery, QueryClient} from '@tanstack/angular-query-experimental';
 import {Book} from '../../../../book/model/book.model';
 import {SidecarService} from '../../../service/sidecar.service';
 import {SidecarMetadata, SidecarSyncStatus} from '../../../sources/sidecar.models';
-import {metadataSourceKeys, MetadataSourceQueryService} from '../../../sources/metadata-source-query.service';
+import {metadataSourceQueryKeys} from '../../../sources/metadata-source-query-keys';
+import {MetadataSourceQueryService} from '../../../sources/metadata-source-query.service';
 import {MessageService} from '@openng/optimus-ui/api';
 import {Button} from '@openng/optimus-ui/button';
 import {Tag} from '@openng/optimus-ui/tag';
@@ -92,7 +93,7 @@ export class SidecarViewerComponent implements OnDestroy {
   retryRead(): void {
     const bookId = this.currentBookId();
     if (bookId !== null) {
-      void this.queryClient.invalidateQueries({queryKey: metadataSourceKeys.sidecar(bookId)});
+      void this.queryClient.invalidateQueries({queryKey: metadataSourceQueryKeys.sidecarQueries(bookId)});
     }
   }
 
@@ -110,7 +111,7 @@ export class SidecarViewerComponent implements OnDestroy {
           summary: this.t.translate('metadata.sidecar.toast.exportSuccessSummary'),
           detail: this.t.translate('metadata.sidecar.toast.exportSuccessDetail')
         });
-        void this.queryClient.invalidateQueries({queryKey: metadataSourceKeys.sidecar(bookId)});
+        void this.queryClient.invalidateQueries({queryKey: metadataSourceQueryKeys.sidecarQueries(bookId)});
         this.exporting.set(false);
       },
       error: (err) => {
@@ -139,7 +140,7 @@ export class SidecarViewerComponent implements OnDestroy {
           summary: this.t.translate('metadata.sidecar.toast.importSuccessSummary'),
           detail: this.t.translate('metadata.sidecar.toast.importSuccessDetail')
         });
-        void this.queryClient.invalidateQueries({queryKey: metadataSourceKeys.sidecar(bookId)});
+        void this.queryClient.invalidateQueries({queryKey: metadataSourceQueryKeys.sidecarQueries(bookId)});
         this.importing.set(false);
       },
       error: (err) => {
