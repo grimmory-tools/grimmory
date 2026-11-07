@@ -20,6 +20,7 @@ import {
   ResetBookProgressVariables,
   SetAllBookMetadataLocksVariables,
   SetBookReadStatusVariables,
+  MoveBookFilesVariables,
   SetBookPersonalRatingVariables,
   BookPersonalRatingResult,
   SaveBookProgressVariables,
@@ -141,6 +142,17 @@ export class BookCommandService {
         })),
       onSettled: (_data, _error, {bookIds}, _onMutateResult, {client}) =>
         applyBookQueryChangeSet(client, {changedBookIds: bookIds}),
+    });
+  }
+
+  moveFiles() {
+    return mutationOptions({
+      mutationKey: bookCommandKeys.moveFiles(),
+      scope: bookCommandScopes.files,
+      mutationFn: ({moves}: MoveBookFilesVariables) =>
+        lastValueFrom(this.http.post<void>(`${this.filesUrl}/move`, {moves})),
+      onSettled: (_data, _error, {moves}, _onMutateResult, {client}) =>
+        applyBookQueryChangeSet(client, {changedBookIds: moves.map(move => move.bookId)}),
     });
   }
 
