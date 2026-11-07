@@ -49,28 +49,6 @@ RUN set -eux; \
 
 FROM mwader/static-ffmpeg:8.1 AS ffprobe-layer
 
-FROM scratch AS kepubify-layer-amd64
-
-ARG KEPUBIFY_VERSION="4.0.4"
-ARG KEPUBIFY_AMD64_CHECKSUM="sha256:37d7628d26c5c906f607f24b36f781f306075e7073a6fe7820a751bb60431fc5"
-
-ADD \
-    --checksum="${KEPUBIFY_AMD64_CHECKSUM}" \
-    --chmod=755 \
-    https://github.com/pgaskin/kepubify/releases/download/v${KEPUBIFY_VERSION}/kepubify-linux-64bit /kepubify
-
-FROM scratch AS kepubify-layer-arm64
-
-ARG KEPUBIFY_VERSION="4.0.4"
-ARG KEPUBIFY_ARM64_CHECKSUM="sha256:5a15b8f6f6a96216c69330601bca29638cfee50f7bf48712795cff88ae2d03a3"
-
-ADD \
-    --checksum="${KEPUBIFY_ARM64_CHECKSUM}" \
-    --chmod=755 \
-    https://github.com/pgaskin/kepubify/releases/download/v${KEPUBIFY_VERSION}/kepubify-linux-arm64 /kepubify
-
-FROM kepubify-layer-${TARGETARCH} AS kepubify-layer
-
 FROM eclipse-temurin:25-jre-alpine
 
 ENV JAVA_TOOL_OPTIONS="-XX:+UseShenandoahGC \
@@ -101,7 +79,6 @@ COPY packaging/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 COPY --from=ffprobe-layer /ffprobe /usr/local/bin/ffprobe
-COPY --from=kepubify-layer /kepubify /usr/local/bin/kepubify
 
 COPY --from=backend-build /workspace/backend/app.jar /app/app.jar
 
