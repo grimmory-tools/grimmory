@@ -108,7 +108,7 @@ public class OidcTokenClient {
                     .exchange(userinfoEndpoint, HttpMethod.GET, new HttpEntity<>(headers), Map.class);
 
             return response.getBody() != null ? response.getBody() : Map.of();
-        } catch (RestClientException e) {
+        } catch (RestClientException | IllegalArgumentException e) {
             log.warn("Failed to fetch userinfo: {}", e.getMessage());
             return Map.of();
         }
