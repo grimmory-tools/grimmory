@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, computed, Component, DestroyRef, effect, inject, input, linkedSignal, output, untracked} from '@angular/core';
 import {UpperCasePipe} from '@angular/common';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {injectQuery} from '@tanstack/angular-query-experimental';
+import {injectInfiniteQuery, injectQuery} from '@tanstack/angular-query-experimental';
 import {Book, FileInfo} from '../../../../../book/model/book.model';
 import {BookNavigationService, type ReadOptions} from '../../../../../book/service/book-navigation.service';
 import {BookMenuComponent} from '../../../../../book/components/book-menu/book-menu.component';
@@ -155,13 +155,13 @@ export class MetadataTabsComponent {
         : availableTabs[0]?.value ?? 'similar',
   });
 
-  protected readonly seriesQuery = injectQuery(() => ({
-    ...this.bookQuery.page({facets: {series: {include: [this.seriesName() ?? ''], exclude: []}}, sort: SERIES_SORT, size: ROW_SIZE}),
+  protected readonly seriesQuery = injectInfiniteQuery(() => ({
+    ...this.bookQuery.infinitePage({facets: {series: {include: [this.seriesName() ?? ''], exclude: []}}, sort: SERIES_SORT, size: ROW_SIZE}),
     enabled: this.activeTab() === 'series',
   }));
   protected readonly seriesCards = computed(() => {
     const bookId = this.book().id;
-    return (this.seriesQuery.data()?.content ?? []).filter(book => book.id !== bookId).map(book => ({book}));
+    return (this.seriesQuery.data()?.pages ?? []).flatMap(page => page.content).filter(book => book.id !== bookId).map(book => ({book}));
   });
   protected readonly similarQuery = injectQuery(() => ({
     ...this.bookQuery.recommendations(this.book().id, ROW_SIZE),
@@ -176,6 +176,12 @@ export class MetadataTabsComponent {
         untracked(() => this.loadChapters(bookId));
       }
     });
+  }
+
+  protected loadMoreSeries(): void {
+    if (this.seriesQuery.hasNextPage() && !this.seriesQuery.isFetching()) {
+      void this.seriesQuery.fetchNextPage({cancelRefetch: false});
+    }
   }
 
   protected readBook(book: Book, options?: ReadOptions): void {

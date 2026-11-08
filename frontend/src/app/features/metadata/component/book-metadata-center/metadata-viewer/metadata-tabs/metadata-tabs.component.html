@@ -13,7 +13,7 @@
   <p-tabpanels>
     <p-tabpanel value="series">
       <ng-template #content>
-        <app-book-row [cards]="seriesCards()" [status]="seriesQuery.status()" [bookMenu]="bookMenu" (retry)="seriesQuery.refetch()" (opened)="openBook.emit($event.id)" />
+        <app-book-row [cards]="seriesCards()" [status]="seriesQuery.status()" [bookMenu]="bookMenu" (retry)="seriesQuery.refetch()" (opened)="openBook.emit($event.id)" (endReached)="loadMoreSeries()" />
       </ng-template>
     </p-tabpanel>
     <p-tabpanel value="similar">

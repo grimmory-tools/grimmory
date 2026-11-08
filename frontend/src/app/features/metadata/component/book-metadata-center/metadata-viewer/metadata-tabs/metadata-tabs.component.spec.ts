@@ -43,7 +43,7 @@ describe('MetadataTabsComponent default tab selection', () => {
         {
           provide: BookQueryService,
           useValue: {
-            page: () => ({queryKey: ['page'], queryFn: () => new Promise(() => undefined)}),
+            infinitePage: () => ({queryKey: ['page'], queryFn: () => new Promise(() => undefined), initialPageParam: null, getNextPageParam: () => undefined}),
             recommendations: () => ({queryKey: ['recommendations'], queryFn: () => new Promise(() => undefined)}),
           },
         },

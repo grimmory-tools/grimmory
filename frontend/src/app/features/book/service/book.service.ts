@@ -1,7 +1,7 @@
 import {computed, effect, inject, Service} from '@angular/core';
-import {first, from, lastValueFrom, Observable, throwError} from 'rxjs';
+import {lastValueFrom, Observable, throwError} from 'rxjs';
 import {HttpClient, HttpErrorResponse, HttpParams} from '@angular/common/http';
-import {catchError, map, tap} from 'rxjs/operators';
+import {catchError, tap} from 'rxjs/operators';
 import {Book, BookDeletionResponse, BookSetting, BookStatusUpdateResponse, CreatePhysicalBookRequest, PersonalRatingUpdateResponse, ReadStatus} from '../model/book.model';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {MessageService} from '@openng/optimus-ui/api';
@@ -117,21 +117,6 @@ export class BookService {
     if (bookIds.length === 0) return [];
     const idSet = new Set(bookIds.map(id => +id));
     return this.books().filter(book => idSet.has(+book.id));
-  }
-
-  getBooksInSeries(bookId: number): Observable<Book[]> {
-    return from(this.queryClient.query({...this.getBooksQueryOptions(), staleTime: 'static'})).pipe(
-      map(books => {
-        const currentBook = books.find(book => book.id === bookId);
-        if (!currentBook?.metadata?.seriesName) {
-          return [];
-        }
-
-        const seriesName = currentBook.metadata.seriesName.toLowerCase();
-        return books.filter(book => book.metadata?.seriesName?.toLowerCase() === seriesName);
-      }),
-      first()
-    );
   }
 
   /*------------------ Book Operations ------------------*/

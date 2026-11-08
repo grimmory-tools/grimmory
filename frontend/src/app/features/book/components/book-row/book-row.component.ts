@@ -64,6 +64,7 @@ export class BookRowComponent {
   readonly pageBleed = input(false, {transform: booleanAttribute});
   readonly retry = output<void>();
   readonly opened = output<BookSummary>();
+  readonly endReached = output<void>();
 
   protected readonly rowTitle = contentChild('rowTitle');
   private readonly strip = viewChild<ElementRef<HTMLElement>>('strip');
@@ -107,9 +108,12 @@ export class BookRowComponent {
           }
           if (entry.target === last) {
             this.atEnd.set(inView);
+            if (entry.isIntersecting) {
+              this.endReached.emit();
+            }
           }
         }
-      }, {root: strip, threshold: 1});
+      }, {root: strip, threshold: [0, 1]});
       observer.observe(first);
       observer.observe(last);
       onCleanup(() => observer.disconnect());
