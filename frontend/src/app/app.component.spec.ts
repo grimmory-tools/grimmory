@@ -291,13 +291,13 @@ describe("AppComponent", () => {
     expect(bookService.handleBookUpdate).not.toHaveBeenCalled();
   });
 
-  it("shows and hides toast notifications according to the local setting", () => {
-    configureComponent();
+  it("shows and hides toast notifications according to the local setting", async () => {
+      configureComponent();
 
     expect(fixture.nativeElement.querySelector("p-toast")).not.toBeNull();
 
     localSettingsService.toastNotificationsEnabled.set(false);
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(fixture.nativeElement.querySelector("p-toast")).toBeNull();
   });
