@@ -54,11 +54,6 @@
       "count": 1
     }
   },
-  "src/app/features/book/components/book-card-lite/book-card-lite-component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 3
-    }
-  },
   "src/app/features/book/components/book-notes/book-notes-component.ts": {
     "@angular-eslint/prefer-signals": {
       "count": 1
