@@ -465,7 +465,7 @@
     },
     "dashboardScrollers": {
       "sectionTitle": "Konfiguration av översikt",
-      "sectionDesc": "Lägg till upp till 5 scrollers från olika boksamlingar och anpassa deras beteende",
+      "sectionDesc": "Lägg till scrollers från olika boksamlingar och anpassa deras beteende",
       "type": "Typ",
       "selectType": "Välj typ",
       "selectMagicShelf": "Välj magisk hylla",

@@ -465,7 +465,7 @@
     },
     "dashboardScrollers": {
       "sectionTitle": "Konfiguracja panelu głównego",
-      "sectionDesc": "Dodaj do 5 przewijaków z różnych kolekcji książek i dostosuj ich zachowanie",
+      "sectionDesc": "Dodaj przewijaki z różnych kolekcji książek i dostosuj ich zachowanie",
       "type": "Typ",
       "selectType": "Wybierz typ",
       "selectMagicShelf": "Wybierz inteligentną półkę",

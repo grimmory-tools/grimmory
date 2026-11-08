@@ -465,7 +465,7 @@
     },
     "dashboardScrollers": {
       "sectionTitle": "Dashboard-Konfiguration",
-      "sectionDesc": "Fügen Sie bis zu 5 Scroller aus verschiedenen Buchsammlungen hinzu und passen Sie deren Verhalten an",
+      "sectionDesc": "Fügen Sie Scroller aus verschiedenen Buchsammlungen hinzu und passen Sie deren Verhalten an",
       "type": "Typ",
       "selectType": "Typ auswählen",
       "selectMagicShelf": "Magisches Regal auswählen",

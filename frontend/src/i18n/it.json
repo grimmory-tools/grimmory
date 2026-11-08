@@ -465,7 +465,7 @@
     },
     "dashboardScrollers": {
       "sectionTitle": "Configurazione pannello di controllo",
-      "sectionDesc": "Aggiungi fino a 5 scroller da diverse collezioni di libri e personalizza il loro comportamento",
+      "sectionDesc": "Aggiungi scroller da diverse collezioni di libri e personalizza il loro comportamento",
       "type": "Tipo",
       "selectType": "Seleziona tipo",
       "selectMagicShelf": "Seleziona scaffale magico",

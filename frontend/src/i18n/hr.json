@@ -465,7 +465,7 @@
     },
     "dashboardScrollers": {
       "sectionTitle": "Konfiguracija nadzorne ploče",
-      "sectionDesc": "Dodajte do 5 klizača iz različitih kolekcija knjiga i prilagodite njihovo ponašanje.",
+      "sectionDesc": "Dodajte klizače iz različitih kolekcija knjiga i prilagodite njihovo ponašanje.",
       "type": "Vrsta",
       "selectType": "Odaberite vrstu",
       "selectMagicShelf": "Odaberite čarobnu policu",

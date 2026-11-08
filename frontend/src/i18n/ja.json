@@ -465,7 +465,7 @@
     },
     "dashboardScrollers": {
       "sectionTitle": "ダッシュボード設定",
-      "sectionDesc": "異なるブックコレクションから最大5つのスクローラーを追加し、動作をカスタマイズできます",
+      "sectionDesc": "異なるブックコレクションからスクローラーを追加し、動作をカスタマイズできます",
       "type": "タイプ",
       "selectType": "タイプを選択",
       "selectMagicShelf": "マジックシェルフを選択",

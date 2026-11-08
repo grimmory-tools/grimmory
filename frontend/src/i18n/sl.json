@@ -465,7 +465,7 @@
     },
     "dashboardScrollers": {
       "sectionTitle": "Konfiguracija nadzorne plošče",
-      "sectionDesc": "Dodaj do 5 drsnikov iz različnih zbirk knjig in prilagodi njihovo delovanje",
+      "sectionDesc": "Dodaj drsnike iz različnih zbirk knjig in prilagodi njihovo delovanje",
       "type": "Vrsta",
       "selectType": "Izberi vrsto",
       "selectMagicShelf": "Izberi čarobno polico",

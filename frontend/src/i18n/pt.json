@@ -465,7 +465,7 @@
     },
     "dashboardScrollers": {
       "sectionTitle": "Configuração do Painel",
-      "sectionDesc": "Adicione até 5 carrosséis de diferentes coleções de livros e personalize seu comportamento",
+      "sectionDesc": "Adicione carrosséis de diferentes coleções de livros e personalize seu comportamento",
       "type": "Tipo",
       "selectType": "Selecionar tipo",
       "selectMagicShelf": "Selecionar prateleira mágica",

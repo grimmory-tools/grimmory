@@ -465,7 +465,7 @@
     },
     "dashboardScrollers": {
       "sectionTitle": "Configuration du tableau de bord",
-      "sectionDesc": "Ajoutez jusqu'à 5 défilements de différentes collections de livres et personnalisez leur comportement",
+      "sectionDesc": "Ajoutez des défilements de différentes collections de livres et personnalisez leur comportement",
       "type": "",
       "selectType": "Sélectionner le type",
       "selectMagicShelf": "Sélectionner une étagère magique",

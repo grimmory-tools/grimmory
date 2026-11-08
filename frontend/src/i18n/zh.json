@@ -465,7 +465,7 @@
     },
     "dashboardScrollers": {
       "sectionTitle": "仪表板配置",
-      "sectionDesc": "从不同的书籍集合中添加最多 5 个滚动条，并自定义其行为",
+      "sectionDesc": "从不同的书籍集合中添加滚动条，并自定义其行为",
       "type": "类型",
       "selectType": "选择类型",
       "selectMagicShelf": "选择智能书架",

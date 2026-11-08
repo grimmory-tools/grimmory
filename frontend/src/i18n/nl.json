@@ -465,7 +465,7 @@
     },
     "dashboardScrollers": {
       "sectionTitle": "Dashboardconfiguratie",
-      "sectionDesc": "Voeg maximaal 5 scrollers toe uit verschillende boekcollecties en pas hun gedrag aan",
+      "sectionDesc": "Voeg scrollers toe uit verschillende boekcollecties en pas hun gedrag aan",
       "type": "",
       "selectType": "Selecteer type",
       "selectMagicShelf": "",
