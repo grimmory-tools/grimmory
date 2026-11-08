@@ -17,7 +17,7 @@
     "next": "Вперед",
     "submit": "Надіслати",
     "remove": "Прибрати",
-    "clear": "",
+    "clear": "Очистити",
     "edit": "Редагувати",
     "info": "Інформація",
     "select": "Вибрати",
@@ -84,19 +84,9 @@
     "main": {
       "pageTitle": "Панель керування",
       "welcomeTitle": "Ласкаво просимо до Grimmory!",
-      "welcomeSubtitle": "Створіть свою першу бібліотеку",
       "welcomeDescription": "У бібліотеці зберігаються всі ваші книги. Почніть створювати свою цифрову колекцію вже сьогодні!",
-      "createLibrary": "Створіть свою бібліотеку"
-    },
-    "scroller": {
-      "noBooksFound": "Книг не знайдено для цієї панелі.",
-      "loadError": "Не вдалося завантажити книги! Оновіть сторінку.",
-      "continueListening": "Продовжити прослуховування",
-      "continueReading": "Продовжити читання",
-      "recentlyAdded": "Нещодавно додані",
-      "discoverNew": "Відкрийте для себе щось нове",
-      "magicShelf": "Магічна полиця",
-      "default": "Панель"
+      "createLibrary": "Створіть свою бібліотеку",
+      "customize": ""
     }
   },
   "settings": {
@@ -109,10 +99,10 @@
       "users": "Користувачі",
       "email": "",
       "patterns": "Шаблони",
-      "authentication": "",
+      "authentication": "OIDC",
       "tasks": "Завдання",
       "auditLogs": "Журнали аудиту",
-      "opds": "",
+      "opds": "OPDS",
       "devices": "Пристрої"
     }
   },
@@ -140,14 +130,14 @@
       "username": "Ім'я користувача",
       "password": "Пароль",
       "fromAddress": "Адреса відправника",
-      "hostPlaceholder": "",
-      "portPlaceholder": "",
-      "usernamePlaceholder": "",
+      "hostPlaceholder": "smtp.example.com",
+      "portPlaceholder": "587",
+      "usernamePlaceholder": "user@example.com",
       "passwordPlaceholder": "Введіть пароль",
-      "fromAddressPlaceholder": "",
+      "fromAddressPlaceholder": "noreply@example.com",
       "providerNamePlaceholder": "Назва провайдера",
       "authentication": "Автентифікація",
-      "startTls": "",
+      "startTls": "StartTLS",
       "shared": "Спільний",
       "shareTooltip": "Поділитися цим провайдером з усіма користувачами",
       "loadError": "Не вдалося завантажити поштових провайдерів",
@@ -206,7 +196,7 @@
       "default": "За замовчуванням",
       "email": "Електронна пошта",
       "name": "Ім'я",
-      "emailPlaceholder": "",
+      "emailPlaceholder": "recipient@example.com",
       "namePlaceholder": "Ім'я одержувача",
       "editRecipient": "Редагувати одержувача",
       "deleteRecipient": "Видалити одержувача",
@@ -298,7 +288,7 @@
       "maxWidthDesc": "Встановіть ліміт ширини області читання, щоб полегшити відстеження тексту.",
       "maxHeight": "Максимальна висота",
       "maxHeightDesc": "Встановіть ліміт висоти області читання для оптимального заповнення екрана.",
-      "navigation": "",
+      "navigation": "Навігація",
       "tapToTurnPage": "",
       "tapToTurnPageDesc": ""
     },
@@ -311,8 +301,8 @@
       "pageZoomDesc": "Встановіть масштаб за замовчуванням для PDF-документів, щоб покращити зручність читання.",
       "scrollLayout": "",
       "scrollLayoutDesc": "",
-      "vertical": "",
-      "horizontal": "",
+      "vertical": "Вертикальний",
+      "horizontal": "Горизонтальний",
       "even": "Парні",
       "odd": "Непарні",
       "none": "Немає",
@@ -475,16 +465,16 @@
     },
     "dashboardScrollers": {
       "sectionTitle": "Налаштування панелі",
-      "sectionDesc": "Додайте до 5 панелей із різних книжних колекцій та налаштуйте їх",
+      "sectionDesc": "Додайте панелі з різних книжних колекцій та налаштуйте їх",
       "type": "Тип",
       "selectType": "Оберіть тип",
-      "magicShelf": "Магічна полиця",
       "selectMagicShelf": "Оберіть магічну полицю",
+      "selectLibrary": "",
+      "selectShelf": "",
       "sortField": "Сортувати за полем",
       "selectField": "Оберіть поле",
       "direction": "Напрямок",
       "selectDirection": "Порядок",
-      "maxItems": "Макс. кількість",
       "addScroller": "Додати панель",
       "resetToDefault": "Відновити стандартні",
       "saveSettings": "",
@@ -494,7 +484,10 @@
         "lastRead": "Продовжити читання",
         "lastListened": "Продовжити прослуховування",
         "latestAdded": "Нещодавно додані",
+        "recentlyFinished": "",
         "random": "Відкрийте для себе щось нове",
+        "library": "",
+        "shelf": "",
         "magicShelf": "Магічна полиця",
         "default": "Панель"
       },
@@ -523,7 +516,7 @@
       "sectionTitle": "Налаштування вигляду та сортування бібліотеки й полиць",
       "sectionDesc": "Налаштуйте стандартні та окремі для бібліотеки/полиці параметри сортування і режиму перегляду (сітка або таблиця) у браузері.",
       "defaultPreferences": "Параметри за замовчуванням",
-      "defaultPreferencesDesc": "Налаштуйте режим перегляду за замовчуванням і багатопольове сортування для всіх бібліотек і полиць. Перетягуйте, щоб змінити пріоритет сортування.",
+      "defaultPreferencesDesc": "Налаштуйте режим перегляду за замовчуванням і багатопольове сортування для всіх бібліотек і полиць.",
       "sortOrderLabel": "Порядок сортування (перетягніть для зміни)",
       "formatOverlay": "Накладення типу книги",
       "ascending": "За зростанням",
@@ -663,7 +656,7 @@
     },
     "publicReviews": {
       "sectionTitle": "Публічні відгуки",
-      "sectionDesc": "Налаштуйте автоматичне завантаження відгуків користувачів із зовнішніх платформ. Відгуки можна отримувати з Amazon, Goodreads і Hardcover для офлайн-доступу.",
+      "sectionDesc": "Налаштуйте автоматичне завантаження відгуків користувачів із зовнішніх платформ для офлайн-доступу.",
       "downloadLabel": "Завантажувати публічні відгуки",
       "autoDownloadLabel": "Автозавантаження при відкритті книги",
       "autoDownloadDesc": "Автоматично отримувати відгуки, коли ви відкриваєте сторінку деталей книги. Якщо вимкнено, відгуки завантажуватимуться лише вручну або під час оновлення метаданих.",
@@ -701,9 +694,7 @@
         "language": "Мова",
         "isbn13": "",
         "isbn10": "",
-        "pageCount": "Кількість сторінок",
-        "doubanRating": "Рейтинг Douban",
-        "doubanReviewCount": "К-сть оцінок Douban"
+        "pageCount": "Кількість сторінок"
       }
     },
     "fieldSelector": {
@@ -2836,6 +2827,10 @@
         "readStatusMenu": "Змінити статус читання"
       }
     },
+    "row": {
+      "previous": "",
+      "next": ""
+    },
     "menu": {
       "label": "",
       "openInNewTab": "",
@@ -3362,7 +3357,7 @@
       }
     },
     "sorting": {
-      "saveAsDefault": "Зберегти як значення за замовчуванням"
+      "saveAsDefault": "Зберегти як значення за замовчуванням: {{scope}}"
     },
     "fileAttacher": {
       "title": "Прикріпити файл до іншої книги",
@@ -5256,7 +5251,8 @@
       "flipDirection": ""
     },
     "chips": {
-      "removeSearch": ""
+      "removeSearch": "",
+      "removeExcluded": ""
     },
     "rail": {
       "searchValues": "",
@@ -5266,13 +5262,21 @@
         "library": "",
         "shelf": "",
         "magicShelf": "",
-        "unshelved": ""
+        "unshelved": "",
+        "dashboardRow": ""
       },
       "noMatches": "",
       "minUnit": "",
       "maxUnit": "",
       "min": "",
-      "max": ""
+      "max": "",
+      "excluded": "",
+      "exclude": "",
+      "excludeValue": "",
+      "matchOptions": "",
+      "matchAny": "",
+      "matchAll": "",
+      "all": ""
     },
     "book": {
       "empty": "",
@@ -5300,7 +5304,6 @@
       "density": "Розмір",
       "smallerCards": "",
       "largerCards": "",
-      "showFilters": "",
       "columns": "",
       "resetColumns": "Відновити стандартні"
     },
