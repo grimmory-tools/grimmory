@@ -5,7 +5,7 @@ import {BookService} from '../../../../book/service/book.service';
 import {BookFileService} from '../../../../book/service/book-file.service';
 import {Rating, RatingRateEvent} from '@openng/optimus-ui/rating';
 import {FormsModule} from '@angular/forms';
-import {Book, BookFile, BookMetadata, BookRecommendation, BookType, ComicMetadata, FileInfo, ReadStatus} from '../../../../book/model/book.model';
+import {Book, BookFile, BookMetadata, BookType, ComicMetadata, FileInfo, ReadStatus} from '../../../../book/model/book.model';
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
 import {CoverComponent} from '../../../../../shared/components/cover/cover.component';
 import {UserService} from '../../../../settings/user-management/user.service';
@@ -102,12 +102,12 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
     ),
     {initialValue: []}
   );
-  private readonly originalRecommendedBooks = signal<BookRecommendation[]>([]);
+  private readonly originalRecommendedBooks = signal<Book[]>([]);
   readonly filteredRecommendedBooks = computed(() => {
     const bookInSeriesIds = new Set(this.bookInSeriesSignal().map(book => book.id));
 
     return this.originalRecommendedBooks().filter(
-      rec => !bookInSeriesIds.has(rec.book.id)
+      rec => !bookInSeriesIds.has(rec.id)
     );
   });
 
@@ -128,7 +128,7 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   }
 
   @Input()
-  set recommendedBooks(value: BookRecommendation[]) {
+  set recommendedBooks(value: Book[]) {
     this.originalRecommendedBooks.set(value);
   }
   private readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});

@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, computed, Component, DestroyRef, effect, inject, input, linkedSignal, output, untracked} from '@angular/core';
 import {UpperCasePipe} from '@angular/common';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {Book, BookRecommendation, FileInfo} from '../../../../../book/model/book.model';
+import {Book, FileInfo} from '../../../../../book/model/book.model';
 import {BookNavigationService, type ReadOptions} from '../../../../../book/service/book-navigation.service';
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from '@openng/optimus-ui/tabs';
 import {InfiniteScrollDirective} from 'ngx-infinite-scroll';
@@ -95,7 +95,7 @@ export class MetadataTabsComponent {
   readonly book = input.required<Book>();
   readonly bookInSeries = input<Book[]>([]);
   readonly hasSeries = input(false);
-  readonly recommendedBooks = input<BookRecommendation[]>([]);
+  readonly recommendedBooks = input<Book[]>([]);
 
   readonly audiobookInfo = linkedSignal<number, AudiobookInfo | null>({
     source: () => this.book().id,

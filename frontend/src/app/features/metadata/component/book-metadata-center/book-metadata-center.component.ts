@@ -2,7 +2,7 @@ import {computed, Component, DestroyRef, inject, OnInit, signal} from '@angular/
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UserService} from '../../../settings/user-management/user.service';
-import {Book, BookRecommendation} from '../../../book/model/book.model';
+import {Book} from '../../../book/model/book.model';
 import {distinctUntilChanged, filter, map} from 'rxjs/operators';
 import {BookService} from '../../../book/service/book.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
@@ -83,18 +83,14 @@ export class BookMetadataCenterComponent implements OnInit {
     if (bookId == null || !(settings?.similarBookRecommendation ?? false)) {
       return queryOptions({
         queryKey: bookRecommendationsQueryKey(-1, 20),
-        queryFn: async (): Promise<BookRecommendation[]> => [],
+        queryFn: async (): Promise<Book[]> => [],
         enabled: false,
       });
     }
 
     return this.bookService.bookRecommendationsQueryOptions(bookId, 20);
   });
-  readonly recommendedBooks = computed(() =>
-    [...(this.recommendationsQuery.data() ?? [])].sort(
-      (a, b) => (b.similarityScore ?? 0) - (a.similarityScore ?? 0)
-    )
-  );
+  readonly recommendedBooks = computed(() => this.recommendationsQuery.data() ?? []);
   private _tab: BookMetadataTab = BookMetadataTab.View;
   readonly canEditMetadata = computed(() => {
     const user = this.userService.currentUser();

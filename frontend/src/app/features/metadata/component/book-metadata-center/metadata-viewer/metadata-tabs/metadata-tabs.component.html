@@ -35,9 +35,9 @@
         <div class="tab-content">
           @if (recommendations.length > 0) {
             <div class="dashboard-scroller-infinite" infiniteScroll [infiniteScrollDistance]="2" [infiniteScrollThrottle]="50" [horizontal]="true">
-              @for (recBook of recommendations; track recBook.book.id) {
+              @for (recBook of recommendations; track recBook.id) {
                 <div class="dashboard-scroller-card">
-                  <app-book-card-lite-component [book]="recBook.book" />
+                  <app-book-card-lite-component [book]="recBook" />
                 </div>
               }
             </div>

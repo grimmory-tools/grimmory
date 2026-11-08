@@ -7,7 +7,7 @@ import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {ConfirmationService, MessageService, MenuItem} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
 
-import {Book, BookFile, BookMetadata, BookRecommendation, ReadStatus} from '../../../../book/model/book.model';
+import {Book, BookFile, BookMetadata, ReadStatus} from '../../../../book/model/book.model';
 import {BookService} from '../../../../book/service/book.service';
 import {BookFileService} from '../../../../book/service/book-file.service';
 import {AppSettings} from '../../../../../shared/model/app-settings.model';
@@ -269,12 +269,7 @@ describe('MetadataViewerComponent', () => {
     ] as Book[];
     getBooksInSeries.mockReturnValueOnce(of(seriesBooks as Book[]));
 
-    const recommendedBooks: BookRecommendation[] = [
-      {book: {id: 4} as Book, similarityScore: 0.99},
-      {book: {id: 17} as Book, similarityScore: 0.87},
-    ];
-
-    component.recommendedBooks = recommendedBooks;
+    component.recommendedBooks = [{id: 4}, {id: 17}] as Book[];
     const richBook = createBook(
       {
         id: 21,
@@ -317,7 +312,7 @@ describe('MetadataViewerComponent', () => {
     await vi.waitFor(() => {
       expect(component.bookInSeries.map(book => book.id)).toEqual([4, 8]);
     });
-    expect(component.filteredRecommendedBooks().map(book => book.book.id)).toEqual([17]);
+    expect(component.filteredRecommendedBooks().map(book => book.id)).toEqual([17]);
 
     const readItems = component.readMenuItems();
     expect(readItems.map(item => item.separator ? 'separator' : item.label)).toEqual([

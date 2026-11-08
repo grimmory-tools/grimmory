@@ -2,7 +2,7 @@ import {computed, effect, inject, Service} from '@angular/core';
 import {first, from, lastValueFrom, Observable, throwError} from 'rxjs';
 import {HttpClient, HttpErrorResponse, HttpParams} from '@angular/common/http';
 import {catchError, map, tap} from 'rxjs/operators';
-import {Book, BookDeletionResponse, BookRecommendation, BookSetting, BookStatusUpdateResponse, CreatePhysicalBookRequest, PersonalRatingUpdateResponse, ReadStatus} from '../model/book.model';
+import {Book, BookDeletionResponse, BookSetting, BookStatusUpdateResponse, CreatePhysicalBookRequest, PersonalRatingUpdateResponse, ReadStatus} from '../model/book.model';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {MessageService} from '@openng/optimus-ui/api';
 import {ResetProgressType} from '../../../shared/constants/reset-progress-type';
@@ -105,7 +105,7 @@ export class BookService {
   bookRecommendationsQueryOptions(bookId: number, limit: number) {
     return queryOptions({
       queryKey: bookRecommendationsQueryKey(bookId, limit),
-      queryFn: () => lastValueFrom(this.http.get<BookRecommendation[]>(`${this.url}/${bookId}/recommendations`, {
+      queryFn: () => lastValueFrom(this.http.get<Book[]>(`${this.url}/${bookId}/recommendations`, {
         params: {limit: limit.toString()}
       }))
     });
@@ -144,7 +144,7 @@ export class BookService {
     );
   }
 
-  getBookRecommendations(bookId: number, limit: number = 20): Observable<BookRecommendation[]> {
+  getBookRecommendations(bookId: number, limit: number = 20): Observable<Book[]> {
     return from(this.queryClient.query({...this.bookRecommendationsQueryOptions(bookId, limit), staleTime: 'static'}));
   }
 
