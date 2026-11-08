@@ -84,19 +84,9 @@
     "main": {
       "pageTitle": "Översikt",
       "welcomeTitle": "Välkommen till Grimmory!",
-      "welcomeSubtitle": "Låt oss skapa ditt första bibliotek",
       "welcomeDescription": "Ett bibliotek är där alla dina böcker finns. Börja bygga din digitala samling idag!",
-      "createLibrary": "Skapa ditt bibliotek"
-    },
-    "scroller": {
-      "noBooksFound": "Inga böcker hittades för denna scroller.",
-      "loadError": "Kunde inte ladda böcker! Försök att uppdatera sidan.",
-      "continueListening": "Fortsätt lyssna",
-      "continueReading": "Fortsätt läsa",
-      "recentlyAdded": "Nyligen tillagda",
-      "discoverNew": "Upptäck något nytt",
-      "magicShelf": "Magisk hylla",
-      "default": ""
+      "createLibrary": "Skapa ditt bibliotek",
+      "customize": ""
     }
   },
   "settings": {
@@ -478,13 +468,13 @@
       "sectionDesc": "Lägg till upp till 5 scrollers från olika boksamlingar och anpassa deras beteende",
       "type": "Typ",
       "selectType": "Välj typ",
-      "magicShelf": "Magisk hylla",
       "selectMagicShelf": "Välj magisk hylla",
+      "selectLibrary": "",
+      "selectShelf": "",
       "sortField": "Sorteringsfält",
       "selectField": "Välj fält",
       "direction": "Riktning",
       "selectDirection": "Välj riktning",
-      "maxItems": "Max antal",
       "addScroller": "Lägg till scroller",
       "resetToDefault": "Återställ till standard",
       "saveSettings": "",
@@ -494,7 +484,10 @@
         "lastRead": "Fortsätt läsa",
         "lastListened": "Fortsätt lyssna",
         "latestAdded": "Nyligen tillagda",
+        "recentlyFinished": "",
         "random": "Upptäck något nytt",
+        "library": "",
+        "shelf": "",
         "magicShelf": "Magisk hylla",
         "default": ""
       },
@@ -523,7 +516,7 @@
       "sectionTitle": "Biblioteks- och hyllvy- och sorteringsinställningar",
       "sectionDesc": "Konfigurera standard- och per-biblioteks-/hyllinställningar för sortering och visningsläge (rutnät eller tabell) i webbläsaren.",
       "defaultPreferences": "Standardinställningar",
-      "defaultPreferencesDesc": "Konfigurera standardvisningsläge och flerfaldig sortering för alla bibliotek och hyllor. Dra för att ändra sorteringsprioritet.",
+      "defaultPreferencesDesc": "Konfigurera standardvisningsläge och flerfaldig sortering för alla bibliotek och hyllor.",
       "sortOrderLabel": "Sorteringsordning (dra för att ändra ordning)",
       "formatOverlay": "Filformats-overlay",
       "ascending": "Stigande",
@@ -663,7 +656,7 @@
     },
     "publicReviews": {
       "sectionTitle": "Publika recensioner",
-      "sectionDesc": "Konfigurera automatisk nedladdning av användarrecensioner från externa plattformar. Recensioner kan hämtas från Amazon, Goodreads och Hardcover för offlineåtkomst.",
+      "sectionDesc": "Konfigurera automatisk nedladdning av användarrecensioner från externa plattformar för offlineåtkomst.",
       "downloadLabel": "Ladda ner publika recensioner",
       "autoDownloadLabel": "Ladda ner automatiskt vid bokvisning",
       "autoDownloadDesc": "Hämta recensioner automatiskt när du öppnar en boks detaljsida. När inaktiverat laddas recensioner bara ner manuellt eller vid metadatauppdatering.",
@@ -701,9 +694,7 @@
         "language": "Språk",
         "isbn13": "",
         "isbn10": "",
-        "pageCount": "Sidantal",
-        "doubanRating": "Douban-betyg",
-        "doubanReviewCount": "Douban-betyg #"
+        "pageCount": "Sidantal"
       }
     },
     "fieldSelector": {
@@ -2836,6 +2827,10 @@
         "readStatusMenu": "Ändra lässtatus"
       }
     },
+    "row": {
+      "previous": "",
+      "next": ""
+    },
     "menu": {
       "label": "",
       "openInNewTab": "",
@@ -3362,7 +3357,7 @@
       }
     },
     "sorting": {
-      "saveAsDefault": "Spara som standard"
+      "saveAsDefault": "Spara som standard för {{scope}}"
     },
     "fileAttacher": {
       "title": "Bifoga fil till annan bok",
@@ -5256,7 +5251,8 @@
       "flipDirection": ""
     },
     "chips": {
-      "removeSearch": ""
+      "removeSearch": "",
+      "removeExcluded": ""
     },
     "rail": {
       "searchValues": "",
@@ -5266,13 +5262,21 @@
         "library": "",
         "shelf": "",
         "magicShelf": "",
-        "unshelved": ""
+        "unshelved": "",
+        "dashboardRow": ""
       },
       "noMatches": "",
       "minUnit": "",
       "maxUnit": "",
       "min": "",
-      "max": ""
+      "max": "",
+      "excluded": "",
+      "exclude": "",
+      "excludeValue": "",
+      "matchOptions": "",
+      "matchAny": "",
+      "matchAll": "",
+      "all": ""
     },
     "book": {
       "empty": "",
@@ -5300,7 +5304,6 @@
       "density": "Storlek",
       "smallerCards": "",
       "largerCards": "",
-      "showFilters": "",
       "columns": "",
       "resetColumns": "Återställ till standard"
     },

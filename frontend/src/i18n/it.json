@@ -84,19 +84,9 @@
     "main": {
       "pageTitle": "Pannello di controllo",
       "welcomeTitle": "Benvenuto in Grimmory!",
-      "welcomeSubtitle": "Creiamo la tua prima libreria",
       "welcomeDescription": "Una libreria è dove vivono tutti i tuoi libri. Inizia a costruire la tua collezione digitale oggi!",
-      "createLibrary": "Crea la tua libreria"
-    },
-    "scroller": {
-      "noBooksFound": "Nessun libro trovato per questo scroller.",
-      "loadError": "Impossibile caricare i libri! Prova ad aggiornare la pagina.",
-      "continueListening": "Continua ad ascoltare",
-      "continueReading": "Continua a leggere",
-      "recentlyAdded": "Aggiunti di recente",
-      "discoverNew": "Scopri qualcosa di nuovo",
-      "magicShelf": "Scaffale magico",
-      "default": ""
+      "createLibrary": "Crea la tua libreria",
+      "customize": ""
     }
   },
   "settings": {
@@ -478,13 +468,13 @@
       "sectionDesc": "Aggiungi fino a 5 scroller da diverse collezioni di libri e personalizza il loro comportamento",
       "type": "Tipo",
       "selectType": "Seleziona tipo",
-      "magicShelf": "Scaffale magico",
       "selectMagicShelf": "Seleziona scaffale magico",
+      "selectLibrary": "",
+      "selectShelf": "",
       "sortField": "Campo di ordinamento",
       "selectField": "Seleziona campo",
       "direction": "Direzione",
       "selectDirection": "Seleziona direzione",
-      "maxItems": "Elementi massimi",
       "addScroller": "Aggiungi scroller",
       "resetToDefault": "Ripristina predefiniti",
       "saveSettings": "",
@@ -494,7 +484,10 @@
         "lastRead": "Continua a leggere",
         "lastListened": "Continua ad ascoltare",
         "latestAdded": "Aggiunti di recente",
+        "recentlyFinished": "",
         "random": "Scopri qualcosa di nuovo",
+        "library": "",
+        "shelf": "",
         "magicShelf": "Scaffale magico",
         "default": ""
       },
@@ -523,7 +516,7 @@
       "sectionTitle": "Preferenze di visualizzazione e ordinamento libreria e scaffale",
       "sectionDesc": "Configura le preferenze predefinite e per libreria/scaffale per l'ordinamento e la modalità di visualizzazione (griglia o tabella) nel browser.",
       "defaultPreferences": "Preferenze predefinite",
-      "defaultPreferencesDesc": "Configura la modalità di visualizzazione predefinita e l'ordinamento multi-campo per tutte le librerie e scaffali. Trascina per riordinare la priorità di ordinamento.",
+      "defaultPreferencesDesc": "Configura la modalità di visualizzazione predefinita e l'ordinamento multi-campo per tutte le librerie e scaffali.",
       "sortOrderLabel": "Ordine di ordinamento (trascina per riordinare)",
       "formatOverlay": "Overlay tipo libro",
       "ascending": "Crescente",
@@ -663,7 +656,7 @@
     },
     "publicReviews": {
       "sectionTitle": "Recensioni pubbliche",
-      "sectionDesc": "Configura il download automatico delle recensioni degli utenti dalle piattaforme esterne. Le recensioni possono essere recuperate da Amazon, Goodreads e Hardcover per l'accesso offline.",
+      "sectionDesc": "Configura il download automatico delle recensioni degli utenti dalle piattaforme esterne per l'accesso offline.",
       "downloadLabel": "Scarica recensioni pubbliche",
       "autoDownloadLabel": "Download automatico all'apertura del libro",
       "autoDownloadDesc": "Recupera automaticamente le recensioni quando apri la pagina dei dettagli di un libro. Quando disabilitato, le recensioni verranno scaricate solo manualmente o durante l'aggiornamento dei metadati.",
@@ -701,9 +694,7 @@
         "language": "",
         "isbn13": "",
         "isbn10": "",
-        "pageCount": "",
-        "doubanRating": "",
-        "doubanReviewCount": ""
+        "pageCount": ""
       }
     },
     "fieldSelector": {
@@ -2836,6 +2827,10 @@
         "readStatusMenu": ""
       }
     },
+    "row": {
+      "previous": "",
+      "next": ""
+    },
     "menu": {
       "label": "",
       "openInNewTab": "",
@@ -3362,7 +3357,7 @@
       }
     },
     "sorting": {
-      "saveAsDefault": "Salva come predefinito"
+      "saveAsDefault": "Salva come predefinito per {{scope}}"
     },
     "fileAttacher": {
       "title": "Allega file ad un altro libro",
@@ -5256,7 +5251,8 @@
       "flipDirection": ""
     },
     "chips": {
-      "removeSearch": ""
+      "removeSearch": "",
+      "removeExcluded": ""
     },
     "rail": {
       "searchValues": "",
@@ -5266,13 +5262,21 @@
         "library": "",
         "shelf": "",
         "magicShelf": "",
-        "unshelved": ""
+        "unshelved": "",
+        "dashboardRow": ""
       },
       "noMatches": "",
       "minUnit": "",
       "maxUnit": "",
       "min": "",
-      "max": ""
+      "max": "",
+      "excluded": "",
+      "exclude": "",
+      "excludeValue": "",
+      "matchOptions": "",
+      "matchAny": "",
+      "matchAll": "",
+      "all": ""
     },
     "book": {
       "empty": "",
@@ -5300,7 +5304,6 @@
       "density": "Dimensione",
       "smallerCards": "",
       "largerCards": "",
-      "showFilters": "",
       "columns": "",
       "resetColumns": "Ripristina predefiniti"
     },

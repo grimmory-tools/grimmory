@@ -84,19 +84,9 @@
     "main": {
       "pageTitle": "Панель управления",
       "welcomeTitle": "Добро пожаловать в Grimmory!",
-      "welcomeSubtitle": "Давайте создадим Вашу первую библиотеку",
       "welcomeDescription": "Библиотека — это место, где хранятся все Ваши книги. Начните создавать свою цифровую коллекцию уже сегодня!",
-      "createLibrary": "Создать библиотеку"
-    },
-    "scroller": {
-      "noBooksFound": "Книги для этой ленты не найдены.",
-      "loadError": "Не удалось загрузить книги! Попробуйте обновить страницу.",
-      "continueListening": "Продолжить прослушивание",
-      "continueReading": "Продолжить чтение",
-      "recentlyAdded": "Недавно добавленные",
-      "discoverNew": "Откройте для себя что-то новое",
-      "magicShelf": "Умная полка",
-      "default": "Лента"
+      "createLibrary": "Создать библиотеку",
+      "customize": ""
     }
   },
   "settings": {
@@ -478,13 +468,13 @@
       "sectionDesc": "Добавьте до 5 лент из различных коллекций книг и настройте их поведение",
       "type": "Тип",
       "selectType": "Выберите тип",
-      "magicShelf": "Умная полка",
       "selectMagicShelf": "Выберите умную полку",
+      "selectLibrary": "",
+      "selectShelf": "",
       "sortField": "Поле сортировки",
       "selectField": "Выберите поле",
       "direction": "Направление",
       "selectDirection": "Выберите направление",
-      "maxItems": "Макс. элементов",
       "addScroller": "Добавить ленту",
       "resetToDefault": "Сбросить по умолчанию",
       "saveSettings": "",
@@ -494,7 +484,10 @@
         "lastRead": "Продолжить чтение",
         "lastListened": "Продолжить прослушивание",
         "latestAdded": "Недавно добавленные",
+        "recentlyFinished": "",
         "random": "Откройте для себя что-то новое",
+        "library": "",
+        "shelf": "",
         "magicShelf": "Умная полка",
         "default": "Лента"
       },
@@ -523,7 +516,7 @@
       "sectionTitle": "Настройки вида и сортировки библиотеки и полок",
       "sectionDesc": "Настройте предпочтения по умолчанию и для каждой библиотеки/полки по сортировке и режиму отображения (сетка или таблица) в браузере.",
       "defaultPreferences": "Настройки по умолчанию",
-      "defaultPreferencesDesc": "Настройте режим отображения по умолчанию и многоуровневую сортировку для всех библиотек и полок. Перетащите для изменения приоритета сортировки.",
+      "defaultPreferencesDesc": "Настройте режим отображения по умолчанию и многоуровневую сортировку для всех библиотек и полок.",
       "sortOrderLabel": "Порядок сортировки (перетащите для изменения)",
       "formatOverlay": "Наложение типа книги",
       "ascending": "По возрастанию",
@@ -663,7 +656,7 @@
     },
     "publicReviews": {
       "sectionTitle": "Публичные рецензии",
-      "sectionDesc": "Настройте автоматическое скачивание пользовательских рецензий с внешних платформ. Рецензии могут быть получены с Amazon, Goodreads и Hardcover для офлайн-доступа.",
+      "sectionDesc": "Настройте автоматическое скачивание пользовательских рецензий с внешних платформ для офлайн-доступа.",
       "downloadLabel": "Скачивать публичные рецензии",
       "autoDownloadLabel": "Автоматическое скачивание при открытии книги",
       "autoDownloadDesc": "Автоматически получать рецензии при открытии страницы деталей книги. Когда отключено, рецензии будут загружаться только вручную или при обновлении метаданных.",
@@ -701,9 +694,7 @@
         "language": "",
         "isbn13": "",
         "isbn10": "",
-        "pageCount": "",
-        "doubanRating": "",
-        "doubanReviewCount": ""
+        "pageCount": ""
       }
     },
     "fieldSelector": {
@@ -2836,6 +2827,10 @@
         "readStatusMenu": ""
       }
     },
+    "row": {
+      "previous": "",
+      "next": ""
+    },
     "menu": {
       "label": "",
       "openInNewTab": "",
@@ -3362,7 +3357,7 @@
       }
     },
     "sorting": {
-      "saveAsDefault": "Сохранить по умолчанию"
+      "saveAsDefault": "Сохранить по умолчанию: {{scope}}"
     },
     "fileAttacher": {
       "title": "Прикрепить файл к другой книге",
@@ -5256,7 +5251,8 @@
       "flipDirection": ""
     },
     "chips": {
-      "removeSearch": ""
+      "removeSearch": "",
+      "removeExcluded": ""
     },
     "rail": {
       "searchValues": "",
@@ -5266,13 +5262,21 @@
         "library": "",
         "shelf": "",
         "magicShelf": "",
-        "unshelved": ""
+        "unshelved": "",
+        "dashboardRow": ""
       },
       "noMatches": "",
       "minUnit": "",
       "maxUnit": "",
       "min": "",
-      "max": ""
+      "max": "",
+      "excluded": "",
+      "exclude": "",
+      "excludeValue": "",
+      "matchOptions": "",
+      "matchAny": "",
+      "matchAll": "",
+      "all": ""
     },
     "book": {
       "empty": "",
@@ -5300,7 +5304,6 @@
       "density": "Размер",
       "smallerCards": "",
       "largerCards": "",
-      "showFilters": "",
       "columns": "",
       "resetColumns": "Сбросить по умолчанию"
     },

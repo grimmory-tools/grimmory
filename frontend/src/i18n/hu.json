@@ -84,19 +84,9 @@
     "main": {
       "pageTitle": "Kezdőlap",
       "welcomeTitle": "Üdvözöl a Grimmory!",
-      "welcomeSubtitle": "Hozzuk létre az első könyvtáradat",
       "welcomeDescription": "A könyvár az a hely, ahol az összes könyved otthonra lel. Kezdd el építeni a digitális gyűjteményedet ma!",
-      "createLibrary": "Könyvtár létrehozása"
-    },
-    "scroller": {
-      "noBooksFound": "Nem találhatóak könyvek ehhez a könyveskocsihoz.",
-      "loadError": "Nem sikerült betölteni a könyveket! Kérlek próbáld meg frissíteni az oldalt.",
-      "continueListening": "Lejátszás folytatása",
-      "continueReading": "Olvasás folytatása",
-      "recentlyAdded": "Nemrégiben hozzáadott",
-      "discoverNew": "Fedezz fel valami újat",
-      "magicShelf": "Varázspolc",
-      "default": "Könyveskocsi"
+      "createLibrary": "Könyvtár létrehozása",
+      "customize": ""
     }
   },
   "settings": {
@@ -478,13 +468,13 @@
       "sectionDesc": "Adj hozzá maximum 5 könyveskocsit különböző gyűjteményekből és szabd testre a viselkedésüket.",
       "type": "Típus",
       "selectType": "Típus kiválasztása",
-      "magicShelf": "Varázspolc",
       "selectMagicShelf": "Varázspolc kiválasztása",
+      "selectLibrary": "",
+      "selectShelf": "",
       "sortField": "Rendező Mező",
       "selectField": "Mező kiválasztása",
       "direction": "Irány",
       "selectDirection": "Irány kiválasztása",
-      "maxItems": "Maximális Elemek",
       "addScroller": "Könyveskocsi hozzáadása",
       "resetToDefault": "Visszaállítás Alapértelmezettre",
       "saveSettings": "",
@@ -494,7 +484,10 @@
         "lastRead": "Olvasás Folytatása",
         "lastListened": "Lejátszás Folytatása",
         "latestAdded": "Nemrégiben Hozzáadott",
+        "recentlyFinished": "",
         "random": "Fedezz fel valami újat",
+        "library": "",
+        "shelf": "",
         "magicShelf": "Varázspolc",
         "default": "Könyveskocsi"
       },
@@ -701,9 +694,7 @@
         "language": "",
         "isbn13": "",
         "isbn10": "",
-        "pageCount": "",
-        "doubanRating": "",
-        "doubanReviewCount": ""
+        "pageCount": ""
       }
     },
     "fieldSelector": {
@@ -2835,6 +2826,10 @@
         "continueReading": "",
         "readStatusMenu": ""
       }
+    },
+    "row": {
+      "previous": "",
+      "next": ""
     },
     "menu": {
       "label": "",
@@ -5256,7 +5251,8 @@
       "flipDirection": ""
     },
     "chips": {
-      "removeSearch": ""
+      "removeSearch": "",
+      "removeExcluded": ""
     },
     "rail": {
       "searchValues": "",
@@ -5266,13 +5262,21 @@
         "library": "",
         "shelf": "",
         "magicShelf": "",
-        "unshelved": ""
+        "unshelved": "",
+        "dashboardRow": ""
       },
       "noMatches": "",
       "minUnit": "",
       "maxUnit": "",
       "min": "",
-      "max": ""
+      "max": "",
+      "excluded": "",
+      "exclude": "",
+      "excludeValue": "",
+      "matchOptions": "",
+      "matchAny": "",
+      "matchAll": "",
+      "all": ""
     },
     "book": {
       "empty": "",
@@ -5300,7 +5304,6 @@
       "density": "",
       "smallerCards": "",
       "largerCards": "",
-      "showFilters": "",
       "columns": "",
       "resetColumns": "Visszaállítás Alapértelmezettre"
     },
