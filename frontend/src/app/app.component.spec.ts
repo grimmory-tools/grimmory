@@ -22,6 +22,7 @@ import { MessageService } from "@openng/optimus-ui/api";
 import { CommandPaletteService } from "./features/command-palette/command-palette.service";
 import { LibraryImportProgressService } from "./shared/service/library-import-progress.service";
 import { AuthorService } from "./features/author-browser/service/author.service";
+import {LocalSettingsService} from './shared/service/local-settings.service';
 
 interface StompMessage {
   body: string;
@@ -72,6 +73,9 @@ describe("AppComponent", () => {
     visibleItems: ReturnType<typeof signal>;
     groups: ReturnType<typeof signal>;
   };
+  let localSettingsService: {
+  toastNotificationsEnabled: ReturnType<typeof signal<boolean>>;
+};
 
   function createTopicStream(topic: string): Subject<StompMessage> {
     const stream = new Subject<StompMessage>();
@@ -117,6 +121,7 @@ describe("AppComponent", () => {
       visibleItems: signal([]),
       groups: signal([]),
     };
+    localSettingsService = { toastNotificationsEnabled: signal(true)};
 
     TestBed.configureTestingModule({
       imports: [TranslocoTestingModule.forRoot({ langs: {} })],
@@ -141,6 +146,7 @@ describe("AppComponent", () => {
         { provide: AuthService, useValue: authService },
         { provide: LibraryImportProgressService, useValue: libraryImportProgressService },
         { provide: CommandPaletteService, useValue: commandPaletteService },
+        { provide: LocalSettingsService, useValue: localSettingsService },
         ConfirmationService,
         MessageService],
     });
@@ -284,4 +290,16 @@ describe("AppComponent", () => {
       ?.next({ body: JSON.stringify({ id: 99 }) });
     expect(bookService.handleBookUpdate).not.toHaveBeenCalled();
   });
+
+  it("shows and hides toast notifications according to the local setting", () => {
+    configureComponent();
+
+    expect(fixture.nativeElement.querySelector("p-toast")).not.toBeNull();
+
+    localSettingsService.toastNotificationsEnabled.set(false);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector("p-toast")).toBeNull();
+  });
+
 });
