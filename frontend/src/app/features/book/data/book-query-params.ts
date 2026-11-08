@@ -41,6 +41,7 @@ export const BOOK_QUERY_FACET_KEYS = [
 export const BOOK_QUERY_SORT_KEYS = [
   'random',
   'title',
+  'subtitle',
   'authorName',
   'authorSortName',
   'seriesName',

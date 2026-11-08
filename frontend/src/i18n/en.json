@@ -3525,6 +3525,7 @@
     "fields": {
       "random": "Random",
       "title": "Title",
+      "subtitle": "Subtitle",
       "author": "Author",
       "authorSurname": "Author (Surname)",
       "genre": "Genre",
