@@ -678,7 +678,7 @@
       "count": 2
     },
     "typescript/require-await": {
-      "count": 2
+      "count": 1
     }
   },
   "src/app/features/metadata/component/book-metadata-center/book-reading-sessions/book-reading-sessions.component.ts": {

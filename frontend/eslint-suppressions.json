@@ -191,7 +191,7 @@
   },
   "src/app/features/metadata/component/book-metadata-center/metadata-viewer/metadata-viewer.component.ts": {
     "@angular-eslint/prefer-signals": {
-      "count": 3
+      "count": 2
     }
   },
   "src/app/features/metadata/component/cover-search/cover-search.component.html": {
