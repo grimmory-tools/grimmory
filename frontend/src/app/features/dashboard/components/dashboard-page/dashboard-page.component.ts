@@ -23,7 +23,7 @@ import {type GridDensityDirection} from '../../../../shared/util/grid-density.ut
 import {scaleForGridColumns} from '../../../../shared/util/virtual-grid.util';
 import {dashboardRows} from '../../dashboard-rows';
 import {BOOK_ROW_CARD_GAP, BOOK_ROW_CARD_WIDTH} from '../../../book/components/book-row/book-row.component';
-import {DashboardRowComponent} from '../dashboard-row/dashboard-row.component';
+import {DashboardRowListComponent} from '../dashboard-row-list/dashboard-row-list.component';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -38,7 +38,7 @@ import {DashboardRowComponent} from '../dashboard-row/dashboard-row.component';
     ArtworkRevealGroupDirective,
     BookMenuComponent,
     BrowseCardSizeMenuItemsComponent,
-    DashboardRowComponent,
+    DashboardRowListComponent,
     LucideEllipsis,
     LucidePlus,
     TranslocoPipe,
@@ -88,16 +88,10 @@ import {DashboardRowComponent} from '../dashboard-row/dashboard-row.component';
             </app-button>
           </div>
         }
+      } @else if (desktop()) {
+        <app-dashboard-row-list [rows]="rows()" [bookMenu]="bookMenu" />
       } @else {
-        <div #rowList class="block">
-          @for (row of rows(); track row.id) {
-            @defer (on viewport) {
-              <app-dashboard-row [row]="row" [bookMenu]="bookMenu" />
-            } @placeholder {
-              <div class="h-[380px]"></div>
-            }
-          }
-        </div>
+        <app-dashboard-row-list [rows]="rows()" [bookMenu]="bookMenu" />
       }
     </div>
   `,
@@ -110,7 +104,7 @@ export class DashboardPageComponent {
   private readonly router = inject(Router);
   protected readonly coverScale = inject(CoverScalePreferenceService);
   protected readonly desktop = inject(LayoutService).isDesktop;
-  private readonly rowList = viewChild<ElementRef<HTMLElement>>('rowList');
+  private readonly rowList = viewChild<DashboardRowListComponent, ElementRef<HTMLElement>>(DashboardRowListComponent, {read: ElementRef});
 
   private readonly title = translateSignal('dashboard.main.pageTitle');
   protected readonly pageHeader = computed<PageHeader>(() => ({title: this.title()}));
