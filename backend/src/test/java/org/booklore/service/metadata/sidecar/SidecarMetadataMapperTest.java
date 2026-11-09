@@ -46,6 +46,35 @@ class SidecarMetadataMapperTest {
     }
 
     @Test
+    void toSidecarMetadata_nullCreatorMappings_leavesCreatorFieldsNull() {
+        BookMetadataEntity meta = buildComicMetadata();
+        meta.getComicMetadata().setCreatorMappings(null);
+
+        ComicMetadata comic = mapper.toSidecarMetadata(meta, null).getMetadata().getComicMetadata();
+
+        assertNull(comic.getPencillers());
+        assertNull(comic.getInkers());
+        assertNull(comic.getColorists());
+        assertNull(comic.getLetterers());
+        assertNull(comic.getCoverArtists());
+        assertNull(comic.getEditors());
+    }
+
+    @Test
+    void toSidecarMetadata_emptyCreatorMappings_returnsEmptyCreatorFields() {
+        BookMetadataEntity meta = buildComicMetadata();
+
+        ComicMetadata comic = mapper.toSidecarMetadata(meta, null).getMetadata().getComicMetadata();
+
+        assertEquals(Set.of(), comic.getPencillers());
+        assertEquals(Set.of(), comic.getInkers());
+        assertEquals(Set.of(), comic.getColorists());
+        assertEquals(Set.of(), comic.getLetterers());
+        assertEquals(Set.of(), comic.getCoverArtists());
+        assertEquals(Set.of(), comic.getEditors());
+    }
+
+    @Test
     void toBookMetadata_exportedComic_keepsCreators() {
         BookMetadataEntity meta = buildComicMetadata(ComicCreatorRole.PENCILLER);
 
