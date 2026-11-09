@@ -14,6 +14,8 @@ import {
 } from '../../../shared/browse/grid/grid.directives';
 import {bookCardHeightForWidth} from '../components/cards/book-card.layout';
 import {BookCardComponent, bookCardCoverSrc} from '../components/cards/book-card.component';
+import {AppSettingsService} from '../../../shared/service/app-settings.service';
+import type {MetadataProviderSpecificFields} from '../../../shared/model/app-settings.model';
 import {UrlHelperService} from '../../../shared/service/url-helper.service';
 import {BookMenuComponent} from '../components/book-menu/book-menu.component';
 import {BookCardSkeletonComponent} from '../components/cards/book-card-skeleton.component';
@@ -136,6 +138,7 @@ export class BookBrowsePageComponent {
   private readonly libraryService = inject(LibraryService);
   private readonly bookNavigation = inject(BookNavigationService);
   private readonly urlHelper = inject(UrlHelperService);
+  private readonly appSettingsService = inject(AppSettingsService);
   private readonly dialogLauncher = inject(DialogLauncherService);
   private readonly pendingReadStatuses = injectPendingBookReadStatuses();
   private readonly pendingProgressResets = injectPendingBookProgressResets();
@@ -193,7 +196,13 @@ export class BookBrowsePageComponent {
     enabled: this.railVisible,
   });
   protected readonly railReady = computed(() => !this.queries.pending());
-  protected readonly sortOptions = computed(() => bookSortOptions(this.queries.sortTokens()));
+  private readonly metadataProviderSpecificFields = computed<Partial<MetadataProviderSpecificFields>>(() =>
+    this.appSettingsService.appSettings()?.metadataProviderSpecificFields ?? {},
+  );
+
+  protected readonly sortOptions = computed(() =>
+    bookSortOptions(this.queries.sortTokens(), this.metadataProviderSpecificFields()),
+  );
   private readonly availableSortKeys = computed<ReadonlySet<BookQuerySortKey>>(
     () => new Set(this.sortOptions().map(option => option.id)),
   );

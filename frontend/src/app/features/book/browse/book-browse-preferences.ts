@@ -7,6 +7,8 @@ import {
   type TableColumnPreference,
   UserService,
 } from '../../settings/user-management/user.service';
+import {AppSettingsService} from '../../../shared/service/app-settings.service';
+import type {MetadataProviderSpecificFields} from '../../../shared/model/app-settings.model';
 import {
   entityViewMode,
   entityViewSortCriteria,
@@ -39,9 +41,13 @@ export interface BookBrowsePreferencesOptions {
 
 export function createBookBrowsePreferences({context, availableSortKeys, urlState}: BookBrowsePreferencesOptions) {
   const userService = inject(UserService);
+  const appSettingsService = inject(AppSettingsService);
   const messages = inject(MessageService);
   const transloco = inject(TranslocoService);
   const entityViewPreferences = computed(() => userService.currentUser()?.userSettings.entityViewPreferences);
+  const metadataProviderSpecificFields = computed<Partial<MetadataProviderSpecificFields>>(() =>
+    appSettingsService.appSettings()?.metadataProviderSpecificFields ?? {},
+  );
 
   const viewMode = computed<BookBrowseViewMode>(() =>
     urlState.view() ?? (entityViewMode(entityViewPreferences(), context()) === 'TABLE' ? 'table' : 'grid'));
@@ -79,8 +85,8 @@ export function createBookBrowsePreferences({context, availableSortKeys, urlStat
       userService.currentUser()?.userSettings.tableColumnPreference,
     ),
   );
-  const columnOptions = computed(() => bookColumnOptions(columnPreferences()));
-  const visibleColumns = computed(() => bookVisibleColumnOptions(columnPreferences()));
+  const columnOptions = computed(() => bookColumnOptions(columnPreferences(), metadataProviderSpecificFields()));
+  const visibleColumns = computed(() => bookVisibleColumnOptions(columnPreferences(), metadataProviderSpecificFields()));
 
   function onSaveError(): void {
     messages.add({

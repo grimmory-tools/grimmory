@@ -17,6 +17,11 @@ import {
 } from '../data/book-query-params';
 import {type BookSummary, type BookReadStatus} from '../data/book-response.models';
 import {MATCH_SCORE_BANDS} from '../model/book-value-labels';
+import {METADATA_PROVIDER_LIST, type MetadataProviderFieldName} from '../../../shared/metadata/metadata-providers';
+import {providerFieldsOf} from '../../../shared/metadata/metadata-provider-fields';
+import type {MetadataProviderSpecificFields} from '../../../shared/model/app-settings.model';
+
+export type {MetadataProviderSpecificFields};
 
 export type BookColumnKind = 'text' | 'number' | 'rating' | 'date' | 'fileSize' | 'readStatus';
 export type BookColumnValue = string | number | undefined;
@@ -393,6 +398,58 @@ const FIELDS = [
   {labelKey: 'book.fields.comicLocation', facet: {key: 'comic_location', multiValued: true}},
   {labelKey: 'book.fields.comicCreator', facet: {key: 'comic_creator', multiValued: true}},
 ] as const satisfies readonly BookBrowseField[];
+
+const PROVIDER_FIELD_NAMES = new Set(providerFieldsOf(METADATA_PROVIDER_LIST).map(field => field.name));
+
+function providerFieldName(field: BookBrowseField): MetadataProviderFieldName | undefined {
+  const key = field.sort?.key ?? field.column?.key;
+  if (key === undefined) {
+    return undefined;
+  }
+  // SAFETY: `key` is a sort/column key that is present in the provider field registry.
+  const name = key as MetadataProviderFieldName;
+  return PROVIDER_FIELD_NAMES.has(name) ? name : undefined;
+}
+
+const FACET_KEY_TO_PROVIDER_FIELD = new Map<BookQueryFacetKey, MetadataProviderFieldName>(
+  FIELDS.flatMap((field: BookBrowseField) => {
+    const name = providerFieldName(field);
+    return field.facet && name !== undefined ? [[field.facet.key, name] as const] : [];
+  }),
+);
+
+export function isProviderFieldKeyEnabled(
+  key: string,
+  metadataProviderSpecificFields: Partial<MetadataProviderSpecificFields> = {},
+): boolean {
+  // SAFETY: `key` is a book-browse sort/column key; only provider keys are registered below.
+  const name = key as MetadataProviderFieldName;
+  return !PROVIDER_FIELD_NAMES.has(name) || metadataProviderSpecificFields[name] !== false;
+}
+
+export function isProviderSpecificFieldEnabled(
+  field: BookBrowseField,
+  metadataProviderSpecificFields: Partial<MetadataProviderSpecificFields> = {},
+): boolean {
+  const name = providerFieldName(field);
+  return name === undefined || metadataProviderSpecificFields[name] !== false;
+}
+
+export function filterProviderSpecificFields(
+  fields: readonly BookBrowseField[],
+  metadataProviderSpecificFields: Partial<MetadataProviderSpecificFields> = {},
+): readonly BookBrowseField[] {
+  return fields.filter(field => isProviderSpecificFieldEnabled(field, metadataProviderSpecificFields));
+}
+
+export function isFacetKeyEnabled(
+  key: string,
+  metadataProviderSpecificFields: Partial<MetadataProviderSpecificFields> = {},
+): boolean {
+  // SAFETY: server facet keys are validated against BOOK_QUERY_FACET_KEYS.
+  const name = FACET_KEY_TO_PROVIDER_FIELD.get(key as BookQueryFacetKey);
+  return name === undefined || metadataProviderSpecificFields[name] !== false;
+}
 
 const COLUMN_ORDER = [
   'title',

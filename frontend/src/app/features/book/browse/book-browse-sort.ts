@@ -17,7 +17,7 @@ import {
   type BookSortTerm,
   type SortDirection,
 } from '../data/book-query-params';
-import {SORT_FIELDS, type BookDetailLineSortKey} from './book-browse-fields';
+import {SORT_FIELDS, type BookDetailLineSortKey, isProviderFieldKeyEnabled, type MetadataProviderSpecificFields} from './book-browse-fields';
 
 export type BookSortOption = BrowseSortOption<BookQuerySortKey>;
 
@@ -38,8 +38,13 @@ const BOOK_SORT_DEFINITIONS: BrowseSortDefinitions<BookQuerySortKey> = {
   parseToken: parseSortTermsToken,
 };
 
-export function bookSortOptions(serverSortTokens: readonly string[]): BookSortOption[] {
-  return browseSortOptions(serverSortTokens, BOOK_SORT_DEFINITIONS);
+export function bookSortOptions(
+  serverSortTokens: readonly string[],
+  metadataProviderSpecificFields: Partial<MetadataProviderSpecificFields> = {},
+): BookSortOption[] {
+  return browseSortOptions(serverSortTokens, BOOK_SORT_DEFINITIONS).filter(option =>
+    isProviderFieldKeyEnabled(option.id, metadataProviderSpecificFields),
+  );
 }
 
 const LEGACY_SORT_KEYS: Readonly<Record<string, BookQuerySortKey>> = {

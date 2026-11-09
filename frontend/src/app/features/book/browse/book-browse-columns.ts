@@ -8,10 +8,12 @@ import {
   COLUMNS_BY_KEY,
   COLUMN_GROUP_ORDER,
   bookReadStatusLabelKey,
+  isProviderFieldKeyEnabled,
   type BookBrowseColumnGroupId,
   type BookColumnKey,
   type BookColumnKind,
   type BookColumnValue,
+  type MetadataProviderSpecificFields,
 } from './book-browse-fields';
 
 const DEFAULT_COLUMN_MIN_WIDTH = 84;
@@ -57,6 +59,7 @@ export function normalizeBookColumnPreferences(
 
 export function bookColumnOptions(
   preferences: readonly TableColumnPreference[],
+  metadataProviderSpecificFields: Partial<MetadataProviderSpecificFields> = {},
 ): BookColumnOption[] {
   const visibleByField = new Map(
     preferences.map(preference => [preference.field, preference.visible]),
@@ -66,16 +69,17 @@ export function bookColumnOptions(
     labelKey,
     visible: visibleByField.get(key) === true,
     hideable: column.hideable !== false,
-  }));
+  })).filter(option => isProviderFieldKeyEnabled(option.field, metadataProviderSpecificFields));
 }
 
 export function bookVisibleColumnOptions(
   preferences: readonly TableColumnPreference[],
+  metadataProviderSpecificFields: Partial<MetadataProviderSpecificFields> = {},
 ): BookColumnOption[] {
   const orderByField = new Map(preferences.map(preference => [preference.field, preference.order]));
   const orderOf = (option: BookColumnOption) =>
     option.field === 'title' ? -1 : orderByField.get(option.field) ?? Number.MAX_SAFE_INTEGER;
-  return bookColumnOptions(preferences)
+  return bookColumnOptions(preferences, metadataProviderSpecificFields)
     .filter(option => option.visible)
     .sort((first, second) => orderOf(first) - orderOf(second));
 }

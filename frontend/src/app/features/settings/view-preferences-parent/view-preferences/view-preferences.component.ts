@@ -18,6 +18,8 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {take} from 'rxjs/operators';
 
 import {DialogLauncherService} from '../../../../shared/services/dialog-launcher.service';
+import {AppSettingsService} from '../../../../shared/service/app-settings.service';
+import type {MetadataProviderSpecificFields} from '../../../../shared/model/app-settings.model';
 import {browseSortCriteria} from '../../../../shared/browse/sort';
 import {
   DEFAULT_BOOK_SORT_TERMS,
@@ -57,6 +59,10 @@ export class ViewPreferencesComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly messageService = inject(MessageService);
   private readonly dialogLauncher = inject(DialogLauncherService);
+  private readonly appSettingsService = inject(AppSettingsService);
+  private readonly metadataProviderSpecificFields = computed<Partial<MetadataProviderSpecificFields>>(() =>
+    this.appSettingsService.appSettings()?.metadataProviderSpecificFields ?? {},
+  );
 
   entityTypeOptions: {label: string; value: string; translationKey: string}[] = [];
 
@@ -85,7 +91,7 @@ export class ViewPreferencesComponent implements OnInit {
   private readonly sortTokensQuery = injectQuery(() =>
     this.bookQuery.facetIndex({facets: EMPTY_FACET_SELECTION}));
   readonly editorSortOptions = computed(() =>
-    bookSortOptions(this.sortTokensQuery.data()?.sortTokens ?? []));
+    bookSortOptions(this.sortTokensQuery.data()?.sortTokens ?? [], this.metadataProviderSpecificFields()));
 
   overrides: {
     entityType: 'LIBRARY' | 'SHELF' | 'MAGIC_SHELF';

@@ -18,6 +18,8 @@ import {BookQueryService} from '../data/book-query.service';
 import {ShelfDefinitionQueryService} from '../data/shelf-definition-query.service';
 import {LibraryService} from '../service/library.service';
 import {UserService} from '../../settings/user-management/user.service';
+import {AppSettingsService} from '../../../shared/service/app-settings.service';
+import type {MetadataProviderSpecificFields} from '../../../shared/model/app-settings.model';
 import {type LibraryShelfMenuTarget} from '../../../shared/layout/navigation/library-shelf-menu-target.model';
 import {libraryShelfMenuAvailable} from '../components/library-shelf-menu/library-shelf-menu-items.component';
 import {
@@ -38,7 +40,7 @@ import {
   type BrowseFilterToggle,
 } from '../../../shared/browse/facets';
 import {bookFacetDefinitions, bookFacetLabelDeps} from './book-browse-facet-definitions';
-import {FACET_FIELDS, OPEN_RAIL_FACETS} from './book-browse-fields';
+import {FACET_FIELDS, OPEN_RAIL_FACETS, isFacetKeyEnabled} from './book-browse-fields';
 import {
   bookBrowseScopeHiddenFacetKeys,
   bookBrowseScopeMenuTarget,
@@ -74,7 +76,11 @@ export function createBookBrowseQueries({selection, query, scope, enabled}: Book
   const magicShelfService = inject(MagicShelfService);
   const shelfDefinitionQuery = inject(ShelfDefinitionQueryService);
   const userService = inject(UserService);
+  const appSettingsService = inject(AppSettingsService);
   const activeLang = toSignal(transloco.langChanges$, {initialValue: transloco.getActiveLang()});
+  const metadataProviderSpecificFields = computed<Partial<MetadataProviderSpecificFields>>(() =>
+    appSettingsService.appSettings()?.metadataProviderSpecificFields ?? {},
+  );
 
   const collectionParams = computed<BookCollectionFilterParams>(() => ({
     facets: selection(),
@@ -90,7 +96,10 @@ export function createBookBrowseQueries({selection, query, scope, enabled}: Book
   const indexQuery = injectQuery(() => bookQuery.facetIndex(scopeParams()));
   const available = computed<ReadonlySet<string>>(() => {
     const hidden: ReadonlySet<string> = bookBrowseScopeHiddenFacetKeys(scope());
-    return new Set(indexQuery.data()?.facetKeys.filter(key => !hidden.has(key)));
+    const fields = metadataProviderSpecificFields();
+    return new Set(
+      indexQuery.data()?.facetKeys.filter(key => !hidden.has(key) && isFacetKeyEnabled(key, fields)) ?? [],
+    );
   });
 
   const selectedKeys = BOOK_QUERY_FACET_KEYS.filter(key => selection()[key] !== undefined);
