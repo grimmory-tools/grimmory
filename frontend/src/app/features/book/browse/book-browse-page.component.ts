@@ -330,7 +330,7 @@ export class BookBrowsePageComponent {
       this.preferences.viewMode() === 'grid' && 'box-content border-l border-border/70 pl-6',
     ),
   );
-  protected readonly gridBoxClass = computed(() => cn('md:pb-8', this.railVisible() ? 'md:-mr-7 md:pr-7' : 'md:-mr-8 md:pr-8'));
+  protected readonly gridBoxClass = computed(() => cn('md:pb-8 md:-ml-4 md:pl-4', this.railVisible() ? 'md:-mr-7 md:pr-7' : 'md:-mr-8 md:pr-8'));
   protected readonly chipsBandClass = computed(() =>
     cn(
       'sticky top-[var(--page-stuck-offset,0px)] z-10 -mx-4 bg-page px-4',
