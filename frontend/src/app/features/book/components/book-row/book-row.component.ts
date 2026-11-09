@@ -76,6 +76,8 @@ export class BookRowComponent {
   protected readonly showFormatPill = computed(() =>
     this.userService.currentUser()?.userSettings.entityViewPreferences?.global.overlayBookType ?? true);
   protected readonly skeletonVisible = createBrowseSkeletonDelay(this.status, computed(() => this.cards().length > 0));
+  protected readonly hiddenWhileLoading = computed(() =>
+    this.status() === 'pending' && this.cards().length === 0 && !this.skeletonVisible());
   protected readonly cardWidth = computed(() =>
     this.desktop() ? Math.round(BOOK_ROW_CARD_WIDTH * this.coverScale.scaleFactor()) : this.coverScale.BASE_WIDTH);
   protected readonly cardHeight = computed(() =>
