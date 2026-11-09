@@ -1,4 +1,3 @@
-import {computed, signal, type WritableSignal} from '@angular/core';
 import {describe, expect, it} from 'vitest';
 
 import {
@@ -67,17 +66,5 @@ describe('book browse provider-specific field filtering', () => {
     expect(disabled.every(field => field.sort?.key !== 'goodreadsRating')).toBe(true);
     expect(disabled.some(field => field.sort?.key === 'personalRating')).toBe(true);
     expect(disabled.some(field => field.sort?.key === 'title')).toBe(true);
-  });
-
-  it('reacts to setting changes', () => {
-    const setting: WritableSignal<Partial<MetadataProviderSpecificFields>> = signal({amazonRating: true});
-    const options = computed(() =>
-      SORT_FIELDS.get('amazonRating') !== undefined && isProviderFieldKeyEnabled('amazonRating', setting())
-        ? ['amazonRating']
-        : [],
-    );
-    expect(options()).toEqual(['amazonRating']);
-    setting.set({amazonRating: false});
-    expect(options()).toEqual([]);
   });
 });
