@@ -97,8 +97,12 @@ export function createBookBrowseQueries({selection, query, scope, enabled}: Book
   const available = computed<ReadonlySet<string>>(() => {
     const hidden: ReadonlySet<string> = bookBrowseScopeHiddenFacetKeys(scope());
     const fields = metadataProviderSpecificFields();
+    const selectedKeys = BOOK_QUERY_FACET_KEYS.filter(key => selection()[key] !== undefined);
+    // SAFETY: server facetKeys are validated against BOOK_QUERY_FACET_KEYS.
     return new Set(
-      indexQuery.data()?.facetKeys.filter(key => !hidden.has(key) && isFacetKeyEnabled(key, fields)) ?? [],
+      indexQuery.data()?.facetKeys.filter(
+        key => !hidden.has(key) && (isFacetKeyEnabled(key, fields) || selectedKeys.includes(key as BookQueryFacetKey)),
+      ) ?? [],
     );
   });
 
