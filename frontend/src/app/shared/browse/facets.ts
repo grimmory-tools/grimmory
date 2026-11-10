@@ -168,6 +168,7 @@ export interface BrowseFacetDefinitions<K extends string> {
 
 export function browseFilterGroups<K extends string>(
   available: ReadonlySet<string>,
+  enabledKeys: ReadonlySet<string>,
   served: readonly BrowseFacetGroup[],
   definitions: BrowseFacetDefinitions<K>,
   selections: BrowseFacetSelection<K>,
@@ -175,7 +176,7 @@ export function browseFilterGroups<K extends string>(
   const servedByKey = new Map(served.map(group => [group.key, group]));
   return definitions.order
     .filter(key => available.has(key) || selections[key] !== undefined)
-    .map(key => buildFacetGroup(key, servedByKey.get(key), browseFacetValues(selections, key), definitions));
+    .map(key => buildFacetGroup(key, servedByKey.get(key), browseFacetValues(selections, key), definitions, enabledKeys));
 }
 
 function buildFacetGroup<K extends string>(
@@ -183,9 +184,14 @@ function buildFacetGroup<K extends string>(
   servedGroup: BrowseFacetGroup | undefined,
   selected: BrowseFacetValues,
   definitions: BrowseFacetDefinitions<K>,
+  enabledKeys: ReadonlySet<string>,
 ): BrowseFilterGroup<K> {
   const picks = browseFacetPicks(selected);
   const servedValues = servedGroup?.values ?? [];
+  const isDisabledButSelected = !enabledKeys.has(key) && (selected.include.length > 0 || selected.exclude.length > 0);
+  const visibleValues = isDisabledButSelected
+    ? servedValues.filter(item => picks.has(item.value))
+    : servedValues;
   const kind = definitions.kind?.(key);
   const domain = definitions.valueDomain?.(key);
   const label = (value: string, servedLabel: string) => definitions.valueLabel?.(key, value) ?? servedLabel;
@@ -194,16 +200,16 @@ function buildFacetGroup<K extends string>(
     ? buildFacetRange(servedGroup, selected.include, definitions.fileSize?.(key) ?? false)
     : undefined;
   if (definitions.banded?.(key)) {
-    const values = bandFacetValues(servedValues, label, definitions.starScale?.(key));
+    const values = bandFacetValues(visibleValues, label, definitions.starScale?.(key));
     return {...base, range, showAllValues: true, values};
   }
   if (kind === 'range') {
     return {...base, range, showAllValues: false, values: []};
   }
-  const counts = new Map(servedValues.map(item => [item.value, item.count]));
+  const counts = new Map(visibleValues.map(item => [item.value, item.count]));
   const complete = servedGroup?.complete ?? false;
   const values = plainFacetValues(
-    servedValues, picks, label,
+    visibleValues, picks, label,
     value => definitions.valueIcon?.(key, value) ?? undefined,
     value => counts.get(value) ?? (complete || picks.get(value) === 'excluded' ? 0 : null),
   );

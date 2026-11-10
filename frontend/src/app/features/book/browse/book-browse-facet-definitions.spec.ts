@@ -24,6 +24,7 @@ describe('book browse facets', () => {
   it('lists the served values in server order, followed by unserved picks', () => {
     const genres = browseFilterGroups(
       AVAILABLE,
+      new Set(definitions.order),
       [group('genre', [['Drama', 90], ['Gothic', 5]])],
       definitions,
       {genre: {include: ['Comedy'], exclude: ['Farce']}},
@@ -35,6 +36,7 @@ describe('book browse facets', () => {
   it('leaves the count of an unserved pick unknown when the list is cut off', () => {
     const authors = browseFilterGroups(
       AVAILABLE,
+      new Set(definitions.order),
       [group('author', [['Pratchett', 12]], false)],
       definitions,
       {author: {include: ['Lindbergh'], exclude: []}},
@@ -56,6 +58,7 @@ describe('book browse facets', () => {
   it('labels bands that exclude their upper bound', () => {
     const groups = browseFilterGroups(
       new Set(['match_score', 'goodreads_rating']),
+      new Set(definitions.order),
       [group('match_score', [['90..<95', 4]]), group('goodreads_rating', [['4..<4.5', 2]])],
       definitions,
       {},

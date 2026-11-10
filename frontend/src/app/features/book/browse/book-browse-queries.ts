@@ -106,6 +106,16 @@ export function createBookBrowseQueries({selection, query, scope, enabled}: Book
     );
   });
 
+  const enabledFacetKeys = computed<ReadonlySet<string>>(() => {
+    const hidden: ReadonlySet<string> = bookBrowseScopeHiddenFacetKeys(scope());
+    const fields = metadataProviderSpecificFields();
+    return new Set(
+      indexQuery.data()?.facetKeys.filter(
+        key => !hidden.has(key) && isFacetKeyEnabled(key, fields),
+      ) ?? [],
+    );
+  });
+
   const selectedKeys = BOOK_QUERY_FACET_KEYS.filter(key => selection()[key] !== undefined);
   const openKeys = signal<ReadonlySet<BookQueryFacetKey>>(new Set([...OPEN_RAIL_FACETS, ...selectedKeys]));
   const searchTerms = signal<Readonly<Partial<Record<BookQueryFacetKey, string>>>>({});
@@ -161,7 +171,7 @@ export function createBookBrowseQueries({selection, query, scope, enabled}: Book
     ));
   });
   const frame = heldSignal(
-    () => browseFilterGroups(available(), served(), definitions(), selection()),
+    () => browseFilterGroups(available(), enabledFacetKeys(), served(), definitions(), selection()),
     stale,
   );
   const matchAllKeys = signal<ReadonlySet<BookQueryFacetKey>>(

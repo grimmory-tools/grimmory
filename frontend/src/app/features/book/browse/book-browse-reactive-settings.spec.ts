@@ -229,13 +229,13 @@ describe('book browse reactive settings integration', () => {
       multiValued: () => false,
     };
 
-    const groupsWithoutSelection = browseFilterGroups(available, served, definitions, {});
+    const groupsWithoutSelection = browseFilterGroups(available, new Set(definitions.order), served, definitions, {});
     expect(groupsWithoutSelection.map(g => g.key)).toEqual(['genre', 'personal_rating']);
 
     const selectionWithAmazon = {
       amazon_rating: {include: ['4 stars'], exclude: []},
     };
-    const groupsWithSelection = browseFilterGroups(available, served, definitions, selectionWithAmazon);
+    const groupsWithSelection = browseFilterGroups(available, new Set(['genre', 'personal_rating']), served, definitions, selectionWithAmazon);
     expect(groupsWithSelection.map(g => g.key)).toEqual(['genre', 'personal_rating', 'amazon_rating']);
     expect(groupsWithSelection.find(g => g.key === 'amazon_rating')).not.toBeUndefined();
   });
@@ -253,11 +253,11 @@ describe('book browse reactive settings integration', () => {
     const selectionWithAmazon = {
       amazon_rating: {include: ['4 stars'], exclude: []},
     };
-    const groupsWithSelection = browseFilterGroups(available, served, definitions, selectionWithAmazon);
+    const groupsWithSelection = browseFilterGroups(available, new Set(['genre']), served, definitions, selectionWithAmazon);
     expect(groupsWithSelection.map(g => g.key)).toContain('amazon_rating');
 
     const emptySelection: FacetValueMap = {};
-    const groupsWithoutSelection = browseFilterGroups(available, served, definitions, emptySelection);
+    const groupsWithoutSelection = browseFilterGroups(available, new Set(definitions.order), served, definitions, emptySelection);
     expect(groupsWithoutSelection.map(g => g.key)).not.toContain('amazon_rating');
   });
 
@@ -276,9 +276,68 @@ describe('book browse reactive settings integration', () => {
       genre: {include: ['Fantasy'], exclude: []},
       amazon_rating: {include: ['4 stars'], exclude: []},
     };
-    const groups = browseFilterGroups(available, served, definitions, selection);
+    const groups = browseFilterGroups(available, new Set(definitions.order), served, definitions, selection);
     expect(groups.map(g => g.key)).toEqual(['genre', 'amazon_rating', 'goodreads_rating']);
     expect(groups.find(g => g.key === 'genre')).toBeDefined();
     expect(groups.find(g => g.key === 'amazon_rating')).toBeDefined();
+  });
+
+  it('hides unselected cached values for disabled provider facets', () => {
+    const available = new Set<BookQueryFacetKey>(['genre', 'personal_rating']);
+    const served = [
+      {
+        key: 'amazon_rating' as BookQueryFacetKey,
+        values: [
+          {value: '1 star', title: '1 star', count: 10},
+          {value: '2 stars', title: '2 stars', count: 8},
+          {value: '3 stars', title: '3 stars', count: 6},
+          {value: '4 stars', title: '4 stars', count: 4},
+          {value: '5 stars', title: '5 stars', count: 2},
+        ],
+        complete: true,
+      },
+    ];
+    const definitions = {
+      order: ['genre', 'personal_rating', 'amazon_rating'] as const,
+      isKey: (key: string): key is BookQueryFacetKey =>
+        key === 'genre' || key === 'personal_rating' || key === 'amazon_rating',
+      labelKey: () => 'label',
+      multiValued: () => false,
+    };
+
+    // Disabled provider facet, no selection: excluded entirely
+    const noSelection = browseFilterGroups(available, new Set(['genre', 'personal_rating']), served, definitions, {});
+    expect(noSelection.map(g => g.key)).not.toContain('amazon_rating');
+
+    // Disabled provider facet with selection: only selected value shown
+    const selection = {
+      amazon_rating: {include: ['4 stars'], exclude: []},
+    };
+    const withSelection = browseFilterGroups(available, new Set(['genre', 'personal_rating']), served, definitions, selection);
+    const amazonGroup = withSelection.find(g => g.key === 'amazon_rating');
+    expect(amazonGroup).toBeDefined();
+    expect(amazonGroup!.values.map(v => v.value)).toEqual(['4 stars']);
+    expect(amazonGroup!.values.map(v => v.count)).toEqual([4]);
+  });
+
+  it('allows clearing a selection on a disabled provider facet', () => {
+    const available = new Set<BookQueryFacetKey>(['genre']);
+    const served: never[] = [];
+    const definitions = {
+      order: ['genre', 'amazon_rating'] as const,
+      isKey: (key: string): key is BookQueryFacetKey => key === 'genre' || key === 'amazon_rating',
+      labelKey: () => 'label',
+      multiValued: () => false,
+    };
+
+    const selectionWithAmazon = {
+      amazon_rating: {include: ['4 stars'], exclude: []},
+    };
+    const withSelection = browseFilterGroups(available, new Set(['genre']), served, definitions, selectionWithAmazon);
+    expect(withSelection.map(g => g.key)).toContain('amazon_rating');
+
+    const clearedSelection: FacetValueMap = {};
+    const cleared = browseFilterGroups(available, new Set(['genre']), served, definitions, clearedSelection);
+    expect(cleared.map(g => g.key)).not.toContain('amazon_rating');
   });
 });
