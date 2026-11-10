@@ -1,13 +1,15 @@
 import {computed, signal, type Signal, type WritableSignal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {QueryClient, queryOptions} from '@tanstack/angular-query-experimental';
-import {beforeEach, describe, expect, it} from 'vitest';
+import {beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {createQueryClientHarness, flushSignalAndQueryEffects} from '../../../core/testing/query-testing';
 import {getTranslocoModule} from '../../../core/testing/transloco-testing';
 import {AppSettingsService} from '../../../shared/service/app-settings.service';
-import {type MetadataProviderSpecificFields} from '../../../shared/model/app-settings.model';
+import {AppSettings, type MetadataProviderSpecificFields} from '../../../shared/model/app-settings.model';
 import {type BookQueryFacetKey, type FacetValueMap} from '../data/book-query-params';
+import {METADATA_PROVIDER_LIST} from '../../../shared/metadata/metadata-providers';
+import {providerFieldsOf} from '../../../shared/metadata/metadata-provider-fields';
 import {bookColumnOptions} from './book-browse-columns';
 import {bookSortOptions} from './book-browse-sort';
 import {isFacetKeyEnabled} from './book-browse-fields';
@@ -20,45 +22,55 @@ import {MagicShelfService} from '../../magic-shelf/service/magic-shelf.service';
 import {ShelfDefinitionQueryService} from '../data/shelf-definition-query.service';
 import {UserService} from '../../settings/user-management/user.service';
 
+function allProviderFieldsEnabled(): MetadataProviderSpecificFields {
+  const fields = providerFieldsOf(METADATA_PROVIDER_LIST);
+  const record: Partial<MetadataProviderSpecificFields> = {};
+  for (const field of fields) {
+    record[field.name] = true;
+  }
+  return record as MetadataProviderSpecificFields;
+}
+
 function providerSettings(
   fields: Partial<MetadataProviderSpecificFields> = {},
-): WritableSignal<Partial<MetadataProviderSpecificFields>> {
-  return signal(fields);
+): WritableSignal<AppSettings | null> {
+  return signal({
+    metadataProviderSpecificFields: {...allProviderFieldsEnabled(), ...fields},
+  } as AppSettings);
 }
 
-function mockAppSettingsService(
-  settings: WritableSignal<Partial<MetadataProviderSpecificFields>>,
-): AppSettingsService {
-  return {appSettings: settings} as unknown as AppSettingsService;
-}
-
-function mockBookQueryService(): BookQueryService {
+function mockBookQueryService(
+  facetFn: ReturnType<typeof vi.fn>,
+): BookQueryService {
   return {
     facetIndex: () =>
       queryOptions({
         queryKey: ['mock-facet-index'],
         queryFn: async () => ({links: [], facets: [], facetKeys: [], sortTokens: []}),
       }),
-    facet: () =>
-      queryOptions({
-        queryKey: ['mock-facet'],
-        queryFn: async () => ({links: [], complete: true, values: []}),
-      }),
+    facet: facetFn,
   } as unknown as BookQueryService;
 }
 
 describe('book browse reactive settings integration', () => {
-  let appSettings: WritableSignal<Partial<MetadataProviderSpecificFields>>;
+  let appSettings: WritableSignal<AppSettings | null>;
   let queryClient: QueryClient;
+  let facetFn: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     appSettings = providerSettings({});
+    facetFn = vi.fn(() =>
+      queryOptions({
+        queryKey: ['mock-facet'],
+        queryFn: async () => ({links: [], complete: true, values: []}),
+      }),
+    );
     TestBed.configureTestingModule({
       imports: [getTranslocoModule()],
       providers: [
         ...createQueryClientHarness().providers,
-        {provide: AppSettingsService, useValue: mockAppSettingsService(appSettings)},
-        {provide: BookQueryService, useValue: mockBookQueryService()},
+        {provide: AppSettingsService, useValue: {appSettings}},
+        {provide: BookQueryService, useValue: mockBookQueryService(facetFn)},
         {provide: LibraryService, useValue: {libraries: signal([])}},
         {provide: MagicShelfService, useValue: {shelves: signal([])}},
         {provide: ShelfDefinitionQueryService, useValue: {
@@ -96,16 +108,20 @@ describe('book browse reactive settings integration', () => {
   it('sort options update reactively when the setting changes', () => {
     const tokens = ['amazonRating', '-amazonRating', 'title', '-title', 'personalRating', '-personalRating'];
     const options = TestBed.runInInjectionContext(() =>
-      computed(() => bookSortOptions(tokens, appSettings())),
+      computed(() => bookSortOptions(tokens, appSettings()?.metadataProviderSpecificFields ?? {})),
     );
 
     expect(options().map((o: {id: string}) => o.id)).toEqual(['title', 'personalRating', 'amazonRating']);
 
-    appSettings.set({amazonRating: false});
+    appSettings.set({
+      metadataProviderSpecificFields: {...allProviderFieldsEnabled(), amazonRating: false},
+    } as AppSettings);
     flushSignalAndQueryEffects();
     expect(options().map((o: {id: string}) => o.id)).toEqual(['title', 'personalRating']);
 
-    appSettings.set({});
+    appSettings.set({
+      metadataProviderSpecificFields: allProviderFieldsEnabled(),
+    } as AppSettings);
     flushSignalAndQueryEffects();
     expect(options().map((o: {id: string}) => o.id)).toEqual(['title', 'personalRating', 'amazonRating']);
   });
@@ -118,7 +134,7 @@ describe('book browse reactive settings integration', () => {
       {field: 'pageCount', visible: true, order: 3},
     ];
     const options = TestBed.runInInjectionContext(() =>
-      computed(() => bookColumnOptions(preferences, appSettings())),
+      computed(() => bookColumnOptions(preferences, appSettings()?.metadataProviderSpecificFields ?? {})),
     );
 
     const fields = options().map((o: {field: string}) => o.field);
@@ -126,14 +142,18 @@ describe('book browse reactive settings integration', () => {
     expect(fields).toContain('title');
     expect(fields).toContain('pageCount');
 
-    appSettings.set({amazonRating: false});
+    appSettings.set({
+      metadataProviderSpecificFields: {...allProviderFieldsEnabled(), amazonRating: false},
+    } as AppSettings);
     flushSignalAndQueryEffects();
     const disabledFields = options().map((o: {field: string}) => o.field);
     expect(disabledFields).not.toContain('amazonRating');
     expect(disabledFields).toContain('title');
     expect(disabledFields).toContain('pageCount');
 
-    appSettings.set({});
+    appSettings.set({
+      metadataProviderSpecificFields: allProviderFieldsEnabled(),
+    } as AppSettings);
     flushSignalAndQueryEffects();
     const restoredFields = options().map((o: {field: string}) => o.field);
     expect(restoredFields).toContain('amazonRating');
@@ -141,36 +161,44 @@ describe('book browse reactive settings integration', () => {
 
   it('facet options respect the setting reactively', () => {
     const isFacetEnabled = TestBed.runInInjectionContext(() =>
-      computed(() => isFacetKeyEnabled('amazon_rating', appSettings())),
+      computed(() => isFacetKeyEnabled('amazon_rating', appSettings()?.metadataProviderSpecificFields ?? {})),
     );
 
     expect(isFacetEnabled()).toBe(true);
 
-    appSettings.set({amazonRating: false});
+    appSettings.set({
+      metadataProviderSpecificFields: {...allProviderFieldsEnabled(), amazonRating: false},
+    } as AppSettings);
     flushSignalAndQueryEffects();
     expect(isFacetEnabled()).toBe(false);
 
-    appSettings.set({});
+    appSettings.set({
+      metadataProviderSpecificFields: allProviderFieldsEnabled(),
+    } as AppSettings);
     flushSignalAndQueryEffects();
     expect(isFacetEnabled()).toBe(true);
   });
 
-  it('keeps disabled provider facet queryable when it has an active selection', () => {
-    appSettings.set({amazonRating: false});
+  it('excludes disabled provider facet from railGroups when not selected', () => {
+    appSettings.set({
+      metadataProviderSpecificFields: {...allProviderFieldsEnabled(), amazonRating: false},
+    } as AppSettings);
     setFacetIndex(['genre', 'personal_rating', 'amazon_rating', 'goodreads_rating']);
 
-    const selection = signal<FacetValueMap>({
-      amazon_rating: {include: ['4 stars'], exclude: []},
-    });
+    const selection = signal<FacetValueMap>({});
     const queries = createQueries(selection);
     flushSignalAndQueryEffects();
 
     const groups = queries.railGroups();
-    expect(groups.map(g => g.key)).toContain('amazon_rating');
+    expect(groups.map(g => g.key)).not.toContain('amazon_rating');
+    expect(groups.map(g => g.key)).toContain('genre');
+    expect(groups.map(g => g.key)).toContain('goodreads_rating');
   });
 
-  it('keeps selected value available when facet data is not cached', () => {
-    appSettings.set({amazonRating: false});
+  it('keeps selected disabled facet queryable and the facet query executes', () => {
+    appSettings.set({
+      metadataProviderSpecificFields: {...allProviderFieldsEnabled(), amazonRating: false},
+    } as AppSettings);
     setFacetIndex(['genre', 'personal_rating', 'amazon_rating', 'goodreads_rating']);
 
     const selection = signal<FacetValueMap>({
@@ -179,26 +207,15 @@ describe('book browse reactive settings integration', () => {
     const queries = createQueries(selection);
     flushSignalAndQueryEffects();
 
+    // The selected disabled facet remains represented in the filter state
     const groups = queries.railGroups();
+    expect(groups.map(g => g.key)).toContain('amazon_rating');
     const amazonGroup = groups.find(g => g.key === 'amazon_rating');
     expect(amazonGroup).toBeDefined();
     expect(amazonGroup!.picks?.get('4 stars')).toBe('included');
-  });
 
-  it('excludes disabled provider facet from groups when not selected', () => {
-    const available = new Set<BookQueryFacetKey>(['genre', 'personal_rating', 'goodreads_rating']);
-    const served: never[] = [];
-    const definitions = {
-      order: ['genre', 'personal_rating', 'amazon_rating', 'goodreads_rating'] as const,
-      isKey: (key: string): key is BookQueryFacetKey =>
-        key === 'genre' || key === 'personal_rating' || key === 'amazon_rating' || key === 'goodreads_rating',
-      labelKey: () => 'label',
-      multiValued: () => false,
-    };
-
-    const groups = browseFilterGroups(available, served, definitions, {});
-    expect(groups.map(g => g.key)).toEqual(['genre', 'personal_rating', 'goodreads_rating']);
-    expect(groups.map(g => g.key)).not.toContain('amazon_rating');
+    // The facet query factory is invoked for the selected disabled facet
+    expect(facetFn).toHaveBeenCalledWith('amazon_rating', expect.any(Object), '');
   });
 
   it('keeps disabled provider facets visible when they have active selections', () => {
