@@ -54,6 +54,13 @@ public class KoreaderService {
                 progress.getKoreaderProgress(), progress.getKoreaderProgressPercent(),
                 authDetails.getBookLoreUserId(), bookHash);
 
+        // A progress row can exist from the web reader or a read status without any KOReader sync.
+        // Answer like the reference kosync server does for an unknown document, so clients push
+        // their own progress instead of applying an empty remote one.
+        if (progress.getKoreaderProgress() == null && progress.getKoreaderProgressPercent() == null) {
+            throw ApiError.GENERIC_NOT_FOUND.createException("No KOReader progress found for user and book");
+        }
+
         Long timestamp = progress.getKoreaderLastSyncTime() != null
                 ? progress.getKoreaderLastSyncTime().getEpochSecond()
                 : null;

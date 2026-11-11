@@ -29,6 +29,7 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.*;
@@ -209,6 +210,38 @@ class KoreaderServiceTest {
         when(progressRepo.findByUserIdAndBookId(anyLong(), isNull()))
                 .thenReturn(Optional.empty());
         assertThrows(APIException.class, () -> service.getProgress("h"));
+    }
+
+    @Test
+    void getProgress_progressRowWithoutKoreaderProgress_notFound() {
+        when(details.isSyncEnabled()).thenReturn(true);
+        var book = new BookEntity();
+        book.setId(99L);
+        when(bookRepo.findByCurrentHash("h")).thenReturn(Optional.of(book));
+        var prog = new UserBookProgressEntity();
+        prog.setEpubProgress("epubcfi(/6/4!/4/2/1:0)");
+        prog.setEpubProgressPercent(12.5F);
+        when(progressRepo.findByUserIdAndBookId(42L, 99L))
+                .thenReturn(Optional.of(prog));
+
+        APIException ex = assertThrows(APIException.class, () -> service.getProgress("h"));
+        assertEquals(HttpStatus.NOT_FOUND, ex.getStatus());
+    }
+
+    @Test
+    void getProgress_percentageOnly_returnsProgress() {
+        when(details.isSyncEnabled()).thenReturn(true);
+        var book = new BookEntity();
+        book.setId(99L);
+        when(bookRepo.findByCurrentHash("h")).thenReturn(Optional.of(book));
+        var prog = new UserBookProgressEntity();
+        prog.setKoreaderProgressPercent(0.4F);
+        when(progressRepo.findByUserIdAndBookId(42L, 99L))
+                .thenReturn(Optional.of(prog));
+
+        KoreaderProgress out = service.getProgress("h");
+        assertNull(out.getProgress());
+        assertEquals(0.4F, out.getPercentage());
     }
 
     @Test
