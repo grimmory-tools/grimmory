@@ -5,17 +5,18 @@ import {
   Component,
   computed,
   contentChild,
+  effect,
   ElementRef,
   inject,
   input,
   output,
   signal,
   viewChild,
-  viewChildren,
 } from '@angular/core';
 import {NgTemplateOutlet} from '@angular/common';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {LucideChevronLeft, LucideChevronRight} from '@lucide/angular';
+import {injectVirtualizer} from '@tanstack/angular-virtual';
 
 import {type BookMenuComponent} from '../book-menu/book-menu.component';
 import {BookCardComponent} from '../cards/book-card.component';
@@ -24,7 +25,7 @@ import {BookCardSkeletonComponent} from '../cards/book-card-skeleton.component';
 import {type BookFileResponse, type BookSummary} from '../../data/book-response.models';
 import {BookNavigationService} from '../../service/book-navigation.service';
 import {UserService} from '../../../settings/user-management/user.service';
-import {type BrowseStatus} from '../../../../shared/browse/results';
+import {type BrowseRenderedRange, type BrowseStatus, sameRenderedRange} from '../../../../shared/browse/results';
 import {createBrowseSkeletonDelay} from '../../../../shared/browse/skeleton-delay';
 import {LayoutService} from '../../../../shared/layout/layout.service';
 import {CoverScalePreferenceService} from '../../../../shared/service/cover-scale-preference.service';
@@ -66,11 +67,10 @@ export class BookRowComponent {
   readonly pageBleed = input(false, {transform: booleanAttribute});
   readonly retry = output<void>();
   readonly opened = output<BookSummary>();
-  readonly endReached = output<void>();
+  readonly renderedRange = output<BrowseRenderedRange>();
 
   protected readonly rowTitle = contentChild('rowTitle');
   private readonly strip = viewChild<ElementRef<HTMLElement>>('strip');
-  private readonly cardElements = viewChildren<BookCardComponent, ElementRef<HTMLElement>>(BookCardComponent, {read: ElementRef});
 
   protected readonly squareCovers = computed(() => {
     const cards = this.cards();
@@ -90,36 +90,46 @@ export class BookRowComponent {
     'flex size-8 items-center justify-center rounded-full text-text-secondary outline-none transition-colors ' +
     'hover:text-text-strong focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-30';
 
-  protected readonly atStart = signal(true);
-  protected readonly atEnd = signal(true);
+  private readonly stripPadding = signal(0);
+  protected readonly virtualizer = injectVirtualizer<HTMLElement, HTMLElement>(() => {
+    const cards = this.cards();
+    return {
+      scrollElement: this.strip(),
+      horizontal: true,
+      count: cards.length,
+      getItemKey: (index: number) => cards[index].book.id,
+      estimateSize: () => this.cardWidth(),
+      gap: BOOK_ROW_CARD_GAP,
+      scrollMargin: this.stripPadding(),
+    };
+  });
+  private readonly visibleRange = computed<BrowseRenderedRange | null>(() => {
+    const items = this.virtualizer.getVirtualItems();
+    return items.length > 0 ? {start: items[0].index, end: items[items.length - 1].index} : null;
+  }, {equal: sameRenderedRange});
+
+  protected readonly atStart = computed(() => (this.virtualizer.scrollOffset() ?? 0) <= 1);
+  protected readonly atEnd = computed(() => {
+    const viewport = this.virtualizer.scrollRect()?.width ?? 0;
+    const maxOffset = this.virtualizer.getTotalSize() + 2 * this.stripPadding() - viewport;
+    return maxOffset - (this.virtualizer.scrollOffset() ?? 0) <= 1;
+  });
   protected readonly arrowsVisible = computed(() => this.desktop() && !(this.atStart() && this.atEnd()));
 
   constructor() {
-    afterRenderEffect(onCleanup => {
+    afterRenderEffect(() => {
       const strip = this.strip()?.nativeElement;
-      const last = this.cardElements().at(-1)?.nativeElement;
-      if (!strip || !last) {
-        return;
+      this.virtualizer.scrollRect();
+      if (strip) {
+        this.stripPadding.set(parseFloat(getComputedStyle(strip).paddingLeft));
       }
-      const updateEnds = (): void => {
-        this.atStart.set(strip.scrollLeft <= 1);
-        this.atEnd.set(strip.scrollWidth - strip.clientWidth - strip.scrollLeft <= 1);
-      };
-      updateEnds();
-      strip.addEventListener('scroll', updateEnds, {passive: true});
-      const resizeObserver = new ResizeObserver(updateEnds);
-      resizeObserver.observe(strip);
-      const lastObserver = new IntersectionObserver(([entry]) => {
-        if (entry.isIntersecting) {
-          this.endReached.emit();
-        }
-      }, {root: strip});
-      lastObserver.observe(last);
-      onCleanup(() => {
-        strip.removeEventListener('scroll', updateEnds);
-        resizeObserver.disconnect();
-        lastObserver.disconnect();
-      });
+    });
+
+    effect(() => {
+      const range = this.visibleRange();
+      if (range) {
+        this.renderedRange.emit(range);
+      }
     });
   }
 

@@ -8,6 +8,7 @@ import {BookMenuComponent} from '../../../../../book/components/book-menu/book-m
 import {BookRowComponent} from '../../../../../book/components/book-row/book-row.component';
 import {type BookSortTerm} from '../../../../../book/data/book-query-params';
 import {BookQueryService} from '../../../../../book/data/book-query.service';
+import {createBrowseResults} from '../../../../../../shared/browse/results';
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from '@openng/optimus-ui/tabs';
 import {BookReviewsComponent} from '../../../../../book/components/book-reviews/book-reviews.component';
 import {BookNotesComponent} from '../../../../../book/components/book-notes/book-notes-component';
@@ -159,9 +160,15 @@ export class MetadataTabsComponent {
     ...this.bookQuery.infinitePage({facets: {series: {include: [this.seriesName() ?? ''], exclude: []}}, sort: SERIES_SORT, size: ROW_SIZE}),
     enabled: this.activeTab() === 'series',
   }));
+  protected readonly seriesResults = createBrowseResults({
+    query: this.seriesQuery,
+    listKey: computed(() => this.seriesName() ?? ''),
+    artworkUrls: () => [],
+    scrollToTop: () => undefined,
+  });
   protected readonly seriesCards = computed(() => {
     const bookId = this.book().id;
-    return (this.seriesQuery.data()?.pages ?? []).flatMap(page => page.content).filter(book => book.id !== bookId).map(book => ({book}));
+    return this.seriesResults.items().filter(book => book.id !== bookId).map(book => ({book}));
   });
   protected readonly similarQuery = injectQuery(() => ({
     ...this.bookQuery.recommendations(this.book().id, ROW_SIZE),
@@ -176,12 +183,6 @@ export class MetadataTabsComponent {
         untracked(() => this.loadChapters(bookId));
       }
     });
-  }
-
-  protected loadMoreSeries(): void {
-    if (this.seriesQuery.hasNextPage() && !this.seriesQuery.isFetching()) {
-      void this.seriesQuery.fetchNextPage({cancelRefetch: false});
-    }
   }
 
   protected readBook(book: Book, options?: ReadOptions): void {
