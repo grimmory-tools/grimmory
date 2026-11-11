@@ -13,6 +13,7 @@ import {
   viewChild,
   viewChildren,
 } from '@angular/core';
+import {NgTemplateOutlet} from '@angular/common';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {LucideChevronLeft, LucideChevronRight} from '@lucide/angular';
 
@@ -47,6 +48,7 @@ export const BOOK_ROW_CARD_WIDTH = 150;
     BookCardSkeletonComponent,
     LucideChevronLeft,
     LucideChevronRight,
+    NgTemplateOutlet,
     TranslocoPipe,
   ],
   host: {class: 'block'},
@@ -90,33 +92,34 @@ export class BookRowComponent {
 
   protected readonly atStart = signal(true);
   protected readonly atEnd = signal(true);
+  protected readonly arrowsVisible = computed(() => this.desktop() && !(this.atStart() && this.atEnd()));
 
   constructor() {
     afterRenderEffect(onCleanup => {
       const strip = this.strip()?.nativeElement;
-      const cards = this.cardElements();
-      if (!strip || cards.length === 0) {
+      const last = this.cardElements().at(-1)?.nativeElement;
+      if (!strip || !last) {
         return;
       }
-      const first = cards[0].nativeElement;
-      const last = cards[cards.length - 1].nativeElement;
-      const observer = new IntersectionObserver(entries => {
-        for (const entry of entries) {
-          const inView = entry.intersectionRatio === 1;
-          if (entry.target === first) {
-            this.atStart.set(inView);
-          }
-          if (entry.target === last) {
-            this.atEnd.set(inView);
-            if (entry.isIntersecting) {
-              this.endReached.emit();
-            }
-          }
+      const updateEnds = (): void => {
+        this.atStart.set(strip.scrollLeft <= 1);
+        this.atEnd.set(strip.scrollWidth - strip.clientWidth - strip.scrollLeft <= 1);
+      };
+      updateEnds();
+      strip.addEventListener('scroll', updateEnds, {passive: true});
+      const resizeObserver = new ResizeObserver(updateEnds);
+      resizeObserver.observe(strip);
+      const lastObserver = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) {
+          this.endReached.emit();
         }
-      }, {root: strip, threshold: [0, 1]});
-      observer.observe(first);
-      observer.observe(last);
-      onCleanup(() => observer.disconnect());
+      }, {root: strip});
+      lastObserver.observe(last);
+      onCleanup(() => {
+        strip.removeEventListener('scroll', updateEnds);
+        resizeObserver.disconnect();
+        lastObserver.disconnect();
+      });
     });
   }
 

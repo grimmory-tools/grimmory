@@ -3,25 +3,8 @@
     <div class="mb-1 flex h-7 items-center justify-between gap-4">
       <ng-content />
 
-      @if (desktop() && !(atStart() && atEnd())) {
-        <div class="ml-auto flex shrink-0 items-center">
-          <button
-            type="button"
-            [class]="arrowClass"
-            [disabled]="atStart()"
-            [attr.aria-label]="'book.row.previous' | transloco"
-            (click)="scrollPage(-1)">
-            <svg lucideChevronLeft aria-hidden="true" strokeWidth="1.75" class="size-5"></svg>
-          </button>
-          <button
-            type="button"
-            [class]="arrowClass"
-            [disabled]="atEnd()"
-            [attr.aria-label]="'book.row.next' | transloco"
-            (click)="scrollPage(1)">
-            <svg lucideChevronRight aria-hidden="true" strokeWidth="1.75" class="size-5"></svg>
-          </button>
-        </div>
+      @if (arrowsVisible()) {
+        <ng-container [ngTemplateOutlet]="arrows" />
       }
     </div>
   }
@@ -59,4 +42,31 @@
       }
     </div>
   }
+
+  @if (!rowTitle() && arrowsVisible()) {
+    <div class="mt-1 flex">
+      <ng-container [ngTemplateOutlet]="arrows" />
+    </div>
+  }
 </section>
+
+<ng-template #arrows>
+  <div class="ml-auto flex shrink-0 items-center">
+    <button
+      type="button"
+      [class]="arrowClass"
+      [disabled]="atStart()"
+      [attr.aria-label]="'book.row.previous' | transloco"
+      (click)="scrollPage(-1)">
+      <svg lucideChevronLeft aria-hidden="true" strokeWidth="1.75" class="size-5"></svg>
+    </button>
+    <button
+      type="button"
+      [class]="arrowClass"
+      [disabled]="atEnd()"
+      [attr.aria-label]="'book.row.next' | transloco"
+      (click)="scrollPage(1)">
+      <svg lucideChevronRight aria-hidden="true" strokeWidth="1.75" class="size-5"></svg>
+    </button>
+  </div>
+</ng-template>
