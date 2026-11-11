@@ -207,6 +207,19 @@ class OidcTokenClientTest {
     }
 
     @Test
+    void fetchUserInfo_illegalArgumentException_returnsEmptyMap() {
+        var discovery = createDiscoveryDocument(TOKEN_ENDPOINT, USERINFO_ENDPOINT);
+
+        when(discoveryService.discover(ISSUER_URI)).thenReturn(discovery);
+        when(oidcRestTemplate.exchange(eq(USERINFO_ENDPOINT), eq(HttpMethod.GET), any(HttpEntity.class), eq(Map.class)))
+                .thenThrow(new IllegalArgumentException("Invalid mime type \"application/json; charset=utf-8, application/json\""));
+
+        var result = oidcTokenClient.fetchUserInfo("access-token", ISSUER_URI);
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
     void fetchUserInfo_nullResponseBody_returnsEmptyMap() {
         var discovery = createDiscoveryDocument(TOKEN_ENDPOINT, USERINFO_ENDPOINT);
 
