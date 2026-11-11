@@ -28,6 +28,7 @@ import {
   normalizeBookColumnPreferences,
   type BookBrowseColumnVisibilityChange,
 } from './book-browse-columns';
+import {injectHiddenProviderFieldKeys} from './book-browse-fields';
 import {bookSortTermsFromCriteria} from './book-browse-sort';
 import {type BookBrowseUrlState, type BookBrowseViewMode} from './book-browse-url-state';
 
@@ -79,8 +80,9 @@ export function createBookBrowsePreferences({context, availableSortKeys, urlStat
       userService.currentUser()?.userSettings.tableColumnPreference,
     ),
   );
-  const columnOptions = computed(() => bookColumnOptions(columnPreferences()));
-  const visibleColumns = computed(() => bookVisibleColumnOptions(columnPreferences()));
+  const hiddenProviderFields = injectHiddenProviderFieldKeys();
+  const columnOptions = computed(() => bookColumnOptions(columnPreferences(), hiddenProviderFields()));
+  const visibleColumns = computed(() => bookVisibleColumnOptions(columnPreferences(), hiddenProviderFields()));
 
   function onSaveError(): void {
     messages.add({
