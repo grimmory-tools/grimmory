@@ -30,6 +30,8 @@ export class BookBrowseDetailLineService {
         return this.format('date', book.dateFinished);
       case 'publishedDate':
         return this.format('date', metadata?.publishedDate);
+      case 'subtitle':
+        return this.format('text', metadata?.subtitle);
       case 'publisher':
         return this.format('text', metadata?.publisher);
       case 'seriesName':
