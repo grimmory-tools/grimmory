@@ -84,19 +84,9 @@
     "main": {
       "pageTitle": "仪表板",
       "welcomeTitle": "欢迎来到 Grimmory！",
-      "welcomeSubtitle": "让我们创建您的第一个书库",
       "welcomeDescription": "书库是存放所有书籍的地方。今天就开始构建您的数字藏书吧！",
-      "createLibrary": "创建您的书库"
-    },
-    "scroller": {
-      "noBooksFound": "此滚动条中未找到书籍。",
-      "loadError": "加载书籍失败！请尝试刷新页面。",
-      "continueListening": "继续收听",
-      "continueReading": "继续阅读",
-      "recentlyAdded": "最近添加",
-      "discoverNew": "发现新书",
-      "magicShelf": "智能书架",
-      "default": "滚动条"
+      "createLibrary": "创建您的书库",
+      "customize": ""
     }
   },
   "settings": {
@@ -475,16 +465,16 @@
     },
     "dashboardScrollers": {
       "sectionTitle": "仪表板配置",
-      "sectionDesc": "从不同的书籍集合中添加最多 5 个滚动条，并自定义其行为",
+      "sectionDesc": "从不同的书籍集合中添加滚动条，并自定义其行为",
       "type": "类型",
       "selectType": "选择类型",
-      "magicShelf": "智能书架",
       "selectMagicShelf": "选择智能书架",
+      "selectLibrary": "",
+      "selectShelf": "",
       "sortField": "排序字段",
       "selectField": "选择字段",
       "direction": "方向",
       "selectDirection": "选择方向",
-      "maxItems": "最大数量",
       "addScroller": "添加滚动条",
       "resetToDefault": "重置为默认",
       "saveSettings": "",
@@ -494,7 +484,10 @@
         "lastRead": "继续阅读",
         "lastListened": "继续收听",
         "latestAdded": "最近添加",
+        "recentlyFinished": "",
         "random": "发现新书",
+        "library": "",
+        "shelf": "",
         "magicShelf": "智能书架",
         "default": "滚动条"
       },
@@ -523,7 +516,7 @@
       "sectionTitle": "书库和书架视图与排序偏好",
       "sectionDesc": "配置浏览器中排序和视图模式（网格或表格）的默认和每个书库/书架偏好。",
       "defaultPreferences": "默认偏好",
-      "defaultPreferencesDesc": "配置所有书库和书架的默认视图模式和多字段排序。拖动以重新排列排序优先级。",
+      "defaultPreferencesDesc": "配置所有书库和书架的默认视图模式和多字段排序。",
       "sortOrderLabel": "排序顺序（拖动以重新排序）",
       "formatOverlay": "图书类型标识",
       "ascending": "升序",
@@ -663,7 +656,7 @@
     },
     "publicReviews": {
       "sectionTitle": "公开评论",
-      "sectionDesc": "配置从外部平台自动下载用户评论。可以从 Amazon、Goodreads 和 Hardcover 获取评论以供离线访问。",
+      "sectionDesc": "配置从外部平台自动下载用户评论，以供离线访问。",
       "downloadLabel": "下载公开评论",
       "autoDownloadLabel": "打开书籍时自动下载",
       "autoDownloadDesc": "打开书籍详情页面时自动获取评论。禁用后，评论仅在手动或元数据刷新期间下载。",
@@ -701,9 +694,7 @@
         "language": "",
         "isbn13": "",
         "isbn10": "",
-        "pageCount": "",
-        "doubanRating": "",
-        "doubanReviewCount": ""
+        "pageCount": ""
       }
     },
     "fieldSelector": {
@@ -2836,6 +2827,10 @@
         "readStatusMenu": "改变阅读状态"
       }
     },
+    "row": {
+      "previous": "",
+      "next": ""
+    },
     "menu": {
       "label": "",
       "openInNewTab": "",
@@ -3362,7 +3357,7 @@
       }
     },
     "sorting": {
-      "saveAsDefault": "保存为默认"
+      "saveAsDefault": "保存为{{scope}}的默认设置"
     },
     "fileAttacher": {
       "title": "将文件附加到其他图书",
@@ -5256,7 +5251,8 @@
       "flipDirection": ""
     },
     "chips": {
-      "removeSearch": ""
+      "removeSearch": "",
+      "removeExcluded": ""
     },
     "rail": {
       "searchValues": "",
@@ -5266,13 +5262,21 @@
         "library": "",
         "shelf": "",
         "magicShelf": "",
-        "unshelved": ""
+        "unshelved": "",
+        "dashboardRow": ""
       },
       "noMatches": "",
       "minUnit": "",
       "maxUnit": "",
       "min": "",
-      "max": ""
+      "max": "",
+      "excluded": "",
+      "exclude": "",
+      "excludeValue": "",
+      "matchOptions": "",
+      "matchAny": "",
+      "matchAll": "",
+      "all": ""
     },
     "book": {
       "empty": "",
@@ -5300,7 +5304,6 @@
       "density": "大小",
       "smallerCards": "",
       "largerCards": "",
-      "showFilters": "",
       "columns": "",
       "resetColumns": "重置为默认"
     },
