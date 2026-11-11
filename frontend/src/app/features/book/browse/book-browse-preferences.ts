@@ -48,9 +48,10 @@ export function createBookBrowsePreferences({context, availableSortKeys, urlStat
     urlState.view() ?? (entityViewMode(entityViewPreferences(), context()) === 'TABLE' ? 'table' : 'grid'));
   const formatPill = computed(() => entityViewPreferences()?.global?.overlayBookType ?? true);
 
+  const hiddenProviderFields = injectHiddenProviderFieldKeys();
   const isAvailableSortTerm = (term: BookSortTerm): boolean => {
     const available = availableSortKeys();
-    return available.size === 0 || available.has(term.key);
+    return !hiddenProviderFields().has(term.key) && (available.size === 0 || available.has(term.key));
   };
 
   const defaultSortTerms = computed<readonly BookSortTerm[]>(() => {
@@ -83,7 +84,6 @@ export function createBookBrowsePreferences({context, availableSortKeys, urlStat
       userService.currentUser()?.userSettings.tableColumnPreference,
     ),
   );
-  const hiddenProviderFields = injectHiddenProviderFieldKeys();
   const columnOptions = computed(() => bookColumnOptions(columnPreferences(), hiddenProviderFields()));
   const visibleColumns = computed(() => bookVisibleColumnOptions(columnPreferences(), hiddenProviderFields()));
 
