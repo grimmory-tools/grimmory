@@ -6,6 +6,9 @@ import {Button} from '@openng/optimus-ui/button';
 import {Checkbox} from '@openng/optimus-ui/checkbox';
 import {Select} from '@openng/optimus-ui/select';
 import {injectQuery} from '@tanstack/angular-query-experimental';
+import {bookSortOptions} from '../../../book/browse/book-browse-sort';
+import {EMPTY_FACET_SELECTION} from '../../../book/data/book-query-params';
+import {BookQueryService} from '../../../book/data/book-query.service';
 import {ShelfDefinitionQueryService} from '../../../book/data/shelf-definition-query.service';
 import {LibraryService} from '../../../book/service/library.service';
 import {
@@ -39,8 +42,13 @@ export class DashboardPreferencesComponent {
   private readonly magicShelfService = inject(MagicShelfService);
   private readonly libraryService = inject(LibraryService);
   private readonly shelfDefinitionQuery = inject(ShelfDefinitionQueryService);
+  private readonly bookQuery = inject(BookQueryService);
   private readonly translocoService = inject(TranslocoService);
   private readonly shelvesQuery = injectQuery(() => this.shelfDefinitionQuery.definitions());
+  private readonly sortTokensQuery = injectQuery(() =>
+    this.bookQuery.facetIndex({facets: EMPTY_FACET_SELECTION}));
+  private readonly sortOptions = computed(() =>
+    bookSortOptions(this.sortTokensQuery.data()?.sortTokens ?? []));
   private readonly activeLanguage = toSignal(this.translocoService.langChanges$, {
     initialValue: this.translocoService.getActiveLang()
   });
@@ -54,23 +62,7 @@ export class DashboardPreferencesComponent {
 
   readonly sortFieldOptions = computed(() => {
     this.activeLanguage();
-    const t = (key: string) => this.translocoService.translate(`settingsView.dashboardScrollers.${key}`);
-    return [
-      {label: t('sortFields.title'), value: 'title'},
-      {label: t('sortFields.addedOn'), value: 'addedOn'},
-      {label: t('sortFields.author'), value: 'author'},
-      {label: t('sortFields.authorSurnameVorname'), value: 'authorSurnameVorname'},
-      {label: t('sortFields.seriesName'), value: 'seriesName'},
-      {label: t('sortFields.seriesNumber'), value: 'seriesNumber'},
-      {label: t('sortFields.personalRating'), value: 'personalRating'},
-      {label: t('sortFields.publisher'), value: 'publisher'},
-      {label: t('sortFields.publishedDate'), value: 'publishedDate'},
-      {label: t('sortFields.lastReadTime'), value: 'lastReadTime'},
-      {label: t('sortFields.readStatus'), value: 'readStatus'},
-      {label: t('sortFields.dateFinished'), value: 'dateFinished'},
-      {label: t('sortFields.readingProgress'), value: 'readingProgress'},
-      {label: t('sortFields.pageCount'), value: 'pageCount'}
-    ];
+    return this.sortOptions().map(option => ({label: this.translocoService.translate(option.labelKey), value: option.id}));
   });
 
   readonly sortDirectionOptions = computed(() => {
