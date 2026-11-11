@@ -126,6 +126,11 @@ export class BookRowComponent {
     });
 
     effect(() => {
+      this.cardWidth();
+      this.virtualizer.measure();
+    });
+
+    effect(() => {
       const range = this.visibleRange();
       if (range) {
         this.renderedRange.emit(range);
