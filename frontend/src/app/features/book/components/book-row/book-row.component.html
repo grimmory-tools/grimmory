@@ -1,4 +1,4 @@
-<section [style.--card-width.px]="cardWidth()" [style.--card-height.px]="cardHeight()">
+<section [class.invisible]="hiddenWhileLoading()" [style.--card-width.px]="cardWidth()" [style.--card-height.px]="cardHeight()">
   @if (rowTitle()) {
     <div class="mb-1 flex h-7 items-center justify-between gap-4">
       <ng-content />
@@ -53,8 +53,7 @@
           @for (skeleton of skeletons; track $index) {
             <app-book-card-skeleton
               class="w-[var(--card-width)] shrink-0"
-              [squareCovers]="squareCovers()"
-              [class.invisible]="!skeletonVisible()" />
+              [squareCovers]="squareCovers()" />
           }
         }
       }
