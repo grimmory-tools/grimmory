@@ -383,7 +383,7 @@ class KoreaderServiceTest {
         existing.setPdfProgressPercent(2.1f);
         when(progressRepo.findByUserIdAndBookId(42L, 9L)).thenReturn(Optional.of(existing));
 
-        for (String progress : new String[]{"abc", "0", "-4", "/body/DocFragment[1]/body/p"}) {
+        for (String progress : new String[]{"abc", "0", "-4", "", "   ", "2147483648", "99999999999", "/body/DocFragment[1]/body/p"}) {
             var dto = KoreaderProgress.builder()
                     .document("h").progress(progress).percentage(0.2F).device("d").device_id("id").build();
             service.saveProgress("h", dto);
@@ -393,6 +393,64 @@ class KoreaderServiceTest {
             assertEquals(0.2F, existing.getKoreaderProgressPercent(), progress);
         }
         verifyNoInteractions(epubCfiService);
+    }
+
+    @Test
+    void saveProgress_pdfWithNullProgress_keepsWebReaderPage() {
+        when(details.isSyncEnabled()).thenReturn(true);
+        BookEntity book = bookWithPrimaryFile(9L, BookFileType.PDF);
+        when(bookRepo.findByCurrentHash("h")).thenReturn(Optional.of(book));
+        when(userRepo.findById(42L)).thenReturn(Optional.of(user(42L)));
+        var existing = new UserBookProgressEntity();
+        existing.setPdfProgress(3);
+        existing.setPdfProgressPercent(2.1f);
+        when(progressRepo.findByUserIdAndBookId(42L, 9L)).thenReturn(Optional.of(existing));
+
+        var dto = KoreaderProgress.builder()
+                .document("h").progress(null).percentage(0.2F).device("d").device_id("id").build();
+        service.saveProgress("h", dto);
+
+        assertEquals(3, existing.getPdfProgress());
+        assertEquals(2.1f, existing.getPdfProgressPercent());
+        verifyNoInteractions(epubCfiService);
+    }
+
+    @Test
+    void saveProgress_pdfPageWithoutPercentage_keepsStoredPercentage() {
+        when(details.isSyncEnabled()).thenReturn(true);
+        BookEntity book = bookWithPrimaryFile(9L, BookFileType.PDF);
+        when(bookRepo.findByCurrentHash("h")).thenReturn(Optional.of(book));
+        when(userRepo.findById(42L)).thenReturn(Optional.of(user(42L)));
+        var existing = new UserBookProgressEntity();
+        existing.setPdfProgress(3);
+        existing.setPdfProgressPercent(2.1f);
+        when(progressRepo.findByUserIdAndBookId(42L, 9L)).thenReturn(Optional.of(existing));
+
+        var dto = KoreaderProgress.builder()
+                .document("h").progress("12").percentage(null).device("d").device_id("id").build();
+        service.saveProgress("h", dto);
+
+        assertEquals(12, existing.getPdfProgress());
+        assertEquals(2.1f, existing.getPdfProgressPercent());
+    }
+
+    @Test
+    void saveProgress_pdfPercentage_roundsHalfUpOnDecimalValue() {
+        when(details.isSyncEnabled()).thenReturn(true);
+        BookEntity book = bookWithPrimaryFile(9L, BookFileType.PDF);
+        when(bookRepo.findByCurrentHash("h")).thenReturn(Optional.of(book));
+        when(userRepo.findById(42L)).thenReturn(Optional.of(user(42L)));
+        var existing = new UserBookProgressEntity();
+        when(progressRepo.findByUserIdAndBookId(42L, 9L)).thenReturn(Optional.of(existing));
+
+        Map<Float, Float> expected = Map.of(0.0105F, 1.1f, 0.9995F, 100.0f, 0.0714F, 7.1f, 0.0F, 0.0f);
+        expected.forEach((fraction, percent) -> {
+            var dto = KoreaderProgress.builder()
+                    .document("h").progress("5").percentage(fraction).device("d").device_id("id").build();
+            service.saveProgress("h", dto);
+
+            assertEquals(percent, existing.getPdfProgressPercent(), "fraction " + fraction);
+        });
     }
 
     @Test

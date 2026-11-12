@@ -245,10 +245,6 @@ public class EpubCfiService {
                 break;
             }
 
-            if (i == 0 && step.position() == 4) {
-                continue;
-            }
-
             int childIndex = step.childElementIndex();
             if (childIndex < 0 || childIndex >= current.childrenSize()) {
                 return null;

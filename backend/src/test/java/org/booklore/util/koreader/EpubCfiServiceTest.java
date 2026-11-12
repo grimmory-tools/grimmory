@@ -484,6 +484,70 @@ class EpubCfiServiceTest {
     }
 
     @Nested
+    class BodyRelativePathTests {
+
+        private static final String TWO_DIVISION_CHAPTER = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <!DOCTYPE html>
+                <html xmlns="http://www.w3.org/1999/xhtml">
+                <head><title>Two divisions</title></head>
+                <body>
+                    <div id="one">
+                        <p>Division one, first paragraph with enough text to move the offset along.</p>
+                        <p>Division one, second paragraph with enough text to move the offset along.</p>
+                    </div>
+                    <div id="two">
+                        <p>Division two, first paragraph with enough text to move the offset along.</p>
+                        <p>Division two, second paragraph.</p>
+                    </div>
+                </body>
+                </html>
+                """;
+
+        private File twoDivisionEpub;
+
+        @BeforeEach
+        void createTwoDivisionEpub() throws IOException {
+            Book book = new Book();
+            book.getMetadata().addTitle("Two divisions");
+            book.addSection("Chapter", new Resource(TWO_DIVISION_CHAPTER.getBytes(StandardCharsets.UTF_8), "chapter.xhtml"));
+            twoDivisionEpub = tempDir.resolve("two-divisions.epub").toFile();
+            try (FileOutputStream out = new FileOutputStream(twoDivisionEpub)) {
+                new EpubWriter().write(book, out);
+            }
+        }
+
+        private float expectedPercentOf(String text) {
+            return TWO_DIVISION_CHAPTER.indexOf(text) * 100f / TWO_DIVISION_CHAPTER.length();
+        }
+
+        @Test
+        void resolveCfiLocation_rangeWithBodyAsCommonParent_resolvesSecondDivisionParagraph() {
+            String rangeCfi = "epubcfi(/6/2!/4,/4/2/1:0,/4/4/1:0)";
+
+            EpubCfiService.CfiLocation location = service.resolveCfiLocation(twoDivisionEpub, rangeCfi).orElseThrow();
+
+            assertEquals(expectedPercentOf("Division two, second paragraph."), location.contentSourceProgressPercent(), 0.5f);
+        }
+
+        @Test
+        void resolveCfiLocation_pointInSecondDivision_resolvesThatParagraph() {
+            String pointCfi = "epubcfi(/6/2!/4/4/4/1:0)";
+
+            EpubCfiService.CfiLocation location = service.resolveCfiLocation(twoDivisionEpub, pointCfi).orElseThrow();
+
+            assertEquals(expectedPercentOf("Division two, second paragraph."), location.contentSourceProgressPercent(), 0.5f);
+        }
+
+        @Test
+        void convertCfiToProgressXPointer_rangeWithBodyAsCommonParent_pointsAtRangeStart() {
+            String rangeCfi = "epubcfi(/6/2!/4,/4/2/1:0,/4/4/1:0)";
+
+            assertEquals("/body/DocFragment[1]/body/div[2]/p[1]", service.convertCfiToProgressXPointer(twoDivisionEpub, rangeCfi));
+        }
+    }
+
+    @Nested
     class RoundTripTests {
 
         @Test

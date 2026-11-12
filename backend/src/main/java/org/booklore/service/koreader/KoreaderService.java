@@ -249,8 +249,8 @@ public class KoreaderService {
     }
 
     private float toRoundedPercent(Float progressFraction) {
-        return BigDecimal
-                .valueOf(progressFraction * 100f)
+        return new BigDecimal(Float.toString(progressFraction))
+                .multiply(BigDecimal.valueOf(100))
                 .setScale(1, RoundingMode.HALF_UP)
                 .floatValue();
     }
