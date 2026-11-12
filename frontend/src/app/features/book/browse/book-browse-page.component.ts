@@ -40,7 +40,7 @@ import {createBookBrowseQueries} from './book-browse-queries';
 import {createBookBrowsePreferences} from './book-browse-preferences';
 import {createBookBrowseUrlState} from './book-browse-url-state';
 import {type BookBrowseMultiSortDialogResult} from './book-browse-multi-sort-dialog.component';
-import {type BookDetailLineSortKey} from './book-browse-fields';
+import {injectHiddenProviderFieldKeys, type BookDetailLineSortKey} from './book-browse-fields';
 import {bookSortHasDetailLine, bookSortOptions} from './book-browse-sort';
 import {BookBrowseDetailLineService} from './book-browse-detail-line.service';
 import {cn} from '../../../shared/ui/cn';
@@ -140,6 +140,7 @@ export class BookBrowsePageComponent {
   private readonly pendingReadStatuses = injectPendingBookReadStatuses();
   private readonly pendingProgressResets = injectPendingBookProgressResets();
   protected readonly pendingDeletions = injectPendingBookDeletions();
+  private readonly hiddenProviderFields = injectHiddenProviderFieldKeys();
 
   private readonly gridRef = viewChild(BrowseGridComponent);
   private readonly tableRef = viewChild(BookBrowseTableComponent);
@@ -193,7 +194,10 @@ export class BookBrowsePageComponent {
     enabled: this.railVisible,
   });
   protected readonly railReady = computed(() => !this.queries.pending());
-  protected readonly sortOptions = computed(() => bookSortOptions(this.queries.sortTokens()));
+  protected readonly sortOptions = computed(() => bookSortOptions(
+    this.queries.sortTokens(),
+    this.hiddenProviderFields(),
+  ));
   private readonly availableSortKeys = computed<ReadonlySet<BookQuerySortKey>>(
     () => new Set(this.sortOptions().map(option => option.id)),
   );

@@ -38,7 +38,7 @@ import {
   type BrowseFilterToggle,
 } from '../../../shared/browse/facets';
 import {bookFacetDefinitions, bookFacetLabelDeps} from './book-browse-facet-definitions';
-import {FACET_FIELDS, OPEN_RAIL_FACETS} from './book-browse-fields';
+import {FACET_FIELDS, OPEN_RAIL_FACETS, injectHiddenProviderFieldKeys} from './book-browse-fields';
 import {
   bookBrowseScopeHiddenFacetKeys,
   bookBrowseScopeMenuTarget,
@@ -74,6 +74,7 @@ export function createBookBrowseQueries({selection, query, scope, enabled}: Book
   const magicShelfService = inject(MagicShelfService);
   const shelfDefinitionQuery = inject(ShelfDefinitionQueryService);
   const userService = inject(UserService);
+  const hiddenProviderFields = injectHiddenProviderFieldKeys();
   const activeLang = toSignal(transloco.langChanges$, {initialValue: transloco.getActiveLang()});
 
   const collectionParams = computed<BookCollectionFilterParams>(() => ({
@@ -90,7 +91,7 @@ export function createBookBrowseQueries({selection, query, scope, enabled}: Book
   const indexQuery = injectQuery(() => bookQuery.facetIndex(scopeParams()));
   const available = computed<ReadonlySet<string>>(() => {
     const hidden: ReadonlySet<string> = bookBrowseScopeHiddenFacetKeys(scope());
-    return new Set(indexQuery.data()?.facetKeys.filter(key => !hidden.has(key)));
+    return new Set(indexQuery.data()?.facetKeys.filter(key => !hidden.has(key) && !hiddenProviderFields().has(key)));
   });
 
   const selectedKeys = BOOK_QUERY_FACET_KEYS.filter(key => selection()[key] !== undefined);
