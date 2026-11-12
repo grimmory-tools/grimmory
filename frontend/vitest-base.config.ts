@@ -6,6 +6,7 @@ export default defineConfig({
   test: {
     pool: 'threads',
     maxWorkers: '50%',
+    unstubGlobals: true,
     coverage: {
       thresholds: shouldEnforceCoverageGate ? {
         statements: 90,
