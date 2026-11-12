@@ -35,9 +35,7 @@
                   <input
                     pInputText
                     type="text"
-                    #searchBox
-                    [value]="searchInput()"
-                    (input)="searchInput.set(searchBox.value)"
+                    [(ngModel)]="searchInput"
                     [placeholder]="t(tab.placeholderKey)"
                     [attr.aria-label]="t(tab.placeholderKey)"/>
                 </p-iconfield>
