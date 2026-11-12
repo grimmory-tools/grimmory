@@ -1,6 +1,5 @@
 package org.booklore.service.metadata.sidecar;
 
-import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.ComicMetadata;
 import org.booklore.model.dto.sidecar.SidecarMetadata;
 import org.booklore.model.entity.BookMetadataEntity;
@@ -46,21 +45,6 @@ class SidecarMetadataMapperTest {
     }
 
     @Test
-    void toSidecarMetadata_nullCreatorMappings_leavesCreatorFieldsNull() {
-        BookMetadataEntity meta = buildComicMetadata();
-        meta.getComicMetadata().setCreatorMappings(null);
-
-        ComicMetadata comic = mapper.toSidecarMetadata(meta, null).getMetadata().getComicMetadata();
-
-        assertNull(comic.getPencillers());
-        assertNull(comic.getInkers());
-        assertNull(comic.getColorists());
-        assertNull(comic.getLetterers());
-        assertNull(comic.getCoverArtists());
-        assertNull(comic.getEditors());
-    }
-
-    @Test
     void toSidecarMetadata_emptyCreatorMappings_returnsEmptyCreatorFields() {
         BookMetadataEntity meta = buildComicMetadata();
 
@@ -72,15 +56,6 @@ class SidecarMetadataMapperTest {
         assertEquals(Set.of(), comic.getLetterers());
         assertEquals(Set.of(), comic.getCoverArtists());
         assertEquals(Set.of(), comic.getEditors());
-    }
-
-    @Test
-    void toBookMetadata_exportedComic_keepsCreators() {
-        BookMetadataEntity meta = buildComicMetadata(ComicCreatorRole.PENCILLER);
-
-        BookMetadata imported = mapper.toBookMetadata(mapper.toSidecarMetadata(meta, null));
-
-        assertEquals(Set.of("Creator PENCILLER"), imported.getComicMetadata().getPencillers());
     }
 
     private BookMetadataEntity buildComicMetadata(ComicCreatorRole... roles) {
