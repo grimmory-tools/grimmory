@@ -119,7 +119,7 @@
   },
   "src/app/features/author-browser/components/author-detail/author-detail.component.ts": {
     "typescript/no-unnecessary-condition": {
-      "count": 3
+      "count": 2
     }
   },
   "src/app/features/author-browser/components/author-editor/author-editor.component.ts": {

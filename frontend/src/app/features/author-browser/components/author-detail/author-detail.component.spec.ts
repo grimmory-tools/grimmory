@@ -1,5 +1,6 @@
 import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
+import {HttpTestingController} from '@angular/common/http/testing';
 import {TranslocoService} from '@jsverse/transloco';
 import {MessageService} from '@openng/optimus-ui/api';
 import {ActivatedRoute, convertToParamMap, Router} from '@angular/router';
@@ -7,7 +8,6 @@ import {Subject, of, throwError} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {BookService} from '../../../book/service/book.service';
-import {BookCardOverlayPreferenceService} from '../../../book/components/legacy-book-card/book-card-overlay-preference.service';
 import {CoverScalePreferenceService} from '../../../../shared/service/cover-scale-preference.service';
 import {UserService} from '../../../settings/user-management/user.service';
 import type {AuthorDetails} from '../../model/author.model';
@@ -15,7 +15,8 @@ import {AuthorService} from '../../service/author.service';
 import {PageTitleService} from '../../../../shared/service/page-title.service';
 import {AuthorDetailComponent} from './author-detail.component';
 import {DialogService} from '@openng/optimus-ui/dynamicdialog';
-import {createQueryClientHarness} from '../../../../core/testing/query-testing';
+import {createQueryClientHarness, flushQueryAsync} from '../../../../core/testing/query-testing';
+import {API_CONFIG} from '../../../../core/config/api-config';
 
 describe('AuthorDetailComponent', () => {
   let getAuthorDetails: ReturnType<typeof vi.fn>;
@@ -110,10 +111,6 @@ describe('AuthorDetailComponent', () => {
           },
         },
         {
-          provide: BookCardOverlayPreferenceService,
-          useValue: {},
-        },
-        {
           provide: UserService,
           useValue: {
             getCurrentUser,
@@ -160,6 +157,25 @@ describe('AuthorDetailComponent', () => {
     expect(component.loading()).toBe(false);
     expect(component.author()).toEqual({...baseAuthor, id: 42, name: 'Grace Hopper'});
     expect(setPageTitle).toHaveBeenCalledWith('Grace Hopper');
+  });
+
+  it('requests the author\'s books only after the author has loaded', async () => {
+    const pageUrl = `${API_CONFIG.BASE_URL}/api/v1/books/page`;
+    const author$ = new Subject<AuthorDetails>();
+    setRouteState(42);
+    getAuthorDetails.mockReturnValue(author$);
+    const http = TestBed.inject(HttpTestingController);
+
+    createComponent().ngOnInit();
+    await flushQueryAsync();
+
+    http.expectNone(request => request.url === pageUrl);
+
+    author$.next({...baseAuthor, id: 42, name: 'Grace Hopper'});
+    await flushQueryAsync();
+
+    const request = http.expectOne(request => request.url === pageUrl);
+    expect(request.request.params.getAll('facet')).toEqual(['author:Grace Hopper']);
   });
 
   it('keeps the default tab and clears loading when author load fails', () => {
