@@ -29,6 +29,19 @@ public class TaskExecutorConfig {
     }
 
     @Bean
+    public AsyncTaskExecutor libraryScanExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setThreadNamePrefix("library-scan-");
+        executor.setCorePoolSize(1);
+        executor.setMaxPoolSize(1);
+        executor.setTaskDecorator(DelegatingSecurityContextRunnable::new);
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(60);
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean
     public TaskScheduler taskScheduler() {
         var scheduler = new SimpleAsyncTaskScheduler();
         scheduler.setVirtualThreads(true);
