@@ -3356,9 +3356,6 @@
         "failedDetail": "Si è verificato un errore durante l'aggiornamento degli stati di blocco dei campi."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Salva come predefinito per {{scope}}"
-    },
     "fileAttacher": {
       "title": "Allega file ad un altro libro",
       "titleBulk": "Allega file ad un altro libro",
@@ -3384,7 +3381,6 @@
     },
     "searcher": {
       "placeholder": "Titolo, Autore, Serie, Genere o ISBN...",
-      "clearSearch": "Cancella ricerca",
       "bookCoverAlt": "Copertina libro",
       "byPrefix": "di",
       "noResults": "Nessun risultato trovato",
@@ -5248,7 +5244,8 @@
       "apply": "",
       "moveUp": "",
       "moveDown": "",
-      "flipDirection": ""
+      "flipDirection": "",
+      "saveAsDefault": "Salva come predefinito per {{scope}}"
     },
     "chips": {
       "removeSearch": "",
@@ -5257,6 +5254,7 @@
     "rail": {
       "searchValues": "",
       "searchFields": "",
+      "clearSearch": "Cancella ricerca",
       "searchScope": {
         "allBooks": "",
         "library": "",

@@ -1,7 +1,4 @@
-import {BrowsePage} from '../../../core/data/browse.models';
-import {BookDetail, BookSummary} from './book-response.models';
-
-export type BookPage = BrowsePage<BookSummary>;
+import {BookDetail} from './book-response.models';
 
 export interface BookDuplicateRequest {
   readonly libraryId: number;

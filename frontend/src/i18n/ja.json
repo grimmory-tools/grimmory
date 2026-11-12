@@ -3356,9 +3356,6 @@
         "failedDetail": "フィールドロック状態の更新中にエラーが発生しました。"
       }
     },
-    "sorting": {
-      "saveAsDefault": "{{scope}}のデフォルトとして保存"
-    },
     "fileAttacher": {
       "title": "ファイルを別の本に添付",
       "titleBulk": "ファイルを別の本に添付",
@@ -3384,7 +3381,6 @@
     },
     "searcher": {
       "placeholder": "タイトル、著者、シリーズ、ジャンル、またはISBN...",
-      "clearSearch": "検索をクリア",
       "bookCoverAlt": "ブックカバー",
       "byPrefix": "著者：",
       "noResults": "結果が見つかりません",
@@ -5248,7 +5244,8 @@
       "apply": "",
       "moveUp": "",
       "moveDown": "",
-      "flipDirection": ""
+      "flipDirection": "",
+      "saveAsDefault": "{{scope}}のデフォルトとして保存"
     },
     "chips": {
       "removeSearch": "",
@@ -5257,6 +5254,7 @@
     "rail": {
       "searchValues": "",
       "searchFields": "",
+      "clearSearch": "検索をクリア",
       "searchScope": {
         "allBooks": "",
         "library": "",

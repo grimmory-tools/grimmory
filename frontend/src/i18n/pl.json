@@ -3356,9 +3356,6 @@
         "failedDetail": "Wystąpił błąd podczas aktualizacji statusów blokad pól."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Zapisz jako domyślne: {{scope}}"
-    },
     "fileAttacher": {
       "title": "Dołącz plik do innej książki",
       "titleBulk": "Dołącz pliki do innej książki",
@@ -3384,7 +3381,6 @@
     },
     "searcher": {
       "placeholder": "Tytuł, autor, seria, gatunek lub ISBN...",
-      "clearSearch": "Wyczyść wyszukiwanie",
       "bookCoverAlt": "Okładka książki",
       "byPrefix": "autor:",
       "noResults": "Nie znaleziono wyników",
@@ -5248,7 +5244,8 @@
       "apply": "",
       "moveUp": "",
       "moveDown": "",
-      "flipDirection": ""
+      "flipDirection": "",
+      "saveAsDefault": "Zapisz jako domyślne: {{scope}}"
     },
     "chips": {
       "removeSearch": "",
@@ -5257,6 +5254,7 @@
     "rail": {
       "searchValues": "",
       "searchFields": "",
+      "clearSearch": "Wyczyść wyszukiwanie",
       "searchScope": {
         "allBooks": "",
         "library": "",

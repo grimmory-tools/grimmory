@@ -14,8 +14,8 @@ import {
   type BookSortTerm,
   DEFAULT_BOOK_SORT_TERMS,
   type FacetValueMap,
-  sortTermsToken,
 } from '../book/data/book-query-params';
+import {sortTermsToken} from '../../core/data/browse-query-params';
 import {
   BOOK_FILE_TYPES,
   type BookFileResponse,

@@ -3356,9 +3356,6 @@
         "failedDetail": "Під час оновлення статусів блокування полів сталася помилка."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Зберегти як значення за замовчуванням: {{scope}}"
-    },
     "fileAttacher": {
       "title": "Прикріпити файл до іншої книги",
       "titleBulk": "Прикріпити файли до іншої книги",
@@ -3384,7 +3381,6 @@
     },
     "searcher": {
       "placeholder": "Назва, автор, серія, жанр або ISBN...",
-      "clearSearch": "Очистити пошук",
       "bookCoverAlt": "Обкладинка книги",
       "byPrefix": "від",
       "noResults": "Нічого не знайдено",
@@ -5248,7 +5244,8 @@
       "apply": "Застосувати",
       "moveUp": "",
       "moveDown": "",
-      "flipDirection": ""
+      "flipDirection": "",
+      "saveAsDefault": "Зберегти як значення за замовчуванням: {{scope}}"
     },
     "chips": {
       "removeSearch": "",
@@ -5257,6 +5254,7 @@
     "rail": {
       "searchValues": "",
       "searchFields": "",
+      "clearSearch": "Очистити пошук",
       "searchScope": {
         "allBooks": "",
         "library": "",

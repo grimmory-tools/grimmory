@@ -3356,9 +3356,6 @@
         "failedDetail": "Beim Aktualisieren der Feldsperren ist ein Fehler aufgetreten."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Als Standard für {{scope}} speichern"
-    },
     "fileAttacher": {
       "title": "Datei an ein anderes Buch anhängen",
       "titleBulk": "Dateien an ein anderes Buch anhängen",
@@ -3384,7 +3381,6 @@
     },
     "searcher": {
       "placeholder": "Titel, Autor, Serie, Genre oder ISBN...",
-      "clearSearch": "Suche löschen",
       "bookCoverAlt": "Buchcover",
       "byPrefix": "von",
       "noResults": "Keine Ergebnisse gefunden",
@@ -5248,7 +5244,8 @@
       "apply": "Anwenden",
       "moveUp": "",
       "moveDown": "",
-      "flipDirection": ""
+      "flipDirection": "",
+      "saveAsDefault": "Als Standard für {{scope}} speichern"
     },
     "chips": {
       "removeSearch": "",
@@ -5257,6 +5254,7 @@
     "rail": {
       "searchValues": "",
       "searchFields": "",
+      "clearSearch": "Suche löschen",
       "searchScope": {
         "allBooks": "",
         "library": "",

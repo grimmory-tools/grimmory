@@ -48,15 +48,11 @@ function bookPage(ids: number[], totalElements = ids.length, links: BrowseLink[]
 }
 
 interface PageHarness {
-  detailLineFor(book: BookSummary): string | null;
-  selection: {
-    count(): number;
-    toggle(book: BookSummary, index: number, shiftKey: boolean): void;
+  page: {
+    setSortTerms(terms: readonly BookSortTerm[]): void;
+    searchDraft: {set(value: string): void};
+    clearQuery(): void;
   };
-  preferences: {setSortTerms(terms: readonly BookSortTerm[]): void};
-  searchDraft: {set(value: string): void};
-  onSortDirectionChange(term: BookSortTerm): void;
-  onClearQuery(): void;
 }
 
 const GLOBAL_PREFERENCE = {
@@ -126,6 +122,11 @@ describe('BookBrowsePageComponent', () => {
   }
 
   beforeEach(() => {
+    vi.stubGlobal('ResizeObserver', class {
+      observe = vi.fn();
+      unobserve = vi.fn();
+      disconnect = vi.fn();
+    });
     const harness = createQueryClientHarness();
     queryClient = harness.queryClient;
     queryClient.setDefaultOptions({queries: {retry: false}});
@@ -184,6 +185,7 @@ describe('BookBrowsePageComponent', () => {
   afterEach(() => {
     http.verify();
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
     TestBed.resetTestingModule();
     history.replaceState({}, '', '/');
   });
@@ -315,7 +317,7 @@ describe('BookBrowsePageComponent', () => {
     ).flush(bookPage([1], 1));
     await flushQueryAsync();
 
-    page().preferences.setSortTerms([{key: 'pageCount', direction: 'asc'}]);
+    page().page.setSortTerms([{key: 'pageCount', direction: 'asc'}]);
     await fixture.whenStable();
     await flushQueryAsync(1);
     http.expectNone(candidate => candidate.url === PAGE_URL);
@@ -327,7 +329,7 @@ describe('BookBrowsePageComponent', () => {
     ).flush(bookPage([1], 1));
     await flushQueryAsync();
 
-    page().onSortDirectionChange({key: 'title', direction: 'asc'});
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('button[aria-label="Sort Ascending"]')!.click();
     await fixture.whenStable();
     await flushQueryAsync(1);
     http.expectOne(request =>
@@ -344,8 +346,8 @@ describe('BookBrowsePageComponent', () => {
       expectInitialPageRequest().flush(bookPage([1], 1));
       const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 
-      page().searchDraft.set('the war');
-      page().searchDraft.set('the warden ');
+      page().page.searchDraft.set('the war');
+      page().page.searchDraft.set('the warden ');
       TestBed.flushEffects();
       vi.advanceTimersByTime(SEARCH_DEBOUNCE_MS - 1);
       expect(navigate).not.toHaveBeenCalled();
@@ -358,9 +360,9 @@ describe('BookBrowsePageComponent', () => {
       }));
 
       navigate.mockClear();
-      page().searchDraft.set('the wardens');
+      page().page.searchDraft.set('the wardens');
       TestBed.flushEffects();
-      page().onClearQuery();
+      page().page.clearQuery();
       expect(navigate).toHaveBeenCalledExactlyOnceWith([], expect.objectContaining({
         queryParams: {query: null},
         queryParamsHandling: 'merge',

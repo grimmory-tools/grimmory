@@ -29,17 +29,7 @@
       "count": 1
     }
   },
-  "src/app/features/book/browse/book-browse-multi-sort-editor.component.ts": {
-    "@angular-eslint/template/prefer-contextual-for-variables": {
-      "count": 3
-    }
-  },
   "src/app/features/book/browse/book-browse-table.component.ts": {
-    "@angular-eslint/prefer-signal-model": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-toolbar.component.ts": {
     "@angular-eslint/prefer-signal-model": {
       "count": 1
     }

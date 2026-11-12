@@ -69,9 +69,28 @@ export type BrowseFacetSelection<K extends string = string> = Readonly<Partial<R
 
 export type BrowseFacetValueOrder = 'asc' | 'desc' | readonly string[];
 
-export type BrowseFacetKind = 'range';
+export type BrowseFacetShape =
+  | {
+    readonly kind?: 'list';
+    readonly order?: BrowseFacetValueOrder;
+    readonly multiValued?: true;
+    readonly domain?: never;
+    readonly stars?: never;
+    readonly bands?: never;
+    readonly fileSize?: never;
+  }
+  | {readonly kind: 'domain'; readonly domain: readonly string[]}
+  | {readonly kind: 'stars'; readonly stars: number}
+  | {readonly kind: 'range'; readonly bands?: true; readonly fileSize?: true};
+
+export type BrowseFacetDescription = BrowseFacetShape & {readonly labelKey: string};
 
 const EMPTY_FACET_VALUES: BrowseFacetValues = {include: [], exclude: []};
+
+export function noBrowseFacets<K extends string>(): BrowseFacetSelection<K> {
+  const none: Partial<Record<K, BrowseFacetValues>> = {};
+  return none;
+}
 
 export function browseFacetValues<K extends string>(selection: BrowseFacetSelection<K>, key: K): BrowseFacetValues {
   return selection[key] ?? EMPTY_FACET_VALUES;
@@ -137,6 +156,10 @@ export function countBrowseFacetValues(selection: BrowseFacetSelection): number 
   return Object.values(selection).reduce((count, values) => count + (values ? values.include.length + values.exclude.length : 0), 0);
 }
 
+export interface BrowseScope<K extends string = string> {
+  readonly facets: BrowseFacetSelection<K>;
+}
+
 export function withBrowseFacetRange<K extends string>(
   selection: BrowseFacetSelection<K>,
   key: K,
@@ -154,14 +177,7 @@ export function withBrowseFacetRange<K extends string>(
 export interface BrowseFacetDefinitions<K extends string> {
   readonly order: readonly K[];
   readonly isKey: (key: string) => key is K;
-  readonly labelKey: (key: K) => string;
-  readonly kind?: (key: K) => BrowseFacetKind | undefined;
-  readonly valueOrder?: (key: K) => BrowseFacetValueOrder | undefined;
-  readonly valueDomain?: (key: K) => readonly string[] | undefined;
-  readonly banded?: (key: K) => boolean;
-  readonly multiValued?: (key: K) => boolean;
-  readonly starScale?: (key: K) => number | undefined;
-  readonly fileSize?: (key: K) => boolean;
+  readonly field: (key: K) => BrowseFacetDescription;
   readonly valueLabel?: (key: K, value: string) => string | null;
   readonly valueIcon?: (key: K, value: string) => IconSelection | null;
 }
@@ -186,32 +202,35 @@ function buildFacetGroup<K extends string>(
 ): BrowseFilterGroup<K> {
   const picks = browseFacetPicks(selected);
   const servedValues = servedGroup?.values ?? [];
-  const kind = definitions.kind?.(key);
-  const domain = definitions.valueDomain?.(key);
+  const field = definitions.field(key);
   const label = (value: string, servedLabel: string) => definitions.valueLabel?.(key, value) ?? servedLabel;
-  const base = {key, labelKey: definitions.labelKey(key), multiValued: definitions.multiValued?.(key) ?? false};
-  const range = kind === 'range'
-    ? buildFacetRange(servedGroup, selected.include, definitions.fileSize?.(key) ?? false)
-    : undefined;
-  if (definitions.banded?.(key)) {
-    const values = bandFacetValues(servedValues, label, definitions.starScale?.(key));
-    return {...base, range, showAllValues: true, values};
+  const base = {key, labelKey: field.labelKey, multiValued: false};
+  const plainValues = () => {
+    const counts = new Map(servedValues.map(item => [item.value, item.count]));
+    const complete = servedGroup?.complete ?? false;
+    return plainFacetValues(
+      servedValues, picks, label,
+      value => definitions.valueIcon?.(key, value) ?? undefined,
+      value => counts.get(value) ?? (complete || picks.get(value) === 'excluded' ? 0 : null),
+    );
+  };
+  switch (field.kind) {
+    case 'stars':
+      return {...base, showAllValues: true, values: bandFacetValues(servedValues, label, field.stars)};
+    case 'range': {
+      const range = buildFacetRange(servedGroup, selected.include, field.fileSize ?? false);
+      return field.bands
+        ? {...base, range, showAllValues: true, values: bandFacetValues(servedValues, label, undefined)}
+        : {...base, range, showAllValues: false, values: []};
+    }
+    case 'domain':
+      return {...base, showAllValues: true, values: applyDomain(plainValues(), field.domain, label)};
+    case 'list':
+    case undefined: {
+      const values = plainValues();
+      return {...base, multiValued: field.multiValued ?? false, showAllValues: false, values: field.order ? sortFacetValues(values, field.order) : values};
+    }
   }
-  if (kind === 'range') {
-    return {...base, range, showAllValues: false, values: []};
-  }
-  const counts = new Map(servedValues.map(item => [item.value, item.count]));
-  const complete = servedGroup?.complete ?? false;
-  const values = plainFacetValues(
-    servedValues, picks, label,
-    value => definitions.valueIcon?.(key, value) ?? undefined,
-    value => counts.get(value) ?? (complete || picks.get(value) === 'excluded' ? 0 : null),
-  );
-  if (domain) {
-    return {...base, showAllValues: true, values: applyDomain(values, domain, label)};
-  }
-  const order = definitions.valueOrder?.(key);
-  return {...base, showAllValues: false, values: order ? sortFacetValues(values, order) : values};
 }
 
 function buildFacetRange(
@@ -313,7 +332,7 @@ export function browseFilterChips<K extends string>(
       key,
       value,
       excluded: state === 'excluded',
-      groupLabelKey: definitions.labelKey(key),
+      groupLabelKey: definitions.field(key).labelKey,
       valueLabel: definitions.valueLabel?.(key, value) ?? labels.get(value) ?? value,
     }));
   });

@@ -3356,9 +3356,6 @@
         "failedDetail": "Произошла ошибка при обновлении статусов блокировки полей."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Сохранить по умолчанию: {{scope}}"
-    },
     "fileAttacher": {
       "title": "Прикрепить файл к другой книге",
       "titleBulk": "Прикрепить файлы к другой книге",
@@ -3384,7 +3381,6 @@
     },
     "searcher": {
       "placeholder": "Название, автор, серия, жанр или ISBN...",
-      "clearSearch": "Очистить поиск",
       "bookCoverAlt": "Обложка книги",
       "byPrefix": "автор",
       "noResults": "Результаты не найдены",
@@ -5248,7 +5244,8 @@
       "apply": "",
       "moveUp": "",
       "moveDown": "",
-      "flipDirection": ""
+      "flipDirection": "",
+      "saveAsDefault": "Сохранить по умолчанию: {{scope}}"
     },
     "chips": {
       "removeSearch": "",
@@ -5257,6 +5254,7 @@
     "rail": {
       "searchValues": "",
       "searchFields": "",
+      "clearSearch": "Очистить поиск",
       "searchScope": {
         "allBooks": "",
         "library": "",
