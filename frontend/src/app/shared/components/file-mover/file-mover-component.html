@@ -130,7 +130,7 @@
       <div class="table-container">
         <p-table
           [value]="filePreviews()"
-          [loading]="booksQuery.isFetching()"
+          [loading]="booksQuery.isPending()"
           [scrollable]="true"
           scrollHeight="flex"
           [virtualScroll]="true"
