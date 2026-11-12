@@ -57,6 +57,7 @@ export class FileMoverComponent {
     this.bookIds.slice(this.pageIndex() * PAGE_SIZE, (this.pageIndex() + 1) * PAGE_SIZE)
   ));
   protected readonly moveFilesMutation = injectMutation(() => this.bookCommandService.moveFiles());
+  protected readonly destinationsLocked = computed(() => this.moveFilesMutation.isPending() || this.moveFilesMutation.isSuccess());
 
   protected readonly patternsCollapsed = signal(true);
   protected readonly infoCollapsed = signal(true);

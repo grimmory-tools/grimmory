@@ -99,6 +99,7 @@
         <p-select
           [options]="libraries()"
           [(ngModel)]="defaultTargetLibraryId"
+          [disabled]="destinationsLocked()"
           optionLabel="name"
           optionValue="id"
           placeholder="Select library"
@@ -109,6 +110,7 @@
           <p-select
             [options]="defaultAvailableLibraryPaths()"
             [(ngModel)]="defaultTargetLibraryPathId"
+            [disabled]="destinationsLocked()"
             optionLabel="path"
             optionValue="id"
             placeholder="Select path"
@@ -170,7 +172,7 @@
                   optionLabel="name"
                   optionValue="id"
                   placeholder="Select"
-                  [disabled]="moveFilesMutation.isSuccess()"
+                  [disabled]="destinationsLocked()"
                   class="select-full-width"
                   appendTo="body"
                   size="small" />
@@ -184,7 +186,7 @@
                     optionLabel="path"
                     optionValue="id"
                     placeholder="Select"
-                    [disabled]="moveFilesMutation.isSuccess()"
+                    [disabled]="destinationsLocked()"
                     class="select-full-width"
                     appendTo="body"
                     size="small" />
