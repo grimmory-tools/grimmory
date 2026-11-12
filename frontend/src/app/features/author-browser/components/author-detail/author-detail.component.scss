@@ -19,6 +19,10 @@
   min-height: 0;
 }
 
+.author-wrapper > p-tabs > p-tablist {
+  flex: 0 0 auto;
+}
+
 ::ng-deep .author-wrapper .p-tabs {
   display: flex;
   flex-direction: column;
