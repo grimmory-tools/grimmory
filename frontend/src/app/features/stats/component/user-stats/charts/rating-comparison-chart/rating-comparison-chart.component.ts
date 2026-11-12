@@ -1,12 +1,11 @@
 import {Component, computed, input} from '@angular/core';
-import {defineChart, dot, link} from '@tanstack/charts';
+import {defaultChartTheme, defineChart, dot, link} from '@tanstack/charts';
 import {decorative} from '@tanstack/charts/mark/decorative';
 import {scaleLinear} from '@tanstack/charts/scales/linear';
 
 import {type StatsRows, type StatsComparisonCell} from '../../../../data/stats-response.models';
 import {
   STATS_CHART_OTHER,
-  STATS_CHART_PALETTE,
   statsAxis,
   statsBubbleRadius,
   statsTooltip,
@@ -27,9 +26,9 @@ interface Cell {
 }
 
 const SIDE_COLORS = {
-  higher: STATS_CHART_PALETTE[0],
+  higher: defaultChartTheme.palette[0],
   same: STATS_CHART_OTHER,
-  lower: STATS_CHART_PALETTE[1],
+  lower: defaultChartTheme.palette[1],
 } satisfies Record<Side, string>;
 const SIDE_LABEL_KEYS = {higher: 'rateHigher', same: 'same', lower: 'rateLower'} satisfies Record<Side, string>;
 const DOMAIN = [-0.25, 5.25] as const;

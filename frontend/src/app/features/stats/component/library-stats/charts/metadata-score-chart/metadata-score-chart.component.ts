@@ -1,7 +1,8 @@
 import {Component, computed, input} from '@angular/core';
+import {defaultChartTheme} from '@tanstack/charts';
 
-import {type StatsDistribution, type StatsMetadataBand} from '../../../../data/stats-response.models';
-import {STATS_CHART_PALETTE} from '../../../shared/stats-chart-style';
+import {type StatsMetadataBand} from '../../../../data/stats-response.models';
+import {type StatsKnownDistribution} from '../../../shared/stats-chart-data';
 import {StatsCircularChartComponent, type StatsPie} from '../../../shared/stats-circular-chart.component';
 import {injectStatsText, STATS_CHART_HOST_CLASS} from '../../../shared/stats-chart-text';
 import {type StatsInsight} from '../../../shared/stats-insight-list.component';
@@ -23,7 +24,7 @@ const BANDS = [
 export class MetadataScoreChartComponent {
   private readonly text = injectStatsText('statsLibrary');
 
-  readonly data = input.required<StatsDistribution<StatsMetadataBand>>();
+  readonly data = input.required<StatsKnownDistribution<StatsMetadataBand>>();
 
   readonly chart = computed<StatsPie>(() => {
     const {t} = this.text;
@@ -31,7 +32,7 @@ export class MetadataScoreChartComponent {
     return {
       label: t('metadataScore.title'),
       valueName: t('main.books'),
-      slices: BANDS.map((band, index) => ({id: band.id, label: t(`metadataScore.${band.labelKey}`), value: books.get(band.id) ?? 0, color: STATS_CHART_PALETTE[index]})),
+      slices: BANDS.map((band, index) => ({id: band.id, label: t(`metadataScore.${band.labelKey}`), value: books.get(band.id) ?? 0, color: defaultChartTheme.palette[index]})),
     };
   });
 

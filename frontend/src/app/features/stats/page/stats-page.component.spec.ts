@@ -2,7 +2,6 @@ import {LiveAnnouncer} from '@angular/cdk/a11y';
 import {HttpTestingController} from '@angular/common/http/testing';
 import {signal} from '@angular/core';
 import {type ComponentFixture, TestBed} from '@angular/core/testing';
-import {ActivatedRoute} from '@angular/router';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {API_CONFIG} from '../../../core/config/api-config';
@@ -15,9 +14,10 @@ import {getTranslocoModule} from '../../../core/testing/transloco-testing';
 import {AuthService} from '../../../shared/service/auth.service';
 import {LibraryService} from '../../book/service/library.service';
 import {UserService} from '../../settings/user-management/user.service';
+import {STATS_PAGE, type StatsPageId} from '../card/stats-context';
 import {LIBRARY_STATS_CHARTS} from '../registry/library-stats.registry';
 import {READING_STATS_CHARTS} from '../registry/reading-stats.registry';
-import {StatsPageComponent, type StatsPageId} from './stats-page.component';
+import {StatsPageComponent} from './stats-page.component';
 
 const STATS_URL = `${API_CONFIG.BASE_URL}/api/v1/stats/`;
 
@@ -37,7 +37,7 @@ describe('StatsPageComponent', () => {
         {provide: AuthService, useValue: createAuthServiceStub()},
         {provide: UserService, useValue: {currentUser: signal({name: 'Ada', username: 'ada'})}},
         {provide: LibraryService, useValue: {libraries: signal([{id: 2, name: 'Comics'}, {id: 1, name: 'Fiction'}])}},
-        {provide: ActivatedRoute, useValue: {snapshot: {data: {statsPage: page}}}},
+        {provide: STATS_PAGE, useValue: page},
         {provide: LiveAnnouncer, useValue: {announce: vi.fn()}},
       ],
     });
@@ -56,8 +56,8 @@ describe('StatsPageComponent', () => {
     return fixture.nativeElement as HTMLElement;
   }
 
-  function moveButton(chartId: string, direction: 'earlier' | 'later'): HTMLButtonElement {
-    return host().querySelector(`[data-chart-move-${direction}="${chartId}"] button`) as HTMLButtonElement;
+  function moveButton(chartName: string, direction: 'up' | 'down'): HTMLButtonElement {
+    return host().querySelector(`button[aria-label="Move ${chartName} ${direction}"]`) as HTMLButtonElement;
   }
 
   async function startEditing(): Promise<void> {
@@ -104,19 +104,19 @@ describe('StatsPageComponent', () => {
     statsRequests();
     await startEditing();
 
-    moveButton('reading.personalRating', 'earlier').click();
+    moveButton('Personal Ratings', 'up').click();
     await flushQueryAsync();
 
     expect([...host().querySelectorAll('app-stats-card h2')].slice(0, 2).map(title => title.textContent?.trim()))
       .toEqual(['Personal Ratings', 'Reading Session Activity']);
-    expect(TestBed.inject(LiveAnnouncer).announce).toHaveBeenCalledWith(`Personal Ratings, 1 / ${READING_STATS_CHARTS.length}`);
-    expect(document.activeElement).toBe(moveButton('reading.personalRating', 'later'));
+    expect(TestBed.inject(LiveAnnouncer).announce).toHaveBeenCalledWith(`Personal Ratings, 1 of ${READING_STATS_CHARTS.length}`);
+    expect(document.activeElement).toBe(moveButton('Personal Ratings', 'down'));
 
     (host().querySelector('button[aria-label="Remove Personal Ratings"]') as HTMLButtonElement).click();
     await flushQueryAsync();
 
     expect(host().querySelector('app-stats-card h2')?.textContent?.trim()).toBe('Reading Session Activity');
-    expect(document.activeElement).toBe(moveButton('reading.sessionActivity', 'later'));
+    expect(document.activeElement).toBe(moveButton('Reading Session Activity', 'down'));
     expect(JSON.parse(localStorage.getItem('readingStatsPreferences') ?? '{}').hidden).toEqual(['reading.personalRating']);
   });
 });

@@ -1,6 +1,7 @@
 import {TestBed} from '@angular/core/testing';
 import {afterEach, describe, expect, it} from 'vitest';
 
+import {knownValues} from '../../../shared/stats-chart-data';
 import {createStatsChart} from '../../../shared/stats-chart-testing';
 import {PublicationTimelineChartComponent} from './publication-timeline-chart.component';
 
@@ -8,7 +9,7 @@ describe('PublicationTimelineChartComponent', () => {
   afterEach(() => TestBed.resetTestingModule());
 
   it('keeps every decade from the oldest to the newest, empty ones included, and counts the books without a year', () => {
-    const chart = createStatsChart(PublicationTimelineChartComponent, {
+    const chart = createStatsChart(PublicationTimelineChartComponent, knownValues({
       rows: [
         {value: null, books: 8},
         {value: 1813, books: 1},
@@ -16,7 +17,7 @@ describe('PublicationTimelineChartComponent', () => {
         {value: 1931, books: 1},
         {value: 2014, books: 3},
       ],
-    });
+    }));
 
     expect(chart.decades()).toEqual([
       {decade: 'before-1900', books: 1},

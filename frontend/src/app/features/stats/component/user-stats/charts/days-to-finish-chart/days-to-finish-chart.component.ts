@@ -1,12 +1,11 @@
 import {Component, computed, input} from '@angular/core';
-import {barY, defineChart} from '@tanstack/charts';
+import {barY, defaultChartTheme, defineChart} from '@tanstack/charts';
 import {scaleLinear} from '@tanstack/charts/scales/linear';
 
 import {type StatsFinishBand, type StatsFinishTimes} from '../../../../data/stats-response.models';
 import {
   countTicks,
   shorten,
-  STATS_CHART_PALETTE,
   STATS_COMPACT_WIDTH,
   STATS_ROTATED_LABELS,
   statsAxis,
@@ -63,7 +62,7 @@ export class DaysToFinishChartComponent {
       ariaLabel: t('chartLabel', {year: this.data().year}),
       definition: defineChart({
         chart: ({width}) => ({
-          marks: [barY(bands, {x: 'label', y: 'books', fill: STATS_CHART_PALETTE[0], ...statsBar(width)})],
+          marks: [barY(bands, {x: 'label', y: 'books', fill: defaultChartTheme.palette[0], ...statsBar(width)})],
           scales: {
             x: {
               scale: statsBarBand(labels),

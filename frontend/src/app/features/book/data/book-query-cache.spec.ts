@@ -2,6 +2,7 @@ import {QueryClient} from '@tanstack/angular-query-experimental';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {observeActiveQuery} from '../../../core/testing/query-testing';
+import {statsQueryKeys} from '../../stats/data/stats-query-keys';
 import {
   invalidateAllBookQueries,
   invalidateBookCollections,
@@ -21,6 +22,7 @@ const firstDetailKey = bookQueryKeys.detail(1, false);
 const secondDetailKey = bookQueryKeys.detail(2, false);
 const firstRecommendationKey = bookQueryKeys.recommendation(1, 20);
 const secondRecommendationKey = bookQueryKeys.recommendation(2, 20);
+const statsKey = statsQueryKeys.endpoint('library/distribution/format', {facets: {}, tz: 'UTC'}, {});
 
 function seedAllQueryFamilies(queryClient: QueryClient): void {
   queryClient.setQueryData(pageKey, {content: [firstBook, secondBook]});
@@ -28,6 +30,7 @@ function seedAllQueryFamilies(queryClient: QueryClient): void {
   queryClient.setQueryData(secondDetailKey, secondBook);
   queryClient.setQueryData(firstRecommendationKey, [secondBook]);
   queryClient.setQueryData(secondRecommendationKey, [firstBook]);
+  queryClient.setQueryData(statsKey, {rows: []});
 }
 
 describe('book query cache', () => {
@@ -45,6 +48,7 @@ describe('book query cache', () => {
     for (const query of queryClient.getQueryCache().findAll({queryKey: bookQueryKeys.all()})) {
       expect(query.state.isInvalidated).toBe(true);
     }
+    expect(queryClient.getQueryState(statsKey)?.isInvalidated).toBe(true);
   });
 
   it('invalidates only collection queries through the collection action', async () => {
@@ -53,6 +57,7 @@ describe('book query cache', () => {
     await invalidateBookCollections(queryClient);
 
     expect(queryClient.getQueryState(pageKey)?.isInvalidated).toBe(true);
+    expect(queryClient.getQueryState(statsKey)?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(firstDetailKey)?.isInvalidated).toBe(false);
     expect(queryClient.getQueryState(firstRecommendationKey)?.isInvalidated).toBe(false);
   });
@@ -67,7 +72,7 @@ describe('book query cache', () => {
     expect(queryClient.getQueryState(firstDetailKey)?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(secondDetailKey)?.isInvalidated).toBe(false);
     expect(queryClient.getQueryState(firstRecommendationKey)?.isInvalidated).toBe(true);
-    expect(invalidateQueriesSpy).toHaveBeenCalledTimes(3);
+    expect(invalidateQueriesSpy).toHaveBeenCalledTimes(4);
   });
 
   it('resolves without work when no changed or deleted book IDs are provided', async () => {
@@ -100,7 +105,7 @@ describe('book query cache', () => {
     expect(queryClient.getQueryState(pageKey)?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(secondRecommendationKey)?.isInvalidated).toBe(true);
     expect(removeQueriesSpy).toHaveBeenCalledTimes(1);
-    expect(invalidateQueriesSpy).toHaveBeenCalledTimes(2);
+    expect(invalidateQueriesSpy).toHaveBeenCalledTimes(3);
   });
 
   it('refetches each active dependent once without aborting it after a change', async () => {

@@ -4,9 +4,11 @@ import {MetadataScoreChartComponent} from '../component/library-stats/charts/met
 import {PageCountChartComponent} from '../component/library-stats/charts/page-count-chart/page-count-chart.component';
 import {PublicationTimelineChartComponent} from '../component/library-stats/charts/publication-timeline-chart/publication-timeline-chart.component';
 import {TopItemsChartComponent} from '../component/library-stats/charts/top-items-chart/top-items-chart.component';
-import {type AnyStatsChartDefinition, defineStatsChart} from '../card/stats-chart-definition';
+import {knownValues} from '../component/shared/stats-chart-data';
+import {defineStatsChart, type StatsChartDefinition} from '../card/stats-chart-definition';
+import {NO_ROWS} from '../data/stats-response.models';
 
-export const LIBRARY_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
+export const LIBRARY_STATS_CHARTS: readonly StatsChartDefinition[] = [
   defineStatsChart({
     id: 'library.bookFormats',
     nameKey: 'statsLibrary.chartNames.bookFormats',
@@ -14,6 +16,7 @@ export const LIBRARY_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
     size: 'small',
     filter: 'none',
     query: (params, stats) => stats.distribution(params, 'format'),
+    empty: NO_ROWS,
     isEmpty: formats => formats.rows.length === 0,
     chart: BookFormatsChartComponent,
   }),
@@ -24,7 +27,9 @@ export const LIBRARY_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
     size: 'small',
     filter: 'none',
     query: (params, stats) => stats.distribution(params, 'language'),
-    isEmpty: languages => languages.rows.every(row => row.value === null),
+    empty: NO_ROWS,
+    select: languages => knownValues(languages),
+    isEmpty: ({rows}) => rows.length === 0,
     chart: LanguageChartComponent,
   }),
   defineStatsChart({
@@ -34,7 +39,9 @@ export const LIBRARY_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
     size: 'small',
     filter: 'none',
     query: (params, stats) => stats.distribution(params, 'metadata_score'),
-    isEmpty: scores => scores.rows.every(row => row.value === null),
+    empty: NO_ROWS,
+    select: scores => knownValues(scores),
+    isEmpty: ({rows}) => rows.length === 0,
     chart: MetadataScoreChartComponent,
   }),
   defineStatsChart({
@@ -44,7 +51,9 @@ export const LIBRARY_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
     size: 'medium',
     filter: 'none',
     query: (params, stats) => stats.distribution(params, 'page_band'),
-    isEmpty: bands => bands.rows.every(row => row.value === null),
+    empty: NO_ROWS,
+    select: bands => knownValues(bands),
+    isEmpty: ({rows}) => rows.length === 0,
     chart: PageCountChartComponent,
   }),
   defineStatsChart({
@@ -54,7 +63,9 @@ export const LIBRARY_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
     size: 'medium',
     filter: 'none',
     query: (params, stats) => stats.distribution(params, 'publication_year'),
-    isEmpty: years => years.rows.every(row => row.value === null),
+    empty: NO_ROWS,
+    select: years => knownValues(years),
+    isEmpty: ({rows}) => rows.length === 0,
     chart: PublicationTimelineChartComponent,
   }),
   defineStatsChart({
@@ -64,6 +75,7 @@ export const LIBRARY_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
     size: 'full',
     filter: 'item',
     query: (params, stats) => stats.top(params, params.item, params.by),
+    empty: NO_ROWS,
     select: (items, {item, by}) => ({item, by, rows: items.rows}),
     isEmpty: ({rows}) => rows.length === 0,
     chart: TopItemsChartComponent,

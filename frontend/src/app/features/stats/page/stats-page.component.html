@@ -37,6 +37,7 @@
     }
 
     <app-button
+      #configTrigger
       variant="ghost"
       iconOnly
       buttonId="stats-page-config-trigger"
@@ -67,8 +68,9 @@
     cdkDropListGroup>
     @for (row of grid.rows(); track row.id) {
       <div
-        class="group/row grid min-w-0 grid-cols-1 gap-4 @2xl:grid-cols-12 data-[preview-layout=emptied]:hidden"
-        [attr.data-preview-layout]="grid.previewLayout(row.id)"
+        class="group/row grid min-w-0 grid-cols-1 gap-4 @2xl:grid-cols-12 data-[layout=emptied]:hidden"
+        [attr.data-layout]="grid.layout(row)"
+        [attr.data-own-row]="grid.ownRow(row.id)"
         [id]="row.id"
         cdkDropList
         cdkDropListOrientation="mixed"
@@ -78,8 +80,7 @@
         (cdkDropListDropped)="dropChart($event)">
         @for (chart of row.charts; track chart.id) {
           <div
-            class="relative col-span-1 min-w-0 [&.cdk-drag-animating]:transition-transform [&.cdk-drag-animating]:duration-[250ms] [&.cdk-drag-animating]:ease-out [&.cdk-drag-placeholder>*]:invisible [&.cdk-drag-placeholder]:rounded-xl [&.cdk-drag-placeholder]:outline-2 [&.cdk-drag-placeholder]:-outline-offset-2 [&.cdk-drag-placeholder]:outline-dashed [&.cdk-drag-placeholder]:outline-primary [&.cdk-drag-placeholder]:bg-page [&.cdk-drag-placeholder]:opacity-40 [&.cdk-drag-placeholder]:shadow-none [&.cdk-drag-preview]:rounded-xl [&.cdk-drag-preview]:shadow-pop [&.cdk-drag-placeholder]:group-data-[preview-layout=own-row-after]/row:order-1 @2xl:group-data-[preview-layout=single-small]/row:col-span-6 @2xl:group-data-[preview-layout=halves]/row:col-span-6 @2xl:group-data-[preview-layout=full]/row:col-span-12 @2xl:group-data-[preview-layout=thirds]/row:col-span-4 @2xl:group-data-[preview-layout=small-wide]/row:data-[chart-size=small]:col-span-4 @2xl:group-data-[preview-layout=small-wide]/row:data-[chart-size=wide]:col-span-8 @2xl:[&.cdk-drag-placeholder]:group-data-[preview-layout^=own-row]/row:col-[1/span_12] @2xl:[&.cdk-drag-placeholder]:group-data-[preview-layout^=own-row]/row:data-[chart-size=small]:col-[1/span_6] @2xl:[.cdk-drag-placeholder+&]:group-data-[preview-layout=own-row-before]/row:col-start-1"
-            [class]="columnClass(row.charts, chart)"
+            class="relative col-span-1 min-w-0 [&.cdk-drag-animating]:transition-transform [&.cdk-drag-animating]:duration-[250ms] [&.cdk-drag-animating]:ease-out [&.cdk-drag-placeholder>*]:invisible [&.cdk-drag-placeholder]:rounded-xl [&.cdk-drag-placeholder]:outline-2 [&.cdk-drag-placeholder]:-outline-offset-2 [&.cdk-drag-placeholder]:outline-dashed [&.cdk-drag-placeholder]:outline-primary [&.cdk-drag-placeholder]:bg-page [&.cdk-drag-placeholder]:opacity-40 [&.cdk-drag-placeholder]:shadow-none [&.cdk-drag-preview]:rounded-xl [&.cdk-drag-preview]:shadow-pop [&.cdk-drag-placeholder]:group-data-[own-row=after]/row:order-1 @2xl:group-data-[layout=single-small]/row:col-span-6 @2xl:group-data-[layout=halves]/row:col-span-6 @2xl:group-data-[layout=full]/row:col-span-12 @2xl:group-data-[layout=thirds]/row:col-span-4 @2xl:group-data-[layout=small-wide]/row:data-[chart-size=small]:col-span-4 @2xl:group-data-[layout=small-wide]/row:data-[chart-size=wide]:col-span-8 @2xl:[&.cdk-drag-placeholder]:group-data-[own-row]/row:col-[1/span_12] @2xl:[&.cdk-drag-placeholder]:group-data-[own-row]/row:data-[chart-size=small]:col-[1/span_6] @2xl:[.cdk-drag-placeholder+&]:group-data-[own-row=before]/row:col-start-1"
             [attr.data-chart-size]="chart.size"
             cdkDrag
             [cdkDragDisabled]="!isEditing()"

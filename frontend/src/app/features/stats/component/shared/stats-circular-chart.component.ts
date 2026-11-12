@@ -78,7 +78,6 @@ export class StatsCircularChartComponent {
     const {number} = this.text;
     const slices = this.slices();
     const total = slices.reduce((sum, {value}) => sum + value, 0);
-    const id = (arc: {readonly source: readonly StatsSlice[]}) => arc.source[0].id;
 
     return {
       ariaLabel: label,
@@ -89,8 +88,8 @@ export class StatsCircularChartComponent {
             scales: {angle: null, radius: null},
             marks: [
               radialArc(pie(slices, {value: 'value'}), {
-                key: id,
-                color: id,
+                key: sliceId,
+                color: sliceId,
                 innerRadius: ({radius}) => (donut ? radius * 0.52 : 0),
               }),
             ],
@@ -110,4 +109,8 @@ export class StatsCircularChartComponent {
       }),
     };
   });
+}
+
+function sliceId(arc: {readonly source: readonly StatsSlice[]}): string {
+  return arc.source[0].id;
 }

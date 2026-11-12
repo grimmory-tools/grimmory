@@ -1,11 +1,11 @@
 import {Component, computed, input} from '@angular/core';
-import {areaY, d3Curve, defineChart, lineY, ruleX, ruleY, text} from '@tanstack/charts';
+import {areaY, d3Curve, defaultChartTheme, defineChart, lineY, ruleX, ruleY, text} from '@tanstack/charts';
 import {decorative} from '@tanstack/charts/mark/decorative';
 import {scaleLinear} from '@tanstack/charts/scales/linear';
 import {curveStepBefore} from 'd3-shape';
 
-import {type StatsDistribution} from '../../../../data/stats-response.models';
-import {STATS_CHART_PALETTE, STATS_CHART_VALUE, statsAxis, statsTooltip} from '../../../shared/stats-chart-style';
+import {type StatsKnownDistribution} from '../../../shared/stats-chart-data';
+import {STATS_CHART_VALUE, statsAxis, statsTooltip} from '../../../shared/stats-chart-style';
 import {StatsChartPlotComponent} from '../../../shared/stats-chart-plot.component';
 import {injectStatsText, STATS_CHART_HOST_CLASS} from '../../../shared/stats-chart-text';
 import {type StatsInsight, StatsInsightListComponent} from '../../../shared/stats-insight-list.component';
@@ -26,10 +26,10 @@ const MILESTONES = [10, 25, 50, 75, 90];
 export class ReadingDropOffChartComponent {
   private readonly text = injectStatsText('statsUser.readingDropOff');
 
-  readonly data = input.required<StatsDistribution<number>>();
+  readonly data = input.required<StatsKnownDistribution<number>['rows']>();
 
   private readonly started = computed(() =>
-    this.data().rows.flatMap(({value, books}) => (value !== null && value > 0 ? [{progress: value, books}] : [])),
+    this.data().map(({value, books}) => ({progress: value, books})),
   );
   private readonly startedBooks = computed(() => this.started().reduce((sum, {books}) => sum + books, 0));
   readonly points = computed(() => {
@@ -50,7 +50,7 @@ export class ReadingDropOffChartComponent {
     const {t, number} = this.text;
     const percent = (value: number) => `${number(value, {maximumFractionDigits: 0})}%`;
     const points = this.points();
-    const color = STATS_CHART_PALETTE[0];
+    const color = defaultChartTheme.palette[0];
     const curve = d3Curve(curveStepBefore);
 
     return {
@@ -87,7 +87,7 @@ export class ReadingDropOffChartComponent {
   });
 
   readonly legend = computed<readonly StatsLegendItem[]>(() => [
-    {label: this.text.t('booksRemaining'), color: STATS_CHART_PALETTE[0], swatch: 'line'},
+    {label: this.text.t('booksRemaining'), color: defaultChartTheme.palette[0], swatch: 'line'},
   ]);
 
   readonly insights = computed<readonly StatsInsight[]>(() => {

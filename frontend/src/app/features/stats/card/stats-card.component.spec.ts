@@ -11,8 +11,9 @@ import {
 } from '../../../core/testing/query-testing';
 import {getTranslocoModule} from '../../../core/testing/transloco-testing';
 import {AuthService} from '../../../shared/service/auth.service';
+import {NO_ROWS, NO_SLOTS, NO_WEEK, type StatsDistribution, type StatsWeek} from '../data/stats-response.models';
 import {StatsCardComponent} from './stats-card.component';
-import {type AnyStatsChartDefinition, defineStatsChart, type StatsChart} from './stats-chart-definition';
+import {defineStatsChart, type StatsChart, type StatsChartDefinition} from './stats-chart-definition';
 import {STATS_CONTEXT} from './stats-context';
 
 const BASE = `${API_CONFIG.BASE_URL}/api/v1/stats`;
@@ -33,8 +34,9 @@ const BOOK_FORMATS = defineStatsChart({
   size: 'small',
   filter: 'none',
   query: (params, stats) => stats.distribution(params, 'format'),
+  empty: NO_ROWS,
   isEmpty: formats => formats.rows.length === 0,
-  chart: TestChartComponent,
+  chart: TestChartComponent<StatsDistribution<string>>,
 });
 
 const SESSIONS_BY_PERIOD = defineStatsChart({
@@ -44,9 +46,10 @@ const SESSIONS_BY_PERIOD = defineStatsChart({
   size: 'medium',
   filter: 'year',
   query: (params, stats) => stats.slots(params, params.year),
-  select: (slots, {year}) => ({year, seconds: slots.rows.reduce((sum, slot) => sum + slot.seconds, 0)}),
+  empty: NO_SLOTS,
+  select: (response, {year}) => ({year, seconds: response.rows.reduce((sum, slot) => sum + slot.seconds, 0)}),
   isEmpty: () => false,
-  chart: TestChartComponent,
+  chart: TestChartComponent<{readonly year: number; readonly seconds: number}>,
 });
 
 const TIMELINE = defineStatsChart({
@@ -56,8 +59,9 @@ const TIMELINE = defineStatsChart({
   size: 'full',
   filter: 'week',
   query: (params, stats) => stats.week(params, params.year, params.week),
+  empty: NO_WEEK,
   isEmpty: sessions => sessions.rows.length === 0,
-  chart: TestChartComponent,
+  chart: TestChartComponent<StatsWeek>,
 });
 
 const FORMATS_URL = `${BASE}/library/distribution/format?tz=UTC`;
@@ -84,7 +88,7 @@ describe('StatsCardComponent', () => {
     http = TestBed.inject(HttpTestingController);
   }
 
-  async function render(definition: AnyStatsChartDefinition): Promise<ComponentFixture<StatsCardComponent>> {
+  async function render(definition: StatsChartDefinition): Promise<ComponentFixture<StatsCardComponent>> {
     const fixture = TestBed.createComponent(StatsCardComponent);
     fixture.componentRef.setInput('definition', definition);
     await flushQueryAsync();

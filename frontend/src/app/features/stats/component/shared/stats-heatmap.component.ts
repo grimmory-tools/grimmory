@@ -1,10 +1,10 @@
 import {booleanAttribute, Component, computed, inject, input} from '@angular/core';
-import {cell, type ChartTooltipRow, defineChart, text} from '@tanstack/charts';
+import {cell, type ChartTooltipRow, defaultChartTheme, defineChart, text} from '@tanstack/charts';
 import {decorative} from '@tanstack/charts/mark/decorative';
 import {scaleBand} from '@tanstack/charts/scales/band';
 
 import {STATS_CARD} from '../../card/stats-context';
-import {STATS_CHART_PALETTE, STATS_CHART_VALUE, statsAxis, statsTooltip} from './stats-chart-style';
+import {STATS_CHART_VALUE, statsAxis, statsTooltip} from './stats-chart-style';
 import {StatsChartPlotComponent} from './stats-chart-plot.component';
 import {injectStatsText} from './stats-chart-text';
 
@@ -28,17 +28,11 @@ export interface StatsHeatmapColumnLabel {
   readonly label: string;
 }
 
-function heatmapLevel(value: number, maximum: number): number {
-  if (value <= 0) return 0;
-  return Math.min(4, Math.ceil((value / maximum) * 4));
-}
-
-const STATS_HEATMAP_COLORS = [4, 22, 44, 68, 100].map((share) => `color-mix(in oklab, ${STATS_CHART_PALETTE[0]} ${share}%, var(--color-page))`);
+const STATS_HEATMAP_COLORS = [4, 22, 44, 68, 100].map((share) => `color-mix(in oklab, ${defaultChartTheme.palette[0]} ${share}%, var(--color-page))`);
 
 const STATS_HEATMAP_SCALE = {domain: ['0', '1', '2', '3', '4'], range: STATS_HEATMAP_COLORS};
 
 const VALUE_CELL_SIZE = 22;
-const DARKEST_LEVEL = 4;
 const SQUARE_MARGIN = {top: 24, right: 0, bottom: 0, left: 32};
 const MINIMUM_SQUARE_CELL = 12;
 
@@ -77,7 +71,6 @@ export class StatsHeatmapComponent {
   readonly values = input(false, {transform: booleanAttribute});
 
   protected readonly colors = STATS_HEATMAP_COLORS;
-  private readonly maximum = computed(() => Math.max(0, ...this.heatmap().cells.map(({value}) => value)));
 
   protected readonly minimumWidth = computed(() =>
     this.square() && this.card.state() === 'ready' ? this.columns() * MINIMUM_SQUARE_CELL + SQUARE_MARGIN.left : null,
@@ -91,7 +84,6 @@ export class StatsHeatmapComponent {
 
   protected readonly chart = computed(() => {
     const {label, valueName, cells} = this.heatmap();
-    const maximum = this.maximum();
     const columns = Array.from({length: this.columns()}, (_, column) => String(column));
     const columnLabels = new Map(this.columnLabels().map(({column, label}) => [String(column), label]));
     const rowLabels = this.rowLabels();
@@ -99,7 +91,8 @@ export class StatsHeatmapComponent {
     const past = cells.filter(({future}) => !future);
     const future = cells.filter(({future}) => future);
     const values = this.values();
-    const level = ({value}: StatsHeatmapCell) => heatmapLevel(value, maximum);
+    const maximum = Math.max(0, ...cells.map(({value}) => value));
+    const level = ({value}: StatsHeatmapCell) => (value <= 0 ? 0 : Math.min(4, Math.ceil((value / maximum) * 4)));
 
     return {
       ariaLabel: label,
@@ -131,12 +124,12 @@ export class StatsHeatmapComponent {
                 y: ({row}) => String(row),
                 text: ({value}) => this.text.number(value),
                 ...STATS_CHART_VALUE,
-                fill: (each) => (level(each) === DARKEST_LEVEL ? 'white' : STATS_CHART_VALUE.fill),
+                fill: (each) => (level(each) === 4 ? 'white' : STATS_CHART_VALUE.fill),
               })),
             ],
             scales: {
               x: {
-                scale: scaleBand<string>().domain(columns),
+                scale: scaleBand().domain(columns),
                 side: 'top',
                 axis: statsAxis(
                   undefined,
@@ -145,7 +138,7 @@ export class StatsHeatmapComponent {
                 ),
               },
               y: {
-                scale: scaleBand<string>().domain(rows),
+                scale: scaleBand().domain(rows),
                 axis: statsAxis(undefined, {
                   values: rows.filter((row) => rowLabels[Number(row)]),
                   size: 0,
@@ -159,9 +152,9 @@ export class StatsHeatmapComponent {
         },
         focusRing: false,
         svgAnimation: true,
-        tooltip: statsTooltip<StatsHeatmapCell>(([{datum: cell}]) => ({
-          title: cell.label,
-          rows: [{label: valueName, value: this.text.number(cell.value)}, ...(cell.details ?? [])],
+        tooltip: statsTooltip<StatsHeatmapCell>(([{datum: square}]) => ({
+          title: square.label,
+          rows: [{label: valueName, value: this.text.number(square.value)}, ...(square.details ?? [])],
         })),
       }),
     };
