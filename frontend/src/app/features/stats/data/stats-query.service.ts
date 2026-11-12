@@ -5,7 +5,7 @@ import {queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {httpGet, QUERY_DEFAULTS} from '../../../core/data/query-transport';
 import {AuthService} from '../../../shared/service/auth.service';
-import {toCollectionHttpParams} from '../../book/data/book-query-params';
+import {toCollectionHttpParams} from '../../../core/data/browse-query-params';
 import {normalizeStatsScope, type StatsScopeParams, statsQueryKeys} from './stats-query-keys';
 import {
   type ProfileRow,

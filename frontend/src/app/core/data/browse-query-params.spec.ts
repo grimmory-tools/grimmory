@@ -1,19 +1,45 @@
 import {describe, expect, it} from 'vitest';
 
 import {
-  bookFacetQueryParams,
-  normalizeBookCollectionFilterParams,
-  normalizeBookQueryParams,
-  normalizeBookPageParams,
+  facetQueryParams,
+  normalizeBrowseCollectionFilterParams,
+  normalizeBrowsePageParams,
+  normalizeBrowseQueryParams,
   parseFacetParams,
+  parseSortTermsToken,
   toCollectionHttpParams,
   toIdsHttpParams,
   toPageHttpParams,
-} from './book-query-params';
+} from './browse-query-params';
+import {type BrowseFacetSelection} from '../../shared/browse/facets';
 
-describe('book query parameters', () => {
+const isKey = (key: string): key is string => key !== '';
+const isFacetKey = (key: string): key is 'genre' | 'tag' => key === 'genre' || key === 'tag';
+const isSortKey = (key: string): key is 'title' | 'addedOn' => key === 'title' || key === 'addedOn';
+
+describe('browse query parameters', () => {
+  it('round-trips a selection through route params and drops unknown keys', () => {
+    const selection = parseFacetParams([
+      'genre:Comedy', 'genre:Drama', '+tag:Anthology', 'future_group:a:b', '__proto__:READ', 'genre:',
+    ], isFacetKey);
+    expect(selection).toEqual({
+      genre: {include: ['Comedy', 'Drama'], exclude: []},
+      tag: {include: ['Anthology'], exclude: [], matchAll: true},
+    });
+    expect(facetQueryParams(selection)).toEqual({facet: ['genre:Comedy', 'genre:Drama', '+tag:Anthology']});
+    expect(facetQueryParams({})).toEqual({facet: null});
+  });
+
+  it('parses a sort token, dropping unknown and repeated keys', () => {
+    expect(parseSortTermsToken('-addedOn, title,random,title', isSortKey)).toEqual([
+      {key: 'addedOn', direction: 'desc'},
+      {key: 'title', direction: 'asc'},
+    ]);
+    expect(parseSortTermsToken(null, isSortKey)).toEqual([]);
+  });
+
   it('normalizes equivalent queries and facet selections', () => {
-    const first = normalizeBookPageParams({
+    const first = normalizeBrowsePageParams({
       query: '  dune  ',
       facets: {
         language: {include: [' French ', 'English'], exclude: []},
@@ -21,8 +47,8 @@ describe('book query parameters', () => {
       },
       sort: [{key: 'title', direction: 'asc'}],
       size: 40,
-    });
-    const second = normalizeBookPageParams({
+    }, isKey);
+    const second = normalizeBrowsePageParams({
       query: 'dune',
       facets: {
         genre: {include: ['Fantasy', 'Science Fiction'], exclude: []},
@@ -30,7 +56,7 @@ describe('book query parameters', () => {
       },
       sort: [{key: 'title', direction: 'asc'}],
       size: 40,
-    });
+    }, isKey);
 
     expect(first).toEqual(second);
     expect(first.facets).toEqual({
@@ -39,26 +65,17 @@ describe('book query parameters', () => {
     });
   });
 
-  it('round-trips a selection through route params and drops unknown keys', () => {
-    const selection = parseFacetParams([
-      'genre:Comedy', 'genre:Drama', 'tag:Anthology', 'future_group:a:b', '__proto__:READ',
-    ]);
-    expect(selection).toEqual({genre: {include: ['Comedy', 'Drama'], exclude: []}, tag: {include: ['Anthology'], exclude: []}});
-    expect(bookFacetQueryParams(selection)).toEqual({facet: ['genre:Comedy', 'genre:Drama', 'tag:Anthology']});
-    expect(bookFacetQueryParams({})).toEqual({facet: null});
-  });
-
   it('passes an empty sort through without imposing a default', () => {
-    const normalized = normalizeBookQueryParams({
+    const normalized = normalizeBrowseQueryParams({
       facets: {},
       sort: [],
-    });
+    }, isKey);
 
     expect(normalized.sort).toEqual([]);
   });
 
   it('serializes page parameters using the backend vocabulary', () => {
-    const params = toPageHttpParams(normalizeBookPageParams({
+    const params = toPageHttpParams(normalizeBrowsePageParams({
       query: 'dune',
       facets: {
         genre: {include: ['Science Fiction'], exclude: ['Romance']},
@@ -69,7 +86,7 @@ describe('book query parameters', () => {
         {key: 'seriesNumber', direction: 'desc'},
       ],
       size: 50,
-    }));
+    }, isKey));
 
     expect(params.get('query')).toBe('dune');
     expect(params.getAll('facet')).toEqual(['genre:Science Fiction', '-genre:Romance', '+shelf:magic:12']);
@@ -79,10 +96,10 @@ describe('book query parameters', () => {
   });
 
   it('excludes sort and size from facet requests', () => {
-    const params = toCollectionHttpParams(normalizeBookCollectionFilterParams({
+    const params = toCollectionHttpParams(normalizeBrowseCollectionFilterParams({
       query: 'dune',
       facets: {genre: {include: ['Fantasy'], exclude: []}},
-    }));
+    }, isKey));
 
     expect(params.get('query')).toBe('dune');
     expect(params.getAll('facet')).toEqual(['genre:Fantasy']);
@@ -91,18 +108,28 @@ describe('book query parameters', () => {
   });
 
   it('does not emit facet parameters for an empty selection', () => {
-    const params = toCollectionHttpParams(normalizeBookCollectionFilterParams({
+    const params = toCollectionHttpParams(normalizeBrowseCollectionFilterParams({
       facets: {},
-    }));
+    }, isKey));
 
     expect(params.has('facet')).toBe(false);
   });
 
+  it('drops facets the page does not know from requests', () => {
+    const facets = {
+      genre: {include: ['Fantasy'], exclude: []},
+      future_group: {include: ['a'], exclude: []},
+    } as BrowseFacetSelection<'genre' | 'tag'>;
+    const params = toCollectionHttpParams(normalizeBrowseCollectionFilterParams({facets}, isFacetKey));
+
+    expect(params.getAll('facet')).toEqual(['genre:Fantasy']);
+  });
+
   it('includes sort but excludes size from ID requests', () => {
-    const params = toIdsHttpParams(normalizeBookQueryParams({
+    const params = toIdsHttpParams(normalizeBrowseQueryParams({
       facets: {},
       sort: [{key: 'title', direction: 'desc'}],
-    }));
+    }, isKey));
 
     expect(params.get('sort')).toBe('-title');
     expect(params.has('size')).toBe(false);
