@@ -14,8 +14,7 @@
       [text]="true"
       severity="secondary"
       (click)="ref.close()"
-      class="close-button">
-    </p-button>
+      class="close-button" />
   </div>
 
   <div class="dialog-content">
@@ -44,13 +43,13 @@
         @for (r of result.results; track r.fileName + ':' + $index) {
           <li
             class="file-item"
-            [ngClass]="{
+            [class]="{
               'success': r.success,
               'error': !r.success
             }">
             <i
               class="pi status-icon"
-              [ngClass]="{
+              [class]="{
                 'pi-check-circle': r.success,
                 'pi-times-circle': !r.success
               }">

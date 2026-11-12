@@ -10,7 +10,6 @@ import {FormsModule} from '@angular/forms';
 import {MetadataRefreshType} from '../../../metadata/model/request/metadata-refresh-type.enum';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {CoverComponent} from '../../../../shared/components/cover/cover.component';
-import {NgClass} from '@angular/common';
 import {UserService} from '../../../settings/user-management/user.service';
 import {EmailService} from '../../../settings/email-v2/email.service';
 import {TieredMenu} from '@openng/optimus-ui/tieredmenu';
@@ -31,11 +30,28 @@ import {ButtonDirective} from '@openng/optimus-ui/button';
   selector: 'app-legacy-book-card',
   templateUrl: './legacy-book-card.component.html',
   styleUrls: ['./legacy-book-card.component.scss'],
-  imports: [ButtonDirective, Checkbox, FormsModule, NgClass, TieredMenu, Tooltip, RouterLink, TranslocoPipe, CoverComponent],
+  imports: [ButtonDirective, Checkbox, FormsModule, TieredMenu, Tooltip, RouterLink, TranslocoPipe, CoverComponent],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LegacyBookCardComponent {
+  private readonly overlayService = inject(BookCardOverlayPreferenceService);
+  private readonly bookService = inject(BookService);
+  private readonly bookFileService = inject(BookFileService);
+  private readonly bookMetadataManageService = inject(BookMetadataManageService);
+  private readonly taskHelperService = inject(TaskHelperService);
+  private readonly userService = inject(UserService);
+  private readonly emailService = inject(EmailService);
+  private readonly messageService = inject(MessageService);
+  private readonly router = inject(Router);
+  private readonly urlHelper = inject(UrlHelperService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly bookDialogHelperService = inject(BookDialogHelperService);
+  private readonly bookNavigationService = inject(BookNavigationService);
+  private readonly appSettingsService = inject(AppSettingsService);
+  private readonly t = inject(TranslocoService);
+  private readonly queryClient = inject(QueryClient);
+  protected readStatusHelper = inject(ReadStatusHelper);
 
   // --- Inputs ---
   readonly book = input.required<Book>();
@@ -47,7 +63,6 @@ export class LegacyBookCardComponent {
   readonly seriesViewEnabled = input(false);
   readonly isSeriesCollapsed = input(false);
   readonly overlayPreferenceService = input<BookCardOverlayPreferenceService | undefined>();
-  private readonly overlayService = inject(BookCardOverlayPreferenceService);
   readonly showBookTypePill = computed(() => (this.overlayPreferenceService() ?? this.overlayService).showBookTypePill());
   readonly forceEbookMode = input(false);
   readonly useSquareCovers = input(false);
@@ -63,25 +78,8 @@ export class LegacyBookCardComponent {
   private menuBookId: number | undefined;
   private menuInitialized = false;
 
-  private bookService = inject(BookService);
-  private bookFileService = inject(BookFileService);
-  private bookMetadataManageService = inject(BookMetadataManageService);
-  private taskHelperService = inject(TaskHelperService);
-  private userService = inject(UserService);
-  private emailService = inject(EmailService);
-  private messageService = inject(MessageService);
-  private router = inject(Router);
-  private urlHelper = inject(UrlHelperService);
-  private confirmationService = inject(ConfirmationService);
-  private bookDialogHelperService = inject(BookDialogHelperService);
-  private bookNavigationService = inject(BookNavigationService);
-  private appSettingsService = inject(AppSettingsService);
-  private readonly t = inject(TranslocoService);
-  private queryClient = inject(QueryClient);
-  protected readStatusHelper = inject(ReadStatusHelper);
-
   private readonly currentUser = computed(() => this.userService.currentUser());
-  private readonly metadataCenterViewMode = computed(() => this.currentUser()?.userSettings?.metadataCenterViewMode ?? 'route' as 'route' | 'dialog');
+  private readonly metadataCenterViewMode = computed(() => this.currentUser()?.userSettings?.metadataCenterViewMode ?? 'route');
   private readonly diskType = computed(() => this.appSettingsService.appSettings()?.diskType ?? 'LOCAL');
 
 
@@ -214,14 +212,10 @@ export class LegacyBookCardComponent {
   }
 
   readBook(book: Book): void {
-    if (this.forceEbookMode() && book.primaryFile?.bookType === 'AUDIOBOOK') {
-      const ebookType = this.getEbookType(book);
-      if (ebookType) {
-        this.bookService.readBook(book.id, undefined, ebookType);
-        return;
-      }
-    }
-    this.bookService.readBook(book.id);
+    const bookType = this.forceEbookMode() && book.primaryFile?.bookType === 'AUDIOBOOK'
+      ? this.getEbookType(book)
+      : undefined;
+    this.bookNavigationService.readBook(book, {bookType});
   }
 
   private getEbookType(book: Book): BookType | undefined {
@@ -257,7 +251,7 @@ export class LegacyBookCardComponent {
     if (!this.additionalFilesLoaded() && !this.isSubMenuLoading() && this.needsAdditionalFilesData()) {
       this.isSubMenuLoading.set(true);
       const requestedBookId = currentBookId;
-      void this.queryClient.fetchQuery(this.bookService.bookDetailQueryOptions(requestedBookId, true))
+      void this.queryClient.query(this.bookService.bookDetailQueryOptions(requestedBookId, true))
         .then((fetchedBook) => {
           if (this.book().id !== requestedBookId) return;
           this.additionalFilesLoaded.set(true);
@@ -629,7 +623,7 @@ export class LegacyBookCardComponent {
     const items: MenuItem[] = [];
 
     items.push({
-      label: `${b.fileName || 'Book File'}`,
+      label: b.fileName || 'Book File',
       icon: 'pi pi-file',
       command: () => this.bookFileService.downloadFile(this.book())
     });

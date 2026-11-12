@@ -1,18 +1,13 @@
 import {type BrowseFacetGroup} from '../../core/data/browse.models';
 import {type IconSelection} from '../icons/icon-selection';
-import {
-  bucketRangeTokens,
-  formatRangeLabel,
-  formatRangeToken,
-  parseRangeToken,
-  type BrowseFacetBucket,
-} from './facet-ranges';
+import {formatRangeLabel, formatRangeToken, parseRangeToken} from './facet-ranges';
+
+export type BrowseFacetState = 'included' | 'excluded';
 
 export interface BrowseFilterValue {
   value: string;
   label: string;
-  count: number;
-  selected: boolean;
+  count: number | null;
   stars?: {value: number; max: number};
   icon?: IconSelection;
 }
@@ -30,14 +25,22 @@ export interface BrowseFilterGroup<K extends string = string> {
   labelKey: string;
   showAllValues?: boolean;
   range?: BrowseFilterRange;
-  defaultOpen: boolean;
+  loading?: boolean;
+  picks?: ReadonlyMap<string, BrowseFacetState>;
+  multiValued: boolean;
+  matchAll?: boolean;
   values: BrowseFilterValue[];
 }
 
 export interface BrowseFilterToggle<K extends string = string> {
   key: K;
   value: string;
-  selected: boolean;
+  state: BrowseFacetState | null;
+}
+
+export interface BrowseFilterMatchAll<K extends string = string> {
+  key: K;
+  matchAll: boolean;
 }
 
 export interface BrowseFilterRangeCommit<K extends string = string> {
@@ -46,57 +49,92 @@ export interface BrowseFilterRangeCommit<K extends string = string> {
   max: number | null;
 }
 
-export type BrowseFacetSelection<K extends string = string> =
-  Readonly<Partial<Record<K, readonly string[]>>>;
+export interface BrowseFilterOpen<K extends string = string> {
+  key: K;
+  open: boolean;
+}
+
+export interface BrowseFilterSearch<K extends string = string> {
+  key: K;
+  term: string;
+}
+
+export interface BrowseFacetValues {
+  readonly include: readonly string[];
+  readonly exclude: readonly string[];
+  readonly matchAll?: true;
+}
+
+export type BrowseFacetSelection<K extends string = string> = Readonly<Partial<Record<K, BrowseFacetValues>>>;
 
 export type BrowseFacetValueOrder = 'asc' | 'desc' | readonly string[];
 
 export type BrowseFacetKind = 'range';
 
-export function browseFacetValues<K extends string>(
-  selection: BrowseFacetSelection<K>,
-  key: K,
-): readonly string[] {
-  return selection[key] ?? [];
+const EMPTY_FACET_VALUES: BrowseFacetValues = {include: [], exclude: []};
+
+export function browseFacetValues<K extends string>(selection: BrowseFacetSelection<K>, key: K): BrowseFacetValues {
+  return selection[key] ?? EMPTY_FACET_VALUES;
 }
 
 export function withBrowseFacetValues<K extends string>(
   selection: BrowseFacetSelection<K>,
   key: K,
-  values: readonly string[],
+  {include, exclude, matchAll}: {readonly include: readonly string[]; readonly exclude: readonly string[]; readonly matchAll?: boolean},
 ): BrowseFacetSelection<K> {
-  const next: Partial<Record<K, readonly string[]>> = {...selection};
-  if (values.length > 0) {
-    next[key] = values;
+  const next: Partial<Record<K, BrowseFacetValues>> = {...selection};
+  if (include.length > 0 || exclude.length > 0) {
+    next[key] = matchAll && include.length > 0 ? {include, exclude, matchAll: true} : {include, exclude};
   } else {
     delete next[key];
   }
   return next;
 }
 
-export function toggleBrowseFacetValue<K extends string>(
+export function browseFacetEntries<K extends string>(
+  selection: BrowseFacetSelection<K>,
+  isKey: (key: string) => key is K,
+): [K, BrowseFacetValues][] {
+  return Object.keys(selection).filter(isKey).flatMap<[K, BrowseFacetValues]>(key => {
+    const values = selection[key];
+    return values ? [[key, values]] : [];
+  });
+}
+
+export function browseFacetPicks(values: BrowseFacetValues): ReadonlyMap<string, BrowseFacetState> {
+  return new Map([
+    ...values.include.map(value => [value, 'included'] as const),
+    ...values.exclude.map(value => [value, 'excluded'] as const),
+  ]);
+}
+
+export function withBrowseFacetState<K extends string>(
   selection: BrowseFacetSelection<K>,
   key: K,
   value: string,
-  selected: boolean,
+  state: BrowseFacetState | null,
+  matchAll: boolean,
 ): BrowseFacetSelection<K> {
-  const values = browseFacetValues(selection, key);
-  if (selected === values.includes(value)) {
-    return selection;
-  }
-  return withBrowseFacetValues(selection, key, selected ? [...values, value] : values.filter(item => item !== value));
+  const current = browseFacetValues(selection, key);
+  const include = current.include.filter(item => item !== value);
+  const exclude = current.exclude.filter(item => item !== value);
+  return withBrowseFacetValues(selection, key, {
+    include: state === 'included' ? [...include, value] : include,
+    exclude: state === 'excluded' ? [...exclude, value] : exclude,
+    matchAll,
+  });
+}
+
+export function withBrowseFacetMatchAll<K extends string>(
+  selection: BrowseFacetSelection<K>,
+  key: K,
+  matchAll: boolean,
+): BrowseFacetSelection<K> {
+  return withBrowseFacetValues(selection, key, {...browseFacetValues(selection, key), matchAll});
 }
 
 export function countBrowseFacetValues(selection: BrowseFacetSelection): number {
-  return Object.values(selection).reduce((count, values) => count + (values?.length ?? 0), 0);
-}
-
-export function pinBrowseFacetValue<K extends string>(
-  selection: BrowseFacetSelection<K>,
-  key: K,
-  value: string,
-): BrowseFacetSelection<K> {
-  return {...selection, [key]: [value]};
+  return Object.values(selection).reduce((count, values) => count + (values ? values.include.length + values.exclude.length : 0), 0);
 }
 
 export function withBrowseFacetRange<K extends string>(
@@ -104,196 +142,120 @@ export function withBrowseFacetRange<K extends string>(
   key: K,
   min: number | null,
   max: number | null,
-  definitions: BrowseFacetDefinitions<K>,
+  bandTokens: ReadonlySet<string>,
 ): BrowseFacetSelection<K> {
   const clamp = (value: number | null) => (value == null ? null : Math.max(0, value));
-  const bucketTokens = bucketRangeTokens(definitions.valueBuckets?.(key));
-  const kept = browseFacetValues(selection, key).filter(value => bucketTokens.has(value));
+  const current = browseFacetValues(selection, key);
+  const kept = current.include.filter(value => bandTokens.has(value));
   const token = formatRangeToken({min: clamp(min), max: clamp(max)});
-  return withBrowseFacetValues(selection, key, token == null ? kept : [...kept, token]);
+  return withBrowseFacetValues(selection, key, {...current, include: token == null ? kept : [...kept, token]});
 }
 
 export interface BrowseFacetDefinitions<K extends string> {
   readonly order: readonly K[];
   readonly isKey: (key: string) => key is K;
   readonly labelKey: (key: K) => string;
-  readonly openByDefault: ReadonlySet<K>;
   readonly kind?: (key: K) => BrowseFacetKind | undefined;
   readonly valueOrder?: (key: K) => BrowseFacetValueOrder | undefined;
   readonly valueDomain?: (key: K) => readonly string[] | undefined;
-  readonly valueBuckets?: (key: K) => readonly BrowseFacetBucket[] | undefined;
+  readonly banded?: (key: K) => boolean;
+  readonly multiValued?: (key: K) => boolean;
+  readonly starScale?: (key: K) => number | undefined;
   readonly fileSize?: (key: K) => boolean;
   readonly valueLabel?: (key: K, value: string) => string | null;
   readonly valueIcon?: (key: K, value: string) => IconSelection | null;
 }
 
-interface BrowseFrozenFacetValue {
-  readonly value: string;
-  readonly label: string;
-}
-
-export type BrowseFrozenFacetOrders = Readonly<Partial<Record<string, readonly BrowseFrozenFacetValue[]>>>;
-
-export function browseFrozenFacetOrders<K extends string>(
-  served: readonly BrowseFacetGroup[],
-  definitions: BrowseFacetDefinitions<K>,
-): BrowseFrozenFacetOrders {
-  const entries: [string, readonly BrowseFrozenFacetValue[]][] = [];
-  for (const group of served) {
-    const key = group.key;
-    if (!definitions.isKey(key)) {
-      continue;
-    }
-    const values = group.values.map(value => ({
-      value: value.value,
-      label: definitions.valueLabel?.(key, value.value) ?? value.title,
-    }));
-    entries.push([key, values]);
-  }
-  return Object.fromEntries(entries);
-}
-
-function orderedBrowseFacetKeys<K extends string>(
-  served: readonly BrowseFacetGroup[],
-  frozen: BrowseFrozenFacetOrders | undefined,
-  definitions: BrowseFacetDefinitions<K>,
-): K[] {
-  const available = new Set<string>(Object.keys(frozen ?? {}));
-  served.forEach(group => available.add(group.key));
-  return definitions.order.filter(key => available.has(key));
-}
-
 export function browseFilterGroups<K extends string>(
+  available: ReadonlySet<string>,
   served: readonly BrowseFacetGroup[],
-  frozen: BrowseFrozenFacetOrders | undefined,
   definitions: BrowseFacetDefinitions<K>,
   selections: BrowseFacetSelection<K>,
 ): BrowseFilterGroup<K>[] {
   const servedByKey = new Map(served.map(group => [group.key, group]));
-  return orderedBrowseFacetKeys(served, frozen, definitions).flatMap(key => {
-    const group = buildFacetGroup(key, servedByKey.get(key), frozen?.[key], selections[key] ?? [], definitions);
-    return group ? [group] : [];
-  });
+  return definitions.order
+    .filter(key => available.has(key) || selections[key] !== undefined)
+    .map(key => buildFacetGroup(key, servedByKey.get(key), browseFacetValues(selections, key), definitions));
 }
 
 function buildFacetGroup<K extends string>(
   key: K,
   servedGroup: BrowseFacetGroup | undefined,
-  frozenValues: readonly BrowseFrozenFacetValue[] | undefined,
-  selected: readonly string[],
+  selected: BrowseFacetValues,
   definitions: BrowseFacetDefinitions<K>,
-): BrowseFilterGroup<K> | null {
+): BrowseFilterGroup<K> {
+  const picks = browseFacetPicks(selected);
   const servedValues = servedGroup?.values ?? [];
   const kind = definitions.kind?.(key);
-  const buckets = definitions.valueBuckets?.(key);
   const domain = definitions.valueDomain?.(key);
-  const hasData = (frozenValues?.length ?? 0) > 0 || servedValues.length > 0 || selected.length > 0;
-  if (!hasData) {
-    return null;
-  }
   const label = (value: string, servedLabel: string) => definitions.valueLabel?.(key, value) ?? servedLabel;
-  const base = {key, labelKey: definitions.labelKey(key), defaultOpen: definitions.openByDefault.has(key)};
+  const base = {key, labelKey: definitions.labelKey(key), multiValued: definitions.multiValued?.(key) ?? false};
   const range = kind === 'range'
-    ? buildFacetRange(servedValues, selected, buckets, definitions.fileSize?.(key) ?? false)
+    ? buildFacetRange(servedGroup, selected.include, definitions.fileSize?.(key) ?? false)
     : undefined;
-  if (buckets) {
-    return {...base, range, showAllValues: true, values: bucketFacetValues(buckets, servedValues, selected, label)};
+  if (definitions.banded?.(key)) {
+    const values = bandFacetValues(servedValues, label, definitions.starScale?.(key));
+    return {...base, range, showAllValues: true, values};
   }
   if (kind === 'range') {
     return {...base, range, showAllValues: false, values: []};
   }
+  const counts = new Map(servedValues.map(item => [item.value, item.count]));
+  const complete = servedGroup?.complete ?? false;
   const values = plainFacetValues(
-    servedValues, frozenValues, selected, label, value => definitions.valueIcon?.(key, value) ?? undefined,
+    servedValues, picks, label,
+    value => definitions.valueIcon?.(key, value) ?? undefined,
+    value => counts.get(value) ?? (complete || picks.get(value) === 'excluded' ? 0 : null),
   );
   if (domain) {
     return {...base, showAllValues: true, values: applyDomain(values, domain, label)};
   }
-  const ordered = orderFacetValues(values, definitions.valueOrder?.(key), frozenValues);
-  return {...base, showAllValues: false, values: ordered};
+  const order = definitions.valueOrder?.(key);
+  return {...base, showAllValues: false, values: order ? sortFacetValues(values, order) : values};
 }
 
 function buildFacetRange(
-  servedValues: BrowseFacetGroup['values'],
+  servedGroup: BrowseFacetGroup | undefined,
   selected: readonly string[],
-  buckets: readonly BrowseFacetBucket[] | undefined,
   fileSize: boolean,
 ): BrowseFilterRange {
-  const numeric = servedValues
-    .map(item => Number(item.value))
-    .filter(value => Number.isFinite(value));
-  const bucketTokens = bucketRangeTokens(buckets);
-  const token = selected.find(value => !bucketTokens.has(value));
+  const bandTokens = new Set(servedGroup?.values.map(item => item.value));
+  const token = selected.find(value => !bandTokens.has(value));
   const parsed = token != null ? parseRangeToken(token) : null;
   return {
     min: parsed?.min ?? null,
     max: parsed?.max ?? null,
-    boundsMin: numeric.length > 0 ? Math.floor(Math.min(...numeric)) : null,
-    boundsMax: numeric.length > 0 ? Math.ceil(Math.max(...numeric)) : null,
+    boundsMin: servedGroup?.min != null ? Math.floor(servedGroup.min) : null,
+    boundsMax: servedGroup?.max != null ? Math.ceil(servedGroup.max) : null,
     fileSize,
   };
 }
 
-function bucketFacetValues(
-  buckets: readonly BrowseFacetBucket[],
+function bandFacetValues(
   servedValues: BrowseFacetGroup['values'],
-  selected: readonly string[],
   label: (value: string, servedLabel: string) => string,
+  starScale: number | undefined,
 ): BrowseFilterValue[] {
-  const selectedSet = new Set(selected);
-  const starScale = Math.max(0, ...buckets.map(bucket => bucket.stars ?? 0));
-  return buckets.flatMap(bucket => {
-    const value = formatRangeToken(bucket);
-    const bucketLabel = formatRangeLabel(bucket);
-    if (value === null || bucketLabel === null) {
-      return [];
-    }
-    return [{
-      value,
-      label: label(value, bucketLabel),
-      count: countWithinBucket(servedValues, bucket),
-      selected: selectedSet.has(value),
-      stars: bucket.stars != null ? {value: bucket.stars, max: starScale} : undefined,
-    }];
+  return servedValues.map(item => {
+    const range = parseRangeToken(item.value);
+    return {
+      value: item.value,
+      label: label(item.value, (range && formatRangeLabel(range)) ?? item.title),
+      count: item.count,
+      stars: starScale != null ? {value: range?.max ?? starScale, max: starScale} : undefined,
+    };
   });
-}
-
-function countWithinBucket(servedValues: BrowseFacetGroup['values'], bucket: BrowseFacetBucket): number {
-  return servedValues.reduce((sum, item) => {
-    const parsed = Number(item.value);
-    if (Number.isNaN(parsed)) return sum;
-    if (bucket.min != null && parsed < bucket.min) return sum;
-    if (bucket.max != null && parsed > bucket.max) return sum;
-    return sum + item.count;
-  }, 0);
-}
-
-function knownFacetLabels(
-  servedValues: BrowseFacetGroup['values'],
-  frozenValues: readonly BrowseFrozenFacetValue[] | undefined,
-): Map<string, string> {
-  const labelsByValue = new Map<string, string>();
-  for (const option of frozenValues ?? []) {
-    labelsByValue.set(option.value, option.label);
-  }
-  for (const option of servedValues) {
-    if (!labelsByValue.has(option.value)) {
-      labelsByValue.set(option.value, option.title);
-    }
-  }
-  return labelsByValue;
 }
 
 function plainFacetValues(
   servedValues: BrowseFacetGroup['values'],
-  frozenValues: readonly BrowseFrozenFacetValue[] | undefined,
-  selected: readonly string[],
+  picks: ReadonlyMap<string, BrowseFacetState>,
   label: (value: string, servedLabel: string) => string,
   icon: (value: string) => IconSelection | undefined,
+  count: (value: string) => number | null,
 ): BrowseFilterValue[] {
-  const selectedValues = new Set(selected);
-  const countsByValue = new Map(servedValues.map(option => [option.value, option.count]));
-  const labelsByValue = knownFacetLabels(servedValues, frozenValues);
-  for (const value of selectedValues) {
+  const labelsByValue = new Map(servedValues.map(option => [option.value, option.title]));
+  for (const value of picks.keys()) {
     if (!labelsByValue.has(value)) {
       labelsByValue.set(value, value);
     }
@@ -302,8 +264,7 @@ function plainFacetValues(
     value,
     label: label(value, title),
     icon: icon(value),
-    count: countsByValue.get(value) ?? 0,
-    selected: selectedValues.has(value),
+    count: count(value),
   }));
 }
 
@@ -313,29 +274,7 @@ function applyDomain(
   label: (value: string, servedLabel: string) => string,
 ): BrowseFilterValue[] {
   const byValue = new Map(values.map(item => [item.value, item]));
-  return domain.map(value => byValue.get(value) ?? {value, label: label(value, value), count: 0, selected: false});
-}
-
-function orderFacetValues(
-  values: BrowseFilterValue[],
-  order: BrowseFacetValueOrder | undefined,
-  frozenValues: readonly BrowseFrozenFacetValue[] | undefined,
-): BrowseFilterValue[] {
-  const ordered = order ? sortFacetValues(values, order) : values;
-  const sinkUnavailable = frozenValues !== undefined && order === undefined;
-  const zeroCountSelections: BrowseFilterValue[] = [];
-  const remainingValues: BrowseFilterValue[] = [];
-  const unavailableValues: BrowseFilterValue[] = [];
-  for (const item of ordered) {
-    if (item.selected && item.count === 0) {
-      zeroCountSelections.push(item);
-    } else if (sinkUnavailable && item.count === 0) {
-      unavailableValues.push(item);
-    } else {
-      remainingValues.push(item);
-    }
-  }
-  return [...zeroCountSelections, ...remainingValues, ...unavailableValues];
+  return domain.map(value => byValue.get(value) ?? {value, label: label(value, value), count: 0});
 }
 
 function sortFacetValues(values: BrowseFilterValue[], order: BrowseFacetValueOrder): BrowseFilterValue[] {
@@ -357,25 +296,23 @@ function numericFacetValue(value: string): number {
 export interface BrowseFilterChip<K extends string = string> {
   readonly key: K;
   readonly value: string;
+  readonly excluded: boolean;
   readonly groupLabelKey: string;
   readonly valueLabel: string;
 }
 
 export function browseFilterChips<K extends string>(
   served: readonly BrowseFacetGroup[],
-  frozen: BrowseFrozenFacetOrders | undefined,
   definitions: BrowseFacetDefinitions<K>,
   selections: BrowseFacetSelection<K>,
 ): BrowseFilterChip<K>[] {
   const servedByKey = new Map(served.map(group => [group.key, group]));
-  const keys = Object.keys(selections).filter(definitions.isKey);
-  return keys.flatMap(key => {
-    const values = selections[key] ?? [];
-    const frozenValues = frozen?.[key] ?? [];
-    const labels = knownFacetLabels(servedByKey.get(key)?.values ?? [], frozenValues);
-    return values.map(value => ({
+  return browseFacetEntries(selections, definitions.isKey).flatMap(([key, values]) => {
+    const labels = new Map(servedByKey.get(key)?.values.map(option => [option.value, option.title]));
+    return [...browseFacetPicks(values)].map(([value, state]) => ({
       key,
       value,
+      excluded: state === 'excluded',
       groupLabelKey: definitions.labelKey(key),
       valueLabel: definitions.valueLabel?.(key, value) ?? labels.get(value) ?? value,
     }));

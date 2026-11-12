@@ -25,8 +25,8 @@ import { AppContextMenuDirective, AppMenuTriggerDirective } from './app-menu-tri
     AppContextMenuDirective,
   ],
   template: `
-    <button #trigger [appMenuTriggerFor]="menu">Open</button>
-    <button class="second" (click)="openSecondFrom($event)">Second opener</button>
+    <button type="button" #trigger [appMenuTriggerFor]="menu">Open</button>
+    <button type="button" class="second" (click)="openSecondFrom($event)">Second opener</button>
     <div class="zone" [appContextMenuFor]="menu">right-click</div>
 
     <app-menu #menu ariaLabel="Actions">
@@ -49,7 +49,7 @@ import { AppContextMenuDirective, AppMenuTriggerDirective } from './app-menu-tri
       </ng-template>
     </app-menu>
 
-    <button class="lazy-trigger" [appMenuTriggerFor]="lazyMenu">Open lazy menu</button>
+    <button type="button" class="lazy-trigger" [appMenuTriggerFor]="lazyMenu">Open lazy menu</button>
     <app-menu #lazyMenu ariaLabel="Lazy actions">
       <ng-template appMenuContent>
         <app-menu-item value="lazy-first">Lazy first</app-menu-item>

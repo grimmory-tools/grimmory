@@ -13,14 +13,13 @@
       [text]="true"
       severity="secondary"
       (click)="ref.close()"
-      class="close-button">
-    </p-button>
+      class="close-button" />
   </div>
 
   <div class="dialog-content">
     @if (loading) {
       <div class="loading-overlay">
-        <p-progressSpinner></p-progressSpinner>
+        <p-progressSpinner />
       </div>
     }
 
@@ -55,11 +54,9 @@
             [multiple]="true"
             [dropdown]="false"
             [forceSelection]="false"
-            [suggestions]="filteredAuthors"
-            (completeMethod)="filterAuthors($event)"
+            appFacetSuggestions="author"
             (onKeyUp)="onAutoCompleteKeyUp('authors', $event)"
-            (onSelect)="onAutoCompleteSelect('authors', $event)">
-          </p-autoComplete>
+            (onSelect)="onAutoCompleteSelect('authors', $event)" />
         </div>
 
         <!-- Language -->
@@ -97,9 +94,7 @@
             [dropdown]="false"
             [showClear]="true"
             [forceSelection]="false"
-            [suggestions]="filteredPublishers"
-            (completeMethod)="filterPublishers($event)">
-          </p-autoComplete>
+            appFacetSuggestions="publisher" />
         </div>
 
         <!-- Published Date -->
@@ -123,8 +118,7 @@
             [showIcon]="true"
             [iconDisplay]="'input'"
             fluid="true"
-            appendTo="body">
-          </p-datepicker>
+            appendTo="body" />
         </div>
       </div>
 
@@ -149,9 +143,7 @@
             [dropdown]="false"
             [showClear]="true"
             [forceSelection]="false"
-            [suggestions]="filteredSeries"
-            (completeMethod)="filterSeries($event)">
-          </p-autoComplete>
+            appFacetSuggestions="series" />
         </div>
 
         <!-- Series Total -->
@@ -172,6 +164,54 @@
           </label>
           <input pInputText id="seriesTotal" type="number" min="1" formControlName="seriesTotal"
                  [disabled]="clearFields.seriesTotal" class="full-width"/>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <!-- Age Rating -->
+        <div class="field-group field-group--half">
+          <label for="ageRating" class="field-label-row">
+            <span>Age Rating</span>
+            <div class="clear-checkbox">
+              <p-checkbox [(ngModel)]="clearFields.ageRating" [ngModelOptions]="{standalone: true}"
+                          (onChange)="onFieldClearToggle('ageRating')" binary="true" inputId="clearAgeRating"/>
+              <label for="clearAgeRating" class="clear-label">Clear</label>
+            </div>
+          </label>
+          <p-select
+            class="full-width"
+            inputId="ageRating"
+            formControlName="ageRating"
+            [options]="ageRatingOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Leave unchanged"
+            [showClear]="true"
+            [disabled]="clearFields.ageRating"
+            appendTo="body"/>
+        </div>
+
+        <!-- Content Rating -->
+        <div class="field-group field-group--half">
+          <label for="contentRating" class="field-label-row">
+            <span>Content Rating</span>
+            <div class="clear-checkbox">
+              <p-checkbox [(ngModel)]="clearFields.contentRating" [ngModelOptions]="{standalone: true}"
+                          (onChange)="onFieldClearToggle('contentRating')" binary="true" inputId="clearContentRating"/>
+              <label for="clearContentRating" class="clear-label">Clear</label>
+            </div>
+          </label>
+          <p-select
+            class="full-width"
+            inputId="contentRating"
+            formControlName="contentRating"
+            [options]="contentRatingOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Leave unchanged"
+            [showClear]="true"
+            [disabled]="clearFields.contentRating"
+            appendTo="body"/>
         </div>
       </div>
 
@@ -199,11 +239,9 @@
           [multiple]="true"
           [dropdown]="false"
           [forceSelection]="false"
-          [suggestions]="filteredGenres"
-          (completeMethod)="filterGenres($event)"
+          appFacetSuggestions="genre"
           (onKeyUp)="onAutoCompleteKeyUp('genres', $event)"
-          (onSelect)="onAutoCompleteSelect('genres', $event)">
-        </p-autoComplete>
+          (onSelect)="onAutoCompleteSelect('genres', $event)" />
 
         <div class="merge-option">
           <p-checkbox
@@ -243,11 +281,9 @@
           [multiple]="true"
           [dropdown]="false"
           [forceSelection]="false"
-          [suggestions]="filteredMoods"
-          (completeMethod)="filterMoods($event)"
+          appFacetSuggestions="mood"
           (onKeyUp)="onAutoCompleteKeyUp('moods', $event)"
-          (onSelect)="onAutoCompleteSelect('moods', $event)">
-        </p-autoComplete>
+          (onSelect)="onAutoCompleteSelect('moods', $event)" />
 
         <div class="merge-option">
           <p-checkbox
@@ -287,11 +323,9 @@
           [multiple]="true"
           [dropdown]="false"
           [forceSelection]="false"
-          [suggestions]="filteredTags"
-          (completeMethod)="filterTags($event)"
+          appFacetSuggestions="tag"
           (onKeyUp)="onAutoCompleteKeyUp('tags', $event)"
-          (onSelect)="onAutoCompleteSelect('tags', $event)">
-        </p-autoComplete>
+          (onSelect)="onAutoCompleteSelect('tags', $event)" />
 
         <div class="merge-option">
           <p-checkbox
@@ -328,8 +362,7 @@
                 severity="danger"
                 (onClick)="clearCoverFile()"
                 pTooltip="Remove file"
-                tooltipPosition="top">
-              </p-button>
+                tooltipPosition="top" />
             </div>
           } @else {
             <input
@@ -344,8 +377,7 @@
               [outlined]="true"
               size="small"
               severity="info"
-              (onClick)="coverFileInput.click()">
-            </p-button>
+              (onClick)="coverFileInput.click()" />
           }
         </div>
       </div>

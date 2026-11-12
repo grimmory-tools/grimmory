@@ -1,14 +1,12 @@
-import {inject, Injectable} from "@angular/core";
+import {inject, Service} from "@angular/core";
 import {HttpClient, HttpErrorResponse, HttpResponse} from "@angular/common/http";
 import {firstValueFrom} from "rxjs";
 
-@Injectable({
-  providedIn: "root",
-})
+@Service()
 export class CacheStorageService {
   private static readonly CACHE_NAME = "storage";
 
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
   async getCache(uri: string, noValidate: boolean = false): Promise<Response> {
     const cachedResponse = await this.attemptToGetAndValidateCache(uri, noValidate);

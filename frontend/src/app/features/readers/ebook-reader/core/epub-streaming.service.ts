@@ -1,4 +1,4 @@
-import {Injectable, inject} from '@angular/core';
+import {Service, inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {API_CONFIG} from '../../../../core/config/api-config';
@@ -35,13 +35,11 @@ export interface EpubBookInfo {
   coverPath?: string;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class EpubStreamingService {
+  private readonly http = inject(HttpClient);
+  private readonly authService = inject(AuthService);
   private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/epub`;
-  private http = inject(HttpClient);
-  private authService = inject(AuthService);
 
   getBookInfo(bookId: number, bookType?: string): Observable<EpubBookInfo> {
     if (bookType) {

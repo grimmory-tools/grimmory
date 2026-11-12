@@ -46,13 +46,13 @@ export interface RelocateProgressData {
 
 @Injectable()
 export class ReaderProgressService {
-  private bookPatchService = inject(BookPatchService);
-  private readingSessionService = inject(ReadingSessionService);
+  private readonly bookPatchService = inject(BookPatchService);
+  private readonly readingSessionService = inject(ReadingSessionService);
   private readonly t = inject(TranslocoService);
-  private viewManager = inject(ReaderViewManagerService);
-  private stateService = inject(ReaderStateService);
-  private annotationService = inject(ReaderAnnotationHttpService);
-  private bookmarkService = inject(ReaderBookmarkService);
+  private readonly viewManager = inject(ReaderViewManagerService);
+  private readonly stateService = inject(ReaderStateService);
+  private readonly annotationService = inject(ReaderAnnotationHttpService);
+  private readonly bookmarkService = inject(ReaderBookmarkService);
 
   private bookId!: number;
   private bookType!: BookType;
@@ -65,7 +65,7 @@ export class ReaderProgressService {
   private _currentPageInfo: PageInfo | undefined;
   private _currentProgressData: RelocateProgressData | null = null;
 
-  private progressSubject = new Subject<ProgressState>();
+  private readonly progressSubject = new Subject<ProgressState>();
   public progress$ = this.progressSubject.asObservable();
 
   get currentCfi(): string | null {

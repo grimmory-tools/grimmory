@@ -24,16 +24,15 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
   styleUrl: './change-password.component.scss'
 })
 export class ChangePasswordComponent {
+  protected userService = inject(UserService);
+  protected authService = inject(AuthService);
+  protected messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
   currentPassword: string = '';
   newPassword: string = '';
   confirmNewPassword: string = '';
   errorMessage: string | null = null;
   successMessage: string | null = null;
-
-  protected userService = inject(UserService);
-  protected authService = inject(AuthService);
-  protected messageService = inject(MessageService);
-  private readonly t = inject(TranslocoService);
 
   get passwordsMatch(): boolean {
     return this.newPassword === this.confirmNewPassword;

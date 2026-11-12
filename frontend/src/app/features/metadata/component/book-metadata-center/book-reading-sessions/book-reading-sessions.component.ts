@@ -6,27 +6,25 @@ import {finalize, Subject, takeUntil} from 'rxjs';
 import {TableModule} from '@openng/optimus-ui/table';
 import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
-import {NgClass} from '@angular/common';
 @Component({
   selector: 'app-book-reading-sessions',
   standalone: true,
   imports: [
-    NgClass,TableModule, ProgressSpinner, TranslocoDirective],
+    TableModule, ProgressSpinner, TranslocoDirective],
   templateUrl: './book-reading-sessions.component.html',
   styleUrls: ['./book-reading-sessions.component.scss']
 })
 export class BookReadingSessionsComponent implements OnInit, OnChanges {
-  @Input() bookId!: number;
-
   private readonly readingSessionService = inject(ReadingSessionApiService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly cancelLoad$ = new Subject<void>();
   private readonly t = inject(TranslocoService);
+  @Input() bookId!: number;
+  private readonly cancelLoad$ = new Subject<void>();
 
 
   sessions: ReadingSessionResponse[] = [];
   rows = 5;
-  loading = signal(false);
+  readonly loading = signal(false);
 
   get pageReportTemplate(): string {
     return this.t.translate('metadata.readingSessions.pageReport');
@@ -87,7 +85,7 @@ export class BookReadingSessionsComponent implements OnInit, OnChanges {
     
     if (Math.abs(actualDuration - storedDuration) > 1) {
       // Discrepancy detected - show both values
-      return `${this.formatDuration(actualDuration)}`;
+      return this.formatDuration(actualDuration);
     }
     
     return this.formatDuration(actualDuration);

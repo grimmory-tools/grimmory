@@ -1,4 +1,4 @@
-import {computed, signal, effect, inject, Injectable} from '@angular/core';
+import {computed, signal, effect, inject, Service} from '@angular/core';
 import {HttpClient, HttpEventType, HttpRequest} from '@angular/common/http';
 import {lastValueFrom, Observable, tap} from 'rxjs';
 import {CustomFont} from '../model/custom-font.model';
@@ -10,25 +10,23 @@ import {filter, map} from 'rxjs/operators';
 
 const CUSTOM_FONTS_QUERY_KEY = ['customFonts'] as const;
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class CustomFontService {
-  private apiUrl = `${API_CONFIG.BASE_URL}/api/v1/custom-fonts`;
+  private readonly http = inject(HttpClient);
+  private readonly authService = inject(AuthService);
+  private readonly queryClient = inject(QueryClient);
+  private readonly apiUrl = `${API_CONFIG.BASE_URL}/api/v1/custom-fonts`;
   private loadAllFontsRunId = 0;
-  private loadedFonts = new Set<string>();
-  private http = inject(HttpClient);
-  private authService = inject(AuthService);
-  private queryClient = inject(QueryClient);
+  private readonly loadedFonts = new Set<string>();
   private readonly token = this.authService.token;
 
-  private fontsQuery = injectQuery(() => ({
+  private readonly fontsQuery = injectQuery(() => ({
     ...this.getFontsQueryOptions(),
     enabled: !!this.token(),
   }));
 
-  fonts = computed(() => this.fontsQuery.data() ?? []);
-  isFontsLoading = computed(() => !!this.token() && this.fontsQuery.isPending());
+  readonly fonts = computed(() => this.fontsQuery.data() ?? []);
+  readonly isFontsLoading = computed(() => !!this.token() && this.fontsQuery.isPending());
 
   private readonly isFontsReadyInternal = signal(false);
   isFontsReady = this.isFontsReadyInternal.asReadonly();
@@ -51,7 +49,7 @@ export class CustomFontService {
   }
 
   ensureFonts(): Promise<CustomFont[]> {
-    return this.queryClient.ensureQueryData(this.getFontsQueryOptions());
+    return this.queryClient.query({...this.getFontsQueryOptions(), staleTime: 'static'});
   }
 
   uploadFont(file: File, fontName?: string): Observable<CustomFont> {
@@ -73,7 +71,7 @@ export class CustomFontService {
           this.queryClient.setQueryData<CustomFont[]>(CUSTOM_FONTS_QUERY_KEY, current =>
             [...(current ?? []), font]
           );
-          this.loadFontFace(font).catch(err => {
+          this.loadFontFace(font).catch((err: unknown) => {
             console.error('Failed to load font after upload:', err);
           });
         })

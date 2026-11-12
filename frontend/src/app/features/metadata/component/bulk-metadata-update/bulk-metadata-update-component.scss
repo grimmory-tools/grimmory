@@ -77,6 +77,11 @@
       flex-basis: 20%;
     }
   }
+
+  &--half {
+    flex: 1;
+    min-width: 0;
+  }
 }
 
 .field-label-row {

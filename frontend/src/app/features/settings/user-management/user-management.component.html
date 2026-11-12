@@ -28,8 +28,7 @@
           severity="success"
           size="small"
           [outlined]="true"
-          (onClick)="openCreateUserDialog()">
-        </p-button>
+          (onClick)="openCreateUserDialog()" />
       </div>
     </div>
 
@@ -134,8 +133,7 @@
                       [outlined]="true"
                       [rounded]="true"
                       (onClick)="toggleEdit(user)"
-                      [pTooltip]="t('actions.editUser')">
-                    </p-button>
+                      [pTooltip]="t('actions.editUser')" />
                     <p-button
                       icon="pi pi-key"
                       severity="warn"
@@ -143,8 +141,7 @@
                       [outlined]="true"
                       [rounded]="true"
                       (onClick)="openChangePasswordDialog(user)"
-                      [pTooltip]="t('actions.changePassword')">
-                    </p-button>
+                      [pTooltip]="t('actions.changePassword')" />
                     <p-button
                       [disabled]="user.id === currentUser?.id"
                       icon="pi pi-trash"
@@ -153,8 +150,7 @@
                       [outlined]="true"
                       [rounded]="true"
                       (onClick)="deleteUser(user)"
-                      [pTooltip]="t('actions.deleteUser')">
-                    </p-button>
+                      [pTooltip]="t('actions.deleteUser')" />
                   } @else {
                     <p-button
                       icon="pi pi-check"
@@ -164,8 +160,7 @@
                       [rounded]="true"
                       (onClick)="saveUser(user)"
                       [disabled] = "!editUserBtnEnabled(user)"
-                      [pTooltip]="t('actions.saveChanges')">
-                    </p-button>
+                      [pTooltip]="t('actions.saveChanges')" />
                     <p-button
                       icon="pi pi-times"
                       severity="secondary"
@@ -173,8 +168,7 @@
                       [outlined]="true"
                       [rounded]="true"
                       (onClick)="toggleEdit(user)"
-                      [pTooltip]="'common.cancel' | transloco">
-                    </p-button>
+                      [pTooltip]="'common.cancel' | transloco" />
                   }
                 </div>
               </div>
@@ -214,8 +208,7 @@
                             [(ngModel)]="editingLibraryIds"
                             [placeholder]="t('userInfo.selectLibraries')"
                             appendTo="body"
-                            [disabled]="user.permissions.admin">
-                          </p-multiSelect>
+                            [disabled]="user.permissions.admin" />
                           @if (editingLibraryIds.length === 0 && !user.permissions.admin) {
                             <div class="form-field">
                             <small class="field-error">
@@ -245,7 +238,7 @@
                         </h5>
                         <div class="permission-items">
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.admin" (onChange)="onAdminCheckboxChange(user)" [disabled]="!user.isEditing" inputId="admin-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.admin" (onChange)="onAdminCheckboxChange(user)" [disabled]="!user.isEditing" inputId="admin-{{user.id}}" />
                             <label [for]="'admin-'+user.id">{{ t('perms.fullAdmin') }}</label>
                           </div>
                         </div>
@@ -258,23 +251,23 @@
                         </h5>
                         <div class="permission-items">
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canUpload" [disabled]="isPermissionDisabled(user)" inputId="upload-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canUpload" [disabled]="isPermissionDisabled(user)" inputId="upload-{{user.id}}" />
                             <label [for]="'upload-'+user.id">{{ t('perms.uploadBooks') }}</label>
                           </div>
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canDownload" [disabled]="isPermissionDisabled(user)" inputId="download-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canDownload" [disabled]="isPermissionDisabled(user)" inputId="download-{{user.id}}" />
                             <label [for]="'download-'+user.id">{{ t('perms.downloadBooks') }}</label>
                           </div>
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canDeleteBook" [disabled]="isPermissionDisabled(user)" inputId="delete-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canDeleteBook" [disabled]="isPermissionDisabled(user)" inputId="delete-{{user.id}}" />
                             <label [for]="'delete-'+user.id">{{ t('perms.deleteBooks') }}</label>
                           </div>
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canManageLibrary" [disabled]="isPermissionDisabled(user)" inputId="library-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canManageLibrary" [disabled]="isPermissionDisabled(user)" inputId="library-{{user.id}}" />
                             <label [for]="'library-'+user.id">{{ t('perms.manageLibrary') }}</label>
                           </div>
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canEmailBook" [disabled]="isPermissionDisabled(user)" inputId="email-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canEmailBook" [disabled]="isPermissionDisabled(user)" inputId="email-{{user.id}}" />
                             <label [for]="'email-'+user.id">{{ t('perms.emailBooks') }}</label>
                           </div>
                         </div>
@@ -287,15 +280,15 @@
                         </h5>
                         <div class="permission-items">
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canAccessBookdrop" [disabled]="isPermissionDisabled(user)" inputId="bookdrop-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canAccessBookdrop" [disabled]="isPermissionDisabled(user)" inputId="bookdrop-{{user.id}}" />
                             <label [for]="'bookdrop-'+user.id">{{ t('perms.accessBookdrop') }}</label>
                           </div>
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canAccessLibraryStats" [disabled]="isPermissionDisabled(user)" inputId="stats-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canAccessLibraryStats" [disabled]="isPermissionDisabled(user)" inputId="stats-{{user.id}}" />
                             <label [for]="'stats-'+user.id">{{ t('perms.viewLibraryStats') }}</label>
                           </div>
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canAccessUserStats" [disabled]="isPermissionDisabled(user)" inputId="userstats-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canAccessUserStats" [disabled]="isPermissionDisabled(user)" inputId="userstats-{{user.id}}" />
                             <label [for]="'userstats-'+user.id">{{ t('perms.viewUserStats') }}</label>
                           </div>
                         </div>
@@ -308,23 +301,23 @@
                         </h5>
                         <div class="permission-items">
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canManageMetadataConfig" [disabled]="isPermissionDisabled(user)" inputId="metadataconfig-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canManageMetadataConfig" [disabled]="isPermissionDisabled(user)" inputId="metadataconfig-{{user.id}}" />
                             <label [for]="'metadataconfig-'+user.id">{{ t('perms.manageMetadataConfig') }}</label>
                           </div>
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canManageGlobalPreferences" [disabled]="isPermissionDisabled(user)" inputId="preferences-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canManageGlobalPreferences" [disabled]="isPermissionDisabled(user)" inputId="preferences-{{user.id}}" />
                             <label [for]="'preferences-'+user.id">{{ t('perms.manageAppPreferences') }}</label>
                           </div>
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canAccessTaskManager" [disabled]="isPermissionDisabled(user)" inputId="taskmanager-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canAccessTaskManager" [disabled]="isPermissionDisabled(user)" inputId="taskmanager-{{user.id}}" />
                             <label [for]="'taskmanager-'+user.id">{{ t('perms.accessTaskManager') }}</label>
                           </div>
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canManageIcons" [disabled]="isPermissionDisabled(user)" inputId="icons-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canManageIcons" [disabled]="isPermissionDisabled(user)" inputId="icons-{{user.id}}" />
                             <label [for]="'icons-'+user.id">{{ t('perms.manageIcons') }}</label>
                           </div>
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canManageFonts" [disabled]="isPermissionDisabled(user)" inputId="fonts-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canManageFonts" [disabled]="isPermissionDisabled(user)" inputId="fonts-{{user.id}}" />
                             <label [for]="'fonts-'+user.id">{{ t('perms.manageFonts') }}</label>
                           </div>
                         </div>
@@ -337,31 +330,31 @@
                         </h5>
                         <div class="permission-items">
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canEditMetadata" [disabled]="isPermissionDisabled(user)" inputId="metadata-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canEditMetadata" [disabled]="isPermissionDisabled(user)" inputId="metadata-{{user.id}}" />
                             <label [for]="'metadata-'+user.id">{{ t('perms.editSingleMetadata') }}</label>
                           </div>
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canBulkAutoFetchMetadata" [disabled]="isPermissionDisabled(user)" inputId="bulkautofetch-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canBulkAutoFetchMetadata" [disabled]="isPermissionDisabled(user)" inputId="bulkautofetch-{{user.id}}" />
                             <label [for]="'bulkautofetch-'+user.id">{{ t('perms.bulkAutoFetch') }}</label>
                           </div>
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canBulkCustomFetchMetadata" [disabled]="isPermissionDisabled(user)" inputId="bulkcustomfetch-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canBulkCustomFetchMetadata" [disabled]="isPermissionDisabled(user)" inputId="bulkcustomfetch-{{user.id}}" />
                             <label [for]="'bulkcustomfetch-'+user.id">{{ t('perms.bulkCustomFetch') }}</label>
                           </div>
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canBulkEditMetadata" [disabled]="isPermissionDisabled(user)" inputId="bulkmetadataeditor-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canBulkEditMetadata" [disabled]="isPermissionDisabled(user)" inputId="bulkmetadataeditor-{{user.id}}" />
                             <label [for]="'bulkmetadataeditor-'+user.id">{{ t('perms.accessBulkEditor') }}</label>
                           </div>
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canBulkRegenerateCover" [disabled]="isPermissionDisabled(user)" inputId="bulkregeneratecover-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canBulkRegenerateCover" [disabled]="isPermissionDisabled(user)" inputId="bulkregeneratecover-{{user.id}}" />
                             <label [for]="'bulkregeneratecover-'+user.id">{{ t('perms.bulkRegenerateCover') }}</label>
                           </div>
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canMoveOrganizeFiles" [disabled]="isPermissionDisabled(user)" inputId="moveorganizefiles-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canMoveOrganizeFiles" [disabled]="isPermissionDisabled(user)" inputId="moveorganizefiles-{{user.id}}" />
                             <label [for]="'moveorganizefiles-'+user.id">{{ t('perms.moveOrganize') }}</label>
                           </div>
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canBulkLockUnlockMetadata" [disabled]="isPermissionDisabled(user)" inputId="bulklockunlock-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canBulkLockUnlockMetadata" [disabled]="isPermissionDisabled(user)" inputId="bulklockunlock-{{user.id}}" />
                             <label [for]="'bulklockunlock-'+user.id">{{ t('perms.bulkLockUnlock') }}</label>
                           </div>
                         </div>
@@ -374,15 +367,15 @@
                         </h5>
                         <div class="permission-items">
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canSyncKoReader" [disabled]="isPermissionDisabled(user)" inputId="koreader-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canSyncKoReader" [disabled]="isPermissionDisabled(user)" inputId="koreader-{{user.id}}" />
                             <label [for]="'koreader-'+user.id">{{ t('perms.koreaderSync') }}</label>
                           </div>
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canSyncKobo" [disabled]="isPermissionDisabled(user)" inputId="kobo-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canSyncKobo" [disabled]="isPermissionDisabled(user)" inputId="kobo-{{user.id}}" />
                             <label [for]="'kobo-'+user.id">{{ t('perms.koboSync') }}</label>
                           </div>
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canAccessOpds" [disabled]="isPermissionDisabled(user)" inputId="opds-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canAccessOpds" [disabled]="isPermissionDisabled(user)" inputId="opds-{{user.id}}" />
                             <label [for]="'opds-'+user.id">{{ t('perms.opdsFeedAccess') }}</label>
                           </div>
                         </div>
@@ -395,15 +388,15 @@
                         </h5>
                         <div class="permission-items">
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canBulkResetGrimmoryReadProgress" [disabled]="isPermissionDisabled(user)" inputId="bulkresetgrimmory-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canBulkResetGrimmoryReadProgress" [disabled]="isPermissionDisabled(user)" inputId="bulkresetgrimmory-{{user.id}}" />
                             <label [for]="'bulkresetgrimmory-'+user.id">{{ t('perms.bulkResetGrimmory') }}</label>
                           </div>
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canBulkResetKoReaderReadProgress" [disabled]="isPermissionDisabled(user)" inputId="bulkresetkoreader-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canBulkResetKoReaderReadProgress" [disabled]="isPermissionDisabled(user)" inputId="bulkresetkoreader-{{user.id}}" />
                             <label [for]="'bulkresetkoreader-'+user.id">{{ t('perms.bulkResetKoreader') }}</label>
                           </div>
                           <div class="permission-item">
-                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canBulkResetBookReadStatus" [disabled]="isPermissionDisabled(user)" inputId="bulkresetreadstatus-{{user.id}}"></p-checkbox>
+                            <p-checkbox [binary]="true" [(ngModel)]="user.permissions.canBulkResetBookReadStatus" [disabled]="isPermissionDisabled(user)" inputId="bulkresetreadstatus-{{user.id}}" />
                             <label [for]="'bulkresetreadstatus-'+user.id">{{ t('perms.bulkResetReadStatus') }}</label>
                           </div>
                         </div>
@@ -421,8 +414,7 @@
                     </p>
                     <app-content-restrictions-editor
                       [userId]="user.id"
-                      [isEditing]="user.isEditing ?? false">
-                    </app-content-restrictions-editor>
+                      [isEditing]="user.isEditing ?? false" />
                   </div>
                 </div>
               }
@@ -448,8 +440,7 @@
           [placeholder]="t('passwordDialog.enterNew')"
           [feedback]="false"
           [toggleMask]="true"
-          fluid>
-        </p-password>
+          fluid />
       </div>
       <div class="form-field">
         <label for="confirmPassword">{{ t('passwordDialog.confirmPassword') }}</label>
@@ -459,8 +450,7 @@
           [placeholder]="t('passwordDialog.confirmNew')"
           [feedback]="false"
           [toggleMask]="true"
-          fluid>
-        </p-password>
+          fluid />
       </div>
       @if (passwordError) {
         <div class="error-message">
@@ -475,13 +465,11 @@
           [label]="'common.cancel' | transloco"
           severity="secondary"
           outlined="true"
-          (onClick)="isPasswordDialogVisible = false">
-        </p-button>
+          (onClick)="isPasswordDialogVisible = false" />
         <p-button
           [label]="t('passwordDialog.changeBtn')"
           severity="success"
-          (onClick)="submitPasswordChange()">
-        </p-button>
+          (onClick)="submitPasswordChange()" />
       </div>
     </ng-template>
   </p-dialog>

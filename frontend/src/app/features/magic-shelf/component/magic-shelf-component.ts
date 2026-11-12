@@ -19,7 +19,7 @@ import {CheckboxChangeEvent, Checkbox} from "@openng/optimus-ui/checkbox";
 import {UserService} from "../../settings/user-management/user.service";
 import {IconDisplayComponent} from '../../../shared/components/icon-display/icon-display.component';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
-import {BookService} from '../../book/service/book.service';
+import {FacetSuggestionsDirective} from '../../book/components/facet-suggestions.directive';
 import {ShelfService} from '../../book/service/shelf.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {Textarea} from '@openng/optimus-ui/textarea';
@@ -234,6 +234,7 @@ const READ_STATUS_KEYS: Record<string, string> = {
     InputNumber,
     MultiSelect,
     AutoComplete,
+    FacetSuggestionsDirective,
     Checkbox,
     IconDisplayComponent,
     Tooltip,
@@ -246,6 +247,14 @@ export class MagicShelfComponent implements OnInit {
   private readonly t = inject(TranslocoService);
   private readonly providerFields = inject(MetadataProviderFieldsService);
   private readonly injector = inject(Injector);
+  libraryService = inject(LibraryService);
+  shelfService = inject(ShelfService);
+  magicShelfService = inject(MagicShelfService);
+  ref = inject(DynamicDialogRef);
+  messageService = inject(MessageService);
+  config = inject(DynamicDialogConfig);
+  userService = inject(UserService);
+  private readonly iconPicker = inject(IconPickerService);
   private readonly controlIds = new WeakMap<AbstractControl, string>();
   private controlIdCounter = 0;
 
@@ -425,29 +434,18 @@ export class MagicShelfComponent implements OnInit {
     return DATE_PERIODS.map(period => ({label: this.t.translate(`magicShelf.datePeriods.${period}`), value: period}));
   }
 
-  libraryOptions = computed(() =>
+  readonly libraryOptions = computed(() =>
     this.libraryService.libraries().map(library => ({
       label: library.name,
       value: library.id!
     }))
   );
-  shelfOptions = computed(() =>
+  readonly shelfOptions = computed(() =>
     this.shelfService.shelves().map(shelf => ({
       label: shelf.name,
       value: shelf.id!
     }))
   );
-  categoryOptions = computed(() => {
-    const categoriesSet = new Set<string>();
-    this.bookService.books().forEach(book => {
-      book.metadata?.categories?.forEach(category => categoriesSet.add(category));
-    });
-
-    return Array.from(categoriesSet).map(category => ({
-      label: category,
-      value: category
-    })).sort((a, b) => a.label.localeCompare(b.label));
-  });
 
   form = new FormGroup({
     name: new FormControl<string | null>(null),
@@ -461,16 +459,6 @@ export class MagicShelfComponent implements OnInit {
   editMode!: boolean;
   showImportPanel = false;
   importJson = '';
-
-  libraryService = inject(LibraryService);
-  shelfService = inject(ShelfService);
-  bookService = inject(BookService);
-  magicShelfService = inject(MagicShelfService);
-  ref = inject(DynamicDialogRef);
-  messageService = inject(MessageService);
-  config = inject(DynamicDialogConfig);
-  userService = inject(UserService);
-  private iconPicker = inject(IconPickerService);
 
   selectedIcon: IconSelection | null = null;
   private formInitializedFromShelf = false;
@@ -666,13 +654,13 @@ export class MagicShelfComponent implements OnInit {
       value: new FormControl<string | null>(null),
       valueStart: new FormControl<string | null>(null),
       valueEnd: new FormControl<string | null>(null),
-    }) as RuleFormGroup;
+    });
   }
 
   createGroup(): GroupFormGroup {
     return new FormGroup({
       type: new FormControl<'group'>('group' as const),
-      join: new FormControl<'and' | 'or'>('and' as 'and' | 'or'),
+      join: new FormControl<'and' | 'or'>('and'),
       rules: new FormArray([] as (GroupFormGroup | RuleFormGroup)[]),
     }) as GroupFormGroup;
   }

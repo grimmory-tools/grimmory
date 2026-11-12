@@ -24,17 +24,16 @@ import {MetadataProviderFieldsService} from '../../../../shared/metadata';
   styleUrl: './lock-unlock-metadata-dialog.component.scss'
 })
 export class LockUnlockMetadataDialogComponent implements OnInit {
-  private bookMetadataManageService = inject(BookMetadataManageService);
-  private dynamicDialogConfig = inject(DynamicDialogConfig);
+  private readonly bookMetadataManageService = inject(BookMetadataManageService);
+  private readonly dynamicDialogConfig = inject(DynamicDialogConfig);
   dialogRef = inject(DynamicDialogRef);
-  private messageService = inject(MessageService);
-  private loadingService = inject(LoadingService);
+  private readonly messageService = inject(MessageService);
+  private readonly loadingService = inject(LoadingService);
   private readonly t = inject(TranslocoService);
+  private readonly providerFields = inject(MetadataProviderFieldsService);
   fieldLocks: Record<string, boolean | undefined> = {};
 
   bookIds: Set<number> = this.dynamicDialogConfig.data.bookIds;
-
-  private readonly providerFields = inject(MetadataProviderFieldsService);
 
   lockableFields: string[] = [
     'titleLocked', 'subtitleLocked', 'publisherLocked', 'publishedDateLocked', 'descriptionLocked',

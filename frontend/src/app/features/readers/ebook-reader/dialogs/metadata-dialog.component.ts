@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
+import {Component, inject, Input, output} from '@angular/core';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {Book} from '../../../book/model/book.model';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
@@ -14,13 +14,12 @@ import {MetadataCatalogService} from '../../../../shared/metadata/metadata-catal
   styleUrls: ['./metadata-dialog.component.scss']
 })
 export class ReaderBookMetadataDialogComponent {
-  @Input() book: Book | null = null;
-  @Output() closed = new EventEmitter<void>();
-
-  private urlHelperService = inject(UrlHelperService);
+  private readonly urlHelperService = inject(UrlHelperService);
   private readonly t = inject(TranslocoService);
   protected readonly catalog = inject(MetadataCatalogService);
   protected readonly languageResolver = inject(LanguageResolverService);
+  @Input() book: Book | null = null;
+  readonly closed = output<void>();
 
   get metadata() {
     return this.book?.metadata;

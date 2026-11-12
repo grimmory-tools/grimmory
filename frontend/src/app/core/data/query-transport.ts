@@ -1,7 +1,8 @@
-import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {HttpClient, type HttpClientCommonOptions, HttpErrorResponse, HttpRequest} from '@angular/common/http';
 import {firstValueFrom, lastValueFrom, Observable, takeUntil} from 'rxjs';
 
 import type {AuthService} from '../../shared/service/auth.service';
+import {mitigateWebkitUploadBug} from '../../shared/util/mitigate-webkit-upload-bug';
 import {readSseJson} from './sse';
 
 export function retryTransientQueryError(failureCount: number, error: unknown): boolean {
@@ -36,8 +37,25 @@ export function toAbortablePromise<T>(source: Observable<T>, signal: AbortSignal
   return lastValueFrom(source.pipe(takeUntil(abortSignal(signal))));
 }
 
-export function httpGet<T>(http: HttpClient, url: string, signal: AbortSignal): Promise<T> {
-  return toAbortablePromise(http.get<T>(url), signal);
+export function httpGet<T>(
+  http: HttpClient,
+  url: string,
+  signal: AbortSignal,
+  params?: HttpClientCommonOptions['params'],
+): Promise<T> {
+  return toAbortablePromise(http.get<T>(url, {params}), signal);
+}
+
+export async function postFormData(
+  http: HttpClient,
+  url: string,
+  fields: Readonly<Record<string, string | Blob>>,
+): Promise<void> {
+  const body = new FormData();
+  for (const [name, value] of Object.entries(fields)) {
+    body.append(name, value);
+  }
+  await lastValueFrom(http.request(mitigateWebkitUploadBug(new HttpRequest('POST', url, body))));
 }
 
 export async function postSseJson<T>(

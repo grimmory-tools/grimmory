@@ -4,7 +4,7 @@
   [class.menu-open]="menuOpen()"
 >
   @let currentItem = item();
-  @let count = displayCount();
+  @let count = currentItem.bookCount;
 
   @if (currentItem.action) {
     <button
@@ -22,7 +22,7 @@
             iconClass="layout-sidebar-item-icon"
             size="18px"
             [displayEmpty]="true"
-          ></app-icon-display>
+          />
         </span>
         <span class="layout-sidebar-item-text sidebar-item-text">
           <span class="sidebar-item-label">{{ currentItem.label }}</span>
@@ -59,7 +59,7 @@
             iconClass="layout-sidebar-item-icon"
             size="18px"
             [displayEmpty]="true"
-          ></app-icon-display>
+          />
         </span>
         <span class="layout-sidebar-item-text sidebar-item-text">
           <span class="sidebar-item-label">{{ currentItem.label }}</span>

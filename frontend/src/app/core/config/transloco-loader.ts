@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Service} from '@angular/core';
 import {Translation, TranslocoLoader} from '@jsverse/transloco';
 import {from, of, Observable} from 'rxjs';
 import en from '../../../i18n/en.json';
@@ -27,6 +27,7 @@ const LAZY_LANG_LOADERS: Record<string, () => Promise<{default: Translation}>> =
   da: () => import('../../../i18n/da.json'),
   ko: () => import('../../../i18n/ko.json'),
   cs: () => import('../../../i18n/cs.json'),
+  ca: () => import('../../../i18n/ca.json'),
 };
 
 export const AVAILABLE_LANGS = ['en', ...Object.keys(LAZY_LANG_LOADERS)];
@@ -53,6 +54,7 @@ export const LANG_LABELS: Record<string, string> = {
   da: 'Dansk',
   ko: '한국어',
   cs: 'Čeština',
+  ca: 'Català',
 };
 
 function deepMerge(base: Record<string, Translation>, override: Record<string, Translation>): Record<string, Translation> {
@@ -68,7 +70,7 @@ function deepMerge(base: Record<string, Translation>, override: Record<string, T
   return result;
 }
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class TranslocoInlineLoader implements TranslocoLoader {
   getTranslation(lang: string): Observable<Translation> {
     if (lang === 'en') {

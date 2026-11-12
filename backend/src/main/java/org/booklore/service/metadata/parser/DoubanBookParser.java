@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 public class DoubanBookParser implements BookParser {
 
     private static final int COUNT_DETAILED_METADATA_TO_GET = 3;
+    private static final double RATING_SCALE_DIVISOR = 2.0;
     private static final String BOOK_URI_TEMPLATE = "https://book.douban.com/subject/{id}";
     private static final Pattern NON_DIGIT_PATTERN = Pattern.compile("[^\\d]");
     private static final Pattern NON_ALPHANUMERIC_CJK_PATTERN = Pattern.compile("[^a-zA-Z0-9\\u4e00-\\u9fff]");
@@ -240,7 +241,7 @@ public class DoubanBookParser implements BookParser {
                     JsonNode ratingNode = item.get("rating");
                     Double rating = null;
                     if (ratingNode != null && ratingNode.has("value")) {
-                        rating = ratingNode.get("value").asDouble();
+                        rating = ratingNode.get("value").asDouble() / RATING_SCALE_DIVISOR;
                     }
 
                     if (doubanId != null && !title.isEmpty()) {
@@ -583,7 +584,7 @@ public class DoubanBookParser implements BookParser {
             if (ratingElement != null) {
                 String ratingText = ratingElement.text().trim();
                 if (!ratingText.isEmpty()) {
-                    return Double.parseDouble(ratingText);
+                    return Double.parseDouble(ratingText) / RATING_SCALE_DIVISOR;
                 }
             }
         } catch (Exception e) {

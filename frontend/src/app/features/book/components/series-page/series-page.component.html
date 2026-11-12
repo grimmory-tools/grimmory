@@ -1,8 +1,7 @@
 <ng-container *transloco="let t; prefix: 'book.seriesPage'">
 @if (isBooksLoading()) {
   <div class="loading-state">
-    <p-progressSpinner strokeWidth="4" fill="transparent" animationDuration=".8s">
-    </p-progressSpinner>
+    <p-progressSpinner strokeWidth="4" fill="transparent" animationDuration=".8s" />
     <p style="color: var(--primary-color);">
       {{ t('loadingSeriesDetails') }}
     </p>
@@ -186,8 +185,8 @@
                           class="next-up-card"
                           role="button"
                           tabindex="0"
-                          (click)="readBook(nextUp.book.id)"
-                          (keydown.enter)="readBook(nextUp.book.id)">
+                          (click)="readBook(nextUp.book)"
+                          (keydown.enter)="readBook(nextUp.book)">
                           <app-cover
                             class="next-up-thumb"
                             aria-hidden="true"
@@ -207,8 +206,7 @@
                                 <p-progressBar
                                   [value]="nextUp.progressPercent"
                                   [showValue]="false"
-                                  class="next-up-progress">
-                                </p-progressBar>
+                                  class="next-up-progress" />
                                 <span class="next-up-percent">{{ nextUp.progressPercent }}%</span>
                               </div>
                             }
@@ -223,7 +221,7 @@
                               <div class="read-progress-bar">
                                 @for (seg of segments; track seg.status) {
                                   <div class="read-progress-segment"
-                                    [ngStyle]="{'width': seg.percent + '%', 'background-color': getStatusColor(seg.status)}"
+                                    [style]="{'width': seg.percent + '%', 'background-color': getStatusColor(seg.status)}"
                                     [pTooltip]="getStatusLabel(seg.status) + ': ' + seg.count">
                                   </div>
                                 }
@@ -231,9 +229,9 @@
                               <div class="read-progress-legend">
                                 @for (seg of segments; track seg.status) {
                                   <span class="legend-item"
-                                    [ngStyle]="{'border-color': getStatusColor(seg.status)}">
+                                    [style.border-color]="getStatusColor(seg.status)">
                                     <span class="legend-dot"
-                                      [ngStyle]="{'background-color': getStatusColor(seg.status)}"></span>
+                                      [style.background-color]="getStatusColor(seg.status)"></span>
                                     {{ getStatusLabel(seg.status) }} ({{ seg.count }})
                                   </span>
                                 }
@@ -259,15 +257,15 @@
                     <span>{{ t('synopsis') }}</span>
                   </div>
                   <div class="description-body">
-                    <div #descriptionContent [ngClass]="{ 'description-content-collapsed': !isExpanded() }"
+                    <div #descriptionContent [class.description-content-collapsed]="!isExpanded()"
                       class="description-content">
                       <div class="description-html"
                         [innerHTML]="firstDescription() || t('noDescription')"></div>
                     </div>
                     @if (isExpanded() || isOverflowing()) {
-                      <button class="expand-toggle" (click)="toggleExpand()">
+                      <button type="button" class="expand-toggle" (click)="toggleExpand()">
                         {{ isExpanded() ? t('showLess') : t('showMore') }}
-                        <i class="pi" [ngClass]="isExpanded() ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+                        <i class="pi" [class]="isExpanded() ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
                       </button>
                     }
                   </div>
@@ -295,8 +293,7 @@
                       (checkboxClick)="onCheckboxClicked($event)"
                       [isSelected]="isBookSelected(book)"
                       [useSquareCovers]="seriesCardsUseSquareCovers"
-                      [overlayPreferenceService]="bookCardOverlayPreferenceService">
-                    </app-legacy-book-card>
+                      [overlayPreferenceService]="bookCardOverlayPreferenceService" />
                   }
                 </div>
 
@@ -345,7 +342,7 @@
                 @if (getBookProgress(book); as progress) {
                   <div class="list-progress-row">
                     <div class="list-progress-bar">
-                      <div class="list-progress-fill" [ngStyle]="{'width': progress + '%'}"></div>
+                      <div class="list-progress-fill" [style.width]="progress + '%'"></div>
                     </div>
                     <span class="list-progress-text">{{ progress }}%</span>
                   </div>
@@ -354,7 +351,7 @@
                   <div class="list-rating-row">
                     @for (star of [1,2,3,4,5]; track star) {
                       <i class="pi list-star"
-                        [ngClass]="book.personalRating! >= star * 2 ? 'pi-star-fill' : (book.personalRating! >= star * 2 - 1 ? 'pi-star-half-fill' : 'pi-star')">
+                        [class]="book.personalRating! >= star * 2 ? 'pi-star-fill' : (book.personalRating! >= star * 2 - 1 ? 'pi-star-half-fill' : 'pi-star')">
                       </i>
                     }
                     <span class="list-rating-value">{{ book.personalRating }}/10</span>
@@ -364,7 +361,7 @@
               <div class="list-right-col">
                 <div class="list-badges">
                   <span class="list-status-badge"
-                    [ngStyle]="{'background-color': getStatusColor(book.readStatus)}">
+                    [style.background-color]="getStatusColor(book.readStatus)">
                     {{ getStatusLabel(book.readStatus) }}
                   </span>
                   @if (book.primaryFile?.bookType; as bookType) {
@@ -377,11 +374,11 @@
                   }
                 </div>
                 <div class="list-actions">
-                  <button class="list-action-btn btn-read" (click)="readBook(book.id); $event.stopPropagation()"
+                  <button type="button" class="list-action-btn btn-read" (click)="readBook(book); $event.stopPropagation()"
                     [pTooltip]="t('readButton')" tooltipPosition="top">
                     <i class="pi pi-book"></i>
                   </button>
-                  <button class="list-action-btn btn-details" (click)="viewBookDetails(book.id); $event.stopPropagation()"
+                  <button type="button" class="list-action-btn btn-details" (click)="viewBookDetails(book.id); $event.stopPropagation()"
                     [pTooltip]="t('viewDetails')" tooltipPosition="top">
                     <i class="pi pi-info-circle"></i>
                   </button>
@@ -389,7 +386,7 @@
               </div>
             </div>
           }
-          @if (books.length === 0) {
+          @empty {
             <div class="empty-state">{{ t('noBooksFound') }}</div>
           }
         </div>
@@ -418,8 +415,7 @@
                     tooltipPosition="top"
                     outlined="true"
                     severity="info"
-                    icon="pi pi-database">
-                  </p-button>
+                    icon="pi pi-database" />
                 }
                 <p-button
                   icon="pi pi-bookmark-fill"
@@ -427,8 +423,7 @@
                   severity="info"
                   (onClick)="openShelfAssigner()"
                   [pTooltip]="t('tooltip.assignToShelf')"
-                  tooltipPosition="top">
-                </p-button>
+                  tooltipPosition="top" />
                 @if (user.permissions.canBulkLockUnlockMetadata) {
                   <p-button
                     outlined="true"
@@ -436,8 +431,7 @@
                     severity="info"
                   (click)="lockUnlockMetadata()"
                   [pTooltip]="t('tooltip.lockUnlockMetadata')"
-                  tooltipPosition="top">
-                  </p-button>
+                  tooltipPosition="top" />
                 }
                 @if (user.permissions.canMoveOrganizeFiles && appSettings()?.diskType === 'LOCAL') {
                   <p-button
@@ -446,8 +440,7 @@
                     severity="info"
                     (click)="moveFiles()"
                     [pTooltip]="t('tooltip.organizeFiles')"
-                    tooltipPosition="top">
-                  </p-button>
+                    tooltipPosition="top" />
                 }
                 @if (hasMoreActionsItems) {
                   <div class="more-actions-wrapper">
@@ -457,13 +450,12 @@
                       tooltipPosition="top"
                       outlined="true"
                       severity="info"
-                      icon="pi pi-ellipsis-v">
-                    </p-button>
+                      icon="pi pi-ellipsis-v" />
                     <p-tieredMenu #moreActionsMenu [model]="moreActionsMenuItems()" [popup]="true" appendTo="body"/>
                   </div>
                 }
               </div>
-            <p-divider layout="vertical"></p-divider>
+            <p-divider layout="vertical" />
             <div class="footer-action-group">
               <p-button
                 outlined="true"
@@ -471,27 +463,24 @@
                 severity="success"
                 (click)="selectAllBooks()"
                 [pTooltip]="t('tooltip.selectAll')"
-                tooltipPosition="top">
-              </p-button>
+                tooltipPosition="top" />
               <p-button
                 outlined="true"
                 icon="pi pi-times"
                 severity="warn"
                 (click)="deselectAllBooks()"
                 [pTooltip]="t('tooltip.deselectAll')"
-                tooltipPosition="top">
-              </p-button>
+                tooltipPosition="top" />
             </div>
             @if (user.permissions.admin || user.permissions.canDeleteBook) {
-              <p-divider layout="vertical"></p-divider>
+              <p-divider layout="vertical" />
               <p-button
                 outlined="true"
                 icon="pi pi-trash"
                 severity="danger"
                 (click)="confirmDeleteBooks()"
                 [pTooltip]="t('tooltip.deleteSelected')"
-                tooltipPosition="top">
-              </p-button>
+                tooltipPosition="top" />
             }
           </div>
           <div class="footer-right"></div>

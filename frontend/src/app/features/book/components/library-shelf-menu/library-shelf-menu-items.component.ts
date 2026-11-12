@@ -128,10 +128,9 @@ export function libraryShelfMenuAvailable(
   `,
 })
 export class LibraryShelfMenuItemsComponent {
-  readonly target = input.required<LibraryShelfMenuTarget>();
-
   private readonly currentUser = inject(UserService).currentUser;
   protected readonly actions = inject(LibraryShelfMenuService);
+  readonly target = input.required<LibraryShelfMenuTarget>();
 
   protected readonly canManageShelf = computed(() => {
     const target = this.target();

@@ -35,6 +35,10 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
 export class MetadataProviderSettingsComponent {
   private readonly catalog = inject(MetadataCatalogService);
   private readonly sourceQuery = inject(MetadataSourceQueryService);
+  private readonly appSettingsService = inject(AppSettingsService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
+  private readonly destroyRef = inject(DestroyRef);
   readonly configurableProviders = computed(() => this.catalog.providers().filter(provider => provider.hasOptions));
   readonly simpleProviders = computed(() => this.catalog.providers().filter(provider => !provider.hasOptions));
   readonly enabled: Partial<Record<MetadataProviderId, boolean>> = {};
@@ -112,11 +116,6 @@ export class MetadataProviderSettingsComponent {
   comicvineToken: string = '';
   ranobedbPreferRomaji: boolean = false;
   googleApiKey: string = '';
-
-  private appSettingsService = inject(AppSettingsService);
-  private messageService = inject(MessageService);
-  private t = inject(TranslocoService);
-  private destroyRef = inject(DestroyRef);
 
   private readonly syncSettingsEffect = effect(() => {
     const settings = this.appSettingsService.appSettings();

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, inject, Injector, NgZone, OnDestroy, OnInit, afterNextRender, viewChild, DestroyRef, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, inject, Injector, NgZone, OnDestroy, OnInit, afterNextRender, viewChild, DestroyRef, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PageTitleService } from "../../../shared/service/page-title.service";
@@ -13,11 +13,13 @@ import { API_CONFIG } from '../../../core/config/api-config';
 import { PdfAnnotationService } from '../../../shared/service/pdf-annotation.service';
 import { ReaderIconComponent } from '../../readers/ebook-reader/shared/icon.component';
 import { BookMark } from '../../../shared/service/book-mark.service';
-import { EmbedPdfBookService, PdfOutlineItem, PdfScrollLayout } from './services/embedpdf-book.service';
+import { EmbedPdfBookService, PDF_PAGE_COLOR, PdfOutlineItem, PdfScrollLayout } from './services/embedpdf-book.service';
 import type { AnnotationTransferItem } from '@embedpdf/snippet';
 import { PdfBookmarkService } from './services/pdf-bookmark.service';
 import { PdfSidebarComponent, PdfAnnotationListItem } from './components/pdf-sidebar.component';
 import { parseStoredAnnotations, serializeAnnotations } from './utils/annotation-converter';
+import { ReaderHeaderFooterVisibilityManager } from '../ebook-reader/shared/visibility.util';
+import { isTouchScreen, setupReaderEdges } from '../shared/reader-edges.util';
 
 import { ProgressSpinner } from '@openng/optimus-ui/progressspinner';
 import { MessageService } from '@openng/optimus-ui/api';
@@ -47,6 +49,25 @@ type EmbedPdfMessage =
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PdfReaderComponent implements OnInit, OnDestroy {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
+  private readonly bookService = inject(BookService);
+  private readonly userService = inject(UserService);
+  private readonly authService = inject(AuthService);
+  private readonly messageService = inject(MessageService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly pageTitle = inject(PageTitleService);
+  private readonly readingSessionService = inject(ReadingSessionService);
+  private readonly location = inject(Location);
+  private readonly router = inject(Router);
+  private readonly pdfAnnotationService = inject(PdfAnnotationService);
+  private readonly cacheStorageService = inject(CacheStorageService);
+  private readonly localSettingsService = inject(LocalSettingsService);
+  private readonly t = inject(TranslocoService);
+  private readonly wakeLockService = inject(WakeLockService);
+  readonly embedPdfBook = inject(EmbedPdfBookService);
+  readonly pdfBookmarkService = inject(PdfBookmarkService);
+  private readonly ngZone = inject(NgZone);
 
   // --- Template-bound signals ---
   readonly isLoading = signal(true);
@@ -59,8 +80,8 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   readonly viewerMode = signal<'book' | 'document'>('book');
   readonly docViewerReady = signal(false);
   readonly isDocViewerInfoVisible = signal(false);
-  readonly headerVisible = signal(true);
-  readonly footerVisible = signal(true);
+  readonly headerVisible = signal(false);
+  readonly footerVisible = signal(false);
   readonly sidebarOpen = signal(false);
   readonly isSearchOpen = signal(false);
   readonly isPanActive = signal(false);
@@ -77,6 +98,16 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   readonly annotationListItems = signal<PdfAnnotationListItem[]>([]);
 
   readonly isInitialScrollDone = signal(false);
+
+  readonly pageColor = computed(() => this.isDarkTheme() ? PDF_PAGE_COLOR.dark : PDF_PAGE_COLOR.light);
+  readonly headerShown = computed(() => this.headerVisible() || this.isSearchOpen() || this.isToolbarOverflowOpen());
+  readonly footerShown = computed(() => this.footerVisible() || (isTouchScreen() && this.viewerMode() === 'document'));
+  readonly topBarColor = computed(() => {
+    if (this.viewerMode() === 'document') return this.isDarkTheme() ? '#2d2d2d' : '#f0f0f0';
+    return this.headerShown() ? 'var(--reader-chrome-bg)' : this.pageColor();
+  });
+  readonly bottomBarColor = computed(() => this.footerShown() ? 'var(--reader-chrome-bg)' : this.pageColor());
+  protected readonly visibilityManager = new ReaderHeaderFooterVisibilityManager(window.innerHeight, !isTouchScreen());
 
   readonly sliderTicks = computed(() => {
     const total = this.totalPages();
@@ -135,17 +166,11 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   // Book mode state
   private bookViewerInitialized = false;
 
-  // Chrome auto-hide
-  private chromeAutoHideTimer?: ReturnType<typeof setTimeout>;
-  private readonly CHROME_HIDE_DELAY = 3000;
-  private mouseMoveCleanup?: () => void;
+  private mouseCleanup?: () => void;
   private documentClickCleanup?: () => void;
   private keydownCleanup?: () => void;
   private touchCleanup?: () => void;
-  private lastMouseMoveTime = 0;
 
-  // Mobile touch navigation
-  private isMobile = false;
   readonly overflowMenuRef = viewChild<ElementRef<HTMLDivElement>>('overflowMenu');
   readonly bookViewerContainerRef = viewChild<ElementRef<HTMLDivElement>>('bookViewerContainer');
   private touchStartX = 0;
@@ -166,35 +191,23 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   private dbAnnotationIds = new Set<string>();
 
   private altBookType?: string;
-  private annotationSaveSubject = new Subject<void>();
-  private annotationCacheSubject = new Subject<void>();
+  private readonly annotationSaveSubject = new Subject<void>();
+  private readonly annotationCacheSubject = new Subject<void>();
   private annotationsLoaded = false;
   private isImportingAnnotations = false;
   private lastAnnotationData: string | null = null;
   private annotationsDirty = false;
   private pdfBlobUrl: string | null = null;
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly injector = inject(Injector);
-
-  private bookService = inject(BookService);
-  private userService = inject(UserService);
-  private authService = inject(AuthService);
-  private messageService = inject(MessageService);
-  private route = inject(ActivatedRoute);
-  private pageTitle = inject(PageTitleService);
-  private readingSessionService = inject(ReadingSessionService);
-  private location = inject(Location);
-  private router = inject(Router);
-  private pdfAnnotationService = inject(PdfAnnotationService);
-  private cacheStorageService = inject(CacheStorageService);
-  private localSettingsService = inject(LocalSettingsService);
-  private readonly t = inject(TranslocoService);
-  private wakeLockService = inject(WakeLockService);
-  readonly embedPdfBook = inject(EmbedPdfBookService);
-  readonly pdfBookmarkService = inject(PdfBookmarkService);
-  private readonly ngZone = inject(NgZone);
   private userPanPreferred = false;
 
+  constructor() {
+    this.visibilityManager.onStateChange(state => {
+      this.headerVisible.set(state.headerVisible);
+      this.footerVisible.set(state.footerVisible);
+    });
+
+    setupReaderEdges(this.pageColor);
+  }
 
   ngOnInit(): void {
     const dismissed = localStorage.getItem(this.DOC_VIEWER_DISMISSED_KEY);
@@ -219,10 +232,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     window.addEventListener('resize', syncPhoneMode);
     this.destroyRef.onDestroy(() => window.removeEventListener('resize', syncPhoneMode));
 
-    this.isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-
     setTimeout(() => this.wakeLockService.enable(), 1000);
-    this.startChromeAutoHide();
     document.addEventListener('fullscreenchange', this.onFullscreenChange);
 
     this.t.langChanges$
@@ -237,17 +247,16 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
 
     // Listen for mousemove outside Angular zone to avoid constant change detection
     this.ngZone.runOutsideAngular(() => {
-      const mouseMoveHandler = () => {
-        const now = Date.now();
-        if (now - this.lastMouseMoveTime < 200) return;
-        this.lastMouseMoveTime = now;
-        this.ngZone.run(() => {
-          this.showChrome();
-          this.startChromeAutoHide();
-        });
-      };
+      const mouseMoveHandler = (e: MouseEvent) => this.visibilityManager.handleMouseMove(e.clientY);
+      const mouseLeaveHandler = () => this.visibilityManager.handleMouseLeave();
       document.addEventListener('mousemove', mouseMoveHandler);
-      this.mouseMoveCleanup = () => document.removeEventListener('mousemove', mouseMoveHandler);
+      document.addEventListener('mouseover', mouseMoveHandler);
+      document.addEventListener('mouseleave', mouseLeaveHandler);
+      this.mouseCleanup = () => {
+        document.removeEventListener('mousemove', mouseMoveHandler);
+        document.removeEventListener('mouseover', mouseMoveHandler);
+        document.removeEventListener('mouseleave', mouseLeaveHandler);
+      };
 
       const clickHandler = (e: MouseEvent) => {
         if (!this.isZoomMenuOpen()) return;
@@ -400,7 +409,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
         } else {
           zoomVal = pdfPrefs.pdfSettings?.zoom || myself.userSettings.pdfReaderSetting.pageZoom || 'page-fit';
           const rawSpread = pdfPrefs.pdfSettings?.spread || myself.userSettings.pdfReaderSetting.pageSpread || 'none';
-          spreadVal = rawSpread === 'off' ? 'none' : rawSpread as 'none' | 'even' | 'odd';
+          spreadVal = rawSpread === 'off' ? 'none' : rawSpread;
           scrollLayoutVal = pdfPrefs.pdfSettings?.scrollLayout
             || myself.userSettings.pdfReaderSetting.scrollLayout
             || 'vertical';
@@ -1016,6 +1025,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
         theme: this.isDarkTheme() ? 'dark' : 'light',
         locale: this.t.getActiveLang()
       }, location.origin);
+      this.postSafeArea();
 
     } catch (err) {
       console.error('[EmbedPDF] FATAL:', err);
@@ -1278,7 +1288,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     this.clearDocProgressReleaseTimer();
     if (this.pdfFetchAbortController) this.pdfFetchAbortController.abort();
     this.wakeLockService.disable();
-    if (this.chromeAutoHideTimer) clearTimeout(this.chromeAutoHideTimer);
 
     // Save progress via fetch+keepalive so it survives navigation
     this.saveProgressSync();
@@ -1296,7 +1305,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     this.destroyDocViewerIframe();
 
     document.removeEventListener('fullscreenchange', this.onFullscreenChange);
-    this.mouseMoveCleanup?.();
+    this.mouseCleanup?.();
     this.documentClickCleanup?.();
     this.keydownCleanup?.();
     this.touchCleanup?.();
@@ -1314,33 +1323,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       URL.revokeObjectURL(this.pdfBlobUrl);
       this.pdfBlobUrl = null;
     }
-  }
-
-  // --- Chrome auto-hide ---
-
-  showChrome(): void {
-    this.headerVisible.set(true);
-    this.footerVisible.set(true);
-  }
-
-  hideChrome(): void {
-    this.headerVisible.set(false);
-    this.footerVisible.set(false);
-  }
-
-  private startChromeAutoHide(): void {
-    if (this.chromeAutoHideTimer) clearTimeout(this.chromeAutoHideTimer);
-    this.chromeAutoHideTimer = setTimeout(() => this.hideChrome(), this.CHROME_HIDE_DELAY);
-  }
-
-  onHeaderTriggerZoneEnter(): void {
-    this.headerVisible.set(true);
-    this.startChromeAutoHide();
-  }
-
-  onFooterTriggerZoneEnter(): void {
-    this.footerVisible.set(true);
-    this.startChromeAutoHide();
   }
 
   // --- Touch navigation ---
@@ -1389,12 +1371,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
           this.goToNextPage();
         } else {
           // Center zone (or any zone on phone): toggle chrome
-          if (this.headerVisible() || this.footerVisible()) {
-            this.hideChrome();
-          } else {
-            this.showChrome();
-            this.startChromeAutoHide();
-          }
+          this.visibilityManager.togglePinned();
         }
       });
     }
@@ -1434,7 +1411,21 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  private onFullscreenChange = (): void => {
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.visibilityManager.updateWindowHeight(window.innerHeight);
+    this.postSafeArea();
+  }
+
+  private postSafeArea(): void {
+    const iframe = this.embedPdfIframe;
+    if (!iframe?.contentWindow) return;
+    const style = getComputedStyle(iframe);
+    const [top, right, left] = ['top', 'right', 'left'].map(side => style.getPropertyValue(`--safe-edge-${side}`));
+    iframe.contentWindow.postMessage({type: 'safeArea', top, right, left}, location.origin);
+  }
+
+  private readonly onFullscreenChange = (): void => {
     this.isFullscreen.set(!!document.fullscreenElement);
   };
 
@@ -1606,7 +1597,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
           this.annotationsDirty = true;
           console.error('[PDF Annotations] Save failed:', res.status);
         }
-      }).catch(err => {
+      }).catch((err: unknown) => {
         this.annotationsDirty = true;
         console.error('[PDF Annotations] Failed to save annotations:', err);
       });
@@ -1635,7 +1626,7 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       credentials: 'include',
       body: JSON.stringify({ data: this.lastAnnotationData }),
       keepalive: true,
-    }).catch((err) => { console.error('[PDF Annotations Sync] Sync save failed:', err); });
+    }).catch((err: unknown) => { console.error('[PDF Annotations Sync] Sync save failed:', err); });
   }
 
   private cacheAnnotationData(): void {

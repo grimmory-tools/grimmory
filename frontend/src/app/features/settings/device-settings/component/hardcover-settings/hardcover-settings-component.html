@@ -1,12 +1,12 @@
 <ng-container *transloco="let t; prefix: 'settingsDevice'">
-<p-toast position="top-right"></p-toast>
+<p-toast position="top-right" />
 
 <div class="main-container">
   <div class="settings-header">
     <h2 class="settings-title">
       <i class="pi pi-book"></i>
       {{ t('hardcover.title') }}
-      <app-external-doc-link docType="hardcover"></app-external-doc-link>
+      <app-external-doc-link docType="hardcover" />
     </h2>
     <p class="settings-description">
       {{ t('hardcover.description') }}
@@ -36,8 +36,7 @@
                   inputId="hardcoverSyncEnabled"
                   name="hardcoverSyncEnabled"
                   [ngModel]="hardcoverSyncEnabled()"
-                  (ngModelChange)="onHardcoverSyncToggle($event)">
-                </p-toggle-switch>
+                  (ngModelChange)="onHardcoverSyncToggle($event)" />
               </div>
               <p class="setting-description">
                 {{ t('hardcover.syncDesc') }}
@@ -69,15 +68,13 @@
                       severity="info"
                       size="small"
                       (onClick)="copyText(hardcoverApiKey(), t('hardcover.apiKey'))"
-                      [disabled]="!hardcoverApiKey()">
-                    </p-button>
+                      [disabled]="!hardcoverApiKey()" />
                     <p-button
                       [icon]="showHardcoverApiKey() ? 'pi pi-eye-slash' : 'pi pi-eye'"
                       outlined="true"
                       severity="info"
                       size="small"
-                      (onClick)="toggleShowHardcoverApiKey()">
-                    </p-button>
+                      (onClick)="toggleShowHardcoverApiKey()" />
                   </div>
                 </div>
                 <p class="setting-description" [innerHTML]="t('hardcover.apiKeyDesc')">

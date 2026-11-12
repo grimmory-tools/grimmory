@@ -17,6 +17,9 @@ import {Button} from '@openng/optimus-ui/button';
   imports: [MetadataFetchOptionsComponent, FormsModule, Button],
 })
 export class MultiBookMetadataFetchComponent implements OnInit, OnChanges {
+  private readonly dynamicDialogConfig = inject(DynamicDialogConfig);
+  dialogRef = inject(DynamicDialogRef);
+  private readonly appSettingsService = inject(AppSettingsService);
   @Input() dialogData?: {
     libraryId?: number | null;
     bookIds?: number[];
@@ -27,10 +30,6 @@ export class MultiBookMetadataFetchComponent implements OnInit, OnChanges {
   libraryId: number | null = null;
   metadataRefreshType: MetadataRefreshType = MetadataRefreshType.BOOKS;
   currentMetadataOptions!: MetadataRefreshOptions;
-
-  private dynamicDialogConfig = inject(DynamicDialogConfig);
-  dialogRef = inject(DynamicDialogRef);
-  private appSettingsService = inject(AppSettingsService);
   expanded = false;
 
   constructor() {

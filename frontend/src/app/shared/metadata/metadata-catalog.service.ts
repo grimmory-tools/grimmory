@@ -1,8 +1,8 @@
-import {computed, Injectable, signal} from '@angular/core';
+import {computed, Service, signal} from '@angular/core';
 
 import {METADATA_PROVIDER_LIST, type MetadataProviderDescriptor} from './metadata-providers';
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class MetadataCatalogService {
   readonly providers = signal<readonly MetadataProviderDescriptor[]>(METADATA_PROVIDER_LIST).asReadonly();
   readonly reviewProviders = computed(() => this.providers().filter(provider => provider.supportsReviews));

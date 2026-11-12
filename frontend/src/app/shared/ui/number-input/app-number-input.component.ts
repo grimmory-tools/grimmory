@@ -96,6 +96,7 @@ import { appInputVariants, type AppInputSize } from '../input/app-input.variants
   `,
 })
 export class AppNumberInputComponent implements FormValueControl<number | null> {
+  private readonly fieldContext = inject(APP_FIELD, { optional: true });
   readonly value = model<number | null>(null);
   readonly disabled = input(false, { transform: booleanAttribute });
   readonly required = input(false, { transform: booleanAttribute });
@@ -123,8 +124,6 @@ export class AppNumberInputComponent implements FormValueControl<number | null> 
     parse: parseNumberInput,
     format: value => value?.toString() ?? '',
   });
-
-  private readonly fieldContext = inject(APP_FIELD, { optional: true });
   protected readonly resolvedInputId = computed(() => this.inputId() || this.fieldContext?.controlId() || null);
   protected readonly resolvedDescribedBy = computed(
     () => this.ariaDescribedBy() || this.fieldContext?.describedById() || null,

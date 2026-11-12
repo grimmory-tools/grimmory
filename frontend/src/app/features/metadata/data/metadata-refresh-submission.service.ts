@@ -1,5 +1,5 @@
 import {HttpClient} from '@angular/common/http';
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {mutationOptions, QueryClient} from '@tanstack/angular-query-experimental';
 import {lastValueFrom} from 'rxjs';
 
@@ -15,7 +15,7 @@ import {RefreshMetadataVariables} from './metadata-refresh-submission.models';
 
 const ERROR_QUIET_PERIOD_MS = 5000;
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class MetadataRefreshSubmissionService {
   private readonly http = inject(HttpClient);
   private readonly queryClient = inject(QueryClient);

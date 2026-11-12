@@ -38,9 +38,9 @@ export class HardcoverSettingsComponent {
     const user = this.userService.currentUser();
     return !!(user?.permissions.canSyncKoReader || user?.permissions.canSyncKobo || user?.permissions.admin);
   });
-  hardcoverSyncEnabled = signal(false);
-  hardcoverApiKey = signal('');
-  showHardcoverApiKey = signal(false);
+  readonly hardcoverSyncEnabled = signal(false);
+  readonly hardcoverApiKey = signal('');
+  readonly showHardcoverApiKey = signal(false);
   private prevHasPermission = false;
   private savedHardcoverSyncEnabled = false;
   private savedHardcoverApiKey = '';
@@ -134,7 +134,7 @@ export class HardcoverSettingsComponent {
         summary: this.t.translate('settingsDevice.copied'),
         detail: this.t.translate('settingsDevice.copiedDetail', {label})
       });
-    }).catch(err => {
+    }).catch((err: unknown) => {
       console.error('Copy failed', err);
       this.messageService.add({
         severity: 'error',

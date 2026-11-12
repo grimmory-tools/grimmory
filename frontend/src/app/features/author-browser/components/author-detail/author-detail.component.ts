@@ -10,7 +10,6 @@ import {
   viewChild
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { NgClass } from '@angular/common';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@openng/optimus-ui/tabs';
 import { ProgressSpinner } from '@openng/optimus-ui/progressspinner';
 import { Button } from '@openng/optimus-ui/button';
@@ -40,7 +39,6 @@ import {BookMenuComponent} from '../../../book/components/book-menu/book-menu.co
   templateUrl: './author-detail.component.html',
   styleUrls: ['./author-detail.component.scss'],
   imports: [
-    NgClass,
     Tabs,
     TabList,
     Tab,
@@ -61,48 +59,49 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
 
   private static readonly GRID_GAP = 21;
 
-  private route = inject(ActivatedRoute);
-  private authorService = inject(AuthorService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly authorService = inject(AuthorService);
   protected readonly bookNavigation = inject(BookNavigationService);
   private readonly bookQueryService = inject(BookQueryService);
-  private messageService = inject(MessageService);
+  private readonly messageService = inject(MessageService);
   protected coverScalePreferenceService = inject(CoverScalePreferenceService);
   protected bookCardOverlayPreferenceService = inject(BookCardOverlayPreferenceService);
   protected userService = inject(UserService);
-  private pageTitle = inject(PageTitleService);
-  private t = inject(TranslocoService);
+  private readonly pageTitle = inject(PageTitleService);
+  private readonly t = inject(TranslocoService);
 
   readonly descriptionContentRef = viewChild<ElementRef<HTMLElement>>('descriptionContent');
   private readonly scrollElement = viewChild<ElementRef<HTMLElement>>('scrollElement');
   protected readonly bookMenu = viewChild(BookMenuComponent);
 
-  loading = signal(true);
+  readonly loading = signal(true);
   tab = 'books';
   isExpanded = false;
   isOverflowing = false;
   hasPhoto = true;
   photoTimestamp = Date.now();
   quickMatching = false;
-  private authorState = signal<AuthorDetails | null>(null);
+  private readonly authorState = signal<AuthorDetails | null>(null);
   author = this.authorState.asReadonly();
 
   readonly menuOpenBookId = computed(() => this.bookMenu()?.openBookId() ?? null);
 
-  readonly booksQuery = injectInfiniteQuery(() => this.bookQueryService.infinitePage({
+  readonly booksQuery = injectInfiniteQuery(() => ({
+    ...this.bookQueryService.infinitePage({
+      size: 30,
+      sort: [],
+      facets: {
+        author: {include: [this.author()?.name ?? ''], exclude: []}
+      },
+    }),
     enabled: this.author() != null,
-    size: 30,
-    sort: [],
-    facets: {
-      author: [ this.author()?.name ?? '' ]
-    },
-    facetLogic: 'and'
   }));
 
-  books = computed(
+  readonly books = computed(
     () => this.booksQuery.data()?.pages.flatMap(p => p.content) ?? []
   );
 
-  bookTotalCount = computed(() => this.booksQuery.data()?.pages[0]?.page.totalElements ?? 0)
+  readonly bookTotalCount = computed(() => this.booksQuery.data()?.pages[0]?.page.totalElements ?? 0)
 
   private readonly fetchNextPageEffect = effect(() => {
     const virtualItems = this.virtualGrid.virtualizer.getVirtualItems();
@@ -122,7 +121,7 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
       this.booksQuery.hasNextPage() &&
       !this.booksQuery.isFetchingNextPage()
     ) {
-      this.booksQuery.fetchNextPage()
+      void this.booksQuery.fetchNextPage()
     }
   })
 

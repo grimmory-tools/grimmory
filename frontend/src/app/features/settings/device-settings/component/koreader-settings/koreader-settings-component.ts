@@ -30,19 +30,18 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
   styleUrls: ['./koreader-settings-component.scss']
 })
 export class KoreaderSettingsComponent {
-  editMode = signal(true);
-  showPassword = signal(false);
-  koReaderSyncEnabled = signal(false);
-  koReaderUsername = signal('');
-  koReaderPassword = signal('');
-  credentialsSaved = signal(false);
-  readonly koreaderEndpoint = `${window.location.origin}/api/koreader`;
-
   private readonly messageService = inject(MessageService);
   private readonly koreaderService = inject(KoreaderService);
   private readonly userService = inject(UserService);
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
+  readonly editMode = signal(true);
+  readonly showPassword = signal(false);
+  readonly koReaderSyncEnabled = signal(false);
+  readonly koReaderUsername = signal('');
+  readonly koReaderPassword = signal('');
+  readonly credentialsSaved = signal(false);
+  readonly koreaderEndpoint = `${window.location.origin}/api/koreader`;
 
   readonly hasPermission = computed(() => {
     const user = this.userService.currentUser();
@@ -142,7 +141,7 @@ export class KoreaderSettingsComponent {
         summary: this.t.translate('settingsDevice.copied'),
         detail: this.t.translate('settingsDevice.copiedDetail', {label})
       });
-    }).catch(err => {
+    }).catch((err: unknown) => {
       console.error('Copy failed', err);
       this.messageService.add({
         severity: 'error',

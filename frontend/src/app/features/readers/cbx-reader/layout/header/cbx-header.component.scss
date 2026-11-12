@@ -7,8 +7,8 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 38px;
-  padding: 0 12px;
+  height: var(--reader-header-height);
+  padding: var(--safe-edge-top) calc(12px + var(--safe-edge-right)) 0 calc(12px + var(--safe-edge-left));
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -31,6 +31,7 @@
   .header-right {
     display: flex;
     align-items: center;
+    gap: 8px;
     z-index: 1;
   }
 
@@ -45,7 +46,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 8px;
 
     .icon {
       font-size: 18px;
@@ -54,10 +54,6 @@
 
     &:hover {
       background: var(--reader-chrome-hover);
-    }
-
-    &:last-child {
-      margin-right: 0;
     }
 
     &.close-btn {
@@ -164,11 +160,15 @@
 
 @media (width <= 600px) {
   .cbx-header {
-    padding: 0 4px;
+    padding: var(--safe-edge-top) calc(4px + var(--safe-edge-right)) 0 calc(4px + var(--safe-edge-left));
+
+    .header-left,
+    .header-right {
+      gap: 6px;
+    }
 
     .icon-btn {
       padding: 5px;
-      margin-right: 6px;
 
       app-reader-icon {
         transform: scale(0.9);

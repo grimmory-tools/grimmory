@@ -53,20 +53,19 @@ import {API_CONFIG} from '../../../core/config/api-config';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AudiobookPlayerComponent implements OnInit, OnDestroy {
-  @ViewChild('audioElement') audioElement!: ElementRef<HTMLAudioElement>;
-
   private readonly destroyRef = inject(DestroyRef);
-  private audiobookService = inject(AudiobookService);
-  private bookService = inject(BookService);
-  private bookMarkService = inject(BookMarkService);
-  private authService = inject(AuthService);
-  private route = inject(ActivatedRoute);
-  private location = inject(Location);
-  private messageService = inject(MessageService);
-  private audiobookSessionService = inject(AudiobookSessionService);
-  private pageTitle = inject(PageTitleService);
+  private readonly audiobookService = inject(AudiobookService);
+  private readonly bookService = inject(BookService);
+  private readonly bookMarkService = inject(BookMarkService);
+  private readonly authService = inject(AuthService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly location = inject(Location);
+  private readonly messageService = inject(MessageService);
+  private readonly audiobookSessionService = inject(AudiobookSessionService);
+  private readonly pageTitle = inject(PageTitleService);
   private readonly t = inject(TranslocoService);
   private readonly cdr = inject(ChangeDetectorRef);
+  @ViewChild('audioElement') audioElement!: ElementRef<HTMLAudioElement>;
 
   private loadRequestId = 0;
   isLoading = true;
@@ -571,7 +570,7 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
 
   seek(event: SliderChangeEvent): void {
     if (this.duration > 0 && event.value !== undefined) {
-      const seekTime = event.value as number;
+      const seekTime = event.value;
       this.isSeeking = true;
       this.currentTime = seekTime;
       this.updateCurrentChapter();
@@ -603,7 +602,7 @@ export class AudiobookPlayerComponent implements OnInit, OnDestroy {
   setVolume(event: SliderChangeEvent): void {
     const audio = this.audioElement?.nativeElement;
     if (event.value !== undefined) {
-      this.volume = event.value as number;
+      this.volume = event.value;
       this.isMuted = this.volume === 0;
       if (audio) {
         audio.volume = this.volume;

@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, EventEmitter, inject, Input, OnInit, Output, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, Input, OnInit, output, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {Button} from '@openng/optimus-ui/button';
 import {InputText} from '@openng/optimus-ui/inputtext';
@@ -30,24 +30,23 @@ interface RegionOption {
   ]
 })
 export class AuthorMatchComponent implements OnInit {
+  private readonly authorService = inject(AuthorService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
 
   @Input({required: true}) authorId!: number;
   @Input({required: true}) authorName!: string;
-  @Output() authorMatched = new EventEmitter<AuthorDetails>();
+  readonly authorMatched = output<AuthorDetails>();
 
-  private authorService = inject(AuthorService);
-  private messageService = inject(MessageService);
-  private t = inject(TranslocoService);
+  readonly searchQuery = signal('');
+  readonly asinQuery = signal('');
+  readonly selectedRegion = signal('us');
+  readonly searching = signal(false);
+  readonly matching = signal(false);
+  readonly results = signal<AuthorSearchResult[]>([]);
+  readonly hasSearched = signal(false);
 
-  searchQuery = signal('');
-  asinQuery = signal('');
-  selectedRegion = signal('us');
-  searching = signal(false);
-  matching = signal(false);
-  results = signal<AuthorSearchResult[]>([]);
-  hasSearched = signal(false);
-
-  canSearch = computed(() => !!this.searchQuery().trim() || !!this.asinQuery().trim());
+  readonly canSearch = computed(() => !!this.searchQuery().trim() || !!this.asinQuery().trim());
 
   regionOptions: RegionOption[] = [
     {label: 'US', value: 'us'},

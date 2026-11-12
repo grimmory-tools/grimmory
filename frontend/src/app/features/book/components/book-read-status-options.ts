@@ -1,11 +1,11 @@
 import {
   BOOK_READ_STATUSES,
-  type KnownBookReadStatus,
+  type BookReadStatus,
 } from '../data/book-response.models';
 
-export type BookReadStatusTarget = Exclude<KnownBookReadStatus, 'UNSET'>;
+export type BookReadStatusTarget = Exclude<BookReadStatus, 'UNSET'>;
 
-export const CLEAR_BOOK_READ_STATUS = 'UNSET' satisfies KnownBookReadStatus;
+export const CLEAR_BOOK_READ_STATUS = 'UNSET' satisfies BookReadStatus;
 export const CLEAR_BOOK_READ_STATUS_LABEL_KEY = 'book.filter.readStatus.unset';
 
 export const BOOK_READ_STATUS_LABEL_KEYS: Readonly<Record<BookReadStatusTarget, string>> = {

@@ -20,7 +20,7 @@
           <div class="select-group">
             <p-select size="small" [options]="viewModeOptions" [(ngModel)]="selectedView"
                       optionLabel="label" optionValue="value"
-                      [placeholder]="t('tableViewMode')" appendTo="body"></p-select>
+                      [placeholder]="t('tableViewMode')" appendTo="body" />
           </div>
         </div>
 
@@ -33,14 +33,14 @@
             (termsChange)="onGlobalSortTermsChange($event)" />
         </div>
         <div class="format-overlay-editor">
-          <p-toggleswitch [(ngModel)]="overlayBookType"></p-toggleswitch>
+          <p-toggleswitch [(ngModel)]="overlayBookType" />
           <span class="setting-label">{{ t('formatOverlay') }}</span>
         </div>
       </div>
 
       <div class="setting-item">
         <div class="setting-header">
-          <p-toggleswitch [(ngModel)]="autoSaveMetadata"></p-toggleswitch>
+          <p-toggleswitch [(ngModel)]="autoSaveMetadata" />
           <span class="setting-label">{{ t('autoSave') }}</span>
         </div>
         <p class="setting-description">{{ t('autoSaveDesc') }}</p>
@@ -52,7 +52,7 @@
         </div>
         <p class="setting-description">{{ t('overrideManagementDesc') }}</p>
         <div class="setting-options">
-          <p-button [label]="t('addOverride')" outlined size="small" (onClick)="addOverride()" icon="pi pi-plus" [disabled]="availableLibraries.length === 0"></p-button>
+          <p-button [label]="t('addOverride')" outlined size="small" (onClick)="addOverride()" icon="pi pi-plus" [disabled]="availableLibraries.length === 0" />
         </div>
       </div>
 
@@ -73,7 +73,7 @@
                 <td>
                   <p-select size="small" [options]="entityTypeOptions" [(ngModel)]="override.entityType"
                             optionLabel="label" optionValue="value"
-                            [style]="{'width': '100%'}" appendTo="body"></p-select>
+                            [style]="{'width': '100%'}" appendTo="body" />
                 </td>
                 <td>
                   @if (override.entityType) {
@@ -81,7 +81,7 @@
                               [options]="getAvailableEntities(rowIndex, override.entityType)"
                               [(ngModel)]="override.library"
                               optionLabel="label" optionValue="value"
-                              [style]="{'width': '100%'}" appendTo="body"></p-select>
+                              [style]="{'width': '100%'}" appendTo="body" />
                   }
                 </td>
                 <td>
@@ -90,17 +90,16 @@
                     icon="pi pi-sort"
                     size="small"
                     [outlined]="true"
-                    (onClick)="editOverrideSort(rowIndex)">
-                  </p-button>
+                    (onClick)="editOverrideSort(rowIndex)" />
                 </td>
                 <td>
                   <p-select size="small" [options]="viewModeOptions" [(ngModel)]="override.view"
                             optionLabel="label" optionValue="value"
-                            [style]="{'width': '100%'}" appendTo="body"></p-select>
+                            [style]="{'width': '100%'}" appendTo="body" />
                 </td>
                 <td style="text-align: center;">
                   <p-button icon="pi pi-trash" severity="danger" size="small" [outlined]="true"
-                            (onClick)="removeOverride(rowIndex)" [pTooltip]="t('removeOverride')" tooltipPosition="left"></p-button>
+                            (onClick)="removeOverride(rowIndex)" [pTooltip]="t('removeOverride')" tooltipPosition="left" />
                 </td>
               </tr>
             </ng-template>
@@ -109,7 +108,7 @@
       }
 
       <div class="setting-actions">
-        <p-button [label]="t('saveSettings')" icon="pi pi-save" outlined severity="success" (onClick)="saveSettings()"></p-button>
+        <p-button [label]="t('saveSettings')" icon="pi pi-save" outlined severity="success" (onClick)="saveSettings()" />
       </div>
     </div>
   </div>

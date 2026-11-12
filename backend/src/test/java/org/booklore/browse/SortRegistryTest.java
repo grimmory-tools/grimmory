@@ -14,7 +14,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -40,10 +42,11 @@ class SortRegistryTest {
     ArgumentCaptor<SortContext<Object>> sortContextCaptor;
 
     @Test
-    void registersAndExposesKeysInOrder() {
-        SortRegistry<Object> registry = new SortRegistry<>()
-                .register("id", ascOn("id"))
-                .register("title", ascOn("title"));
+    void exposesKeysInOrder() {
+        Map<String, SortOrderBuilder<Object>> builders = new LinkedHashMap<>();
+        builders.put("id", ascOn("id"));
+        builders.put("title", ascOn("title"));
+        SortRegistry<Object> registry = new SortRegistry<>(builders);
         assertTrue(registry.has("id"));
         assertTrue(registry.has("title"));
         assertEquals(List.of("id", "title"), List.copyOf(registry.keys()));
@@ -53,9 +56,9 @@ class SortRegistryTest {
     void dispatchesEachTermToItsBuilderInOrder() {
         Order idOrder = mock(Order.class);
         Order titleOrder = mock(Order.class);
-        SortRegistry<Object> registry = new SortRegistry<>()
-                .register("title", ctx -> List.of(titleOrder))
-                .register("id", ctx -> List.of(idOrder));
+        SortRegistry<Object> registry = new SortRegistry<>(Map.of(
+                "title", ctx -> List.of(titleOrder),
+                "id", ctx -> List.of(idOrder)));
 
         List<Order> orders = registry.toOrders(
                 List.of(new SortTerm("title", false), new SortTerm("id", false)),
@@ -71,7 +74,7 @@ class SortRegistryTest {
 
     @Test
     void passesParametersToBuilder() {
-        SortRegistry<Object> registry = new SortRegistry<>().register("title", mockSortOrderBuilder);
+        SortRegistry<Object> registry = new SortRegistry<>(Map.of("title", mockSortOrderBuilder));
 
         registry.toOrders(List.of(new SortTerm("title", true)), root, query, cb, 42L, 123);
 
@@ -86,7 +89,7 @@ class SortRegistryTest {
 
     @Test
     void unknownKeyThrows() {
-        SortRegistry<Object> registry = new SortRegistry<>().register("id", ascOn("id"));
+        SortRegistry<Object> registry = new SortRegistry<>(Map.of("id", ascOn("id")));
         assertThrows(APIException.class,
                 () -> registry.toOrders(
                         List.of(new SortTerm("bogus", false)),

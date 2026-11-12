@@ -1,4 +1,4 @@
-import {inject, Injectable, Type} from '@angular/core';
+import {inject, Service, Type} from '@angular/core';
 import {DialogService, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {TranslocoService} from '@jsverse/transloco';
 import {MessageService} from '@openng/optimus-ui/api';
@@ -25,16 +25,14 @@ export const DialogStyle = {
   MINIMAL: 'dialog-minimal', // removes padding for custom headers
 } as const;
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class DialogLauncherService {
 
   private readonly dialogService = inject(DialogService);
   private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
 
-  private defaultDialogOptions = {
+  private readonly defaultDialogOptions = {
     baseZIndex: 10,
     closable: true,
     dismissableMask: true,
@@ -53,7 +51,7 @@ export class DialogLauncherService {
   }
 
   launchLazyDialog(dialogFn: () => Promise<DynamicDialogRef | null>): Promise<DynamicDialogRef | null> {
-    return dialogFn().catch(err => {
+    return dialogFn().catch((err: unknown) => {
       console.error('Failed to load dialog', err);
       this.messageService.add({
         severity: 'error',

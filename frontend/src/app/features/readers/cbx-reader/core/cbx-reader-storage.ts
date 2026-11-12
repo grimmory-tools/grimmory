@@ -31,9 +31,7 @@ export function readStripWidthPercent(
     let raw: string | null = null;
     if (userId != null && userId > 0) {
       raw = localStorage.getItem(stripWidthStorageKey(bookId, userId));
-      if (raw == null) {
-        raw = localStorage.getItem(LEGACY_STRIP_WIDTH_BOOK_PREFIX + bookId);
-      }
+      raw ??= localStorage.getItem(LEGACY_STRIP_WIDTH_BOOK_PREFIX + bookId);
     } else {
       raw = localStorage.getItem(LEGACY_STRIP_WIDTH_BOOK_PREFIX + bookId);
     }

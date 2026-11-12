@@ -1,4 +1,4 @@
-import {Injectable, inject} from '@angular/core';
+import {Service, inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {API_CONFIG} from '../../core/config/api-config';
@@ -37,13 +37,11 @@ export interface UpdateBookMarkRequest {
   priority?: number;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class BookMarkService {
+  private readonly http = inject(HttpClient);
 
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/bookmarks`;
-  private readonly http = inject(HttpClient);
 
   getBookmarksForBook(bookId: number): Observable<BookMark[]> {
     return this.http.get<BookMark[]>(`${this.url}/book/${bookId}`);

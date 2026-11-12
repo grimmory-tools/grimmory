@@ -24,13 +24,11 @@ import {ExternalDocLinkComponent} from '../../../shared/components/external-doc-
 import {ToggleSwitch} from '@openng/optimus-ui/toggleswitch';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
-import {NgClass} from '@angular/common';
 
 @Component({
   selector: 'app-task-management',
   standalone: true,
   imports: [
-    NgClass,
     Button,
     ProgressBar,
     Select,
@@ -46,9 +44,9 @@ import {NgClass} from '@angular/common';
 })
 export class TaskManagementComponent implements OnInit {
   // Services
-  private messageService = inject(MessageService);
-  private taskService = inject(TaskService);
-  private t = inject(TranslocoService);
+  private readonly messageService = inject(MessageService);
+  private readonly taskService = inject(TaskService);
+  private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
 
   // State

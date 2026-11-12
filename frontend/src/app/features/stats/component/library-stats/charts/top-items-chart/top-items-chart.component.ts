@@ -8,7 +8,7 @@ import {LibraryFilterService} from '../../service/library-filter.service';
 import {BookService} from '../../../../../book/service/book.service';
 import {Book, ReadStatus} from '../../../../../book/model/book.model';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
-import {NgClass, AsyncPipe} from '@angular/common';
+import {AsyncPipe} from '@angular/common';
 
 interface ItemStats {
   name: string;
@@ -76,11 +76,14 @@ const READ_STATUS_ORDER: ReadStatus[] = [
   standalone: true,
   imports: [
     AsyncPipe,
-    NgClass,FormsModule, BaseChartDirective, Select, TranslocoDirective],
+    FormsModule, BaseChartDirective, Select, TranslocoDirective],
   templateUrl: './top-items-chart.component.html',
   styleUrls: ['./top-items-chart.component.scss']
 })
 export class TopItemsChartComponent implements OnInit {
+  private readonly bookService = inject(BookService);
+  private readonly libraryFilterService = inject(LibraryFilterService);
+  private readonly t = inject(TranslocoService);
   @Input() initialDataType: DataType | null = null;
 
   public readonly chartType = 'bar' as const;
@@ -92,10 +95,6 @@ export class TopItemsChartComponent implements OnInit {
   public totalItems = 0;
   public totalBooks = 0;
   public insights: { icon: string; label: string; value: string }[] = [];
-
-  private readonly bookService = inject(BookService);
-  private readonly libraryFilterService = inject(LibraryFilterService);
-  private readonly t = inject(TranslocoService);
   private readonly syncChartEffect = effect(() => {
     if (this.bookService.isBooksLoading()) {
       return;
@@ -394,15 +393,15 @@ export class TopItemsChartComponent implements OnInit {
 
     switch (dataType) {
       case 'authors':
-        return metadata.authors || [];
+        return metadata.authors ?? [];
       case 'categories':
-        return metadata.categories || [];
+        return metadata.categories ?? [];
       case 'publishers':
         return metadata.publisher ? [metadata.publisher] : [];
       case 'tags':
-        return metadata.tags || [];
+        return metadata.tags ?? [];
       case 'moods':
-        return metadata.moods || [];
+        return metadata.moods ?? [];
       case 'series':
         return metadata.seriesName ? [metadata.seriesName] : [];
       default:

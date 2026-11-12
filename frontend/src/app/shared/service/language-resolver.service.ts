@@ -1,4 +1,4 @@
-import {Injectable, inject} from '@angular/core';
+import {Service, inject} from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {TranslocoService} from '@jsverse/transloco';
 
@@ -46,7 +46,7 @@ const LANGUAGE_ALIASES: Record<string, string> = {
 
 type DisplayNamesType = 'language' | 'region' | 'script';
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class LanguageResolverService {
   private readonly translocoService = inject(TranslocoService);
   private readonly displayNamesCache = new Map<string, Intl.DisplayNames | null>();

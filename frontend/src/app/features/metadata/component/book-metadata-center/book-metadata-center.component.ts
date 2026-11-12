@@ -2,7 +2,7 @@ import {computed, Component, DestroyRef, inject, OnInit, signal} from '@angular/
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UserService} from '../../../settings/user-management/user.service';
-import {Book, BookRecommendation} from '../../../book/model/book.model';
+import {Book} from '../../../book/model/book.model';
 import {distinctUntilChanged, filter, map} from 'rxjs/operators';
 import {BookService} from '../../../book/service/book.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
@@ -15,8 +15,7 @@ import {MetadataViewerComponent} from './metadata-viewer/metadata-viewer.compone
 import {MetadataEditorComponent} from './metadata-editor/metadata-editor.component';
 import {MetadataSearcherComponent} from './metadata-searcher/metadata-searcher.component';
 import {SidecarViewerComponent} from './sidecar-viewer/sidecar-viewer.component';
-import {injectQuery, queryOptions} from '@tanstack/angular-query-experimental';
-import {bookRecommendationsQueryKey} from '../../../book/service/book-query-keys';
+import {injectQuery} from '@tanstack/angular-query-experimental';
 import {PageTitleService} from '../../../../shared/service/page-title.service';
 
 enum BookMetadataTab {
@@ -46,21 +45,21 @@ enum BookMetadataTab {
   styleUrls: ['./book-metadata-center.component.scss'],
 })
 export class BookMetadataCenterComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private bookService = inject(BookService);
-  private userService = inject(UserService);
-  private appSettingsService = inject(AppSettingsService);
-  private metadataHostService = inject(BookMetadataHostService);
-  private destroyRef = inject(DestroyRef);
-  private pageTitle = inject(PageTitleService);
-  private t = inject(TranslocoService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly bookService = inject(BookService);
+  private readonly userService = inject(UserService);
+  private readonly appSettingsService = inject(AppSettingsService);
+  private readonly metadataHostService = inject(BookMetadataHostService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly pageTitle = inject(PageTitleService);
+  private readonly t = inject(TranslocoService);
   readonly config = inject(DynamicDialogConfig, {optional: true});
   readonly ref = inject(DynamicDialogRef, {optional: true});
   BookMetadataTab = BookMetadataTab;
 
-  private currentBookId = signal<number | null>(this.config?.data?.bookId ?? null);
-  private bookQuery = injectQuery(() => {
+  private readonly currentBookId = signal<number | null>(this.config?.data?.bookId ?? null);
+  private readonly bookQuery = injectQuery(() => {
     const bookId = this.currentBookId();
 
     if (bookId == null) {
@@ -76,25 +75,6 @@ export class BookMetadataCenterComponent implements OnInit {
     return this.bookService.bookDetailQueryOptions(bookId, true);
   });
   readonly book = computed(() => this.bookQuery.data() ?? null);
-  private readonly recommendationsQuery = injectQuery(() => {
-    const bookId = this.currentBookId();
-    const settings = this.appSettingsService.appSettings();
-
-    if (bookId == null || !(settings?.similarBookRecommendation ?? false)) {
-      return queryOptions({
-        queryKey: bookRecommendationsQueryKey(-1, 20),
-        queryFn: async (): Promise<BookRecommendation[]> => [],
-        enabled: false,
-      });
-    }
-
-    return this.bookService.bookRecommendationsQueryOptions(bookId, 20);
-  });
-  readonly recommendedBooks = computed(() =>
-    [...(this.recommendationsQuery.data() ?? [])].sort(
-      (a, b) => (b.similarityScore ?? 0) - (a.similarityScore ?? 0)
-    )
-  );
   private _tab: BookMetadataTab = BookMetadataTab.View;
   readonly canEditMetadata = computed(() => {
     const user = this.userService.currentUser();
@@ -112,7 +92,7 @@ export class BookMetadataCenterComponent implements OnInit {
 
     return (this.admin() || this.canEditMetadata()) && !this.isPhysical && this.isLocalStorage() && sidecarEnabled;
   }
-  private validTabs = Object.values(BookMetadataTab);
+  private readonly validTabs = Object.values(BookMetadataTab);
 
   get tab(): BookMetadataTab {
     return this._tab;

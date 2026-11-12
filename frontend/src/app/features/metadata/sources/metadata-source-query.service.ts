@@ -1,5 +1,5 @@
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
-import {computed, effect, inject, Injectable} from '@angular/core';
+import {computed, effect, inject, Service} from '@angular/core';
 import {
   experimental_streamedQuery,
   injectQuery,
@@ -85,7 +85,7 @@ function normalizeCoverSearchParams(params: CoverSearchParams): CoverSearchParam
   };
 }
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class MetadataSourceQueryService {
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);

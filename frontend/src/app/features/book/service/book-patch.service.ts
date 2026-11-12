@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable, Subject} from 'rxjs';
 import {distinctUntilChanged, exhaustMap, share, tap} from 'rxjs/operators';
@@ -7,8 +7,6 @@ import {API_CONFIG} from '../../../core/config/api-config';
 import {ResetProgressType, ResetProgressTypes} from '../../../shared/constants/reset-progress-type';
 import {BookStatusUpdateResponse, PersonalRatingUpdateResponse} from '../model/book.model';
 import {QueryClient} from '@tanstack/angular-query-experimental';
-import {applyBookQueryChangeSet} from '../data/book-query-cache';
-import {BOOKS_QUERY_KEY} from './book-query-keys';
 import {
   patchBooksInCache,
   patchBookFieldsInCache,
@@ -32,18 +30,15 @@ function getResetProgressFields(type: ResetProgressType): Partial<Book> {
   };
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class BookPatchService {
+  private readonly http = inject(HttpClient);
+  private readonly queryClient = inject(QueryClient);
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/books`;
 
-  private http = inject(HttpClient);
-  private queryClient = inject(QueryClient);
+  private readonly epubProgressSubject = new Subject<{ bookId: number; cfi: string; href: string; percentage: number; bookFileId?: number }>();
 
-  private epubProgressSubject = new Subject<{ bookId: number; cfi: string; href: string; percentage: number; bookFileId?: number }>();
-
-  private epubProgress$ = this.epubProgressSubject.pipe(
+  private readonly epubProgress$ = this.epubProgressSubject.pipe(
     distinctUntilChanged((prev, curr) =>
       prev.bookId === curr.bookId &&
       prev.cfi === curr.cfi &&
@@ -269,15 +264,5 @@ export class BookPatchService {
         })));
       })
     );
-  }
-
-  updateLastReadTime(bookId: number): void {
-    const timestamp = new Date().toISOString();
-    this.queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, current =>
-      current?.map(book =>
-        book.id === bookId ? {...book, lastReadTime: timestamp} : book
-      )
-    );
-    void applyBookQueryChangeSet(this.queryClient, {changedBookIds: [bookId]});
   }
 }

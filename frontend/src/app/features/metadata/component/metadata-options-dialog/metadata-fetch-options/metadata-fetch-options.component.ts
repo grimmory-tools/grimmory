@@ -19,6 +19,10 @@ import {TranslocoDirective} from '@jsverse/transloco';
   styleUrl: './metadata-fetch-options.component.scss'
 })
 export class MetadataFetchOptionsComponent implements OnInit, OnChanges {
+  private readonly dynamicDialogConfig = inject(DynamicDialogConfig);
+  dynamicDialogRef = inject(DynamicDialogRef);
+  private readonly taskHelperService = inject(TaskHelperService);
+  private readonly appSettingsService = inject(AppSettingsService);
   @Input() dialogData?: {
     libraryId?: number | null;
     bookIds?: number[];
@@ -29,11 +33,6 @@ export class MetadataFetchOptionsComponent implements OnInit, OnChanges {
   bookIds: number[] = [];
   metadataRefreshType: MetadataRefreshType = MetadataRefreshType.BOOKS;
   currentMetadataOptions!: MetadataRefreshOptions;
-
-  private dynamicDialogConfig = inject(DynamicDialogConfig);
-  dynamicDialogRef = inject(DynamicDialogRef);
-  private taskHelperService = inject(TaskHelperService);
-  private appSettingsService = inject(AppSettingsService);
 
   constructor() {
     const settings = this.appSettingsService.appSettings();

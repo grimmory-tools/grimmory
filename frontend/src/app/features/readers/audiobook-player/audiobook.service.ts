@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
@@ -9,16 +9,13 @@ import { BookFileProgress } from '../../book/model/book.model';
 import { QueryClient } from '@tanstack/angular-query-experimental';
 import { patchBookFieldsInCache } from '../../book/service/legacy-book-cache';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class AudiobookService {
+  private readonly http = inject(HttpClient);
+  private readonly authService = inject(AuthService);
+  private readonly queryClient = inject(QueryClient);
   private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/audiobooks`;
   private readonly booksUrl = `${API_CONFIG.BASE_URL}/api/v1/books`;
-
-  private http = inject(HttpClient);
-  private authService = inject(AuthService);
-  private queryClient = inject(QueryClient);
 
   getAudiobookInfo(bookId: number, bookType?: string): Observable<AudiobookInfo> {
     const params: Record<string, string> = {};

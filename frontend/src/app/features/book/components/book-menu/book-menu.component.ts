@@ -35,7 +35,6 @@ import {
 } from '../../../../shared/components/shelf-menu/shelf-membership-menu.component';
 import {UserService} from '../../../settings/user-management/user.service';
 import {MetadataRefreshSubmissionService} from '../../../metadata/data/metadata-refresh-submission.service';
-import {BookBackgroundSubmissionService} from '../../data/book-background-submission.service';
 import {BookCommandService} from '../../data/book-command.service';
 import {BookShelfCommandService} from '../../data/book-shelf-command.service';
 import {type UpdateBookShelfMembershipResult} from '../../data/book-shelf-command.models';
@@ -60,7 +59,7 @@ import {
 import {
   type BookFileResponse,
   type BookSummary,
-  type KnownBookReadStatus,
+  type BookReadStatus,
 } from '../../data/book-response.models';
 import {ShelfDefinitionQueryService} from '../../data/shelf-definition-query.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
@@ -101,24 +100,22 @@ const BOOK_MENU_READ_ACTION_LABEL_KEYS: Readonly<Record<BookReadAction, string>>
   templateUrl: './book-menu.component.html',
 })
 export class BookMenuComponent {
-  readonly books = input<readonly BookSummary[]>([]);
-  readonly openInNewTab = input(false, {transform: booleanAttribute});
-
-  readonly deleted = output<readonly number[]>();
-
   private readonly userService = inject(UserService);
   private readonly appSettingsService = inject(AppSettingsService);
   private readonly fileDownload = inject(FileDownloadService);
   private readonly bookNavigation = inject(BookNavigationService);
   private readonly dialogHelper = inject(BookDialogHelperService);
   private readonly metadataRefresh = inject(MetadataRefreshSubmissionService);
-  private readonly backgroundSubmission = inject(BookBackgroundSubmissionService);
   private readonly bookCommands = inject(BookCommandService);
   private readonly shelfCommands = inject(BookShelfCommandService);
   private readonly shelfDefinitionQuery = inject(ShelfDefinitionQueryService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly transloco = inject(TranslocoService);
   private readonly router = inject(Router);
+  readonly books = input<readonly BookSummary[]>([]);
+  readonly openInNewTab = input(false, {transform: booleanAttribute});
+
+  readonly deleted = output<readonly number[]>();
 
   private readonly rootMenu = viewChild.required(AppMenuComponent);
   private readonly bookSnapshot = signal<BookSummary | null>(null);
@@ -156,7 +153,7 @@ export class BookMenuComponent {
   });
   private readonly deleteAdditionalFileMutation = injectMutation(() => withLegacyBookCache(
     this.bookCommands.deleteAdditionalFile(), legacyBookCachePatches.deleteAdditionalFile));
-  private readonly quickSendMutation = injectMutation(() => this.backgroundSubmission.quickSend());
+  private readonly quickSendMutation = injectMutation(() => this.bookCommands.quickSend());
   private readonly metadataLocksMutation = injectMutation(() => {
     const options = withLegacyBookCache(
       this.bookCommands.setAllMetadataLocks(), legacyBookCachePatches.metadataAllLocks);
@@ -170,7 +167,8 @@ export class BookMenuComponent {
   });
   private readonly resetProgressMutation = injectMutation(() => withLegacyBookCache(
     this.bookCommands.resetProgress(), legacyBookCachePatches.resetProgress));
-  private readonly changeCoversMutation = injectMutation(() => this.backgroundSubmission.changeCovers());
+  private readonly regenerateCoversMutation = injectMutation(() => this.bookCommands.bulkRegenerateCovers());
+  private readonly generateCoversMutation = injectMutation(() => this.bookCommands.bulkGenerateCovers());
 
   protected readonly readStatusTargets = BOOK_READ_STATUS_TARGETS;
   protected readonly clearReadStatus = CLEAR_BOOK_READ_STATUS;
@@ -281,7 +279,7 @@ export class BookMenuComponent {
   }
 
   protected onRead(): void {
-    this.bookNavigation.readBook(this.book()!, this.shownFile());
+    this.bookNavigation.readBook(this.book()!, {bookType: this.shownFile()?.bookType});
   }
 
   protected onToggleShelf(shelfId: number, checked: boolean): void {
@@ -308,7 +306,7 @@ export class BookMenuComponent {
     void this.dialogHelper.openShelfCreatorDialog();
   }
 
-  protected onSetReadStatus(status: KnownBookReadStatus): void {
+  protected onSetReadStatus(status: BookReadStatus): void {
     this.readStatusMutation.mutate({bookIds: [this.book()!.id], status});
   }
 
@@ -337,7 +335,8 @@ export class BookMenuComponent {
   }
 
   protected onChangeCovers(kind: 'regenerate' | 'generate'): void {
-    this.changeCoversMutation.mutate({kind, bookIds: [this.book()!.id]});
+    const mutation = kind === 'regenerate' ? this.regenerateCoversMutation : this.generateCoversMutation;
+    mutation.mutate({bookIds: [this.book()!.id]});
   }
 
   protected onMetadataLockChange(locked: boolean): void {

@@ -1,5 +1,5 @@
 import {HttpClient} from '@angular/common/http';
-import {effect, inject, Injectable} from '@angular/core';
+import {effect, inject, Service} from '@angular/core';
 import {queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
 import {lastValueFrom, takeUntil} from 'rxjs';
 
@@ -9,7 +9,7 @@ import {ShelfDefinition} from './shelf-definition.models';
 import {shelfDefinitionQueryKeys} from './shelf-definition-query-keys';
 import {AuthService} from '../../../shared/service/auth.service';
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class ShelfDefinitionQueryService {
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);

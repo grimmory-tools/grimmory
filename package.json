@@ -1,8 +1,8 @@
 {
   "name": "grimmory-workspace",
   "private": true,
-  "packageManager": "pnpm@11.19.0",
+  "packageManager": "pnpm@12.11.2",
   "engines": {
-    "node": ">=24"
+    "node": ">=26"
   }
 }

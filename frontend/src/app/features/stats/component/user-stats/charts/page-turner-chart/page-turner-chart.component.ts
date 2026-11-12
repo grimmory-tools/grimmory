@@ -21,16 +21,15 @@ type PageTurnerChartData = ChartData<'bar', number[], string>;
   styleUrls: ['./page-turner-chart.component.scss']
 })
 export class PageTurnerChartComponent implements OnInit {
+  private readonly userStatsService = inject(UserStatsService);
+  private readonly t = inject(TranslocoService);
+  private readonly destroyRef = inject(DestroyRef);
   public readonly chartType = 'bar' as const;
   public readonly chartData$: Observable<PageTurnerChartData>;
   public readonly chartOptions: ChartConfiguration['options'];
 
   public stats = {mostGripping: '', avgGripScore: 0, guiltyPleasure: ''};
   public topBooks: PageTurnerScoreResponse[] = [];
-
-  private readonly userStatsService = inject(UserStatsService);
-  private readonly t = inject(TranslocoService);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly chartDataSubject: BehaviorSubject<PageTurnerChartData>;
 
   constructor() {

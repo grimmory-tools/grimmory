@@ -16,8 +16,7 @@
       [rounded]="true"
       severity="secondary"
       (onClick)="closeDialog()"
-      class="close-button">
-    </p-button>
+      class="close-button" />
   </div>
 
   <div class="shelf-container">
@@ -31,10 +30,10 @@
         <span class="label">{{ t('shelfIconLabel') }}</span>
         <div class="icon-section">
           @if (!selectedIcon) {
-            <p-button [label]="t('selectIcon')" icon="pi pi-search" [outlined]="true" severity="info" (onClick)="openIconPicker()"></p-button>
+            <p-button [label]="t('selectIcon')" icon="pi pi-search" [outlined]="true" severity="info" (onClick)="openIconPicker()" />
           }
 
-          @if (selectedIcon) {
+          @else {
             <div class="icon-container">
               <div class="icon-wrapper">
                 <app-icon-display
@@ -43,7 +42,7 @@
                   iconClass="icon"
                 />
               </div>
-              <p-button icon="pi pi-times" (onClick)="clearSelectedIcon()" [rounded]="true" [text]="true" severity="danger"></p-button>
+              <p-button icon="pi pi-times" (onClick)="clearSelectedIcon()" [rounded]="true" [text]="true" severity="danger" />
             </div>
           }
         </div>
@@ -53,7 +52,7 @@
         <div class="shelf-row">
         <span class="label">{{ t('visibilityLabel') }}</span>
           <div class="visibility-section" style="display: flex; align-items: center; gap: 0.4375rem;">
-            <p-checkbox [(ngModel)]="isPublic" [binary]="true" inputId="publicShelf"></p-checkbox>
+            <p-checkbox [(ngModel)]="isPublic" [binary]="true" inputId="publicShelf" />
             <label for="publicShelf" style="cursor: pointer; user-select: none;">{{ t('publicShelfLabel') }}</label>
           </div>
         </div>

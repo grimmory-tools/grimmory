@@ -1,4 +1,4 @@
-import {computed, effect, inject, Injectable} from '@angular/core';
+import {computed, effect, inject, Service} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {from, lastValueFrom, Observable} from 'rxjs';
 import {tap} from 'rxjs/operators';
@@ -13,22 +13,22 @@ import {invalidateShelfDefinitions} from '../data/shelf-definition-query-cache';
 import {invalidateAllBookCaches} from './legacy-book-cache';
 import {SHELVES_QUERY_KEY} from './shelf-query-keys';
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class LibraryService {
+  private readonly http = inject(HttpClient);
+  private readonly authService = inject(AuthService);
+  private readonly queryClient = inject(QueryClient);
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/libraries`;
-  private http = inject(HttpClient);
-  private authService = inject(AuthService);
-  private queryClient = inject(QueryClient);
   private readonly token = this.authService.token;
 
-  private librariesQuery = injectQuery(() => ({
+  private readonly librariesQuery = injectQuery(() => ({
     ...this.getLibrariesQueryOptions(),
     enabled: !!this.token(),
   }));
 
-  libraries = computed(() => this.librariesQuery.data() ?? []);
+  readonly libraries = computed(() => this.librariesQuery.data() ?? []);
 
-  librariesError = computed<string | null>(() => {
+  readonly librariesError = computed<string | null>(() => {
     if (!this.token() || !this.librariesQuery.isError()) {
       return null;
     }
@@ -37,7 +37,7 @@ export class LibraryService {
     return error instanceof Error ? error.message : 'Failed to load libraries';
   });
 
-  isLibrariesLoading = computed(() => !!this.token() && this.librariesQuery.isPending());
+  readonly isLibrariesLoading = computed(() => !!this.token() && this.librariesQuery.isPending());
 
   constructor() {
     effect(() => {
@@ -126,7 +126,7 @@ export class LibraryService {
   }
 
   getBookCountsByFormat(libraryId: number): Observable<Record<string, number>> {
-    return from(this.queryClient.ensureQueryData(this.getLibraryFormatCountsQueryOptions(libraryId)));
+    return from(this.queryClient.query({...this.getLibraryFormatCountsQueryOptions(libraryId), staleTime: 'static'}));
   }
 
   private sortLibraries(libraries: Library[]): Library[] {

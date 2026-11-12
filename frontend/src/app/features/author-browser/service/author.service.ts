@@ -1,4 +1,4 @@
-import {computed, DestroyRef, effect, inject, Injectable} from '@angular/core';
+import {computed, DestroyRef, effect, inject, Service} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {lastValueFrom, Observable} from 'rxjs';
 import {map, tap} from 'rxjs/operators';
@@ -12,29 +12,27 @@ import {AUTHORS_QUERY_KEY} from './author-query-keys';
 import {invalidateAuthorsQuery, patchAuthorInCache} from './author-query-cache';
 import {invalidateAllBookCaches} from '../../book/service/legacy-book-cache';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class AuthorService {
 
-  private http = inject(HttpClient);
-  private authService = inject(AuthService);
-  private sseClient = inject(SseClient);
-  private queryClient = inject(QueryClient);
-  private destroyRef = inject(DestroyRef);
+  private readonly http = inject(HttpClient);
+  private readonly authService = inject(AuthService);
+  private readonly sseClient = inject(SseClient);
+  private readonly queryClient = inject(QueryClient);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/authors`;
   private readonly mediaBaseUrl = `${API_CONFIG.BASE_URL}/api/v1/media`;
   private readonly token = this.authService.token;
   private readonly authorInvalidationDebounceMs = 200;
   private authorInvalidationTimer: ReturnType<typeof setTimeout> | null = null;
 
-  private authorsQuery = injectQuery(() => ({
+  private readonly authorsQuery = injectQuery(() => ({
     ...this.getAuthorsQueryOptions(),
     enabled: !!this.token(),
   }));
 
-  allAuthors = computed(() => this.authorsQuery.data() ?? null);
-  isAuthorsLoading = computed(() => !!this.token() && this.authorsQuery.isPending());
+  readonly allAuthors = computed(() => this.authorsQuery.data() ?? null);
+  readonly isAuthorsLoading = computed(() => !!this.token() && this.authorsQuery.isPending());
 
   constructor() {
     this.destroyRef.onDestroy(() => this.clearAuthorInvalidationTimer());

@@ -47,16 +47,16 @@ export interface UserWithEditing extends User {
   styleUrls: ['./user-management.component.scss'],
 })
 export class UserManagementComponent implements OnInit {
+  private readonly dialogLauncherService = inject(DialogLauncherService);
+  private readonly userService = inject(UserService);
+  private readonly libraryService = inject(LibraryService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
+  private readonly destroyRef = inject(DestroyRef);
   ref: DynamicDialogRef | undefined | null;
-  private dialogLauncherService = inject(DialogLauncherService);
-  private userService = inject(UserService);
-  private libraryService = inject(LibraryService);
-  private messageService = inject(MessageService);
-  private t = inject(TranslocoService);
-  private destroyRef = inject(DestroyRef);
   get allLibraries() { return this.libraryService.libraries(); }
 
-  users: WritableSignal<UserWithEditing[]> = signal([]);
+  readonly users: WritableSignal<UserWithEditing[]> = signal([]);
   currentUser: User | null = null;
   editingLibraryIds: number[] = [];
   expandedRows: Record<string, boolean> = {};
@@ -85,7 +85,7 @@ export class UserManagementComponent implements OnInit {
         this.users.set(data.map((user: UserWithEditing) => ({
           ...user,
           isEditing: false,
-          selectedLibraryIds: user.assignedLibraries?.map((lib) => lib.id!).filter(id => id !== undefined) as number[] || [],
+          selectedLibraryIds: user.assignedLibraries?.map((lib) => lib.id!).filter(id => id !== undefined) || [],
           libraryNames:
             user.assignedLibraries?.map((lib) => lib.name).join(', ') || '',
         })));
@@ -112,7 +112,7 @@ export class UserManagementComponent implements OnInit {
   toggleEdit(user: UserWithEditing) {
     user.isEditing = !user.isEditing;
     if (user.isEditing) {
-      this.editingLibraryIds = [...(user.selectedLibraryIds || [])];
+      this.editingLibraryIds = [...(user.selectedLibraryIds ?? [])];
     } else {
       user.libraryNames =
         user.assignedLibraries

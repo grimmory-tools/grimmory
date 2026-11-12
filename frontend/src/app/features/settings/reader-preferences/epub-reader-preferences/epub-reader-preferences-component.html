@@ -90,7 +90,7 @@
               }
 
               @if (!customFontsReady()) {
-                <p-skeleton width="3.0625rem" height="2.1875rem" borderRadius="6px"></p-skeleton>
+                <p-skeleton width="3.0625rem" height="2.1875rem" borderRadius="6px" />
               }
             </div>
           </div>
@@ -105,9 +105,9 @@
           <div class="setting-label-row">
             <span class="setting-label">{{ t('fontSize') }}</span>
             <div class="font-size-controls">
-              <p-button icon="pi pi-minus" size="small" rounded outlined (click)="decreaseFontSize()"></p-button>
+              <p-button icon="pi pi-minus" size="small" rounded outlined (click)="decreaseFontSize()" />
               <span class="font-size-value">{{ fontSize }}pt</span>
-              <p-button icon="pi pi-plus" size="small" rounded outlined (click)="increaseFontSize()"></p-button>
+              <p-button icon="pi pi-plus" size="small" rounded outlined (click)="increaseFontSize()" />
             </div>
           </div>
           <p class="setting-description">
@@ -121,9 +121,9 @@
           <div class="setting-label-row">
             <span class="setting-label">{{ t('lineHeight') }}</span>
             <div class="font-size-controls">
-              <p-button icon="pi pi-minus" size="small" rounded outlined (click)="decreaseLineHeight()"></p-button>
+              <p-button icon="pi pi-minus" size="small" rounded outlined (click)="decreaseLineHeight()" />
               <span class="font-size-value">{{ lineHeight.toFixed(1) }}</span>
-              <p-button icon="pi pi-plus" size="small" rounded outlined (click)="increaseLineHeight()"></p-button>
+              <p-button icon="pi pi-plus" size="small" rounded outlined (click)="increaseLineHeight()" />
             </div>
           </div>
           <p class="setting-description">
@@ -228,9 +228,9 @@
           <div class="setting-label-row">
             <span class="setting-label">{{ t('maxColumns') }}</span>
             <div class="font-size-controls">
-              <p-button icon="pi pi-minus" size="small" rounded outlined (click)="maxColumnCount = maxColumnCount > 1 ? maxColumnCount - 1 : 1"></p-button>
+              <p-button icon="pi pi-minus" size="small" rounded outlined (click)="maxColumnCount = maxColumnCount > 1 ? maxColumnCount - 1 : 1" />
               <span class="font-size-value">{{ maxColumnCount }}</span>
-              <p-button icon="pi pi-plus" size="small" rounded outlined (click)="maxColumnCount = maxColumnCount < 4 ? maxColumnCount + 1 : 4"></p-button>
+              <p-button icon="pi pi-plus" size="small" rounded outlined (click)="maxColumnCount = maxColumnCount < 4 ? maxColumnCount + 1 : 4" />
             </div>
           </div>
           <p class="setting-description">
@@ -244,9 +244,9 @@
           <div class="setting-label-row">
             <span class="setting-label">{{ t('columnGap') }}</span>
             <div class="font-size-controls">
-              <p-button icon="pi pi-minus" size="small" rounded outlined (click)="decreaseGap()"></p-button>
+              <p-button icon="pi pi-minus" size="small" rounded outlined (click)="decreaseGap()" />
               <span class="font-size-value">{{ gap * 100 | number : '1.0-0' }}%</span>
-              <p-button icon="pi pi-plus" size="small" rounded outlined (click)="increaseGap()"></p-button>
+              <p-button icon="pi pi-plus" size="small" rounded outlined (click)="increaseGap()" />
             </div>
           </div>
           <p class="setting-description">
@@ -260,9 +260,9 @@
           <div class="setting-label-row">
             <span class="setting-label">{{ t('maxWidth') }}</span>
             <div class="font-size-controls">
-              <p-button icon="pi pi-minus" size="small" rounded outlined (click)="decreaseMaxInlineSize()"></p-button>
+              <p-button icon="pi pi-minus" size="small" rounded outlined (click)="decreaseMaxInlineSize()" />
               <span class="font-size-value">{{ maxInlineSize }}px</span>
-              <p-button icon="pi pi-plus" size="small" rounded outlined (click)="increaseMaxInlineSize()"></p-button>
+              <p-button icon="pi pi-plus" size="small" rounded outlined (click)="increaseMaxInlineSize()" />
             </div>
           </div>
           <p class="setting-description">
@@ -276,9 +276,9 @@
           <div class="setting-label-row">
             <span class="setting-label">{{ t('maxHeight') }}</span>
             <div class="font-size-controls">
-              <p-button icon="pi pi-minus" size="small" rounded outlined (click)="decreaseMaxBlockSize()"></p-button>
+              <p-button icon="pi pi-minus" size="small" rounded outlined (click)="decreaseMaxBlockSize()" />
               <span class="font-size-value">{{ maxBlockSize }}px</span>
-              <p-button icon="pi pi-plus" size="small" rounded outlined (click)="increaseMaxBlockSize()"></p-button>
+              <p-button icon="pi pi-plus" size="small" rounded outlined (click)="increaseMaxBlockSize()" />
             </div>
           </div>
           <p class="setting-description">

@@ -34,17 +34,16 @@ export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): V
   styleUrls: ['./user-profile-dialog.component.scss']
 })
 export class UserProfileDialogComponent {
-
-  isEditing = false;
-  currentUser: User | null = null;
-  editUserData: Partial<User> = {};
-  changePasswordForm: FormGroup;
-
   protected readonly userService = inject(UserService);
   private readonly messageService = inject(MessageService);
   private readonly fb = inject(FormBuilder);
   private readonly dialogRef = inject(DynamicDialogRef);
   private readonly t = inject(TranslocoService);
+
+  isEditing = false;
+  currentUser: User | null = null;
+  editUserData: Partial<User> = {};
+  changePasswordForm: FormGroup;
 
   constructor() {
     this.changePasswordForm = this.fb.group(

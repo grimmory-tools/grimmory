@@ -1,11 +1,11 @@
 import {AfterViewChecked, Component, computed, DestroyRef, ElementRef, inject, Input, OnInit, signal, ViewChild} from '@angular/core';
 import {Button} from '@openng/optimus-ui/button';
-import {DecimalPipe, NgClass} from '@angular/common';
+import {DecimalPipe} from '@angular/common';
 import {BookService} from '../../../../book/service/book.service';
 import {BookFileService} from '../../../../book/service/book-file.service';
 import {Rating, RatingRateEvent} from '@openng/optimus-ui/rating';
 import {FormsModule} from '@angular/forms';
-import {Book, BookFile, BookMetadata, BookRecommendation, BookType, ComicMetadata, FileInfo, ReadStatus} from '../../../../book/model/book.model';
+import {Book, BookFile, BookMetadata, BookType, ComicMetadata, FileInfo, ReadStatus} from '../../../../book/model/book.model';
 import {UrlHelperService} from '../../../../../shared/service/url-helper.service';
 import {CoverComponent} from '../../../../../shared/components/cover/cover.component';
 import {UserService} from '../../../../settings/user-management/user.service';
@@ -14,12 +14,11 @@ import {ConfirmationService, MenuItem, MessageService} from '@openng/optimus-ui/
 import {DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {EmailService} from '../../../../settings/email-v2/email.service';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
-import {takeUntilDestroyed, toObservable, toSignal} from '@angular/core/rxjs-interop';
+import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {ProgressBar} from '@openng/optimus-ui/progressbar';
 import {MetadataRefreshType} from '../../../model/request/metadata-refresh-type.enum';
 import {Router} from '@angular/router';
-import {catchError, map, switchMap, take} from 'rxjs/operators';
-import {of} from 'rxjs';
+import {take} from 'rxjs/operators';
 import {Menu} from '@openng/optimus-ui/menu';
 import {ResetProgressType, ResetProgressTypes} from '../../../../../shared/constants/reset-progress-type';
 import {DatePicker} from '@openng/optimus-ui/datepicker';
@@ -36,11 +35,11 @@ import {
   CONTENT_RATING_LABELS,
   PAGE_COUNT_RANGES,
 } from '../../../../book/model/book-value-labels';
-import {BookNavigationService} from '../../../../book/service/book-navigation.service';
+import {BookNavigationService, type ReadOptions} from '../../../../book/service/book-navigation.service';
 import {BookMetadataHostService} from '../../../../../shared/service/book-metadata-host.service';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
 import {LanguageResolverService} from '../../../../../shared/service/language-resolver.service';
-import {DeleteBookFileEvent, DeleteSupplementaryFileEvent, DetachBookFileEvent, DownloadAdditionalFileEvent, DownloadAllFilesEvent, DownloadEvent, MetadataTabsComponent, ReadEvent} from './metadata-tabs/metadata-tabs.component';
+import {DeleteBookFileEvent, DeleteSupplementaryFileEvent, DetachBookFileEvent, DownloadAdditionalFileEvent, DownloadAllFilesEvent, DownloadEvent, MetadataTabsComponent} from './metadata-tabs/metadata-tabs.component';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {AuthorService} from '../../../../author-browser/service/author.service';
 import {Dialog} from '@openng/optimus-ui/dialog';
@@ -61,36 +60,30 @@ interface ProviderBadge {
   standalone: true,
   templateUrl: './metadata-viewer.component.html',
   styleUrl: './metadata-viewer.component.scss',
-  imports: [Button, Rating, FormsModule, SplitButton, NgClass, Tooltip, DecimalPipe, ProgressBar, Menu, DatePicker, ProgressSpinner, TieredMenu, TagComponent, MetadataTabsComponent, TranslocoDirective, TranslocoPipe, Dialog, Checkbox, CoverComponent]
+  imports: [Button, Rating, FormsModule, SplitButton, Tooltip, DecimalPipe, ProgressBar, Menu, DatePicker, ProgressSpinner, TieredMenu, TagComponent, MetadataTabsComponent, TranslocoDirective, TranslocoPipe, Dialog, Checkbox, CoverComponent]
 })
 export class MetadataViewerComponent implements OnInit, AfterViewChecked {
-  private bookService = inject(BookService);
-  private currentBook = signal<Book | null>(null);
-  private readonly seriesLookupBookId = computed(() => {
-    const metadata = this.currentBook()?.metadata;
-    return metadata?.seriesName ? metadata.bookId : null;
-  });
-  private readonly bookInSeriesSignal = toSignal(
-    toObservable(this.seriesLookupBookId).pipe(
-      switchMap(bookId =>
-        bookId == null
-          ? of([])
-          : this.bookService.getBooksInSeries(bookId).pipe(
-            catchError(() => of([]))
-          )
-      ),
-      map(series => [...series].sort((a, b) => (a.metadata?.seriesNumber ?? 0) - (b.metadata?.seriesNumber ?? 0)))
-    ),
-    {initialValue: []}
-  );
-  private readonly originalRecommendedBooks = signal<BookRecommendation[]>([]);
-  readonly filteredRecommendedBooks = computed(() => {
-    const bookInSeriesIds = new Set(this.bookInSeriesSignal().map(book => book.id));
-
-    return this.originalRecommendedBooks().filter(
-      rec => !bookInSeriesIds.has(rec.book.id)
-    );
-  });
+  private readonly bookService = inject(BookService);
+  private readonly t = inject(TranslocoService);
+  private readonly libraryService = inject(LibraryService);
+  private readonly bookDialogHelperService = inject(BookDialogHelperService)
+  private readonly emailService = inject(EmailService);
+  private readonly messageService = inject(MessageService);
+  private readonly bookFileService = inject(BookFileService);
+  private readonly taskHelperService = inject(TaskHelperService);
+  private readonly authorService = inject(AuthorService);
+  protected urlHelper = inject(UrlHelperService);
+  protected userService = inject(UserService);
+  protected languageResolver = inject(LanguageResolverService);
+  private readonly appSettingsService = inject(AppSettingsService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly dialogRef = inject(DynamicDialogRef, { optional: true });
+  private readonly catalog = inject(MetadataCatalogService);
+  private readonly bookNavigationService = inject(BookNavigationService);
+  private readonly metadataHostService = inject(BookMetadataHostService);
+  private readonly currentBook = signal<Book | null>(null);
 
   @Input()
   set book(value: Book | null) {
@@ -108,32 +101,9 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
     return this.currentBook();
   }
 
-  @Input()
-  set recommendedBooks(value: BookRecommendation[]) {
-    this.originalRecommendedBooks.set(value);
-  }
-
-  private readonly t = inject(TranslocoService);
   private readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
-  private libraryService = inject(LibraryService);
-  private bookDialogHelperService = inject(BookDialogHelperService)
-  private emailService = inject(EmailService);
-  private messageService = inject(MessageService);
-  private bookFileService = inject(BookFileService);
-  private taskHelperService = inject(TaskHelperService);
-  private authorService = inject(AuthorService);
-  protected urlHelper = inject(UrlHelperService);
-  protected userService = inject(UserService);
-  protected languageResolver = inject(LanguageResolverService);
-  private appSettingsService = inject(AppSettingsService);
-  private confirmationService = inject(ConfirmationService);
-
-  private router = inject(Router);
-  private destroyRef = inject(DestroyRef);
-  private dialogRef = inject(DynamicDialogRef, { optional: true });
-  private userState = this.userService.currentUser;
-  private appSettings = this.appSettingsService.appSettings;
-  private readonly catalog = inject(MetadataCatalogService);
+  private readonly userState = this.userService.currentUser;
+  private readonly appSettings = this.appSettingsService.appSettings;
 
   readonly providerBadges = computed((): ProviderBadge[] => {
     const metadata = this.currentBook()?.metadata;
@@ -192,7 +162,7 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
       items.push({
         label: this.t.translate('metadata.viewer.menuStreamingReader'),
         icon: 'pi pi-play',
-        command: () => this.read(book.id, 'epub-streaming')
+        command: () => this.bookNavigationService.readBook(book, {streaming: true})
       });
     }
 
@@ -214,12 +184,12 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
             {
               label: this.t.translate('metadata.viewer.menuStandardReader'),
               icon: 'pi pi-book',
-              command: () => this.read(book.id, undefined, formatType)
+              command: () => this.bookNavigationService.readBook(book, {bookType: formatType})
             },
             {
               label: this.t.translate('metadata.viewer.menuStreamingReader'),
               icon: 'pi pi-play',
-              command: () => this.read(book.id, 'epub-streaming', formatType)
+              command: () => this.bookNavigationService.readBook(book, {bookType: formatType, streaming: true})
             }
           ]
         });
@@ -229,7 +199,7 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
       items.push({
         label: formatType,
         icon: this.getFileIcon(formatType ?? null),
-        command: () => this.read(book.id, undefined, formatType)
+        command: () => this.bookNavigationService.readBook(book, {bookType: formatType})
       });
     });
 
@@ -470,9 +440,6 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
 
     return items;
   });
-  get bookInSeries(): Book[] {
-    return this.bookInSeriesSignal();
-  }
   @ViewChild('descriptionContent') descriptionContentRef?: ElementRef<HTMLElement>;
   isExpanded = false;
   isOverflowing = false;
@@ -500,9 +467,6 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
     {value: ReadStatus.WONT_READ, labelKey: 'metadata.viewer.readStatusWontRead'},
     {value: ReadStatus.UNSET, labelKey: 'metadata.viewer.readStatusUnset'},
   ];
-
-  private bookNavigationService = inject(BookNavigationService);
-  private metadataHostService = inject(BookMetadataHostService);
   readonly navigationState = this.bookNavigationService.navigationState;
   readonly canNavigatePrevious = this.bookNavigationService.canNavigatePrevious;
   readonly canNavigateNext = this.bookNavigationService.canNavigateNext;
@@ -535,8 +499,8 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
     return html ? DOMPurify.sanitize(html) : '';
   }
 
-  read(bookId: number | undefined, reader?: "epub-streaming", bookType?: BookType): void {
-    if (bookId) this.bookService.readBook(bookId, reader, bookType);
+  protected readBook(book: Book, options?: ReadOptions): void {
+    this.bookNavigationService.readBook(book, options);
   }
 
   isInProgressStatus(): boolean {
@@ -565,10 +529,6 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   }
 
   // Event handlers for MetadataTabsComponent
-  onReadBook(event: ReadEvent): void {
-    this.read(event.bookId, event.reader, event.bookType);
-  }
-
   onDownloadBook(event: DownloadEvent): void {
     this.download(event.book);
   }
@@ -1266,7 +1226,7 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
     }
   }
 
-  private navigateToBook(bookId: number): void {
+  protected navigateToBook(bookId: number): void {
     this.bookNavigationService.updateCurrentBook(bookId);
     if (this.metadataCenterViewMode === 'route') {
       this.router.navigate(['/book', bookId], {

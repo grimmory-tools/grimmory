@@ -52,8 +52,8 @@ const COLLAPSE_HYSTERESIS = 8;
   standalone: true,
 })
 export class AppTabPanelDirective {
-  readonly value = input.required<string>({ alias: 'appTabPanel' });
   readonly templateRef = inject<TemplateRef<unknown>>(TemplateRef);
+  readonly value = input.required<string>({ alias: 'appTabPanel' });
 }
 
 @Component({
@@ -127,6 +127,8 @@ export class AppTabPanelDirective {
   `,
 })
 export class AppTabsComponent {
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly destroyRef = inject(DestroyRef);
   readonly tabs = input.required<readonly TabItem[]>();
   readonly variant = input<TabsVariant>('underline');
   readonly size = input<TabsSize>('md');
@@ -136,9 +138,6 @@ export class AppTabsComponent {
   readonly selectedTabId = model<string | undefined>(undefined);
 
   protected readonly tabPanels = contentChildren(AppTabPanelDirective);
-
-  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly tabDirectives = viewChildren(NgTab);
   private readonly tabListRef = viewChild<unknown, ElementRef<HTMLElement>>('tabList', { read: ElementRef });
 

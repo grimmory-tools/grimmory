@@ -118,7 +118,7 @@ describe('MetadataSearcherComponent', () => {
 
   function latestQuery() {
     const query = prospective.mock.results.at(-1);
-    if (!query || query.type !== 'return') throw new Error('Expected a prospective query');
+    if (query?.type !== 'return') throw new Error('Expected a prospective query');
     return query.value;
   }
 

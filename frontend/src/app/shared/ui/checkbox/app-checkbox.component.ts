@@ -63,6 +63,7 @@ import {
   `,
 })
 export class AppCheckboxComponent implements FormCheckboxControl {
+  private readonly fieldContext = inject(APP_FIELD, { optional: true });
   readonly checked = model(false);
   readonly disabled = input(false, { transform: booleanAttribute });
   readonly required = input(false, { transform: booleanAttribute });
@@ -80,8 +81,6 @@ export class AppCheckboxComponent implements FormCheckboxControl {
   readonly ariaLabelledBy = input('');
   readonly ariaDescribedBy = input('');
   readonly styleClass = input('');
-
-  private readonly fieldContext = inject(APP_FIELD, { optional: true });
   protected readonly resolvedInputId = computed(() => this.inputId() || this.fieldContext?.controlId() || null);
   protected readonly resolvedDescribedBy = computed(
     () => this.ariaDescribedBy() || this.fieldContext?.describedById() || null,

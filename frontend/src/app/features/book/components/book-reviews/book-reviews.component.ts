@@ -25,27 +25,26 @@ import {MetadataCatalogService} from '../../../../shared/metadata/metadata-catal
   styleUrl: './book-reviews.component.scss'
 })
 export class BookReviewsComponent implements OnInit, OnChanges {
+  private readonly reviewService = inject(BookReviewService);
+  private readonly bookMetadataManageService = inject(BookMetadataManageService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly messageService = inject(MessageService);
+  private readonly userService = inject(UserService);
+  private readonly appSettingsService = inject(AppSettingsService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly t = inject(TranslocoService);
+  protected readonly catalog = inject(MetadataCatalogService);
   @Input() bookId!: number;
   @Input() reviews: BookReview[] | undefined = [];
   @Input() active: boolean = false;
   @Input() reviewsLocked = false;
-
-  private reviewService = inject(BookReviewService);
-  private bookMetadataManageService = inject(BookMetadataManageService);
-  private confirmationService = inject(ConfirmationService);
-  private messageService = inject(MessageService);
-  private userService = inject(UserService);
-  private appSettingsService = inject(AppSettingsService);
-  private destroyRef = inject(DestroyRef);
-  private readonly t = inject(TranslocoService);
-  protected readonly catalog = inject(MetadataCatalogService);
   private loadingBookId: number | null = null;
   private loadingRequestSeq = 0;
   private activeLoadingRequestSeq: number | null = null;
 
 
 
-  loading = signal(false);
+  readonly loading = signal(false);
   hasPermission = false;
   revealedSpoilers = new Set<number>();
   sortAscending = false;
@@ -58,7 +57,7 @@ export class BookReviewsComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['bookId'] && changes['bookId'].currentValue) {
+    if (changes['bookId']?.currentValue) {
       this.loadReviews();
     }
   }
@@ -320,7 +319,7 @@ export class BookReviewsComponent implements OnInit, OnChanges {
   }
 
   private updateSpoilerState(): void {
-    const spoilerReviews = this.reviews?.filter(r => r.spoiler) || [];
+    const spoilerReviews = this.reviews?.filter(r => r.spoiler) ?? [];
     const revealedSpoilerReviews = spoilerReviews.filter(r => r.id && this.revealedSpoilers.has(r.id));
     this.allSpoilersRevealed = spoilerReviews.length > 0 && spoilerReviews.length === revealedSpoilerReviews.length;
   }

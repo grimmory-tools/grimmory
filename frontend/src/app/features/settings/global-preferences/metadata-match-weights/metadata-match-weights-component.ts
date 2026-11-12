@@ -16,8 +16,6 @@ const GENERIC_WEIGHT_KEYS = [
   'language', 'isbn13', 'isbn10', 'pageCount',
 ];
 
-const DOUBAN_WEIGHT_KEYS = ['doubanRating', 'doubanReviewCount'];
-
 @Component({
   selector: 'app-metadata-match-weights-component',
   imports: [
@@ -31,18 +29,17 @@ const DOUBAN_WEIGHT_KEYS = ['doubanRating', 'doubanReviewCount'];
 })
 export class MetadataMatchWeightsComponent {
 
-  private fb = inject(FormBuilder);
-  private weightsService = inject(MetadataMatchWeightsService);
-  private appSettingsService = inject(AppSettingsService);
-  private messageService = inject(MessageService);
-  private t = inject(TranslocoService);
-  private providerFields = inject(MetadataProviderFieldsService);
-  private destroyRef = inject(DestroyRef);
+  private readonly fb = inject(FormBuilder);
+  private readonly weightsService = inject(MetadataMatchWeightsService);
+  private readonly appSettingsService = inject(AppSettingsService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
+  private readonly providerFields = inject(MetadataProviderFieldsService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly orderedKeys = computed(() => [
     ...GENERIC_WEIGHT_KEYS,
     ...this.providerFields.scoreFields().map(field => field.name),
-    ...DOUBAN_WEIGHT_KEYS,
   ]);
 
   form: FormGroup = this.buildForm();

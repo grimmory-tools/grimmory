@@ -49,9 +49,8 @@ import {BrowseSearchInputComponent} from '../../../shared/browse/search-input/se
 import {BrowseFilterRailComponent} from '../../../shared/browse/filter-rail/filter-rail.component';
 import {
   countBrowseFacetValues,
-  toggleBrowseFacetValue,
-  withBrowseFacetRange,
   type BrowseFilterChip,
+  type BrowseFilterMatchAll,
   type BrowseFilterRangeCommit,
   type BrowseFilterToggle,
 } from '../../../shared/browse/facets';
@@ -135,7 +134,7 @@ export class BookBrowsePageComponent {
   private readonly coverScale = inject(CoverScalePreferenceService);
   private readonly detailLines = inject(BookBrowseDetailLineService);
   private readonly libraryService = inject(LibraryService);
-  protected readonly bookNavigation = inject(BookNavigationService);
+  private readonly bookNavigation = inject(BookNavigationService);
   private readonly urlHelper = inject(UrlHelperService);
   private readonly dialogLauncher = inject(DialogLauncherService);
   private readonly pendingReadStatuses = injectPendingBookReadStatuses();
@@ -331,7 +330,7 @@ export class BookBrowsePageComponent {
       this.preferences.viewMode() === 'grid' && 'box-content border-l border-border/70 pl-6',
     ),
   );
-  protected readonly gridBoxClass = computed(() => cn('md:pb-8', !this.railVisible() && 'md:-mr-8 md:pr-8'));
+  protected readonly gridBoxClass = computed(() => cn('md:pb-8 md:-ml-4 md:pl-4', this.railVisible() ? 'md:-mr-7 md:pr-7' : 'md:-mr-8 md:pr-8'));
   protected readonly chipsBandClass = computed(() =>
     cn(
       'sticky top-[var(--page-stuck-offset,0px)] z-10 -mx-4 bg-page px-4',
@@ -411,6 +410,10 @@ export class BookBrowsePageComponent {
     this.mobileSelectMode.set(true);
   }
 
+  protected readBook(book: BookSummary): void {
+    this.bookNavigation.readBook(book);
+  }
+
   protected onBookDetailRequested(book: BookSummary): void {
     this.bookNavigation.openBook(book.id, this.books().map(presented => presented.id));
   }
@@ -426,18 +429,15 @@ export class BookBrowsePageComponent {
   }
 
   protected onToggleFacet(toggle: BrowseFilterToggle<BookQueryFacetKey>): void {
-    this.urlState.setFacets(toggleBrowseFacetValue(
-      this.urlState.facets(),
-      toggle.key,
-      toggle.value,
-      toggle.selected,
-    ));
+    this.urlState.setFacets(this.queries.withState(toggle));
+  }
+
+  protected onFacetMatchAll(change: BrowseFilterMatchAll<BookQueryFacetKey>): void {
+    this.urlState.setFacets(this.queries.chooseMatchAll(change));
   }
 
   protected onCommitFacetRange(commit: BrowseFilterRangeCommit<BookQueryFacetKey>): void {
-    this.urlState.setFacetRange(
-      withBrowseFacetRange(this.urlState.facets(), commit.key, commit.min, commit.max, this.queries.definitions()),
-    );
+    this.urlState.setFacetRange(this.queries.withRange(commit));
   }
 
   protected onClearQuery(): void {

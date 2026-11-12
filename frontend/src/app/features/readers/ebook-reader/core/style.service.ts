@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {ReaderState} from '../state/reader-state.service';
 import {EpubCustomFontService} from '../features/fonts/custom-font.service';
 
@@ -8,11 +8,9 @@ interface ReaderRenderer {
   setStyles?(css: string): void;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class ReaderStyleService {
-  private epubCustomFontService = inject(EpubCustomFontService);
+  private readonly epubCustomFontService = inject(EpubCustomFontService);
 
   generateCSS(state: ReaderState): string {
     const {lineHeight, justify, hyphenate, fontSize, theme, fontFamily} = state;

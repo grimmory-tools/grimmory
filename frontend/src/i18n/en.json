@@ -84,19 +84,9 @@
     "main": {
       "pageTitle": "Dashboard",
       "welcomeTitle": "Welcome to Grimmory!",
-      "welcomeSubtitle": "Let's create your first library",
       "welcomeDescription": "A library is where all your books live. Start building your digital collection today!",
-      "createLibrary": "Create Your Library"
-    },
-    "scroller": {
-      "noBooksFound": "No books found for this scroller.",
-      "loadError": "Failed to load books! Please try refreshing the page.",
-      "continueListening": "Continue Listening",
-      "continueReading": "Continue Reading",
-      "recentlyAdded": "Recently Added",
-      "discoverNew": "Discover Something New",
-      "magicShelf": "Magic Shelf",
-      "default": "Scroller"
+      "createLibrary": "Create Your Library",
+      "customize": "Customize Dashboard"
     }
   },
   "settings": {
@@ -475,16 +465,16 @@
     },
     "dashboardScrollers": {
       "sectionTitle": "Dashboard Configuration",
-      "sectionDesc": "Add up to 5 scrollers from different book collections and customize their behavior.",
+      "sectionDesc": "Add scrollers from different book collections and customize their behavior.",
       "type": "Type",
       "selectType": "Select type",
-      "magicShelf": "Magic Shelf",
       "selectMagicShelf": "Select magic shelf",
+      "selectLibrary": "Select library",
+      "selectShelf": "Select shelf",
       "sortField": "Sort Field",
       "selectField": "Select field",
       "direction": "Direction",
       "selectDirection": "Select direction",
-      "maxItems": "Max Items",
       "addScroller": "Add Scroller",
       "resetToDefault": "Reset to Default",
       "saveSettings": "Save Settings",
@@ -494,25 +484,12 @@
         "lastRead": "Continue Reading",
         "lastListened": "Continue Listening",
         "latestAdded": "Recently Added",
+        "recentlyFinished": "Recently Finished",
         "random": "Discover Something New",
+        "library": "Library",
+        "shelf": "Shelf",
         "magicShelf": "Magic Shelf",
         "default": "Scroller"
-      },
-      "sortFields": {
-        "title": "Title",
-        "addedOn": "Date Added",
-        "author": "Author",
-        "authorSurnameVorname": "Author (Surname)",
-        "seriesName": "Series Name",
-        "seriesNumber": "Series Number",
-        "personalRating": "Personal Rating",
-        "publisher": "Publisher",
-        "publishedDate": "Published Date",
-        "lastReadTime": "Last Read",
-        "readStatus": "Read Status",
-        "dateFinished": "Date Finished",
-        "readingProgress": "Reading Progress",
-        "pageCount": "Pages"
       },
       "sortDirections": {
         "asc": "Ascending",
@@ -701,9 +678,7 @@
         "language": "Language",
         "isbn13": "ISBN-13",
         "isbn10": "ISBN-10",
-        "pageCount": "Page Count",
-        "doubanRating": "Douban Rating",
-        "doubanReviewCount": "Douban Rating #"
+        "pageCount": "Page Count"
       }
     },
     "fieldSelector": {
@@ -1113,6 +1088,7 @@
     "deleteSuccess": "User deleted successfully",
     "deleteError": "Failed to delete user",
     "opdsCopied": "OPDS endpoint copied to clipboard",
+    "copyFailed": "Copy Failed",
     "komgaCopied": "Komga API endpoint copied to clipboard",
     "sortUpdateSuccess": "Sort order updated successfully",
     "sortUpdateError": "Failed to update sort order",
@@ -2835,6 +2811,10 @@
         "readStatusMenu": "Change read status"
       }
     },
+    "row": {
+      "previous": "Scroll back",
+      "next": "Scroll forward"
+    },
     "menu": {
       "label": "Book actions",
       "openInNewTab": "Open Details in New Tab",
@@ -3529,49 +3509,50 @@
     "fields": {
       "random": "Random",
       "title": "Title",
+      "subtitle": "Subtitle",
       "author": "Author",
       "authorSurname": "Author (Surname)",
       "genre": "Genre",
       "series": "Series",
-      "seriesNumber": "Series position",
+      "seriesNumber": "Series Position",
       "publisher": "Publisher",
       "tag": "Tag",
       "mood": "Mood",
       "language": "Language",
       "narrator": "Narrator",
-      "fileType": "File format",
-      "readStatus": "Read status",
-      "personalRating": "Personal rating",
-      "amazonRating": "Amazon rating",
-      "amazonReviewCount": "Amazon rating count",
-      "goodreadsRating": "Goodreads rating",
-      "goodreadsReviewCount": "Goodreads rating count",
-      "hardcoverRating": "Hardcover rating",
-      "hardcoverReviewCount": "Hardcover rating count",
-      "ranobedbRating": "RanobeDB rating",
+      "fileType": "File Format",
+      "readStatus": "Read Status",
+      "personalRating": "Personal Rating",
+      "amazonRating": "Amazon Rating",
+      "amazonReviewCount": "Amazon Rating Count",
+      "goodreadsRating": "Goodreads Rating",
+      "goodreadsReviewCount": "Goodreads Rating Count",
+      "hardcoverRating": "Hardcover Rating",
+      "hardcoverReviewCount": "Hardcover Rating Count",
+      "ranobedbRating": "RanobeDB Rating",
       "pageCount": "Pages",
-      "publishedDate": "Published date",
-      "publishedYear": "Published year",
-      "addedOn": "Date added",
-      "lastReadTime": "Last read",
-      "dateFinished": "Date finished",
-      "readingProgress": "Reading progress",
-      "fileName": "File name",
-      "fileSize": "File size",
+      "publishedDate": "Published Date",
+      "publishedYear": "Published Year",
+      "addedOn": "Date Added",
+      "lastReadTime": "Last Read",
+      "dateFinished": "Date Finished",
+      "readingProgress": "Reading Progress",
+      "fileName": "File Name",
+      "fileSize": "File Size",
       "isbn": "ISBN",
       "library": "Library",
       "shelf": "Shelf",
-      "ageRating": "Age rating",
-      "contentRating": "Content rating",
-      "matchScore": "Metadata match score",
-      "shelfStatus": "Shelf status",
-      "comicCharacter": "Comic character",
-      "comicTeam": "Comic team",
-      "comicLocation": "Comic location",
-      "comicCreator": "Comic creator",
-      "lubimyczytacRating": "Lubimyczytac rating",
-      "audibleReviewCount": "Audible rating count",
-      "audibleRating": "Audible rating"
+      "ageRating": "Age Rating",
+      "contentRating": "Content Rating",
+      "matchScore": "Metadata Match Score",
+      "shelfStatus": "Shelf Status",
+      "comicCharacter": "Comic Character",
+      "comicTeam": "Comic Team",
+      "comicLocation": "Comic Location",
+      "comicCreator": "Comic Creator",
+      "lubimyczytacRating": "Lubimyczytac Rating",
+      "audibleReviewCount": "Audible Rating Count",
+      "audibleRating": "Audible Rating"
     }
   },
   "readerAudiobook": {
@@ -5241,6 +5222,7 @@
   },
   "browse": {
     "showAll": "Show All",
+    "showMore": "Show More",
     "showFewer": "Show Fewer",
     "clearFilters": "Clear Filters",
     "filter": "Filter",
@@ -5254,7 +5236,8 @@
       "flipDirection": "Flip Direction"
     },
     "chips": {
-      "removeSearch": "Remove Search Filter {{query}}"
+      "removeSearch": "Remove Search Filter {{query}}",
+      "removeExcluded": "Remove Excluded {{ label }}"
     },
     "rail": {
       "searchValues": "Search…",
@@ -5264,13 +5247,21 @@
         "library": "Search Library",
         "shelf": "Search Shelf",
         "magicShelf": "Search Magic Shelf",
-        "unshelved": "Search Unshelved Books"
+        "unshelved": "Search Unshelved Books",
+        "dashboardRow": "Search These Books"
       },
       "noMatches": "No matches",
       "minUnit": "Min unit",
       "maxUnit": "Max unit",
       "min": "Min",
-      "max": "Max"
+      "max": "Max",
+      "excluded": "Excluded",
+      "exclude": "Exclude",
+      "excludeValue": "Exclude {{value}}",
+      "matchOptions": "Match Options",
+      "matchAny": "Match Any",
+      "matchAll": "Match All",
+      "all": "All"
     },
     "book": {
       "empty": "No books here yet.",
@@ -5298,7 +5289,6 @@
       "density": "Size",
       "smallerCards": "Smaller Cards",
       "largerCards": "Larger Cards",
-      "showFilters": "Show Filters",
       "columns": "Columns",
       "resetColumns": "Reset to Default"
     },

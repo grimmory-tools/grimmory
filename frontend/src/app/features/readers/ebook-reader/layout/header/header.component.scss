@@ -3,8 +3,8 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 36px;
-  padding: 0 10px;
+  height: var(--reader-header-height);
+  padding: var(--safe-edge-top) calc(10px + var(--safe-edge-right)) 0 calc(10px + var(--safe-edge-left));
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -28,6 +28,7 @@
   .header-right {
     display: flex;
     align-items: center;
+    gap: 4px;
     z-index: 1;
   }
 
@@ -42,15 +43,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 4px;
     opacity: 0.85;
 
     &:hover {
       opacity: 1;
-    }
-
-    &:last-child {
-      margin-right: 0;
     }
 
     &.active {
@@ -128,11 +124,15 @@
 
 @media (width <= 600px) {
   .reader-header {
-    padding: 0 2px;
+    padding: var(--safe-edge-top) calc(2px + var(--safe-edge-right)) 0 calc(2px + var(--safe-edge-left));
+
+    .header-left,
+    .header-right {
+      gap: 2px;
+    }
 
     .icon-btn {
       padding: 10px;
-      margin-right: 2px;
     }
 
     .desktop-only {

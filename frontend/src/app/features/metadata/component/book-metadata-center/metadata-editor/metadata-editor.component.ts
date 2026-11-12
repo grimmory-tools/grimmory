@@ -1,5 +1,5 @@
 import {HttpErrorResponse} from '@angular/common/http';
-import {Component, computed, DestroyRef, EventEmitter, inject, Input, OnInit, Output} from "@angular/core";
+import {Component, computed, DestroyRef, inject, Input, OnInit, output} from "@angular/core";
 import {InputText} from "@openng/optimus-ui/inputtext";
 import {Button} from "@openng/optimus-ui/button";
 import {Divider} from "@openng/optimus-ui/divider";
@@ -13,6 +13,7 @@ import {ALL_COMIC_METADATA_FIELDS, AUDIOBOOK_METADATA_FIELDS, COMIC_FORM_TO_MODE
 import {FileUpload, FileUploadErrorEvent, FileUploadEvent,} from "@openng/optimus-ui/fileupload";
 import {HttpResponse} from "@angular/common/http";
 import {BookService} from "../../../../book/service/book.service";
+import {FacetSuggestionsDirective} from '../../../../book/components/facet-suggestions.directive';
 import {BookMetadataManageService} from "../../../../book/service/book-metadata-manage.service";
 import {ProgressSpinner} from "@openng/optimus-ui/progressspinner";
 import {Tooltip} from "@openng/optimus-ui/tooltip";
@@ -59,9 +60,26 @@ import {MetadataSourceQueryService} from '../../../sources/metadata-source-query
     CdkDropList,
     CdkDrag,
     CoverComponent,
+    FacetSuggestionsDirective,
   ],
 })
 export class MetadataEditorComponent implements OnInit {
+  private readonly messageService = inject(MessageService);
+  private readonly bookService = inject(BookService);
+  private readonly bookMetadataManageService = inject(BookMetadataManageService);
+  private readonly taskHelperService = inject(TaskHelperService);
+  protected urlHelper = inject(UrlHelperService);
+  private readonly bookDialogHelperService = inject(BookDialogHelperService);
+  private readonly bookNavigationService = inject(BookNavigationService);
+  private readonly metadataHostService = inject(BookMetadataHostService);
+  private readonly router = inject(Router);
+  private readonly userService = inject(UserService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly appSettingsService = inject(AppSettingsService);
+  private readonly t = inject(TranslocoService);
+  private readonly queryClient = inject(QueryClient);
+  private readonly sources = inject(MetadataSourceQueryService);
+  protected readonly providerFields = inject(MetadataProviderFieldsService);
   private currentBook: Book | null = null;
 
   @Input()
@@ -85,31 +103,13 @@ export class MetadataEditorComponent implements OnInit {
     return this.currentBook;
   }
 
-  @Output() nextBookClicked = new EventEmitter<void>();
-  @Output() previousBookClicked = new EventEmitter<void>();
-  @Output() closeDialogButtonClicked = new EventEmitter<void>();
+  readonly nextBookClicked = output<void>();
+  readonly previousBookClicked = output<void>();
+  readonly closeDialogButtonClicked = output<void>();
 
   @Input() disableNext = false;
   @Input() disablePrevious = false;
   @Input() showNavigationButtons = false;
-
-  private messageService = inject(MessageService);
-  private bookService = inject(BookService);
-  private bookMetadataManageService = inject(BookMetadataManageService);
-  private taskHelperService = inject(TaskHelperService);
-  protected urlHelper = inject(UrlHelperService);
-  private bookDialogHelperService = inject(BookDialogHelperService);
-  private bookNavigationService = inject(BookNavigationService);
-  private metadataHostService = inject(BookMetadataHostService);
-  private router = inject(Router);
-  private userService = inject(UserService);
-  private destroyRef = inject(DestroyRef);
-  private appSettingsService = inject(AppSettingsService);
-  private readonly t = inject(TranslocoService);
-  private readonly queryClient = inject(QueryClient);
-  private readonly sources = inject(MetadataSourceQueryService);
-  protected readonly providerFields = inject(MetadataProviderFieldsService);
-  private readonly uniqueMetadata = computed(() => this.bookService.uniqueMetadata());
 
   metadataForm: FormGroup;
   currentBookId!: number;
@@ -126,19 +126,7 @@ export class MetadataEditorComponent implements OnInit {
 
   originalMetadata!: BookMetadata;
 
-  get allAuthors(): string[] { return this.uniqueMetadata().authors; }
-  get allCategories(): string[] { return this.uniqueMetadata().categories; }
-  get allMoods(): string[] { return this.uniqueMetadata().moods; }
-  get allTags(): string[] { return this.uniqueMetadata().tags; }
-  get allPublishers(): string[] { return this.uniqueMetadata().publishers; }
-  get allSeries(): string[] { return this.uniqueMetadata().series; }
-  filteredCategories: string[] = [];
-  filteredAuthors: string[] = [];
   authorInputValue = '';
-  filteredMoods: string[] = [];
-  filteredTags: string[] = [];
-  filteredPublishers: string[] = [];
-  filteredSeries: string[] = [];
   private metadataCenterViewMode: 'route' | 'dialog' = 'route';
 
   contentRatingOptions: {label: string, value: string}[] = [];
@@ -170,20 +158,6 @@ export class MetadataEditorComponent implements OnInit {
       ? this.t.translate('metadata.editor.navigationPosition', {current: position.current, total: position.total})
       : '';
   });
-
-  filterCategories(event: { query: string }) {
-    const query = event.query.toLowerCase();
-    this.filteredCategories = this.allCategories.filter((cat) =>
-      cat.toLowerCase().includes(query)
-    );
-  }
-
-  filterAuthors(event: { query: string }) {
-    const query = event.query.toLowerCase();
-    this.filteredAuthors = this.allAuthors.filter((cat) =>
-      cat.toLowerCase().includes(query)
-    );
-  }
 
   dropAuthor(event: CdkDragDrop<string[]>) {
     const authors = [...(this.metadataForm.get('authors')?.value ?? [])];
@@ -221,34 +195,6 @@ export class MetadataEditorComponent implements OnInit {
       this.metadataForm.get('authors')?.markAsDirty();
     }
     setTimeout(() => this.authorInputValue = '');
-  }
-
-  filterMoods(event: { query: string }) {
-    const query = event.query.toLowerCase();
-    this.filteredMoods = this.allMoods.filter((mood) =>
-      mood.toLowerCase().includes(query)
-    );
-  }
-
-  filterTags(event: { query: string }) {
-    const query = event.query.toLowerCase();
-    this.filteredTags = this.allTags.filter((tag) =>
-      tag.toLowerCase().includes(query)
-    );
-  }
-
-  filterPublishers(event: { query: string }) {
-    const query = event.query.toLowerCase();
-    this.filteredPublishers = this.allPublishers.filter((publisher) =>
-      publisher.toLowerCase().includes(query)
-    );
-  }
-
-  filterSeries(event: { query: string }) {
-    const query = event.query.toLowerCase();
-    this.filteredSeries = this.allSeries.filter((seriesName) =>
-      seriesName.toLowerCase().includes(query)
-    );
   }
 
   constructor() {
@@ -687,13 +633,13 @@ export class MetadataEditorComponent implements OnInit {
     for (const [modelKey, value] of Object.entries(lockGroups)) {
       comicMetadata[modelKey] = value;
     }
-    metadata.comicMetadata = comicMetadata as ComicMetadata;
+    metadata.comicMetadata = comicMetadata;
 
     const original = this.originalMetadata;
 
     const wasCleared = (key: keyof BookMetadata): boolean => {
-      const current = (metadata[key] as unknown) ?? null;
-      const prev = (original[key] as unknown) ?? null;
+      const current = (metadata[key]) ?? null;
+      const prev = (original[key]) ?? null;
 
       const isEmpty = (val: unknown): boolean =>
         val === null || val === "" || (Array.isArray(val) && val.length === 0);
@@ -773,7 +719,7 @@ export class MetadataEditorComponent implements OnInit {
   onUpload(event: FileUploadEvent): void {
     const response: HttpResponse<unknown> =
       event.originalEvent as HttpResponse<unknown>;
-    if (response && response.status === 200) {
+    if (response?.status === 200) {
       this.isUploading = false;
       this.bookService.handleBookMetadataUpdate(this.currentBookId);
     } else {
@@ -1017,12 +963,12 @@ export class MetadataEditorComponent implements OnInit {
     if (book.isPhysical) {
       return true;
     }
-    const allFiles = [book.primaryFile, ...(book.alternativeFormats || [])].filter(f => f?.bookType);
+    const allFiles = [book.primaryFile, ...(book.alternativeFormats ?? [])].filter(f => f?.bookType);
     return allFiles.some(f => f!.bookType !== 'AUDIOBOOK');
   }
 
   hasAudiobookFormat(book: Book): boolean {
-    const allFiles = [book.primaryFile, ...(book.alternativeFormats || [])].filter(f => f?.bookType);
+    const allFiles = [book.primaryFile, ...(book.alternativeFormats ?? [])].filter(f => f?.bookType);
     return allFiles.some(f => f!.bookType === 'AUDIOBOOK');
   }
 
@@ -1062,7 +1008,7 @@ export class MetadataEditorComponent implements OnInit {
   onAudiobookCoverUpload(event: FileUploadEvent): void {
     const response: HttpResponse<unknown> =
       event.originalEvent as HttpResponse<unknown>;
-    if (response && response.status === 200) {
+    if (response?.status === 200) {
       this.isUploading = false;
       this.bookService.handleBookMetadataUpdate(this.currentBookId);
     } else {

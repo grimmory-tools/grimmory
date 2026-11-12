@@ -34,8 +34,7 @@
             [(ngModel)]="value"
             [allowEmpty]="false"
             optionLabel="label"
-            optionValue="value">
-          </p-selectbutton>
+            optionValue="value" />
         </div>
       </div>
 
@@ -57,8 +56,7 @@
                 optionLabel="name"
                 [placeholder]="t('selectLibrary')"
                 [(ngModel)]="selectedLibrary"
-                class="full-width">
-              </p-select>
+                class="full-width" />
             </div>
             <div class="field-group">
               <label for="subpath-select" class="field-label">{{ t('subpathLabel') }}</label>
@@ -69,8 +67,7 @@
                 [placeholder]="t('selectSubpath')"
                 [(ngModel)]="selectedPath"
                 [disabled]="!selectedLibrary"
-                class="full-width">
-              </p-select>
+                class="full-width" />
             </div>
           </div>
         </div>
@@ -163,9 +160,6 @@
                         [severity]="getBadgeSeverity(uploadFile.status)"/>
                       <span class="file-name" [pTooltip]="uploadFile.file.name" tooltipPosition="top">{{ uploadFile.file.name }}</span>
                       <span class="file-size">{{ formatSize(uploadFile.file.size) }}</span>
-                      @if (uploadFile.status === 'Uploading') {
-                        <span class="file-progress-text">{{ uploadFile.progress }}%</span>
-                      }
                     </div>
                     <div class="file-actions">
                       @switch (uploadFile.status) {
@@ -207,6 +201,7 @@
                             </i>
                           }
                         }
+                        @default never;
                       }
                     </div>
                   </div>
@@ -214,7 +209,7 @@
               </div>
             }
           </ng-template>
-          <ng-template #file></ng-template>
+          <ng-template #file />
           <ng-template #empty>
             <div class="empty-state">
               <div class="empty-icon-wrapper">

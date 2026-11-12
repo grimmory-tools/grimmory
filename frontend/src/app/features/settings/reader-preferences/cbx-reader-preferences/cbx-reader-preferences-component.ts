@@ -17,10 +17,9 @@ import {Tooltip} from '@openng/optimus-ui/tooltip';
   styleUrl: './cbx-reader-preferences-component.scss'
 })
 export class CbxReaderPreferencesComponent {
+  private readonly readerPreferencesService = inject(ReaderPreferencesService);
 
   @Input() userSettings!: UserSettings;
-
-  private readonly readerPreferencesService = inject(ReaderPreferencesService);
 
   private static readonly SETTING_ROOT = 'cbxReaderSetting';
   private static readonly PROP_PAGE_SPREAD = 'pageSpread';

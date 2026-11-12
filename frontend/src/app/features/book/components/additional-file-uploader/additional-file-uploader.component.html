@@ -14,8 +14,7 @@
       [text]="true"
       severity="secondary"
       (click)="closeDialog()"
-      class="close-button">
-    </p-button>
+      class="close-button" />
   </div>
 
   <div class="dialog-content">
@@ -29,7 +28,7 @@
     [placeholder]="t('selectFileType')"
     class="full-width"
     [disabled]="isUploading"
-  ></p-select>
+  />
 
   <!-- File Upload -->
   <p-fileupload class="file-upload" name="file"
@@ -109,6 +108,7 @@
                           tooltipPosition="top">
                         </i>
                       }
+                      @default never;
                     }
                   </div>
                 }
@@ -118,7 +118,7 @@
         }
       </div>
     </ng-template>
-    <ng-template #file></ng-template>
+    <ng-template #file />
     <ng-template #empty>
       <div class="empty-state">
         <i class="pi pi-cloud-upload empty-icon"></i>

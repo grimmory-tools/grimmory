@@ -48,6 +48,8 @@ interface RenderedSelectOptionGroup<T> extends SelectOptionGroup<T> {
 
 @Directive()
 export abstract class AppSelectBaseDirective<T> {
+  private readonly fieldContext = inject(APP_FIELD, { optional: true });
+  private readonly overlayService = inject(Overlay);
   readonly disabled = input(false, { transform: booleanAttribute });
   readonly required = input(false, { transform: booleanAttribute });
   readonly invalid = input(false, { transform: booleanAttribute });
@@ -81,9 +83,6 @@ export abstract class AppSelectBaseDirective<T> {
   protected abstract onValuesChange(values: readonly T[]): void;
   protected abstract clearValue(): void;
   protected abstract isSelected(option: SelectOption<T>): boolean;
-
-  private readonly fieldContext = inject(APP_FIELD, { optional: true });
-  private readonly overlayService = inject(Overlay);
   private readonly combobox = viewChild(Combobox);
   private readonly overlay = viewChild(CdkConnectedOverlay);
   private readonly controlRoot = viewChild<ElementRef<HTMLElement>>('controlRoot');

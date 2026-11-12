@@ -150,7 +150,7 @@
 
       @if (getTotalPages() > 1) {
         <div class="pagination">
-          <button
+          <button type="button"
             class="page-btn"
             [disabled]="!hasPrevPage()"
             (click)="prevPage()">
@@ -159,7 +159,7 @@
           <span class="page-info">
             {{ t('pageInfo', { current: currentPage + 1, total: getTotalPages() }) }}
           </span>
-          <button
+          <button type="button"
             class="page-btn"
             [disabled]="!hasNextPage()"
             (click)="nextPage()">

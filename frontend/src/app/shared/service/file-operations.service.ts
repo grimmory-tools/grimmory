@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {API_CONFIG} from '../../core/config/api-config';
@@ -12,13 +12,10 @@ export interface FileMoveRequest {
   }[];
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class FileOperationsService {
+  private readonly http = inject(HttpClient);
   private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/files`;
-
-  private http = inject(HttpClient);
 
   moveFiles(request: FileMoveRequest): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/move`, request);

@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {API_CONFIG} from '../../../../core/config/api-config';
@@ -17,13 +17,11 @@ export interface BookReview {
   textReviewsCount?: number;
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class BookReviewService {
+  private readonly http = inject(HttpClient);
 
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/reviews`;
-  private http = inject(HttpClient);
 
   getByBookId(bookId: number): Observable<BookReview[]> {
     return this.http.get<BookReview[]>(`${this.url}/book/${bookId}`);

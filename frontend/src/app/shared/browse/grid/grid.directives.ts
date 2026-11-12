@@ -12,7 +12,7 @@ export class BrowseGridItemDef<T> {
   readonly templateRef = inject<TemplateRef<BrowseGridItemContext<T>>>(TemplateRef);
   readonly items = input.required<readonly T[]>({alias: 'appBrowseGridItemOf'});
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Angular uses this signature for template type checking.
+  // oxlint-disable-next-line no-unused-vars -- SAFETY: Angular uses this signature for template type checking.
   static ngTemplateContextGuard<T>(dir: BrowseGridItemDef<T>, ctx: unknown): ctx is BrowseGridItemContext<T> {
     return true;
   }

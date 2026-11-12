@@ -5,7 +5,7 @@
     <span [innerHTML]="t('infoBanner', { fileCount: fileCount })"></span>
   </div>
 
-  <p-divider></p-divider>
+  <p-divider />
 
   <div class="fields-section">
     <h4>{{ t('textFieldsTitle') }}</h4>
@@ -16,8 +16,7 @@
             [binary]="true"
             [ngModel]="isFieldEnabled(field.name)"
             (ngModelChange)="toggleField(field.name)"
-            [ariaLabel]="t('enableField', { label: field.label })">
-          </p-checkbox>
+            [ariaLabel]="t('enableField', { label: field.label })" />
           <label class="field-label" [attr.for]="field.controlName">{{ field.label }}</label>
           <input
             pInputText
@@ -30,7 +29,7 @@
     </div>
   </div>
 
-  <p-divider></p-divider>
+  <p-divider />
 
   <div class="fields-section">
     <h4>{{ t('numberFieldsTitle') }}</h4>
@@ -41,8 +40,7 @@
             [binary]="true"
             [ngModel]="isFieldEnabled(field.name)"
             (ngModelChange)="toggleField(field.name)"
-            [ariaLabel]="t('enableField', { label: field.label })">
-          </p-checkbox>
+            [ariaLabel]="t('enableField', { label: field.label })" />
           <label class="field-label" [attr.for]="field.controlName">{{ field.label }}</label>
           <input
             pInputText
@@ -56,7 +54,7 @@
     </div>
   </div>
 
-  <p-divider></p-divider>
+  <p-divider />
 
   <div class="fields-section">
     <div class="section-header">
@@ -68,8 +66,7 @@
           [(ngModel)]="mergeArrays"
           optionLabel="label"
           optionValue="value"
-          ariaLabelledBy="merge-mode-label">
-        </p-selectButton>
+          ariaLabelledBy="merge-mode-label" />
       </div>
     </div>
     <p class="helper-text"><i class="pi pi-info-circle"></i> {{ t('helperText') }}</p>
@@ -80,8 +77,7 @@
             [binary]="true"
             [ngModel]="isFieldEnabled(field.name)"
             (ngModelChange)="toggleField(field.name)"
-            [ariaLabel]="t('enableField', { label: field.label })">
-          </p-checkbox>
+            [ariaLabel]="t('enableField', { label: field.label })" />
           <label class="field-label" [attr.for]="field.controlName">{{ field.label }}</label>
           <p-autoComplete
             [formControl]="getControl(field.controlName)"
@@ -92,29 +88,26 @@
             [dropdown]="false"
             [ariaLabel]="field.label"
             (onBlur)="onAutoCompleteBlur(field.name, $event)"
-            class="field-input">
-          </p-autoComplete>
+            class="field-input" />
         </div>
       }
     </div>
   </div>
 
-  <p-divider></p-divider>
+  <p-divider />
 
   <div class="dialog-footer">
     <p-button
       [label]="'common.cancel' | transloco"
       icon="pi pi-times"
       severity="secondary"
-      (click)="cancel()">
-    </p-button>
+      (click)="cancel()" />
     <p-button
       [label]="t('applyToSelected')"
       icon="pi pi-check"
       severity="success"
       [disabled]="!hasEnabledFields"
-      (click)="apply()">
-    </p-button>
+      (click)="apply()" />
   </div>
 </div>
 </ng-container>

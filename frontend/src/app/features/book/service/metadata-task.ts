@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable, map} from 'rxjs';
 import {BookMetadata} from '../model/book.model';
@@ -35,13 +35,11 @@ export interface MetadataFetchTask {
   proposals: FetchedProposal[];
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class MetadataTaskService {
+  private readonly http = inject(HttpClient);
 
   private readonly url = `${API_CONFIG.BASE_URL}/api/metadata/tasks`;
-  private http = inject(HttpClient);
 
   getTaskWithProposals(taskId: string): Observable<MetadataFetchTask> {
     return this.http.get<{ task: MetadataFetchTask }>(`${this.url}/${taskId}`)

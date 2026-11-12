@@ -29,16 +29,15 @@ import {BookNote, BookNoteService, CreateBookNoteRequest} from '../../../../shar
   styleUrl: './book-notes-component.scss'
 })
 export class BookNotesComponent implements OnInit, OnChanges {
+  private readonly bookNoteService = inject(BookNoteService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly messageService = inject(MessageService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly t = inject(TranslocoService);
   @Input() bookId!: number;
 
-  private bookNoteService = inject(BookNoteService);
-  private confirmationService = inject(ConfirmationService);
-  private messageService = inject(MessageService);
-  private destroyRef = inject(DestroyRef);
-  private readonly t = inject(TranslocoService);
-
   notes: BookNote[] = [];
-  loading = signal(false);
+  readonly loading = signal(false);
   showCreateDialog = false;
   showEditDialog = false;
   selectedNote: BookNote | null = null;
@@ -62,7 +61,7 @@ export class BookNotesComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['bookId'] && changes['bookId'].currentValue) {
+    if (changes['bookId']?.currentValue) {
       this.loadNotes();
     }
   }

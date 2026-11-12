@@ -19,12 +19,12 @@ $sidebar-width: 300px;
 // Sidebar container
 .sidebar {
   @include surface;
+  @include sidebar-edge(left, $sidebar-width);
 
   position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
-  width: $sidebar-width;
   display: flex;
   flex-direction: column;
   box-shadow: 4px 0 24px rgb(0 0 0 / 30%);

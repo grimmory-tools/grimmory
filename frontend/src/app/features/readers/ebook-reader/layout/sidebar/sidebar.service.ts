@@ -40,13 +40,13 @@ export interface SearchState {
 
 @Injectable()
 export class ReaderSidebarService {
-  private injector = inject(Injector);
-  private urlHelper = inject(UrlHelperService);
-  private viewManager = inject(ReaderViewManagerService);
-  private progressService = inject(ReaderProgressService);
-  private bookmarkService = inject(ReaderBookmarkService);
-  private bookMarkHttpService = inject(BookMarkService);
-  private annotationService = inject(ReaderAnnotationHttpService);
+  private readonly injector = inject(Injector);
+  private readonly urlHelper = inject(UrlHelperService);
+  private readonly viewManager = inject(ReaderViewManagerService);
+  private readonly progressService = inject(ReaderProgressService);
+  private readonly bookmarkService = inject(ReaderBookmarkService);
+  private readonly bookMarkHttpService = inject(BookMarkService);
+  private readonly annotationService = inject(ReaderAnnotationHttpService);
 
   private readonly destroyRef = inject(DestroyRef);
   private bookId!: number;
@@ -75,9 +75,9 @@ export class ReaderSidebarService {
   private readonly _annotations = signal<Annotation[]>([]);
   readonly annotations = this._annotations.asReadonly();
 
-  private _expandedChapters = new Set<string>();
+  private readonly _expandedChapters = new Set<string>();
 
-  private _showMetadata = new Subject<void>();
+  private readonly _showMetadata = new Subject<void>();
   showMetadata$ = this._showMetadata.asObservable();
 
   get currentChapterHref(): string | null {
@@ -90,7 +90,7 @@ export class ReaderSidebarService {
     this._bookInfo.set({
       id: book.id,
       title: book.metadata?.title || '',
-      authors: (book.metadata?.authors || []).join(', '),
+      authors: (book.metadata?.authors ?? []).join(', '),
       coverUrl: this.urlHelper.getThumbnailUrl(book.id, book.metadata?.coverUpdatedOn)
     });
 
@@ -104,9 +104,7 @@ export class ReaderSidebarService {
   }
 
   private subscribeToAnnotationChanges(): void {
-    if (!this.selectionService) {
-      this.selectionService = this.injector.get(ReaderSelectionService);
-    }
+    this.selectionService ??= this.injector.get(ReaderSelectionService);
 
     this.selectionService.annotationsChanged$
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -120,9 +118,7 @@ export class ReaderSidebarService {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(annotations => {
         this._annotations.set(annotations);
-        if (!this.selectionService) {
-          this.selectionService = this.injector.get(ReaderSelectionService);
-        }
+        this.selectionService ??= this.injector.get(ReaderSelectionService);
         this.selectionService.setAnnotations(annotations);
         if (annotations.length > 0) {
           const viewAnnotations = this.annotationService.toViewAnnotations(annotations);
@@ -248,7 +244,7 @@ export class ReaderSidebarService {
 
     const existingBookmark = this._bookmarks().find(bookmark => bookmark.cfi === currentCfi);
     if (existingBookmark) {
-      this.deleteBookmark(existingBookmark.id!);
+      this.deleteBookmark(existingBookmark.id);
     } else {
       this.createBookmark();
     }

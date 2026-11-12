@@ -1,15 +1,13 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {ContentRestriction} from './content-restriction.model';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class ContentRestrictionService {
+  private readonly http = inject(HttpClient);
   private readonly baseUrl = `${API_CONFIG.BASE_URL}/api/v1/users`;
-  private http = inject(HttpClient);
 
   getUserRestrictions(userId: number): Observable<ContentRestriction[]> {
     return this.http.get<ContentRestriction[]>(`${this.baseUrl}/${userId}/content-restrictions`);

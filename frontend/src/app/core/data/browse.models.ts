@@ -22,21 +22,21 @@ export interface BrowseFacetValue {
   value: string;
   title: string;
   count: number;
-  selected: boolean;
 }
 
 export interface BrowseFacetGroup {
   key: string;
-  title: string;
   values: BrowseFacetValue[];
+  min?: number;
+  max?: number;
+  complete?: boolean;
 }
 
-export interface BrowseFacetResult {
-  facets: BrowseFacetGroup[];
+export interface BrowseFacetIndex {
+  facetKeys: string[];
   sortTokens: string[];
 }
 
-export type BrowseFacetLogic = 'and' | 'or' | 'not';
 export type BrowseSortDirection = 'asc' | 'desc';
 
 export interface BrowseSortTerm<Key extends string = string> {

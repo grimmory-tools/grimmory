@@ -1,4 +1,4 @@
-import {computed, Injectable, signal} from '@angular/core';
+import {computed, Service, signal} from '@angular/core';
 
 export interface UserChartConfig {
   id: string;
@@ -33,9 +33,7 @@ const DEFAULT_CHARTS: UserChartConfig[] = [
   {id: 'reading-dna', enabled: true, sizeClass: 'chart-medium', order: 22}
 ];
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class UserChartConfigService {
   private static readonly STORAGE_KEY = 'userStatsChartConfig';
 

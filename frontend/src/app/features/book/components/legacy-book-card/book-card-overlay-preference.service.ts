@@ -1,13 +1,11 @@
-import {effect, inject, Injectable, signal} from '@angular/core';
+import {effect, inject, Service, signal} from '@angular/core';
 import {EntityViewPreference, UserService} from '../../../settings/user-management/user.service';
 
 interface LegacyOverlayPreference extends Partial<EntityViewPreference> {
   showBookTypePill?: boolean;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class BookCardOverlayPreferenceService {
   private static readonly PERSIST_DELAY_MS = 500;
 
@@ -16,7 +14,7 @@ export class BookCardOverlayPreferenceService {
   private readonly _showBookTypePill = signal(true);
   readonly showBookTypePill = this._showBookTypePill.asReadonly();
 
-  private currentContext: { type: 'LIBRARY' | 'SHELF' | 'MAGIC_SHELF', id: number } | null = null;
+  private readonly currentContext: { type: 'LIBRARY' | 'SHELF' | 'MAGIC_SHELF', id: number } | null = null;
   private persistTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
@@ -90,9 +88,7 @@ export class BookCardOverlayPreferenceService {
       overrides: []
     });
 
-    if (!prefs.overrides) {
-      prefs.overrides = [];
-    }
+    prefs.overrides ??= [];
 
     if (this.currentContext) {
       let override = prefs.overrides.find(o =>

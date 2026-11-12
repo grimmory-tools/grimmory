@@ -7,6 +7,7 @@ import {
   normalizeBookCollectionFilterParams,
   normalizeBookQueryParams,
 } from './book-query-params';
+import {BookDuplicateRequest} from './book-query.models';
 
 export const bookQueryKeys = {
   all: () => ['books', 'query'] as const,
@@ -18,8 +19,10 @@ export const bookQueryKeys = {
   infinitePage: (params: BookPageParams) =>
     [...bookQueryKeys.infinitePages(), params] as const,
   facetQueries: () => [...bookQueryKeys.collections(), 'facets'] as const,
-  facets: (params: BookCollectionFilterParams) =>
-    [...bookQueryKeys.facetQueries(), params] as const,
+  facetIndex: (params: BookCollectionFilterParams) =>
+    [...bookQueryKeys.facetQueries(), 'index', params] as const,
+  facet: (key: string, params: BookCollectionFilterParams, search: string) =>
+    [...bookQueryKeys.facetQueries(), 'facet', key, params, search] as const,
   idQueries: () => [...bookQueryKeys.collections(), 'ids'] as const,
   ids: (params: BookQueryParams) =>
     [...bookQueryKeys.idQueries(), params] as const,
@@ -28,11 +31,19 @@ export const bookQueryKeys = {
     [...bookQueryKeys.details(), bookId] as const,
   detail: (bookId: number, withDescription: boolean) =>
     [...bookQueryKeys.detailQueries(bookId), {withDescription}] as const,
+  reviews: (bookId: number) =>
+    [...bookQueryKeys.detailQueries(bookId), 'reviews'] as const,
+  batches: () => [...bookQueryKeys.collections(), 'batch'] as const,
+  batch: (ids: readonly number[]) =>
+    [...bookQueryKeys.batches(), ids] as const,
   recommendations: () => [...bookQueryKeys.all(), 'recommendation'] as const,
   recommendationQueries: (bookId: number) =>
     [...bookQueryKeys.recommendations(), bookId] as const,
   recommendation: (bookId: number, limit: number) =>
     [...bookQueryKeys.recommendationQueries(bookId), {limit}] as const,
+  duplicateQueries: () => [...bookQueryKeys.collections(), 'duplicates'] as const,
+  duplicates: (request: BookDuplicateRequest) =>
+    [...bookQueryKeys.duplicateQueries(), request] as const,
 };
 
 export function bookCollectionKeys(params: BookQueryParams) {

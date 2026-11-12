@@ -30,6 +30,11 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
   styleUrl: './global-preferences.component.scss'
 })
 export class GlobalPreferencesComponent implements OnInit {
+  private readonly appSettingsService = inject(AppSettingsService);
+  private readonly bookMetadataManageService = inject(BookMetadataManageService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
+  private readonly destroyRef = inject(DestroyRef);
 
   toggles = {
     autoBookSearch: false,
@@ -42,12 +47,6 @@ export class GlobalPreferencesComponent implements OnInit {
     aspectRatioThreshold: 2.5,
     smartCroppingEnabled: false
   };
-
-  private appSettingsService = inject(AppSettingsService);
-  private bookMetadataManageService = inject(BookMetadataManageService);
-  private messageService = inject(MessageService);
-  private t = inject(TranslocoService);
-  private destroyRef = inject(DestroyRef);
 
   private readonly syncSettingsEffect = effect(() => {
     const settings = this.appSettingsService.appSettings();

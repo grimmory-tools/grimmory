@@ -25,13 +25,13 @@ import {SidecarService} from '../../metadata/service/sidecar.service';
   styleUrls: ['./library-metadata-settings.component.scss']
 })
 export class LibraryMetadataSettingsComponent {
-  private libraryService = inject(LibraryService);
-  private appSettingsService = inject(AppSettingsService);
-  private messageService = inject(MessageService);
-  private sidecarService = inject(SidecarService);
-  private t = inject(TranslocoService);
-  private destroyRef = inject(DestroyRef);
-  private providerFields = inject(MetadataProviderFieldsService);
+  private readonly libraryService = inject(LibraryService);
+  private readonly appSettingsService = inject(AppSettingsService);
+  private readonly messageService = inject(MessageService);
+  private readonly sidecarService = inject(SidecarService);
+  private readonly t = inject(TranslocoService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly providerFields = inject(MetadataProviderFieldsService);
 
   defaultMetadataOptions: MetadataRefreshOptions = this.getDefaultMetadataOptions();
   libraryMetadataOptions: Record<number, MetadataRefreshOptions> = {};
@@ -198,7 +198,7 @@ export class LibraryMetadataSettingsComponent {
     const settings = this.appSettingsService.appSettings();
     return settings?.libraryMetadataRefreshOptions?.find(
       option => option.libraryId === libraryId
-    ) || null;
+    ) ?? null;
   }
 
   private getDefaultMetadataOptions(): MetadataRefreshOptions {

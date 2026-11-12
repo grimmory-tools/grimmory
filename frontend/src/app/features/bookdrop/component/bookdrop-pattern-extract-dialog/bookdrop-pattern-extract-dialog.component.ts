@@ -8,7 +8,6 @@ import {Chip} from '@openng/optimus-ui/chip';
 import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
 import {BookdropService, PatternExtractResult} from '../../service/bookdrop.service';
 import {MessageService} from '@openng/optimus-ui/api';
-import {NgClass} from '@angular/common';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 
@@ -35,7 +34,6 @@ interface PreviewResult {
     Divider,
     Chip,
     ProgressSpinner,
-    NgClass,
     Tooltip,
     TranslocoDirective,
     TranslocoPipe,
@@ -186,7 +184,7 @@ export class BookdropPatternExtractDialogComponent implements OnInit {
         this.previewResults = result.results.map(r => ({
           fileName: r.fileName,
           success: r.success,
-          preview: r.extractedMetadata || {},
+          preview: r.extractedMetadata ?? {},
           errorMessage: r.errorMessage
         }));
       },

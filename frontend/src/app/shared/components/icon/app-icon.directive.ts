@@ -3,7 +3,7 @@ import {
   ElementRef,
   effect,
   inject,
-  Injectable,
+  Service,
   input,
   Renderer2,
   Signal,
@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import DOMPurify from 'dompurify';
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class LucideIconService {
   private readonly cache = new Map<string, WritableSignal<SVGSVGElement | null>>();
 
@@ -60,11 +60,10 @@ export class LucideIconService {
   standalone: true,
 })
 export class AppIconDirective {
-  readonly appIcon = input.required<string>();
-
   private readonly svg = inject<ElementRef<SVGSVGElement>>(ElementRef).nativeElement;
   private readonly icons = inject(LucideIconService);
   private readonly renderer = inject(Renderer2);
+  readonly appIcon = input.required<string>();
 
   constructor() {
     this.renderer.setAttribute(this.svg, 'viewBox', '0 0 24 24');

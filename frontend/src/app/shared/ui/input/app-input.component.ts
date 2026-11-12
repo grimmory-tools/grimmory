@@ -83,6 +83,7 @@ const REVEAL_TOGGLE_CLASS =
   `,
 })
 export class AppInputComponent implements FormValueControl<string> {
+  private readonly fieldContext = inject(APP_FIELD, { optional: true });
   readonly value = model('');
   readonly disabled = input(false, { transform: booleanAttribute });
   readonly required = input(false, { transform: booleanAttribute });
@@ -109,8 +110,6 @@ export class AppInputComponent implements FormValueControl<string> {
 
   readonly keyedDown = output<KeyboardEvent>();
   readonly enterPressed = output<KeyboardEvent>();
-
-  private readonly fieldContext = inject(APP_FIELD, { optional: true });
   protected readonly adornmentClass = ADORNMENT_CLASS;
   protected readonly revealToggleClass = REVEAL_TOGGLE_CLASS;
   protected readonly resolvedInputId = computed(() => this.inputId() || this.fieldContext?.controlId() || null);

@@ -22,8 +22,7 @@
             optionValue="value"
             [placeholder]="t('filterPlaceholder')"
             (onChange)="onFilterChange()"
-            class="action-filter">
-          </p-select>
+            class="action-filter" />
           <p-select
             [options]="usernameOptions()"
             [(ngModel)]="selectedUsername"
@@ -31,8 +30,7 @@
             optionValue="value"
             [placeholder]="t('userFilterPlaceholder')"
             (onChange)="onFilterChange()"
-            class="user-filter">
-          </p-select>
+            class="user-filter" />
           <p-datepicker
             [(ngModel)]="dateRange"
             (ngModelChange)="onDateRangeChange()"
@@ -41,17 +39,16 @@
             dateFormat="yy-mm-dd"
             [showIcon]="true"
             [showButtonBar]="true"
-            class="date-range-filter">
-          </p-datepicker>
+            class="date-range-filter" />
           @if (hasActiveFilters) {
-            <button
+            <button type="button"
               (click)="clearAllFilters()"
               class="icon-btn clear-btn"
               [title]="t('clearFilters')">
               <i class="pi pi-filter-slash"></i>
             </button>
           }
-          <button
+          <button type="button"
             (click)="toggleAutoRefresh()"
             class="icon-btn refresh-btn"
             [class.active]="autoRefresh"

@@ -1,4 +1,4 @@
-import { computed, effect, inject, Injectable } from '@angular/core';
+import { computed, effect, inject, Service } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom, Observable, throwError } from 'rxjs';
 import { API_CONFIG } from '../../../core/config/api-config';
@@ -313,16 +313,13 @@ export interface UserProfileUpdateRequest {
   uiFont?: UiFontPreference;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class UserService {
+  private readonly http = inject(HttpClient);
+  private readonly authService = inject(AuthService);
+  private readonly queryClient = inject(QueryClient);
   private readonly apiUrl = `${API_CONFIG.BASE_URL}/api/v1/auth/register`;
   private readonly userUrl = `${API_CONFIG.BASE_URL}/api/v1/users`;
-
-  private http = inject(HttpClient);
-  private authService = inject(AuthService);
-  private queryClient = inject(QueryClient);
   private readonly token = this.authService.token;
 
   private readonly userQuery = injectQuery(() => ({
@@ -330,9 +327,9 @@ export class UserService {
     enabled: !!this.token(),
   }));
 
-  currentUser = computed(() => this.userQuery.data() ?? null);
-  isUserLoading = computed(() => !!this.token() && this.userQuery.isPending());
-  userError = computed<string | null>(() => {
+  readonly currentUser = computed(() => this.userQuery.data() ?? null);
+  readonly isUserLoading = computed(() => !!this.token() && this.userQuery.isPending());
+  readonly userError = computed<string | null>(() => {
     if (!this.token() || !this.userQuery.isError()) return null;
     const error = this.userQuery.error();
     return error instanceof Error ? error.message : 'Failed to load user';

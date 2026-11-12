@@ -16,11 +16,11 @@
           <div class="scroller-item">
             <div class="scroller-content">
               <div class="scroller-controls-left">
-                <p-checkbox [(ngModel)]="scroller.enabled" [binary]="true"></p-checkbox>
+                <p-checkbox [(ngModel)]="scroller.enabled" [binary]="true" />
               </div>
 
               <div class="scroller-fields">
-                <div class="scroller-field" [class.expanded]="scroller.type !== ScrollerType.MAGIC_SHELF">
+                <div class="scroller-field" [class.expanded]="!entityFieldOf(scroller.type)">
                   <label [for]="'dashboard-scroller-type-' + scroller.id">{{ t('type') }}</label>
                   <p-select
                     fluid
@@ -29,21 +29,20 @@
                     [(ngModel)]="scroller.type"
                     (onChange)="onScrollerTypeChange(scroller)"
                     [placeholder]="t('selectType')"
-                    appendTo="body">
-                  </p-select>
+                    appendTo="body" />
                 </div>
 
-                @if (scroller.type === ScrollerType.MAGIC_SHELF) {
+                @if (entityFieldOf(scroller.type); as field) {
+                  @let entity = entityFields()[field];
                   <div class="scroller-field">
-                    <label [for]="'dashboard-scroller-magic-shelf-' + scroller.id">{{ t('magicShelf') }}</label>
+                    <label [for]="'dashboard-scroller-entity-' + scroller.id">{{ t(entity.labelKey) }}</label>
                     <p-select
                       fluid
-                      [inputId]="'dashboard-scroller-magic-shelf-' + scroller.id"
-                      [options]="magicShelves()"
-                      [(ngModel)]="scroller.magicShelfId"
-                      [placeholder]="t('selectMagicShelf')"
-                      appendTo="body">
-                    </p-select>
+                      [inputId]="'dashboard-scroller-entity-' + scroller.id"
+                      [options]="entity.options"
+                      [(ngModel)]="scroller[field]"
+                      [placeholder]="t(entity.placeholderKey)"
+                      appendTo="body" />
                   </div>
 
                   <div class="scroller-field">
@@ -54,8 +53,7 @@
                       [options]="sortFieldOptions()"
                       [(ngModel)]="scroller.sortField"
                       [placeholder]="t('selectField')"
-                      appendTo="body">
-                    </p-select>
+                      appendTo="body" />
                   </div>
 
                   <div class="scroller-field">
@@ -66,22 +64,9 @@
                       [options]="sortDirectionOptions()"
                       [(ngModel)]="scroller.sortDirection"
                       [placeholder]="t('selectDirection')"
-                      appendTo="body">
-                    </p-select>
+                      appendTo="body" />
                   </div>
                 }
-              </div>
-
-              <div class="scroller-field max-items-field">
-                <label [for]="'dashboard-scroller-max-items-' + scroller.id">{{ t('maxItems') }}</label>
-                <p-inputNumber
-                  fluid
-                  [inputId]="'dashboard-scroller-max-items-' + scroller.id"
-                  [(ngModel)]="scroller.maxItems"
-                  [min]="MIN_ITEMS"
-                  [max]="MAX_ITEMS"
-                  [showButtons]="true">
-                </p-inputNumber>
               </div>
 
               <div class="scroller-controls-right">
@@ -92,8 +77,7 @@
                   severity="info"
                   size="small"
                   [disabled]="i === 0"
-                  (onClick)="moveUp(i)">
-                </p-button>
+                  (onClick)="moveUp(i)" />
                 <p-button
                   icon="pi pi-arrow-down"
                   outlined
@@ -101,8 +85,7 @@
                   severity="info"
                   size="small"
                   [disabled]="i === config.scrollers.length - 1"
-                  (onClick)="moveDown(i)">
-                </p-button>
+                  (onClick)="moveDown(i)" />
                 <p-button
                   icon="pi pi-trash"
                   outlined
@@ -110,8 +93,7 @@
                   size="small"
                   severity="danger"
                   (onClick)="removeScroller(i)"
-                  [disabled]="config.scrollers.length === 1">
-                </p-button>
+                  [disabled]="config.scrollers.length === 1" />
               </div>
             </div>
           </div>
@@ -126,25 +108,21 @@
             severity="primary"
             outlined
             size="small"
-            (onClick)="addScroller()"
-            [disabled]="config.scrollers.length >= MAX_SCROLLERS">
-          </p-button>
+            (onClick)="addScroller()" />
           <p-button
             [label]="t('resetToDefault')"
             icon="pi pi-refresh"
             severity="secondary"
             text
             size="small"
-            (onClick)="resetToDefault()">
-          </p-button>
+            (onClick)="resetToDefault()" />
         </div>
         <p-button
           [label]="t('saveSettings')"
           icon="pi pi-save"
           outlined
           severity="success"
-          (onClick)="save()">
-        </p-button>
+          (onClick)="save()" />
       </div>
     </div>
   </div>

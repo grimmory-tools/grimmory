@@ -1,7 +1,7 @@
 <div class="reading-sessions-container" *transloco="let t; prefix: 'metadata.readingSessions'">
   @if (loading() && sessions.length === 0) {
     <div class="loading-state">
-      <p-progressSpinner strokeWidth="4" fill="transparent" animationDuration=".8s"></p-progressSpinner>
+      <p-progressSpinner strokeWidth="4" fill="transparent" animationDuration=".8s" />
       <p class="loading-text">{{ t('loading') }}</p>
     </div>
   } @else if (sessions.length === 0) {
@@ -37,7 +37,7 @@
             </div>
           </td>
           <td>
-            <span class="book-type-badge" [ngClass]="'book-type-' + session.bookType.toLowerCase()">
+            <span class="book-type-badge" [class]="'book-type-' + session.bookType.toLowerCase()">
               <i [class]="getBookTypeIcon(session.bookType)"></i>
               <span>{{ formatBookType(session.bookType) }}</span>
             </span>
@@ -52,7 +52,7 @@
           </td>
           <td>
             @if (session.progressDelta !== null && session.progressDelta !== undefined) {
-              <span class="progress-delta-badge" [ngClass]="getProgressDeltaClass(session.progressDelta)">
+              <span class="progress-delta-badge" [class]="getProgressDeltaClass(session.progressDelta)">
                 <i [class]="getProgressDeltaIcon(session.progressDelta)"></i>
                 <span>{{ (session.progressDelta > 0 ? '+' : '') + session.progressDelta }}%</span>
               </span>

@@ -64,12 +64,12 @@ interface TabConfig {
   styleUrls: ['./metadata-manager.component.scss']
 })
 export class MetadataManagerComponent implements OnInit, OnDestroy {
-  private bookService = inject(BookService);
-  private bookMetadataManageService = inject(BookMetadataManageService);
-  private messageService = inject(MessageService);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  private pageTitle = inject(PageTitleService);
+  private readonly bookService = inject(BookService);
+  private readonly bookMetadataManageService = inject(BookMetadataManageService);
+  private readonly messageService = inject(MessageService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly pageTitle = inject(PageTitleService);
   private readonly t = inject(TranslocoService);
 
   private routeSub!: Subscription;
@@ -100,9 +100,9 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
   selectAllPublishers = false;
   selectAllLanguages = false;
 
-  loading = signal(false);
-  mergingInProgress = signal(false);
-  deletingInProgress = signal(false);
+  readonly loading = signal(false);
+  readonly mergingInProgress = signal(false);
+  readonly deletingInProgress = signal(false);
   showMergeDialog = false;
   showRenameDialog = false;
   showDeleteDialog = false;
@@ -112,7 +112,7 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
   currentRenameItem: MetadataItem | null = null;
   currentDeleteItem: MetadataItem | null = null;
 
-  private validTabs: MetadataType[] = ['authors', 'categories', 'moods', 'tags', 'series', 'publishers', 'languages'];
+  private readonly validTabs: MetadataType[] = ['authors', 'categories', 'moods', 'tags', 'series', 'publishers', 'languages'];
   private _activeTab: MetadataType = 'authors';
 
   get activeTab(): MetadataType {
@@ -497,7 +497,7 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
   }
 
   toggleAll(type: MetadataType, checked: boolean, filteredItems?: MetadataItem[]) {
-    const itemsToToggle = filteredItems || this[type];
+    const itemsToToggle = filteredItems ?? this[type];
     itemsToToggle.forEach(item => item.selected = checked);
     this.updateSelectAllState(type);
   }

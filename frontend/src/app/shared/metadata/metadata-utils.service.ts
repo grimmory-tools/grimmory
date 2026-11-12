@@ -1,10 +1,8 @@
-import {Injectable} from '@angular/core';
+import {Service} from '@angular/core';
 import {FormGroup} from '@angular/forms';
 import {BookMetadata} from '../../features/book/model/book.model';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class MetadataUtilsService {
 
   copyFieldToForm(

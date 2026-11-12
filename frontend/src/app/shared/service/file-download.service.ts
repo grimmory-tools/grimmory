@@ -1,14 +1,12 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {DOCUMENT} from '@angular/common';
 import {AuthService} from './auth.service';
 import {API_CONFIG} from '../../core/config/api-config';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class FileDownloadService {
   private readonly document = inject(DOCUMENT);
-  private authService = inject(AuthService);
+  private readonly authService = inject(AuthService);
 
   downloadFile(url: string, filename: string): void {
     this.authService.ensureAccessToken().subscribe({

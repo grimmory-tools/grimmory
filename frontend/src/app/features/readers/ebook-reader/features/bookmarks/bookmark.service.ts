@@ -7,12 +7,11 @@ import {TranslocoService} from '@jsverse/transloco';
 
 @Injectable()
 export class ReaderBookmarkService {
+  private readonly bookMarkService = inject(BookMarkService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
   private currentCFI: string | null = null;
   private currentChapterName: string | null = null;
-
-  private bookMarkService = inject(BookMarkService);
-  private messageService = inject(MessageService);
-  private readonly t = inject(TranslocoService);
 
 
   updateCurrentPosition(cfi: string, chapterName?: string): void {

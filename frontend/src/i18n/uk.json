@@ -17,6 +17,7 @@
     "next": "Вперед",
     "submit": "Надіслати",
     "remove": "Прибрати",
+    "clear": "Очистити",
     "edit": "Редагувати",
     "info": "Інформація",
     "select": "Вибрати",
@@ -83,19 +84,9 @@
     "main": {
       "pageTitle": "Панель керування",
       "welcomeTitle": "Ласкаво просимо до Grimmory!",
-      "welcomeSubtitle": "Створіть свою першу бібліотеку",
       "welcomeDescription": "У бібліотеці зберігаються всі ваші книги. Почніть створювати свою цифрову колекцію вже сьогодні!",
-      "createLibrary": "Створіть свою бібліотеку"
-    },
-    "scroller": {
-      "noBooksFound": "Книг не знайдено для цієї панелі.",
-      "loadError": "Не вдалося завантажити книги! Оновіть сторінку.",
-      "continueListening": "Продовжити прослуховування",
-      "continueReading": "Продовжити читання",
-      "recentlyAdded": "Нещодавно додані",
-      "discoverNew": "Відкрийте для себе щось нове",
-      "magicShelf": "Магічна полиця",
-      "default": "Панель"
+      "createLibrary": "Створіть свою бібліотеку",
+      "customize": ""
     }
   },
   "settings": {
@@ -108,10 +99,10 @@
       "users": "Користувачі",
       "email": "",
       "patterns": "Шаблони",
-      "authentication": "",
+      "authentication": "OIDC",
       "tasks": "Завдання",
       "auditLogs": "Журнали аудиту",
-      "opds": "",
+      "opds": "OPDS",
       "devices": "Пристрої"
     }
   },
@@ -139,14 +130,14 @@
       "username": "Ім'я користувача",
       "password": "Пароль",
       "fromAddress": "Адреса відправника",
-      "hostPlaceholder": "",
-      "portPlaceholder": "",
-      "usernamePlaceholder": "",
+      "hostPlaceholder": "smtp.example.com",
+      "portPlaceholder": "587",
+      "usernamePlaceholder": "user@example.com",
       "passwordPlaceholder": "Введіть пароль",
-      "fromAddressPlaceholder": "",
+      "fromAddressPlaceholder": "noreply@example.com",
       "providerNamePlaceholder": "Назва провайдера",
       "authentication": "Автентифікація",
-      "startTls": "",
+      "startTls": "StartTLS",
       "shared": "Спільний",
       "shareTooltip": "Поділитися цим провайдером з усіма користувачами",
       "loadError": "Не вдалося завантажити поштових провайдерів",
@@ -205,7 +196,7 @@
       "default": "За замовчуванням",
       "email": "Електронна пошта",
       "name": "Ім'я",
-      "emailPlaceholder": "",
+      "emailPlaceholder": "recipient@example.com",
       "namePlaceholder": "Ім'я одержувача",
       "editRecipient": "Редагувати одержувача",
       "deleteRecipient": "Видалити одержувача",
@@ -297,7 +288,7 @@
       "maxWidthDesc": "Встановіть ліміт ширини області читання, щоб полегшити відстеження тексту.",
       "maxHeight": "Максимальна висота",
       "maxHeightDesc": "Встановіть ліміт висоти області читання для оптимального заповнення екрана.",
-      "navigation": "",
+      "navigation": "Навігація",
       "tapToTurnPage": "",
       "tapToTurnPageDesc": ""
     },
@@ -310,8 +301,8 @@
       "pageZoomDesc": "Встановіть масштаб за замовчуванням для PDF-документів, щоб покращити зручність читання.",
       "scrollLayout": "",
       "scrollLayoutDesc": "",
-      "vertical": "",
-      "horizontal": "",
+      "vertical": "Вертикальний",
+      "horizontal": "Горизонтальний",
       "even": "Парні",
       "odd": "Непарні",
       "none": "Немає",
@@ -474,16 +465,16 @@
     },
     "dashboardScrollers": {
       "sectionTitle": "Налаштування панелі",
-      "sectionDesc": "Додайте до 5 панелей із різних книжних колекцій та налаштуйте їх",
+      "sectionDesc": "Додайте панелі з різних книжних колекцій та налаштуйте їх",
       "type": "Тип",
       "selectType": "Оберіть тип",
-      "magicShelf": "Магічна полиця",
       "selectMagicShelf": "Оберіть магічну полицю",
+      "selectLibrary": "",
+      "selectShelf": "",
       "sortField": "Сортувати за полем",
       "selectField": "Оберіть поле",
       "direction": "Напрямок",
       "selectDirection": "Порядок",
-      "maxItems": "Макс. кількість",
       "addScroller": "Додати панель",
       "resetToDefault": "Відновити стандартні",
       "saveSettings": "",
@@ -493,7 +484,10 @@
         "lastRead": "Продовжити читання",
         "lastListened": "Продовжити прослуховування",
         "latestAdded": "Нещодавно додані",
+        "recentlyFinished": "",
         "random": "Відкрийте для себе щось нове",
+        "library": "",
+        "shelf": "",
         "magicShelf": "Магічна полиця",
         "default": "Панель"
       },
@@ -522,7 +516,7 @@
       "sectionTitle": "Налаштування вигляду та сортування бібліотеки й полиць",
       "sectionDesc": "Налаштуйте стандартні та окремі для бібліотеки/полиці параметри сортування і режиму перегляду (сітка або таблиця) у браузері.",
       "defaultPreferences": "Параметри за замовчуванням",
-      "defaultPreferencesDesc": "Налаштуйте режим перегляду за замовчуванням і багатопольове сортування для всіх бібліотек і полиць. Перетягуйте, щоб змінити пріоритет сортування.",
+      "defaultPreferencesDesc": "Налаштуйте режим перегляду за замовчуванням і багатопольове сортування для всіх бібліотек і полиць.",
       "sortOrderLabel": "Порядок сортування (перетягніть для зміни)",
       "formatOverlay": "Накладення типу книги",
       "ascending": "За зростанням",
@@ -662,7 +656,7 @@
     },
     "publicReviews": {
       "sectionTitle": "Публічні відгуки",
-      "sectionDesc": "Налаштуйте автоматичне завантаження відгуків користувачів із зовнішніх платформ. Відгуки можна отримувати з Amazon, Goodreads і Hardcover для офлайн-доступу.",
+      "sectionDesc": "Налаштуйте автоматичне завантаження відгуків користувачів із зовнішніх платформ для офлайн-доступу.",
       "downloadLabel": "Завантажувати публічні відгуки",
       "autoDownloadLabel": "Автозавантаження при відкритті книги",
       "autoDownloadDesc": "Автоматично отримувати відгуки, коли ви відкриваєте сторінку деталей книги. Якщо вимкнено, відгуки завантажуватимуться лише вручну або під час оновлення метаданих.",
@@ -700,9 +694,7 @@
         "language": "Мова",
         "isbn13": "",
         "isbn10": "",
-        "pageCount": "Кількість сторінок",
-        "doubanRating": "Рейтинг Douban",
-        "doubanReviewCount": "К-сть оцінок Douban"
+        "pageCount": "Кількість сторінок"
       }
     },
     "fieldSelector": {
@@ -1112,6 +1104,7 @@
     "deleteSuccess": "Користувача успішно видалено",
     "deleteError": "Не вдалося видалити користувача",
     "opdsCopied": "Ендпоінт OPDS скопійовано в буфер обміну",
+    "copyFailed": "",
     "komgaCopied": "Ендпоінт Komga API скопійовано в буфер обміну",
     "sortUpdateSuccess": "Порядок сортування успішно оновлено",
     "sortUpdateError": "Не вдалося оновити порядок сортування",
@@ -1366,8 +1359,6 @@
       "syncConfigDesc": "Увімкніть і налаштуйте синхронізацію між вашою бібліотекою Grimmory та пристроєм KOReader.",
       "enableSync": "Увімкнути синхронізацію KOReader",
       "enableSyncDesc": "Увімкніть синхронізацію, щоб автоматично синхронізувати ваш прогрес читання.",
-      "syncWithGrimmory": "Синхронізувати прогрес читання з рідером eBook Grimmory",
-      "syncWithGrimmoryDesc": "Увімкніть двосторонню синхронізацію між рідером eBook Grimmory і KOReader. <strong>Примітка:</strong> Синхронізація прогресу є приблизною і може оновлюватися за розділами, а не за точною сторінкою чи позицією.",
       "apiPath": "Шлях API KOReader",
       "apiPathDesc": "Шлях до API-ендпоінта вашого сервісу синхронізації KOReader.",
       "username": "Ім'я користувача KOReader",
@@ -1450,9 +1441,6 @@
       "syncEnabled": "Синхронізацію Kobo увімкнено",
       "syncDisabled": "Синхронізацію Kobo вимкнено",
       "progressUpdated": "Пороги прогресу успішно оновлено",
-      "twoWaySyncLabel": "Двостороння синхронізація прогресу читання",
-      "twoWaySyncDesc": "Увімкніть двосторонню синхронізацію між веб-рідером Grimmory та вашим пристроєм Kobo. Прогрес читання, зроблений на будь-якій платформі, буде відображений на іншій.",
-      "twoWaySyncNote": "Примітка: через різні формати позицій точність синхронізації є найкращим можливим наближенням. У більшості випадків прогрес буде точним до рівня розділу.",
       "twoWaySyncKepubWarning": "",
       "twoWaySyncKepubWarningAdmin": "",
       "twoWaySyncEnabled": "Двосторонню синхронізацію прогресу увімкнено",
@@ -1717,7 +1705,8 @@
       },
       "shelfMenu": {
         "addToShelf": "",
-        "newShelf": ""
+        "newShelf": "",
+        "removeFromAllShelves": ""
       },
       "spinner": {
         "loading": ""
@@ -1746,6 +1735,7 @@
     "commandPalette": {
       "placeholder": "",
       "empty": "",
+      "bookSearchError": "",
       "hintNavigate": "",
       "hintSelect": "",
       "ariaLabel": "",
@@ -2282,8 +2272,10 @@
       "fetching": "Отримання...",
       "readyToSearch": "Готово до пошуку",
       "readyToSearchHint": "Введіть критерії пошуку вище й натисніть Пошук, щоб знайти метадані",
+      "noProviders": "",
       "noResultsFound": "Результатів не знайдено",
       "noResultsHint": "Спробуйте змінити критерії пошуку або вибрати інших провайдерів",
+      "searchFailed": "",
       "selectOverlay": "Вибрати"
     },
     "tabs": {
@@ -2396,6 +2388,8 @@
       "goToPreviousBook": "Перейти до попередньої книги",
       "goToNextBook": "Перейти до наступної книги",
       "personalRating": "Особистий рейтинг",
+      "ratingTooltip": "",
+      "ratingTooltipNoReviews": "",
       "loadingBookDetails": "Завантаження деталей книги...",
       "readStatusUnread": "Не прочитано",
       "readStatusPaused": "Пауза",
@@ -2501,6 +2495,7 @@
       "byLabel": "Ким:",
       "coverFileLabel": "Файл обкладинки:",
       "loading": "Завантаження даних sidecar...",
+      "readFailed": "",
       "syncStatusInSync": "Синхронізовано",
       "syncStatusOutdated": "Застаріло",
       "syncStatusConflict": "Конфлікт",
@@ -2534,6 +2529,7 @@
       "searchingForCovers": "Пошук обкладинок...",
       "noCoversFound": "Обкладинок не знайдено",
       "noCoversFoundDescription": "Спробуйте змінити пошукові запити або перевірте правопис.",
+      "searchFailed": "",
       "coversFoundSingular": "Знайдено {{ count }} обкладинку",
       "coversFoundPlural": "Знайдено {{ count }} обкладинок",
       "resultsHint": "Натисніть на зображення для попереднього перегляду або виберіть для застосування",
@@ -2678,10 +2674,31 @@
       "toast": {
         "providerRequiredSummary": "Помилка",
         "providerRequiredDetail": "Для кожного увімкненого поля книги потрібно вибрати щонайменше одного провайдера (P1-P4)."
-      }
+      },
+      "inactiveProvider": ""
     },
     "fetchOptions": {
       "startRefresh": "Почати оновлення"
+    },
+    "providers": {
+      "openLibrary": "",
+      "amazon": "",
+      "google": "",
+      "goodReads": "",
+      "hardcover": "",
+      "comicvine": "",
+      "douban": "",
+      "lubimyczytac": "",
+      "ranobedb": "",
+      "audible": "",
+      "appleBooks": ""
+    },
+    "providerFields": {
+      "id": "",
+      "rating": "",
+      "reviewCount": "",
+      "asin": "",
+      "hardcoverBookId": ""
     }
   },
   "notebook": {
@@ -2737,9 +2754,11 @@
     },
     "card": {
       "book": {
+        "physical": "",
         "unknownTitle": "Невідома назва"
       },
       "aria": {
+        "bookMenu": "",
         "coverAlt": "Обкладинка {{ title }}"
       },
       "menu": {
@@ -2808,16 +2827,32 @@
         "readStatusMenu": "Змінити статус читання"
       }
     },
+    "row": {
+      "previous": "",
+      "next": ""
+    },
     "menu": {
+      "label": "",
+      "openInNewTab": "",
+      "addToShelf": "",
+      "markAs": "",
+      "send": "",
       "quickSend": "Швидка відправка",
       "customSend": "Налаштована відправка",
       "download": "Завантажити",
       "metadata": "Метадані",
       "editMetadata": "Редагувати метадані",
+      "fetchMetadata": "",
+      "fetchMetadataWithOptions": "",
+      "searchProviders": "",
+      "restoreCover": "",
+      "generateCover": "",
+      "lockMetadata": "",
       "more": "Більше",
       "organizeFile": "Організувати файл",
       "resetGrimmoryProgress": "Скинути прогрес у Grimmory",
       "resetKoreaderProgress": "Скинути прогрес у KOReader",
+      "deleteEntireBook": "",
       "confirm": {
         "deleteBookMessage": "Ви впевнені, що хочете видалити \"{{ title }}\"?\n\nЦе назавжди видалить файл книги з вашої файлової системи.\n\nЦю дію неможливо скасувати.",
         "deleteBookHeader": "Підтвердження видалення",
@@ -2830,6 +2865,7 @@
     },
     "readAction": {
       "read": {
+        "short": "",
         "long": "Читати книгу"
       },
       "continueReading": {
@@ -2844,6 +2880,11 @@
         "short": "Продовжити",
         "long": "Продовжити прослуховування"
       }
+    },
+    "selectBook": "",
+    "viewMode": {
+      "grid": "Сітка",
+      "table": "Таблиця"
     },
     "notes": {
       "confirm": {
@@ -3108,7 +3149,9 @@
       "validationReady": "Готово до створення",
       "cancelButton": "Скасувати",
       "addButton": "Додати паперову книгу",
-      "fetchMetadataTooltip": "Отримати метадані за ISBN"
+      "fetchMetadataTooltip": "Отримати метадані за ISBN",
+      "metadataNotFound": "",
+      "metadataLookupFailed": ""
     },
     "bulkIsbnImport": {
       "title": "Імпорт ISBN",
@@ -3314,7 +3357,7 @@
       }
     },
     "sorting": {
-      "saveAsDefault": "Зберегти як значення за замовчуванням"
+      "saveAsDefault": "Зберегти як значення за замовчуванням: {{scope}}"
     },
     "fileAttacher": {
       "title": "Прикріпити файл до іншої книги",
@@ -3502,8 +3545,6 @@
       "hardcoverRating": "Рейтинг Hardcover",
       "hardcoverReviewCount": "Hardcover #",
       "ranobedbRating": "Рейтинг Ranobedb",
-      "lubimyczytacRating": "Lubimyczytac rating",
-      "audibleRating": "Audible rating",
       "pageCount": "Сторінки",
       "publishedDate": "Дата публікації",
       "publishedYear": "Рік видання",
@@ -3513,7 +3554,7 @@
       "readingProgress": "Прогрес читання",
       "fileName": "Назва файлу",
       "fileSize": "Розмір файлу",
-      "isbn": "ISBN",
+      "isbn": "",
       "library": "Бібліотека",
       "shelf": "Полиця",
       "ageRating": "Віковий рейтинг",
@@ -3524,11 +3565,9 @@
       "comicTeam": "Команда коміксу",
       "comicLocation": "Локація коміксу",
       "comicCreator": "Творець коміксу",
-      "audibleReviewCount": "Кількість відгуків Audible"
-    },
-    "viewMode": {
-      "grid": "Сітка",
-      "table": "Таблиця"
+      "lubimyczytacRating": "",
+      "audibleReviewCount": "Кількість відгуків Audible",
+      "audibleRating": ""
     }
   },
   "readerAudiobook": {
@@ -5198,23 +5237,88 @@
   },
   "browse": {
     "showAll": "Показати все",
+    "showMore": "",
+    "showFewer": "",
+    "clearFilters": "",
+    "filter": "",
     "moreActions": "Додаткові дії",
     "sort": {
-      "apply": "Застосувати"
+      "multiSort": "",
+      "addField": "",
+      "apply": "Застосувати",
+      "moveUp": "",
+      "moveDown": "",
+      "flipDirection": ""
+    },
+    "chips": {
+      "removeSearch": "",
+      "removeExcluded": ""
+    },
+    "rail": {
+      "searchValues": "",
+      "searchFields": "",
+      "searchScope": {
+        "allBooks": "",
+        "library": "",
+        "shelf": "",
+        "magicShelf": "",
+        "unshelved": "",
+        "dashboardRow": ""
+      },
+      "noMatches": "",
+      "minUnit": "",
+      "maxUnit": "",
+      "min": "",
+      "max": "",
+      "excluded": "",
+      "exclude": "",
+      "excludeValue": "",
+      "matchOptions": "",
+      "matchAny": "",
+      "matchAll": "",
+      "all": ""
+    },
+    "book": {
+      "empty": "",
+      "filteredEmpty": "",
+      "loadError": "",
+      "pageError": ""
+    },
+    "table": {
+      "moreValues": ""
     },
     "toolbar": {
       "columnGroups": {
+        "reading": "",
+        "publishing": "",
         "file": "Файл",
+        "categorization": "",
         "ratings": "Рейтинги"
       },
+      "sort": "",
+      "sortAria": "",
+      "sortAscending": "",
+      "sortDescending": "",
+      "shuffleAgain": "",
       "viewMode": "Вигляд",
       "density": "Розмір",
+      "smallerCards": "",
+      "largerCards": "",
+      "columns": "",
       "resetColumns": "Відновити стандартні"
     },
     "bulk": {
+      "markAsMessage": "",
+      "editAll": "",
+      "editOneByOne": "",
+      "selectionEmpty": "",
+      "selectionLoadError": "",
       "organizeFiles": "Організувати файли",
       "updateReadStatus": "Оновити статус читання",
       "lockUnlockMetadata": "Заблокувати/Розблокувати метадані"
+    },
+    "filterPage": {
+      "show": ""
     }
   }
 }

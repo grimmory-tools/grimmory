@@ -1,15 +1,13 @@
-import {Injectable, inject} from '@angular/core';
+import {Service, inject} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {API_CONFIG} from '../../core/config/api-config';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class PdfAnnotationService {
+  private readonly http = inject(HttpClient);
 
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/pdf-annotations`;
-  private readonly http = inject(HttpClient);
 
   getAnnotations(bookId: number): Observable<{ data: string }> {
     return this.http.get<{ data: string }>(`${this.url}/book/${bookId}`);

@@ -1,16 +1,14 @@
-import {computed, inject, Injectable} from '@angular/core';
+import {computed, inject, Service} from '@angular/core';
 import {BookService} from '../../book/service/book.service';
 import {Book, computeSeriesReadStatus, ReadStatus} from '../../book/model/book.model';
 import {SeriesSummary} from '../model/series.model';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class SeriesDataService {
 
-  private bookService = inject(BookService);
+  private readonly bookService = inject(BookService);
 
-  allSeries = computed(() => this.buildSeriesSummaries(this.bookService.books()));
+  readonly allSeries = computed(() => this.buildSeriesSummaries(this.bookService.books()));
 
   private buildSeriesSummaries(books: Book[]): SeriesSummary[] {
     const seriesMap = new Map<string, Book[]>();
@@ -57,7 +55,7 @@ export class SeriesDataService {
         .filter((t): t is string => !!t)
         .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0] || null;
 
-      const nextUnread = sorted.find(b => b.readStatus !== ReadStatus.READ) || null;
+      const nextUnread = sorted.find(b => b.readStatus !== ReadStatus.READ) ?? null;
 
       summaries.push({
         seriesName: displayName,

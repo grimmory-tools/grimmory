@@ -11,8 +11,7 @@ import {bookCollectionKeys, bookQueryKeys} from './book-query-keys';
 describe('book query keys', () => {
   const query = {
     query: 'dune',
-    facets: {genre: ['Fantasy']} as const,
-    facetLogic: 'or' as const,
+    facets: {genre: {include: ['Fantasy'], exclude: []}},
     sort: [{key: 'title', direction: 'asc'}] as const,
   };
   const page = normalizeBookPageParams({...query, size: 20});
@@ -21,7 +20,7 @@ describe('book query keys', () => {
     const keys = [
       bookQueryKeys.boundedPage(page),
       bookQueryKeys.infinitePage(page),
-      bookQueryKeys.facets(normalizeBookCollectionFilterParams(query)),
+      bookQueryKeys.facet('genre', normalizeBookCollectionFilterParams(query), ''),
       bookQueryKeys.ids(normalizeBookQueryParams(query)),
       bookQueryKeys.detail(12, true),
       bookQueryKeys.recommendation(12, 20),
@@ -43,7 +42,7 @@ describe('book query keys', () => {
     const genreSelected = normalizeBookCollectionFilterParams(query);
     const unfiltered = normalizeBookCollectionFilterParams({...query, facets: {}});
 
-    expect(bookQueryKeys.facets(genreSelected)).not.toEqual(bookQueryKeys.facets(unfiltered));
+    expect(bookQueryKeys.facet('author', genreSelected, '')).not.toEqual(bookQueryKeys.facet('author', unfiltered, ''));
   });
 
   it('nests every leaf under the prefix its invalidation targets', () => {
@@ -58,8 +57,7 @@ describe('book query keys', () => {
 
 const PARAMS: BookPageParams = {
   query: 'dune',
-  facets: {genre: ['Science Fiction']},
-  facetLogic: 'or',
+  facets: {genre: {include: ['Science Fiction'], exclude: []}},
   sort: [{key: 'title', direction: 'asc'}],
   size: 20,
 };
@@ -70,7 +68,7 @@ describe('bookCollectionKeys', () => {
     const equivalent = bookCollectionKeys({
       ...PARAMS,
       query: '  dune  ',
-      facets: {genre: ['Science Fiction', 'Science Fiction']},
+      facets: {genre: {include: ['Science Fiction', 'Science Fiction'], exclude: []}},
     });
     expect(equivalent.filtersKey).toBe(collection.filtersKey);
     expect(equivalent.listKey).toBe(collection.listKey);

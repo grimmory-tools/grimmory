@@ -64,7 +64,7 @@ server:
   port: ${SERVER_PORT:${BOOKLORE_PORT:6060}}
   compression:
     enabled: true
-    mime-types: text/html,text/css,application/javascript,application/json,image/svg+xml,application/xml,application/atom+xml
+    mime-types: text/html,text/css,text/javascript,application/javascript,application/json,image/svg+xml,application/xml,application/atom+xml
     min-response-size: 1024
   tomcat:
     relaxed-query-chars: '[,],%,{,},|'

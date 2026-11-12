@@ -14,8 +14,7 @@
       [text]="true"
       severity="secondary"
       (click)="dynamicDialogRef.close()"
-      class="close-button">
-    </p-button>
+      class="close-button" />
   </div>
 
   <div class="dialog-content">
@@ -62,8 +61,7 @@
               [label]="t('searchBtn')"
               icon="pi pi-search"
               [loading]="loading()"
-              [disabled]="searchForm.invalid">
-            </p-button>
+              [disabled]="searchForm.invalid" />
             <p-button
               type="button"
               icon="pi pi-refresh"
@@ -72,8 +70,7 @@
               severity="secondary"
               (click)="onClear()"
               [pTooltip]="t('resetSearchTooltip')"
-              tooltipPosition="top">
-            </p-button>
+              tooltipPosition="top" />
           </div>
         </div>
       </form>
@@ -93,7 +90,7 @@
       } @else if (loading()) {
         <!-- Loading State -->
         <div class="loading-state">
-          <p-progressSpinner strokeWidth="3" animationDuration="1s"></p-progressSpinner>
+          <p-progressSpinner strokeWidth="3" animationDuration="1s" />
           <p>{{ t('searchingForCovers') }}</p>
         </div>
       } @else if (coverImages().length === 0 || failed()) {
@@ -132,8 +129,7 @@
                   [src]="cover.url"
                   [alt]="t('bookCoverAlt', { index: i + 1 })"
                   appendTo="body"
-                  [preview]="true">
-                </p-image>
+                  [preview]="true" />
                 @if (cover.width && cover.height) {
                   <div class="resolution-badge">
                     {{ cover.width }} x {{ cover.height }}
@@ -144,8 +140,7 @@
                     (click)="selectAndSave(cover)"
                     [label]="t('selectCover')"
                     icon="pi pi-check"
-                    size="small">
-                  </p-button>
+                    size="small" />
                 </div>
               </div>
             </div>

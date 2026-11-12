@@ -20,7 +20,6 @@ import org.booklore.service.file.FileFingerprint;
 import org.booklore.service.fileprocessor.BookFileProcessor;
 import org.booklore.service.fileprocessor.BookFileProcessorRegistry;
 import org.booklore.service.metadata.sidecar.SidecarMetadataWriter;
-import org.booklore.service.metadata.writer.MetadataWriter;
 import org.booklore.service.metadata.writer.MetadataWriterFactory;
 import org.booklore.util.BookCoverUtils;
 import org.booklore.util.FileService;
@@ -35,14 +34,14 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -103,6 +102,17 @@ public class BookCoverService {
     }
 
     /**
+     * Update cover image from a local path for a single book.
+     */
+    private void updateCoverFromPath(BookEntity bookEntity, Path coverPath) {
+        writeCoverToBookFile(bookEntity, coverPath);
+        updateBookCoverMetadata(bookEntity);
+        bookRepository.save(bookEntity);
+        notifyBookCoverUpdate(bookEntity);
+        writeSidecarMetadata(bookEntity);
+    }
+
+    /**
      * Update cover image from uploaded file for a single book.
      */
     @Transactional
@@ -114,11 +124,7 @@ public class BookCoverService {
         }
 
         fileService.createThumbnailFromFile(bookId, file);
-        writeCoverToBookFile(bookEntity, (writer, targetFile) -> writer.replaceCoverImageFromUpload(targetFile, file));
-        updateBookCoverMetadata(bookEntity);
-        bookRepository.save(bookEntity);
-        notifyBookCoverUpdate(bookEntity);
-        writeSidecarMetadata(bookEntity);
+        updateCoverFromPath(bookEntity, Path.of(fileService.getCoverFile(bookId)));
     }
 
     /**
@@ -133,16 +139,23 @@ public class BookCoverService {
         }
 
         fileService.createThumbnailFromUrl(bookId, url);
-        writeCoverToBookFile(bookEntity, (writer, targetFile) -> writer.replaceCoverImageFromUrl(targetFile, url));
-        updateBookCoverMetadata(bookEntity);
-        bookRepository.save(bookEntity);
-        notifyBookCoverUpdate(bookEntity);
-        writeSidecarMetadata(bookEntity);
+        updateCoverFromPath(bookEntity, Path.of(fileService.getCoverFile(bookId)));
     }
 
     // =========================
     // SECTION: AUDIOBOOK COVER UPDATES
     // =========================
+
+    /**
+     * Update audiobook cover image from a local path for a single book.
+     */
+    private void updateAudiobookCoverFromPath(BookEntity bookEntity, Path coverPath) {
+        writeAudiobookCoverToFile(bookEntity, coverPath);
+        updateAudiobookCoverMetadata(bookEntity);
+        bookRepository.save(bookEntity);
+        notifyBookCoverUpdate(bookEntity);
+        writeSidecarMetadata(bookEntity);
+    }
 
     /**
      * Update audiobook cover image from uploaded file for a single book.
@@ -156,11 +169,7 @@ public class BookCoverService {
         }
 
         fileService.createAudiobookThumbnailFromFile(bookId, file);
-        writeAudiobookCoverToFile(bookEntity, (writer, targetFile) -> writer.replaceCoverImageFromUpload(targetFile, file));
-        updateAudiobookCoverMetadata(bookEntity);
-        bookRepository.save(bookEntity);
-        notifyBookCoverUpdate(bookEntity);
-        writeSidecarMetadata(bookEntity);
+        updateAudiobookCoverFromPath(bookEntity, Path.of(fileService.getAudiobookCoverFile(bookId)));
     }
 
     /**
@@ -175,11 +184,7 @@ public class BookCoverService {
         }
 
         fileService.createAudiobookThumbnailFromUrl(bookId, url);
-        writeAudiobookCoverToFile(bookEntity, (writer, targetFile) -> writer.replaceCoverImageFromUrl(targetFile, url));
-        updateAudiobookCoverMetadata(bookEntity);
-        bookRepository.save(bookEntity);
-        notifyBookCoverUpdate(bookEntity);
-        writeSidecarMetadata(bookEntity);
+        updateAudiobookCoverFromPath(bookEntity, Path.of(fileService.getAudiobookCoverFile(bookId)));
     }
 
     /**
@@ -379,7 +384,7 @@ public class BookCoverService {
         if (hasUnlockedEbookSlot(book)) {
             try {
                 fileService.createThumbnailFromBytes(book.getId(), coverBytes);
-                writeCoverToBookFile(book, (writer, targetFile) -> writer.replaceCoverImageFromBytes(targetFile, coverBytes));
+                writeCoverToBookFile(book, coverBytes);
                 updateBookCoverMetadata(book);
                 updated = true;
             } catch (Exception e) {
@@ -389,7 +394,7 @@ public class BookCoverService {
         if (hasUnlockedAudiobookSlot(book)) {
             try {
                 fileService.createAudiobookThumbnailFromBytes(book.getId(), coverBytes);
-                writeAudiobookCoverToFile(book, (writer, targetFile) -> writer.replaceCoverImageFromBytes(targetFile, coverBytes));
+                writeAudiobookCoverToFile(book, coverBytes);
                 updateAudiobookCoverMetadata(book);
                 updated = true;
             } catch (Exception e) {
@@ -575,14 +580,14 @@ public class BookCoverService {
     private void applyCustomBookCover(BookEntity bookEntity) {
         byte[] coverBytes = coverImageGenerator.generateCover(bookEntity.getMetadata().getTitle(), getAuthorNames(bookEntity));
         fileService.createThumbnailFromBytes(bookEntity.getId(), coverBytes);
-        writeCoverToBookFile(bookEntity, (writer, targetFile) -> writer.replaceCoverImageFromBytes(targetFile, coverBytes));
+        writeCoverToBookFile(bookEntity, coverBytes);
         updateBookCoverMetadata(bookEntity);
     }
 
     private void applyCustomAudiobookCover(BookEntity bookEntity) {
         byte[] coverBytes = coverImageGenerator.generateSquareCover(bookEntity.getMetadata().getTitle(), getAuthorNames(bookEntity));
         fileService.createAudiobookThumbnailFromBytes(bookEntity.getId(), coverBytes);
-        writeAudiobookCoverToFile(bookEntity, (writer, targetFile) -> writer.replaceCoverImageFromBytes(targetFile, coverBytes));
+        writeAudiobookCoverToFile(bookEntity, coverBytes);
         updateAudiobookCoverMetadata(bookEntity);
     }
 
@@ -595,7 +600,19 @@ public class BookCoverService {
         return null;
     }
 
-    private void writeCoverToBookFile(BookEntity bookEntity, BiConsumer<MetadataWriter, File> writerAction) {
+    private void writeCoverToBookFile(BookEntity bookEntity, Path path) {
+        if (path == null) {
+            return;
+        }
+
+        try {
+            writeCoverToBookFile(bookEntity, Files.readAllBytes(path));
+        } catch (IOException e) {
+            log.warn("Unable to read cover from path: {}", path, e);
+        }
+    }
+
+    private void writeCoverToBookFile(BookEntity bookEntity, byte[] contents) {
         if (!appProperties.isLocalStorage()) {
             return;
         }
@@ -610,14 +627,26 @@ public class BookCoverService {
         if ((ebookFile.getBookType() != BookFileType.CBX || convertCbrCb7ToCbz)) {
             metadataWriterFactory.getWriter(ebookFile.getBookType())
                     .ifPresent(writer -> {
-                        writerAction.accept(writer, ebookFile.getFullFilePath().toFile());
+                        writer.replaceCoverImageFromBytes(ebookFile.getFullFilePath().toFile(), contents);
                         String newHash = FileFingerprint.generateHash(ebookFile.getFullFilePath());
                         ebookFile.setCurrentHash(newHash);
                     });
         }
     }
 
-    private void writeAudiobookCoverToFile(BookEntity bookEntity, BiConsumer<MetadataWriter, File> writerAction) {
+    private void writeAudiobookCoverToFile(BookEntity bookEntity, Path path) {
+        if (path == null) {
+            return;
+        }
+
+        try {
+            writeAudiobookCoverToFile(bookEntity, Files.readAllBytes(path));
+        } catch (IOException e) {
+            log.warn("Unable to read cover from path: {}", path, e);
+        }
+    }
+
+    private void writeAudiobookCoverToFile(BookEntity bookEntity, byte[] contents) {
         if (!appProperties.isLocalStorage()) {
             return;
         }
@@ -632,7 +661,7 @@ public class BookCoverService {
 
         metadataWriterFactory.getWriter(BookFileType.AUDIOBOOK)
                 .ifPresent(writer -> {
-                    writerAction.accept(writer, audiobookFile.getFullFilePath().toFile());
+                    writer.replaceCoverImageFromBytes(audiobookFile.getFullFilePath().toFile(), contents);
                     if (!audiobookFile.isFolderBased()) {
                         String newHash = FileFingerprint.generateHash(audiobookFile.getFullFilePath());
                         audiobookFile.setCurrentHash(newHash);

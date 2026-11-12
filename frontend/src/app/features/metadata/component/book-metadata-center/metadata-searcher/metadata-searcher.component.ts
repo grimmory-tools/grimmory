@@ -40,15 +40,14 @@ const NO_SEARCH: MetadataSearchParams = {bookId: 0, providers: []};
   standalone: true
 })
 export class MetadataSearcherComponent {
-  readonly book = input<Book | null>(null);
-  readonly isActiveTab = input(false);
-
   private readonly formBuilder = inject(FormBuilder);
   private readonly appSettingsService = inject(AppSettingsService);
   private readonly sources = inject(MetadataSourceQueryService);
   private readonly catalog = inject(MetadataCatalogService);
   private readonly queryClient = inject(QueryClient);
   private readonly t = inject(TranslocoService);
+  readonly book = input<Book | null>(null);
+  readonly isActiveTab = input(false);
   private readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
   private readonly search = signal<MetadataSearchParams | null>(null);
   private resetForBookId: number | null = null;

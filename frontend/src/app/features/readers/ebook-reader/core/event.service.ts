@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {Subject} from 'rxjs';
 import {ReaderAnnotationService} from '../features/annotations/annotation-renderer.service';
 
@@ -83,17 +83,14 @@ interface ViewCallbacks {
   isTapToTurnEnabled?: () => boolean;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class ReaderEventService {
+  private readonly annotationService = inject(ReaderAnnotationService);
   private readonly DOUBLE_CLICK_INTERVAL_MS = 300;
   private readonly LONG_HOLD_THRESHOLD_MS = 500;
   private readonly LEFT_ZONE_PERCENT = 0.3;
   private readonly RIGHT_ZONE_PERCENT = 0.7;
   private readonly SWIPE_THRESHOLD_PX = 50;
-
-  private annotationService = inject(ReaderAnnotationService);
 
   private view: EventServiceView | null = null;
   private viewCallbacks: ViewCallbacks | null = null;
@@ -112,7 +109,7 @@ export class ReaderEventService {
   private selectionChangeTimeout: ReturnType<typeof setTimeout> | null = null;
   private lastTouchTime = 0;
 
-  private eventSubject = new Subject<ViewEvent>();
+  private readonly eventSubject = new Subject<ViewEvent>();
   public events$ = this.eventSubject.asObservable();
 
   initialize(view: EventServiceView, callbacks: ViewCallbacks): void {

@@ -41,14 +41,14 @@ interface FilePreview {
   styleUrl: './file-mover-component.scss'
 })
 export class FileMoverComponent implements OnDestroy {
-  private config = inject(DynamicDialogConfig);
+  private readonly config = inject(DynamicDialogConfig);
   ref = inject(DynamicDialogRef);
-  private bookService = inject(BookService);
-  private libraryService = inject(LibraryService);
-  private fileOperationsService = inject(FileOperationsService);
-  private messageService = inject(MessageService);
-  private appSettingsService = inject(AppSettingsService);
-  private destroy$ = new Subject<void>();
+  private readonly bookService = inject(BookService);
+  private readonly libraryService = inject(LibraryService);
+  private readonly fileOperationsService = inject(FileOperationsService);
+  private readonly messageService = inject(MessageService);
+  private readonly appSettingsService = inject(AppSettingsService);
+  private readonly destroy$ = new Subject<void>();
   private readonly appSettings = this.appSettingsService.appSettings;
   private readonly syncLibraryPatternsEffect = effect(() => {
     const settings = this.appSettings();
@@ -108,13 +108,13 @@ export class FileMoverComponent implements OnDestroy {
     bookCount: number;
   }[] = [];
   defaultMovePattern = '';
-  loading = signal(false);
+  readonly loading = signal(false);
   patternsCollapsed = true;
   infoCollapsed = true;
 
   bookIds = new Set<number>();
   books: Book[] = [];
-  filePreviews = signal<FilePreview[]>([]);
+  readonly filePreviews = signal<FilePreview[]>([]);
   defaultTargetLibraryId: number | null = null;
   defaultTargetLibraryPathId: number | null = null;
   defaultAvailableLibraryPaths: LibraryPath[] = [];
@@ -292,7 +292,7 @@ export class FileMoverComponent implements OnDestroy {
 
     const libraries = this.libraryService.libraries();
     const library = libraries.find((lib: Library) => lib.id === libraryId);
-    return library?.paths || [];
+    return library?.paths ?? [];
   }
 
   private getLibraryPathById(libraryId: number | null): string {

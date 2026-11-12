@@ -52,10 +52,8 @@
                   appendTo="body"
                   lazyLoad
                   [preview]="true"
-                  [ngClass]="{
-                    'changed': isValueCopied('thumbnailUrl'),
-                  }"
-                ></p-image>
+                  [class.changed]="isValueCopied('thumbnailUrl')"
+                />
               }
               @else {
                 <div class="thumbnail no-cover-text">{{ t('noCoverImage') }}</div>
@@ -80,7 +78,7 @@
                 appendTo="body"
                 lazyLoad
                 [preview]="true"
-                ></p-image>
+                />
               }
               @else {
                 <div class="thumbnail no-cover-text">{{ t('coverImageNotFound') }}</div>
@@ -100,17 +98,13 @@
                 id="{{field.controlName}}"
                 formControlName="{{field.controlName}}"
                 class="dest"
-                [ngClass]="{
-                  'changed': isValueChanged(field.controlName),
-                }"
+                [class.changed]="isValueChanged(field.controlName)"
               />
               <p-button
                 size="small"
                 [icon]="isValueSaved(field.controlName) ? 'pi pi-check' : (isValueChanged(field.controlName) || !fetchedMetadata[field.fetchedKey] ? 'pi pi-refresh' : 'pi pi-angle-left')"
                 [outlined]="true"
-                [ngClass]="{
-                  'nosrc' : !fetchedMetadata[field.fetchedKey]
-                }"
+                [class.nosrc]="!fetchedMetadata[field.fetchedKey]"
                 class="arrow-button"
                 [severity]="isValueChanged(field.controlName) ? 'warn' : null"
                 [disabled]="!isFetchedDifferent(field.controlName) && !isValueChanged(field.controlName)"
@@ -123,9 +117,7 @@
                   [value]="fetchedMetadata[field.fetchedKey] ?? null"
                   class="src"
                   disabled
-                  [ngClass]="{
-                    'diff': isFetchedDifferent(field.controlName),
-                  }"
+                  [class.diff]="isFetchedDifferent(field.controlName)"
                 />
               }
             </div>
@@ -147,17 +139,12 @@
                 [iconDisplay]="'input'"
                 appendTo="body"
                 class="dest"
-                [ngClass]="{
-                  'changed': isValueChanged(field.controlName),
-                }">
-              </p-datepicker>
+                [class.changed]="isValueChanged(field.controlName)" />
               <p-button
                 size="small"
                 [icon]="isValueSaved(field.controlName) ? 'pi pi-check' : (isValueChanged(field.controlName) || !fetchedMetadata[field.fetchedKey] ? 'pi pi-refresh' : 'pi pi-angle-left')"
                 [outlined]="true"
-                [ngClass]="{
-                  'nosrc' : !fetchedMetadata[field.fetchedKey]
-                }"
+                [class.nosrc]="!fetchedMetadata[field.fetchedKey]"
                 class="arrow-button"
                 [severity]="isValueChanged(field.controlName) ? 'warn' : null"
                 [disabled]="!isFetchedDifferent(field.controlName) && !isValueChanged(field.controlName)"
@@ -170,9 +157,7 @@
                   [value]="fetchedMetadata[field.fetchedKey] ?? null"
                   class="src"
                   disabled
-                  [ngClass]="{
-                    'diff': isFetchedDifferent(field.controlName),
-                  }"
+                  [class.diff]="isFetchedDifferent(field.controlName)"
                 />
               }
             </div>
@@ -186,7 +171,7 @@
                 <div class="author-chips-container dest full-width"
                      cdkDropList cdkDropListOrientation="mixed"
                      (cdkDropListDropped)="dropAuthor($event)"
-                     [ngClass]="{ 'changed': isValueChanged('authors') }">
+                     [class.changed]="isValueChanged('authors')">
                   @for (author of metadataForm.get('authors')!.value; track $index) {
                     <span class="author-chip" [class.main-author]="$index === 0" cdkDrag>
                       @if ($index === 0) { <span class="main-author-badge">m</span> }
@@ -220,9 +205,7 @@
                   [dropdown]="false"
                   [forceSelection]="false"
                   class="dest full-width"
-                  [ngClass]="{
-                    'changed': isValueChanged(field.controlName),
-                  }"
+                  [class.changed]="isValueChanged(field.controlName)"
                   (onBlur)="onAutoCompleteBlur(field.controlName, $event)"
                 />
               }
@@ -230,9 +213,7 @@
                 size="small"
                 [icon]="isValueSaved(field.controlName) ? 'pi pi-check' : (isValueChanged(field.controlName) || !fetchedMetadata[field.fetchedKey] ? 'pi pi-refresh' : 'pi pi-angle-left')"
                 [outlined]="true"
-                [ngClass]="{
-                  'nosrc' : !fetchedMetadata[field.fetchedKey]
-                }"
+                [class.nosrc]="!fetchedMetadata[field.fetchedKey]"
                 class="arrow-button"
                 [severity]="isValueChanged(field.controlName) ? 'warn' : null"
                 [disabled]="!isFetchedDifferent(field.controlName) && !isValueChanged(field.controlName)"
@@ -249,9 +230,7 @@
                   [dropdown]="false"
                   [forceSelection]="false"
                   class="src full-width"
-                  [ngClass]="{
-                    'diff': isFetchedDifferent(field.controlName),
-                  }"
+                  [class.diff]="isFetchedDifferent(field.controlName)"
                 />
               }
             </div>
@@ -268,17 +247,13 @@
                 id="{{field.controlName}}"
                 formControlName="{{field.controlName}}"
                 class="dest"
-                [ngClass]="{
-                  'changed': isValueChanged(field.controlName),
-                }"
+                [class.changed]="isValueChanged(field.controlName)"
               ></textarea>
               <p-button
                 size="small"
                 [icon]="isValueSaved(field.controlName) ? 'pi pi-check' : (isValueChanged(field.controlName) || !fetchedMetadata[field.fetchedKey] ? 'pi pi-refresh' : 'pi pi-angle-left')"
                 [outlined]="true"
-                [ngClass]="{
-                  'nosrc' : !fetchedMetadata[field.fetchedKey]
-                }"
+                [class.nosrc]="!fetchedMetadata[field.fetchedKey]"
                 class="arrow-button"
                 [severity]="isValueChanged(field.controlName) ? 'warn' : null"
                 [disabled]="!isFetchedDifferent(field.controlName) && !isValueChanged(field.controlName)"
@@ -292,9 +267,7 @@
                   [value]="fetchedMetadata[field.fetchedKey] ?? null"
                   class="src"
                   disabled
-                  [ngClass]="{
-                    'diff': isFetchedDifferent(field.controlName),
-                  }"
+                  [class.diff]="isFetchedDifferent(field.controlName)"
                 ></textarea>
               }
             </div>
@@ -310,17 +283,13 @@
                 id="{{field.controlName}}"
                 formControlName="{{field.controlName}}"
                 class="dest"
-                [ngClass]="{
-                  'changed': isValueChanged(field.controlName),
-                }"
+                [class.changed]="isValueChanged(field.controlName)"
               />
               <p-button
                 size="small"
                 [icon]="isValueSaved(field.controlName) ? 'pi pi-check' : (isValueChanged(field.controlName) || !fetchedMetadata[field.fetchedKey] ? 'pi pi-refresh' : 'pi pi-angle-left')"
                 [outlined]="true"
-                [ngClass]="{
-                  'nosrc' : !fetchedMetadata[field.fetchedKey]
-                }"
+                [class.nosrc]="!fetchedMetadata[field.fetchedKey]"
                 class="arrow-button"
                 [severity]="isValueChanged(field.controlName) ? 'warn' : null"
                 [disabled]="!isFetchedDifferent(field.controlName) && !isValueChanged(field.controlName)"
@@ -333,9 +302,7 @@
                   [value]="fetchedMetadata[field.fetchedKey] ?? null"
                   class="src"
                   disabled
-                  [ngClass]="{
-                    'diff': isFetchedDifferent(field.controlName),
-                  }"
+                  [class.diff]="isFetchedDifferent(field.controlName)"
                 />
               }
             </div>
@@ -359,7 +326,7 @@
           [pTooltip]="t('resetAllTooltip')"
           tooltipPosition="left"
           (onClick)="confirmReset()"
-        ></p-button>
+        />
       </div>
       <div class="metabody">
         <div class="editor-thumbnail-wrapper">
@@ -383,9 +350,7 @@
                   pInputText
                   id="{{field.controlName}}"
                   formControlName="{{field.controlName}}"
-                  [ngClass]="{
-                    'changed': isValueChanged(field.controlName),
-                  }"
+                  [class.changed]="isValueChanged(field.controlName)"
                 />
                 <p-button
                   size="small"
@@ -416,10 +381,7 @@
                   [iconDisplay]="'input'"
                   appendTo="body"
                   class="full-width"
-                  [ngClass]="{
-                    'changed': isValueChanged(field.controlName),
-                  }">
-                </p-datepicker>
+                  [class.changed]="isValueChanged(field.controlName)" />
                 <p-button
                   size="small"
                   icon="pi pi-refresh"
@@ -441,7 +403,7 @@
                   <div class="author-chips-container full-width"
                        cdkDropList cdkDropListOrientation="mixed"
                        (cdkDropListDropped)="dropAuthor($event)"
-                       [ngClass]="{ 'changed': isValueChanged('authors') }">
+                       [class.changed]="isValueChanged('authors')">
                     @for (author of metadataForm.get('authors')!.value; track $index) {
                       <span class="author-chip" [class.main-author]="$index === 0" cdkDrag>
                         @if ($index === 0) { <span class="main-author-badge">m</span> }
@@ -475,9 +437,7 @@
                     [dropdown]="false"
                     [forceSelection]="false"
                     class="full-width"
-                    [ngClass]="{
-                      'changed': isValueChanged(field.controlName),
-                    }"
+                    [class.changed]="isValueChanged(field.controlName)"
                     (onBlur)="onAutoCompleteBlur(field.controlName, $event)"
                   />
                 }
@@ -505,9 +465,7 @@
                   pSize="small"
                   id="{{field.controlName}}"
                   formControlName="{{field.controlName}}"
-                  [ngClass]="{
-                    'changed': isValueChanged(field.controlName),
-                  }"
+                  [class.changed]="isValueChanged(field.controlName)"
                 ></textarea>
                 <p-button
                   size="small"
@@ -532,9 +490,7 @@
                   pInputText
                   id="{{field.controlName}}"
                   formControlName="{{field.controlName}}"
-                  [ngClass]="{
-                    'changed': isValueChanged(field.controlName),
-                  }"
+                  [class.changed]="isValueChanged(field.controlName)"
                 />
                 <p-button
                   size="small"

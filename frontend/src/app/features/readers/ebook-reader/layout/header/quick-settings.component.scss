@@ -17,10 +17,15 @@
 .quick-settings-panel {
   @include surface;
 
+  --quick-settings-top: calc(var(--reader-header-height) + 16px);
+
   position: absolute;
-  top: 52px;
-  right: 60px;
+  top: var(--quick-settings-top);
+  right: calc(60px + var(--safe-edge-right));
   width: 280px;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - var(--quick-settings-top) - var(--safe-edge-panel-bottom));
   border: 1px solid var(--reader-chrome-border);
   border-radius: 12px;
   box-shadow: 0 12px 40px rgb(0 0 0 / 50%);
@@ -57,6 +62,9 @@
 
 .panel-body {
   padding: 16px;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .control {

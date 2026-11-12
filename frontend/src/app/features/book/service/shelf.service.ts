@@ -1,4 +1,4 @@
-import {computed, effect, inject, Injectable} from '@angular/core';
+import {computed, effect, inject, Service} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {lastValueFrom, Observable} from 'rxjs';
 import {tap} from 'rxjs/operators';
@@ -16,23 +16,23 @@ import {AuthService} from '../../../shared/service/auth.service';
 const KOBO_SHELF_NAME = 'Kobo';
 const KOBO_SHELF_ICON = 'pi pi-tablet';
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class ShelfService {
+  private readonly http = inject(HttpClient);
+  private readonly bookService = inject(BookService);
+  private readonly authService = inject(AuthService);
+  private readonly queryClient = inject(QueryClient);
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/shelves`;
-  private http = inject(HttpClient);
-  private bookService = inject(BookService);
-  private authService = inject(AuthService);
-  private queryClient = inject(QueryClient);
   private readonly token = this.authService.token;
 
-  private shelvesQuery = injectQuery(() => ({
+  private readonly shelvesQuery = injectQuery(() => ({
     ...this.getShelvesQueryOptions(),
     enabled: !!this.token(),
   }));
 
-  shelves = computed(() => this.shelvesQuery.data() ?? []);
+  readonly shelves = computed(() => this.shelvesQuery.data() ?? []);
 
-  shelvesError = computed<string | null>(() => {
+  readonly shelvesError = computed<string | null>(() => {
     if (!this.token() || !this.shelvesQuery.isError()) {
       return null;
     }
@@ -41,7 +41,7 @@ export class ShelfService {
     return error instanceof Error ? error.message : 'Failed to load shelves';
   });
 
-  isShelvesLoading = computed(() => !!this.token() && this.shelvesQuery.isPending());
+  readonly isShelvesLoading = computed(() => !!this.token() && this.shelvesQuery.isPending());
 
   constructor() {
     effect(() => {

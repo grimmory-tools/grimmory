@@ -25,11 +25,10 @@ import {themes} from '../../../readers/ebook-reader/state/themes.constant';
   styleUrl: './epub-reader-preferences-component.scss'
 })
 export class EpubReaderPreferencesComponent {
-
-  userSettings = input.required<UserSettings>();
-
   private readonly readerPreferencesService = inject(ReaderPreferencesService);
   private readonly customFontService = inject(CustomFontService);
+
+  readonly userSettings = input.required<UserSettings>();
 
   private static readonly baseFonts: FontPreferenceItem[] = [
     {name: 'Book Default', displayName: 'Default', key: null},
@@ -57,7 +56,7 @@ export class EpubReaderPreferencesComponent {
     if (fonts.length === 0 && this.customFontService.isFontsLoading()) return;
 
     untracked(() => {
-      this.customFontService.loadAllFonts(fonts).catch(err => {
+      this.customFontService.loadAllFonts(fonts).catch((err: unknown) => {
         console.error('Failed to load custom fonts:', err);
       });
     });

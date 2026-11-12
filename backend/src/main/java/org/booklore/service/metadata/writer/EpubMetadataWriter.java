@@ -14,7 +14,6 @@ import org.booklore.util.SecureXmlUtils;
 import org.booklore.util.epub.EpubContentReader;
 import org.booklore.util.epub.EpubContentWriter;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -33,10 +32,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -58,7 +54,7 @@ public class EpubMetadataWriter implements MetadataWriter {
     private final ArchiveService archiveService;
 
     @Override
-    public void saveMetadataToFile(File epubFile, BookMetadataEntity metadata, String thumbnailUrl, MetadataClearFlags clear) {
+    public void saveMetadataToFile(File epubFile, BookMetadataEntity metadata, MetadataClearFlags clear) {
         if (!shouldSaveMetadataToFile(epubFile)) {
             return;
         }
@@ -213,14 +209,6 @@ public class EpubMetadataWriter implements MetadataWriter {
                 }
                 hasChanges[0] = true;
             });
-
-            if (StringUtils.isNotBlank(thumbnailUrl)) {
-                byte[] coverData = loadImage(thumbnailUrl);
-                if (coverData != null) {
-                    applyCoverImageToEpub(tempDir, opfDoc, coverData);
-                    hasChanges[0] = true;
-                }
-            }
 
             if (!hasChanges[0] && hasBookloreMetadataChanges(metadataElement, metadata)) {
                 hasChanges[0] = true;
@@ -385,58 +373,12 @@ public class EpubMetadataWriter implements MetadataWriter {
         return changed;
     }
 
-
     @Override
-    public void replaceCoverImageFromBytes(File bookFile, byte[] file) {
-        if (!shouldSaveMetadataToFile(bookFile)) {
-            return;
-        }
-        if (file == null || file.length == 0) {
-            log.warn("Cover update failed: empty or null byte array.");
+    public void replaceCoverImageFromBytes(File epubFile, byte[] contents) {
+        if (!shouldSaveMetadataToFile(epubFile)) {
             return;
         }
 
-        replaceCoverImageInternal(bookFile, file, "byte array");
-    }
-
-    @Override
-    public void replaceCoverImageFromUpload(File bookFile, MultipartFile multipartFile) {
-        if (!shouldSaveMetadataToFile(bookFile)) {
-            return;
-        }
-        if (multipartFile == null || multipartFile.isEmpty()) {
-            log.warn("Cover upload failed: empty or null file.");
-            return;
-        }
-
-        try {
-            byte[] coverData = multipartFile.getBytes();
-            replaceCoverImageInternal(bookFile, coverData, "upload");
-        } catch (IOException e) {
-            log.warn("Failed to read uploaded cover image: {}", e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void replaceCoverImageFromUrl(File bookFile, String url) {
-        if (!shouldSaveMetadataToFile(bookFile)) {
-            return;
-        }
-        if (url == null || url.isBlank()) {
-            log.warn("Cover update via URL failed: empty or null URL.");
-            return;
-        }
-
-        byte[] coverData = loadImage(url);
-        if (coverData == null) {
-            log.warn("Failed to load image from URL: {}", url);
-            return;
-        }
-
-        replaceCoverImageInternal(bookFile, coverData, "URL");
-    }
-
-    private void replaceCoverImageInternal(File epubFile, byte[] coverData, String source) {
         Path tempDir = null;
         try {
             tempDir = Files.createTempDirectory("epub_cover_" + UUID.randomUUID());
@@ -448,7 +390,7 @@ public class EpubMetadataWriter implements MetadataWriter {
             DocumentBuilder builder = SecureXmlUtils.createSecureDocumentBuilder(true);
             Document opfDoc = builder.parse(opfPath.toFile());
 
-            applyCoverImageToEpub(tempDir, opfDoc, coverData);
+            applyCoverImageToEpub(tempDir, opfDoc, contents);
 
             removeEmptyTextNodes(opfDoc);
             organizePackageElements(opfDoc);
@@ -463,10 +405,10 @@ public class EpubMetadataWriter implements MetadataWriter {
             if (!epubFile.delete()) throw new IOException("Could not delete original EPUB");
             if (!tempEpub.renameTo(epubFile)) throw new IOException("Could not rename temp EPUB");
 
-            log.info("Cover image updated in EPUB from {}: {}", source, epubFile.getName());
+            log.info("Cover image updated in EPUB: {}", epubFile.getName());
 
         } catch (Exception e) {
-            log.warn("Failed to update EPUB cover image from {}: {}", source, e.getMessage(), e);
+            log.warn("Failed to update EPUB cover image: {}", e.getMessage(), e);
         } finally {
             if (tempDir != null) {
                 deleteDirectoryRecursively(tempDir);
@@ -649,15 +591,6 @@ public class EpubMetadataWriter implements MetadataWriter {
 
     private Path findOpfPath(Path tempDir) throws IOException, ParserConfigurationException, SAXException {
         return EpubContentReader.findOPFInExtractedEpub(tempDir);
-    }
-
-    private byte[] loadImage(String pathOrUrl) {
-        try (InputStream stream = pathOrUrl.startsWith("http") ? URI.create(pathOrUrl).toURL().openStream() : new FileInputStream(pathOrUrl)) {
-            return stream.readAllBytes();
-        } catch (IOException e) {
-            log.warn("Failed to load image from {}: {}", pathOrUrl, e.getMessage());
-            return null;
-        }
     }
 
     private void removeMetaByName(Element metadataElement, String name) {

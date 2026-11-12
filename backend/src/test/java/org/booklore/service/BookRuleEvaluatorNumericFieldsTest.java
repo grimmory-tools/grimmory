@@ -478,6 +478,23 @@ class BookRuleEvaluatorNumericFieldsTest {
         }
 
         @Test
+        void doubanRating_greaterThan() {
+            BookEntity rated = createBook("Douban Favourite");
+            rated.getMetadata().setDoubanRating(4.55);
+            em.merge(rated.getMetadata());
+
+            BookEntity other = createBook("Douban Average");
+            other.getMetadata().setDoubanRating(3.25);
+            em.merge(other.getMetadata());
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.DOUBAN_RATING, RuleOperator.GREATER_THAN, 4.0));
+            assertThat(ids).contains(rated.getId());
+            assertThat(ids).doesNotContain(other.getId());
+        }
+
+        @Test
         void ranobedbRating_lessThan() {
             BookEntity low = createBook("Low Ranobe");
             low.getMetadata().setRanobedbRating(2.5);

@@ -5,7 +5,7 @@
      (click)="onCardClick($event)"
      (keydown.enter)="onCardClick($event)">
 
-  <div class="cover-container" [ngClass]="{ 'center-info-btn': isSeriesViewActive() || !hasDigitalFile(), 'audiobook-cover': isAudiobook(), 'square-library-cover': useSquareCovers() }">
+  <div class="cover-container" [class]="{ 'center-info-btn': isSeriesViewActive() || !hasDigitalFile(), 'audiobook-cover': isAudiobook(), 'square-library-cover': useSquareCovers() }">
     <app-cover
       class="book-cover"
       [class.square-cover]="isAudiobook() || useSquareCovers()"
@@ -17,7 +17,7 @@
 
     <div class="top-left-overlay-stack">
       @if (showBookTypePill() && displayFormat(); as fmt) {
-        <div class="book-type-pill-overlay" [ngClass]="'book-type-' + fmt.toLowerCase()">
+        <div class="book-type-pill-overlay" [class]="'book-type-' + fmt.toLowerCase()">
           {{ fmt }}
         </div>
       }
@@ -59,24 +59,23 @@
         class="select-checkbox"
         (click)="captureMouseEvent($event)"
         [ngModel]="isSelected()"
-        (onChange)="toggleSelection($event)">
-      </p-checkbox>
+        (onChange)="toggleSelection($event)" />
     }
 
     @if (hasProgress()) {
       <div class="cover-progress-bar-container" [pTooltip]="progressTooltip()" tooltipPosition="top">
         @if (progressPercentage() !== null) {
-          <div class="cover-progress-bar" [ngClass]="{ 'progress-complete': progressPercentage() === 100, 'progress-incomplete': progressPercentage()! < 100 }">
+          <div class="cover-progress-bar" [class]="{ 'progress-complete': progressPercentage() === 100, 'progress-incomplete': progressPercentage()! < 100 }">
             <div class="progress-fill" [style.width.%]="progressPercentage()!"></div>
           </div>
         }
         @if (koProgressPercentage() !== null) {
-          <div class="cover-progress-bar" [ngClass]="koProgressPercentage() === 100 ? 'progress-complete-ko' : 'progress-incomplete-ko'">
+          <div class="cover-progress-bar" [class]="koProgressPercentage() === 100 ? 'progress-complete-ko' : 'progress-incomplete-ko'">
             <div class="progress-fill" [style.width.%]="koProgressPercentage()!"></div>
           </div>
         }
         @if (koboProgressPercentage() !== null) {
-          <div class="cover-progress-bar" [ngClass]="koboProgressPercentage() === 100 ? 'progress-complete-kobo' : 'progress-incomplete-kobo'">
+          <div class="cover-progress-bar" [class]="koboProgressPercentage() === 100 ? 'progress-complete-kobo' : 'progress-incomplete-kobo'">
             <div class="progress-fill" [style.width.%]="koboProgressPercentage()!"></div>
           </div>
         }
@@ -87,7 +86,7 @@
   @if (!bottomBarHidden()) {
     <div class="book-title-container">
       <div class="read-status-indicator"
-           [ngClass]="readStatusClass()"
+           [class]="readStatusClass()"
            [pTooltip]="readStatusTooltip()"
            tooltipPosition="bottom"
            (click)="toggleReadStatusMenu($event, readStatusMenu)"
@@ -97,13 +96,13 @@
            [attr.aria-label]="'book.card.alt.readStatusMenu' | transloco">
         <i [class]="readStatusIcon()" style="font-size: 0.9rem"></i>
       </div>
-      <p-tieredmenu #readStatusMenu [model]="readStatusMenuItems()" [popup]="true" appendTo="body"></p-tieredmenu>
+      <p-tieredmenu #readStatusMenu [model]="readStatusMenuItems()" [popup]="true" appendTo="body" />
       <h4 class="book-title"
           tooltipPosition="bottom"
           [pTooltip]="titleTooltip()">
         {{ displayTitle() }}
       </h4>
-      <p-tieredmenu #menu [model]="items()" [popup]="true" appendTo="body" (onShow)="onMenuShow()" (onHide)="onMenuHide()"></p-tieredmenu>
+      <p-tieredmenu #menu [model]="items()" [popup]="true" appendTo="body" (onShow)="onMenuShow()" (onHide)="onMenuHide()" />
       <button pButton type="button"
         class="p-button p-component p-button-text p-button-sm custom-button-padding"
         (click)="onMenuToggle($event, menu)"

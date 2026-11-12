@@ -47,7 +47,7 @@ export function parseStoredAnnotations(jsonString: string | null | undefined): A
     const parsed = JSON.parse(jsonString);
 
     // New format: { format: 'embedpdf', version: 1, annotations: [...] }
-    if (parsed && parsed.format === 'embedpdf' && Array.isArray(parsed.annotations)) {
+    if (parsed?.format === 'embedpdf' && Array.isArray(parsed.annotations)) {
       const storedItems = parsed.annotations as SerializableAnnotationTransferItem[];
       return storedItems.reduce<AnnotationTransferItem[]>((acc, item) => {
         try {
@@ -185,7 +185,7 @@ function convertInk(legacy: Record<string, unknown>): AnnotationTransferItem | n
   for (const path of paths) {
     if (Array.isArray(path) && Array.isArray(path[0])) {
       // Array of point pairs
-      const points = (path as number[][]).map(p => ({x: p[0], y: p[1]}));
+      const points = (path).map(p => ({x: p[0], y: p[1]}));
       inkList.push({points});
     } else if (typeof path === 'object' && 'bezier' in (path as Record<string, unknown>)) {
       // Bezier curve data - extract control points
@@ -281,7 +281,6 @@ function restoreArrayBuffers(item: SerializableAnnotationTransferItem): Annotati
   }
 
   if (next.ctx?._dataEncoding === 'base64' && typeof next.ctx.data === 'string') {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const {_dataEncoding: _, ...rest} = next.ctx;
     return toAnnotationTransferItem({
       ...next,

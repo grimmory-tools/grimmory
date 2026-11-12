@@ -1,11 +1,11 @@
-import {effect, inject, Injectable} from '@angular/core';
+import {effect, inject, Service} from '@angular/core';
 import {User, UserService, UserSettings} from '../user-management/user.service';
 import {MessageService} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
 
 type MutableSettingsBranch = Record<string, unknown>;
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class ReaderPreferencesService {
   private readonly userService = inject(UserService);
   private readonly messageService = inject(MessageService);

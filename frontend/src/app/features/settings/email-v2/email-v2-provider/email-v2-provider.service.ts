@@ -1,16 +1,13 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Service} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {API_CONFIG} from '../../../../core/config/api-config';
 import {EmailProvider} from '../email-provider.model';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class EmailV2ProviderService {
+  private readonly http = inject(HttpClient);
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/email/providers`;
-
-  private http = inject(HttpClient);
 
   getEmailProviders(): Observable<EmailProvider[]> {
     return this.http.get<EmailProvider[]>(this.url);

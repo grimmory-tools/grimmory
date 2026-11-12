@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { computed, DestroyRef, effect, inject, Injectable, signal, WritableSignal } from '@angular/core';
+import { computed, DestroyRef, effect, inject, Service, signal, WritableSignal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
@@ -35,9 +35,7 @@ function readBooleanRecord(storage: LocalStorageService, key: string): Record<st
   );
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class LayoutService {
   private readonly document = inject(DOCUMENT);
   private readonly localStorage = inject(LocalStorageService);

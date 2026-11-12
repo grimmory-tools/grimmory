@@ -3,7 +3,7 @@ import {describe, expect, it, vi} from 'vitest';
 import {FaviconService} from './favicon-service';
 
 describe('FaviconService', () => {
-  it('updates an existing favicon link with a generated SVG URL', () => {
+  it('updates the SVG favicon link with a generated SVG URL', async () => {
     const favicon = {type: '', href: ''} as HTMLLinkElement;
     const querySelectorSpy = vi.spyOn(document, 'querySelector').mockReturnValue(favicon);
     const createObjectUrlSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:favicon');
@@ -11,8 +11,12 @@ describe('FaviconService', () => {
     const service = new FaviconService();
     service.updateFavicon('#abcdef', '#123456');
 
-    expect(querySelectorSpy).toHaveBeenCalledWith("link[rel*='icon']");
+    expect(querySelectorSpy).toHaveBeenCalledWith("link[rel~='icon'][type='image/svg+xml']");
     expect(createObjectUrlSpy).toHaveBeenCalledOnce();
+    const svg = await (createObjectUrlSpy.mock.calls[0][0] as Blob).text();
+    expect(svg).toContain('stop-color="#abcdef"');
+    expect(svg).toContain('stop-color="#123456"');
+    expect(svg).toContain('fill="#FF2126"');
     expect(favicon.type).toBe('image/svg+xml');
     expect(favicon.href).toBe('blob:favicon');
   });

@@ -31,15 +31,14 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
   styleUrl: './create-user-dialog.component.scss'
 })
 export class CreateUserDialogComponent implements OnInit {
+  private readonly fb = inject(FormBuilder);
+  private readonly libraryService = inject(LibraryService);
+  private readonly userService = inject(UserService);
+  private readonly messageService = inject(MessageService);
+  private readonly ref = inject(DynamicDialogRef);
+  private readonly t = inject(TranslocoService);
+  private readonly destroyRef = inject(DestroyRef);
   userForm!: FormGroup;
-
-  private fb = inject(FormBuilder);
-  private libraryService = inject(LibraryService);
-  private userService = inject(UserService);
-  private messageService = inject(MessageService);
-  private ref = inject(DynamicDialogRef);
-  private t = inject(TranslocoService);
-  private destroyRef = inject(DestroyRef);
 
   get libraries(): Library[] {
     return this.libraryService.libraries();

@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Service} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 
 interface CachedIcon {
@@ -6,9 +6,7 @@ interface CachedIcon {
   sanitized: string;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class CustomSvgCacheService {
   private readonly cache = new Map<string, CachedIcon>();
 

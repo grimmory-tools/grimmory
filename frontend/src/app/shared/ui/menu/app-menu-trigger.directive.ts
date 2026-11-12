@@ -14,9 +14,8 @@ import { AppMenuComponent } from './app-menu.component';
   },
 })
 export class AppMenuTriggerDirective {
-  readonly menu = input.required<AppMenuComponent>({ alias: 'appMenuTriggerFor' });
-
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  readonly menu = input.required<AppMenuComponent>({ alias: 'appMenuTriggerFor' });
 
   protected readonly expanded = computed(() =>
     this.menu().openerElement() === this.host.nativeElement ? 'true' : 'false',
@@ -49,9 +48,8 @@ export class AppMenuTriggerDirective {
   host: { '(contextmenu)': 'onContextMenu($event)' },
 })
 export class AppContextMenuDirective {
-  readonly menu = input.required<AppMenuComponent>({ alias: 'appContextMenuFor' });
-
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  readonly menu = input.required<AppMenuComponent>({ alias: 'appContextMenuFor' });
 
   protected onContextMenu(event: MouseEvent): void {
     event.preventDefault();

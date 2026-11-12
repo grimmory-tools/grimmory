@@ -4,7 +4,7 @@
     <h2 class="settings-title">
       <i class="pi pi-sitemap"></i>
       {{ t('title') }}
-      <app-external-doc-link docType="metadataManager"></app-external-doc-link>
+      <app-external-doc-link docType="metadataManager" />
     </h2>
     <p class="settings-description">
       {{ t('description') }}
@@ -46,7 +46,7 @@
                   (onClick)="clearSelection(tab.type)"
                   severity="secondary"
                   size="small"
-                  outlined></p-button>
+                  outlined />
                 <p-button
                   [label]="t('deleteSelected')"
                   icon="pi pi-trash"
@@ -54,7 +54,7 @@
                   (onClick)="openDeleteDialog(tab.type)"
                   severity="danger"
                   size="small"
-                  outlined></p-button>
+                  outlined />
                 <p-button
                   [label]="t('mergeSplitSelected')"
                   icon="pi pi-sitemap"
@@ -62,7 +62,7 @@
                   (onClick)="openMergeDialog(tab.type)"
                   severity="success"
                   size="small"
-                  outlined></p-button>
+                  outlined />
               </div>
             </div>
 
@@ -84,21 +84,21 @@
                         <p-checkbox
                           [binary]="true"
                           [ngModel]="getSelectAll(tab.selectAllKey)"
-                          (ngModelChange)="setSelectAll(tab.selectAllKey, $event); toggleAll(tab.type, $event, dataTable.filteredValue || dataTable.value)"></p-checkbox>
+                          (ngModelChange)="setSelectAll(tab.selectAllKey, $event); toggleAll(tab.type, $event, dataTable.filteredValue || dataTable.value)" />
                       </div>
                     </th>
                     <th pSortableColumn="value">
                       <div class="header-content">
                         <i class="pi {{ tab.icon }}"></i>
                         <span>{{ t(tab.labelKey) }}</span>
-                        <p-sortIcon field="value"></p-sortIcon>
+                        <p-sortIcon field="value" />
                       </div>
                     </th>
                     <th pSortableColumn="count">
                       <div class="header-content">
                         <i class="pi pi-book"></i>
                         <span>{{ t('booksColumn') }}</span>
-                        <p-sortIcon field="count"></p-sortIcon>
+                        <p-sortIcon field="count" />
                       </div>
                     </th>
                     <th class="actions-header">
@@ -115,7 +115,7 @@
                       <p-checkbox
                         [(ngModel)]="item.selected"
                         [binary]="true"
-                        (ngModelChange)="onRowSelect(tab.type)"></p-checkbox>
+                        (ngModelChange)="onRowSelect(tab.type)" />
                     </td>
                     <td>
                       <span
@@ -136,7 +136,7 @@
                         [outlined]="true"
                         [rounded]="true"
                         [pTooltip]="t('selectSimilarTooltip')"
-                        (onClick)="selectSimilar(tab.type, item.value)"></p-button>
+                        (onClick)="selectSimilar(tab.type, item.value)" />
                       <p-button
                         icon="pi pi-pencil"
                         severity="secondary"
@@ -144,7 +144,7 @@
                         [outlined]="true"
                         [rounded]="true"
                         [pTooltip]="t('renameSplitTooltip')"
-                        (onClick)="openRenameDialog(tab.type, item)"></p-button>
+                        (onClick)="openRenameDialog(tab.type, item)" />
                       <p-button
                         icon="pi pi-trash"
                         severity="danger"
@@ -152,7 +152,7 @@
                         [outlined]="true"
                         [rounded]="true"
                         [pTooltip]="t('deleteTooltip')"
-                        (onClick)="openDeleteDialog(tab.type, item)"></p-button>
+                        (onClick)="openDeleteDialog(tab.type, item)" />
                     </td>
                   </tr>
                 </ng-template>
@@ -211,14 +211,14 @@
           (onClick)="showMergeDialog = false"
           [disabled]="mergingInProgress()"
           severity="secondary"
-          outlined></p-button>
+          outlined />
         <p-button
           [label]="mergingInProgress() ? t('processing') : ('common.confirm' | transloco)"
           [icon]="mergingInProgress() ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
           [loading]="mergingInProgress()"
           [disabled]="mergingInProgress()"
           (onClick)="confirmMerge()"
-          severity="success"></p-button>
+          severity="success" />
       </div>
     </ng-template>
   </p-dialog>
@@ -268,14 +268,14 @@
           (onClick)="showRenameDialog = false"
           [disabled]="mergingInProgress()"
           severity="secondary"
-          outlined></p-button>
+          outlined />
         <p-button
           [label]="mergingInProgress() ? t('processing') : ('common.confirm' | transloco)"
           [icon]="mergingInProgress() ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
           [loading]="mergingInProgress()"
           [disabled]="mergingInProgress()"
           (onClick)="confirmRename()"
-          severity="success"></p-button>
+          severity="success" />
       </div>
     </ng-template>
   </p-dialog>
@@ -331,14 +331,14 @@
           (onClick)="showDeleteDialog = false"
           [disabled]="deletingInProgress()"
           severity="secondary"
-          outlined></p-button>
+          outlined />
         <p-button
           [label]="deletingInProgress() ? t('deleting') : ('common.delete' | transloco)"
           [icon]="deletingInProgress() ? 'pi pi-spin pi-spinner' : 'pi pi-trash'"
           [loading]="deletingInProgress()"
           [disabled]="deletingInProgress()"
           (onClick)="confirmDelete()"
-          severity="danger"></p-button>
+          severity="danger" />
       </div>
     </ng-template>
   </p-dialog>

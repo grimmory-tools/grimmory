@@ -25,28 +25,28 @@
 
       <!-- Tab navigation -->
       <nav class="tabs">
-        <button
+        <button type="button"
           class="tab"
           [class.active]="activeTab() === 'chapters'"
           (click)="setActiveTab('chapters')">
-          <app-reader-icon name="book" class="tab-icon"></app-reader-icon>
+          <app-reader-icon name="book" class="tab-icon" />
           <span>{{ t('contentsTab') }}</span>
         </button>
-        <button
+        <button type="button"
           class="tab"
           [class.active]="activeTab() === 'bookmarks'"
           (click)="setActiveTab('bookmarks')">
-          <app-reader-icon name="bookmark" class="tab-icon"></app-reader-icon>
+          <app-reader-icon name="bookmark" class="tab-icon" />
           <span>{{ t('bookmarksTab') }}</span>
           @if (bookmarks().length > 0) {
             <span class="badge">{{ bookmarks().length }}</span>
           }
         </button>
-        <button
+        <button type="button"
           class="tab"
           [class.active]="activeTab() === 'highlights'"
           (click)="setActiveTab('highlights')">
-          <app-reader-icon name="edit" class="tab-icon"></app-reader-icon>
+          <app-reader-icon name="edit" class="tab-icon" />
           <span>{{ t('highlightsTab') }}</span>
           @if (annotations().length > 0) {
             <span class="badge">{{ annotations().length }}</span>
@@ -68,7 +68,7 @@
               <li
                 role="treeitem"
                 [attr.aria-selected]="isChapterActive(chapter.href)">
-                <button
+                <button type="button"
                   class="chapter-row"
                   [class.active]="isChapterActive(chapter.href)"
                   [class.expandable]="chapter.subitems?.length"
@@ -80,8 +80,7 @@
                       name="chevron-right"
                       class="expand-icon"
                       [class.expanded]="isChapterExpanded(chapter.href)"
-                      [size]="16">
-                    </app-reader-icon>
+                      [size]="16" />
                   }
                 </button>
                 @if (chapter.subitems?.length && isChapterExpanded(chapter.href)) {
@@ -104,15 +103,15 @@
                       <span class="item-title">{{ bookmark.title }}</span>
                       <span class="item-meta">{{ bookmark.createdAt | date: 'MMM d, y' }}</span>
                     </div>
-                    <button class="delete-btn" (click)="onDeleteBookmark($event, bookmark.id)" [attr.aria-label]="t('deleteBookmark')">
-                      <app-reader-icon name="trash" [size]="16"></app-reader-icon>
+                    <button type="button" class="delete-btn" (click)="onDeleteBookmark($event, bookmark.id)" [attr.aria-label]="t('deleteBookmark')">
+                      <app-reader-icon name="trash" [size]="16" />
                     </button>
                   </li>
                 }
               </ul>
             } @else {
               <div class="empty-state">
-                <app-reader-icon name="bookmark" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
+                <app-reader-icon name="bookmark" class="empty-icon" [size]="48" [strokeWidth]="1.5" />
                 <p>{{ t('noBookmarksYet') }}</p>
                 <span class="empty-hint">{{ t('noBookmarksHint') }}</span>
               </div>
@@ -132,15 +131,15 @@
                       }
                       <span class="item-meta">{{ annotation.createdAt | date: 'MMM d, y' }}</span>
                     </div>
-                    <button class="delete-btn" (click)="onDeleteAnnotation($event, annotation.id)" [attr.aria-label]="t('deleteHighlight')">
-                      <app-reader-icon name="trash" [size]="16"></app-reader-icon>
+                    <button type="button" class="delete-btn" (click)="onDeleteAnnotation($event, annotation.id)" [attr.aria-label]="t('deleteHighlight')">
+                      <app-reader-icon name="trash" [size]="16" />
                     </button>
                   </li>
                 }
               </ul>
             } @else {
               <div class="empty-state">
-                <app-reader-icon name="edit" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
+                <app-reader-icon name="edit" class="empty-icon" [size]="48" [strokeWidth]="1.5" />
                 <p>{{ t('noHighlightsYet') }}</p>
                 <span class="empty-hint">{{ t('noHighlightsHint') }}</span>
               </div>

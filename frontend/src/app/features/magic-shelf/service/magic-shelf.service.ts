@@ -1,4 +1,4 @@
-import {computed, effect, inject, Injectable} from '@angular/core';
+import {computed, effect, inject, Service} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {lastValueFrom, Observable} from 'rxjs';
 import {tap} from 'rxjs/operators';
@@ -20,15 +20,12 @@ export interface MagicShelf {
 
 const MAGIC_SHELVES_QUERY_KEY = ['magicShelves'] as const;
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class MagicShelfService {
-  private readonly url = `${API_CONFIG.BASE_URL}/api/magic-shelves`;
-
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
   private readonly queryClient = inject(QueryClient);
+  private readonly url = `${API_CONFIG.BASE_URL}/api/magic-shelves`;
   private readonly token = this.authService.token;
 
   private readonly shelvesQuery = injectQuery(() => ({
@@ -85,9 +82,7 @@ export class MagicShelfService {
     return this.http.post<MagicShelf>(this.url, payload).pipe(
       tap(() => {
         void this.queryClient.invalidateQueries({queryKey: MAGIC_SHELVES_QUERY_KEY, exact: true});
-        if (data.id != null) {
-          void invalidateBookCollections(this.queryClient);
-        }
+        void invalidateBookCollections(this.queryClient);
       })
     );
   }

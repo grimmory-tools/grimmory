@@ -1,4 +1,4 @@
-import {Component, computed, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {Component, computed, inject, Input, OnChanges, output, SimpleChanges} from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {Select} from '@openng/optimus-ui/select';
 import {FormsModule} from '@angular/forms';
@@ -27,13 +27,13 @@ import {MetadataSourceQueryService} from '../../../sources/metadata-source-query
 })
 export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
 
-  private messageService = inject(MessageService);
+  private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
   private readonly sources = inject(MetadataSourceQueryService);
   private readonly providerFields = inject(MetadataProviderFieldsService);
   private readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
 
-  @Output() metadataOptionsSubmitted = new EventEmitter<MetadataRefreshOptions>();
+  readonly metadataOptionsSubmitted = output<MetadataRefreshOptions>();
   @Input() currentMetadataOptions!: MetadataRefreshOptions;
   @Input() submitButtonLabel!: string;
 

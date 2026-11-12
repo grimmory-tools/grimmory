@@ -6,35 +6,35 @@
       <!-- Sidebar Header -->
       <header class="sidebar-header">
         <h2 class="sidebar-title">{{ t('title') }}</h2>
-        <button class="sidebar-close-btn" (click)="closed.emit()" [attr.aria-label]="t('close')">
-          <app-reader-icon name="close" [size]="18"></app-reader-icon>
+        <button type="button" class="sidebar-close-btn" (click)="closed.emit()" [attr.aria-label]="t('close')">
+          <app-reader-icon name="close" [size]="18" />
         </button>
       </header>
 
       <!-- Tab navigation -->
       <nav class="tabs">
-        <button
+        <button type="button"
           class="tab"
           [class.active]="activeTab() === 'contents'"
           (click)="setActiveTab('contents')">
-          <app-reader-icon name="book" class="tab-icon"></app-reader-icon>
+          <app-reader-icon name="book" class="tab-icon" />
           <span>{{ t('contentsTab') }}</span>
         </button>
-        <button
+        <button type="button"
           class="tab"
           [class.active]="activeTab() === 'bookmarks'"
           (click)="setActiveTab('bookmarks')">
-          <app-reader-icon name="bookmark" class="tab-icon"></app-reader-icon>
+          <app-reader-icon name="bookmark" class="tab-icon" />
           <span>{{ t('bookmarksTab') }}</span>
           @if (bookmarks().length > 0) {
             <span class="badge">{{ bookmarks().length }}</span>
           }
         </button>
-        <button
+        <button type="button"
           class="tab"
           [class.active]="activeTab() === 'annotations'"
           (click)="setActiveTab('annotations')">
-          <app-reader-icon name="edit" class="tab-icon"></app-reader-icon>
+          <app-reader-icon name="edit" class="tab-icon" />
           <span>{{ t('annotationsTab') }}</span>
           @if (annotations().length > 0) {
             <span class="badge">{{ annotations().length }}</span>
@@ -55,7 +55,7 @@
 
               <ng-template #outlineItem let-item let-depth="depth">
                 <li role="treeitem" [attr.aria-selected]="false">
-                  <button
+                  <button type="button"
                     class="chapter-row"
                     [style.--depth]="depth"
                     (click)="onOutlineClick(item)">
@@ -73,7 +73,7 @@
               </ng-template>
             } @else {
               <div class="empty-state">
-                <app-reader-icon name="book" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
+                <app-reader-icon name="book" class="empty-icon" [size]="48" [strokeWidth]="1.5" />
                 <p>{{ t('noContents') }}</p>
               </div>
             }
@@ -88,15 +88,15 @@
                       <span class="item-title">{{ bookmark.title }}</span>
                       <span class="item-meta">{{ t('page') }} {{ bookmark.pageNumber }}</span>
                     </div>
-                    <button class="delete-btn" (click)="onDeleteBookmark($event, bookmark.id)" [attr.aria-label]="t('deleteBookmark')">
-                      <app-reader-icon name="trash" [size]="16"></app-reader-icon>
+                    <button type="button" class="delete-btn" (click)="onDeleteBookmark($event, bookmark.id)" [attr.aria-label]="t('deleteBookmark')">
+                      <app-reader-icon name="trash" [size]="16" />
                     </button>
                   </li>
                 }
               </ul>
             } @else {
               <div class="empty-state">
-                <app-reader-icon name="bookmark" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
+                <app-reader-icon name="bookmark" class="empty-icon" [size]="48" [strokeWidth]="1.5" />
                 <p>{{ t('noBookmarks') }}</p>
                 <span class="empty-hint">{{ t('bookmarkHint') }}</span>
               </div>
@@ -119,15 +119,15 @@
                         <p class="highlight-text">"{{ annotation.text }}"</p>
                       }
                     </div>
-                    <button class="delete-btn" (click)="onDeleteAnnotation($event, annotation.id)" [attr.aria-label]="t('deleteAnnotation')">
-                      <app-reader-icon name="trash" [size]="14"></app-reader-icon>
+                    <button type="button" class="delete-btn" (click)="onDeleteAnnotation($event, annotation.id)" [attr.aria-label]="t('deleteAnnotation')">
+                      <app-reader-icon name="trash" [size]="14" />
                     </button>
                   </li>
                 }
               </ul>
             } @else {
               <div class="empty-state">
-                <app-reader-icon name="edit" class="empty-icon" [size]="48" [strokeWidth]="1.5"></app-reader-icon>
+                <app-reader-icon name="edit" class="empty-icon" [size]="48" [strokeWidth]="1.5" />
                 <p>{{ t('noAnnotations') }}</p>
                 <span class="empty-hint">{{ t('annotationHint') }}</span>
               </div>

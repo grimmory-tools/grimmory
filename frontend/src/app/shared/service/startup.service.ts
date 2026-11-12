@@ -1,4 +1,4 @@
-import {Injectable, inject} from '@angular/core';
+import {Service, inject} from '@angular/core';
 import {AuthService} from './auth.service';
 import {User, UserService} from '../../features/settings/user-management/user.service';
 import {QueryClient} from '@tanstack/angular-query-experimental';
@@ -7,18 +7,18 @@ import {DEFAULT_CUSTOM_PRIMARY} from '../model/app-state.model';
 import {AppLocaleService} from './app-locale.service';
 import {AppUiFontService} from './app-ui-font.service';
 
-@Injectable({providedIn: 'root'})
+@Service()
 export class StartupService {
-  private authService = inject(AuthService);
-  private userService = inject(UserService);
-  private queryClient = inject(QueryClient);
-  private appThemeService = inject(AppThemeService);
-  private appLocaleService = inject(AppLocaleService);
-  private appUiFontService = inject(AppUiFontService);
+  private readonly authService = inject(AuthService);
+  private readonly userService = inject(UserService);
+  private readonly queryClient = inject(QueryClient);
+  private readonly appThemeService = inject(AppThemeService);
+  private readonly appLocaleService = inject(AppLocaleService);
+  private readonly appUiFontService = inject(AppUiFontService);
 
   async load(): Promise<void> {
     if (this.authService.token()) {
-      const user = await this.queryClient.fetchQuery(this.userService.getUserQueryOptions());
+      const user = await this.queryClient.query(this.userService.getUserQueryOptions());
       await this.applyUserPreferences(user);
       return undefined;
     }

@@ -1,4 +1,4 @@
-import {Component, EventEmitter, HostListener, Input, Output} from '@angular/core';
+import {Component, HostListener, Input, output} from '@angular/core';
 import {TranslocoDirective} from '@jsverse/transloco';
 import {ReaderIconComponent} from './icon.component';
 
@@ -37,7 +37,7 @@ export class TextSelectionPopupComponent {
   @Input() overlappingAnnotationId: number | null = null;
   @Input() selectedText = '';
   @Input() linkUrl?: string;
-  @Output() action = new EventEmitter<TextSelectionAction>();
+  readonly action = output<TextSelectionAction>();
 
   showAnnotationOptions = false;
   selectedColor = '#FACC15';

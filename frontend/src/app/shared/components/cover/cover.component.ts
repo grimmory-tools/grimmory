@@ -37,6 +37,7 @@ type CoverAuthors = string | string[];
   },
 })
 export class CoverComponent {
+  protected readonly revealGroup = inject(ArtworkRevealGroupDirective, {optional: true});
   readonly src = input<string | null | undefined>(null);
   readonly title = input<string | null | undefined>('');
   readonly authors = input<CoverAuthors | null | undefined>([]);
@@ -46,8 +47,6 @@ export class CoverComponent {
   readonly alt = input('');
   readonly natural = input(false);
   readonly preview = input(false);
-
-  protected readonly revealGroup = inject(ArtworkRevealGroupDirective, {optional: true});
   protected readonly markReady = this.revealGroup?.register() ?? (() => undefined);
   private readonly previewImage = viewChild(Image);
   private readonly failedSrc = signal<string | null | undefined>(null);

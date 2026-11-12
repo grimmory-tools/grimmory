@@ -2,7 +2,6 @@ import {
   formatRangeLabel,
   formatRangeToken,
   parseRangeToken,
-  type BrowseFacetBucket,
 } from '../../../shared/browse/facet-ranges';
 import {
   type BrowseFacetKind,
@@ -16,7 +15,7 @@ import {
   type BookQuerySortKey,
   type SortDirection,
 } from '../data/book-query-params';
-import {type BookSummary, type KnownBookReadStatus} from '../data/book-response.models';
+import {type BookSummary, type BookReadStatus} from '../data/book-response.models';
 import {MATCH_SCORE_BANDS} from '../model/book-value-labels';
 
 export type BookColumnKind = 'text' | 'number' | 'rating' | 'date' | 'fileSize' | 'readStatus';
@@ -43,9 +42,11 @@ interface FacetField {
   readonly kind?: BrowseFacetKind;
   readonly order?: BrowseFacetValueOrder;
   readonly domain?: readonly string[];
-  readonly buckets?: readonly BrowseFacetBucket[];
+  readonly banded?: true;
+  readonly stars?: number;
   readonly fileSize?: true;
   readonly openByDefault?: true;
+  readonly multiValued?: true;
   readonly bookValues?: (book: BookSummary) => readonly string[];
   readonly valueLabel?: (value: string, deps: BookFacetLabelDeps) => string | null;
   readonly valueIcon?: (value: string, deps: BookFacetLabelDeps) => IconSelection | null;
@@ -79,15 +80,6 @@ interface BookBrowseField {
   readonly column?: ColumnField;
 }
 
-const RATING_BUCKETS: readonly BrowseFacetBucket[] = [
-  {min: 0, max: 1, stars: 1},
-  {min: 1, max: 2, stars: 2},
-  {min: 2, max: 3, stars: 3},
-  {min: 3, max: 4, stars: 4},
-  {min: 4, max: 4.5, stars: 4.5},
-  {min: 4.5, stars: 5},
-];
-
 const MATCH_SCORE_LABELS = new Map(
   MATCH_SCORE_BANDS.flatMap(band => {
     const token = formatRangeToken(band);
@@ -105,7 +97,7 @@ const READ_STATUS_LABEL_KEYS = new Map<string, string>(Object.entries({
   WONT_READ: 'wontRead',
   ABANDONED: 'abandoned',
   UNSET: 'unset',
-} satisfies Record<KnownBookReadStatus, string>));
+} satisfies Record<BookReadStatus, string>));
 
 const CONTENT_RATING_LABEL_KEYS = new Map([
   ['EVERYONE', 'everyone'],
@@ -148,8 +140,14 @@ const FIELDS = [
       value: bookTitle},
   },
   {
+    labelKey: 'book.fields.subtitle',
+    sort: {key: 'subtitle', group: 'more', defaultDirection: 'asc', kind: 'alphabetical'},
+    column: {key: 'subtitle', group: 'publishing', defaultVisible: false,
+      defaultWidth: 240, value: book => book.metadata?.subtitle ?? ''},
+  },
+  {
     labelKey: 'book.fields.author',
-    facet: {key: 'author', openByDefault: true, bookValues: book => book.metadata?.authors ?? []},
+    facet: {key: 'author', multiValued: true, openByDefault: true, bookValues: book => book.metadata?.authors ?? []},
     sort: {key: 'authorName', group: 'common', defaultDirection: 'asc', kind: 'alphabetical', detailLine: false},
     column: {key: 'authorName', group: 'publishing', defaultVisible: true,
       defaultWidth: 220, value: book => book.metadata?.authors?.join(', ') ?? ''},
@@ -180,17 +178,17 @@ const FIELDS = [
   },
   {
     labelKey: 'book.fields.genre',
-    facet: {key: 'genre', openByDefault: true, bookValues: book => book.metadata?.categories ?? []},
+    facet: {key: 'genre', multiValued: true, openByDefault: true, bookValues: book => book.metadata?.categories ?? []},
     column: {key: 'categories', group: 'categorization', defaultVisible: true,
       defaultWidth: 220, value: book => book.metadata?.categories?.join(', ') ?? ''},
   },
   {
     labelKey: 'book.fields.tag',
-    facet: {key: 'tag', openByDefault: true},
+    facet: {key: 'tag', multiValued: true, openByDefault: true},
   },
   {
     labelKey: 'book.fields.mood',
-    facet: {key: 'mood'},
+    facet: {key: 'mood', multiValued: true},
   },
   {
     labelKey: 'book.fields.language',
@@ -206,7 +204,7 @@ const FIELDS = [
   },
   {
     labelKey: 'book.fields.fileType',
-    facet: {key: 'file_type'},
+    facet: {key: 'file_type', multiValued: true},
   },
   {
     labelKey: 'book.fields.readStatus',
@@ -228,7 +226,7 @@ const FIELDS = [
   },
   {
     labelKey: 'book.fields.amazonRating',
-    facet: {key: 'amazon_rating', buckets: RATING_BUCKETS},
+    facet: {key: 'amazon_rating', banded: true, stars: 5},
     sort: {key: 'amazonRating', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
     column: {key: 'amazonRating', group: 'ratings', defaultVisible: false,
       defaultWidth: 124, kind: 'rating', value: book => book.metadata?.amazonRating},
@@ -241,7 +239,7 @@ const FIELDS = [
   },
   {
     labelKey: 'book.fields.goodreadsRating',
-    facet: {key: 'goodreads_rating', buckets: RATING_BUCKETS},
+    facet: {key: 'goodreads_rating', banded: true, stars: 5},
     sort: {key: 'goodreadsRating', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
     column: {key: 'goodreadsRating', group: 'ratings', defaultVisible: false,
       defaultWidth: 124, kind: 'rating', value: book => book.metadata?.goodreadsRating},
@@ -254,7 +252,7 @@ const FIELDS = [
   },
   {
     labelKey: 'book.fields.hardcoverRating',
-    facet: {key: 'hardcover_rating', buckets: RATING_BUCKETS},
+    facet: {key: 'hardcover_rating', banded: true, stars: 5},
     sort: {key: 'hardcoverRating', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
     column: {key: 'hardcoverRating', group: 'ratings', defaultVisible: false,
       defaultWidth: 124, kind: 'rating', value: book => book.metadata?.hardcoverRating},
@@ -267,21 +265,21 @@ const FIELDS = [
   },
   {
     labelKey: 'book.fields.ranobedbRating',
-    facet: {key: 'ranobedb_rating', buckets: RATING_BUCKETS},
+    facet: {key: 'ranobedb_rating', banded: true, stars: 5},
     sort: {key: 'ranobedbRating', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
     column: {key: 'ranobedbRating', group: 'ratings', defaultVisible: false,
       defaultWidth: 124, kind: 'rating', value: book => book.metadata?.ranobedbRating},
   },
   {
     labelKey: 'book.fields.lubimyczytacRating',
-    facet: {key: 'lubimyczytac_rating', buckets: RATING_BUCKETS},
+    facet: {key: 'lubimyczytac_rating', banded: true, stars: 5},
     sort: {key: 'lubimyczytacRating', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
     column: {key: 'lubimyczytacRating', group: 'ratings', defaultVisible: false,
       defaultWidth: 124, kind: 'rating', value: book => book.metadata?.lubimyczytacRating},
   },
   {
     labelKey: 'book.fields.audibleRating',
-    facet: {key: 'audible_rating', buckets: RATING_BUCKETS},
+    facet: {key: 'audible_rating', banded: true, stars: 5},
     sort: {key: 'audibleRating', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
     column: {key: 'audibleRating', group: 'ratings', defaultVisible: false,
       defaultWidth: 124, kind: 'rating', value: book => book.metadata?.audibleRating},
@@ -357,6 +355,7 @@ const FIELDS = [
     labelKey: 'book.fields.shelf',
     facet: {
       key: 'shelf',
+      multiValued: true,
       valueLabel: (value, deps) => deps.shelf(value)?.name ?? null,
       valueIcon: (value, deps) => entityIcon(deps.shelf(value)),
     },
@@ -378,7 +377,7 @@ const FIELDS = [
     facet: {
       key: 'match_score',
       kind: 'range',
-      buckets: MATCH_SCORE_BANDS,
+      banded: true,
       valueLabel: (value, deps) => {
         const labelKey = MATCH_SCORE_LABELS.get(value);
         return labelKey ? deps.translate(`book.filter.matchScore.${labelKey}`) : rangeTokenLabel(value);
@@ -395,14 +394,15 @@ const FIELDS = [
           : null,
     },
   },
-  {labelKey: 'book.fields.comicCharacter', facet: {key: 'comic_character'}},
-  {labelKey: 'book.fields.comicTeam', facet: {key: 'comic_team'}},
-  {labelKey: 'book.fields.comicLocation', facet: {key: 'comic_location'}},
-  {labelKey: 'book.fields.comicCreator', facet: {key: 'comic_creator'}},
+  {labelKey: 'book.fields.comicCharacter', facet: {key: 'comic_character', multiValued: true}},
+  {labelKey: 'book.fields.comicTeam', facet: {key: 'comic_team', multiValued: true}},
+  {labelKey: 'book.fields.comicLocation', facet: {key: 'comic_location', multiValued: true}},
+  {labelKey: 'book.fields.comicCreator', facet: {key: 'comic_creator', multiValued: true}},
 ] as const satisfies readonly BookBrowseField[];
 
 const COLUMN_ORDER = [
   'title',
+  'subtitle',
   'authorName',
   'readStatus',
   'seriesName',
@@ -467,7 +467,7 @@ export const OPEN_RAIL_FACETS: ReadonlySet<BookQueryFacetKey> = new Set(
 );
 export const COLUMNS: readonly ColumnEntry[] = COLUMN_ORDER.map(key => COLUMNS_BY_KEY.get(key)!);
 
-export function bookReadStatusLabelKey(status: BookSummary['readStatus']): string | null {
+export function bookReadStatusLabelKey(status: string): string | null {
   const key = status && status !== 'UNSET' ? READ_STATUS_LABEL_KEYS.get(status) : undefined;
   return key ? `book.filter.readStatus.${key}` : null;
 }

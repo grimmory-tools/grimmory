@@ -26,7 +26,6 @@ import {TranslocoDirective, TranslocoPipe} from '@jsverse/transloco';
     Checkbox,
     InputIcon,
     Button,
-    InputIcon,
     IconField,
     Tooltip,
     TranslocoDirective,
@@ -35,6 +34,8 @@ import {TranslocoDirective, TranslocoPipe} from '@jsverse/transloco';
   styleUrls: ['./directory-picker.component.scss']
 })
 export class DirectoryPickerComponent implements OnInit {
+  private readonly utilityService = inject(UtilityService);
+  private readonly dynamicDialogRef = inject(DynamicDialogRef);
   value: unknown;
   paths: string[] = [];
   filteredPaths: string[] = [];
@@ -42,12 +43,9 @@ export class DirectoryPickerComponent implements OnInit {
   selectedFolders: string[] = [];
   selectedFoldersMap: Record<string, boolean> = {};
   searchQuery: string = '';
-  isLoading = signal(false);
+  readonly isLoading = signal(false);
   breadcrumbItems: MenuItem[] = [];
   home: MenuItem = {icon: 'pi pi-home', command: () => this.navigateToRoot()};
-
-  private utilityService = inject(UtilityService);
-  private dynamicDialogRef = inject(DynamicDialogRef);
 
   ngOnInit() {
     const initialPath = '/';

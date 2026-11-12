@@ -31,15 +31,15 @@ import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
   styleUrl: './email-v2-recipient.component.scss'
 })
 export class EmailV2RecipientComponent implements OnInit {
+  private readonly dialogLauncherService = inject(DialogLauncherService);
+  private readonly emailRecipientService = inject(EmailV2RecipientService);
+  private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
+  private readonly destroyRef = inject(DestroyRef);
   recipientEmails: EmailRecipient[] = [];
   editingRecipientIds: number[] = [];
   ref: DynamicDialogRef | undefined | null;
-  private dialogLauncherService = inject(DialogLauncherService);
-  private emailRecipientService = inject(EmailV2RecipientService);
-  private messageService = inject(MessageService);
-  private t = inject(TranslocoService);
-  private destroyRef = inject(DestroyRef);
-  loading = signal(false);
+  readonly loading = signal(false);
   private loadingRequestSeq = 0;
   private activeLoadingRequestSeq: number | null = null;
   defaultRecipientId: unknown;
