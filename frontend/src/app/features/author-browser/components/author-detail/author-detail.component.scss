@@ -170,14 +170,6 @@
   color: var(--color-text);
 }
 
-.author-books-scroller {
-  flex: 1 1 auto;
-  width: 100%;
-  min-height: 0;
-  box-sizing: border-box;
-  overflow-y: auto;
-}
-
 
 .empty-books {
   display: flex;
