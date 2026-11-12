@@ -666,7 +666,7 @@
       "count": 3
     },
     "typescript/no-unnecessary-condition": {
-      "count": 5
+      "count": 3
     },
     "typescript/no-unsafe-argument": {
       "count": 1
@@ -678,7 +678,7 @@
       "count": 2
     },
     "typescript/require-await": {
-      "count": 2
+      "count": 1
     }
   },
   "src/app/features/metadata/component/book-metadata-center/book-reading-sessions/book-reading-sessions.component.ts": {
