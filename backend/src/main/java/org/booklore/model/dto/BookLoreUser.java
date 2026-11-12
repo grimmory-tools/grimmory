@@ -259,6 +259,8 @@ public class BookLoreUser {
             private int order;
             private Integer maxItems;
             private Long magicShelfId;
+            private Long libraryId;
+            private Long shelfId;
             private String sortField;
             private String sortDirection;
         }

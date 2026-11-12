@@ -19,6 +19,10 @@
   min-height: 0;
 }
 
+.author-wrapper > p-tabs > p-tablist {
+  flex: 0 0 auto;
+}
+
 ::ng-deep .author-wrapper .p-tabs {
   display: flex;
   flex-direction: column;
@@ -164,14 +168,6 @@
   font-weight: 700;
   margin-bottom: 0.875rem;
   color: var(--color-text);
-}
-
-.author-books-scroller {
-  flex: 1 1 auto;
-  width: 100%;
-  min-height: 0;
-  box-sizing: border-box;
-  overflow-y: auto;
 }
 
 

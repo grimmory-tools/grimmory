@@ -34,7 +34,7 @@ services:
       - ./shared/books:/books
       - ./shared/bookdrop:/bookdrop
   frontend:
-    image: node:24-alpine
+    image: node:26-alpine
     command:
       - sh
       - -ec

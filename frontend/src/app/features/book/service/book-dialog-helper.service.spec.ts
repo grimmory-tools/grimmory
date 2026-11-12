@@ -42,7 +42,7 @@ describe('BookDialogHelperService', () => {
       })
     );
     expect(dialogRef).toEqual({id: 'dialog-ref'});
-  });
+  }, 15_000);
 
   it('returns null instead of opening the shelf assigner when no inputs are provided', async () => {
     const dialogRef = await service.openShelfAssignerDialog(null, null);

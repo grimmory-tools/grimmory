@@ -4,7 +4,7 @@ import {MessageService} from '@openng/optimus-ui/api';
 import {AutoComplete} from '@openng/optimus-ui/autocomplete';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {provideTanStackQuery, QueryClient} from '@tanstack/angular-query-experimental';
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {getTranslocoModule} from '../../../../core/testing/transloco-testing';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
@@ -45,13 +45,16 @@ async function setup() {
   };
 }
 
-let originalScrollIntoView: PropertyDescriptor | undefined;
-beforeEach(() => {
+beforeAll(() => {
   vi.stubGlobal('matchMedia', vi.fn((query: string) => ({
     matches: false, media: query, onchange: null,
     addEventListener: vi.fn(), removeEventListener: vi.fn(),
     addListener: vi.fn(), removeListener: vi.fn(), dispatchEvent: vi.fn(),
   })));
+});
+
+let originalScrollIntoView: PropertyDescriptor | undefined;
+beforeEach(() => {
   originalScrollIntoView = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollIntoView');
   Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {configurable: true, value: vi.fn()});
 });
@@ -63,7 +66,6 @@ afterEach(() => {
   } else {
     delete (HTMLElement.prototype as {scrollIntoView?: unknown}).scrollIntoView;
   }
-  vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
 

@@ -84,19 +84,9 @@
     "main": {
       "pageTitle": "Panel główny",
       "welcomeTitle": "Witaj w Grimmory!",
-      "welcomeSubtitle": "Utwórzmy Twoją pierwszą bibliotekę",
       "welcomeDescription": "Biblioteka to miejsce, w którym mieszkają wszystkie Twoje książki. Zacznij budować swoją cyfrową kolekcję już dziś!",
-      "createLibrary": "Utwórz swoją bibliotekę"
-    },
-    "scroller": {
-      "noBooksFound": "Nie znaleziono książek dla tego przewijaka.",
-      "loadError": "Nie udało się załadować książek! Spróbuj odświeżyć stronę.",
-      "continueListening": "Kontynuuj słuchanie",
-      "continueReading": "Kontynuuj czytanie",
-      "recentlyAdded": "Ostatnio dodane",
-      "discoverNew": "Odkryj coś nowego",
-      "magicShelf": "Inteligentna półka",
-      "default": "Przewijak"
+      "createLibrary": "Utwórz swoją bibliotekę",
+      "customize": ""
     }
   },
   "settings": {
@@ -475,16 +465,16 @@
     },
     "dashboardScrollers": {
       "sectionTitle": "Konfiguracja panelu głównego",
-      "sectionDesc": "Dodaj do 5 przewijaków z różnych kolekcji książek i dostosuj ich zachowanie",
+      "sectionDesc": "Dodaj przewijaki z różnych kolekcji książek i dostosuj ich zachowanie",
       "type": "Typ",
       "selectType": "Wybierz typ",
-      "magicShelf": "Inteligentna półka",
       "selectMagicShelf": "Wybierz inteligentną półkę",
+      "selectLibrary": "",
+      "selectShelf": "",
       "sortField": "Pole sortowania",
       "selectField": "Wybierz pole",
       "direction": "Kierunek",
       "selectDirection": "Wybierz kierunek",
-      "maxItems": "Maks. elementów",
       "addScroller": "Dodaj przewijak",
       "resetToDefault": "Resetuj do domyślnych",
       "saveSettings": "",
@@ -494,7 +484,10 @@
         "lastRead": "Kontynuuj czytanie",
         "lastListened": "Kontynuuj słuchanie",
         "latestAdded": "Ostatnio dodane",
+        "recentlyFinished": "",
         "random": "Odkryj coś nowego",
+        "library": "",
+        "shelf": "",
         "magicShelf": "Inteligentna półka",
         "default": "Przewijak"
       },
@@ -523,7 +516,7 @@
       "sectionTitle": "Preferencje widoku i sortowania biblioteki i półki",
       "sectionDesc": "Skonfiguruj domyślne i indywidualne preferencje sortowania i trybu widoku (siatka lub tabela) w przeglądarce dla każdej biblioteki/półki.",
       "defaultPreferences": "Domyślne preferencje",
-      "defaultPreferencesDesc": "Skonfiguruj domyślny tryb widoku i wielopolowe sortowanie dla wszystkich bibliotek i półek. Przeciągnij, aby zmienić priorytet sortowania.",
+      "defaultPreferencesDesc": "Skonfiguruj domyślny tryb widoku i wielopolowe sortowanie dla wszystkich bibliotek i półek.",
       "sortOrderLabel": "Kolejność sortowania (przeciągnij, aby zmienić)",
       "formatOverlay": "Nakładka typu książki",
       "ascending": "Rosnąco",
@@ -663,7 +656,7 @@
     },
     "publicReviews": {
       "sectionTitle": "Recenzje publiczne",
-      "sectionDesc": "Skonfiguruj automatyczne pobieranie recenzji użytkowników z platform zewnętrznych. Recenzje mogą być pobierane z Amazon, Goodreads i Hardcover do dostępu offline.",
+      "sectionDesc": "Skonfiguruj automatyczne pobieranie recenzji użytkowników z platform zewnętrznych do dostępu offline.",
       "downloadLabel": "Pobieraj recenzje publiczne",
       "autoDownloadLabel": "Automatyczne pobieranie przy otwarciu książki",
       "autoDownloadDesc": "Automatycznie pobieraj recenzje po otwarciu strony szczegółów książki. Po wyłączeniu recenzje będą pobierane tylko ręcznie lub podczas odświeżania metadanych.",
@@ -701,9 +694,7 @@
         "language": "",
         "isbn13": "",
         "isbn10": "",
-        "pageCount": "",
-        "doubanRating": "",
-        "doubanReviewCount": ""
+        "pageCount": ""
       }
     },
     "fieldSelector": {
@@ -2836,6 +2827,10 @@
         "readStatusMenu": ""
       }
     },
+    "row": {
+      "previous": "",
+      "next": ""
+    },
     "menu": {
       "label": "",
       "openInNewTab": "",
@@ -3362,7 +3357,7 @@
       }
     },
     "sorting": {
-      "saveAsDefault": "Zapisz jako domyślne"
+      "saveAsDefault": "Zapisz jako domyślne: {{scope}}"
     },
     "fileAttacher": {
       "title": "Dołącz plik do innej książki",
@@ -5256,7 +5251,8 @@
       "flipDirection": ""
     },
     "chips": {
-      "removeSearch": ""
+      "removeSearch": "",
+      "removeExcluded": ""
     },
     "rail": {
       "searchValues": "",
@@ -5266,13 +5262,21 @@
         "library": "",
         "shelf": "",
         "magicShelf": "",
-        "unshelved": ""
+        "unshelved": "",
+        "dashboardRow": ""
       },
       "noMatches": "",
       "minUnit": "",
       "maxUnit": "",
       "min": "",
-      "max": ""
+      "max": "",
+      "excluded": "",
+      "exclude": "",
+      "excludeValue": "",
+      "matchOptions": "",
+      "matchAny": "",
+      "matchAll": "",
+      "all": ""
     },
     "book": {
       "empty": "",
@@ -5300,7 +5304,6 @@
       "density": "Rozmiar",
       "smallerCards": "",
       "largerCards": "",
-      "showFilters": "",
       "columns": "",
       "resetColumns": "Resetuj do domyślnych"
     },

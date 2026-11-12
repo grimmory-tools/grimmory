@@ -140,6 +140,12 @@ const FIELDS = [
       value: bookTitle},
   },
   {
+    labelKey: 'book.fields.subtitle',
+    sort: {key: 'subtitle', group: 'more', defaultDirection: 'asc', kind: 'alphabetical'},
+    column: {key: 'subtitle', group: 'publishing', defaultVisible: false,
+      defaultWidth: 240, value: book => book.metadata?.subtitle ?? ''},
+  },
+  {
     labelKey: 'book.fields.author',
     facet: {key: 'author', multiValued: true, openByDefault: true, bookValues: book => book.metadata?.authors ?? []},
     sort: {key: 'authorName', group: 'common', defaultDirection: 'asc', kind: 'alphabetical', detailLine: false},
@@ -396,6 +402,7 @@ const FIELDS = [
 
 const COLUMN_ORDER = [
   'title',
+  'subtitle',
   'authorName',
   'readStatus',
   'seriesName',

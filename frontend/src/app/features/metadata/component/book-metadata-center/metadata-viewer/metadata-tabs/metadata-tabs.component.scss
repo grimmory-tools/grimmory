@@ -2,58 +2,6 @@
   padding: 0.4375rem 0 0 !important;
 }
 
-.tab-content {
-  padding: 0.4375rem 0;
-}
-
-.dashboard-scroller-infinite {
-  display: flex;
-  overflow: auto hidden;
-  scroll-snap-type: x mandatory;
-  padding: 0.4375rem;
-  gap: 0.875rem;
-  width: 100%;
-}
-
-.dashboard-scroller-infinite::-webkit-scrollbar {
-  height: 8px;
-}
-
-.dashboard-scroller-infinite::-webkit-scrollbar-thumb {
-  border-radius: 4px;
-}
-
-.dashboard-scroller-card {
-  width: 115px;
-  flex: 0 0 115px;
-  scroll-snap-align: start;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  border-radius: 0.4375rem;
-}
-
-.dashboard-scroller-card:hover {
-  transform: translateY(-6px);
-}
-
-.dashboard-scroller-card:hover::after {
-  opacity: 1;
-}
-
-.dashboard-scroller-card::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 10%;
-  right: 10%;
-  height: 4px;
-  background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
-  border-radius: 50%;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  filter: blur(4px);
-}
-
 // Files tab styles
 .files-tab-content {
   display: flex;
