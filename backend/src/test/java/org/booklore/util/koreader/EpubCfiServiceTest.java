@@ -9,11 +9,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -482,11 +485,15 @@ class EpubCfiServiceTest {
             assertEquals("epubcfi(/6/2!/4/2/8:5)", cfi);
         }
 
-        @Test
-        void convertCfiToProgressXPointer_html5ChapterQuotingXhtmlNamespace_keepsHtmlParsing() throws IOException {
-            String html5Chapter = """
-                    <!DOCTYPE html>
-                    <html lang="en">
+        @ParameterizedTest
+        @ValueSource(strings = {
+                "<!DOCTYPE html>\n<html lang=\"en\">",
+                "<!-- example: <html xmlns=\"http://www.w3.org/1999/xhtml\"> -->\n<!DOCTYPE html>\n<html lang=\"en\">",
+                "<html lang=\"en\" data-note='xmlns=\"http://www.w3.org/1999/xhtml\"'>"
+        })
+        void convertCfiToProgressXPointer_html5ChapterQuotingXhtmlNamespace_keepsHtmlParsing(String head) throws IOException {
+            String html5Chapter = head + """
+
                     <head><title>Parsing XHTML</title></head>
                     <body>
                         <div id="c1">
@@ -498,23 +505,23 @@ class EpubCfiServiceTest {
                     </body>
                     </html>
                     """;
-            Book book = new Book();
-            book.getMetadata().addTitle("Parsing XHTML");
-            book.addSection("Chapter 1", new Resource(html5Chapter.getBytes(StandardCharsets.UTF_8), "chapter1.html"));
-            File html5Epub = tempDir.resolve("html5.epub").toFile();
-            try (FileOutputStream out = new FileOutputStream(html5Epub)) {
-                new EpubWriter().write(book, out);
-            }
 
-            String xpointer = service.convertCfiToProgressXPointer(html5Epub, "epubcfi(/6/2!/4/2[c1],/8/1:0,/8/1:5)");
+            String xpointer = service.convertCfiToProgressXPointer(
+                    singleChapterEpub(html5Chapter, "chapter1.html"), "epubcfi(/6/2!/4/2[c1],/8/1:0,/8/1:5)");
 
             assertEquals("/body/DocFragment[1]/body/div/p[3]", xpointer);
         }
 
-        @Test
-        void convertCfiToProgressXPointer_xhtmlRootWithoutXmlDeclaration_handlesSelfClosingAnchor() throws IOException {
-            String xhtmlChapter = """
-                    <html xmlns='http://www.w3.org/1999/xhtml' lang="en">
+        @ParameterizedTest
+        @ValueSource(strings = {
+                "<html xmlns='http://www.w3.org/1999/xhtml' lang=\"en\">",
+                "<html title=\"a > b\" xmlns=\"http://www.w3.org/1999/xhtml\">",
+                "<html data-x='1 > 0' xmlns:epub=\"http://www.idpf.org/2007/ops\"\n      xmlns = \"http://www.w3.org/1999/xhtml\">",
+                "<!-- generated > by hand -->\n<!DOCTYPE html>\n<html xmlns=\"http://www.w3.org/1999/xhtml\">"
+        })
+        void convertCfiToProgressXPointer_xhtmlRootWithoutXmlDeclaration_handlesSelfClosingAnchor(String head) throws IOException {
+            String xhtmlChapter = head + """
+
                     <head><title>Chapter 8</title></head>
                     <body>
                         <div id="c8">
@@ -526,17 +533,22 @@ class EpubCfiServiceTest {
                     </body>
                     </html>
                     """;
-            Book book = new Book();
-            book.getMetadata().addTitle("No declaration");
-            book.addSection("Chapter 8", new Resource(xhtmlChapter.getBytes(StandardCharsets.UTF_8), "chapter8.xhtml"));
-            File xhtmlEpub = tempDir.resolve("no-declaration.epub").toFile();
-            try (FileOutputStream out = new FileOutputStream(xhtmlEpub)) {
-                new EpubWriter().write(book, out);
-            }
 
-            String xpointer = service.convertCfiToProgressXPointer(xhtmlEpub, "epubcfi(/6/2!/4/2[c8],/8/1:0,/8/1:5)");
+            String xpointer = service.convertCfiToProgressXPointer(
+                    singleChapterEpub(xhtmlChapter, "chapter8.xhtml"), "epubcfi(/6/2!/4/2[c8],/8/1:0,/8/1:5)");
 
             assertEquals("/body/DocFragment[1]/body/div/p[3]", xpointer);
+        }
+
+        private File singleChapterEpub(String chapter, String href) throws IOException {
+            Book book = new Book();
+            book.getMetadata().addTitle("Single chapter");
+            book.addSection("Chapter", new Resource(chapter.getBytes(StandardCharsets.UTF_8), href));
+            File epub = Files.createTempFile(tempDir, "chapter", ".epub").toFile();
+            try (FileOutputStream out = new FileOutputStream(epub)) {
+                new EpubWriter().write(book, out);
+            }
+            return epub;
         }
     }
 

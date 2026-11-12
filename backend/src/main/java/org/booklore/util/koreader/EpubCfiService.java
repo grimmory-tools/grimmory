@@ -19,7 +19,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -30,8 +29,7 @@ public class EpubCfiService {
     // including range CFIs whose common parent is the body itself (e.g. "!/4,/2/1:0,/6/1:8").
     private static final Pattern CFI_CLEANER_PATTERN = Pattern.compile("!/4(?:\\[[^\\]]*\\])?(?=[/,)])");
     private static final Pattern XML_DECLARATION_PATTERN = Pattern.compile("^\\uFEFF?\\s*<\\?xml\\b");
-    private static final Pattern ROOT_ELEMENT_PATTERN = Pattern.compile("<html\\b[^>]*>", Pattern.CASE_INSENSITIVE);
-    private static final Pattern XHTML_NAMESPACE_PATTERN = Pattern.compile("\\bxmlns\\s*=\\s*([\"'])http://www\\.w3\\.org/1999/xhtml\\1");
+    private static final String XHTML_NAMESPACE = "http://www.w3.org/1999/xhtml";
     private final Cache<String, Document> documentCache;
 
     public EpubCfiService() {
@@ -188,8 +186,106 @@ public class EpubCfiService {
         if (XML_DECLARATION_PATTERN.matcher(content).find()) {
             return true;
         }
-        Matcher rootElement = ROOT_ELEMENT_PATTERN.matcher(content);
-        return rootElement.find() && XHTML_NAMESPACE_PATTERN.matcher(rootElement.group()).find();
+        int rootAttributes = findRootElementAttributes(content);
+        return rootAttributes >= 0 && declaresXhtmlNamespace(content, rootAttributes);
+    }
+
+    /**
+     * Skips leading whitespace, comments, the doctype and processing instructions, and returns the index just
+     * after {@code <html} when the root element comes next, or -1 otherwise.
+     */
+    private static int findRootElementAttributes(String content) {
+        int i = content.startsWith("\uFEFF") ? 1 : 0;
+        while (i < content.length()) {
+            if (Character.isWhitespace(content.charAt(i))) {
+                i++;
+            } else if (content.startsWith("<!--", i)) {
+                i = indexAfter(content, "-->", i + 4);
+            } else if (content.startsWith("<?", i)) {
+                i = indexAfter(content, "?>", i + 2);
+            } else if (content.regionMatches(true, i, "<!DOCTYPE", 0, 9)) {
+                i = skipDoctype(content, i + 9);
+            } else if (content.regionMatches(true, i, "<html", 0, 5)
+                    && i + 5 < content.length()
+                    && (Character.isWhitespace(content.charAt(i + 5)) || content.charAt(i + 5) == '>' || content.charAt(i + 5) == '/')) {
+                return i + 5;
+            } else {
+                return -1;
+            }
+            if (i < 0) {
+                return -1;
+            }
+        }
+        return -1;
+    }
+
+    private static int indexAfter(String content, String terminator, int from) {
+        int end = content.indexOf(terminator, from);
+        return end < 0 ? -1 : end + terminator.length();
+    }
+
+    private static int skipDoctype(String content, int i) {
+        boolean inInternalSubset = false;
+        for (; i < content.length(); i++) {
+            char c = content.charAt(i);
+            if (c == '[') {
+                inInternalSubset = true;
+            } else if (c == ']') {
+                inInternalSubset = false;
+            } else if (c == '>' && !inInternalSubset) {
+                return i + 1;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Reads the root element's attributes, respecting quoted values (a '>' inside one does not end the tag),
+     * and checks for {@code xmlns="http://www.w3.org/1999/xhtml"}.
+     */
+    private static boolean declaresXhtmlNamespace(String content, int i) {
+        int length = content.length();
+        while (i < length) {
+            while (i < length && Character.isWhitespace(content.charAt(i))) {
+                i++;
+            }
+            if (i >= length || content.charAt(i) == '>' || content.charAt(i) == '/') {
+                return false;
+            }
+            int nameStart = i;
+            while (i < length && !Character.isWhitespace(content.charAt(i)) && "=>/".indexOf(content.charAt(i)) < 0) {
+                i++;
+            }
+            String name = content.substring(nameStart, i);
+            while (i < length && Character.isWhitespace(content.charAt(i))) {
+                i++;
+            }
+            String value = null;
+            if (i < length && content.charAt(i) == '=') {
+                i++;
+                while (i < length && Character.isWhitespace(content.charAt(i))) {
+                    i++;
+                }
+                if (i < length && (content.charAt(i) == '"' || content.charAt(i) == '\'')) {
+                    int end = content.indexOf(content.charAt(i), i + 1);
+                    if (end < 0) {
+                        return false;
+                    }
+                    value = content.substring(i + 1, end);
+                    i = end + 1;
+                } else {
+                    int valueStart = i;
+                    while (i < length && !Character.isWhitespace(content.charAt(i)) && content.charAt(i) != '>') {
+                        i++;
+                    }
+                    value = content.substring(valueStart, i);
+                }
+            }
+            if ("xmlns".equals(name)) {
+                return value != null && XHTML_NAMESPACE.equals(value.trim());
+            }
+        }
+        return false;
     }
 
     private String buildCacheKey(File epubFile, int spineIndex) {
