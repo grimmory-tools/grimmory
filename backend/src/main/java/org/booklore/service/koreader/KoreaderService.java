@@ -127,8 +127,8 @@ public class KoreaderService {
                         progress.setKoreaderDeviceId(DEFAULT_DEVICE_ID);
 
                         BookFileEntity primaryFile = book.getPrimaryBookFile();
-                        if (primaryFile != null && primaryFile.getBookType() == BookFileType.EPUB
-                                && progress.getEpubProgress() != null) {
+                        BookFileType bookType = primaryFile != null ? primaryFile.getBookType() : null;
+                        if (bookType == BookFileType.EPUB && progress.getEpubProgress() != null) {
                             try {
                                 String xpointer = epubCfiService.convertCfiToProgressXPointer(
                                         primaryFile.getFullFilePath(), progress.getEpubProgress());
@@ -137,6 +137,11 @@ public class KoreaderService {
                                 progress.setKoreaderProgress(null);
                                 log.warn("Failed to convert CFI to XPointer for KOReader sync", e);
                             }
+                        } else if (bookType == BookFileType.PDF && progress.getPdfProgress() != null) {
+                            // KOReader positions paged documents by page number
+                            progress.setKoreaderProgress(String.valueOf(progress.getPdfProgress()));
+                        } else if (bookType == BookFileType.CBX && progress.getCbxProgress() != null) {
+                            progress.setKoreaderProgress(String.valueOf(progress.getCbxProgress()));
                         }
 
                         progressRepository.save(progress);
@@ -189,18 +194,16 @@ public class KoreaderService {
         userProgress.setKoreaderDeviceId(koProgress.getDevice_id());
         userProgress.setKoreaderLastSyncTime(Instant.now());
         userProgress.setLastReadTime(Instant.now());
-        if (koProgress.getProgress() != null) {
+        BookFileEntity primaryFile = book.getPrimaryBookFile();
+        BookFileType bookType = primaryFile != null ? primaryFile.getBookType() : null;
+        if (koProgress.getProgress() != null && (bookType == BookFileType.PDF || bookType == BookFileType.CBX)) {
+            updatePageProgress(userProgress, bookType, koProgress);
+        } else if (koProgress.getProgress() != null) {
             try {
                 String cfi = epubCfiService.convertXPointerToCfi(book.getFullFilePath(), koProgress.getProgress());
 
-                float percent = koProgress.getPercentage() * 100f;
-                float rounded = BigDecimal
-                        .valueOf(percent)
-                        .setScale(1, RoundingMode.HALF_UP)
-                        .floatValue();
-
                 userProgress.setEpubProgress(cfi);
-                userProgress.setEpubProgressPercent(rounded);
+                userProgress.setEpubProgressPercent(toRoundedPercent(koProgress.getPercentage()));
 
                 log.info("Converted xpointer to CFI for BookLore reader sync: {}", cfi);
             } catch (Exception e) {
@@ -209,6 +212,47 @@ public class KoreaderService {
         }
 
         updateReadStatus(userProgress, koProgress.getPercentage());
+    }
+
+    /**
+     * KOReader reports the position in paged documents (PDF, comics) as a page number, so it is
+     * applied to the page-based progress the web reader opens at.
+     */
+    private void updatePageProgress(UserBookProgressEntity userProgress, BookFileType bookType, KoreaderProgress koProgress) {
+        Integer page = parsePageNumber(koProgress.getProgress());
+        if (page == null) {
+            log.warn("Ignoring KOReader progress '{}': not a page number", koProgress.getProgress());
+            return;
+        }
+
+        Float percentage = koProgress.getPercentage();
+        if (bookType == BookFileType.PDF) {
+            userProgress.setPdfProgress(page);
+            if (percentage != null) {
+                userProgress.setPdfProgressPercent(toRoundedPercent(percentage));
+            }
+        } else {
+            userProgress.setCbxProgress(page);
+            if (percentage != null) {
+                userProgress.setCbxProgressPercent(toRoundedPercent(percentage));
+            }
+        }
+    }
+
+    private Integer parsePageNumber(String progress) {
+        try {
+            int page = Integer.parseInt(progress.trim());
+            return page > 0 ? page : null;
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private float toRoundedPercent(Float progressFraction) {
+        return BigDecimal
+                .valueOf(progressFraction * 100f)
+                .setScale(1, RoundingMode.HALF_UP)
+                .floatValue();
     }
 
     private void updateReadStatus(UserBookProgressEntity userProgress, Float progressFraction) {

@@ -426,6 +426,64 @@ class EpubCfiServiceTest {
     }
 
     @Nested
+    class SelfClosingElementTests {
+
+        private static final String ANCHORED_CHAPTER = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <!DOCTYPE html>
+                <html xmlns="http://www.w3.org/1999/xhtml">
+                <head><title>Chapter 8</title></head>
+                <body>
+                    <div class="chapter" id="c8">
+                        <h2><a id="chap08"/>Chapter 8</h2>
+                        <p>First paragraph.</p>
+                        <p>Second paragraph.</p>
+                        <p>Third paragraph with <i>italic</i> text.</p>
+                    </div>
+                </body>
+                </html>
+                """;
+
+        private File anchoredEpub;
+
+        @BeforeEach
+        void createAnchoredEpub() throws IOException {
+            Book book = new Book();
+            book.getMetadata().addTitle("Anchored");
+            book.addSection("Chapter 8", new Resource(ANCHORED_CHAPTER.getBytes(StandardCharsets.UTF_8), "chapter8.xhtml"));
+            anchoredEpub = tempDir.resolve("anchored.epub").toFile();
+            try (FileOutputStream out = new FileOutputStream(anchoredEpub)) {
+                new EpubWriter().write(book, out);
+            }
+        }
+
+        @Test
+        void convertCfiToProgressXPointer_paragraphAfterSelfClosingAnchor_pointsAtThatParagraph() {
+            String webReaderCfi = "epubcfi(/6/2!/4/2[c8],/8/1:5,/8/1:20)";
+
+            String xpointer = service.convertCfiToProgressXPointer(anchoredEpub, webReaderCfi);
+
+            assertEquals("/body/DocFragment[1]/body/div/p[3]", xpointer);
+        }
+
+        @Test
+        void convertCfiToProgressXPointer_rangeWithBodyAsCommonParent_keepsPosition() {
+            String webReaderCfi = "epubcfi(/6/2!/4,/2/6/1:0,/2/8/1:4)";
+
+            String xpointer = service.convertCfiToProgressXPointer(anchoredEpub, webReaderCfi);
+
+            assertEquals("/body/DocFragment[1]/body/div/p[2]", xpointer);
+        }
+
+        @Test
+        void convertXPointerToCfi_paragraphAfterSelfClosingAnchor_usesDocumentStructure() {
+            String cfi = service.convertXPointerToCfi(anchoredEpub, "/body/DocFragment[1]/body/div/p[3]/text().5");
+
+            assertEquals("epubcfi(/6/2!/4/2/8:5)", cfi);
+        }
+    }
+
+    @Nested
     class RoundTripTests {
 
         @Test

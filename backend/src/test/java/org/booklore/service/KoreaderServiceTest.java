@@ -334,6 +334,68 @@ class KoreaderServiceTest {
     }
 
     @Test
+    void saveProgress_pdfPageNumber_updatesWebReaderPage() {
+        when(details.isSyncEnabled()).thenReturn(true);
+        BookEntity book = bookWithPrimaryFile(9L, BookFileType.PDF);
+        when(bookRepo.findByCurrentHash("h")).thenReturn(Optional.of(book));
+        when(userRepo.findById(42L)).thenReturn(Optional.of(user(42L)));
+        var existing = new UserBookProgressEntity();
+        existing.setPdfProgress(1);
+        existing.setPdfProgressPercent(0.7f);
+        when(progressRepo.findByUserIdAndBookId(42L, 9L)).thenReturn(Optional.of(existing));
+
+        var dto = KoreaderProgress.builder()
+                .document("h").progress("10").percentage(0.0714F).device("d").device_id("id").build();
+        service.saveProgress("h", dto);
+
+        assertEquals(10, existing.getPdfProgress());
+        assertEquals(7.1f, existing.getPdfProgressPercent());
+        assertEquals("10", existing.getKoreaderProgress());
+        verifyNoInteractions(epubCfiService);
+    }
+
+    @Test
+    void saveProgress_cbxPageNumber_updatesWebReaderPage() {
+        when(details.isSyncEnabled()).thenReturn(true);
+        BookEntity book = bookWithPrimaryFile(9L, BookFileType.CBX);
+        when(bookRepo.findByCurrentHash("h")).thenReturn(Optional.of(book));
+        when(userRepo.findById(42L)).thenReturn(Optional.of(user(42L)));
+        var existing = new UserBookProgressEntity();
+        when(progressRepo.findByUserIdAndBookId(42L, 9L)).thenReturn(Optional.of(existing));
+
+        var dto = KoreaderProgress.builder()
+                .document("h").progress("25").percentage(0.5F).device("d").device_id("id").build();
+        service.saveProgress("h", dto);
+
+        assertEquals(25, existing.getCbxProgress());
+        assertEquals(50.0f, existing.getCbxProgressPercent());
+        verifyNoInteractions(epubCfiService);
+    }
+
+    @Test
+    void saveProgress_pdfWithInvalidPage_keepsWebReaderPage() {
+        when(details.isSyncEnabled()).thenReturn(true);
+        BookEntity book = bookWithPrimaryFile(9L, BookFileType.PDF);
+        when(bookRepo.findByCurrentHash("h")).thenReturn(Optional.of(book));
+        when(userRepo.findById(42L)).thenReturn(Optional.of(user(42L)));
+        var existing = new UserBookProgressEntity();
+        existing.setPdfProgress(3);
+        existing.setPdfProgressPercent(2.1f);
+        when(progressRepo.findByUserIdAndBookId(42L, 9L)).thenReturn(Optional.of(existing));
+
+        for (String progress : new String[]{"abc", "0", "-4", "/body/DocFragment[1]/body/p"}) {
+            var dto = KoreaderProgress.builder()
+                    .document("h").progress(progress).percentage(0.2F).device("d").device_id("id").build();
+            service.saveProgress("h", dto);
+
+            assertEquals(3, existing.getPdfProgress(), progress);
+            assertEquals(2.1f, existing.getPdfProgressPercent(), progress);
+            assertEquals(0.2F, existing.getKoreaderProgressPercent(), progress);
+        }
+        verifyNoInteractions(epubCfiService);
+    }
+
+    @Test
     void saveProgress_syncDisabled() {
         when(details.isSyncEnabled()).thenReturn(false);
         var dto = KoreaderProgress.builder().document("h").build();
@@ -424,6 +486,41 @@ class KoreaderServiceTest {
         assertNull(progress.getKoreaderProgress());
         assertNotNull(progress.getKoreaderLastSyncTime());
         verifyNoInteractions(epubCfiService);
+        verify(progressRepo).save(progress);
+    }
+
+    @Test
+    void syncProgressToKoreader_pdf_sendsWebReaderPageNumber() {
+        BookEntity book = bookWithPrimaryFile(11L, BookFileType.PDF);
+        UserBookProgressEntity progress = new UserBookProgressEntity();
+        progress.setPdfProgress(10);
+        progress.setKoreaderProgress("/old/xpointer");
+        when(koreaderUserRepo.findByBookLoreUserId(42L)).thenReturn(Optional.of(koreaderUser(true)));
+        when(bookRepo.findById(11L)).thenReturn(Optional.of(book));
+        when(userRepo.findById(42L)).thenReturn(Optional.of(user(42L)));
+        when(progressRepo.findByUserIdAndBookId(42L, 11L)).thenReturn(Optional.of(progress));
+
+        service.syncProgressToKoreader(11L, 7.1f, 42L);
+
+        assertEquals("10", progress.getKoreaderProgress());
+        assertEquals(0.071f, progress.getKoreaderProgressPercent(), 0.0001f);
+        verifyNoInteractions(epubCfiService);
+        verify(progressRepo).save(progress);
+    }
+
+    @Test
+    void syncProgressToKoreader_cbx_sendsWebReaderPageNumber() {
+        BookEntity book = bookWithPrimaryFile(11L, BookFileType.CBX);
+        UserBookProgressEntity progress = new UserBookProgressEntity();
+        progress.setCbxProgress(4);
+        when(koreaderUserRepo.findByBookLoreUserId(42L)).thenReturn(Optional.of(koreaderUser(true)));
+        when(bookRepo.findById(11L)).thenReturn(Optional.of(book));
+        when(userRepo.findById(42L)).thenReturn(Optional.of(user(42L)));
+        when(progressRepo.findByUserIdAndBookId(42L, 11L)).thenReturn(Optional.of(progress));
+
+        service.syncProgressToKoreader(11L, 20f, 42L);
+
+        assertEquals("4", progress.getKoreaderProgress());
         verify(progressRepo).save(progress);
     }
 

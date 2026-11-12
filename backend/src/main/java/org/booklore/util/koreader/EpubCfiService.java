@@ -25,7 +25,10 @@ import java.util.regex.Pattern;
 @Service
 public class EpubCfiService {
 
-    private static final Pattern CFI_CLEANER_PATTERN = Pattern.compile("!/4(?=/)");
+    // Drops the leading body step (/4, optionally with an id assertion) after the indirection,
+    // including range CFIs whose common parent is the body itself (e.g. "!/4,/2/1:0,/6/1:8").
+    private static final Pattern CFI_CLEANER_PATTERN = Pattern.compile("!/4(?:\\[[^\\]]*\\])?(?=[/,)])");
+    private static final String XHTML_NAMESPACE = "http://www.w3.org/1999/xhtml";
     private final Cache<String, Document> documentCache;
 
     public EpubCfiService() {
@@ -161,8 +164,17 @@ public class EpubCfiService {
         return documentCache.get(cacheKey, key -> {
             log.debug("Cache miss for epub spine: {} index {}", epubFile.getName(), spineIndex);
             String html = EpubContentReader.getSpineItemContent(epubFile, spineIndex);
-            return Jsoup.parse(html, "", Parser.htmlParser().setTrackPosition(true));
+            return Jsoup.parse(html, "", parserFor(html).setTrackPosition(true));
         });
+    }
+
+    /**
+     * EPUB content documents are XHTML, which browsers and KOReader parse as XML. The HTML parser
+     * would treat self-closing tags such as {@code <a id="x"/>} as open elements and nest the rest
+     * of the chapter inside them, so CFI and XPointer paths would no longer match the document.
+     */
+    private static Parser parserFor(String content) {
+        return content.contains(XHTML_NAMESPACE) ? Parser.xmlParser() : Parser.htmlParser();
     }
 
     private String buildCacheKey(File epubFile, int spineIndex) {
