@@ -4,16 +4,6 @@
       "count": 1
     }
   },
-  "src/app/features/author-browser/components/author-browser/author-browser.component.ts": {
-    "@angular-eslint/prefer-host-metadata-property": {
-      "count": 1
-    }
-  },
-  "src/app/features/author-browser/components/author-card/author-card.component.ts": {
-    "@angular-eslint/prefer-signals": {
-      "count": 7
-    }
-  },
   "src/app/features/author-browser/components/author-editor/author-editor.component.ts": {
     "@angular-eslint/prefer-signals": {
       "count": 2

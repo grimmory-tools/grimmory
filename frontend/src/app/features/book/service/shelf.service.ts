@@ -77,7 +77,7 @@ export class ShelfService {
       tap(() => {
         void this.queryClient.invalidateQueries({queryKey: SHELVES_QUERY_KEY, exact: true});
         void invalidateShelfDefinitions(this.queryClient);
-        invalidateAllBookCaches(this.queryClient);
+        void invalidateAllBookCaches(this.queryClient);
       })
     );
   }

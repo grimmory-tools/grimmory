@@ -33,7 +33,9 @@
     "on": "Uključeno",
     "off": "Isključeno",
     "moreActionsFor": "Više radnji za {{label}}",
-    "dialogLoadError": "Došlo je do pogreške prilikom učitavanja dijaloga. Pokušajte ponovno."
+    "dialogLoadError": "Došlo je do pogreške prilikom učitavanja dijaloga. Pokušajte ponovno.",
+    "metadata": "Metapodaci",
+    "openInNewTab": "Otvori detalje u novoj kartici"
   },
   "auth": {
     "oidc": {
@@ -2840,7 +2842,6 @@
       "quickSend": "Brzo slanje",
       "customSend": "Prilagođeno slanje",
       "download": "Preuzmi",
-      "metadata": "Metapodaci",
       "editMetadata": "Uređivanje metapodataka",
       "fetchMetadata": "Osvježi metapodatke",
       "fetchMetadataWithOptions": "Osvježi s opcijama",
@@ -5091,73 +5092,11 @@
     }
   },
   "authorBrowser": {
-    "pageTitle": "Autori",
-    "browseAllAuthors": "Pregledaj sve autore",
-    "searchPlaceholder": "Pretraživanje po imenu autora...",
-    "noAuthorsFound": "Nijedan autor ne odgovara vašoj pretrazi.",
-    "sort": {
-      "name": "Naziv",
-      "bookCount": "Broj knjiga",
-      "matched": "Podudara se",
-      "recentlyAdded": "Nedavno dodano",
-      "recentlyRead": "Nedavno pročitano",
-      "readingProgress": "Napredak u čitanju",
-      "avgRating": "Prosječna ocjena",
-      "photo": "Fotografija",
-      "seriesCount": "Broj serija"
-    },
-    "filters": {
-      "all": "Sve",
-      "matchStatus": "Status podudaranja",
-      "matched": "Podudara se",
-      "unmatched": "Neusporedivo",
-      "photoStatus": "Status fotografije",
-      "hasPhoto": "Ima fotografiju",
-      "noPhoto": "Nema fotografije",
-      "readStatus": "Status čitanja",
-      "allRead": "Sve pročitano",
-      "someRead": "Neki čitaju",
-      "inProgress": "U tijeku",
-      "unread": "Nepročitano",
-      "bookCount": "Broj knjiga",
-      "library": "Zbrika",
-      "genre": "Žanr",
-      "reset": "Poništi filtere"
-    },
-    "footer": {
-      "selected": "odabrano",
-      "autoMatch": "Odabrano automatsko podudaranje",
-      "deleteSelected": "Izbriši odabrano",
-      "selectAll": "Odaberi sve",
-      "deselectAll": "Odznači sve"
-    },
     "toast": {
-      "deleteSuccessSummary": "Autor izbrisan",
-      "deleteSuccessDetail": "Autor je uspješno izbrisan.",
-      "deleteFailedSummary": "Brisanje nije uspjelo",
-      "deleteFailedDetail": "Brisanje autora nije uspjelo.",
-      "autoMatchSuccessSummary": "Automatsko podudaranje dovršeno",
-      "autoMatchSuccessDetail": "Odabrani autori su uspješno usklađeni.",
-      "autoMatchFailedSummary": "Automatsko podudaranje nije uspjelo",
-      "autoMatchFailedDetail": "Automatsko podudaranje odabranih autora nije uspjelo.",
       "quickMatchSuccessSummary": "Brzo podudaranje dovršeno",
       "quickMatchSuccessDetail": "Autor je uspješno pronađen.",
       "quickMatchFailedSummary": "Brzo podudaranje nije uspjelo",
-      "quickMatchFailedDetail": "Brzo pronalaženje autora nije uspjelo.",
-      "deleteSelectedSuccessSummary": "Autori izbrisani",
-      "deleteSelectedSuccessDetail": "Odabrani autori su uspješno izbrisani."
-    },
-    "card": {
-      "matched": "Podudara se",
-      "quickMatch": "Brzo podudaranje",
-      "book": "knjiga",
-      "books": "knjige",
-      "menu": {
-        "viewAuthor": "Prikaži autora",
-        "editAuthor": "Uredi autora",
-        "quickMatch": "Brzo podudaranje",
-        "deleteAuthor": "Izbriši autora"
-      }
+      "quickMatchFailedDetail": "Brzo pronalaženje autora nije uspjelo."
     },
     "editor": {
       "nameLabel": "Ime",
@@ -5242,10 +5181,10 @@
       "multiSort": "Višestruko razvrstavanje",
       "addField": "Dodaj polje",
       "apply": "Primijeni",
+      "saveAsDefault": "Spremi kao zadano: {{scope}}",
       "moveUp": "Pomakni gore",
       "moveDown": "Pomakni dolje",
-      "flipDirection": "Preokreni smjer",
-      "saveAsDefault": "Spremi kao zadano: {{scope}}"
+      "flipDirection": "Preokreni smjer"
     },
     "chips": {
       "removeSearch": "Ukloni filtar pretraživanja {{query}}",
@@ -5254,7 +5193,6 @@
     "rail": {
       "searchValues": "Pretraži...",
       "searchFields": "Naslov, autor, žanr…",
-      "clearSearch": "Očisti pretragu",
       "searchScope": {
         "allBooks": "Pretraži sve knjige",
         "library": "Pretraži zbirku",
@@ -5274,7 +5212,8 @@
       "matchOptions": "",
       "matchAny": "",
       "matchAll": "",
-      "all": ""
+      "all": "",
+      "clearSearch": "Očisti pretragu"
     },
     "book": {
       "empty": "Ovdje još nema knjiga.",
@@ -5317,6 +5256,17 @@
     },
     "filterPage": {
       "show": "Prikaži {{count}} knjiga"
+    }
+  },
+  "author": {
+    "menu": {
+      "quickMatch": "Brzo podudaranje"
+    },
+    "fields": {
+      "name": "Naziv",
+      "bookCount": "Broj knjiga",
+      "seriesCount": "Broj serija",
+      "hasPhoto": "Fotografija"
     }
   }
 }

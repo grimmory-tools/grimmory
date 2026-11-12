@@ -33,7 +33,8 @@
     "on": "",
     "off": "",
     "moreActionsFor": "",
-    "dialogLoadError": ""
+    "dialogLoadError": "",
+    "metadata": "Metadaten"
   },
   "auth": {
     "oidc": {
@@ -2840,7 +2841,6 @@
       "quickSend": "Schnellversand",
       "customSend": "Benutzerdefinierter Versand",
       "download": "Herunterladen",
-      "metadata": "Metadaten",
       "editMetadata": "Metadaten bearbeiten",
       "fetchMetadata": "",
       "fetchMetadataWithOptions": "",
@@ -5091,73 +5091,11 @@
     }
   },
   "authorBrowser": {
-    "pageTitle": "Autoren",
-    "browseAllAuthors": "Alle Autoren durchsuchen",
-    "searchPlaceholder": "Nach Autorennamen suchen...",
-    "noAuthorsFound": "Keine Autoren stimmen mit der Suche überein.",
-    "sort": {
-      "name": "",
-      "bookCount": "Anzahl Bücher",
-      "matched": "Übereinstimmend",
-      "recentlyAdded": "Kürzlich hinzugefügt",
-      "recentlyRead": "Kürzlich gelesen",
-      "readingProgress": "Lesefortschritt",
-      "avgRating": "Durchschnittliche Bewertung",
-      "photo": "Foto",
-      "seriesCount": "Anzahl Serien"
-    },
-    "filters": {
-      "all": "Alle",
-      "matchStatus": "Status der Übereinstimmung",
-      "matched": "Übereinstimmend",
-      "unmatched": "Nicht übereinstimmend",
-      "photoStatus": "Foto Status",
-      "hasPhoto": "Hat Foto",
-      "noPhoto": "Kein Foto",
-      "readStatus": "Lesestatus",
-      "allRead": "Alle gelesenen",
-      "someRead": "Teilweise gelesene",
-      "inProgress": "Im Gange",
-      "unread": "Ungelesen",
-      "bookCount": "Anzahl Bücher",
-      "library": "Bibliothek",
-      "genre": "",
-      "reset": "Filter zurücksetzen"
-    },
-    "footer": {
-      "selected": "ausgewählt",
-      "autoMatch": "Auswahl automatisch kombinieren",
-      "deleteSelected": "Ausgewählte löschen",
-      "selectAll": "Alle auswählen",
-      "deselectAll": "Auswahl aufheben"
-    },
     "toast": {
-      "deleteSuccessSummary": "Autor gelöscht",
-      "deleteSuccessDetail": "Autor wurde erfolgreich gelöscht.",
-      "deleteFailedSummary": "Löschvorgang fehlgeschlagen",
-      "deleteFailedDetail": "Autor konnte nicht gelöscht werden.",
-      "autoMatchSuccessSummary": "Automatische Kombination abgeschlossen",
-      "autoMatchSuccessDetail": "Ausgewählte Autoren wurden erfolgreich kombiniert.",
-      "autoMatchFailedSummary": "Automatische Kombination fehlgeschlagen",
-      "autoMatchFailedDetail": "Ausgewählte Autoren konnten nicht automatisch kombiniert werden.",
       "quickMatchSuccessSummary": "",
       "quickMatchSuccessDetail": "",
       "quickMatchFailedSummary": "",
-      "quickMatchFailedDetail": "",
-      "deleteSelectedSuccessSummary": "Autoren gelöscht",
-      "deleteSelectedSuccessDetail": "Ausgewählte Autoren wurden erfolgreich gelöscht."
-    },
-    "card": {
-      "matched": "",
-      "quickMatch": "",
-      "book": "Buch",
-      "books": "Bücher",
-      "menu": {
-        "viewAuthor": "Autor anzeigen",
-        "editAuthor": "Autor bearbeiten",
-        "quickMatch": "",
-        "deleteAuthor": "Autor löschen"
-      }
+      "quickMatchFailedDetail": ""
     },
     "editor": {
       "nameLabel": "",
@@ -5242,10 +5180,10 @@
       "multiSort": "",
       "addField": "",
       "apply": "Anwenden",
+      "saveAsDefault": "Als Standard für {{scope}} speichern",
       "moveUp": "",
       "moveDown": "",
-      "flipDirection": "",
-      "saveAsDefault": "Als Standard für {{scope}} speichern"
+      "flipDirection": ""
     },
     "chips": {
       "removeSearch": "",
@@ -5254,7 +5192,6 @@
     "rail": {
       "searchValues": "",
       "searchFields": "",
-      "clearSearch": "Suche löschen",
       "searchScope": {
         "allBooks": "",
         "library": "",
@@ -5274,7 +5211,8 @@
       "matchOptions": "",
       "matchAny": "",
       "matchAll": "",
-      "all": ""
+      "all": "",
+      "clearSearch": "Suche löschen"
     },
     "book": {
       "empty": "",
@@ -5317,6 +5255,13 @@
     },
     "filterPage": {
       "show": ""
+    }
+  },
+  "author": {
+    "fields": {
+      "bookCount": "Anzahl Bücher",
+      "seriesCount": "Anzahl Serien",
+      "hasPhoto": "Foto"
     }
   }
 }

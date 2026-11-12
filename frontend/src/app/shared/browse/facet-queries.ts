@@ -10,6 +10,7 @@ import {
   browseFilterGroups,
   browseFilterChips,
   browseFacetPicks,
+  browseFacetSectionKeys,
   browseFacetValues,
   noBrowseFacets,
   withBrowseFacetMatchAll,
@@ -68,7 +69,9 @@ export function createBrowseFacetQueries<FacetKey extends string>({
   });
 
   const selectedKeys = fields.facetKeys.filter(key => selection()[key] !== undefined);
-  const openKeys = signal<ReadonlySet<FacetKey>>(new Set([...fields.openRailFacets, ...selectedKeys]));
+  const sectionKeys = (key: FacetKey) => browseFacetSectionKeys(definitions(), key);
+  const openKeys = signal<ReadonlySet<FacetKey>>(
+    new Set([...fields.openRailFacets, ...selectedKeys].flatMap(sectionKeys)));
   const searchTerms = signal<Readonly<Partial<Record<FacetKey, string>>>>(noSearchTerms);
   const debouncedSearchTerms = debouncedSignal(searchTerms, SEARCH_DEBOUNCE_MS);
 
@@ -121,12 +124,15 @@ export function createBrowseFacetQueries<FacetKey extends string>({
     return values.include.length > 0 ? values.matchAll === true : matchAllKeys().has(key);
   };
   const railGroups = computed<BrowseFilterGroup<FacetKey>[]>(() =>
-    frame().map(group => ({
-      ...group,
-      picks: browseFacetPicks(browseFacetValues(selection(), group.key)),
-      matchAll: isMatchAll(group.key),
-      loading: loadingKeys().has(group.key),
-    })));
+    frame().map(group => {
+      const keys = sectionKeys(group.key);
+      return {
+        ...group,
+        picks: new Map(keys.map(key => [key, browseFacetPicks(browseFacetValues(selection(), key))])),
+        matchAll: isMatchAll(group.key),
+        loading: keys.some(key => loadingKeys().has(key)),
+      };
+    }));
   const chips = computed<BrowseFilterChip<FacetKey>[]>(() =>
     browseFilterChips(served(), definitions(), selection()));
 
@@ -138,8 +144,10 @@ export function createBrowseFacetQueries<FacetKey extends string>({
     railGroups,
     openKeys: openKeys.asReadonly(),
     searchTerms: searchTerms.asReadonly(),
-    setOpen: ({key, open}: BrowseFilterOpen<FacetKey>) => openKeys.update(keys =>
-      open ? new Set([...keys, key]) : new Set([...keys].filter(openKey => openKey !== key))),
+    setOpen: ({key, open}: BrowseFilterOpen<FacetKey>) => openKeys.update(keys => {
+      const section = sectionKeys(key);
+      return open ? new Set([...keys, ...section]) : new Set([...keys].filter(openKey => !section.includes(openKey)));
+    }),
     setSearch: ({key, term}: BrowseFilterSearch<FacetKey>) =>
       searchTerms.update(terms => ({...terms, [key]: term})),
     withState: ({key, value, state}: BrowseFilterToggle<FacetKey>) =>

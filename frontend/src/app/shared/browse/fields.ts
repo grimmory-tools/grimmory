@@ -34,6 +34,8 @@ export interface BrowseFieldKeys<FacetKey extends string, SortKey extends string
 
 type FacetKeyOf<Field> = Field extends {readonly facet: {readonly key: infer Key}} ? Key : never;
 type SortKeyOf<Field> = Field extends {readonly sort: {readonly key: infer Key}} ? Key : never;
+export type AssertNever<Value extends never> = Value;
+
 export type BrowseMissingFieldKeys<Field, FacetKey extends string, SortKey extends string> =
   Exclude<FacetKey, FacetKeyOf<Field>> | Exclude<SortKey, SortKeyOf<Field>>;
 

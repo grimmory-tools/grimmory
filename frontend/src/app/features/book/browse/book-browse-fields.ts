@@ -6,7 +6,7 @@ import {
   parseRangeToken,
   rangeTokenLabel,
 } from '../../../shared/browse/facet-ranges';
-import {browseFieldIndex, type BrowseField, type BrowseMissingFieldKeys} from '../../../shared/browse/fields';
+import {browseFieldIndex, type AssertNever, type BrowseField, type BrowseMissingFieldKeys} from '../../../shared/browse/fields';
 import {browseFacetEntityIcon, LIBRARY_FACET, type BrowseFacetEntityLookup} from '../../../shared/browse/entity-facets';
 import {type MetadataProviderScoreFieldName} from '../../../shared/metadata/metadata-providers';
 import {AppSettingsService} from '../../../shared/service/app-settings.service';
@@ -428,7 +428,6 @@ type NoDetailLineSortKey = SortKeyOf<Extract<RegisteredField, {readonly sort: {r
 type DisplayedSortKey = SortKeyOf<Extract<RegisteredField, {readonly display: unknown}>>;
 export type BookDetailLineSortKey = Exclude<BookQuerySortKey, NoDetailLineSortKey>;
 export type BookBrowseColumnGroupId = (typeof COLUMN_GROUP_ORDER)[number];
-type AssertNever<Value extends never> = Value;
 export type BookFieldsComplete = [
   AssertNever<BrowseMissingFieldKeys<RegisteredField, BookQueryFacetKey, BookQuerySortKey>>,
   AssertNever<Exclude<BookColumnKey, (typeof COLUMN_ORDER)[number]>>,

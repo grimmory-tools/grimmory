@@ -33,7 +33,9 @@
     "on": "Activat",
     "off": "Desactivat",
     "moreActionsFor": "Més accions per a {{label}}",
-    "dialogLoadError": "S'ha produït un error en carregar el diàleg. Torna-ho a provar."
+    "dialogLoadError": "S'ha produït un error en carregar el diàleg. Torna-ho a provar.",
+    "metadata": "Metadades",
+    "openInNewTab": "Obre els detalls en una pestanya nova"
   },
   "auth": {
     "oidc": {
@@ -2840,7 +2842,6 @@
       "quickSend": "Enviament ràpid",
       "customSend": "Enviament personalitzat",
       "download": "Baixa",
-      "metadata": "Metadades",
       "editMetadata": "Edita les metadades",
       "fetchMetadata": "Actualitza les metadades",
       "fetchMetadataWithOptions": "Actualitza amb opcions",
@@ -5091,73 +5092,11 @@
     }
   },
   "authorBrowser": {
-    "pageTitle": "Autors",
-    "browseAllAuthors": "Explora tots els autors",
-    "searchPlaceholder": "Cerca per nom d'autor...",
-    "noAuthorsFound": "Cap autor coincideix amb la cerca.",
-    "sort": {
-      "name": "Nom",
-      "bookCount": "Nombre de llibres",
-      "matched": "Amb coincidència",
-      "recentlyAdded": "Afegits recentment",
-      "recentlyRead": "Llegits recentment",
-      "readingProgress": "Progrés de lectura",
-      "avgRating": "Valoració mitjana",
-      "photo": "Foto",
-      "seriesCount": "Nombre de sèries"
-    },
-    "filters": {
-      "all": "Tots",
-      "matchStatus": "Estat de coincidència",
-      "matched": "Amb coincidència",
-      "unmatched": "Sense coincidència",
-      "photoStatus": "Estat de la foto",
-      "hasPhoto": "Amb foto",
-      "noPhoto": "Sense foto",
-      "readStatus": "Estat de lectura",
-      "allRead": "Tots llegits",
-      "someRead": "Alguns llegits",
-      "inProgress": "En curs",
-      "unread": "No llegit",
-      "bookCount": "Nombre de llibres",
-      "library": "Biblioteca",
-      "genre": "Gènere",
-      "reset": "Restableix els filtres"
-    },
-    "footer": {
-      "selected": "seleccionats",
-      "autoMatch": "Fes coincidir automàticament els seleccionats",
-      "deleteSelected": "Elimina els seleccionats",
-      "selectAll": "Selecciona-ho tot",
-      "deselectAll": "Desselecciona-ho tot"
-    },
     "toast": {
-      "deleteSuccessSummary": "Autor eliminat",
-      "deleteSuccessDetail": "L'autor s'ha eliminat correctament.",
-      "deleteFailedSummary": "Error en eliminar",
-      "deleteFailedDetail": "No s'ha pogut eliminar l'autor.",
-      "autoMatchSuccessSummary": "Coincidència automàtica completada",
-      "autoMatchSuccessDetail": "Els autors seleccionats s'han fet coincidir correctament.",
-      "autoMatchFailedSummary": "Coincidència automàtica fallida",
-      "autoMatchFailedDetail": "No s'han pogut fer coincidir automàticament els autors seleccionats.",
       "quickMatchSuccessSummary": "Coincidència ràpida completada",
       "quickMatchSuccessDetail": "L'autor s'ha fet coincidir correctament.",
       "quickMatchFailedSummary": "Coincidència ràpida fallida",
-      "quickMatchFailedDetail": "No s'ha pogut fer la coincidència ràpida de l'autor.",
-      "deleteSelectedSuccessSummary": "Autors eliminats",
-      "deleteSelectedSuccessDetail": "Els autors seleccionats s'han eliminat correctament."
-    },
-    "card": {
-      "matched": "Amb coincidència",
-      "quickMatch": "Coincidència ràpida",
-      "book": "llibre",
-      "books": "llibres",
-      "menu": {
-        "viewAuthor": "Mostra l'autor",
-        "editAuthor": "Edita l'autor",
-        "quickMatch": "Coincidència ràpida",
-        "deleteAuthor": "Elimina l'autor"
-      }
+      "quickMatchFailedDetail": "No s'ha pogut fer la coincidència ràpida de l'autor."
     },
     "editor": {
       "nameLabel": "Nom",
@@ -5242,10 +5181,10 @@
       "multiSort": "Ordenació múltiple",
       "addField": "Afegeix un camp",
       "apply": "Aplica",
+      "saveAsDefault": "Desa com a predeterminat per a {{scope}}",
       "moveUp": "Mou amunt",
       "moveDown": "Mou avall",
-      "flipDirection": "Inverteix la direcció",
-      "saveAsDefault": "Desa com a predeterminat per a {{scope}}"
+      "flipDirection": "Inverteix la direcció"
     },
     "chips": {
       "removeSearch": "Treu el filtre de cerca {{query}}",
@@ -5254,7 +5193,6 @@
     "rail": {
       "searchValues": "Cerca…",
       "searchFields": "Títol, autor, gènere…",
-      "clearSearch": "Esborra la cerca",
       "searchScope": {
         "allBooks": "Cerca a tots els llibres",
         "library": "Cerca a la biblioteca",
@@ -5274,7 +5212,8 @@
       "matchOptions": "",
       "matchAny": "",
       "matchAll": "",
-      "all": ""
+      "all": "",
+      "clearSearch": "Esborra la cerca"
     },
     "book": {
       "empty": "Encara no hi ha cap llibre.",
@@ -5317,6 +5256,17 @@
     },
     "filterPage": {
       "show": "Mostra {{count}} llibres"
+    }
+  },
+  "author": {
+    "menu": {
+      "quickMatch": "Coincidència ràpida"
+    },
+    "fields": {
+      "name": "Nom",
+      "bookCount": "Nombre de llibres",
+      "seriesCount": "Nombre de sèries",
+      "hasPhoto": "Foto"
     }
   }
 }

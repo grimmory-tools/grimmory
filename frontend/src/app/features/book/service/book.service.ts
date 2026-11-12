@@ -162,7 +162,7 @@ export class BookService {
   createPhysicalBook(request: CreatePhysicalBookRequest): Observable<Book> {
     return this.http.post<Book>(`${this.url}/physical`, request).pipe(
       tap(newBook => {
-        invalidateAllBookCaches(this.queryClient);
+        void invalidateAllBookCaches(this.queryClient);
         this.messageService.add({
           severity: 'success',
           summary: this.t.translate('book.bookService.toast.physicalBookCreatedSummary'),
