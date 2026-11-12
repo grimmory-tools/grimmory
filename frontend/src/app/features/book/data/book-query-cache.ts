@@ -1,5 +1,6 @@
 import {QueryClient} from '@tanstack/angular-query-experimental';
 
+import {invalidateAuthorCollections} from '../../author/data/author-query-cache';
 import {metadataSourceQueryKeys} from '../../metadata/sources/metadata-source-query-keys';
 import {readingQueryKeys} from '../../reading/data/reading-query-keys';
 import {statsQueryKeys} from '../../stats/data/stats-query-keys';
@@ -16,6 +17,7 @@ export async function invalidateAllBookQueries(queryClient: QueryClient): Promis
     queryClient.invalidateQueries({queryKey: readingQueryKeys.all()}),
     queryClient.invalidateQueries({queryKey: metadataSourceQueryKeys.sidecars()}),
     queryClient.invalidateQueries({queryKey: statsQueryKeys.all()}),
+    invalidateAuthorCollections(queryClient),
   ]);
 }
 
@@ -57,6 +59,7 @@ export async function applyBookQueryChangeSet(
 
   await Promise.all([
     invalidateBookCollections(queryClient),
+    invalidateAuthorCollections(queryClient),
     ...(changedBookIds.size > 0 ? [queryClient.invalidateQueries({
       predicate: ({queryKey}) =>
         matchesBookId(queryKey, bookQueryKeys.details(), changedBookIds)

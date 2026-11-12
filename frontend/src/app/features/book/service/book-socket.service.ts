@@ -67,7 +67,7 @@ export class BookSocketService {
 
   handleReconnect(): void {
     this.clearPendingReconciliation();
-    invalidateAllBookCaches(this.queryClient);
+    void invalidateAllBookCaches(this.queryClient);
   }
 
   private queuePatchedBooks(bookIds: readonly number[]): void {

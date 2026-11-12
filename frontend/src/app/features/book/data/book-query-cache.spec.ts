@@ -8,9 +8,11 @@ import {
   invalidateBookCollections,
   applyBookQueryChangeSet,
 } from './book-query-cache';
+import {authorQueryKeys} from '../../author/data/author-query-keys';
 import {readingQueryKeys} from '../../reading/data/reading-query-keys';
 import {bookQueryKeys} from './book-query-keys';
 import {normalizeBrowsePageParams} from '../../../core/data/browse-query-params';
+import {isAuthorQueryFacetKey} from '../../author/data/author-query-params';
 import {isBookQueryFacetKey} from './book-query-params';
 
 const firstBook = {id: 1};
@@ -20,6 +22,11 @@ const pageKey = bookQueryKeys.boundedPage(normalizeBrowsePageParams({
   sort: [],
   size: 20,
 }, isBookQueryFacetKey));
+const authorPageKey = authorQueryKeys.boundedPage(normalizeBrowsePageParams({
+  facets: {},
+  sort: [],
+  size: 20,
+}, isAuthorQueryFacetKey));
 const firstDetailKey = bookQueryKeys.detail(1, false);
 const secondDetailKey = bookQueryKeys.detail(2, false);
 const firstRecommendationKey = bookQueryKeys.recommendation(1, 20);
@@ -33,6 +40,7 @@ function seedAllQueryFamilies(queryClient: QueryClient): void {
   queryClient.setQueryData(firstRecommendationKey, [secondBook]);
   queryClient.setQueryData(secondRecommendationKey, [firstBook]);
   queryClient.setQueryData(statsKey, {rows: []});
+  queryClient.setQueryData(authorPageKey, {content: []});
 }
 
 describe('book query cache', () => {
@@ -51,6 +59,7 @@ describe('book query cache', () => {
       expect(query.state.isInvalidated).toBe(true);
     }
     expect(queryClient.getQueryState(statsKey)?.isInvalidated).toBe(true);
+    expect(queryClient.getQueryState(authorPageKey)?.isInvalidated).toBe(true);
   });
 
   it('invalidates only collection queries through the collection action', async () => {
@@ -62,6 +71,7 @@ describe('book query cache', () => {
     expect(queryClient.getQueryState(statsKey)?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(firstDetailKey)?.isInvalidated).toBe(false);
     expect(queryClient.getQueryState(firstRecommendationKey)?.isInvalidated).toBe(false);
+    expect(queryClient.getQueryState(authorPageKey)?.isInvalidated).toBe(false);
   });
 
   it('invalidates changed details and every dependent query family once', async () => {
@@ -74,7 +84,8 @@ describe('book query cache', () => {
     expect(queryClient.getQueryState(firstDetailKey)?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(secondDetailKey)?.isInvalidated).toBe(false);
     expect(queryClient.getQueryState(firstRecommendationKey)?.isInvalidated).toBe(true);
-    expect(invalidateQueriesSpy).toHaveBeenCalledTimes(5);
+    expect(queryClient.getQueryState(authorPageKey)?.isInvalidated).toBe(true);
+    expect(invalidateQueriesSpy).toHaveBeenCalledTimes(6);
   });
 
   it('resolves without work when no changed or deleted book IDs are provided', async () => {
@@ -106,8 +117,9 @@ describe('book query cache', () => {
     expect(queryClient.getQueryData(secondRecommendationKey)).toEqual([firstBook]);
     expect(queryClient.getQueryState(pageKey)?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(secondRecommendationKey)?.isInvalidated).toBe(true);
+    expect(queryClient.getQueryState(authorPageKey)?.isInvalidated).toBe(true);
     expect(removeQueriesSpy).toHaveBeenCalledTimes(1);
-    expect(invalidateQueriesSpy).toHaveBeenCalledTimes(4);
+    expect(invalidateQueriesSpy).toHaveBeenCalledTimes(5);
   });
 
   it('refetches each active dependent once without aborting it after a change', async () => {

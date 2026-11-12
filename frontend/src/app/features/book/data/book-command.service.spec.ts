@@ -10,6 +10,7 @@ import {
   createQueryClientHarness,
   flushSignalAndQueryEffects,
 } from '../../../core/testing/query-testing';
+import {authorQueryKeys} from '../../author/data/author-query-keys';
 import {readingQueryKeys} from '../../reading/data/reading-query-keys';
 import {bookQueryKeys} from './book-query-keys';
 import {BookCommandService} from './book-command.service';
@@ -42,9 +43,11 @@ describe('BookCommandService reconciliation', () => {
     queryClient.clear();
   });
 
-  it('invalidates the requested books even when the command fails', async () => {
+  it('invalidates the requested books and the author lists even when the command fails', async () => {
     const detailKey = bookQueryKeys.detail(4, false);
+    const authorIdsKey = authorQueryKeys.ids({facets: {}, sort: []});
     queryClient.setQueryData(detailKey, {id: 4});
+    queryClient.setQueryData(authorIdsKey, [1]);
 
     const result = host.setReadStatus.mutateAsync({bookIds: [4], status: 'READ'});
     void result.catch(() => undefined);
@@ -58,6 +61,7 @@ describe('BookCommandService reconciliation', () => {
 
     await expect(result).rejects.toBeInstanceOf(HttpErrorResponse);
     expect(queryClient.getQueryState(detailKey)?.isInvalidated).toBe(true);
+    expect(queryClient.getQueryState(authorIdsKey)?.isInvalidated).toBe(true);
   });
 
   it('refreshes the reader file info when a file is removed from a book', async () => {

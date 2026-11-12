@@ -80,7 +80,7 @@
       <span [id]="excludedLabelId()" hidden>{{ 'browse.rail.excluded' | transloco }}</span>
       <div [class]="foldClass()" [style.--fold-rows]="foldReserve().rows" [style.--fold-more]="foldReserve().more">
         <ul class="m-0 flex list-none flex-col p-0">
-          @for (row of rows(); track row.item.value) {
+          @for (row of rows(); track row.item.facetKey + ':' + row.item.value) {
             @let item = row.item;
             <li [class]="row.rowClass">
               <button

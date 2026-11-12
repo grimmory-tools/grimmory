@@ -62,7 +62,7 @@ export async function postSseJson<T>(
   auth: AuthService,
   url: string,
   body: string,
-  signal: AbortSignal,
+  signal?: AbortSignal,
 ): Promise<AsyncIterable<T>> {
   const send = async (options: {forceRefresh?: boolean} = {}) => {
     const token = await firstValueFrom(auth.ensureAccessToken(options));
