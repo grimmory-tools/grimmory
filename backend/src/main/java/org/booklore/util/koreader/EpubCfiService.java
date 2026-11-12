@@ -19,6 +19,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -28,7 +29,9 @@ public class EpubCfiService {
     // Drops the leading body step (/4, optionally with an id assertion) after the indirection,
     // including range CFIs whose common parent is the body itself (e.g. "!/4,/2/1:0,/6/1:8").
     private static final Pattern CFI_CLEANER_PATTERN = Pattern.compile("!/4(?:\\[[^\\]]*\\])?(?=[/,)])");
-    private static final String XHTML_NAMESPACE = "http://www.w3.org/1999/xhtml";
+    private static final Pattern XML_DECLARATION_PATTERN = Pattern.compile("^\\uFEFF?\\s*<\\?xml\\b");
+    private static final Pattern ROOT_ELEMENT_PATTERN = Pattern.compile("<html\\b[^>]*>", Pattern.CASE_INSENSITIVE);
+    private static final Pattern XHTML_NAMESPACE_PATTERN = Pattern.compile("\\bxmlns\\s*=\\s*([\"'])http://www\\.w3\\.org/1999/xhtml\\1");
     private final Cache<String, Document> documentCache;
 
     public EpubCfiService() {
@@ -174,7 +177,19 @@ public class EpubCfiService {
      * of the chapter inside them, so CFI and XPointer paths would no longer match the document.
      */
     private static Parser parserFor(String content) {
-        return content.contains(XHTML_NAMESPACE) ? Parser.xmlParser() : Parser.htmlParser();
+        return isXhtml(content) ? Parser.xmlParser() : Parser.htmlParser();
+    }
+
+    /**
+     * Only the document itself decides: an XML declaration or an XHTML namespace on the root element.
+     * Text that merely mentions the namespace (e.g. a book about XHTML) does not count.
+     */
+    private static boolean isXhtml(String content) {
+        if (XML_DECLARATION_PATTERN.matcher(content).find()) {
+            return true;
+        }
+        Matcher rootElement = ROOT_ELEMENT_PATTERN.matcher(content);
+        return rootElement.find() && XHTML_NAMESPACE_PATTERN.matcher(rootElement.group()).find();
     }
 
     private String buildCacheKey(File epubFile, int spineIndex) {

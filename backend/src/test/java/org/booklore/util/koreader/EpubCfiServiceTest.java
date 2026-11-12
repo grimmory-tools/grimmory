@@ -481,6 +481,63 @@ class EpubCfiServiceTest {
 
             assertEquals("epubcfi(/6/2!/4/2/8:5)", cfi);
         }
+
+        @Test
+        void convertCfiToProgressXPointer_html5ChapterQuotingXhtmlNamespace_keepsHtmlParsing() throws IOException {
+            String html5Chapter = """
+                    <!DOCTYPE html>
+                    <html lang="en">
+                    <head><title>Parsing XHTML</title></head>
+                    <body>
+                        <div id="c1">
+                            <p>An XHTML root: <code>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;</code></p>
+                            <hr>
+                            <p>Second paragraph.</p>
+                            <p>Third paragraph.</p>
+                        </div>
+                    </body>
+                    </html>
+                    """;
+            Book book = new Book();
+            book.getMetadata().addTitle("Parsing XHTML");
+            book.addSection("Chapter 1", new Resource(html5Chapter.getBytes(StandardCharsets.UTF_8), "chapter1.html"));
+            File html5Epub = tempDir.resolve("html5.epub").toFile();
+            try (FileOutputStream out = new FileOutputStream(html5Epub)) {
+                new EpubWriter().write(book, out);
+            }
+
+            String xpointer = service.convertCfiToProgressXPointer(html5Epub, "epubcfi(/6/2!/4/2[c1],/8/1:0,/8/1:5)");
+
+            assertEquals("/body/DocFragment[1]/body/div/p[3]", xpointer);
+        }
+
+        @Test
+        void convertCfiToProgressXPointer_xhtmlRootWithoutXmlDeclaration_handlesSelfClosingAnchor() throws IOException {
+            String xhtmlChapter = """
+                    <html xmlns='http://www.w3.org/1999/xhtml' lang="en">
+                    <head><title>Chapter 8</title></head>
+                    <body>
+                        <div id="c8">
+                            <h2><a id="chap08"/>Chapter 8</h2>
+                            <p>First paragraph.</p>
+                            <p>Second paragraph.</p>
+                            <p>Third paragraph.</p>
+                        </div>
+                    </body>
+                    </html>
+                    """;
+            Book book = new Book();
+            book.getMetadata().addTitle("No declaration");
+            book.addSection("Chapter 8", new Resource(xhtmlChapter.getBytes(StandardCharsets.UTF_8), "chapter8.xhtml"));
+            File xhtmlEpub = tempDir.resolve("no-declaration.epub").toFile();
+            try (FileOutputStream out = new FileOutputStream(xhtmlEpub)) {
+                new EpubWriter().write(book, out);
+            }
+
+            String xpointer = service.convertCfiToProgressXPointer(xhtmlEpub, "epubcfi(/6/2!/4/2[c8],/8/1:0,/8/1:5)");
+
+            assertEquals("/body/DocFragment[1]/body/div/p[3]", xpointer);
+        }
     }
 
     @Nested
