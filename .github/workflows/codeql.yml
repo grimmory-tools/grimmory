@@ -42,8 +42,6 @@ jobs:
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@1fc58d04a4d4374f921bdac573c3811c240f9c26 # v4
-        env:
-          CODEQL_OVERLAY_DATABASE_MODE: ${{ github.event_name == 'pull_request' && 'none' || '' }}
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
