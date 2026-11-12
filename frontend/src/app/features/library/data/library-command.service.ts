@@ -4,7 +4,6 @@ import {mutationOptions} from '@tanstack/angular-query-experimental';
 import {lastValueFrom} from 'rxjs';
 
 import {API_CONFIG} from '../../../core/config/api-config';
-import {invalidateAuthorsQuery} from '../../author-browser/service/author-query-cache';
 import {invalidateAllBookQueries} from '../../book/data/book-query-cache';
 import {shelfQueryKeys} from '../../shelf/data/shelf-query-keys';
 import {libraryCommandKeys} from './library-command-keys';
@@ -51,7 +50,6 @@ export class LibraryCommandService {
         if (!error) {
           client.removeQueries({queryKey: libraryQueryKeys.formatCounts(libraryId)});
         }
-        invalidateAuthorsQuery(client);
         return Promise.all([
           client.invalidateQueries({queryKey: libraryQueryKeys.all()}),
           client.invalidateQueries({queryKey: shelfQueryKeys.all()}),

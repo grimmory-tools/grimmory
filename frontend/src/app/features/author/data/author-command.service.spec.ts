@@ -24,6 +24,7 @@ class AuthorCommandHost {
   private readonly commands = inject(AuthorCommandService);
   readonly deleteAuthors = injectMutation(() => this.commands.deleteAuthors());
   readonly autoMatch = injectMutation(() => this.commands.autoMatch());
+  readonly update = injectMutation(() => this.commands.update());
 }
 
 describe('AuthorCommandService', () => {
@@ -56,6 +57,7 @@ describe('AuthorCommandService', () => {
   it('deletes the authors and refreshes book and author data', async () => {
     queryClient.setQueryData(BOOKS_QUERY_KEY, []);
     queryClient.setQueryData(authorIdsKey, [1, 2]);
+    queryClient.setQueryData(authorQueryKeys.detail(1), {id: 1});
 
     const result = host.deleteAuthors.mutateAsync({authorIds: [1, 2]});
     await Promise.resolve();
@@ -69,6 +71,7 @@ describe('AuthorCommandService', () => {
     await result;
     expect(queryClient.getQueryState(BOOKS_QUERY_KEY)?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(authorIdsKey)?.isInvalidated).toBe(true);
+    expect(queryClient.getQueryData(authorQueryKeys.detail(1))).toBeUndefined();
   });
 
   it('auto-matches the authors from the stream and refreshes the author lists', async () => {
@@ -87,5 +90,23 @@ describe('AuthorCommandService', () => {
     }));
     expect(matched.map(author => author.id)).toEqual([1, 3]);
     expect(queryClient.getQueryState(authorIdsKey)?.isInvalidated).toBe(true);
+  });
+
+  it('refreshes book data and author details after an author update', async () => {
+    const detailKey = authorQueryKeys.detail(7);
+    const byNameKey = authorQueryKeys.byName('Ada');
+    queryClient.setQueryData(BOOKS_QUERY_KEY, []);
+    queryClient.setQueryData(detailKey, {id: 7});
+    queryClient.setQueryData(byNameKey, {id: 7});
+
+    const result = host.update.mutateAsync({authorId: 7, request: {description: 'Mathematician'}});
+    await Promise.resolve();
+    flushSignalAndQueryEffects();
+    http.expectOne(`${AUTHORS_URL}/7`).flush({id: 7});
+
+    await result;
+    expect(queryClient.getQueryState(BOOKS_QUERY_KEY)?.isInvalidated).toBe(true);
+    expect(queryClient.getQueryState(detailKey)?.isInvalidated).toBe(true);
+    expect(queryClient.getQueryState(byNameKey)?.isInvalidated).toBe(true);
   });
 });
