@@ -134,6 +134,8 @@ interface BookMetadataFields {
   lubimyczytacRating?: number;
   audibleRating?: number;
   audibleReviewCount?: number;
+  applebooksRating?: number;
+  applebooksReviewCount?: number;
   coverUpdatedOn?: string;
   audiobookCoverUpdatedOn?: string;
   authors?: string[];

@@ -32,6 +32,7 @@ export const BOOK_QUERY_FACET_KEYS = [
   'ranobedb_rating',
   'lubimyczytac_rating',
   'audible_rating',
+  'applebooks_rating',
   'comic_character',
   'comic_team',
   'comic_location',
@@ -67,6 +68,8 @@ export const BOOK_QUERY_SORT_KEYS = [
   'lubimyczytacRating',
   'audibleRating',
   'audibleReviewCount',
+  'applebooksRating',
+  'applebooksReviewCount',
 ] as const;
 
 export type BookQueryFacetKey = typeof BOOK_QUERY_FACET_KEYS[number];
