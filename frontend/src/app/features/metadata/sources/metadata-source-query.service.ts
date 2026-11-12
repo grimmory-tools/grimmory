@@ -8,7 +8,7 @@ import {
 } from '@tanstack/angular-query-experimental';
 
 import {API_CONFIG} from '../../../core/config/api-config';
-import {httpGet, postSseJson, QUERY_DEFAULTS, toAbortablePromise} from '../../../core/data/query-transport';
+import {httpGet, postSseJson, QUERY_DEFAULTS, SEARCH_DEFAULTS, toAbortablePromise} from '../../../core/data/query-transport';
 import {AuthService} from '../../../shared/service/auth.service';
 import type {BookMetadata} from '../../book/model/book.model';
 import {MetadataCatalogService} from '../../../shared/metadata/metadata-catalog.service';
@@ -60,11 +60,6 @@ export const metadataSourceKeys = {
   sidecar: (bookId: number) => [...metadataSourceKeys.all(), 'sidecar', bookId] as const,
   sidecarStatus: (bookId: number) => [...metadataSourceKeys.sidecar(bookId), 'status'] as const,
 };
-
-const STREAM_DEFAULTS = {
-  refetchOnWindowFocus: false,
-  retry: false,
-} as const;
 
 function normalizeSearchParams(params: MetadataSearchParams) {
   return {
@@ -137,7 +132,7 @@ export class MetadataSourceQueryService {
         streamFn: ({signal}) => postSseJson<MetadataSearchResult>(this.authService, `${this.baseUrl}/${params.bookId}/metadata/prospective`, body, signal),
         refetchMode: 'reset',
       }),
-      ...STREAM_DEFAULTS,
+      ...SEARCH_DEFAULTS,
     });
   }
 
@@ -152,7 +147,7 @@ export class MetadataSourceQueryService {
         streamFn: ({signal}) => postSseJson<CoverImage>(this.authService, `${this.baseUrl}/${params.bookId}/metadata/covers`, body, signal),
         refetchMode: 'reset',
       }),
-      ...STREAM_DEFAULTS,
+      ...SEARCH_DEFAULTS,
     });
   }
 

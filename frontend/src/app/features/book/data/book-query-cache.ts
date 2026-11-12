@@ -1,6 +1,6 @@
 import {QueryClient} from '@tanstack/angular-query-experimental';
 
-import {invalidateAuthorCollections} from '../../author/data/author-query-cache';
+import {invalidateAuthors} from '../../author/data/author-query-cache';
 import {bookQueryKeys} from './book-query-keys';
 
 function uniqueBookIds(bookIds: Iterable<number>): Set<number> {
@@ -15,7 +15,7 @@ export interface BookQueryChangeSet {
 export async function invalidateAllBookQueries(queryClient: QueryClient): Promise<void> {
   await Promise.all([
     queryClient.invalidateQueries({queryKey: bookQueryKeys.all()}),
-    invalidateAuthorCollections(queryClient),
+    invalidateAuthors(queryClient),
   ]);
 }
 
@@ -51,7 +51,7 @@ export async function applyBookQueryChangeSet(
 
   await Promise.all([
     invalidateBookCollections(queryClient),
-    invalidateAuthorCollections(queryClient),
+    invalidateAuthors(queryClient),
     ...(changedBookIds.size > 0 ? [queryClient.invalidateQueries({
       predicate: ({queryKey}) => isBookLeafKey(queryKey, bookQueryKeys.details(), changedBookIds),
     })] : []),

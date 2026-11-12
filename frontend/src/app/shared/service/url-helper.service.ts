@@ -20,6 +20,10 @@ export class UrlHelperService {
     return token ? `${url}${url.includes('?') ? '&' : '?'}token=${token}` : url;
   }
 
+  getAuthorPhotoUrl(authorId: number, version: number): string {
+    return this.appendToken(`${this.mediaBaseUrl}/author/${authorId}/photo?t=${version}`);
+  }
+
   getAuthorThumbnailUrl(authorId: number): string {
     return this.appendToken(`${this.mediaBaseUrl}/author/${authorId}/thumbnail`);
   }

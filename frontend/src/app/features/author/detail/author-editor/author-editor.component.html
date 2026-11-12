@@ -1,7 +1,7 @@
 <ng-container *transloco="let t; prefix: 'authorBrowser.editor'">
   <div class="editor-container">
     <div class="cover-section">
-      @if (hasPhoto) {
+      @if (hasPhoto()) {
         <p-image
           [src]="photoUrl"
           alt="Author Photo"
@@ -15,7 +15,7 @@
         </div>
       }
 
-      @if (isUploading()) {
+      @if (uploadMutation.isPending()) {
         <p-progressSpinner class="upload-spinner" strokeWidth="4" fill="transparent" animationDuration=".8s" />
       }
 
@@ -26,14 +26,12 @@
           tooltipPosition="top"
           [disabled]="form.get('photoLocked')?.value"
           name="file"
-          [url]="uploadUrl"
           mode="basic"
           chooseIcon="pi pi-upload"
           accept="image/jpeg,image/png"
-          (onUpload)="onUpload()"
-          (onError)="onUploadError()"
+          [customUpload]="true"
           [auto]="true"
-          (onBeforeUpload)="onBeforeUpload()" />
+          (uploadHandler)="onUpload($event)" />
 
         <p-button
           [pTooltip]="t('searchPhotoTooltip')"
@@ -117,9 +115,9 @@
           <p-divider layout="vertical"/>
           <p-button
             type="submit"
-            [label]="isSaving() ? t('saving') : t('saveBtn')"
-            [icon]="isSaving() ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
-            [disabled]="isSaving()" />
+            [label]="updateMutation.isPending() ? t('saving') : t('saveBtn')"
+            [icon]="updateMutation.isPending() ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
+            [disabled]="updateMutation.isPending()" />
         </div>
       </div>
     </form>

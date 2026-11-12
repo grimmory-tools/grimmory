@@ -5092,12 +5092,6 @@
     }
   },
   "authorBrowser": {
-    "toast": {
-      "quickMatchSuccessSummary": "Brzo podudaranje dovršeno",
-      "quickMatchSuccessDetail": "Autor je uspješno pronađen.",
-      "quickMatchFailedSummary": "Brzo podudaranje nije uspjelo",
-      "quickMatchFailedDetail": "Brzo pronalaženje autora nije uspjelo."
-    },
     "editor": {
       "nameLabel": "Ime",
       "asinLabel": "ASIN",

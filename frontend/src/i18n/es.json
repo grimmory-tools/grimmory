@@ -5091,12 +5091,6 @@
     }
   },
   "authorBrowser": {
-    "toast": {
-      "quickMatchSuccessSummary": "Coincidencia rápida completa",
-      "quickMatchSuccessDetail": "El autor se ha asociado correctamente.",
-      "quickMatchFailedSummary": "Error de coincidencia rápida",
-      "quickMatchFailedDetail": "Error al realizar la coincidencia rápida del autor."
-    },
     "editor": {
       "nameLabel": "Nombre",
       "asinLabel": "",
