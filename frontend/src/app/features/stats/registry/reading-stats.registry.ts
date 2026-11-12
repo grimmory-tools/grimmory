@@ -1,14 +1,15 @@
-import {type AnyStatsChartDefinition, defineStatsChart} from '../card/stats-chart-definition';
+import {knownValues} from '../component/shared/stats-chart-data';
+import {defineStatsChart, type StatsChartDefinition} from '../card/stats-chart-definition';
 import {BookFlowChartComponent} from '../component/user-stats/charts/book-flow-chart/book-flow-chart.component';
-import {type BookRatingData, BookRatingChartComponent} from '../component/user-stats/charts/book-rating-chart/book-rating-chart.component';
+import {BookRatingChartComponent, decadeRatings, lengthRatings} from '../component/user-stats/charts/book-rating-chart/book-rating-chart.component';
 import {DaysToFinishChartComponent} from '../component/user-stats/charts/days-to-finish-chart/days-to-finish-chart.component';
 import {FavoriteDaysChartComponent} from '../component/user-stats/charts/favorite-days-chart/favorite-days-chart.component';
 import {ReadingByGenreChartComponent} from '../component/user-stats/charts/reading-by-genre-chart/reading-by-genre-chart.component';
 import {PersonalRatingChartComponent} from '../component/user-stats/charts/personal-rating-chart/personal-rating-chart.component';
 import {RatingComparisonChartComponent} from '../component/user-stats/charts/rating-comparison-chart/rating-comparison-chart.component';
 import {ReadStatusChartComponent} from '../component/user-stats/charts/read-status-chart/read-status-chart.component';
-import {ReadingClockChartComponent} from '../component/user-stats/charts/reading-clock-chart/reading-clock-chart.component';
-import {type ReadingProfileData, ReadingProfileChartComponent} from '../component/user-stats/charts/reading-profile-chart/reading-profile-chart.component';
+import {ReadingClockChartComponent, readingClockData} from '../component/user-stats/charts/reading-clock-chart/reading-clock-chart.component';
+import {READING_DNA, READING_HABITS, ReadingProfileChartComponent, readingProfileData} from '../component/user-stats/charts/reading-profile-chart/reading-profile-chart.component';
 import {BooksFinishedChartComponent} from '../component/user-stats/charts/books-finished-chart/books-finished-chart.component';
 import {BooksAddedVsFinishedChartComponent} from '../component/user-stats/charts/books-added-vs-finished-chart/books-added-vs-finished-chart.component';
 import {ReadingDropOffChartComponent} from '../component/user-stats/charts/reading-drop-off-chart/reading-drop-off-chart.component';
@@ -16,8 +17,9 @@ import {SeriesProgressChartComponent} from '../component/user-stats/charts/serie
 import {ReadingSessionActivityComponent} from '../component/user-stats/charts/reading-session-activity/reading-session-activity.component';
 import {ReadingSessionTimelineComponent} from '../component/user-stats/charts/reading-session-timeline/reading-session-timeline.component';
 import {runningActivity} from '../component/shared/stats-chart-data';
+import {NO_BOOK_FLOW, NO_DAYS, NO_FINISH_TIMES, NO_ROWS, NO_SERIES, NO_SLOTS, NO_WEEK} from '../data/stats-response.models';
 
-export const READING_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
+export const READING_STATS_CHARTS: readonly StatsChartDefinition[] = [
   defineStatsChart({
     id: 'reading.sessionActivity',
     nameKey: 'statsUser.chartNames.sessionActivity',
@@ -25,6 +27,7 @@ export const READING_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
     size: 'full',
     filter: 'year',
     query: (params, stats) => stats.days(params, params.year),
+    empty: NO_DAYS,
     select: (activity, {year}) => ({...activity, year}),
     isEmpty: ({streaks}) => streaks.readingDays === 0,
     chart: ReadingSessionActivityComponent,
@@ -36,7 +39,9 @@ export const READING_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
     size: 'small',
     filter: 'none',
     query: (params, stats) => stats.distribution(params, 'rating'),
-    isEmpty: ratings => ratings.rows.every(row => row.value === null),
+    empty: NO_ROWS,
+    select: ratings => knownValues(ratings),
+    isEmpty: ({rows}) => rows.length === 0,
     chart: PersonalRatingChartComponent,
   }),
   defineStatsChart({
@@ -46,6 +51,7 @@ export const READING_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
     size: 'small',
     filter: 'none',
     query: (params, stats) => stats.distribution(params, 'status'),
+    empty: NO_ROWS,
     isEmpty: statuses => statuses.rows.length === 0,
     chart: ReadStatusChartComponent,
   }),
@@ -56,6 +62,7 @@ export const READING_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
     size: 'full',
     filter: 'week',
     query: (params, stats) => stats.week(params, params.year, params.week),
+    empty: NO_WEEK,
     select: (sessions, {year, week}) => ({year, week, sessions}),
     isEmpty: ({sessions}) => sessions.rows.length === 0,
     chart: ReadingSessionTimelineComponent,
@@ -67,8 +74,9 @@ export const READING_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
     size: 'medium',
     filter: 'none',
     query: (params, stats) => stats.genres(params),
-    select: genres => genres.rows,
-    isEmpty: genres => genres.every(row => row.seconds === 0),
+    empty: NO_ROWS,
+    select: genres => genres.rows.filter(row => row.seconds > 0),
+    isEmpty: genres => genres.length === 0,
     chart: ReadingByGenreChartComponent,
   }),
   defineStatsChart({
@@ -78,6 +86,7 @@ export const READING_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
     size: 'medium',
     filter: 'none',
     query: (params, stats) => stats.activity(params),
+    empty: NO_ROWS,
     isEmpty: activity => activity.rows.every(row => row.finished === 0),
     chart: BooksFinishedChartComponent,
   }),
@@ -88,6 +97,7 @@ export const READING_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
     size: 'medium',
     filter: 'yearMonth',
     query: (params, stats) => stats.slots(params, params.year, params.month),
+    empty: NO_SLOTS,
     select: (slots, {year, month}) => ({...slots, year, month}),
     isEmpty: ({rows}) => rows.length === 0,
     chart: FavoriteDaysChartComponent,
@@ -99,8 +109,9 @@ export const READING_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
     size: 'medium',
     filter: 'yearWeekday',
     query: (params, stats) => stats.slots(params, params.year),
-    select: (slots, {year, weekday}) => ({year, weekday, rows: slots.rows}),
-    isEmpty: ({rows, weekday}) => rows.every(slot => slot.seconds === 0 || (weekday !== null && slot.weekday !== weekday)),
+    empty: NO_SLOTS,
+    select: (slots, {year, weekday}) => readingClockData(slots.rows, year, weekday),
+    isEmpty: ({hours}) => hours.length === 0,
     chart: ReadingClockChartComponent,
   }),
   defineStatsChart({
@@ -111,7 +122,9 @@ export const READING_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
     size: 'medium',
     filter: 'none',
     query: (params, stats) => stats.distribution(params, 'stopped'),
-    isEmpty: stopped => !stopped.rows.some(row => (row.value ?? 0) > 0),
+    empty: NO_ROWS,
+    select: stopped => knownValues(stopped).rows.filter(row => row.value > 0),
+    isEmpty: stopped => stopped.length === 0,
     chart: ReadingDropOffChartComponent,
   }),
   defineStatsChart({
@@ -121,8 +134,9 @@ export const READING_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
     size: 'medium',
     filter: 'none',
     query: (params, stats) => stats.length(params),
-    select: (length): BookRatingData => ({...length, kind: 'length'}),
-    isEmpty: length => length.rows.length === 0,
+    empty: NO_ROWS,
+    select: length => lengthRatings(length.rows),
+    isEmpty: ({cells}) => cells.length === 0,
     chart: BookRatingChartComponent,
   }),
   defineStatsChart({
@@ -132,6 +146,7 @@ export const READING_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
     size: 'medium',
     filter: 'year',
     query: (params, stats) => stats.daysToFinish(params, params.year),
+    empty: NO_FINISH_TIMES,
     select: (times, {year}) => ({...times, year}),
     isEmpty: ({rows}) => rows.length === 0,
     chart: DaysToFinishChartComponent,
@@ -144,6 +159,7 @@ export const READING_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
     size: 'medium',
     filter: 'none',
     query: (params, stats) => stats.comparison(params),
+    empty: NO_ROWS,
     isEmpty: comparison => comparison.rows.length === 0,
     chart: RatingComparisonChartComponent,
   }),
@@ -154,6 +170,7 @@ export const READING_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
     size: 'wide',
     filter: 'none',
     query: (params, stats) => stats.activity(params),
+    empty: NO_ROWS,
     select: activity => runningActivity(activity.rows),
     isEmpty: months => months.length === 0,
     chart: BooksAddedVsFinishedChartComponent,
@@ -165,6 +182,7 @@ export const READING_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
     size: 'full',
     filter: 'none',
     query: (params, stats) => stats.seriesSummary(params),
+    empty: NO_SERIES,
     isEmpty: summary => summary.total === 0,
     chart: SeriesProgressChartComponent,
   }),
@@ -175,8 +193,9 @@ export const READING_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
     size: 'medium',
     filter: 'none',
     query: (params, stats) => stats.decade(params),
-    select: (decade): BookRatingData => ({...decade, kind: 'decade'}),
-    isEmpty: decade => decade.rows.length === 0,
+    empty: NO_ROWS,
+    select: decade => decadeRatings(decade.rows),
+    isEmpty: ({cells}) => cells.length === 0,
     chart: BookRatingChartComponent,
   }),
   defineStatsChart({
@@ -187,6 +206,7 @@ export const READING_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
     size: 'full',
     filter: 'none',
     query: (params, stats) => stats.bookFlow(params),
+    empty: NO_BOOK_FLOW,
     isEmpty: flow => flow.byYear.length === 0,
     chart: BookFlowChartComponent,
   }),
@@ -197,7 +217,8 @@ export const READING_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
     size: 'medium',
     filter: 'none',
     query: (params, stats) => stats.profile(params),
-    select: (profile): ReadingProfileData => ({profile: 'habits', rows: profile.rows.filter(row => row.profile === 'habits')}),
+    empty: NO_ROWS,
+    select: profile => readingProfileData(READING_HABITS, profile.rows),
     isEmpty: ({rows}) => rows.length === 0,
     chart: ReadingProfileChartComponent,
   }),
@@ -208,7 +229,8 @@ export const READING_STATS_CHARTS: readonly AnyStatsChartDefinition[] = [
     size: 'medium',
     filter: 'none',
     query: (params, stats) => stats.profile(params),
-    select: (profile): ReadingProfileData => ({profile: 'dna', rows: profile.rows.filter(row => row.profile === 'dna')}),
+    empty: NO_ROWS,
+    select: profile => readingProfileData(READING_DNA, profile.rows),
     isEmpty: ({rows}) => rows.length === 0,
     chart: ReadingProfileChartComponent,
   }),

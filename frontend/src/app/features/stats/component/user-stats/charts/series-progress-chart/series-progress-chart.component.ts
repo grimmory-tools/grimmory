@@ -128,46 +128,51 @@ const PAGE_SIZE = 10;
         </div>
 
         <ul class="mt-2 divide-y divide-border">
-          @if (tableQuery.isError()) {
-            <li class="px-1 py-4 text-center text-sm text-text-secondary">{{ 'stats.card.loadError' | transloco }}</li>
-          } @else if (card.state() === 'loading' || !tableQuery.data()) {
-            @for (row of placeholderRows; track row) {
-              <li class="py-2" aria-hidden="true">
-                <span class="block h-5 w-1/3 animate-pulse rounded bg-text/8 motion-reduce:animate-none"></span>
-              </li>
+          @let tableStatus = tableQuery.status();
+          @switch (tableStatus) {
+            @case ('error') {
+              <li class="px-1 py-4 text-center text-sm text-text-secondary">{{ 'stats.card.loadError' | transloco }}</li>
             }
-          }
-          @for (series of tableQuery.isError() ? [] : (tableQuery.data()?.rows ?? []); track series.series) {
-            <li class="grid grid-cols-[minmax(0,1fr)_5rem_2.5rem] items-center gap-x-3 py-2 text-xs tabular-nums @xl:grid-cols-[minmax(0,1fr)_minmax(6rem,16rem)_5rem_2.5rem_5rem]">
-              <div class="flex min-w-0 items-center gap-2">
-                <span class="size-2.5 shrink-0 rounded-full" [style.background]="stateColors[series.state]" aria-hidden="true"></span>
-                <span class="truncate text-sm font-medium text-text-strong" [title]="series.series">{{ series.series }}</span>
-                @if (series.nextUnread) {
-                  <span class="hidden min-w-0 flex-1 truncate text-text-muted @2xl:inline" [title]="text.t('next') + ' ' + series.nextUnread">
-                    {{ text.t('next') }} <span class="text-text-secondary">{{ series.nextUnread }}</span>
+            @case ('pending') {
+              @for (row of placeholderRows; track row) {
+                <li class="py-2" aria-hidden="true">
+                  <span class="block h-5 w-1/3 animate-pulse rounded bg-text/8 motion-reduce:animate-none"></span>
+                </li>
+              }
+            }
+            @case ('success') {
+              @for (series of tableQuery.data()?.rows ?? []; track series.series) {
+                <li class="grid grid-cols-[minmax(0,1fr)_5rem_2.5rem] items-center gap-x-3 py-2 text-xs tabular-nums @xl:grid-cols-[minmax(0,1fr)_minmax(6rem,16rem)_5rem_2.5rem_5rem]">
+                  <div class="flex min-w-0 items-center gap-2">
+                    <span class="size-2.5 shrink-0 rounded-full" [style.background]="stateColors[series.state]" aria-hidden="true"></span>
+                    <span class="truncate text-sm font-medium text-text-strong" [title]="series.series">{{ series.series }}</span>
+                    @if (series.nextUnread) {
+                      <span class="hidden min-w-0 flex-1 truncate text-text-muted @2xl:inline" [title]="text.t('next') + ' ' + series.nextUnread">
+                        {{ text.t('next') }} <span class="text-text-secondary">{{ series.nextUnread }}</span>
+                      </span>
+                    }
+                  </div>
+                  <div class="flex h-1.5 overflow-hidden rounded-full bg-text/8" aria-hidden="true">
+                    <div class="h-full" [style.width.%]="(series.completion ?? 0) * 100" [style.background]="stateColors.completed"></div>
+                    <div class="h-full" [style.width.%]="readingShare(series)" [style.background]="stateColors['in-progress']"></div>
+                  </div>
+                  <span class="hidden text-right text-text-muted @xl:block">
+                    {{ text.t('readOfBooks', {read: text.number(series.read), books: text.number(series.books)}) }}
                   </span>
-                }
-              </div>
-              <div class="flex h-1.5 overflow-hidden rounded-full bg-text/8" aria-hidden="true">
-                <div class="h-full" [style.width.%]="(series.completion ?? 0) * 100" [style.background]="stateColors.completed"></div>
-                <div class="h-full" [style.width.%]="readingShare(series)" [style.background]="stateColors['in-progress']"></div>
-              </div>
-              <span class="hidden text-right text-text-muted @xl:block">
-                {{ text.t('readOfBooks', {read: text.number(series.read), books: text.number(series.books)}) }}
-              </span>
-              <span class="text-right text-text-secondary">{{ series.completion === null ? '' : text.number(series.completion, {style: 'percent'}) }}</span>
-              <span class="hidden justify-end @xl:flex" [title]="series.rating === null ? '' : ratingLabel(series.rating)">
-                @if (series.rating !== null) {
-                  <app-rating [value]="stars(series.rating)" readonly size="sm" [ariaLabel]="ratingLabel(series.rating)" />
-                }
-              </span>
-            </li>
-          } @empty {
-            @if (tableQuery.data() && !tableQuery.isError()) {
-              <li class="px-1 py-4 text-center text-sm text-text-secondary">
-                {{ searchTerm() ? text.t('noMatchingSearch', {term: searchTerm()}) : ('stats.card.noData' | transloco) }}
-              </li>
+                  <span class="text-right text-text-secondary">{{ series.completion === null ? '' : text.number(series.completion, {style: 'percent'}) }}</span>
+                  <span class="hidden justify-end @xl:flex" [title]="series.rating === null ? '' : ratingLabel(series.rating)">
+                    @if (series.rating !== null) {
+                      <app-rating [value]="stars(series.rating)" readonly size="sm" [ariaLabel]="ratingLabel(series.rating)" />
+                    }
+                  </span>
+                </li>
+              } @empty {
+                <li class="px-1 py-4 text-center text-sm text-text-secondary">
+                  {{ searchTerm() ? text.t('noMatchingSearch', {term: searchTerm()}) : ('stats.card.noData' | transloco) }}
+                </li>
+              }
             }
+            @default never;
           }
         </ul>
 

@@ -1,37 +1,50 @@
 import {Component, computed, input} from '@angular/core';
-import {defineChart} from '@tanstack/charts';
+import {defaultChartTheme, defineChart} from '@tanstack/charts';
 import {angleGrid, focusGroupAngle, polar, radialArea, radialDot, radialGrid, radialLine} from '@tanstack/charts/polar';
 import {scaleLinear} from '@tanstack/charts/scales/linear';
 import {scalePoint} from '@tanstack/charts/scales/point';
 import {curveLinearClosed} from 'd3-shape';
 
 import {type ProfileRow} from '../../../../data/stats-response.models';
-import {STATS_CHART_PALETTE, STATS_POLAR_GRID, statsTooltip} from '../../../shared/stats-chart-style';
+import {STATS_POLAR_GRID, statsTooltip} from '../../../shared/stats-chart-style';
 import {StatsChartPlotComponent} from '../../../shared/stats-chart-plot.component';
 import {injectStatsText, STATS_CHART_HOST_CLASS} from '../../../shared/stats-chart-text';
 import {type StatsInsight, StatsInsightListComponent} from '../../../shared/stats-insight-list.component';
 
-const PROFILES = {
-  dna: {
-    traits: ['adventurous', 'perfectionist', 'intellectual', 'emotional', 'patient', 'social', 'nostalgic', 'ambitious'],
-    prefix: 'readingDna',
-    group: 'traits',
-    tooltip: 'tooltipPersonality',
-  },
-  habits: {
-    traits: ['consistency', 'multitasking', 'completionism', 'exploration', 'organization', 'intensity', 'methodology', 'momentum'],
-    prefix: 'readingHabits',
-    group: 'habits',
-    tooltip: 'tooltipHabit',
-  },
+interface ReadingProfileConfig {
+  readonly id: ProfileRow['profile'];
+  readonly traits: readonly string[];
+  readonly prefix: string;
+  readonly group: string;
+  readonly tooltip: string;
+}
+
+export const READING_DNA: ReadingProfileConfig = {
+  id: 'dna',
+  traits: ['adventurous', 'perfectionist', 'intellectual', 'emotional', 'patient', 'social', 'nostalgic', 'ambitious'],
+  prefix: 'readingDna',
+  group: 'traits',
+  tooltip: 'tooltipPersonality',
+};
+
+export const READING_HABITS: ReadingProfileConfig = {
+  id: 'habits',
+  traits: ['consistency', 'multitasking', 'completionism', 'exploration', 'organization', 'intensity', 'methodology', 'momentum'],
+  prefix: 'readingHabits',
+  group: 'habits',
+  tooltip: 'tooltipHabit',
 };
 
 const INSET = 32;
 const LABEL_ROOM = 92;
 
 export interface ReadingProfileData {
-  readonly profile: ProfileRow['profile'];
+  readonly profile: ReadingProfileConfig;
   readonly rows: readonly ProfileRow[];
+}
+
+export function readingProfileData(profile: ReadingProfileConfig, rows: readonly ProfileRow[]): ReadingProfileData {
+  return {profile, rows: rows.filter((row) => row.profile === profile.id)};
 }
 
 function profileLevel(score: number): 'low' | 'mid' | 'high' {
@@ -55,9 +68,9 @@ export class ReadingProfileChartComponent {
 
   readonly chart = computed(() => {
     const {t, number} = this.text;
-    const {prefix, group, tooltip} = PROFILES[this.data().profile];
+    const {prefix, group, tooltip} = this.data().profile;
     const axes = this.data().rows.map(({trait, score}) => ({name: t(`${prefix}.${group}.${trait}`), score}));
-    const color = STATS_CHART_PALETTE[0];
+    const color = defaultChartTheme.palette[0];
     const profile = {angle: 'name', radius: 'score', curve: curveLinearClosed} as const;
 
     return {
@@ -68,7 +81,7 @@ export class ReadingProfileChartComponent {
             polar({
               inset: Math.min(width, height) / 2 - Math.min(height / 2 - INSET, width / 2 - LABEL_ROOM),
               scales: {
-                angle: {scale: scalePoint<string>().domain(axes.map(({name}) => name)), wrap: true},
+                angle: {scale: scalePoint().domain(axes.map(({name}) => name)), wrap: true},
                 radius: {scale: scaleLinear().domain([0, 100])},
               },
               guides: [
@@ -96,7 +109,7 @@ export class ReadingProfileChartComponent {
 
   readonly insights = computed<readonly StatsInsight[]>(() => {
     const {t, number} = this.text;
-    const {traits, prefix, group} = PROFILES[this.data().profile];
+    const {traits, prefix, group} = this.data().profile;
     const scores = new Map(this.data().rows.map(({trait, score}) => [trait, score]));
     return traits.map((trait) => {
       const score = scores.get(trait);

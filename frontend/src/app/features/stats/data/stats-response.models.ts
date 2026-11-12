@@ -223,3 +223,11 @@ export interface StatsDays {
   readonly rows: readonly StatsDayCount[];
   readonly streaks: StatsStreaks;
 }
+
+export const NO_ROWS = {rows: []} as const;
+export const NO_SLOTS: StatsSlots = {rows: [], days: [0, 0, 0, 0, 0, 0, 0]};
+export const NO_BOOK_FLOW: StatsBookFlow = {byYear: [], byRating: []};
+export const NO_WEEK: StatsWeek = {rows: [], truncated: false};
+export const NO_DAYS: StatsDays = {rows: [], streaks: {current: 0, longest: 0, readingDays: 0}};
+export const NO_FINISH_TIMES: StatsFinishTimes = {rows: [], median: null, quickest: null, longest: null};
+export const NO_SERIES: SeriesSummary = {top: [], total: 0, averageCompletion: null, measured: 0, completed: 0, inProgress: 0, notStarted: 0};

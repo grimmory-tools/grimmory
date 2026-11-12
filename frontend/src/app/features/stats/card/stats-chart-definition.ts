@@ -1,5 +1,5 @@
 import {type Signal, type Type} from '@angular/core';
-import {type QueryFunctionContext, type QueryMeta} from '@tanstack/angular-query-experimental';
+import {type CreateQueryOptions} from '@tanstack/angular-query-experimental';
 
 import {type StatsQueryKey, type StatsScopeParams} from '../data/stats-query-keys';
 import {type StatsQueryService} from '../data/stats-query.service';
@@ -30,37 +30,41 @@ export interface StatsFilterValues {
 export type StatsCardParams<K extends StatsFilterKind = StatsFilterKind> =
   StatsScopeParams & StatsFilterValues[K];
 
-export interface StatsQuery<TResponse> {
-  readonly queryKey: StatsQueryKey;
-  readonly queryFn?: (context: QueryFunctionContext<StatsQueryKey>) => TResponse | Promise<TResponse>;
-  readonly meta?: QueryMeta;
-}
-
 export interface StatsChart<TData> {
   readonly data: Signal<TData>;
 }
 
-export interface StatsChartDefinition<
-  TResponse = unknown,
-  TData = TResponse,
-  K extends StatsFilterKind = StatsFilterKind,
-> {
+interface StatsChartBase<TData, K extends StatsFilterKind> {
   readonly id: string;
   readonly nameKey: string;
   readonly titleKey: string;
   readonly descriptionKey?: string;
   readonly size: StatsChartSize;
   readonly filter: K;
-  query(params: StatsCardParams<K>, stats: StatsQueryService): StatsQuery<TResponse>;
-  select?(response: TResponse, params: StatsCardParams<K>): TData;
   isEmpty(data: NoInfer<TData>): boolean;
-  readonly chart: Type<StatsChart<NoInfer<TData>>>;
+  readonly chart: Type<StatsChart<TData>>;
 }
 
-export type AnyStatsChartDefinition = StatsChartDefinition<unknown, unknown, StatsFilterKind>;
+interface DirectStatsChart<TData, K extends StatsFilterKind> extends StatsChartBase<TData, K> {
+  query(params: StatsCardParams<K>, stats: StatsQueryService): CreateQueryOptions<NoInfer<TData>, unknown, NoInfer<TData>, StatsQueryKey>;
+  readonly empty: NoInfer<TData>;
+  readonly select?: undefined;
+}
 
-export function defineStatsChart<TResponse, K extends StatsFilterKind, TData = TResponse>(
-  definition: StatsChartDefinition<TResponse, TData, K>,
-): AnyStatsChartDefinition {
+interface SelectedStatsChart<TResponse, TData, K extends StatsFilterKind> extends StatsChartBase<TData, K> {
+  query(params: StatsCardParams<K>, stats: StatsQueryService): CreateQueryOptions<TResponse, unknown, TResponse, StatsQueryKey>;
+  readonly empty: NoInfer<TResponse>;
+  select(response: TResponse, params: StatsCardParams<K>): NoInfer<TData>;
+}
+
+export type StatsChartDefinition<TResponse = unknown, TData = TResponse, K extends StatsFilterKind = StatsFilterKind> =
+  | DirectStatsChart<TData, K>
+  | SelectedStatsChart<TResponse, TData, K>;
+
+export function defineStatsChart<TData, K extends StatsFilterKind>(definition: DirectStatsChart<TData, K>): StatsChartDefinition;
+export function defineStatsChart<TResponse, TData, K extends StatsFilterKind>(
+  definition: SelectedStatsChart<TResponse, TData, K>,
+): StatsChartDefinition;
+export function defineStatsChart(definition: StatsChartDefinition): StatsChartDefinition {
   return definition;
 }

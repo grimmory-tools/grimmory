@@ -1,7 +1,7 @@
 import {cumulative} from '@tanstack/charts/transform/cumulative';
 import {setISOWeek, startOfISOWeek} from 'date-fns';
 
-import {type StatsActivityMonth} from '../../data/stats-response.models';
+import {type StatsActivityMonth, type StatsDistribution} from '../../data/stats-response.models';
 
 export interface RunningMonth {
   readonly month: string;
@@ -10,6 +10,22 @@ export interface RunningMonth {
   readonly totalAdded: number;
   readonly totalFinished: number;
   readonly backlog: number;
+}
+
+export interface StatsKnownDistribution<V> {
+  readonly rows: readonly {readonly value: V; readonly books: number}[];
+  readonly unknown: number;
+  readonly other: number;
+  readonly average?: number;
+}
+
+export function knownValues<V>({rows, other = 0, average}: StatsDistribution<V>): StatsKnownDistribution<V> {
+  return {
+    rows: rows.flatMap(({value, books}) => (value === null ? [] : [{value, books}])),
+    unknown: rows.find(({value}) => value === null)?.books ?? 0,
+    other,
+    ...(average === undefined ? {} : {average}),
+  };
 }
 
 export function firstMaximum<T>(rows: readonly T[], value: (row: T) => number): T | null {

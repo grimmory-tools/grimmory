@@ -1,10 +1,10 @@
 import {Component, computed, input} from '@angular/core';
-import {areaY, defineChart, lineY, ruleX, text} from '@tanstack/charts';
+import {areaY, defaultChartTheme, defineChart, lineY, ruleX, text} from '@tanstack/charts';
 import {decorative} from '@tanstack/charts/mark/decorative';
 import {scaleLinear} from '@tanstack/charts/scales/linear';
 import {scalePoint} from '@tanstack/charts/scales/point';
 
-import {countTicks, STATS_CHART_PALETTE, STATS_CHART_TEXT, STATS_COMPACT_WIDTH, statsAxis, statsTooltip} from '../../../shared/stats-chart-style';
+import {countTicks, STATS_CHART_TEXT, STATS_COMPACT_WIDTH, statsAxis, statsTooltip} from '../../../shared/stats-chart-style';
 import {currentMonth, firstMaximum, type RunningMonth, shiftMonth} from '../../../shared/stats-chart-data';
 import {StatsChartPlotComponent} from '../../../shared/stats-chart-plot.component';
 import {injectStatsText, STATS_CHART_HOST_CLASS} from '../../../shared/stats-chart-text';
@@ -41,9 +41,9 @@ export class BooksAddedVsFinishedChartComponent {
     return this.data().find((row) => row.month === month) ?? null;
   });
   private readonly series = computed(() => ({
-    added: {name: this.text.t('legendBooksAdded'), color: STATS_CHART_PALETTE[0]},
-    finished: {name: this.text.t('legendBooksFinished'), color: STATS_CHART_PALETTE[1]},
-    backlog: {name: this.text.t('legendBacklog'), color: STATS_CHART_PALETTE[2]},
+    added: {name: this.text.t('legendBooksAdded'), color: defaultChartTheme.palette[0]},
+    finished: {name: this.text.t('legendBooksFinished'), color: defaultChartTheme.palette[1]},
+    backlog: {name: this.text.t('legendBacklog'), color: defaultChartTheme.palette[2]},
   }));
 
   readonly legend = computed<readonly StatsLegendItem[]>(() => {
@@ -99,7 +99,7 @@ export class BooksAddedVsFinishedChartComponent {
             ],
             scales: {
               x: {
-                scale: scalePoint<string>().domain(running.map(({month}) => month)).padding(0.3),
+                scale: scalePoint().domain(running.map(({month}) => month)).padding(0.3),
                 axis: statsAxis(t('axisMonth'), {
                   values: monthTicks(running.map(({month}) => month)),
                   format: (month: string) => date(month, {month: 'short', year: '2-digit'}),

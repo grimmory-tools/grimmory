@@ -11,9 +11,10 @@ import {
   inject,
   Injector,
   signal,
+  viewChild,
+  viewChildren,
 } from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
-import {ActivatedRoute} from '@angular/router';
 import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {
   LucideEllipsisVertical,
@@ -33,29 +34,22 @@ import {AppMenuSeparatorComponent} from '../../../shared/ui/menu/app-menu-separa
 import {AppMenuTriggerDirective} from '../../../shared/ui/menu/app-menu-trigger.directive';
 import {AppSelectComponent} from '../../../shared/ui/select/app-select.component';
 import {type SelectOption} from '../../../shared/ui/select/app-select.options';
-import {type BookCollectionFilterParams, EMPTY_FACET_SELECTION} from '../../book/data/book-query-params';
+import {EMPTY_FACET_SELECTION} from '../../book/data/book-query-params';
 import {LibraryService} from '../../book/service/library.service';
 import {UserService} from '../../settings/user-management/user.service';
 import {StatsCardComponent, type StatsCardEditing} from '../card/stats-card.component';
-import {type AnyStatsChartDefinition} from '../card/stats-chart-definition';
-import {STATS_CONTEXT, type StatsContext} from '../card/stats-context';
+import {type StatsChartDefinition} from '../card/stats-chart-definition';
+import {STATS_CONTEXT, STATS_PAGE, type StatsContext, type StatsPageId} from '../card/stats-context';
 import {type StatsScopeParams} from '../data/stats-query-keys';
 import {LIBRARY_STATS_CHARTS} from '../registry/library-stats.registry';
 import {READING_STATS_CHARTS} from '../registry/reading-stats.registry';
 import {createStatsChartGrid} from './stats-grid';
-import {statsChartColumnClass} from './stats-layout';
-
-export type StatsPageId = 'library' | 'reading';
-
-export interface StatsPageRouteData {
-  readonly statsPage: StatsPageId;
-}
 
 interface StatsPageConfig {
   readonly titleKey: string;
   readonly documentTitleKey: string;
   readonly preferencesKey: string;
-  readonly charts: readonly AnyStatsChartDefinition[];
+  readonly charts: readonly StatsChartDefinition[];
   readonly libraryPage: boolean;
 }
 
@@ -102,14 +96,15 @@ type LibraryChoice = number | 'all';
   host: {class: 'contents'},
 })
 export class StatsPageComponent implements StatsContext {
-  private readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly applicationRef = inject(ApplicationRef);
   private readonly injector = inject(Injector);
   private readonly liveAnnouncer = inject(LiveAnnouncer);
   private readonly transloco = inject(TranslocoService);
   private readonly currentUser = inject(UserService).currentUser;
   private readonly libraries = inject(LibraryService).libraries;
-  protected readonly config = STATS_PAGES[(inject(ActivatedRoute).snapshot.data as StatsPageRouteData).statsPage];
+  protected readonly config = STATS_PAGES[inject(STATS_PAGE)];
+  private readonly cards = viewChildren(StatsCardComponent);
+  private readonly configTrigger = viewChild.required<unknown, ElementRef<HTMLElement>>('configTrigger', {read: ElementRef});
   private readonly activeLang = toSignal(this.transloco.langChanges$, {
     initialValue: this.transloco.getActiveLang(),
   });
@@ -118,10 +113,10 @@ export class StatsPageComponent implements StatsContext {
   protected readonly selectedLibrary = signal<LibraryChoice>('all');
   readonly scope = computed<StatsScopeParams>(() => {
     const library = this.selectedLibrary();
-    const filter: BookCollectionFilterParams = library === 'all'
-      ? {facets: EMPTY_FACET_SELECTION}
-      : {facets: {library: {include: [library.toString()], exclude: []}}};
-    return {...filter, tz: this.timeZone};
+    return {
+      facets: library === 'all' ? EMPTY_FACET_SELECTION : {library: {include: [library.toString()], exclude: []}},
+      tz: this.timeZone,
+    };
   });
 
   protected readonly libraryOptions = computed<readonly SelectOption<LibraryChoice>[]>(() => {
@@ -155,7 +150,6 @@ export class StatsPageComponent implements StatsContext {
   protected readonly iconEdit: LucideIconData = LucideSquarePen.icon;
   protected readonly iconReset: LucideIconData = LucideRotateCcw.icon;
   protected readonly chartDragStartDelay = {touch: 180, mouse: 0};
-  protected readonly columnClass = statsChartColumnClass;
 
   constructor() {
     const pageTitle = inject(PageTitleService);
@@ -165,7 +159,7 @@ export class StatsPageComponent implements StatsContext {
     });
   }
 
-  protected dropChart(event: CdkDragDrop<unknown, unknown, AnyStatsChartDefinition>): void {
+  protected dropChart(event: CdkDragDrop<unknown, unknown, StatsChartDefinition>): void {
     this.grid.reorder(event.item.data, event.container.id, event.currentIndex);
     // Fixes CDK putting the cards in their old positions before the drag+drop new position is reported and causing flicker
     this.applicationRef.tick();
@@ -175,7 +169,11 @@ export class StatsPageComponent implements StatsContext {
     this.grid.move(chartId, delta);
     const charts = this.grid.enabledCharts();
     const index = charts.findIndex(({id}) => id === chartId);
-    void this.liveAnnouncer.announce(`${this.transloco.translate(charts[index].nameKey)}, ${index + 1} / ${charts.length}`);
+    void this.liveAnnouncer.announce(this.transloco.translate('stats.config.chartMoved', {
+      name: this.transloco.translate<string>(charts[index].nameKey),
+      position: index + 1,
+      total: charts.length,
+    }));
     this.restoreChartFocus(chartId, delta);
   }
 
@@ -188,34 +186,23 @@ export class StatsPageComponent implements StatsContext {
     if (nextChartId) {
       this.restoreChartFocus(nextChartId);
     } else {
-      this.restoreFocus('#stats-page-config-trigger');
+      this.restoreConfigFocus();
     }
   }
 
   protected finishEditing(): void {
     this.isEditing.set(false);
-    this.restoreFocus('#stats-page-config-trigger');
+    this.restoreConfigFocus();
   }
 
   private restoreChartFocus(chartId: string, delta: -1 | 1 = -1): void {
-    afterNextRender(() => {
-      const directions = delta === -1 ? ['earlier', 'later'] : ['later', 'earlier'];
-      for (const direction of directions) {
-        const button = this.element.nativeElement.querySelector<HTMLButtonElement>(
-          `[data-chart-move-${direction}="${chartId}"] button:not(:disabled)`,
-        );
-        if (button) {
-          button.focus();
-          break;
-        }
-      }
-    }, {injector: this.injector});
-  }
-
-  private restoreFocus(selector: string): void {
     afterNextRender(
-      () => this.element.nativeElement.querySelector<HTMLElement>(selector)?.focus(),
+      () => this.cards().find((card) => card.definition().id === chartId)?.focusMove(delta),
       {injector: this.injector},
     );
+  }
+
+  private restoreConfigFocus(): void {
+    afterNextRender(() => this.configTrigger().nativeElement.querySelector('button')?.focus(), {injector: this.injector});
   }
 }

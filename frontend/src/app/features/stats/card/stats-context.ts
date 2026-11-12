@@ -2,6 +2,10 @@ import {InjectionToken, type Signal} from '@angular/core';
 
 import {type StatsScopeParams} from '../data/stats-query-keys';
 
+export type StatsPageId = 'library' | 'reading';
+
+export const STATS_PAGE = new InjectionToken<StatsPageId>('STATS_PAGE');
+
 export interface StatsContext {
   readonly scope: Signal<StatsScopeParams>;
 }

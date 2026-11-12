@@ -8,12 +8,11 @@ describe('ReadingDropOffChartComponent', () => {
   afterEach(() => TestBed.resetTestingModule());
 
   it('draws the share of books no longer being read that reached each progress value', () => {
-    const chart = createStatsChart(ReadingDropOffChartComponent, {rows: [
-      {value: 0, books: 6},
+    const chart = createStatsChart(ReadingDropOffChartComponent, [
       {value: 1, books: 1},
       {value: 50, books: 1},
       {value: 100, books: 2},
-    ]});
+    ]);
 
     expect(chart.points()).toEqual([
       {progress: 0, percent: 100},

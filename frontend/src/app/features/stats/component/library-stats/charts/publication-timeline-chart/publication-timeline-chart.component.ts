@@ -1,17 +1,15 @@
 import {Component, computed, input} from '@angular/core';
-import {barY, defineChart, ruleY} from '@tanstack/charts';
+import {barY, defaultChartTheme, defineChart, ruleY} from '@tanstack/charts';
 import {scaleLinear} from '@tanstack/charts/scales/linear';
 
-import {type StatsDistribution} from '../../../../data/stats-response.models';
 import {
   countTicks,
-  STATS_CHART_PALETTE,
   statsAxis,
   statsBar,
   statsBarBand,
   statsTooltip,
 } from '../../../shared/stats-chart-style';
-import {firstMaximum} from '../../../shared/stats-chart-data';
+import {firstMaximum, type StatsKnownDistribution} from '../../../shared/stats-chart-data';
 import {StatsChartPlotComponent} from '../../../shared/stats-chart-plot.component';
 import {injectStatsText, STATS_CHART_HOST_CLASS} from '../../../shared/stats-chart-text';
 import {type StatsInsight, StatsInsightListComponent} from '../../../shared/stats-insight-list.component';
@@ -31,10 +29,10 @@ const FIRST_DECADE = 1900;
 export class PublicationTimelineChartComponent {
   private readonly text = injectStatsText('statsLibrary.publicationTimeline');
 
-  readonly data = input.required<StatsDistribution<number>>();
+  readonly data = input.required<StatsKnownDistribution<number>>();
 
   private readonly years = computed(() =>
-    this.data().rows.flatMap(({value, books}) => (value === null ? [] : [{year: value, books}])),
+    this.data().rows.map(({value, books}) => ({year: value, books})),
   );
 
   readonly decades = computed(() => {
@@ -66,7 +64,7 @@ export class PublicationTimelineChartComponent {
         chart: ({width}) => ({
           marks: [
             ruleY([0], {strokeOpacity: 0.3}),
-            barY(decades, {x: 'decade', y: 'books', fill: STATS_CHART_PALETTE[0], ...statsBar(width)}),
+            barY(decades, {x: 'decade', y: 'books', fill: defaultChartTheme.palette[0], ...statsBar(width)}),
           ],
           scales: {
             x: {
@@ -98,7 +96,7 @@ export class PublicationTimelineChartComponent {
     if (oldest === undefined || newest === undefined) return [];
     const {t, number} = this.text;
     const peak = firstMaximum(this.decades(), ({books}) => books);
-    const noYear = this.data().rows.find(({value}) => value === null)?.books ?? 0;
+    const noYear = this.data().unknown;
     return [
       {label: t('insightOldest'), value: `${oldest}`},
       {label: t('insightNewest'), value: `${newest}`},

@@ -50,12 +50,7 @@ export interface StatsLegendItem {
 export class StatsLegendComponent {
   protected readonly card = inject(STATS_CARD);
 
-  readonly items = input<readonly StatsLegendItem[]>([]);
-}
-
-function statsSizeKey(most: number): readonly number[] {
-  const middle = [500, 200, 100, 50, 20, 10, 5, 2].find((value) => value <= most / 2);
-  return [...new Set([1, ...(middle === undefined ? [] : [middle]), Math.max(1, most)])];
+  readonly items = input.required<readonly StatsLegendItem[]>();
 }
 
 @Component({
@@ -79,7 +74,11 @@ export class StatsSizeKeyComponent {
   readonly most = input.required<number>();
 
   protected readonly text = injectStatsText('stats');
-  protected readonly values = computed(() => statsSizeKey(this.most()));
+  protected readonly values = computed(() => {
+    const most = this.most();
+    const middle = [500, 200, 100, 50, 20, 10, 5, 2].find((value) => value <= most / 2);
+    return [...new Set([1, ...(middle === undefined ? [] : [middle]), Math.max(1, most)])];
+  });
 
   protected radius(books: number): number {
     return statsBubbleRadius(books, this.most());

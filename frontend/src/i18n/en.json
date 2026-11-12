@@ -4061,6 +4061,7 @@
       "moveChartEarlier": "Move {{ name }} up",
       "moveChartLater": "Move {{ name }} down",
       "removeChart": "Remove {{ name }}",
+      "chartMoved": "{{ name }}, {{ position }} of {{ total }}",
       "done": "Done"
     },
     "filter": {
