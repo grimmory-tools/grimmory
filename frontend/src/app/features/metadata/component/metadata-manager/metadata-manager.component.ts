@@ -6,7 +6,7 @@ import {Checkbox} from '@openng/optimus-ui/checkbox';
 import {InputText} from '@openng/optimus-ui/inputtext';
 import {Dialog} from '@openng/optimus-ui/dialog';
 import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
-import {injectQuery, keepPreviousData} from '@tanstack/angular-query-experimental';
+import {injectQuery} from '@tanstack/angular-query-experimental';
 import {PageTitleService} from "../../../../shared/service/page-title.service";
 import {BookMetadataManageService, MetadataValuesSelectAll} from '../../../book/service/book-metadata-manage.service';
 import {BookMetadataValueType} from '../../../book/data/book-command.models';
@@ -133,10 +133,13 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
   readonly page = linkedSignal({source: this.scope, computation: () => 0});
   readonly selection = linkedSignal({source: this.scope, computation: (): RowSelection => NO_SELECTION});
 
-  readonly rowsQuery = injectQuery(() => ({
-    ...this.bookQuery.facet(FACET_KEYS[this.activeTab()], NO_FILTERS, this.search(), this.page(), PAGE_SIZE),
-    placeholderData: keepPreviousData,
-  }));
+  readonly rowsQuery = injectQuery(() => {
+    const facetKey = FACET_KEYS[this.activeTab()];
+    return {
+      ...this.bookQuery.facet(facetKey, NO_FILTERS, this.search(), this.page(), PAGE_SIZE),
+      placeholderData: previous => previous?.key === facetKey ? previous : undefined,
+    };
+  });
   readonly rows = computed(() => this.rowsQuery.data()?.values ?? []);
   readonly hasNextPage = computed(() => !this.rowsQuery.isPlaceholderData() && this.rowsQuery.data()?.complete === false);
 
