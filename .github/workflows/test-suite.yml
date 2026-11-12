@@ -26,7 +26,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0
           ref: ${{ inputs.checkout_ref }}
 
       - name: Install just
@@ -45,16 +44,6 @@ jobs:
             **/gradle.lockfile
             **/settings.gradle*
             **/gradle/wrapper/gradle-wrapper.properties
-
-      # Needed for NightCompress
-      - name: Install libarchive
-        run: |
-          sudo apt-get update 
-          sudo apt-get install libarchive-dev --yes
-
-          # Place libarchive somewhere that java looks for it.
-          sudo mkdir -p /usr/java/packages/lib/
-          sudo cp /usr/lib/x86_64-linux-gnu/libarchive.* /usr/java/packages/lib/
 
       - name: Execute Backend Tests
         id: backend_tests
@@ -98,7 +87,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0
           ref: ${{ inputs.checkout_ref }}
 
       - name: Install just
