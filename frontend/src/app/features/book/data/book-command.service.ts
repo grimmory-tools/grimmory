@@ -46,6 +46,7 @@ import {
 } from './book-command.models';
 import {invalidateAuthorsQuery} from '../../author-browser/service/author-query-cache';
 import {applyBookQueryChangeSet, invalidateAllBookQueries, invalidateBookCollections} from './book-query-cache';
+import {readingQueryKeys} from '../../reading/data/reading-query-keys';
 import {bookQueryKeys} from './book-query-keys';
 import {BookDetail, BookDetailMetadata, BookReviewResponse} from './book-response.models';
 
@@ -100,8 +101,10 @@ export class BookCommandService {
       scope: bookCommandScopes.files,
       mutationFn: ({bookId, fileId}: DeleteAdditionalFileVariables) =>
         lastValueFrom(this.http.delete<void>(`${this.booksUrl}/${bookId}/files/${fileId}`)),
-      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) =>
+      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) => Promise.all([
         applyBookQueryChangeSet(client, {changedBookIds: [bookId]}),
+        client.invalidateQueries({queryKey: readingQueryKeys.file(bookId)}),
+      ]),
     });
   }
 
@@ -113,10 +116,14 @@ export class BookCommandService {
         lastValueFrom(this.http.post<AttachBookFilesResult>(`${this.booksUrl}/${targetBookId}/attach-file`, {
           sourceBookIds: requireBookIds(sourceBookIds), moveFiles,
         })),
-      onSettled: (data, _error, {targetBookId, sourceBookIds}, _onMutateResult, {client}) => applyBookQueryChangeSet(client, {
-        changedBookIds: [targetBookId, ...sourceBookIds],
-        deletedBookIds: data?.deletedSourceBookIds ?? [],
-      }),
+      onSettled: (data, _error, {targetBookId, sourceBookIds}, _onMutateResult, {client}) => Promise.all([
+        applyBookQueryChangeSet(client, {
+          changedBookIds: [targetBookId, ...sourceBookIds],
+          deletedBookIds: data?.deletedSourceBookIds ?? [],
+        }),
+        ...[targetBookId, ...sourceBookIds].map(bookId =>
+          client.invalidateQueries({queryKey: readingQueryKeys.file(bookId)})),
+      ]),
     });
   }
 
@@ -230,8 +237,10 @@ export class BookCommandService {
           `${this.booksUrl}/${bookId}/files/${fileId}/detach`,
           {copyMetadata},
         )),
-      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) =>
+      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) => Promise.all([
         applyBookQueryChangeSet(client, {changedBookIds: [bookId]}),
+        client.invalidateQueries({queryKey: readingQueryKeys.file(bookId)}),
+      ]),
     });
   }
 
@@ -241,8 +250,10 @@ export class BookCommandService {
       scope: bookCommandScopes.files,
       mutationFn: ({bookId, file, isBook}: UploadBookFileVariables) =>
         postFormData(this.http, `${this.booksUrl}/${bookId}/files`, {file, isBook: String(isBook)}),
-      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) =>
+      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) => Promise.all([
         applyBookQueryChangeSet(client, {changedBookIds: [bookId]}),
+        client.invalidateQueries({queryKey: readingQueryKeys.file(bookId)}),
+      ]),
     });
   }
 
@@ -262,8 +273,10 @@ export class BookCommandService {
         lastValueFrom(this.http.put<void>(`${this.booksUrl}/${bookId}/content`, content, {
           params: bookType === null ? undefined : {bookType},
         })),
-      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) =>
+      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) => Promise.all([
         applyBookQueryChangeSet(client, {changedBookIds: [bookId]}),
+        client.invalidateQueries({queryKey: readingQueryKeys.file(bookId)}),
+      ]),
     });
   }
 

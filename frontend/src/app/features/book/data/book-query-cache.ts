@@ -54,10 +54,7 @@ export async function applyBookQueryChangeSet(
   await Promise.all([
     invalidateBookCollections(queryClient),
     ...(changedBookIds.size > 0 ? [queryClient.invalidateQueries({
-      predicate: ({queryKey}) =>
-        isBookLeafKey(queryKey, bookQueryKeys.details(), changedBookIds)
-        || isBookLeafKey(queryKey, readingQueryKeys.books(), changedBookIds)
-        || isBookLeafKey(queryKey, readingQueryKeys.files(), changedBookIds),
+      predicate: ({queryKey}) => isBookLeafKey(queryKey, bookQueryKeys.details(), changedBookIds),
     })] : []),
     invalidateBookRecommendations(queryClient),
     queryClient.invalidateQueries({queryKey: readingQueryKeys.notebook()}),

@@ -10,10 +10,12 @@ export const readingQueryKeys = {
   notes: (bookId: number) => [...readingQueryKeys.book(bookId), 'notes'] as const,
   bookNotes: (bookId: number) => [...readingQueryKeys.book(bookId), 'book-notes'] as const,
   pdfAnnotations: (bookId: number) => [...readingQueryKeys.book(bookId), 'pdf-annotations'] as const,
+  viewerSettingsQueries: (bookId: number) => [...readingQueryKeys.book(bookId), 'viewer-settings'] as const,
   viewerSettings: (bookId: number, bookFileId: number) =>
-    [...readingQueryKeys.book(bookId), 'viewer-settings', bookFileId] as const,
+    [...readingQueryKeys.viewerSettingsQueries(bookId), bookFileId] as const,
+  sessionQueries: (bookId: number) => [...readingQueryKeys.book(bookId), 'sessions'] as const,
   sessions: (bookId: number, params: ReadingSessionPageParams) =>
-    [...readingQueryKeys.book(bookId), 'sessions', params] as const,
+    [...readingQueryKeys.sessionQueries(bookId), params] as const,
   notebook: () => [...readingQueryKeys.all(), 'notebook'] as const,
   notebookPage: (params: NotebookPageParams) => [...readingQueryKeys.notebook(), 'page', params] as const,
   notebookExport: (params: NotebookFilterParams) => [...readingQueryKeys.notebook(), 'export', params] as const,

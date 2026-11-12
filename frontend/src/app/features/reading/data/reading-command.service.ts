@@ -1,6 +1,6 @@
 import {HttpClient} from '@angular/common/http';
 import {inject, Service} from '@angular/core';
-import {mutationOptions, QueryClient} from '@tanstack/angular-query-experimental';
+import {mutationOptions} from '@tanstack/angular-query-experimental';
 import {lastValueFrom} from 'rxjs';
 
 import {API_CONFIG} from '../../../core/config/api-config';
@@ -39,7 +39,10 @@ export class ReadingCommandService {
       mutationKey: readingCommandKeys.createAnnotation(),
       mutationFn: (annotation: CreateAnnotationVariables) =>
         lastValueFrom(this.http.post<Annotation>(this.annotationsUrl, annotation)),
-      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) => refreshReadingBook(client, bookId),
+      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) => Promise.all([
+        client.invalidateQueries({queryKey: readingQueryKeys.annotations(bookId)}),
+        client.invalidateQueries({queryKey: readingQueryKeys.notebook()}),
+      ]),
     });
   }
 
@@ -48,7 +51,10 @@ export class ReadingCommandService {
       mutationKey: readingCommandKeys.deleteAnnotation(),
       mutationFn: ({annotationId}: DeleteAnnotationVariables) =>
         lastValueFrom(this.http.delete<void>(`${this.annotationsUrl}/${annotationId}`)),
-      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) => refreshReadingBook(client, bookId),
+      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) => Promise.all([
+        client.invalidateQueries({queryKey: readingQueryKeys.annotations(bookId)}),
+        client.invalidateQueries({queryKey: readingQueryKeys.notebook()}),
+      ]),
     });
   }
 
@@ -57,7 +63,10 @@ export class ReadingCommandService {
       mutationKey: readingCommandKeys.createBookmark(),
       mutationFn: (bookmark: CreateBookmarkVariables) =>
         lastValueFrom(this.http.post<Bookmark>(this.bookmarksUrl, bookmark)),
-      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) => refreshReadingBook(client, bookId),
+      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) => Promise.all([
+        client.invalidateQueries({queryKey: readingQueryKeys.bookmarks(bookId)}),
+        client.invalidateQueries({queryKey: readingQueryKeys.notebook()}),
+      ]),
     });
   }
 
@@ -66,7 +75,10 @@ export class ReadingCommandService {
       mutationKey: readingCommandKeys.deleteBookmark(),
       mutationFn: ({bookmarkId}: DeleteBookmarkVariables) =>
         lastValueFrom(this.http.delete<void>(`${this.bookmarksUrl}/${bookmarkId}`)),
-      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) => refreshReadingBook(client, bookId),
+      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) => Promise.all([
+        client.invalidateQueries({queryKey: readingQueryKeys.bookmarks(bookId)}),
+        client.invalidateQueries({queryKey: readingQueryKeys.notebook()}),
+      ]),
     });
   }
 
@@ -75,7 +87,10 @@ export class ReadingCommandService {
       mutationKey: readingCommandKeys.createNote(),
       mutationFn: (note: CreateNoteVariables) =>
         lastValueFrom(this.http.post<Note>(this.notesUrl, note)),
-      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) => refreshReadingBook(client, bookId),
+      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) => Promise.all([
+        client.invalidateQueries({queryKey: readingQueryKeys.notes(bookId)}),
+        client.invalidateQueries({queryKey: readingQueryKeys.notebook()}),
+      ]),
     });
   }
 
@@ -84,7 +99,10 @@ export class ReadingCommandService {
       mutationKey: readingCommandKeys.updateNote(),
       mutationFn: ({noteId, noteContent, color}: UpdateNoteVariables) =>
         lastValueFrom(this.http.put<Note>(`${this.notesUrl}/${noteId}`, {noteContent, color})),
-      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) => refreshReadingBook(client, bookId),
+      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) => Promise.all([
+        client.invalidateQueries({queryKey: readingQueryKeys.notes(bookId)}),
+        client.invalidateQueries({queryKey: readingQueryKeys.notebook()}),
+      ]),
     });
   }
 
@@ -93,7 +111,10 @@ export class ReadingCommandService {
       mutationKey: readingCommandKeys.deleteNote(),
       mutationFn: ({noteId}: DeleteNoteVariables) =>
         lastValueFrom(this.http.delete<void>(`${this.notesUrl}/${noteId}`)),
-      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) => refreshReadingBook(client, bookId),
+      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) => Promise.all([
+        client.invalidateQueries({queryKey: readingQueryKeys.notes(bookId)}),
+        client.invalidateQueries({queryKey: readingQueryKeys.notebook()}),
+      ]),
     });
   }
 
@@ -102,7 +123,8 @@ export class ReadingCommandService {
       mutationKey: readingCommandKeys.createBookNote(),
       mutationFn: (bookNote: CreateBookNoteVariables) =>
         lastValueFrom(this.http.post<BookNote>(this.bookNotesUrl, bookNote)),
-      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) => refreshReadingBook(client, bookId),
+      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) =>
+        client.invalidateQueries({queryKey: readingQueryKeys.bookNotes(bookId)}),
     });
   }
 
@@ -111,7 +133,8 @@ export class ReadingCommandService {
       mutationKey: readingCommandKeys.updateBookNote(),
       mutationFn: ({bookNoteId, ...bookNote}: UpdateBookNoteVariables) =>
         lastValueFrom(this.http.post<BookNote>(this.bookNotesUrl, {id: bookNoteId, ...bookNote})),
-      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) => refreshReadingBook(client, bookId),
+      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) =>
+        client.invalidateQueries({queryKey: readingQueryKeys.bookNotes(bookId)}),
     });
   }
 
@@ -120,7 +143,8 @@ export class ReadingCommandService {
       mutationKey: readingCommandKeys.deleteBookNote(),
       mutationFn: ({bookNoteId}: DeleteBookNoteVariables) =>
         lastValueFrom(this.http.delete<void>(`${this.bookNotesUrl}/${bookNoteId}`)),
-      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) => refreshReadingBook(client, bookId),
+      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) =>
+        client.invalidateQueries({queryKey: readingQueryKeys.bookNotes(bookId)}),
     });
   }
 
@@ -130,7 +154,8 @@ export class ReadingCommandService {
       scope: readingCommandScopes.pdfAnnotations,
       mutationFn: ({bookId, data}: SavePdfAnnotationsVariables) =>
         lastValueFrom(this.http.put<void>(`${this.pdfAnnotationsUrl}/book/${bookId}`, {data})),
-      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) => refreshReadingBook(client, bookId),
+      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) =>
+        client.invalidateQueries({queryKey: readingQueryKeys.pdfAnnotations(bookId), refetchType: 'none'}),
     });
   }
 
@@ -140,7 +165,8 @@ export class ReadingCommandService {
       scope: readingCommandScopes.viewerSettings,
       mutationFn: ({bookId, ...settings}: SaveViewerSettingsVariables) =>
         lastValueFrom(this.http.put<void>(`${this.booksUrl}/${bookId}/viewer-setting`, settings)),
-      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) => refreshReadingBook(client, bookId),
+      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) =>
+        client.invalidateQueries({queryKey: readingQueryKeys.viewerSettingsQueries(bookId), refetchType: 'none'}),
     });
   }
 
@@ -152,14 +178,8 @@ export class ReadingCommandService {
         session,
         {keepalive: true},
       )),
-      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) => refreshReadingBook(client, bookId),
+      onSettled: (_data, _error, {bookId}, _onMutateResult, {client}) =>
+        client.invalidateQueries({queryKey: readingQueryKeys.sessionQueries(bookId)}),
     });
   }
-}
-
-async function refreshReadingBook(client: QueryClient, bookId: number): Promise<void> {
-  await Promise.all([
-    client.invalidateQueries({queryKey: readingQueryKeys.book(bookId)}),
-    client.invalidateQueries({queryKey: readingQueryKeys.notebook()}),
-  ]);
 }

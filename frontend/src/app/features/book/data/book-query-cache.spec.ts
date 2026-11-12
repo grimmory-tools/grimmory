@@ -7,6 +7,7 @@ import {
   invalidateBookCollections,
   applyBookQueryChangeSet,
 } from './book-query-cache';
+import {readingQueryKeys} from '../../reading/data/reading-query-keys';
 import {bookQueryKeys} from './book-query-keys';
 import {normalizeBookPageParams} from './book-query-params';
 
@@ -253,5 +254,18 @@ describe('book query cache', () => {
     detail.finish();
     await invalidation;
     expect(settled).toBe(true);
+  });
+
+  it('leaves a changed book\'s reading queries alone and marks the notebook stale', async () => {
+    const notebookKey = readingQueryKeys.notebookBooks('');
+    queryClient.setQueryData(readingQueryKeys.bookmarks(1), []);
+    queryClient.setQueryData(readingQueryKeys.audiobookInfo(1, 'AUDIOBOOK'), {});
+    queryClient.setQueryData(notebookKey, []);
+
+    await applyBookQueryChangeSet(queryClient, {changedBookIds: [1]});
+
+    expect(queryClient.getQueryState(readingQueryKeys.bookmarks(1))?.isInvalidated).toBe(false);
+    expect(queryClient.getQueryState(readingQueryKeys.audiobookInfo(1, 'AUDIOBOOK'))?.isInvalidated).toBe(false);
+    expect(queryClient.getQueryState(notebookKey)?.isInvalidated).toBe(true);
   });
 });
