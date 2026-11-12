@@ -90,6 +90,7 @@ describe('StatsPageComponent', () => {
 
     (host().querySelector('#stats-page-library') as HTMLElement).click();
     await flushQueryAsync();
+    await fixture.whenStable();
     const options = [...document.querySelectorAll<HTMLElement>('[role="option"]')];
     expect(options.map(option => option.textContent?.trim())).toEqual(['All Libraries', 'Comics', 'Fiction']);
     options[1].click();
@@ -106,6 +107,7 @@ describe('StatsPageComponent', () => {
 
     moveButton('Personal Ratings', 'up').click();
     await flushQueryAsync();
+    await fixture.whenStable();
 
     expect([...host().querySelectorAll('app-stats-card h2')].slice(0, 2).map(title => title.textContent?.trim()))
       .toEqual(['Personal Ratings', 'Reading Session Activity']);
@@ -114,6 +116,7 @@ describe('StatsPageComponent', () => {
 
     (host().querySelector('button[aria-label="Remove Personal Ratings"]') as HTMLButtonElement).click();
     await flushQueryAsync();
+    await fixture.whenStable();
 
     expect(host().querySelector('app-stats-card h2')?.textContent?.trim()).toBe('Reading Session Activity');
     expect(document.activeElement).toBe(moveButton('Reading Session Activity', 'down'));
