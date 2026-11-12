@@ -517,7 +517,12 @@ class EpubCfiServiceTest {
                 "<html xmlns='http://www.w3.org/1999/xhtml' lang=\"en\">",
                 "<html title=\"a > b\" xmlns=\"http://www.w3.org/1999/xhtml\">",
                 "<html data-x='1 > 0' xmlns:epub=\"http://www.idpf.org/2007/ops\"\n      xmlns = \"http://www.w3.org/1999/xhtml\">",
-                "<!-- generated > by hand -->\n<!DOCTYPE html>\n<html xmlns=\"http://www.w3.org/1999/xhtml\">"
+                "<!-- generated > by hand -->\n<!DOCTYPE html>\n<html xmlns=\"http://www.w3.org/1999/xhtml\">",
+                "<!DOCTYPE html [<!ENTITY rb \"]\">]>\n<html xmlns=\"http://www.w3.org/1999/xhtml\">",
+                "<!DOCTYPE html [<!ENTITY q '\"]>'>]>\n<html xmlns=\"http://www.w3.org/1999/xhtml\">",
+                "<!DOCTYPE html [<!-- ] > \" --> <!ENTITY a \"b\">]>\n<html xmlns=\"http://www.w3.org/1999/xhtml\">",
+                "<!DOCTYPE html PUBLIC \"-//x>y//EN\" \"a>b.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\">",
+                "<!DOCTYPE html [<?note don't ] > ?>]>\n<html xmlns=\"http://www.w3.org/1999/xhtml\">"
         })
         void convertCfiToProgressXPointer_xhtmlRootWithoutXmlDeclaration_handlesSelfClosingAnchor(String head) throws IOException {
             String xhtmlChapter = head + """

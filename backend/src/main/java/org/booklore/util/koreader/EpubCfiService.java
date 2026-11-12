@@ -224,16 +224,30 @@ public class EpubCfiService {
         return end < 0 ? -1 : end + terminator.length();
     }
 
+    /**
+     * Skips to just after the doctype's closing '>'. Quoted literals and, in the internal subset, comments and
+     * processing instructions are skipped whole, so a ']' or '>' inside them does not end the subset or the doctype.
+     */
     private static int skipDoctype(String content, int i) {
         boolean inInternalSubset = false;
-        for (; i < content.length(); i++) {
+        while (i >= 0 && i < content.length()) {
             char c = content.charAt(i);
-            if (c == '[') {
+            if (c == '"' || c == '\'') {
+                i = indexAfter(content, String.valueOf(c), i + 1);
+            } else if (inInternalSubset && content.startsWith("<!--", i)) {
+                i = indexAfter(content, "-->", i + 4);
+            } else if (inInternalSubset && content.startsWith("<?", i)) {
+                i = indexAfter(content, "?>", i + 2);
+            } else if (c == '[') {
                 inInternalSubset = true;
+                i++;
             } else if (c == ']') {
                 inInternalSubset = false;
+                i++;
             } else if (c == '>' && !inInternalSubset) {
                 return i + 1;
+            } else {
+                i++;
             }
         }
         return -1;
