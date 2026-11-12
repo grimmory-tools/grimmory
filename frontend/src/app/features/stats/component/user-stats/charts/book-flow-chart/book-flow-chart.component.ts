@@ -211,6 +211,7 @@ export class BookFlowChartComponent {
       this.knownYears().map((year) => ({year, books: rows.reduce((sum, row) => (row.year === year ? sum + row.books : sum), 0)})),
       ({books}) => books,
     );
+    const busiestKey = busiest?.books === 1 ? 'busiestYearBook' : 'busiestYearBooks';
     return [
       {
         label: t('read'),
@@ -220,7 +221,7 @@ export class BookFlowChartComponent {
       {
         label: t('busiestYear'),
         value: busiest ? `${busiest.year}` : t('unknownYear'),
-        detail: busiest ? t(busiest.books === 1 ? 'busiestYearBook' : 'busiestYearBooks', {count: number(busiest.books)}) : '',
+        detail: busiest ? t(busiestKey, {count: number(busiest.books)}) : '',
       },
     ];
   });

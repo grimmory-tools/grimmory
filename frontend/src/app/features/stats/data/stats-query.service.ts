@@ -94,8 +94,7 @@ export class StatsQueryService {
   }
 
   slots(scope: StatsScopeParams, year: number | null, month: number | null = null) {
-    const period = year === null ? 'all' : month === null ? `${year}` : `${year}-${pad(month)}`;
-    return this.query<StatsSlots>('reading/slots', scope, {period});
+    return this.query<StatsSlots>('reading/slots', scope, {period: slotPeriod(year, month)});
   }
 
   days(scope: StatsScopeParams, year: number) {
@@ -141,6 +140,11 @@ export class StatsQueryService {
       ...QUERY_DEFAULTS,
     });
   }
+}
+
+function slotPeriod(year: number | null, month: number | null): string {
+  if (year === null) return 'all';
+  return month === null ? `${year}` : `${year}-${pad(month)}`;
 }
 
 function pad(value: number): string {

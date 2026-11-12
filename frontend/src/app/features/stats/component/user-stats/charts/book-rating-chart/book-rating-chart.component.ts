@@ -36,6 +36,7 @@ interface BookRatingConfig {
   readonly wordedWidth: number;
   readonly rotateCompactLabels: boolean;
   readonly columnTitleKey?: string;
+  readonly columnLabelKey?: string;
 }
 
 export interface BookRatingData {
@@ -63,6 +64,7 @@ const DECADE_RATINGS: BookRatingConfig = {
   countWidth: 64,
   wordedWidth: 96,
   rotateCompactLabels: false,
+  columnLabelKey: 'decadeLabel',
 };
 
 export function lengthRatings(rows: readonly StatsLengthCell[]): BookRatingData {
@@ -79,8 +81,8 @@ export function decadeRatings(rows: readonly StatsDecadeCell[]): BookRatingData 
   const last = Math.max(...decades);
   return {
     config: DECADE_RATINGS,
-    columns: rows.length === 0 ? [] : Array.from({length: (last - first) / 10 + 1}, (_, index) => `${first + index * 10}s`),
-    cells: rows.map(({decade, rating, books}) => ({column: `${decade}s`, rating: rating / 2, books})),
+    columns: rows.length === 0 ? [] : Array.from({length: (last - first) / 10 + 1}, (_, index) => `${first + index * 10}`),
+    cells: rows.map(({decade, rating, books}) => ({column: `${decade}`, rating: rating / 2, books})),
   };
 }
 const MINIMUM_BOOKS = 5;
@@ -186,7 +188,7 @@ export class BookRatingChartComponent {
             scales: {
               x: {
                 scale: statsBarBand(labels),
-                axis: statsAxis(t(`${prefix}.${axis}`), undefined, rotateCompactLabels && width < STATS_COMPACT_WIDTH ? STATS_ROTATED_LABELS : undefined),
+                axis: statsAxis(t(`${prefix}.${axis}`), {format: (column: string) => this.columnLabel(column)}, rotateCompactLabels && width < STATS_COMPACT_WIDTH ? STATS_ROTATED_LABELS : undefined),
               },
               y: {
                 scale: scaleLinear().domain(domain),
@@ -200,7 +202,7 @@ export class BookRatingChartComponent {
         tooltip: statsTooltip<Cell>(([{datum: cell}]) => {
           const rating = ratings.get(cell.column);
           return {
-            title: columnTitleKey ? t(`${prefix}.${columnTitleKey}`, {count: cell.column}) : cell.column,
+            title: columnTitleKey ? t(`${prefix}.${columnTitleKey}`, {count: cell.column}) : this.columnLabel(cell.column),
             rows: [
               {label: t(`${prefix}.axisPersonalRating`), value: stars(cell.rating)},
               {label: t(`${prefix}.books`), value: number(cell.books)},
@@ -218,6 +220,11 @@ export class BookRatingChartComponent {
     const best = this.best();
     if (!best || best.rating === null) return [{label: t(`${prefix}.${insight}`), value: '—'}];
     const rating = stars(best.rating, {minimumFractionDigits: 1, maximumFractionDigits: 1});
-    return [{label: t(`${prefix}.${insight}`), value: best.column, detail: t(`${prefix}.${detail}`, {rating, count: number(best.books)})}];
+    return [{label: t(`${prefix}.${insight}`), value: this.columnLabel(best.column), detail: t(`${prefix}.${detail}`, {rating, count: number(best.books)})}];
   });
+
+  private columnLabel(column: string): string {
+    const {prefix, columnLabelKey} = this.data().config;
+    return columnLabelKey ? this.text.t(`${prefix}.${columnLabelKey}`, {decade: column}) : column;
+  }
 }

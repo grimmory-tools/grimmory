@@ -1,4 +1,3 @@
-import {knownValues} from '../component/shared/stats-chart-data';
 import {defineStatsChart, type StatsChartDefinition} from '../card/stats-chart-definition';
 import {BookFlowChartComponent} from '../component/user-stats/charts/book-flow-chart/book-flow-chart.component';
 import {BookRatingChartComponent, decadeRatings, lengthRatings} from '../component/user-stats/charts/book-rating-chart/book-rating-chart.component';
@@ -16,7 +15,7 @@ import {ReadingDropOffChartComponent} from '../component/user-stats/charts/readi
 import {SeriesProgressChartComponent} from '../component/user-stats/charts/series-progress-chart/series-progress-chart.component';
 import {ReadingSessionActivityComponent} from '../component/user-stats/charts/reading-session-activity/reading-session-activity.component';
 import {ReadingSessionTimelineComponent} from '../component/user-stats/charts/reading-session-timeline/reading-session-timeline.component';
-import {runningActivity} from '../component/shared/stats-chart-data';
+import {knownValues, runningActivity} from '../component/shared/stats-chart-data';
 import {NO_BOOK_FLOW, NO_DAYS, NO_FINISH_TIMES, NO_ROWS, NO_SERIES, NO_SLOTS, NO_WEEK} from '../data/stats-response.models';
 
 export const READING_STATS_CHARTS: readonly StatsChartDefinition[] = [

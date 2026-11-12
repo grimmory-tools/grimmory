@@ -48,7 +48,7 @@ export class ReadingDropOffChartComponent {
 
   readonly chart = computed(() => {
     const {t, number} = this.text;
-    const percent = (value: number) => `${number(value, {maximumFractionDigits: 0})}%`;
+    const percent = (value: number) => number(value / 100, {style: 'percent', maximumFractionDigits: 0});
     const points = this.points();
     const color = defaultChartTheme.palette[0];
     const curve = d3Curve(curveStepBefore);
@@ -80,7 +80,7 @@ export class ReadingDropOffChartComponent {
         svgAnimation: true,
         tooltip: statsTooltip<(typeof points)[number]>(([{datum: point}]) => ({
           title: t('tooltipProgress', {label: percent(point.progress)}),
-          rows: [{label: t('booksRemaining'), value: `${number(point.percent, {maximumFractionDigits: 1})}%`, color}],
+          rows: [{label: t('booksRemaining'), value: number(point.percent / 100, {style: 'percent', maximumFractionDigits: 1}), color}],
         })),
       }),
     };

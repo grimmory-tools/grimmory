@@ -150,14 +150,8 @@ export class StatsCardComponent implements StatsCardContext {
   protected readonly chartInputs = computed(() => ({data: this.chartData()}));
 
   readonly state = computed<StatsCardState>(() => {
-    switch (this.query.status()) {
-      case 'error':
-        return 'error';
-      case 'pending':
-        return 'loading';
-      case 'success':
-        return this.definition().isEmpty(this.chartData()) ? 'empty' : 'ready';
-    }
+    if (this.query.data() === undefined) return this.query.isError() ? 'error' : 'loading';
+    return this.definition().isEmpty(this.chartData()) ? 'empty' : 'ready';
   });
 
   private readonly placeholdersShown = createBrowseSkeletonDelay(
@@ -271,10 +265,15 @@ export class StatsCardComponent implements StatsCardContext {
   }
 }
 
+const DEFAULT_YEAR: Partial<Record<StatsFilterKind, (now: Date) => number>> = {
+  year: (now) => now.getFullYear(),
+  week: getISOWeekYear,
+};
+
 function defaultPeriod(filter: StatsFilterKind): StatsCardPeriod {
   const now = new Date();
   return {
-    year: filter === 'year' ? now.getFullYear() : filter === 'week' ? getISOWeekYear(now) : null,
+    year: DEFAULT_YEAR[filter]?.(now) ?? null,
     month: null,
     week: getISOWeek(now),
     weekday: null,

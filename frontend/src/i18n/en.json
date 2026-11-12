@@ -4512,6 +4512,7 @@
       "averageRating": "Average Rating",
       "highestAverage": "Highest Average, {{ count }}+ Books",
       "bestDecadeDetail": "average {{ rating }} from {{ count }} books",
+      "decadeLabel": "{{ decade }}s",
       "bookCount": "{{ count }} book",
       "booksCount": "{{ count }} books"
     }

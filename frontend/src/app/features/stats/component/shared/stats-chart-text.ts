@@ -5,6 +5,8 @@ import {TranslocoService} from '@jsverse/transloco';
 import {BOOK_READ_STATUS_LABEL_KEYS, CLEAR_BOOK_READ_STATUS_LABEL_KEY} from '../../../book/components/book-read-status-options';
 import {type BookReadStatus} from '../../../book/data/book-response.models';
 
+const STARS_FORMAT: Intl.NumberFormatOptions = {maximumFractionDigits: 1};
+
 export const STATS_CHART_HOST_CLASS = 'flex h-full min-h-0 min-w-0 flex-1 flex-col gap-4';
 
 export function injectStatsText(prefix: string) {
@@ -24,7 +26,7 @@ export function injectStatsText(prefix: string) {
       translate(status === 'UNSET' ? CLEAR_BOOK_READ_STATUS_LABEL_KEY : BOOK_READ_STATUS_LABEL_KEYS[status]),
     number: (value: number, options?: Intl.NumberFormatOptions) =>
       value.toLocaleString(activeLang(), options),
-    stars: (value: number, options: Intl.NumberFormatOptions = {maximumFractionDigits: 1}) =>
+    stars: (value: number, options: Intl.NumberFormatOptions = STARS_FORMAT) =>
       `${value.toLocaleString(activeLang(), options)}★`,
     date: (key: string, options: Intl.DateTimeFormatOptions) =>
       new Intl.DateTimeFormat(activeLang(), {...options, timeZone: 'UTC'})

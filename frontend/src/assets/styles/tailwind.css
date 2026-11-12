@@ -223,6 +223,26 @@
   --safe-edge-bottom: var(--safe-area-bottom);
   --safe-edge-left: var(--safe-area-left);
   --safe-edge-panel-bottom: max(var(--safe-edge-bottom), var(--safe-edge-gap));
+  --ts-chart-1: var(--color-primary-500);
+  --ts-chart-2: var(--stats-chart-blue);
+  --ts-chart-3: var(--stats-chart-green);
+  --ts-chart-4: var(--stats-chart-yellow);
+  --ts-chart-5: var(--stats-chart-purple);
+  --ts-chart-6: var(--stats-chart-cyan);
+  --stats-chart-blue: oklch(0.67 0.167 258);
+  --stats-chart-green: oklch(0.67 0.200 145);
+  --stats-chart-yellow: oklch(0.83 0.162 85);
+  --stats-chart-purple: oklch(0.64 0.231 305);
+  --stats-chart-cyan: oklch(0.75 0.123 190);
+  --stats-chart-orange: oklch(0.81 0.119 55);
+  --stats-chart-red: oklch(0.7 0.181 27);
+  --stats-chart-other: color-mix(in oklab, var(--color-text-secondary) 55%, var(--color-page));
+  --ts-chart-focus-fill: var(--color-page);
+  --ts-chart-tooltip-background: var(--color-card);
+  --ts-chart-tooltip-color: var(--color-text-strong);
+  --ts-chart-tooltip-border: 1px solid var(--color-border);
+  --ts-chart-tooltip-shadow: var(--shadow-pop);
+  --ts-chart-tooltip-font: 500 0.75rem/1.3 var(--font-sans);
 }
 
 @media (pointer: coarse) {
@@ -290,31 +310,6 @@
   --shadow-control: 0 1px 2px -1px rgb(0 0 0 / 50%), 0 2px 4px 0 rgb(0 0 0 / 40%);
   --shadow-pop: 0 4px 12px -2px rgb(0 0 0 / 55%), 0 2px 6px -2px rgb(0 0 0 / 45%);
   --shadow-float: 0 18px 50px -8px rgb(0 0 0 / 60%), 0 4px 16px rgb(0 0 0 / 35%);
-}
-
-:root {
-  --ts-chart-1: var(--color-primary-500);
-  --ts-chart-2: var(--stats-chart-blue);
-  --ts-chart-3: var(--stats-chart-green);
-  --ts-chart-4: var(--stats-chart-yellow);
-  --ts-chart-5: var(--stats-chart-purple);
-  --ts-chart-6: var(--stats-chart-cyan);
-  --stats-chart-blue: oklch(0.67 0.167 258);
-  --stats-chart-green: oklch(0.67 0.200 145);
-  --stats-chart-yellow: oklch(0.83 0.162 85);
-  --stats-chart-purple: oklch(0.64 0.231 305);
-  --stats-chart-cyan: oklch(0.75 0.123 190);
-  --stats-chart-orange: oklch(0.81 0.119 55);
-  --stats-chart-red: oklch(0.7 0.181 27);
-  --stats-chart-other: color-mix(in oklab, var(--color-text-secondary) 55%, var(--color-page));
-  --ts-chart-focus-fill: var(--color-page);
-  --ts-chart-tooltip-background: var(--color-card);
-  --ts-chart-tooltip-color: var(--color-text-strong);
-  --ts-chart-tooltip-border: 1px solid var(--color-border);
-  --ts-chart-tooltip-shadow: var(--shadow-pop);
-  --ts-chart-tooltip-font: 500 0.75rem/1.3 var(--font-sans);
-}
-.dark {
   --ts-chart-1: var(--color-primary);
   --stats-chart-blue: oklch(0.66 0.173 258);
   --stats-chart-green: oklch(0.74 0.221 145);
@@ -324,6 +319,7 @@
   --stats-chart-orange: oklch(0.74 0.173 55);
   --stats-chart-red: oklch(0.66 0.215 27);
 }
+
 [data-app-theme="custom"] {
   --ts-chart-1: var(--color-orange-500);
 }

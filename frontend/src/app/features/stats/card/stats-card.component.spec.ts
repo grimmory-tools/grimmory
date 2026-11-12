@@ -1,6 +1,7 @@
 import {Component, computed, input, signal} from '@angular/core';
 import {HttpTestingController} from '@angular/common/http/testing';
 import {type ComponentFixture, TestBed} from '@angular/core/testing';
+import {QueryClient} from '@tanstack/angular-query-experimental';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {API_CONFIG} from '../../../core/config/api-config';
@@ -130,6 +131,24 @@ describe('StatsCardComponent', () => {
 
     http.expectOne(FORMATS_URL).flush({rows: [{value: 'EPUB', books: 4}]});
     await flushQueryAsync();
+    await fixture.whenStable();
+
+    expect(fixture.componentInstance.state()).toBe('ready');
+    expect(chartText(fixture)).toBe('{"rows":[{"value":"EPUB","books":4}]}');
+  });
+
+  it('keeps a loaded chart on screen when a background refresh fails', async () => {
+    configure();
+    const fixture = await render(BOOK_FORMATS);
+    http.expectOne(FORMATS_URL).flush({rows: [{value: 'EPUB', books: 4}]});
+    await flushQueryAsync();
+    await fixture.whenStable();
+
+    void TestBed.inject(QueryClient).invalidateQueries({queryKey: ['stats']});
+    await flushQueryAsync();
+    http.expectOne(FORMATS_URL).flush('Not found', {status: 404, statusText: 'Not Found'});
+    await flushQueryAsync();
+    await fixture.whenStable();
 
     expect(fixture.componentInstance.state()).toBe('ready');
     expect(chartText(fixture)).toBe('{"rows":[{"value":"EPUB","books":4}]}');
@@ -142,6 +161,7 @@ describe('StatsCardComponent', () => {
       `${BASE}/reading/slots?tz=UTC&period=${period}`;
     http.expectOne(url('2026')).flush(slots(3));
     await flushQueryAsync();
+    await fixture.whenStable();
     expect(chartText(fixture)).toBe('{"year":2026,"seconds":3}');
 
     await choose(fixture, 'Select Year', '2025');
@@ -151,6 +171,7 @@ describe('StatsCardComponent', () => {
 
     pending.flush(slots(5));
     await flushQueryAsync();
+    await fixture.whenStable();
     expect(chartText(fixture)).toBe('{"year":2025,"seconds":5}');
   });
 
@@ -162,6 +183,7 @@ describe('StatsCardComponent', () => {
     const header = () => fixture.nativeElement.querySelector('header')?.textContent ?? '';
     http.expectOne(url('2026-W53')).flush({rows: [], truncated: false});
     await flushQueryAsync();
+    await fixture.whenStable();
     expect(header()).toContain('Week 53');
     expect(header()).toContain('Dec 28 – Jan 3');
 
@@ -169,6 +191,7 @@ describe('StatsCardComponent', () => {
     await flushQueryAsync();
     http.expectOne(url('2027-W01')).flush({rows: [], truncated: false});
     await flushQueryAsync();
+    await fixture.whenStable();
     expect(header()).toContain('Jan 4 – Jan 10');
 
     (fixture.nativeElement.querySelector('button[aria-label="Previous week"]') as HTMLButtonElement).click();
@@ -177,6 +200,7 @@ describe('StatsCardComponent', () => {
     await flushQueryAsync();
     http.expectOne(url('2026-W52')).flush({rows: [], truncated: false});
     await flushQueryAsync();
+    await fixture.whenStable();
     expect(header()).toContain('Week 52');
     expect(header()).toContain('Dec 21 – Dec 27');
   });

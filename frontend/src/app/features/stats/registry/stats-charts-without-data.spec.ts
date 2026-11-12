@@ -62,6 +62,7 @@ describe('stats charts without data', () => {
         for (const request of http.match(() => true)) request.flush(emptyResponse(request));
         await flushQueryAsync();
       }
+      await fixture.whenStable();
 
       expect(card.querySelector('[role="status"]')).toBeNull();
       expect(card.querySelector('app-message')).toBeNull();
