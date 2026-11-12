@@ -60,9 +60,7 @@ export class FileMoverComponent {
 
   protected readonly patternsCollapsed = signal(true);
   protected readonly infoCollapsed = signal(true);
-  protected readonly moved = signal(false);
   protected readonly defaultTargetLibraryId = signal<number | null>(null);
-  private readonly targetOverrides = signal<ReadonlyMap<number, BookTarget>>(new Map());
 
   private readonly books = computed(() => this.booksQuery.data() ?? []);
   private readonly defaultMovePattern = computed(() => this.appSettingsService.appSettings()?.uploadPattern || '');
@@ -75,6 +73,12 @@ export class FileMoverComponent {
   protected readonly defaultTargetLibraryPathId = linkedSignal<LibraryPath[], number | null>({
     source: this.defaultAvailableLibraryPaths,
     computation: (paths, previous) => paths.find(path => path.id === previous?.value)?.id ?? paths[0]?.id ?? null
+  });
+  private readonly targetOverrides = linkedSignal({
+    source: () => ({libraryId: this.defaultTargetLibraryId(), libraryPathId: this.defaultTargetLibraryPathId()}),
+    computation: ({libraryId}, previous): ReadonlyMap<number, BookTarget> => previous?.source.libraryId === libraryId
+      ? new Map([...previous.value].filter(([, target]) => target.targetLibraryId !== libraryId))
+      : new Map()
   });
 
   protected readonly libraryPatterns = computed(() => {
@@ -97,18 +101,6 @@ export class FileMoverComponent {
 
   protected readonly filePreviews = computed(() => this.books().map(book => this.buildPreview(book)));
 
-  protected onDefaultLibraryChange(libraryId: number | null): void {
-    this.defaultTargetLibraryId.set(libraryId);
-    this.targetOverrides.set(new Map());
-  }
-
-  protected onDefaultLibraryPathChange(libraryPathId: number | null): void {
-    this.defaultTargetLibraryPathId.set(libraryPathId);
-    this.targetOverrides.update(overrides => new Map(
-      [...overrides].filter(([, target]) => target.targetLibraryId !== this.defaultTargetLibraryId())
-    ));
-  }
-
   protected onLibraryChange(bookId: number, libraryId: number): void {
     this.setTarget({bookId, targetLibraryId: libraryId, targetLibraryPathId: this.getLibraryPaths(libraryId)[0]?.id ?? null});
   }
@@ -126,7 +118,6 @@ export class FileMoverComponent {
 
     this.moveFilesMutation.mutate({moves}, {
       onSuccess: () => {
-        this.moved.set(true);
         this.messageService.add({
           severity: 'success',
           summary: 'Files Organized!',
@@ -183,7 +174,7 @@ export class FileMoverComponent {
   }
 
   private getNewPath(book: BookSummary, libraryId: number): string {
-    const meta = book.metadata!;
+    const meta = book.metadata;
     const fileName = book.primaryFile?.fileName ?? '';
     const extension = fileName.match(/\.[^.]+$/)?.[0] ?? '';
     const pattern = this.getLibrary(libraryId)?.fileNamingPattern || this.defaultMovePattern();
@@ -193,15 +184,15 @@ export class FileMoverComponent {
     }
 
     const newPath = replacePlaceholders(pattern, {
-      authors: this.sanitize(meta.authors?.join(', ') || 'Unknown Author'),
-      title: this.sanitize(meta.title || 'Untitled'),
-      subtitle: this.sanitize(meta.subtitle || ''),
-      year: this.formatYear(meta.publishedDate),
-      series: this.sanitize(meta.seriesName || ''),
-      seriesIndex: this.formatSeriesIndex(meta.seriesNumber),
-      language: this.sanitize(meta.language || ''),
-      publisher: this.sanitize(meta.publisher || ''),
-      isbn: this.sanitize(meta.isbn13 || meta.isbn10 || ''),
+      authors: this.sanitize(meta?.authors?.join(', ') || 'Unknown Author'),
+      title: this.sanitize(meta?.title || 'Untitled'),
+      subtitle: this.sanitize(meta?.subtitle || ''),
+      year: this.formatYear(meta?.publishedDate),
+      series: this.sanitize(meta?.seriesName || ''),
+      seriesIndex: this.formatSeriesIndex(meta?.seriesNumber),
+      language: this.sanitize(meta?.language || ''),
+      publisher: this.sanitize(meta?.publisher || ''),
+      isbn: this.sanitize(meta?.isbn13 || meta?.isbn10 || ''),
       currentFilename: this.sanitize(fileName)
     });
 

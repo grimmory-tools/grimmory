@@ -57,10 +57,6 @@ export interface BookFileMove {
   readonly targetLibraryPathId: number | null;
 }
 
-export interface MoveBookFilesVariables {
-  readonly moves: readonly BookFileMove[];
-}
-
 export class DeleteBooksPartialError extends Error {
   constructor(
     readonly completed: DeleteBooksResult,

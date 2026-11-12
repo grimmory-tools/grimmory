@@ -1693,11 +1693,6 @@
       "count": 1
     }
   },
-  "src/app/shared/components/file-mover/file-mover-component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
   "src/app/shared/components/icon-display/icon-display.component.ts": {
     "typescript/no-unnecessary-condition": {
       "count": 1

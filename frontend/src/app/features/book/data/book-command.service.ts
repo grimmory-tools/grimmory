@@ -20,7 +20,7 @@ import {
   ResetBookProgressVariables,
   SetAllBookMetadataLocksVariables,
   SetBookReadStatusVariables,
-  MoveBookFilesVariables,
+  BookFileMove,
   SetBookPersonalRatingVariables,
   BookPersonalRatingResult,
   SaveBookProgressVariables,
@@ -149,8 +149,12 @@ export class BookCommandService {
     return mutationOptions({
       mutationKey: bookCommandKeys.moveFiles(),
       scope: bookCommandScopes.files,
-      mutationFn: ({moves}: MoveBookFilesVariables) =>
-        lastValueFrom(this.http.post<void>(`${this.filesUrl}/move`, {moves})),
+      mutationFn: ({moves}: {readonly moves: readonly BookFileMove[]}) => {
+        if (moves.length === 0) {
+          throw new Error('At least one file move is required.');
+        }
+        return lastValueFrom(this.http.post<void>(`${this.filesUrl}/move`, {moves}));
+      },
       onSettled: (_data, _error, {moves}, _onMutateResult, {client}) =>
         applyBookQueryChangeSet(client, {changedBookIds: moves.map(move => move.bookId)}),
     });

@@ -33,7 +33,7 @@
             Requires good metadata quality.
           </span>
         </div>
-        <button type="button" class="banner-toggle" (click)="infoCollapsed.set(!infoCollapsed())">
+        <button type="button" class="banner-toggle" (click)="infoCollapsed.update(collapsed => !collapsed)">
           <span>{{ infoCollapsed() ? 'Learn more' : 'Hide' }}</span>
           <i [class]="infoCollapsed() ? 'pi pi-chevron-down' : 'pi pi-chevron-up'"></i>
         </button>
@@ -63,7 +63,7 @@
 
     <!-- Naming Patterns Section -->
     <section class="patterns-section">
-      <button type="button" class="patterns-toggle" (click)="patternsCollapsed.set(!patternsCollapsed())">
+      <button type="button" class="patterns-toggle" (click)="patternsCollapsed.update(collapsed => !collapsed)">
         <div class="toggle-content">
           <i class="pi pi-code"></i>
           <span>Naming Rules</span>
@@ -98,8 +98,7 @@
         <span class="bulk-label">Set all files to:</span>
         <p-select
           [options]="libraries()"
-          [ngModel]="defaultTargetLibraryId()"
-          (ngModelChange)="onDefaultLibraryChange($event)"
+          [(ngModel)]="defaultTargetLibraryId"
           optionLabel="name"
           optionValue="id"
           placeholder="Select library"
@@ -109,8 +108,7 @@
         @if (defaultAvailableLibraryPaths().length > 0) {
           <p-select
             [options]="defaultAvailableLibraryPaths()"
-            [ngModel]="defaultTargetLibraryPathId()"
-            (ngModelChange)="onDefaultLibraryPathChange($event)"
+            [(ngModel)]="defaultTargetLibraryPathId"
             optionLabel="path"
             optionValue="id"
             placeholder="Select path"
@@ -149,9 +147,9 @@
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-preview>
-            <tr [class.row-moved]="moved()">
+            <tr [class.row-moved]="moveFilesMutation.isSuccess()">
               <td class="status-cell">
-                @if (moved()) {
+                @if (moveFilesMutation.isSuccess()) {
                   <i class="pi pi-check-circle status-success"></i>
                 } @else {
                   <i class="pi pi-clock status-pending"></i>
@@ -172,7 +170,7 @@
                   optionLabel="name"
                   optionValue="id"
                   placeholder="Select"
-                  [disabled]="moved()"
+                  [disabled]="moveFilesMutation.isSuccess()"
                   class="select-full-width"
                   appendTo="body"
                   size="small" />
@@ -186,7 +184,7 @@
                     optionLabel="path"
                     optionValue="id"
                     placeholder="Select"
-                    [disabled]="moved()"
+                    [disabled]="moveFilesMutation.isSuccess()"
                     class="select-full-width"
                     appendTo="body"
                     size="small" />
@@ -231,14 +229,14 @@
   </div>
 
   <div class="dialog-footer">
-    @if (moved()) {
+    @if (moveFilesMutation.isSuccess()) {
       <div class="success-indicator">
         <i class="pi pi-check-circle"></i>
         <span>{{ bookIds.length }} file{{ bookIds.length > 1 ? 's' : '' }} successfully moved</span>
       </div>
     }
     <div class="footer-actions">
-      @if (!moved()) {
+      @if (!moveFilesMutation.isSuccess()) {
         <p-button
           label="Cancel"
           icon="pi pi-times"
