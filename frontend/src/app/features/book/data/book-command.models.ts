@@ -51,6 +51,12 @@ export interface ResetBookProgressResult {
   readonly dateFinished: string | null;
 }
 
+export interface BookFileMove {
+  readonly bookId: number;
+  readonly targetLibraryId: number | null;
+  readonly targetLibraryPathId: number | null;
+}
+
 export class DeleteBooksPartialError extends Error {
   constructor(
     readonly completed: DeleteBooksResult,
