@@ -8,7 +8,9 @@ import {Dialog} from '@openng/optimus-ui/dialog';
 import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
 import {injectQuery, keepPreviousData} from '@tanstack/angular-query-experimental';
 import {PageTitleService} from "../../../../shared/service/page-title.service";
-import {BookMetadataManageService, MetadataSelection} from '../../../book/service/book-metadata-manage.service';
+import {BookMetadataManageService, MetadataValuesSelectAll} from '../../../book/service/book-metadata-manage.service';
+import {BookMetadataValueType} from '../../../book/data/book-command.models';
+import {injectBookActionFeedback} from '../../../book/service/book-action-feedback';
 import {BookQueryService} from '../../../book/data/book-query.service';
 import {BookQueryFacetKey, EMPTY_FACET_SELECTION} from '../../../book/data/book-query-params';
 import {withBrowseFacetValues} from '../../../../shared/browse/facets';
@@ -28,10 +30,8 @@ interface MetadataItem {
   count: number;
 }
 
-type MetadataType = 'authors' | 'categories' | 'moods' | 'tags' | 'series' | 'publishers' | 'languages';
-
 interface TabConfig {
-  type: MetadataType;
+  type: BookMetadataValueType;
   labelKey: string;
   labelPluralKey: string;
   placeholderKey: string;
@@ -42,7 +42,7 @@ type RowSelection =
   | {kind: 'values'; values: ReadonlyMap<string, number>}
   | {kind: 'matching'; excluded: ReadonlySet<string>};
 
-const FACET_KEYS: Record<MetadataType, BookQueryFacetKey> = {
+const FACET_KEYS: Record<BookMetadataValueType, BookQueryFacetKey> = {
   authors: 'author',
   categories: 'genre',
   moods: 'mood',
@@ -89,38 +89,22 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly pageTitle = inject(PageTitleService);
   private readonly t = inject(TranslocoService);
+  private readonly feedback = injectBookActionFeedback();
 
   private routeSub!: Subscription;
-  readonly loading = signal(false);
   readonly mergingInProgress = signal(false);
   readonly deletingInProgress = signal(false);
   readonly showMergeDialog = signal(false);
-  showRenameDialog = false;
+  readonly showRenameDialog = signal(false);
   readonly showDeleteDialog = signal(false);
   mergeTarget = '';
   renameTarget = '';
-  currentMergeType: MetadataType = 'authors';
+  currentMergeType: BookMetadataValueType = 'authors';
   currentRenameItem: MetadataItem | null = null;
   currentDeleteItem: MetadataItem | null = null;
 
-  private readonly validTabs: MetadataType[] = ['authors', 'categories', 'moods', 'tags', 'series', 'publishers', 'languages'];
-  private readonly _activeTab = signal<MetadataType>('authors');
-
-  get activeTab(): MetadataType {
-    return this._activeTab();
-  }
-
-  set activeTab(value: MetadataType) {
-    this._activeTab.set(value);
-
-    this.updatePageTitle();
-
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: {tab: value},
-      queryParamsHandling: 'merge'
-    });
-  }
+  private readonly validTabs: BookMetadataValueType[] = ['authors', 'categories', 'moods', 'tags', 'series', 'publishers', 'languages'];
+  readonly activeTab = signal<BookMetadataValueType>('authors');
 
   tabConfigs: TabConfig[] = [
     {type: 'authors', labelKey: 'tabs.author', labelPluralKey: 'tabs.authors', placeholderKey: 'placeholders.searchAuthors', icon: 'pi-user'},
@@ -132,41 +116,46 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
     {type: 'languages', labelKey: 'tabs.language', labelPluralKey: 'tabs.languages', placeholderKey: 'placeholders.searchLanguages', icon: 'pi-globe'}
   ];
 
-  readonly searchInput = linkedSignal({source: this._activeTab, computation: () => ''});
+  readonly searchInput = linkedSignal({source: this.activeTab, computation: () => ''});
   private readonly debouncedSearch = debouncedSignal(
-    computed(() => ({tab: this._activeTab(), search: this.searchInput().trim()})),
+    computed(() => ({tab: this.activeTab(), search: this.searchInput().trim()})),
     SEARCH_DEBOUNCE_MS,
   );
   readonly search = computed(() => {
     const debounced = this.debouncedSearch();
-    return debounced.tab === this._activeTab() ? debounced.search : '';
+    return debounced.tab === this.activeTab() ? debounced.search : '';
   });
   private readonly scope = computed(
-    () => ({tab: this._activeTab(), search: this.search()}),
+    () => ({tab: this.activeTab(), search: this.search()}),
     {equal: (a, b) => a.tab === b.tab && a.search === b.search},
   );
 
   readonly page = linkedSignal({source: this.scope, computation: () => 0});
   readonly selection = linkedSignal({source: this.scope, computation: (): RowSelection => NO_SELECTION});
 
-  private readonly rowsQuery = injectQuery(() => ({
-    ...this.bookQuery.facet(FACET_KEYS[this._activeTab()], NO_FILTERS, this.search(), this.page(), PAGE_SIZE),
+  readonly rowsQuery = injectQuery(() => ({
+    ...this.bookQuery.facet(FACET_KEYS[this.activeTab()], NO_FILTERS, this.search(), this.page(), PAGE_SIZE),
     placeholderData: keepPreviousData,
   }));
   readonly rows = computed(() => this.rowsQuery.data()?.values ?? []);
   readonly hasNextPage = computed(() => !this.rowsQuery.isPlaceholderData() && this.rowsQuery.data()?.complete === false);
-  readonly rowsLoading = this.rowsQuery.isFetching;
 
   private readonly affectedBooksQuery = injectQuery(() => {
-    const values = this.getSelectedItems().map(item => item.value);
-    const facets = withBrowseFacetValues(EMPTY_FACET_SELECTION, FACET_KEYS[this._activeTab()], {include: values, exclude: []});
+    const values = this.selectedItems().map(item => item.value);
+    const facets = withBrowseFacetValues(EMPTY_FACET_SELECTION, FACET_KEYS[this.activeTab()], {include: values, exclude: []});
     return {
-      ...this.bookQuery.ids({facets, sort: []}),
+      ...this.bookQuery.page({facets, sort: [], size: 1}),
       enabled: values.length > 0 && (this.showMergeDialog() || this.showDeleteDialog()),
     };
   });
-  readonly affectedBooks = computed(() => this.affectedBooksQuery.data()?.length ?? null);
+  readonly affectedBooks = computed(() => this.affectedBooksQuery.data()?.page.totalElements ?? null);
 
+  readonly selectedItems = computed((): MetadataItem[] => {
+    const selection = this.selection();
+    return selection.kind === 'values'
+      ? [...selection.values].map(([value, count]) => ({value, count}))
+      : [];
+  });
   readonly allSelected = computed(() => {
     const selection = this.selection();
     return selection.kind === 'matching' && selection.excluded.size === 0;
@@ -181,7 +170,7 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
   });
   readonly selectionLabel = computed(() => {
     const selection = this.selection();
-    const type = this.getTypeLabel(this._activeTab(), true);
+    const type = this.getTypeLabel(this.activeTab(), true);
     const except = selection.kind === 'matching' ? selection.excluded.size : 0;
     const search = this.search();
     let key: string;
@@ -194,15 +183,15 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
   });
 
   ngOnInit() {
-    this.routeSub = this.route.queryParams.subscribe(params => {
-      const tabParam = params['tab'] as MetadataType;
-      if (this.validTabs.includes(tabParam)) {
-        this._activeTab.set(tabParam);
+    this.routeSub = this.route.queryParamMap.subscribe(params => {
+      const tab = this.findTab(params.get('tab') ?? undefined);
+      if (tab) {
+        this.activeTab.set(tab);
       } else {
-        this._activeTab.set('authors');
+        this.activeTab.set('authors');
         this.router.navigate([], {
           relativeTo: this.route,
-          queryParams: {tab: this._activeTab()},
+          queryParams: {tab: this.activeTab()},
           queryParamsHandling: 'merge',
           replaceUrl: true
         });
@@ -212,8 +201,8 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
   }
 
   updatePageTitle() {
-    const currentTab = this.tabConfigs.find((tab) => tab.type === this._activeTab());
-    const label = currentTab ? this.t.translate('metadata.manager.' + currentTab.labelKey) : this._activeTab();
+    const currentTab = this.tabConfigs.find((tab) => tab.type === this.activeTab());
+    const label = currentTab ? this.t.translate('metadata.manager.' + currentTab.labelKey) : this.activeTab();
     this.pageTitle.setPageTitle(`${this.t.translate('metadata.manager.title')}: ${label}`);
   }
 
@@ -221,14 +210,19 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
     this.routeSub.unsubscribe();
   }
 
-  getSelectedItems(): MetadataItem[] {
-    const selection = this.selection();
-    return selection.kind === 'values'
-      ? [...selection.values].map(([value, count]) => ({value, count}))
-      : [];
+  selectTab(value: string | number | undefined) {
+    const tab = this.findTab(value);
+    if (!tab) return;
+    this.activeTab.set(tab);
+    this.updatePageTitle();
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {tab},
+      queryParamsHandling: 'merge'
+    });
   }
 
-  openMergeDialog(type: MetadataType) {
+  openMergeDialog(type: BookMetadataValueType) {
     const selection = this.selection();
     if (!this.canMerge()) {
       this.messageService.add({
@@ -241,19 +235,19 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
 
     this.currentMergeType = type;
     this.mergeTarget = selection.kind === 'values'
-      ? this.getSelectedItems()[0].value
+      ? this.selectedItems()[0].value
       : this.rows().find(row => !selection.excluded.has(row.value))?.value ?? '';
     this.showMergeDialog.set(true);
   }
 
-  openRenameDialog(type: MetadataType, item: MetadataItem) {
+  openRenameDialog(type: BookMetadataValueType, item: MetadataItem) {
     this.currentMergeType = type;
     this.currentRenameItem = item;
     this.renameTarget = item.value;
-    this.showRenameDialog = true;
+    this.showRenameDialog.set(true);
   }
 
-  openDeleteDialog(type: MetadataType, item?: MetadataItem) {
+  openDeleteDialog(type: BookMetadataValueType, item?: MetadataItem) {
     if (item) {
       this.currentMergeType = type;
       this.currentDeleteItem = item;
@@ -304,7 +298,7 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
     }
 
     if (targetValues.length === 1 && targetValues[0] === this.currentRenameItem.value) {
-      this.showRenameDialog = false;
+      this.showRenameDialog.set(false);
       return;
     }
 
@@ -321,9 +315,8 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
       ? `"${targetValues[0]}"`
       : `${targetValues.length} values`;
 
-    this.loading.set(true);
     this.mergingInProgress.set(true);
-    this.bookMetadataManageService.consolidateMetadata(this.currentMergeType, targetValues, {type: 'values', values: [oldValue]}).subscribe({
+    this.bookMetadataManageService.consolidateMetadata(this.currentMergeType, targetValues, [oldValue]).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
@@ -335,25 +328,15 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
             : this.t.translate('metadata.manager.toast.splitSuccessfulDetail', {oldValue, resultText, count: affectedBooks}),
           life: 5000
         });
-        this.showRenameDialog = false;
+        this.showRenameDialog.set(false);
         this.currentRenameItem = null;
         this.renameTarget = '';
         this.clearSelection();
         this.page.set(0);
         this.mergingInProgress.set(false);
-        this.loading.set(false);
       },
-      error: (error) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: action === 'renamed'
-            ? this.t.translate('metadata.manager.toast.renameFailedSummary')
-            : this.t.translate('metadata.manager.toast.splitFailedSummary'),
-          detail: error?.error?.message || (action === 'renamed'
-            ? this.t.translate('metadata.manager.toast.renameFailedDetail')
-            : this.t.translate('metadata.manager.toast.splitFailedDetail'))
-        });
-        this.loading.set(false);
+      error: (error: unknown) => {
+        this.feedback.error(action === 'renamed' ? 'metadata.manager.toast.renameFailed' : 'metadata.manager.toast.splitFailed', error);
         this.mergingInProgress.set(false);
       }
     });
@@ -393,7 +376,7 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
   }
 
   private performMerge(targetValues: string[]) {
-    const selected = this.getSelectedItems();
+    const selected = this.selectedItems();
     const affectedBooks = this.affectedBooks();
     const operation = targetValues.length === 1 ? 'merge' : 'merge/split';
     let detail: string | undefined;
@@ -403,9 +386,8 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
         : this.t.translate('metadata.manager.toast.mergeSplitSuccessfulDetail', {selectedCount: selected.length, type: this.getTypeLabel(this.currentMergeType, true), targetCount: targetValues.length, bookCount: affectedBooks});
     }
 
-    this.loading.set(true);
     this.mergingInProgress.set(true);
-    this.bookMetadataManageService.consolidateMetadata(this.currentMergeType, targetValues, this.requestSelection()).subscribe({
+    this.bookMetadataManageService.consolidateMetadata(this.currentMergeType, targetValues, this.selectAllRequest() ?? selected.map(item => item.value)).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
@@ -420,30 +402,21 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
         this.clearSelection();
         this.page.set(0);
         this.mergingInProgress.set(false);
-        this.loading.set(false);
       },
-      error: (error) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: operation === 'merge'
-            ? this.t.translate('metadata.manager.toast.mergeFailedSummary')
-            : this.t.translate('metadata.manager.toast.mergeSplitFailedSummary'),
-          detail: error?.error?.message || (operation === 'merge'
-            ? this.t.translate('metadata.manager.toast.mergeFailedDetail')
-            : this.t.translate('metadata.manager.toast.mergeSplitFailedDetail'))
-        });
-        this.loading.set(false);
+      error: (error: unknown) => {
+        this.feedback.error(operation === 'merge' ? 'metadata.manager.toast.mergeFailed' : 'metadata.manager.toast.mergeSplitFailed', error);
         this.mergingInProgress.set(false);
       }
     });
   }
 
   confirmDelete() {
-    const selection: MetadataSelection = this.currentDeleteItem
-      ? {type: 'values', values: [this.currentDeleteItem.value]}
-      : this.requestSelection();
+    const selectAll = this.currentDeleteItem ? null : this.selectAllRequest();
+    const valuesToDelete = this.currentDeleteItem
+      ? [this.currentDeleteItem.value]
+      : this.selectedItems().map(item => item.value);
 
-    if (selection.type === 'values' && selection.values.length === 0) {
+    if (!selectAll && valuesToDelete.length === 0) {
       this.messageService.add({
         severity: 'warn',
         summary: this.t.translate('metadata.manager.toast.invalidSelectionSummary'),
@@ -452,23 +425,23 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.performDelete(selection);
+    this.performDelete(selectAll ?? valuesToDelete);
   }
 
-  private performDelete(selection: MetadataSelection) {
+  private performDelete(valuesToDelete: string[] | MetadataValuesSelectAll) {
     const affectedBooks = this.currentDeleteItem
       ? this.currentDeleteItem.count
       : this.affectedBooks();
+    const deletedCount = Array.isArray(valuesToDelete) ? valuesToDelete.length : null;
 
-    this.loading.set(true);
     this.deletingInProgress.set(true);
-    this.bookMetadataManageService.deleteMetadata(this.currentMergeType, selection).subscribe({
+    this.bookMetadataManageService.deleteMetadata(this.currentMergeType, valuesToDelete).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
           summary: this.t.translate('metadata.manager.toast.deleteSuccessfulSummary'),
-          detail: selection.type === 'values' && affectedBooks !== null
-            ? this.t.translate('metadata.manager.toast.deleteSuccessfulDetail', {count: selection.values.length, type: selection.values.length > 1 ? this.getTypeLabel(this.currentMergeType, true) : this.getTypeLabel(this.currentMergeType, false), bookCount: affectedBooks})
+          detail: deletedCount !== null && affectedBooks !== null
+            ? this.t.translate('metadata.manager.toast.deleteSuccessfulDetail', {count: deletedCount, type: deletedCount > 1 ? this.getTypeLabel(this.currentMergeType, true) : this.getTypeLabel(this.currentMergeType, false), bookCount: affectedBooks})
             : undefined,
           life: 5000
         });
@@ -477,15 +450,9 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
         this.clearSelection();
         this.page.set(0);
         this.deletingInProgress.set(false);
-        this.loading.set(false);
       },
-      error: (error) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: this.t.translate('metadata.manager.toast.deleteFailedSummary'),
-          detail: error?.error?.message || this.t.translate('metadata.manager.toast.deleteFailedDetail')
-        });
-        this.loading.set(false);
+      error: (error: unknown) => {
+        this.feedback.error('metadata.manager.toast.deleteFailed', error);
         this.deletingInProgress.set(false);
       }
     });
@@ -529,18 +496,8 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
     this.searchInput.set(value);
   }
 
-  onMetadataClick(type: MetadataType, value: string): void {
-    const filterKeyMap: Record<MetadataType, string> = {
-      authors: 'author',
-      categories: 'genre',
-      moods: 'mood',
-      tags: 'tag',
-      series: 'series',
-      publishers: 'publisher',
-      languages: 'language'
-    };
-
-    this.navigateToFilteredBooks(filterKeyMap[type], value);
+  onMetadataClick(type: BookMetadataValueType, value: string): void {
+    this.navigateToFilteredBooks(FACET_KEYS[type], value);
   }
 
   navigateToFilteredBooks(filterKey: string, filterValue: string): void {
@@ -551,20 +508,24 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
     });
   }
 
-  protected getTypeLabel(type: MetadataType, plural: boolean): string {
+  protected getTypeLabel(type: BookMetadataValueType, plural: boolean): string {
     const tab = this.tabConfigs.find(tc => tc.type === type);
     if (!tab) return type;
     return this.t.translate('metadata.manager.' + (plural ? tab.labelPluralKey : tab.labelKey));
   }
 
-  protected isSingleValueField(type: MetadataType): boolean {
+  protected isSingleValueField(type: BookMetadataValueType): boolean {
     return type === 'series' || type === 'publishers' || type === 'languages';
   }
 
-  private requestSelection(): MetadataSelection {
+  private findTab(value: string | number | undefined): BookMetadataValueType | undefined {
+    return this.validTabs.find(tab => tab === value);
+  }
+
+  private selectAllRequest(): MetadataValuesSelectAll | null {
     const selection = this.selection();
-    return selection.kind === 'values'
-      ? {type: 'values', values: [...selection.values.keys()]}
-      : {type: 'matching', search: this.search(), excludedValues: [...selection.excluded]};
+    return selection.kind === 'matching'
+      ? {selectAll: true, search: this.search(), excludedValues: [...selection.excluded]}
+      : null;
   }
 }

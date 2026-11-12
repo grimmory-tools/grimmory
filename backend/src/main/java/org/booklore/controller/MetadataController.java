@@ -103,7 +103,7 @@ public class MetadataController {
     @PostMapping("/metadata/manage/consolidate")
     @PreAuthorize("@securityUtil.canBulkEditMetadata() or @securityUtil.isAdmin()")
     public ResponseEntity<Void> mergeMetadata(@Parameter(description = "Merge metadata request") @Validated @RequestBody MergeMetadataRequest request) {
-        List<String> valuesToMerge = metadataManagementService.resolve(request.getMetadataType(), request.getSelection());
+        List<String> valuesToMerge = metadataManagementService.resolve(request.getMetadataType(), request.getValuesToMerge(), request.isSelectAll(), request.getSearch(), request.getExcludedValues());
         metadataManagementService.consolidateMetadata(request.getMetadataType(), request.getTargetValues(), valuesToMerge);
         return ResponseEntity.noContent().build();
     }
@@ -113,7 +113,7 @@ public class MetadataController {
     @PostMapping("/metadata/manage/delete")
     @PreAuthorize("@securityUtil.canBulkEditMetadata() or @securityUtil.isAdmin()")
     public ResponseEntity<Void> deleteMetadata(@Parameter(description = "Delete metadata request") @Validated @RequestBody DeleteMetadataRequest request) {
-        List<String> valuesToDelete = metadataManagementService.resolve(request.getMetadataType(), request.getSelection());
+        List<String> valuesToDelete = metadataManagementService.resolve(request.getMetadataType(), request.getValuesToDelete(), request.isSelectAll(), request.getSearch(), request.getExcludedValues());
         metadataManagementService.deleteMetadata(request.getMetadataType(), valuesToDelete);
         return ResponseEntity.noContent().build();
     }

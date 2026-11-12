@@ -1,6 +1,7 @@
 package org.booklore.service.metadata;
 
 import org.booklore.config.AppProperties;
+import org.booklore.model.dto.Book;
 import org.booklore.model.dto.FileMoveResult;
 import org.booklore.model.dto.settings.AppSettings;
 import org.booklore.model.dto.settings.MetadataPersistenceSettings;
@@ -9,6 +10,7 @@ import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.MergeMetadataType;
 import org.booklore.repository.*;
 import org.booklore.service.appsettings.AppSettingService;
+import org.booklore.service.browse.BrowseService;
 import org.booklore.service.file.FileMoveService;
 import org.booklore.service.metadata.writer.MetadataWriter;
 import org.booklore.service.metadata.writer.MetadataWriterFactory;
@@ -44,6 +46,7 @@ class MetadataManagementServiceTest {
     @Mock private MetadataWriterFactory metadataWriterFactory;
     @Mock private FileMoveService fileMoveService;
     @Mock private BookRepository bookRepository;
+    @Mock private BrowseService<BookEntity, Book> bookBrowse;
 
     @InjectMocks
     private MetadataManagementService service;
@@ -646,5 +649,22 @@ class MetadataManagementServiceTest {
         verify(metadataWriterFactory, never()).getWriter(any());
         verify(bookRepository, never()).saveAndFlush(any());
         verify(authorRepository).delete(oldAuthor);
+    }
+
+    @Test
+    void resolveSelectAllReturnsEveryMatchExceptTheExcludedValues() {
+        when(bookBrowse.allValues("tag", "zeb")).thenReturn(List.of("Zebra", "Zebu"));
+
+        assertThat(service.resolve(MergeMetadataType.tags, null, true, "zeb", null))
+                .containsExactly("Zebra", "Zebu");
+        assertThat(service.resolve(MergeMetadataType.tags, null, true, "zeb", Set.of("Zebu")))
+                .containsExactly("Zebra");
+    }
+
+    @Test
+    void resolveWithoutSelectAllReturnsTheGivenValues() {
+        assertThat(service.resolve(MergeMetadataType.tags, List.of("Zebra"), false, null, null))
+                .containsExactly("Zebra");
+        verifyNoInteractions(bookBrowse);
     }
 }

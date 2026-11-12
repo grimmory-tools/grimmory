@@ -17,7 +17,7 @@
   </div>
 
   <div class="settings-content">
-    <p-tabs [(value)]="activeTab">
+    <p-tabs [value]="activeTab()" (valueChange)="selectTab($event)">
       <p-tablist>
         @for (tab of tabConfigs; track tab.type) {
           <p-tab [value]="tab.type">
@@ -28,7 +28,7 @@
       <p-tabpanels>
         @for (tab of tabConfigs; track tab.type) {
           <p-tabpanel [value]="tab.type">
-            @if (tab.type === activeTab) {
+            @if (tab.type === activeTab()) {
               <div class="section-header">
                 <p-iconfield class="search-input">
                   <p-inputicon class="pi pi-search"/>
@@ -38,7 +38,8 @@
                     #searchBox
                     [value]="searchInput()"
                     (input)="searchInput.set(searchBox.value)"
-                    [placeholder]="t(tab.placeholderKey)"/>
+                    [placeholder]="t(tab.placeholderKey)"
+                    [attr.aria-label]="t(tab.placeholderKey)"/>
                 </p-iconfield>
                 <div class="actions">
                   <p-button
@@ -71,7 +72,7 @@
               <div class="table-card">
                 <p-table
                   [value]="rows()"
-                  [loading]="loading() || rowsLoading()"
+                  [loading]="mergingInProgress() || deletingInProgress() || rowsQuery.isFetching()"
                   [scrollable]="true"
                   scrollHeight="flex">
                   <ng-template pTemplate="header">
@@ -80,6 +81,7 @@
                         <div class="header-content">
                           <p-checkbox
                             [binary]="true"
+                            [disabled]="rows().length === 0"
                             [ngModel]="allSelected()"
                             (ngModelChange)="setAllSelected($event)" />
                         </div>
@@ -187,9 +189,9 @@
     [style]="{width: '43.75rem'}">
     <div class="dialog-form">
       @if (selection().kind === 'values') {
-        <p>{{ t('mergeSplitDescription', { count: getSelectedItems().length, type: getTypeLabel(currentMergeType, true) }) }}</p>
+        <p>{{ t('mergeSplitDescription', { count: selectedItems().length, type: getTypeLabel(currentMergeType, true) }) }}</p>
         <ul class="selected-items">
-          @for (item of getSelectedItems(); track item.value) {
+          @for (item of selectedItems(); track item.value) {
             <li>
               &#8226; {{ item.value }} <span class="count">{{ t('booksCount', { count: item.count }) }}</span>
             </li>
@@ -284,7 +286,7 @@
         <p-button
           [label]="'common.cancel' | transloco"
           icon="pi pi-times"
-          (onClick)="showRenameDialog = false"
+          (onClick)="showRenameDialog.set(false)"
           [disabled]="mergingInProgress()"
           severity="secondary"
           outlined />
@@ -309,7 +311,7 @@
       <div class="warning-message">
         <i class="pi pi-exclamation-triangle"></i>
         @if (currentDeleteItem || selection().kind === 'values') {
-          <p>{{ t('deleteWarning', { count: currentDeleteItem ? 1 : getSelectedItems().length, type: getTypeLabel(currentMergeType, true) }) }}</p>
+          <p>{{ t('deleteWarning', { count: currentDeleteItem ? 1 : selectedItems().length, type: getTypeLabel(currentMergeType, true) }) }}</p>
         } @else {
           <p>{{ t('deleteAllWarning', { selection: selectionLabel() }) }}</p>
         }
@@ -322,7 +324,7 @@
         </div>
       } @else if (selection().kind === 'values') {
         <ul class="selected-items">
-          @for (item of getSelectedItems(); track item.value) {
+          @for (item of selectedItems(); track item.value) {
             <li>
               &#8226; {{ item.value }} <span class="count">{{ t('booksCount', { count: item.count }) }}</span>
             </li>

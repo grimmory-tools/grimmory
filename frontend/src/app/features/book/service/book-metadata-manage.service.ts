@@ -10,9 +10,11 @@ import {QueryClient} from '@tanstack/angular-query-experimental';
 import {invalidateAllBookCaches, invalidateBooksById, patchBookMetadataInCache, patchBooksInCacheWith} from './legacy-book-cache';
 import {mitigateWebkitUploadBug} from '../../../shared/util/mitigate-webkit-upload-bug';
 
-export type MetadataSelection =
-  | {type: 'values'; values: string[]}
-  | {type: 'matching'; search: string; excludedValues: string[]};
+export interface MetadataValuesSelectAll {
+  selectAll: true;
+  search: string;
+  excludedValues: string[];
+}
 
 @Service()
 export class BookMetadataManageService {
@@ -87,16 +89,18 @@ export class BookMetadataManageService {
     );
   }
 
-  consolidateMetadata(metadataType: 'authors' | 'categories' | 'moods' | 'tags' | 'series' | 'publishers' | 'languages', targetValues: string[], selection: MetadataSelection): Observable<unknown> {
-    return this.http.post(`${this.url}/metadata/manage/consolidate`, {metadataType, targetValues, selection}).pipe(
+  consolidateMetadata(metadataType: 'authors' | 'categories' | 'moods' | 'tags' | 'series' | 'publishers' | 'languages', targetValues: string[], valuesToMerge: string[] | MetadataValuesSelectAll): Observable<unknown> {
+    const selection = Array.isArray(valuesToMerge) ? {valuesToMerge} : valuesToMerge;
+    return this.http.post(`${this.url}/metadata/manage/consolidate`, {metadataType, targetValues, ...selection}).pipe(
       tap(() => {
         invalidateAllBookCaches(this.queryClient);
       })
     );
   }
 
-  deleteMetadata(metadataType: 'authors' | 'categories' | 'moods' | 'tags' | 'series' | 'publishers' | 'languages', selection: MetadataSelection): Observable<unknown> {
-    return this.http.post(`${this.url}/metadata/manage/delete`, {metadataType, selection}).pipe(
+  deleteMetadata(metadataType: 'authors' | 'categories' | 'moods' | 'tags' | 'series' | 'publishers' | 'languages', valuesToDelete: string[] | MetadataValuesSelectAll): Observable<unknown> {
+    const selection = Array.isArray(valuesToDelete) ? {valuesToDelete} : valuesToDelete;
+    return this.http.post(`${this.url}/metadata/manage/delete`, {metadataType, ...selection}).pipe(
       tap(() => {
         invalidateAllBookCaches(this.queryClient);
       })

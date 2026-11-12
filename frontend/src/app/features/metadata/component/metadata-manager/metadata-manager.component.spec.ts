@@ -1,9 +1,9 @@
 import {TestBed} from '@angular/core/testing';
 import {HttpTestingController, TestRequest} from '@angular/common/http/testing';
-import {BehaviorSubject, of} from 'rxjs';
+import {BehaviorSubject, map} from 'rxjs';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {TranslocoService} from '@jsverse/transloco';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute, convertToParamMap, Router} from '@angular/router';
 import {MessageService} from '@openng/optimus-ui/api';
 
 import {BookMetadataManageService} from '../../../book/service/book-metadata-manage.service';
@@ -18,8 +18,6 @@ describe('MetadataManagerComponent', () => {
   const navigate = vi.fn(() => Promise.resolve(true));
   const setPageTitle = vi.fn();
   const translate = vi.fn((key: string) => `translated:${key}`);
-  const consolidateMetadata = vi.fn(() => of(void 0));
-  const deleteMetadata = vi.fn(() => of(void 0));
   let queryParams$: BehaviorSubject<Record<string, unknown>>;
   let http: HttpTestingController;
 
@@ -28,8 +26,6 @@ describe('MetadataManagerComponent', () => {
     navigate.mockClear();
     setPageTitle.mockClear();
     translate.mockClear();
-    consolidateMetadata.mockClear();
-    deleteMetadata.mockClear();
     queryParams$ = new BehaviorSubject<Record<string, unknown>>({});
     const harness = createQueryClientHarness();
     harness.queryClient.setDefaultOptions({queries: {retry: false}});
@@ -38,12 +34,12 @@ describe('MetadataManagerComponent', () => {
       providers: [
         ...harness.providers,
         BookQueryService,
+        BookMetadataManageService,
         {provide: AuthService, useValue: createAuthServiceStub()},
-        {provide: BookMetadataManageService, useValue: {consolidateMetadata, deleteMetadata}},
         {provide: PageTitleService, useValue: {setPageTitle}},
         {provide: TranslocoService, useValue: {translate}},
         {provide: MessageService, useValue: {add}},
-        {provide: ActivatedRoute, useValue: {queryParams: queryParams$}},
+        {provide: ActivatedRoute, useValue: {queryParamMap: queryParams$.pipe(map(convertToParamMap))}},
         {provide: Router, useValue: {navigate}},
       ]
     });
@@ -71,10 +67,19 @@ describe('MetadataManagerComponent', () => {
     };
   }
 
+  async function expectCommand(path: string): Promise<TestRequest> {
+    let request: TestRequest | undefined;
+    await vi.waitFor(() => {
+      TestBed.tick();
+      request = http.expectOne(req => req.method === 'POST' && req.url.endsWith(path));
+    });
+    return request!;
+  }
+
   async function settle(component: MetadataManagerComponent) {
     await vi.waitFor(() => {
       TestBed.tick();
-      expect(component.rowsLoading()).toBe(false);
+      expect(component.rowsQuery.isFetching()).toBe(false);
     });
   }
 
@@ -88,7 +93,8 @@ describe('MetadataManagerComponent', () => {
     component.openDeleteDialog('authors');
     component.confirmDelete();
 
-    expect(deleteMetadata).toHaveBeenCalledWith('authors', {type: 'matching', search: '', excludedValues: ['Bob']});
+    const request = await expectCommand('/api/v1/books/metadata/manage/delete');
+    expect(request.request.body).toEqual({metadataType: 'authors', selectAll: true, search: '', excludedValues: ['Bob']});
   });
 
   it('keeps ticks across pages and counts the books affected once', async () => {
@@ -104,16 +110,18 @@ describe('MetadataManagerComponent', () => {
 
     component.openMergeDialog('authors');
     TestBed.tick();
-    const ids = http.expectOne(req => req.url.endsWith('/api/v1/books/ids'));
-    expect(ids.request.params.getAll('facet')).toEqual(['author:Alice', 'author:Bob']);
-    ids.flush([1, 2, 3, 4]);
+    const count = http.expectOne(req => req.url.endsWith('/api/v1/books/page'));
+    expect(count.request.params.getAll('facet')).toEqual(['author:Alice', 'author:Bob']);
+    expect(count.request.params.get('size')).toBe('1');
+    count.flush({content: [], page: {number: 0, size: 1, totalElements: 4, totalPages: 4, cursor: ''}, links: []});
 
     await vi.waitFor(() => expect(component.affectedBooks()).toBe(4));
 
     component.mergeTarget = 'Alice';
     component.confirmMerge();
 
-    expect(consolidateMetadata).toHaveBeenCalledWith('authors', ['Alice'], {type: 'values', values: ['Alice', 'Bob']});
+    const request = await expectCommand('/api/v1/books/metadata/manage/consolidate');
+    expect(request.request.body).toEqual({metadataType: 'authors', targetValues: ['Alice'], valuesToMerge: ['Alice', 'Bob']});
   });
 
   it('tracks valid and invalid tabs from query params and updates the page title', () => {
@@ -122,12 +130,12 @@ describe('MetadataManagerComponent', () => {
     const component = createComponent();
     component.ngOnInit();
 
-    expect(component.activeTab).toBe('tags');
+    expect(component.activeTab()).toBe('tags');
     expect(setPageTitle).toHaveBeenCalledWith('translated:metadata.manager.title: translated:metadata.manager.tabs.tag');
 
     queryParams$.next({tab: 'invalid'});
 
-    expect(component.activeTab).toBe('authors');
+    expect(component.activeTab()).toBe('authors');
     expect(navigate).toHaveBeenCalledWith([], {
       relativeTo: expect.anything(),
       queryParams: {tab: 'authors'},
@@ -136,15 +144,15 @@ describe('MetadataManagerComponent', () => {
     });
   });
 
-  it('navigates when the active tab changes through the setter', () => {
+  it('navigates when a tab is selected', () => {
     const component = createComponent();
     component.ngOnInit();
     navigate.mockClear();
     setPageTitle.mockClear();
 
-    component.activeTab = 'categories';
+    component.selectTab('categories');
 
-    expect(component.activeTab).toBe('categories');
+    expect(component.activeTab()).toBe('categories');
     expect(setPageTitle).toHaveBeenCalledWith('translated:metadata.manager.title: translated:metadata.manager.tabs.genre');
     expect(navigate).toHaveBeenCalledWith([], {
       relativeTo: expect.anything(),
