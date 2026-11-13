@@ -26,6 +26,7 @@ describe('ReaderLoaderService', () => {
   });
 
   it('loads the foliate script once and waits for the delayed completion', async () => {
+    vi.spyOn(document, 'baseURI', 'get').mockReturnValue('https://example.com/grimmory/');
     vi.useFakeTimers();
     vi.spyOn(customElements, 'get').mockReturnValue(undefined);
     const appendSpy = vi.spyOn(document.head, 'appendChild');
@@ -35,7 +36,7 @@ describe('ReaderLoaderService', () => {
 
     expect(script).toBeDefined();
     expect(script.type).toBe('module');
-    expect(script.src).toContain('/assets/foliate/view.js');
+    expect(script.src).toBe('https://example.com/grimmory/assets/foliate/view.js');
 
     script.onload?.(new Event('load') as never);
     await vi.advanceTimersByTimeAsync(100);

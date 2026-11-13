@@ -24,7 +24,9 @@ class ScalarControllerTest {
                 new ClassPathResource("static/scalar.html").getInputStream(),
                 StandardCharsets.UTF_8
         );
-        assertThat(html).contains("data-url=\"/api/openapi.json\"");
+        assertThat(html).contains("data-url=\"openapi.json\"");
+        assertThat(java.net.URI.create("https://example.com/grimmory/api/docs").resolve("openapi.json").toString())
+                .isEqualTo("https://example.com/grimmory/api/openapi.json");
         assertThat(html).contains("\"telemetry\":false");
     }
 }

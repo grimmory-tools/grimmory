@@ -1,5 +1,7 @@
 package org.booklore.service.browse;
 
+import org.booklore.util.RequestUtils;
+
 import org.booklore.browse.Link;
 import org.booklore.browse.SortParser;
 import org.booklore.model.dto.browse.FacetGroupsResponse.FacetGroup;
@@ -23,8 +25,8 @@ final class FacetResponseBuilder {
     private final List<String> selectedFacets;
 
     FacetResponseBuilder(String pagePath, String facetPath, String preserved, List<String> selectedFacets) {
-        this.pagePath = pagePath;
-        this.facetPath = facetPath;
+        this.pagePath = RequestUtils.withContextPath(pagePath);
+        this.facetPath = RequestUtils.withContextPath(facetPath);
         this.preserved = preserved;
         this.selectedFacets = selectedFacets;
     }

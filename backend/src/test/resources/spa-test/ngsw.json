@@ -1,0 +1,20 @@
+{
+  "configVersion": 1,
+  "index": "/index.html",
+  "hashTable": {
+    "/index.html": "build-time-index-hash",
+    "/manifest.webmanifest": "unchanged-manifest-hash"
+  },
+  "assetGroups": [{
+    "name": "app",
+    "urls": ["/index.html", "/manifest.webmanifest"],
+    "patterns": ["\\/assets\\/.*", "https://cdn.example.com/.*"]
+  }],
+  "dataGroups": [{"patterns": ["^\\/api\\/public\\/.*$"]}],
+  "navigationUrls": [
+    {"positive": true, "regex": "^\\/.*$"},
+    {"positive": false, "regex": "^\\/api\\/.*$"},
+    {"positive": false, "regex": "^\\/komga\\/.*$"},
+    {"positive": false, "regex": "^\\/assets\\/embedpdf-frame\\.html$"}
+  ]
+}
