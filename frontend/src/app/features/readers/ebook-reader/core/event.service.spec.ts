@@ -192,6 +192,7 @@ describe('ReaderEventService', () => {
   afterEach(() => {
     vi.useRealTimers();
     service.destroy();
+    Reflect.deleteProperty(navigator, 'maxTouchPoints');
   });
 
   it('hydrates annotations on load and forwards load events', () => {
