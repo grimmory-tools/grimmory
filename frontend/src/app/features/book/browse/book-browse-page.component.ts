@@ -330,7 +330,7 @@ export class BookBrowsePageComponent {
   });
   protected readonly railClass = computed(() =>
     cn(
-      'flex max-h-[calc(100dvh-var(--page-stuck-offset,0px))] w-[236px] shrink-0 flex-col',
+      'flex h-[calc(100dvh-var(--page-stuck-offset,0px))] w-[236px] shrink-0 flex-col',
       this.preferences.viewMode() === 'grid' && 'box-content border-l border-border/70 pl-6',
     ),
   );
