@@ -32,6 +32,7 @@ describe('OidcService', () => {
 
   afterEach(() => {
     sessionStorage.clear();
+    vi.unstubAllGlobals();
   });
 
   it('generates PKCE verifier and challenge pairs', async () => {
@@ -83,11 +84,15 @@ describe('OidcService', () => {
       return array;
     };
 
-    vi.stubGlobal('crypto', {getRandomValues: fixedBytes, subtle: realCrypto.subtle});
+    const digestSpy = vi.fn((algorithm: string, data: BufferSource) => realCrypto.subtle.digest(algorithm, data));
+
+    vi.stubGlobal('crypto', {getRandomValues: fixedBytes, subtle: {digest: digestSpy}});
     const withSubtle = await service.generatePkce();
     vi.stubGlobal('crypto', {getRandomValues: fixedBytes});
     const withoutSubtle = await service.generatePkce();
 
+    expect(realCrypto.subtle).toBeDefined();
+    expect(digestSpy).toHaveBeenCalledOnce();
     expect(withoutSubtle).toEqual(withSubtle);
   });
 
