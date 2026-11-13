@@ -5,7 +5,7 @@ import {tap} from 'rxjs/operators';
 import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
 
 import {Shelf} from '../model/shelf.model';
-import {invalidateShelfDefinitions} from '../data/shelf-definition-query-cache';
+import {shelfQueryKeys} from '../../shelf/data/shelf-query-keys';
 import {invalidateAllBookCaches} from './legacy-book-cache';
 import {SHELVES_QUERY_KEY} from './shelf-query-keys';
 import {BookService} from './book.service';
@@ -67,7 +67,7 @@ export class ShelfService {
     return this.http.post<Shelf>(this.url, shelf).pipe(
       tap(() => {
         void this.queryClient.invalidateQueries({queryKey: SHELVES_QUERY_KEY, exact: true});
-        void invalidateShelfDefinitions(this.queryClient);
+        void this.queryClient.invalidateQueries({queryKey: shelfQueryKeys.all()});
       })
     );
   }
@@ -76,7 +76,7 @@ export class ShelfService {
     return this.http.put<Shelf>(`${this.url}/${id}`, shelf).pipe(
       tap(() => {
         void this.queryClient.invalidateQueries({queryKey: SHELVES_QUERY_KEY, exact: true});
-        void invalidateShelfDefinitions(this.queryClient);
+        void this.queryClient.invalidateQueries({queryKey: shelfQueryKeys.all()});
         invalidateAllBookCaches(this.queryClient);
       })
     );
@@ -87,7 +87,7 @@ export class ShelfService {
       tap(() => {
         this.bookService.removeBooksFromShelf(id);
         void this.queryClient.invalidateQueries({queryKey: SHELVES_QUERY_KEY, exact: true});
-        void invalidateShelfDefinitions(this.queryClient);
+        void this.queryClient.invalidateQueries({queryKey: shelfQueryKeys.all()});
       })
     );
   }

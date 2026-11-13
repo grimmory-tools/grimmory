@@ -9,8 +9,8 @@ import {
   SetBookReadStatusVariables,
 } from './book-command.models';
 import {BookReadStatus, BookSummary} from './book-response.models';
-import {bookShelfCommandKeys} from './book-shelf-command-keys';
-import {UpdateBookShelfMembershipVariables} from './book-shelf-command.models';
+import {shelfCommandKeys} from '../../shelf/data/shelf-command-keys';
+import type {UpdateShelfMembershipVariables} from '../../shelf/data/shelf-command.models';
 
 export interface PendingShelfMembership {
   readonly assignShelfIds: ReadonlySet<number>;
@@ -57,8 +57,8 @@ export function injectPendingBookReadStatuses(): Signal<ReadonlyMap<number, Book
 }
 
 export function injectPendingBookShelfMembership(): Signal<ReadonlyMap<number, PendingShelfMembership>> {
-  return injectPendingBookValues<UpdateBookShelfMembershipVariables, PendingShelfMembership>(
-    bookShelfCommandKeys.updateMembership(),
+  return injectPendingBookValues<UpdateShelfMembershipVariables, PendingShelfMembership>(
+    shelfCommandKeys.updateMembership(),
     (current, variables) => {
       const assignShelfIds = new Set(current?.assignShelfIds);
       const unassignShelfIds = new Set(current?.unassignShelfIds);
