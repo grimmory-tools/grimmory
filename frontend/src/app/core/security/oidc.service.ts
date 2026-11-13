@@ -3,6 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {firstValueFrom, Observable} from 'rxjs';
 import {API_CONFIG} from '../config/api-config';
 import {AppSettingsService} from '../../shared/service/app-settings.service';
+import {sha256} from './sha256';
 
 interface OidcPkceState {
   codeVerifier: string;
@@ -28,9 +29,7 @@ export class OidcService {
     crypto.getRandomValues(array);
     const codeVerifier = this.base64UrlEncode(array);
 
-    const encoder = new TextEncoder();
-    const hash = await crypto.subtle.digest('SHA-256', encoder.encode(codeVerifier));
-    const codeChallenge = this.base64UrlEncode(new Uint8Array(hash));
+    const codeChallenge = this.base64UrlEncode(await this.sha256(codeVerifier));
 
     return {codeVerifier, codeChallenge};
   }
@@ -123,6 +122,19 @@ export class OidcService {
       nonce,
     });
     return `${endpoint}?${params.toString()}`;
+  }
+
+  private async sha256(value: string): Promise<Uint8Array> {
+    const data = new TextEncoder().encode(value);
+    // crypto.subtle only exists in secure contexts (HTTPS or localhost), so Grimmory opened over
+    // plain HTTP on a LAN address falls back to a built-in SHA-256 and keeps the S256 method.
+    // SAFETY: the DOM typings declare crypto.subtle as always present, but browsers leave it
+    // undefined outside secure contexts, so it is widened to include undefined before the check.
+    const subtle = crypto.subtle as SubtleCrypto | undefined;
+    if (subtle) {
+      return new Uint8Array(await subtle.digest('SHA-256', data));
+    }
+    return sha256(data);
   }
 
   private base64UrlEncode(bytes: Uint8Array): string {

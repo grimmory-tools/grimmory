@@ -32,6 +32,7 @@ describe('OidcService', () => {
 
   afterEach(() => {
     sessionStorage.clear();
+    vi.unstubAllGlobals();
   });
 
   it('generates PKCE verifier and challenge pairs', async () => {
@@ -52,6 +53,47 @@ describe('OidcService', () => {
     expect(digestSpy).toHaveBeenCalledOnce();
     expect(result.codeVerifier).toBeTruthy();
     expect(result.codeChallenge).toBeTruthy();
+  });
+
+  it('computes the S256 challenge without crypto.subtle (plain-HTTP origins)', async () => {
+    const {service} = createService();
+    // Verifier bytes and expected challenge from RFC 7636, Appendix B.
+    const verifierBytes = [
+      116, 24, 223, 180, 151, 153, 224, 37, 79, 250, 96, 125, 216, 173, 187, 186,
+      22, 212, 37, 77, 105, 214, 191, 240, 91, 88, 5, 88, 83, 132, 141, 121,
+    ];
+    vi.stubGlobal('crypto', {
+      getRandomValues: (array: Uint8Array) => {
+        array.set(verifierBytes);
+        return array;
+      },
+      subtle: undefined,
+    });
+
+    const result = await service.generatePkce();
+
+    expect(result.codeVerifier).toBe('dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk');
+    expect(result.codeChallenge).toBe('E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM');
+  });
+
+  it('computes the same S256 challenge with and without crypto.subtle', async () => {
+    const {service} = createService();
+    const realCrypto = globalThis.crypto;
+    const fixedBytes = (array: Uint8Array) => {
+      array.set(Uint8Array.from({length: array.length}, (_, index) => (index * 7 + 3) & 0xff));
+      return array;
+    };
+
+    const digestSpy = vi.fn((algorithm: string, data: BufferSource) => realCrypto.subtle.digest(algorithm, data));
+
+    vi.stubGlobal('crypto', {getRandomValues: fixedBytes, subtle: {digest: digestSpy}});
+    const withSubtle = await service.generatePkce();
+    vi.stubGlobal('crypto', {getRandomValues: fixedBytes});
+    const withoutSubtle = await service.generatePkce();
+
+    expect(realCrypto.subtle).toBeDefined();
+    expect(digestSpy).toHaveBeenCalledOnce();
+    expect(withoutSubtle).toEqual(withSubtle);
   });
 
   it('generates random URL-safe strings', () => {
