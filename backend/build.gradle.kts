@@ -9,7 +9,7 @@ plugins {
     java
     id("org.springframework.boot") version "4.1.2"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.hibernate.orm") version "7.4.10.Final"
+    id("org.hibernate.orm") version "7.4.15.Final"
     id("com.github.ben-manes.versions") version "0.67.0"
     jacoco
 }
