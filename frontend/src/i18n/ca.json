@@ -5092,12 +5092,6 @@
     }
   },
   "authorBrowser": {
-    "toast": {
-      "quickMatchSuccessSummary": "Coincidència ràpida completada",
-      "quickMatchSuccessDetail": "L'autor s'ha fet coincidir correctament.",
-      "quickMatchFailedSummary": "Coincidència ràpida fallida",
-      "quickMatchFailedDetail": "No s'ha pogut fer la coincidència ràpida de l'autor."
-    },
     "editor": {
       "nameLabel": "Nom",
       "asinLabel": "ASIN",

@@ -5078,12 +5078,6 @@
     }
   },
   "authorBrowser": {
-    "toast": {
-      "quickMatchSuccessSummary": "Quick Match Complete",
-      "quickMatchSuccessDetail": "Author has been matched successfully.",
-      "quickMatchFailedSummary": "Quick Match Failed",
-      "quickMatchFailedDetail": "Failed to quick-match the author."
-    },
     "editor": {
       "nameLabel": "Name",
       "asinLabel": "ASIN",

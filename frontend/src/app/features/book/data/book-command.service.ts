@@ -44,7 +44,6 @@ import {
   DeleteBookReviewVariables,
   SendBookVariables,
 } from './book-command.models';
-import {invalidateAuthorsQuery} from '../../author-browser/service/author-query-cache';
 import {applyBookQueryChangeSet, invalidateAllBookQueries, invalidateBookCollections} from './book-query-cache';
 import {bookQueryKeys} from './book-query-keys';
 import {BookDetail, BookDetailMetadata, BookReviewResponse} from './book-response.models';
@@ -322,10 +321,7 @@ export class BookCommandService {
       scope: bookCommandScopes.metadata,
       mutationFn: (variables: MergeBookMetadataValuesVariables) =>
         lastValueFrom(this.http.post<void>(`${this.booksUrl}/metadata/manage/consolidate`, variables)),
-      onSettled: (_data, _error, _variables, _onMutateResult, {client}) => {
-        invalidateAuthorsQuery(client);
-        return invalidateAllBookQueries(client);
-      },
+      onSettled: (_data, _error, _variables, _onMutateResult, {client}) => invalidateAllBookQueries(client),
     });
   }
 
@@ -335,10 +331,7 @@ export class BookCommandService {
       scope: bookCommandScopes.metadata,
       mutationFn: (variables: DeleteBookMetadataValuesVariables) =>
         lastValueFrom(this.http.post<void>(`${this.booksUrl}/metadata/manage/delete`, variables)),
-      onSettled: (_data, _error, _variables, _onMutateResult, {client}) => {
-        invalidateAuthorsQuery(client);
-        return invalidateAllBookQueries(client);
-      },
+      onSettled: (_data, _error, _variables, _onMutateResult, {client}) => invalidateAllBookQueries(client),
     });
   }
 

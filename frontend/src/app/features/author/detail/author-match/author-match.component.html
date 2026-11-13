@@ -26,13 +26,13 @@
             [label]="t('searchBtn')"
             icon="pi pi-search"
             (onClick)="search()"
-            [loading]="searching()"
+            [loading]="searchResults.isFetching()"
             [disabled]="!canSearch()" />
         </div>
       </div>
     </div>
 
-    @if (searching()) {
+    @if (searchResults.isFetching()) {
       <div class="search-loading">
         <p-progressSpinner
           [style]="{'width': '40px', 'height': '40px'}"
@@ -43,7 +43,7 @@
       </div>
     }
 
-    @if (!searching() && hasSearched() && results().length === 0) {
+    @if (!searchResults.isFetching() && hasSearched() && results().length === 0) {
       <div class="empty-results">
         <i class="pi pi-info-circle"></i>
         <p>{{ t('noResults') }}</p>
@@ -51,7 +51,7 @@
       </div>
     }
 
-    @if (!searching() && !hasSearched()) {
+    @if (!searchResults.isFetching() && !hasSearched()) {
       <div class="ready-state">
         <i class="pi pi-search"></i>
         <p>{{ t('readyToSearch') }}</p>
@@ -59,7 +59,7 @@
       </div>
     }
 
-    @if (!searching() && results().length > 0) {
+    @if (!searchResults.isFetching() && results().length > 0) {
       <div class="results-header">
         <span>{{ t('resultsFound', {count: results().length}) }}</span>
       </div>
@@ -87,7 +87,7 @@
                 [label]="t('matchBtn')"
                 icon="pi pi-link"
                 severity="success"
-                [loading]="matching()"
+                [loading]="matchMutation.isPending()"
                 (onClick)="matchAuthor(result)" />
             </div>
           </div>

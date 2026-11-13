@@ -12,7 +12,7 @@
       "count": 1
     },
     "typescript/no-unsafe-argument": {
-      "count": 7
+      "count": 6
     },
     "typescript/no-unsafe-assignment": {
       "count": 1
@@ -98,15 +98,12 @@
       "count": 1
     }
   },
-  "src/app/features/author-browser/components/author-detail/author-detail.component.ts": {
+  "src/app/features/author/detail/author-detail/author-detail.component.ts": {
     "typescript/no-unnecessary-condition": {
       "count": 2
     }
   },
-  "src/app/features/author-browser/components/author-editor/author-editor.component.ts": {
-    "typescript/no-unnecessary-condition": {
-      "count": 1
-    },
+  "src/app/features/author/detail/author-editor/author-editor.component.ts": {
     "typescript/no-unsafe-assignment": {
       "count": 8
     },
@@ -117,22 +114,11 @@
       "count": 7
     }
   },
-  "src/app/features/author-browser/components/author-photo-search/author-photo-search.component.ts": {
-    "typescript/no-unsafe-argument": {
-      "count": 1
-    },
+  "src/app/features/author/detail/author-photo-search/author-photo-search.component.ts": {
     "typescript/no-unsafe-assignment": {
       "count": 3
     },
     "typescript/no-unsafe-member-access": {
-      "count": 3
-    }
-  },
-  "src/app/features/author-browser/service/author.service.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 6
-    },
-    "typescript/no-unsafe-argument": {
       "count": 2
     }
   },

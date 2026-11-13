@@ -5091,12 +5091,6 @@
     }
   },
   "authorBrowser": {
-    "toast": {
-      "quickMatchSuccessSummary": "Швидке зіставлення завершено",
-      "quickMatchSuccessDetail": "Автора успішно зіставлено.",
-      "quickMatchFailedSummary": "Не вдалося швидко зіставити",
-      "quickMatchFailedDetail": "Не вдалося виконати швидке зіставлення автора."
-    },
     "editor": {
       "nameLabel": "Ім'я",
       "asinLabel": "",

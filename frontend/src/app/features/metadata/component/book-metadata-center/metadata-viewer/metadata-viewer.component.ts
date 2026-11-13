@@ -41,7 +41,8 @@ import {AppSettingsService} from '../../../../../shared/service/app-settings.ser
 import {LanguageResolverService} from '../../../../../shared/service/language-resolver.service';
 import {DeleteBookFileEvent, DeleteSupplementaryFileEvent, DetachBookFileEvent, DownloadAdditionalFileEvent, DownloadAllFilesEvent, DownloadEvent, MetadataTabsComponent} from './metadata-tabs/metadata-tabs.component';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
-import {AuthorService} from '../../../../author-browser/service/author.service';
+import {QueryClient} from '@tanstack/angular-query-experimental';
+import {AuthorQueryService} from '../../../../author/data/author-query.service';
 import {Dialog} from '@openng/optimus-ui/dialog';
 import {Checkbox} from '@openng/optimus-ui/checkbox';
 import DOMPurify from 'dompurify';
@@ -71,7 +72,8 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   private readonly messageService = inject(MessageService);
   private readonly bookFileService = inject(BookFileService);
   private readonly taskHelperService = inject(TaskHelperService);
-  private readonly authorService = inject(AuthorService);
+  private readonly authorQueries = inject(AuthorQueryService);
+  private readonly queryClient = inject(QueryClient);
   protected urlHelper = inject(UrlHelperService);
   protected userService = inject(UserService);
   protected languageResolver = inject(LanguageResolverService);
@@ -791,15 +793,15 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   }
 
   goToAuthorBooks(author: string): void {
-    this.authorService.getAuthorByName(author).subscribe({
-      next: (authorDetails) => {
+    this.queryClient.query(this.authorQueries.byName(author)).then(
+      (authorDetails) => {
         const navigate = () => this.router.navigate(['/author', authorDetails.id]);
         this.navigateAfterDialogClose(() => void navigate());
       },
-      error: () => {
+      () => {
         this.handleMetadataClick('author', author);
       }
-    });
+    );
   }
 
   goToCategory(category: string): void {

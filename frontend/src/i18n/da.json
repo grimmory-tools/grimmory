@@ -5091,12 +5091,6 @@
     }
   },
   "authorBrowser": {
-    "toast": {
-      "quickMatchSuccessSummary": "",
-      "quickMatchSuccessDetail": "",
-      "quickMatchFailedSummary": "",
-      "quickMatchFailedDetail": ""
-    },
     "editor": {
       "nameLabel": "",
       "asinLabel": "",

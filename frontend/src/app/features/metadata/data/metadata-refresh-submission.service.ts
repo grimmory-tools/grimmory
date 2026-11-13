@@ -8,7 +8,6 @@ import {
   MetadataBatchProgressNotification,
   MetadataBatchStatus,
 } from '../../../shared/model/metadata-batch-progress.model';
-import {invalidateAuthorsQuery} from '../../author-browser/service/author-query-cache';
 import {invalidateAllBookQueries} from '../../book/data/book-query-cache';
 import {metadataRefreshSubmissionKeys} from './metadata-refresh-submission-keys';
 import {RefreshMetadataVariables} from './metadata-refresh-submission.models';
@@ -63,5 +62,4 @@ function reconcileMetadataRefresh(client: QueryClient): void {
   // invalidateQueries never rejects (refetch errors surface through query
   // state, not this promise), so there is nothing to await or catch.
   void invalidateAllBookQueries(client);
-  invalidateAuthorsQuery(client);
 }

@@ -39,3 +39,7 @@ export function isAuthorQueryFacetKey(value: string): value is AuthorQueryFacetK
 export function isAuthorQuerySortKey(value: string): value is AuthorQuerySortKey {
   return AUTHOR_QUERY_SORT_KEY_SET.has(value);
 }
+
+export type AuthorMetadataSearchParams =
+  | {readonly region: string; readonly asin: string}
+  | {readonly region: string; readonly query: string};

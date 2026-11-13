@@ -1,24 +1,24 @@
-import { AfterViewChecked, Component, computed, effect, ElementRef, inject, OnInit, signal, untracked, viewChild } from '@angular/core';
+import { AfterViewChecked, Component, computed, effect, ElementRef, inject, linkedSignal, OnInit, signal, untracked, viewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@openng/optimus-ui/tabs';
 import { ProgressSpinner } from '@openng/optimus-ui/progressspinner';
 import { Button } from '@openng/optimus-ui/button';
 import { Tag } from '@openng/optimus-ui/tag';
-import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
-import { MessageService } from '@openng/optimus-ui/api';
+import { TranslocoDirective } from '@jsverse/transloco';
 import { Tooltip } from '@openng/optimus-ui/tooltip';
-import { AuthorService } from '../../service/author.service';
-import { AuthorDetails } from '../../model/author.model';
+import { AuthorQueryService } from '../../data/author-query.service';
 import { CoverScalePreferenceService } from '../../../../shared/service/cover-scale-preference.service';
+import { UrlHelperService } from '../../../../shared/service/url-helper.service';
 import { UserService } from '../../../settings/user-management/user.service';
 import { AuthorMatchComponent } from '../author-match/author-match.component';
 import { AuthorEditorComponent } from '../author-editor/author-editor.component';
+import { injectAuthorQuickMatch } from '../../components/author-quick-match';
 import { PageTitleService } from '../../../../shared/service/page-title.service';
 import { createVirtualGrid } from '../../../../shared/util/virtual-grid.util';
 import { createBrowseResults } from '../../../../shared/browse/results';
 import { BookQueryService } from '../../../book/data/book-query.service';
 import { DEFAULT_BOOK_SORT_TERMS } from '../../../book/data/book-query-params';
-import { injectInfiniteQuery } from '@tanstack/angular-query-experimental';
+import { injectInfiniteQuery, injectQuery } from '@tanstack/angular-query-experimental';
 import { BookCardComponent } from '../../../book/components/cards/book-card.component';
 import { bookCardHeightForWidth } from '../../../book/components/cards/book-card.layout';
 import { BookNavigationService } from '../../../book/service/book-navigation.service';
@@ -47,18 +47,17 @@ import { BookMenuComponent } from '../../../book/components/book-menu/book-menu.
   ]
 })
 export class AuthorDetailComponent implements OnInit, AfterViewChecked {
+  private readonly urlHelper = inject(UrlHelperService);
+  private readonly authorQueries = inject(AuthorQueryService);
 
   private static readonly GRID_GAP = 16;
 
   private readonly route = inject(ActivatedRoute);
-  private readonly authorService = inject(AuthorService);
   protected readonly bookNavigation = inject(BookNavigationService);
   private readonly bookQueryService = inject(BookQueryService);
-  private readonly messageService = inject(MessageService);
   private readonly coverScalePreferenceService = inject(CoverScalePreferenceService);
   protected userService = inject(UserService);
   private readonly pageTitle = inject(PageTitleService);
-  private readonly t = inject(TranslocoService);
 
   readonly descriptionContentRef = viewChild<ElementRef<HTMLElement>>('descriptionContent');
   private readonly tabPanels = viewChild<TabPanels, ElementRef<HTMLElement>>(TabPanels, {read: ElementRef});
@@ -67,15 +66,14 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
   private readonly gridOffset = signal(0);
   protected readonly bookMenu = viewChild(BookMenuComponent);
 
-  readonly loading = signal(true);
+  private readonly authorId = Number(this.route.snapshot.paramMap.get('authorId'));
+  protected readonly authorQuery = injectQuery(() => this.authorQueries.detail(this.authorId));
   tab = 'books';
   isExpanded = false;
   isOverflowing = false;
-  hasPhoto = true;
-  photoTimestamp = Date.now();
-  quickMatching = false;
-  private readonly authorState = signal<AuthorDetails | null>(null);
-  author = this.authorState.asReadonly();
+  readonly photoTimestamp = signal(Date.now());
+  readonly hasPhoto = linkedSignal({source: this.photoTimestamp, computation: () => true});
+  protected readonly authorQuickMatch = injectAuthorQuickMatch();
 
   readonly menuOpenBookId = computed(() => this.bookMenu()?.openBookId() ?? null);
 
@@ -84,15 +82,15 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
       size: 30,
       sort: DEFAULT_BOOK_SORT_TERMS,
       facets: {
-        author: {include: [this.author()?.name ?? ''], exclude: []}
+        author: {include: [this.authorQuery.data()?.name ?? ''], exclude: []}
       },
     }),
-    enabled: this.author() != null,
+    enabled: this.authorQuery.data() != null,
   }));
 
   readonly results = createBrowseResults({
     query: this.booksQuery,
-    listKey: computed(() => this.author()?.name ?? ''),
+    listKey: computed(() => this.authorQuery.data()?.name ?? ''),
     artworkUrls: () => [],
     scrollToTop: () => undefined,
   });
@@ -131,9 +129,9 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
   });
 
   get photoUrl(): string {
-    const author = this.author();
+    const author = this.authorQuery.data();
     if (!author) return '';
-    return this.authorService.getAuthorPhotoUrl(author.id) + '&t=' + this.photoTimestamp;
+    return this.urlHelper.getAuthorPhotoUrl(author.id, this.photoTimestamp());
   }
 
   get canEditMetadata(): boolean {
@@ -141,13 +139,20 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
     return !!user?.permissions?.admin || !!user?.permissions?.canEditMetadata;
   }
 
+  constructor() {
+    effect(() => {
+      const author = this.authorQuery.data();
+      if (author) {
+        this.pageTitle.setPageTitle(author.name);
+      }
+    });
+  }
+
   ngOnInit(): void {
-    const authorId = Number(this.route.snapshot.paramMap.get('authorId'));
     const tabParam = this.route.snapshot.queryParamMap.get('tab');
     if (tabParam) {
       this.tab = tabParam;
     }
-    this.loadAuthor(authorId);
   }
 
   ngAfterViewChecked(): void {
@@ -166,55 +171,16 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
   }
 
   onPhotoError(): void {
-    this.hasPhoto = false;
+    this.hasPhoto.set(false);
   }
 
-  onAuthorUpdated(updatedAuthor: AuthorDetails): void {
-    this.authorState.set(updatedAuthor);
-    this.hasPhoto = true;
-    this.photoTimestamp = Date.now();
-    this.authorService.patchAuthorInCache(updatedAuthor.id, {
-      name: updatedAuthor.name,
-      asin: updatedAuthor.asin,
-      hasPhoto: true,
-    });
+  onAuthorUpdated(): void {
+    this.photoTimestamp.set(Date.now());
   }
 
   quickMatch(): void {
-    const author = this.author();
-    if (!author || this.quickMatching) return;
-    this.quickMatching = true;
-    this.authorService.quickMatchAuthor(author.id).subscribe({
-      next: (matched) => {
-        this.onAuthorUpdated(matched);
-        this.quickMatching = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: this.t.translate('authorBrowser.toast.quickMatchSuccessSummary'),
-          detail: this.t.translate('authorBrowser.toast.quickMatchSuccessDetail')
-        });
-      },
-      error: () => {
-        this.quickMatching = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: this.t.translate('authorBrowser.toast.quickMatchFailedSummary'),
-          detail: this.t.translate('authorBrowser.toast.quickMatchFailedDetail')
-        });
-      }
-    });
-  }
-
-  private loadAuthor(authorId: number): void {
-    this.authorService.getAuthorDetails(authorId).subscribe({
-      next: (author) => {
-        this.authorState.set(author);
-        this.loading.set(false);
-        this.pageTitle.setPageTitle(author.name);
-      },
-      error: () => {
-        this.loading.set(false);
-      }
-    });
+    const author = this.authorQuery.data();
+    if (!author || this.authorQuickMatch.isPending()) return;
+    this.authorQuickMatch.run(author.id, () => this.onAuthorUpdated());
   }
 }

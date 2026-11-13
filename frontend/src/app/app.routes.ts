@@ -58,7 +58,7 @@ export const routes: Routes = [
         {path: '', loadComponent: () => import('./features/author/browse/author-browse-page.component').then(m => m.AuthorBrowsePageComponent)},
         {path: 'filter', loadComponent: () => import('./features/author/browse/author-browse-filter-page.component').then(m => m.AuthorBrowseFilterPageComponent)},
       ]},
-      {path: 'author/:authorId', loadComponent: () => import('./features/author-browser/components/author-detail/author-detail.component').then(m => m.AuthorDetailComponent)},
+      {path: 'author/:authorId', loadComponent: () => import('./features/author/detail/author-detail/author-detail.component').then(m => m.AuthorDetailComponent)},
       {path: 'magic-shelf/:magicShelfId/books', canActivateChild: [validBookBrowseScope], children: bookBrowseRoutes()},
       {path: 'book/:bookId', loadComponent: () => import('./features/metadata/component/book-metadata-center/book-metadata-center.component').then(m => m.BookMetadataCenterComponent)},
       {path: 'bookdrop', loadComponent: () => import('./features/bookdrop/component/bookdrop-file-review/bookdrop-file-review.component').then(m => m.BookdropFileReviewComponent), canActivate: [BookdropGuard]},

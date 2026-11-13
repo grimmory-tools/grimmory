@@ -1,12 +1,12 @@
 <ng-container *transloco="let t; prefix: 'authorBrowser.detail'">
-  @if (loading()) {
+  @if (authorQuery.isPending()) {
     <div class="loading-state">
       <p-progressSpinner strokeWidth="4" fill="transparent" animationDuration=".8s" />
       <p style="color: var(--primary-color);">{{ t('loading') }}</p>
     </div>
   }
 
-  @if (!loading() && author(); as author) {
+  @if (authorQuery.data(); as author) {
     <div class="author-wrapper">
       <p-tabs [value]="tab" lazy="true" scrollable>
         <p-tablist>
@@ -29,7 +29,7 @@
           <p-tabpanel value="books">
             <div #authorHeader class="author-header">
               <div class="author-photo-section">
-                @if (hasPhoto) {
+                @if (hasPhoto()) {
                   <img
                     [src]="photoUrl"
                     class="author-photo-large"
@@ -60,11 +60,11 @@
                   }
                   @if (canEditMetadata) {
                     <p-button
-                      [icon]="quickMatching ? 'pi pi-spin pi-spinner' : 'pi pi-bolt'"
+                      [icon]="authorQuickMatch.isPending() ? 'pi pi-spin pi-spinner' : 'pi pi-bolt'"
                       [outlined]="true"
                       severity="warn"
                       size="small"
-                      [disabled]="quickMatching"
+                      [disabled]="authorQuickMatch.isPending()"
                       (onClick)="quickMatch()"
                       [pTooltip]="t('quickMatchTooltip')"
                       tooltipPosition="top" />
@@ -136,13 +136,14 @@
               <app-author-editor
                 [authorId]="author.id"
                 [author]="author"
-                (authorUpdated)="onAuthorUpdated($event)" />
+                [photoTimestamp]="photoTimestamp()"
+                (authorUpdated)="onAuthorUpdated()" />
             </p-tabpanel>
             <p-tabpanel value="match">
               <app-author-match
                 [authorId]="author.id"
                 [authorName]="author.name"
-                (authorMatched)="onAuthorUpdated($event)" />
+                (authorMatched)="onAuthorUpdated()" />
             </p-tabpanel>
           }
         </p-tabpanels>

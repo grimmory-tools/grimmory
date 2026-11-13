@@ -5091,12 +5091,6 @@
     }
   },
   "authorBrowser": {
-    "toast": {
-      "quickMatchSuccessSummary": "Gyors egyeztetés kész",
-      "quickMatchSuccessDetail": "A szerzőt sikeresen egyeztettük.",
-      "quickMatchFailedSummary": "Gyors egyeztetés sikertelen",
-      "quickMatchFailedDetail": "Nem sikerült a szerző gyors egyeztetése."
-    },
     "editor": {
       "nameLabel": "Név",
       "asinLabel": "",
