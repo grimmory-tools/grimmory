@@ -52,6 +52,15 @@ public class BookdropMonitoringService implements SmartLifecycle {
     @Override
     public void start() {
         bookdrop = Path.of(appProperties.getBookdropFolder());
+        monitorLock.lock();
+        try {
+            startWatching();
+        } finally {
+            monitorLock.unlock();
+        }
+    }
+
+    private boolean startWatching() {
         if (Files.notExists(bookdrop)) {
             try {
                 Files.createDirectories(bookdrop);
@@ -60,7 +69,7 @@ public class BookdropMonitoringService implements SmartLifecycle {
                 log.warn("Bookdrop folder is not available at '{}'. Bookdrop monitoring is disabled. " +
                         "Mount a volume at this path to enable it.", bookdrop);
                 this.disabled = true;
-                return;
+                return false;
             }
         }
 
@@ -72,14 +81,34 @@ public class BookdropMonitoringService implements SmartLifecycle {
                     StandardWatchEventKinds.ENTRY_DELETE);
             this.running = true;
             this.paused = false;
+            this.disabled = false;
             this.watchThread = new Thread(this::processEvents, "BookdropFolderWatcher");
             this.watchThread.setDaemon(true);
             this.watchThread.start();
-            this.disabled = false;
+            return true;
         } catch (IOException e) {
-            log.warn("Failed to start bookdrop folder monitor. Bookdrop monitoring is disabled.", e);
+            if (disabled) {
+                log.warn("Failed to restart bookdrop folder monitor: {}", e.getMessage());
+            } else {
+                log.warn("Failed to start bookdrop folder monitor. New files in the bookdrop folder will only be " +
+                        "picked up by rescans, which will also retry starting the monitor.", e);
+            }
+            closeWatchService();
             this.disabled = true;
+            return false;
         }
+    }
+
+    private void closeWatchService() {
+        if (watchService != null) {
+            try {
+                watchService.close();
+            } catch (IOException e) {
+                log.error("Error closing WatchService", e);
+            }
+            watchService = null;
+        }
+        watchKey = null;
     }
 
     @Override
@@ -241,7 +270,18 @@ public class BookdropMonitoringService implements SmartLifecycle {
 
     public void rescanBookdropFolder() {
         if (disabled) {
-            log.warn("Bookdrop monitoring is disabled. Skipping rescan.");
+            monitorLock.lock();
+            try {
+                // The monitor thread scans the existing files itself once it starts.
+                if (disabled && startWatching()) {
+                    return;
+                }
+            } finally {
+                monitorLock.unlock();
+            }
+        }
+        if (!Files.isDirectory(bookdrop)) {
+            log.warn("Bookdrop folder is not available at '{}'. Skipping rescan.", bookdrop);
             return;
         }
         log.info("Rescan of Bookdrop folder triggered.");
