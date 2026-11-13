@@ -87,7 +87,7 @@
     "stylelint-config-standard-scss": "^17.0.0",
     "tailwindcss": "^4.3.4",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.72.1",
+    "typescript-eslint": "^8.72.2",
     "vitest": "^5.1.0"
   }
 }
