@@ -1,8 +1,9 @@
-import { inject, Service } from "@angular/core";
+import { inject, Service, signal } from "@angular/core";
 import { LocalStorageService } from "./local-storage.service";
 
 export interface LocalSettings {
   cacheStorageEnabled: boolean;
+  toastNotificationsEnabled: boolean;
 }
 
 @Service()
@@ -12,7 +13,10 @@ export class LocalSettingsService {
 
   public readonly defaultSettings: LocalSettings = {
     cacheStorageEnabled: true,
+    toastNotificationsEnabled: true,
   };
+
+  public readonly toastNotificationsEnabled = signal(true);
 
   protected settings: LocalSettings;
 
@@ -39,6 +43,13 @@ export class LocalSettingsService {
   }
 
   commitSettings(): void {
+    this.toastNotificationsEnabled.set(this.settings.toastNotificationsEnabled);
+    this.commitToLocalStorage(this.settings);
+  }
+
+  setToastNotificationsEnabled(enabled: boolean): void {
+    this.settings.toastNotificationsEnabled = enabled;
+    this.toastNotificationsEnabled.set(enabled);
     this.commitToLocalStorage(this.settings);
   }
 
@@ -71,5 +82,6 @@ export class LocalSettingsService {
   private setFields(settings: LocalSettings): void {
     if (settings === this.settings) return; // Referential equality
     this.settings = { ...settings };
+    this.toastNotificationsEnabled.set(this.settings.toastNotificationsEnabled);
   }
 }

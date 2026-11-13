@@ -135,6 +135,19 @@
         </div>
       </section>
 
+      <section class="w-full max-w-2xl rounded-md border-l-[3px] border-l-primary bg-[color-mix(in_srgb,var(--color-card)_35%,var(--color-page))] p-3.5 transition-[background,border-color] duration-200 hover:bg-[color-mix(in_srgb,var(--color-card)_20%,var(--color-page))] max-md:p-2.5">
+        <div class="mb-1">
+          <span class="text-sm font-medium text-text">{{ t('toastNotifications.label') }}</span>
+        </div>
+        <div class="mt-2.5 flex max-w-lg items-center border-t border-dashed border-border pt-2.5">
+          <p-toggleswitch
+            inputId="toast-notifications"
+            [ngModel]="toastNotificationsEnabled()"
+            (ngModelChange)="onToastNotificationsChange($event)"/>
+          <label class="ml-2.5 text-sm font-medium text-text" for="toast-notifications">{{ t('toastNotifications.enabledLabel') }}</label>
+        </div>
+      </section>
+
     </div>
   </div>
 </ng-container>
