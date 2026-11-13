@@ -7,7 +7,8 @@ import {API_CONFIG} from '../../../core/config/api-config';
 import {QUERY_DEFAULTS} from '../../../core/data/query-transport';
 import {bookQueryKeys} from '../../../features/book/data/book-query-keys';
 import {BookQueryService} from '../../../features/book/data/book-query.service';
-import type {BookCollectionFilterParams} from '../../../features/book/data/book-query-params';
+import type {BrowseCollectionFilterParams} from '../../../core/data/browse-query-params';
+import type {BookQueryFacetKey} from '../../../features/book/data/book-query-params';
 import type {BookBrowseScope} from '../../../features/book/browse/book-browse-scope';
 import {browseFacetEntries} from '../../browse/facets';
 import { Router, RouterLink } from '@angular/router';
@@ -72,7 +73,7 @@ const DOCUMENTATION_URL = 'https://grimmory.org/docs/getting-started';
 // Keyed under book collections so every book change refreshes these counts.
 const SERIES_COUNT_QUERY_KEY = [...bookQueryKeys.collections(), 'series-count'] as const;
 const AUTHOR_COUNT_QUERY_KEY = [...bookQueryKeys.collections(), 'author-count'] as const;
-const UNFILTERED_BOOKS: BookCollectionFilterParams = {facets: {}};
+const UNFILTERED_BOOKS: BrowseCollectionFilterParams<BookQueryFacetKey> = {facets: {}};
 type SidebarCountFacet = 'library' | 'shelf' | 'shelf_status';
 const isSidebarCountFacet = (key: string): key is SidebarCountFacet =>
   key === 'library' || key === 'shelf' || key === 'shelf_status';

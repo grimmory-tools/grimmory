@@ -8,15 +8,16 @@ import {
   applyBookQueryChangeSet,
 } from './book-query-cache';
 import {bookQueryKeys} from './book-query-keys';
-import {normalizeBookPageParams} from './book-query-params';
+import {normalizeBrowsePageParams} from '../../../core/data/browse-query-params';
+import {isBookQueryFacetKey} from './book-query-params';
 
 const firstBook = {id: 1};
 const secondBook = {id: 2};
-const pageKey = bookQueryKeys.boundedPage(normalizeBookPageParams({
+const pageKey = bookQueryKeys.boundedPage(normalizeBrowsePageParams({
   facets: {},
   sort: [],
   size: 20,
-}));
+}, isBookQueryFacetKey));
 const firstDetailKey = bookQueryKeys.detail(1, false);
 const secondDetailKey = bookQueryKeys.detail(2, false);
 const firstRecommendationKey = bookQueryKeys.recommendation(1, 20);

@@ -3356,9 +3356,6 @@
         "failedDetail": "Došlo je do pogreške prilikom ažuriranja statusa zaključavanja polja."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Spremi kao zadano: {{scope}}"
-    },
     "fileAttacher": {
       "title": "Priloži datoteku drugoj knjizi",
       "titleBulk": "Priloži datoteke drugoj knjizi",
@@ -3384,7 +3381,6 @@
     },
     "searcher": {
       "placeholder": "Naslov, autor, serijal, žanr ili ISBN...",
-      "clearSearch": "Očisti pretragu",
       "bookCoverAlt": "Naslovnica knjige",
       "byPrefix": "od",
       "noResults": "Nema pronađenih rezultata",
@@ -5248,7 +5244,8 @@
       "apply": "Primijeni",
       "moveUp": "Pomakni gore",
       "moveDown": "Pomakni dolje",
-      "flipDirection": "Preokreni smjer"
+      "flipDirection": "Preokreni smjer",
+      "saveAsDefault": "Spremi kao zadano: {{scope}}"
     },
     "chips": {
       "removeSearch": "Ukloni filtar pretraživanja {{query}}",
@@ -5257,6 +5254,7 @@
     "rail": {
       "searchValues": "Pretraži...",
       "searchFields": "Naslov, autor, žanr…",
+      "clearSearch": "Očisti pretragu",
       "searchScope": {
         "allBooks": "Pretraži sve knjige",
         "library": "Pretraži zbirku",

@@ -3356,9 +3356,6 @@
         "failedDetail": "Prišlo je do napake pri posodabljanju statusov zaklepa."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Shrani kot privzeto: {{scope}}"
-    },
     "fileAttacher": {
       "title": "Pripni datoteko k drugi knjigi",
       "titleBulk": "Pripni datoteke k drugi knjigi",
@@ -3384,7 +3381,6 @@
     },
     "searcher": {
       "placeholder": "Naslov, avtor, zbirka, žanr ali ISBN...",
-      "clearSearch": "Počisti iskanje",
       "bookCoverAlt": "Naslovnica knjige",
       "byPrefix": "od",
       "noResults": "Ni najdenih rezultatov",
@@ -5248,7 +5244,8 @@
       "apply": "Uporabi",
       "moveUp": "",
       "moveDown": "",
-      "flipDirection": ""
+      "flipDirection": "",
+      "saveAsDefault": "Shrani kot privzeto: {{scope}}"
     },
     "chips": {
       "removeSearch": "",
@@ -5257,6 +5254,7 @@
     "rail": {
       "searchValues": "",
       "searchFields": "",
+      "clearSearch": "Počisti iskanje",
       "searchScope": {
         "allBooks": "",
         "library": "",

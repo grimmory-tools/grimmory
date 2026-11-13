@@ -3356,9 +3356,6 @@
         "failedDetail": "S'ha produït un error en actualitzar l'estat de blocatge dels camps."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Desa com a predeterminat per a {{scope}}"
-    },
     "fileAttacher": {
       "title": "Adjunta el fitxer a un altre llibre",
       "titleBulk": "Adjunta els fitxers a un altre llibre",
@@ -3384,7 +3381,6 @@
     },
     "searcher": {
       "placeholder": "Títol, autor, sèrie, gènere o ISBN...",
-      "clearSearch": "Esborra la cerca",
       "bookCoverAlt": "Coberta del llibre",
       "byPrefix": "de",
       "noResults": "No s'ha trobat cap resultat",
@@ -5248,7 +5244,8 @@
       "apply": "Aplica",
       "moveUp": "Mou amunt",
       "moveDown": "Mou avall",
-      "flipDirection": "Inverteix la direcció"
+      "flipDirection": "Inverteix la direcció",
+      "saveAsDefault": "Desa com a predeterminat per a {{scope}}"
     },
     "chips": {
       "removeSearch": "Treu el filtre de cerca {{query}}",
@@ -5257,6 +5254,7 @@
     "rail": {
       "searchValues": "Cerca…",
       "searchFields": "Títol, autor, gènere…",
+      "clearSearch": "Esborra la cerca",
       "searchScope": {
         "allBooks": "Cerca a tots els llibres",
         "library": "Cerca a la biblioteca",

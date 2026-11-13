@@ -28,6 +28,11 @@ export function formatRangeLabel(
   return min === max ? `${min}` : `${min}-${max}`;
 }
 
+export function rangeTokenLabel(token: string): string | null {
+  const range = parseRangeToken(token);
+  return range ? formatRangeLabel(range) : null;
+}
+
 export function parseRangeToken(token: string): {min: number | null; max: number | null; maxExclusive: boolean} | null {
   const match = /^(\*|-?\d+(?:\.\d+)?)\.\.(?:(\*)|(<?)(-?\d+(?:\.\d+)?))$/.exec(token);
   if (match) {

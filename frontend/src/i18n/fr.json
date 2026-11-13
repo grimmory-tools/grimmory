@@ -3356,9 +3356,6 @@
         "failedDetail": "Une erreur est survenue lors de la mise à jour des statuts de verrouillage."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Enregistrer par défaut pour {{scope}}"
-    },
     "fileAttacher": {
       "title": "Joindre le fichier à un autre livre",
       "titleBulk": "Joindre les fichiers à un autre livre",
@@ -3384,7 +3381,6 @@
     },
     "searcher": {
       "placeholder": "Titre, auteur, série, genre ou ISBN...",
-      "clearSearch": "Effacer la recherche",
       "bookCoverAlt": "Couverture du livre",
       "byPrefix": "par",
       "noResults": "Aucun résultat trouvé",
@@ -5248,7 +5244,8 @@
       "apply": "",
       "moveUp": "",
       "moveDown": "",
-      "flipDirection": ""
+      "flipDirection": "",
+      "saveAsDefault": "Enregistrer par défaut pour {{scope}}"
     },
     "chips": {
       "removeSearch": "",
@@ -5257,6 +5254,7 @@
     "rail": {
       "searchValues": "",
       "searchFields": "",
+      "clearSearch": "Effacer la recherche",
       "searchScope": {
         "allBooks": "",
         "library": "",

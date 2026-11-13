@@ -40,15 +40,15 @@ describe('createBrowseResults', () => {
       isFetchNextPageError: () => false,
       hasNextPage: () => false,
       isFetching: () => false,
-      fetchNextPage: () => Promise.resolve(),
-      refetch: () => Promise.resolve(),
+      fetchNextPage: vi.fn(),
+      refetch: vi.fn(),
     };
     const presentation = TestBed.runInInjectionContext(() => createBrowseResults<Item>({
       query,
       listKey: identity,
       artworkUrls: items => items.map(item => `/cover/${item.id}`),
       scrollToTop,
-      coverWaitMs: 5,
+      artworkWaitMs: 5,
       staleResultsMs: 5,
     }));
     const ids = () => presentation.items().map(item => item.id);

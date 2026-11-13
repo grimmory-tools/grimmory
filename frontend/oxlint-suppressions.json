@@ -165,41 +165,6 @@
       "count": 1
     }
   },
-  "src/app/features/book/browse/book-browse-columns.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-facet-definitions.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-fields.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-filter-page.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-multi-sort-dialog.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-preferences.ts": {
-    "typescript/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-sort.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
   "src/app/features/book/components/add-physical-book-dialog/add-physical-book-dialog.component.ts": {
     "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 3
@@ -285,11 +250,6 @@
       "count": 2
     },
     "typescript/prefer-promise-reject-errors": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/components/cards/book-card.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 1
     }
   },
@@ -409,11 +369,6 @@
     }
   },
   "src/app/features/book/data/book-query-cache.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/data/book-query.service.ts": {
     "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 1
     }
@@ -1739,11 +1694,6 @@
   },
   "src/app/features/stats/component/user-stats/service/user-chart-config.service.ts": {
     "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 2
-    }
-  },
-  "src/app/shared/browse/results.ts": {
-    "anti-slop/no-unknown-returns": {
       "count": 2
     }
   },
