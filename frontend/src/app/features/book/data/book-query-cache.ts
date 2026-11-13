@@ -1,5 +1,6 @@
 import {QueryClient} from '@tanstack/angular-query-experimental';
 
+import {statsQueryKeys} from '../../stats/data/stats-query-keys';
 import {bookQueryKeys} from './book-query-keys';
 
 function uniqueBookIds(bookIds: Iterable<number>): Set<number> {
@@ -11,12 +12,18 @@ export interface BookQueryChangeSet {
   readonly deletedBookIds?: Iterable<number>;
 }
 
-export function invalidateAllBookQueries(queryClient: QueryClient): Promise<void> {
-  return queryClient.invalidateQueries({queryKey: bookQueryKeys.all()});
+export async function invalidateAllBookQueries(queryClient: QueryClient): Promise<void> {
+  await Promise.all([
+    queryClient.invalidateQueries({queryKey: bookQueryKeys.all()}),
+    queryClient.invalidateQueries({queryKey: statsQueryKeys.all()}),
+  ]);
 }
 
-export function invalidateBookCollections(queryClient: QueryClient): Promise<void> {
-  return queryClient.invalidateQueries({queryKey: bookQueryKeys.collections()});
+export async function invalidateBookCollections(queryClient: QueryClient): Promise<void> {
+  await Promise.all([
+    queryClient.invalidateQueries({queryKey: bookQueryKeys.collections()}),
+    queryClient.invalidateQueries({queryKey: statsQueryKeys.all()}),
+  ]);
 }
 
 export function invalidateBookRecommendations(queryClient: QueryClient): Promise<void> {
