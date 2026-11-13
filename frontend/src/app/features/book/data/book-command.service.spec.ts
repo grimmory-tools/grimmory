@@ -10,6 +10,7 @@ import {
   createQueryClientHarness,
   flushSignalAndQueryEffects,
 } from '../../../core/testing/query-testing';
+import {readingQueryKeys} from '../../reading/data/reading-query-keys';
 import {bookQueryKeys} from './book-query-keys';
 import {BookCommandService} from './book-command.service';
 
@@ -17,6 +18,7 @@ import {BookCommandService} from './book-command.service';
 class BookCommandHost {
   private readonly commands = inject(BookCommandService);
   readonly setReadStatus = injectMutation(() => this.commands.setReadStatus());
+  readonly deleteAdditionalFile = injectMutation(() => this.commands.deleteAdditionalFile());
 }
 
 describe('BookCommandService reconciliation', () => {
@@ -56,5 +58,18 @@ describe('BookCommandService reconciliation', () => {
 
     await expect(result).rejects.toBeInstanceOf(HttpErrorResponse);
     expect(queryClient.getQueryState(detailKey)?.isInvalidated).toBe(true);
+  });
+
+  it('refreshes the reader file info when a file is removed from a book', async () => {
+    const fileInfoKey = readingQueryKeys.epubInfo(4, 'EPUB');
+    queryClient.setQueryData(fileInfoKey, {});
+
+    const result = host.deleteAdditionalFile.mutateAsync({bookId: 4, fileId: 9});
+    await Promise.resolve();
+    flushSignalAndQueryEffects();
+    http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/4/files/9`).flush(null);
+    await result;
+
+    expect(queryClient.getQueryState(fileInfoKey)?.isInvalidated).toBe(true);
   });
 });

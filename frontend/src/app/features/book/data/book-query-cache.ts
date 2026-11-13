@@ -1,5 +1,6 @@
 import {QueryClient} from '@tanstack/angular-query-experimental';
 
+import {readingQueryKeys} from '../../reading/data/reading-query-keys';
 import {bookQueryKeys} from './book-query-keys';
 
 function uniqueBookIds(bookIds: Iterable<number>): Set<number> {
@@ -11,8 +12,11 @@ export interface BookQueryChangeSet {
   readonly deletedBookIds?: Iterable<number>;
 }
 
-export function invalidateAllBookQueries(queryClient: QueryClient): Promise<void> {
-  return queryClient.invalidateQueries({queryKey: bookQueryKeys.all()});
+export async function invalidateAllBookQueries(queryClient: QueryClient): Promise<void> {
+  await Promise.all([
+    queryClient.invalidateQueries({queryKey: bookQueryKeys.all()}),
+    queryClient.invalidateQueries({queryKey: readingQueryKeys.all()}),
+  ]);
 }
 
 export function invalidateBookCollections(queryClient: QueryClient): Promise<void> {
@@ -41,7 +45,9 @@ export async function applyBookQueryChangeSet(
     queryClient.removeQueries({
       predicate: ({queryKey}) =>
         isBookLeafKey(queryKey, bookQueryKeys.details(), deletedBookIds)
-        || isBookLeafKey(queryKey, bookQueryKeys.recommendations(), deletedBookIds),
+        || isBookLeafKey(queryKey, bookQueryKeys.recommendations(), deletedBookIds)
+        || isBookLeafKey(queryKey, readingQueryKeys.books(), deletedBookIds)
+        || isBookLeafKey(queryKey, readingQueryKeys.files(), deletedBookIds),
     });
   }
 
@@ -51,6 +57,7 @@ export async function applyBookQueryChangeSet(
       predicate: ({queryKey}) => isBookLeafKey(queryKey, bookQueryKeys.details(), changedBookIds),
     })] : []),
     invalidateBookRecommendations(queryClient),
+    queryClient.invalidateQueries({queryKey: readingQueryKeys.notebook()}),
   ]);
 }
 
