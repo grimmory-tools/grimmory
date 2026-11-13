@@ -205,8 +205,8 @@ importers:
         specifier: ^8.4.0
         version: 8.4.0(@angular/core@22.2.4(@angular/compiler@22.2.4)(rxjs@7.8.2))(rxjs@7.8.2)(typescript@6.0.3)
       '@lucide/angular':
-        specifier: ^1.67.0
-        version: 1.67.0(@angular/common@22.2.4(@angular/core@22.2.4(@angular/compiler@22.2.4)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.4(@angular/compiler@22.2.4)(rxjs@7.8.2))
+        specifier: ^1.70.0
+        version: 1.70.0(@angular/common@22.2.4(@angular/core@22.2.4(@angular/compiler@22.2.4)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.4(@angular/compiler@22.2.4)(rxjs@7.8.2))
       '@openng/icons':
         specifier: ^1.0.0
         version: 1.0.0
@@ -247,8 +247,8 @@ importers:
         specifier: ^3.4.17
         version: 3.4.17
       lucide-static:
-        specifier: 1.67.0
-        version: 1.67.0
+        specifier: 1.70.0
+        version: 1.70.0
       markdown-it:
         specifier: ^15.0.3
         version: 15.0.3
@@ -1638,8 +1638,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@lucide/angular@1.67.0':
-    resolution: {integrity: sha512-jdv3/B/Nlf2sJ4BJFPHg15jkT3Qli+QIUza3LX50lSpaJwv6pwmdURIIzCON4KXWXFL/y3uq/u8LTrcAqsPB8g==}
+  '@lucide/angular@1.70.0':
+    resolution: {integrity: sha512-Jo68WElRsz2ajN32NsPwUDOEU7XJarCjZ+g4LsYMC7nypcrNaa/+q7UUzForX9tTnJFoA2YV6zOf3FwhlNiIew==}
     peerDependencies:
       '@angular/common': '>=17.0.0'
       '@angular/core': '>=17.0.0'
@@ -3707,8 +3707,8 @@ packages:
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
-  lucide-static@1.67.0:
-    resolution: {integrity: sha512-Lu/Ntwfw1GOQiNgTC2iHd/PC4QbqzwktLVFHTB84tldlfUjFgQ+EBWiZc/UPrlNdX97O/KXWRn792hIdQh6nhA==}
+  lucide-static@1.70.0:
+    resolution: {integrity: sha512-A9UgY98g94IuHQY7rl7/AFwHX7T1qNpzryim+Kw5CGhdV2STobtBY+ib/Z44ohyqXEJB88gvXFAeJ87uOOHKLw==}
 
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
@@ -6043,7 +6043,7 @@ snapshots:
   '@lmdb/lmdb-win32-x64@3.5.6':
     optional: true
 
-  '@lucide/angular@1.67.0(@angular/common@22.2.4(@angular/core@22.2.4(@angular/compiler@22.2.4)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.4(@angular/compiler@22.2.4)(rxjs@7.8.2))':
+  '@lucide/angular@1.70.0(@angular/common@22.2.4(@angular/core@22.2.4(@angular/compiler@22.2.4)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.4(@angular/compiler@22.2.4)(rxjs@7.8.2))':
     dependencies:
       '@angular/common': 22.2.4(@angular/core@22.2.4(@angular/compiler@22.2.4)(rxjs@7.8.2))(rxjs@7.8.2)
       '@angular/core': 22.2.4(@angular/compiler@22.2.4)(rxjs@7.8.2)
@@ -7844,7 +7844,7 @@ snapshots:
       yallist: 3.1.1
     optional: true
 
-  lucide-static@1.67.0: {}
+  lucide-static@1.70.0: {}
 
   magic-string@0.30.21:
     dependencies:
