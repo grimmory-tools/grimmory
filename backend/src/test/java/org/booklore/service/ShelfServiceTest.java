@@ -1,6 +1,7 @@
 package org.booklore.service;
 
 import org.booklore.config.security.service.AuthenticationService;
+import org.booklore.exception.APIException;
 import org.booklore.mapper.ShelfMapper;
 import org.booklore.service.audit.AuditService;
 import org.booklore.model.dto.BookLoreUser;
@@ -15,10 +16,13 @@ import org.booklore.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 
 import java.util.Optional;
 
@@ -164,6 +168,62 @@ class ShelfServiceTest {
         ShelfEntity saved = captor.getValue();
         assertEquals("bookmark", saved.getIcon());
         assertEquals(IconType.CUSTOM_SVG, saved.getIconType());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"Nuno's Kobo", "kobo", "Kobo ", "My Shelf"})
+    void updateShelf_renamingKoboShelf_shouldBeRejected(String newName) {
+        ShelfEntity koboShelf = ShelfEntity.builder()
+                .id(1L)
+                .name("Kobo")
+                .icon("tablet")
+                .iconType(IconType.LUCIDE)
+                .user(userEntity)
+                .build();
+
+        ShelfCreateRequest request = ShelfCreateRequest.builder()
+                .name(newName)
+                .icon("tablet")
+                .iconType(IconType.LUCIDE)
+                .build();
+
+        when(shelfRepository.findById(1L)).thenReturn(Optional.of(koboShelf));
+
+        APIException exception = assertThrows(APIException.class, () -> shelfService.updateShelf(1L, request));
+
+        assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+        assertEquals("Kobo", koboShelf.getName());
+        verify(shelfRepository, never()).save(any(ShelfEntity.class));
+    }
+
+    @Test
+    void updateShelf_koboShelfWithSameName_shouldStillUpdateIcon() {
+        ShelfEntity koboShelf = ShelfEntity.builder()
+                .id(1L)
+                .name("Kobo")
+                .icon("tablet")
+                .iconType(IconType.LUCIDE)
+                .user(userEntity)
+                .build();
+
+        ShelfCreateRequest request = ShelfCreateRequest.builder()
+                .name("Kobo")
+                .icon("book")
+                .iconType(IconType.LUCIDE)
+                .build();
+
+        when(shelfRepository.findById(1L)).thenReturn(Optional.of(koboShelf));
+        when(shelfRepository.save(any(ShelfEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(shelfMapper.toShelf(any(ShelfEntity.class))).thenReturn(Shelf.builder().name("Kobo").icon("book").build());
+
+        shelfService.updateShelf(1L, request);
+
+        ArgumentCaptor<ShelfEntity> captor = ArgumentCaptor.forClass(ShelfEntity.class);
+        verify(shelfRepository).save(captor.capture());
+
+        ShelfEntity saved = captor.getValue();
+        assertEquals("Kobo", saved.getName());
+        assertEquals("book", saved.getIcon());
     }
 
     @Test
