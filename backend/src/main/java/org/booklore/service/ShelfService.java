@@ -65,6 +65,10 @@ public class ShelfService {
         if (request.isPublicShelf() && !authenticationService.getAuthenticatedUser().getPermissions().isAdmin()) {
             throw new AccessDeniedException("Only admins can update shelves to be public");
         }
+        String koboShelfName = ShelfType.KOBO.getName();
+        if (koboShelfName.equals(shelfEntity.getName()) && !koboShelfName.equals(request.getName())) {
+            throw ApiError.SHELF_CANNOT_BE_RENAMED.createException(koboShelfName);
+        }
         shelfEntity.setName(request.getName());
         shelfEntity.setIcon(request.getIcon());
         shelfEntity.setIconType(request.getIconType());
