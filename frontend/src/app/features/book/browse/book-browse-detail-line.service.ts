@@ -50,11 +50,13 @@ export class BookBrowseDetailLineService {
       case 'ranobedbRating':
       case 'lubimyczytacRating':
       case 'audibleRating':
+      case 'applebooksRating':
         return this.format('rating', metadata?.[key]);
       case 'amazonReviewCount':
       case 'goodreadsReviewCount':
       case 'hardcoverReviewCount':
       case 'audibleReviewCount':
+      case 'applebooksReviewCount':
         return this.format('number', metadata?.[key]);
       case 'readingProgress':
         return progressLine(book);

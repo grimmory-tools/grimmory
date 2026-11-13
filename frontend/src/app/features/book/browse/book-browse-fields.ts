@@ -306,6 +306,21 @@ const FIELDS = [
       defaultWidth: 132, kind: 'number', value: book => book.metadata?.audibleReviewCount},
   },
   {
+    labelKey: 'book.fields.applebooksRating',
+    providerKey: 'applebooksRating',
+    facet: {key: 'applebooks_rating', banded: true, stars: 5},
+    sort: {key: 'applebooksRating', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
+    column: {key: 'applebooksRating', group: 'ratings', defaultVisible: false,
+      defaultWidth: 124, kind: 'rating', value: book => book.metadata?.applebooksRating},
+  },
+  {
+    labelKey: 'book.fields.applebooksReviewCount',
+    providerKey: 'applebooksReviewCount',
+    sort: {key: 'applebooksReviewCount', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
+    column: {key: 'applebooksReviewCount', group: 'ratings', defaultVisible: false,
+      defaultWidth: 132, kind: 'number', value: book => book.metadata?.applebooksReviewCount},
+  },
+  {
     labelKey: 'book.fields.pageCount',
     facet: {key: 'page_count', kind: 'range', valueLabel: value => rangeTokenLabel(value)},
     sort: {key: 'pageCount', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
@@ -442,6 +457,8 @@ const COLUMN_ORDER = [
   'lubimyczytacRating',
   'audibleRating',
   'audibleReviewCount',
+  'applebooksRating',
+  'applebooksReviewCount',
 ] as const satisfies readonly BookColumnKey[];
 
 export const COLUMN_GROUP_ORDER = ['reading', 'publishing', 'file', 'categorization', 'ratings'] as const;

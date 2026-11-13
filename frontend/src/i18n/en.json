@@ -3552,7 +3552,9 @@
       "comicCreator": "Comic Creator",
       "lubimyczytacRating": "Lubimyczytac Rating",
       "audibleReviewCount": "Audible Rating Count",
-      "audibleRating": "Audible Rating"
+      "audibleRating": "Audible Rating",
+      "applebooksRating": "Apple Books Rating",
+      "applebooksReviewCount": "Apple Books Rating Count"
     }
   },
   "readerAudiobook": {
