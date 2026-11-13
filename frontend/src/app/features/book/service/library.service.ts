@@ -81,7 +81,7 @@ export class LibraryService {
     return this.http.put<Library>(`${this.url}/${id}`, lib).pipe(
       tap(() => {
         void this.queryClient.invalidateQueries({queryKey: LIBRARIES_QUERY_KEY, exact: true});
-        invalidateAllBookCaches(this.queryClient);
+        void invalidateAllBookCaches(this.queryClient);
       })
     );
   }
@@ -90,7 +90,7 @@ export class LibraryService {
     return this.http.delete<void>(`${this.url}/${id}`).pipe(
       tap(() => {
         void this.queryClient.invalidateQueries({queryKey: LIBRARIES_QUERY_KEY, exact: true});
-        invalidateAllBookCaches(this.queryClient);
+        void invalidateAllBookCaches(this.queryClient);
         void invalidateShelfDefinitions(this.queryClient);
         void this.queryClient.invalidateQueries({queryKey: SHELVES_QUERY_KEY, exact: true});
         void this.queryClient.invalidateQueries({queryKey: AUTHORS_QUERY_KEY, exact: true});

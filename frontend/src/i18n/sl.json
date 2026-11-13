@@ -33,7 +33,8 @@
     "on": "",
     "off": "",
     "moreActionsFor": "",
-    "dialogLoadError": ""
+    "dialogLoadError": "",
+    "metadata": "Metapodatki"
   },
   "auth": {
     "oidc": {
@@ -2840,7 +2841,6 @@
       "quickSend": "Hitro pošiljanje",
       "customSend": "Pošiljanje po meri",
       "download": "Prenesi",
-      "metadata": "Metapodatki",
       "editMetadata": "Urejanje metapodatkov",
       "fetchMetadata": "",
       "fetchMetadataWithOptions": "",
@@ -5091,73 +5091,11 @@
     }
   },
   "authorBrowser": {
-    "pageTitle": "Avtorji",
-    "browseAllAuthors": "Brskaj po vseh avtorjih",
-    "searchPlaceholder": "Iskanje po imenu avtorja...",
-    "noAuthorsFound": "Noben avtor ne ustreza vašemu iskanju.",
-    "sort": {
-      "name": "Naziv",
-      "bookCount": "Število knjig",
-      "matched": "Ujema se",
-      "recentlyAdded": "Nedavno dodano",
-      "recentlyRead": "Nedavno prebrano",
-      "readingProgress": "Napredek pri branju",
-      "avgRating": "Povp. ocena",
-      "photo": "Slika",
-      "seriesCount": "Število serij"
-    },
-    "filters": {
-      "all": "Vse",
-      "matchStatus": "Status ujemanja",
-      "matched": "Ujema se",
-      "unmatched": "Neujemanje",
-      "photoStatus": "Stanje slike",
-      "hasPhoto": "Ima sliko",
-      "noPhoto": "Ni slike",
-      "readStatus": "Status branja",
-      "allRead": "Vse prebrano",
-      "someRead": "Nekaj prebrano",
-      "inProgress": "V teku",
-      "unread": "Neprebrano",
-      "bookCount": "Število knjig",
-      "library": "Knjižnica",
-      "genre": "Žanr",
-      "reset": "Ponastavi filtre"
-    },
-    "footer": {
-      "selected": "izbrano",
-      "autoMatch": "Izbrano samodejno ujemanje",
-      "deleteSelected": "Izbriši izbrano",
-      "selectAll": "Izberi vse",
-      "deselectAll": "Prekliči izbor vseh"
-    },
     "toast": {
-      "deleteSuccessSummary": "Avtor izbrisan",
-      "deleteSuccessDetail": "Avtor je bil uspešno izbrisan.",
-      "deleteFailedSummary": "Brisanje ni uspelo",
-      "deleteFailedDetail": "Avtorja ni bilo mogoče izbrisati.",
-      "autoMatchSuccessSummary": "Samodejno ujemanje končano",
-      "autoMatchSuccessDetail": "Izbrani avtorji so bili uspešno usklajeni.",
-      "autoMatchFailedSummary": "Samodejno ujemanje ni uspelo",
-      "autoMatchFailedDetail": "Samodejno iskanje ujemanja izbranih avtorjev ni uspelo.",
       "quickMatchSuccessSummary": "Hitro ujemanje končano",
       "quickMatchSuccessDetail": "Avtor je bil uspešno najden.",
       "quickMatchFailedSummary": "Hitro ujemanje ni uspelo",
-      "quickMatchFailedDetail": "Hitro iskanje ujemanja avtorja ni uspelo.",
-      "deleteSelectedSuccessSummary": "Avtorji izbrisani",
-      "deleteSelectedSuccessDetail": "Izbrani avtorji so bili uspešno izbrisani."
-    },
-    "card": {
-      "matched": "Ujema se",
-      "quickMatch": "Hitro ujemanje",
-      "book": "knjiga",
-      "books": "knjige",
-      "menu": {
-        "viewAuthor": "Ogled avtorja",
-        "editAuthor": "Uredi avtorja",
-        "quickMatch": "Hitro ujemanje",
-        "deleteAuthor": "Izbriši avtorja"
-      }
+      "quickMatchFailedDetail": "Hitro iskanje ujemanja avtorja ni uspelo."
     },
     "editor": {
       "nameLabel": "Ime",
@@ -5242,10 +5180,10 @@
       "multiSort": "",
       "addField": "",
       "apply": "Uporabi",
+      "saveAsDefault": "Shrani kot privzeto: {{scope}}",
       "moveUp": "",
       "moveDown": "",
-      "flipDirection": "",
-      "saveAsDefault": "Shrani kot privzeto: {{scope}}"
+      "flipDirection": ""
     },
     "chips": {
       "removeSearch": "",
@@ -5254,7 +5192,6 @@
     "rail": {
       "searchValues": "",
       "searchFields": "",
-      "clearSearch": "Počisti iskanje",
       "searchScope": {
         "allBooks": "",
         "library": "",
@@ -5274,7 +5211,8 @@
       "matchOptions": "",
       "matchAny": "",
       "matchAll": "",
-      "all": ""
+      "all": "",
+      "clearSearch": "Počisti iskanje"
     },
     "book": {
       "empty": "",
@@ -5317,6 +5255,17 @@
     },
     "filterPage": {
       "show": ""
+    }
+  },
+  "author": {
+    "menu": {
+      "quickMatch": "Hitro ujemanje"
+    },
+    "fields": {
+      "name": "Naziv",
+      "bookCount": "Število knjig",
+      "seriesCount": "Število serij",
+      "hasPhoto": "Slika"
     }
   }
 }

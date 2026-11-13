@@ -33,7 +33,8 @@
     "on": "",
     "off": "",
     "moreActionsFor": "",
-    "dialogLoadError": ""
+    "dialogLoadError": "",
+    "metadata": "Métadonnées"
   },
   "auth": {
     "oidc": {
@@ -2840,7 +2841,6 @@
       "quickSend": "Envoi rapide",
       "customSend": "Envoi personnalisé",
       "download": "Télécharger",
-      "metadata": "Métadonnées",
       "editMetadata": "Modifier les métadonnées",
       "fetchMetadata": "",
       "fetchMetadataWithOptions": "",
@@ -5091,73 +5091,11 @@
     }
   },
   "authorBrowser": {
-    "pageTitle": "",
-    "browseAllAuthors": "Parcourir tous les auteurs",
-    "searchPlaceholder": "Rechercher par nom d’auteur...",
-    "noAuthorsFound": "Aucun auteur ne correspond à votre recherche.",
-    "sort": {
-      "name": "Nom",
-      "bookCount": "Nombre de livres",
-      "matched": "Correspondance trouvée",
-      "recentlyAdded": "Ajoutés récemment",
-      "recentlyRead": "Lus récemment",
-      "readingProgress": "Progression de lecture",
-      "avgRating": "",
-      "photo": "",
-      "seriesCount": ""
-    },
-    "filters": {
-      "all": "",
-      "matchStatus": "",
-      "matched": "",
-      "unmatched": "",
-      "photoStatus": "",
-      "hasPhoto": "",
-      "noPhoto": "",
-      "readStatus": "",
-      "allRead": "",
-      "someRead": "",
-      "inProgress": "",
-      "unread": "",
-      "bookCount": "",
-      "library": "",
-      "genre": "",
-      "reset": ""
-    },
-    "footer": {
-      "selected": "",
-      "autoMatch": "",
-      "deleteSelected": "",
-      "selectAll": "Tout sélectionner",
-      "deselectAll": "Tout désélectionner"
-    },
     "toast": {
-      "deleteSuccessSummary": "Auteur supprimé",
-      "deleteSuccessDetail": "L'auteur a été supprimé avec succès.",
-      "deleteFailedSummary": "Échec de la suppression",
-      "deleteFailedDetail": "Échec de la suppression de l'auteur.",
-      "autoMatchSuccessSummary": "",
-      "autoMatchSuccessDetail": "",
-      "autoMatchFailedSummary": "",
-      "autoMatchFailedDetail": "",
       "quickMatchSuccessSummary": "",
       "quickMatchSuccessDetail": "",
       "quickMatchFailedSummary": "",
-      "quickMatchFailedDetail": "",
-      "deleteSelectedSuccessSummary": "",
-      "deleteSelectedSuccessDetail": ""
-    },
-    "card": {
-      "matched": "",
-      "quickMatch": "",
-      "book": "livre",
-      "books": "livres",
-      "menu": {
-        "viewAuthor": "",
-        "editAuthor": "",
-        "quickMatch": "",
-        "deleteAuthor": ""
-      }
+      "quickMatchFailedDetail": ""
     },
     "editor": {
       "nameLabel": "",
@@ -5254,7 +5192,6 @@
     "rail": {
       "searchValues": "",
       "searchFields": "",
-      "clearSearch": "Effacer la recherche",
       "searchScope": {
         "allBooks": "",
         "library": "",
@@ -5274,7 +5211,8 @@
       "matchOptions": "",
       "matchAny": "",
       "matchAll": "",
-      "all": ""
+      "all": "",
+      "clearSearch": "Effacer la recherche"
     },
     "book": {
       "empty": "",
@@ -5317,6 +5255,12 @@
     },
     "filterPage": {
       "show": ""
+    }
+  },
+  "author": {
+    "fields": {
+      "name": "Nom",
+      "bookCount": "Nombre de livres"
     }
   }
 }

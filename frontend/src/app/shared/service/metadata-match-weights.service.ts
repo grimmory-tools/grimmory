@@ -13,7 +13,7 @@ export class MetadataMatchWeightsService {
 
   recalculateAll(): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/books/metadata/recalculate-match-scores`, {}).pipe(
-      tap(() => invalidateAllBookCaches(this.queryClient))
+      tap(() => void invalidateAllBookCaches(this.queryClient))
     );
   }
 }
