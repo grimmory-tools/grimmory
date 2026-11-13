@@ -2676,13 +2676,6 @@
       "ranobedb": "RanobeDB",
       "audible": "Audible",
       "appleBooks": "Apple Books"
-    },
-    "providerFields": {
-      "id": "{{ provider }} ID",
-      "rating": "{{ provider }} Rating",
-      "reviewCount": "{{ provider }} Review Count",
-      "asin": "Amazon ASIN",
-      "hardcoverBookId": "Hardcover Book ID"
     }
   },
   "notebook": {
@@ -3550,11 +3543,25 @@
       "comicTeam": "Comic Team",
       "comicLocation": "Comic Location",
       "comicCreator": "Comic Creator",
-      "lubimyczytacRating": "Lubimyczytac Rating",
+      "lubimyczytacRating": "Lubimyczytać Rating",
       "audibleReviewCount": "Audible Rating Count",
       "audibleRating": "Audible Rating",
       "applebooksRating": "Apple Books Rating",
-      "applebooksReviewCount": "Apple Books Rating Count"
+      "applebooksReviewCount": "Apple Books Rating Count",
+      "openlibraryId": "Open Library ID",
+      "asin": "Amazon ASIN",
+      "goodreadsId": "Goodreads ID",
+      "googleId": "Google Books ID",
+      "hardcoverId": "Hardcover ID",
+      "hardcoverBookId": "Hardcover Book ID",
+      "comicvineId": "Comic Vine ID",
+      "doubanId": "Douban ID",
+      "doubanRating": "Douban Rating",
+      "doubanReviewCount": "Douban Rating Count",
+      "lubimyczytacId": "Lubimyczytać ID",
+      "ranobedbId": "RanobeDB ID",
+      "audibleId": "Audible ID",
+      "applebooksId": "Apple Books ID"
     }
   },
   "readerAudiobook": {

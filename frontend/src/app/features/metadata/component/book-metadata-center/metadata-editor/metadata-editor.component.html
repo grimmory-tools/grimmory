@@ -641,10 +641,10 @@
         @if (providerSectionExpanded) {
           <div class="collapsible-content">
             <div class="field-row metadata-ids-row">
-              @for (field of providerFields.fields(); track field.name) {
+              @for (field of providerFields; track field.name) {
                 @if (isFieldVisible(field.name)) {
                   <div class="field-group metadata-id-field">
-                    <label [for]="field.name">{{ providerFields.label(field.name) }} @if (isEmbeddable(field.name, book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</label>
+                    <label [for]="field.name">{{ field.labelKey | transloco }} @if (isEmbeddable(field.name, book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</label>
                     <div class="field-with-lock">
                       <input pSize="small" pInputText [id]="field.name" [formControlName]="field.name"/>
                       @if (!book.metadata![field.lockName]) {

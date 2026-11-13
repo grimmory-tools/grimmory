@@ -160,7 +160,7 @@
   },
   "src/app/features/metadata/component/book-metadata-center/metadata-picker/metadata-picker.component.html": {
     "@angular-eslint/template/no-non-null-assertion": {
-      "count": 4
+      "count": 3
     },
     "@angular-eslint/template/prefer-contextual-for-variables": {
       "count": 2
