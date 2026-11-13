@@ -99,6 +99,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: true
+          save-cache: ${{ github.ref == 'refs/heads/develop' }}
           install: false
 
       - name: Install Frontend Dependencies
