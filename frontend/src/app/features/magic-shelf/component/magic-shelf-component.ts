@@ -24,8 +24,7 @@ import {ShelfService} from '../../book/service/shelf.service';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {Textarea} from '@openng/optimus-ui/textarea';
 import {IconSelection, toIconSelection} from '../../../shared/icons/icon-selection';
-import {MetadataProviderFieldsService, providerFieldRecord, type MetadataProviderFieldRole} from '../../../shared/metadata';
-import type {MetadataProviderFieldName, MetadataProviderScoreFieldName} from '../../../shared/metadata/metadata-providers';
+import {METADATA_PROVIDER_FIELDS, METADATA_PROVIDER_SCORE_FIELDS, providerFieldRecord, type MetadataProviderFieldRole, type MetadataProviderScoreFieldName} from '../../../shared/metadata';
 
 export type RuleOperator =
   | 'equals'
@@ -97,7 +96,7 @@ interface FullFieldConfig {
   label: string;
   type?: FieldType;
   max?: number;
-  providerField?: MetadataProviderFieldName;
+  labelKey?: string;
 }
 
 type FieldType = 'number' | 'decimal' | 'date' | 'boolean' | undefined;
@@ -181,6 +180,13 @@ const GENERIC_FIELD_CONFIGS = {
   metadataPresence: {label: 'metadataPresence'}
 } satisfies Record<GenericRuleField, FullFieldConfig>;
 
+const FIELD_CONFIGS: Record<RuleField, FullFieldConfig> = {
+  ...GENERIC_FIELD_CONFIGS,
+  ...providerFieldRecord(METADATA_PROVIDER_SCORE_FIELDS, (field): FullFieldConfig => ({
+    label: field.name, labelKey: field.labelKey, type: field.role === 'rating' ? 'decimal' : 'number', max: field.role === 'rating' ? 5 : undefined,
+  })),
+};
+
 interface FieldGroup {
   translationKey: string;
   fields: RuleField[];
@@ -197,6 +203,10 @@ const GENERIC_FIELD_GROUPS: FieldGroup[] = [
   { translationKey: 'audiobook', fields: ['narrator', 'abridged', 'audiobookDuration', 'audiobookCodec', 'audiobookChapterCount', 'audiobookBitrate'] },
   { translationKey: 'fileIdentifiers', fields: ['fileType', 'fileSize', 'isbn13', 'isbn10', 'isPhysical'] }
 ];
+
+const FIELD_GROUPS: FieldGroup[] = GENERIC_FIELD_GROUPS.map(group => group.translationKey === 'ratingsReviews'
+  ? {...group, fields: [...group.fields, ...METADATA_PROVIDER_SCORE_FIELDS.map(field => field.name)]}
+  : group);
 
 const DATE_UNITS = ['days', 'weeks', 'months', 'years'];
 const DATE_PERIODS = ['week', 'month', 'year'];
@@ -245,7 +255,6 @@ const READ_STATUS_KEYS: Record<string, string> = {
 export class MagicShelfComponent implements OnInit {
 
   private readonly t = inject(TranslocoService);
-  private readonly providerFields = inject(MetadataProviderFieldsService);
   private readonly injector = inject(Injector);
   libraryService = inject(LibraryService);
   shelfService = inject(ShelfService);
@@ -258,22 +267,11 @@ export class MagicShelfComponent implements OnInit {
   private readonly controlIds = new WeakMap<AbstractControl, string>();
   private controlIdCounter = 0;
 
-  readonly fieldConfigs = computed<Record<RuleField, FullFieldConfig>>(() => ({
-    ...GENERIC_FIELD_CONFIGS,
-    ...providerFieldRecord(this.providerFields.scoreFields(), (field): FullFieldConfig => ({
-      label: field.name, providerField: field.name, type: field.role === 'rating' ? 'decimal' : 'number', max: field.role === 'rating' ? 5 : undefined,
-    })),
-  }));
-
-  private readonly fieldGroups = computed(() => GENERIC_FIELD_GROUPS.map(group => group.translationKey === 'ratingsReviews'
-    ? {...group, fields: [...group.fields, ...this.providerFields.scoreFields().map(field => field.name)]}
-    : group));
-
-  readonly numericFieldConfigMap = computed(() => new Map<RuleField, FieldConfig>(
-    Object.entries(this.fieldConfigs())
+  readonly numericFieldConfigMap = new Map<RuleField, FieldConfig>(
+    Object.entries(FIELD_CONFIGS)
       .filter(([, config]) => config.type)
       .map(([key, config]) => [key as RuleField, {type: config.type!, max: config.max}])
-  ));
+  );
 
   get conditionOptions(): { label: string; value: 'and' | 'or' }[] {
     return [
@@ -283,14 +281,14 @@ export class MagicShelfComponent implements OnInit {
   }
 
   get fieldOptions() {
-    return this.fieldGroups()
+    return FIELD_GROUPS
       .map(group => ({
         label: this.t.translate(`magicShelf.fieldGroups.${group.translationKey}`),
         items: group.fields.map(field => {
-          const config = this.fieldConfigs()[field];
+          const config = FIELD_CONFIGS[field];
           const translationKey = field === 'categories' ? 'genre' : config.label;
           return {
-            label: config.providerField ? this.providerFields.label(config.providerField) : this.t.translate(`magicShelf.fields.${translationKey}`),
+            label: this.t.translate(config.labelKey ?? `magicShelf.fields.${translationKey}`),
             value: field
           };
         })
@@ -365,9 +363,9 @@ export class MagicShelfComponent implements OnInit {
   }
 
   private providerFieldOptions(role: MetadataProviderFieldRole) {
-    return this.providerFields.fields()
+    return METADATA_PROVIDER_FIELDS
       .filter(field => field.role === role && field.name !== RULE_UNSUPPORTED_PROVIDER_FIELD)
-      .map(field => ({label: this.providerFields.label(field.name), value: field.name}));
+      .map(field => ({label: this.t.translate(field.labelKey), value: field.name}));
   }
 
   get metadataPresenceOptions() {
@@ -542,7 +540,7 @@ export class MagicShelfComponent implements OnInit {
   }
 
   buildRuleFromData(data: Rule): RuleFormGroup {
-    const config = this.fieldConfigs()[data.field];
+    const config = FIELD_CONFIGS[data.field];
     const type = config?.type;
     const isRelativeDate = RELATIVE_DATE_OPERATORS.includes(data.operator);
 
@@ -607,7 +605,7 @@ export class MagicShelfComponent implements OnInit {
 
     if (!field) return [...baseOperators, ...multiValueOperators];
 
-    const config = this.fieldConfigs()[field];
+    const config = FIELD_CONFIGS[field];
 
     if (config.type === 'boolean') {
       return baseOperators;
@@ -729,7 +727,7 @@ export class MagicShelfComponent implements OnInit {
   /** A value survives an operator change only when the input the new operator renders can still edit it. */
   private isSingleValue(ruleCtrl: FormGroup, value: unknown): boolean {
     if (value == null || value === '' || Array.isArray(value)) return false;
-    const type = this.fieldConfigs()[ruleCtrl.get('field')?.value as RuleField]?.type;
+    const type = FIELD_CONFIGS[ruleCtrl.get('field')?.value as RuleField]?.type;
     return type !== 'date' || value instanceof Date;
   }
 

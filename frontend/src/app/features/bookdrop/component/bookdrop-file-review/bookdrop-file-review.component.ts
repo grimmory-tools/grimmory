@@ -21,7 +21,7 @@ import {InputGroupAddon} from '@openng/optimus-ui/inputgroupaddon';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {BookMetadata} from '../../../book/model/book.model';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
-import {MetadataProviderFieldsService} from '../../../../shared/metadata';
+import {METADATA_PROVIDER_FIELDS} from '../../../../shared/metadata';
 import {Checkbox} from '@openng/optimus-ui/checkbox';
 import {NgClass} from '@angular/common';
 import {Paginator} from '@openng/optimus-ui/paginator';
@@ -74,7 +74,6 @@ export class BookdropFileReviewComponent implements OnInit {
   private readonly appSettingsService = inject(AppSettingsService);
   private readonly messageService = inject(MessageService);
   private readonly urlHelper = inject(UrlHelperService);
-  private readonly providerFields = inject(MetadataProviderFieldsService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly pageTitle = inject(PageTitleService);
   private readonly t = inject(TranslocoService);
@@ -315,7 +314,7 @@ export class BookdropFileReviewComponent implements OnInit {
         seriesNumber: original?.seriesNumber ?? null,
         seriesTotal: original?.seriesTotal ?? null,
         thumbnailUrl: this.urlHelper.getBookdropCoverUrl(fileUi.file.id),
-        ...Object.fromEntries(this.providerFields.fields().map(field => [field.name, original?.[field.name] ?? null])),
+        ...Object.fromEntries(METADATA_PROVIDER_FIELDS.map(field => [field.name, original?.[field.name] ?? null])),
       });
       fileUi.copiedFields = {};
       fileUi.savedFields = {};
@@ -581,7 +580,7 @@ export class BookdropFileReviewComponent implements OnInit {
       seriesNumber: new FormControl(original?.seriesNumber ?? ''),
       seriesTotal: new FormControl(original?.seriesTotal ?? ''),
       thumbnailUrl: new FormControl(this.urlHelper.getBookdropCoverUrl(bookdropFileId)),
-      ...Object.fromEntries(this.providerFields.fields().map(field => [field.name, new FormControl(original?.[field.name] ?? '')])),
+      ...Object.fromEntries(METADATA_PROVIDER_FIELDS.map(field => [field.name, new FormControl(original?.[field.name] ?? '')])),
     });
   }
 

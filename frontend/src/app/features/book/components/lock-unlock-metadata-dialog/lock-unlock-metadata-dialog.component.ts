@@ -9,7 +9,7 @@ import {Divider} from '@openng/optimus-ui/divider';
 import {LoadingService} from '../../../../core/services/loading.service';
 import {finalize} from 'rxjs';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
-import {MetadataProviderFieldsService} from '../../../../shared/metadata';
+import {METADATA_PROVIDER_FIELDS} from '../../../../shared/metadata';
 
 @Component({
   selector: 'app-lock-unlock-metadata-dialog',
@@ -30,7 +30,6 @@ export class LockUnlockMetadataDialogComponent implements OnInit {
   private readonly messageService = inject(MessageService);
   private readonly loadingService = inject(LoadingService);
   private readonly t = inject(TranslocoService);
-  private readonly providerFields = inject(MetadataProviderFieldsService);
   fieldLocks: Record<string, boolean | undefined> = {};
 
   bookIds: Set<number> = this.dynamicDialogConfig.data.bookIds;
@@ -39,7 +38,7 @@ export class LockUnlockMetadataDialogComponent implements OnInit {
     'titleLocked', 'subtitleLocked', 'publisherLocked', 'publishedDateLocked', 'descriptionLocked',
     'isbn13Locked', 'isbn10Locked', 'pageCountLocked', 'thumbnailLocked', 'languageLocked', 'coverLocked',
     'seriesNameLocked', 'seriesNumberLocked', 'seriesTotalLocked', 'authorsLocked', 'categoriesLocked', 'moodsLocked', 'tagsLocked',
-    ...this.providerFields.fields().map(field => field.lockName),
+    ...METADATA_PROVIDER_FIELDS.map(field => field.lockName),
   ];
 
   fieldLabels: Record<string, string> = {
@@ -64,8 +63,8 @@ export class LockUnlockMetadataDialogComponent implements OnInit {
   };
 
   getFieldLabel(lockName: string): string {
-    const providerField = this.providerFields.fields().find(field => field.lockName === lockName);
-    return providerField ? this.providerFields.label(providerField.name) : this.fieldLabels[lockName] ?? lockName;
+    const providerField = METADATA_PROVIDER_FIELDS.find(field => field.lockName === lockName);
+    return providerField ? this.t.translate(providerField.labelKey) : this.fieldLabels[lockName] ?? lockName;
   }
 
   isSaving = false;
