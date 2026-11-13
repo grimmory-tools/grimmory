@@ -59,7 +59,6 @@ public class AdditionalFileService {
 
         BookFileEntity file = fileOpt.get();
         BookEntity book = file.getBook();
-        validateAdditionalFile(file, book);
 
         try {
             monitoringRegistrationService.unregisterSpecificPath(file.getFullFilePath().getParent());
