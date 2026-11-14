@@ -5,7 +5,9 @@ import org.booklore.model.dto.sidecar.SidecarMetadata;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.enums.SidecarSyncStatus;
+import org.booklore.util.FileUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -47,21 +49,20 @@ public class SidecarMetadataReader {
         }
     }
 
-    public byte[] readSidecarCover(Path bookPath) {
-        if (bookPath == null) {
-            return null;
-        }
-
-        Path coverPath = getCoverPath(bookPath);
-        if (!Files.exists(coverPath)) {
-            log.debug("No sidecar cover file found at: {}", coverPath);
+    public byte[] readSidecarCover(Path bookPath, SidecarMetadata sidecar) {
+        if (bookPath == null || sidecar.getCover() == null || !StringUtils.hasText(sidecar.getCover().getPath())) {
             return null;
         }
 
         try {
+            Path coverPath = FileUtils.resolvePathWithinBase(bookPath.getParent(), sidecar.getCover().getPath());
+            if (!Files.isRegularFile(coverPath)) {
+                log.debug("No sidecar cover file found at: {}", coverPath);
+                return null;
+            }
             return Files.readAllBytes(coverPath);
-        } catch (IOException e) {
-            log.warn("Failed to read sidecar cover from {}: {}", coverPath, e.getMessage());
+        } catch (IOException | IllegalArgumentException e) {
+            log.warn("Failed to read sidecar cover for {}: {}", bookPath, e.getMessage());
             return null;
         }
     }
@@ -120,13 +121,6 @@ public class SidecarMetadataReader {
         int dotIndex = fileName.lastIndexOf('.');
         String baseName = (dotIndex > 0) ? fileName.substring(0, dotIndex) : fileName;
         return bookPath.getParent().resolve(baseName + ".metadata.json");
-    }
-
-    public Path getCoverPath(Path bookPath) {
-        String fileName = bookPath.getFileName().toString();
-        int dotIndex = fileName.lastIndexOf('.');
-        String baseName = (dotIndex > 0) ? fileName.substring(0, dotIndex) : fileName;
-        return bookPath.getParent().resolve(baseName + ".cover.jpg");
     }
 
     private boolean isMetadataDifferent(SidecarMetadata sidecar, BookMetadataEntity db) {
