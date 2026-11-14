@@ -128,18 +128,4 @@ public class MetadataController {
         }
         return ResponseEntity.ok(metadata);
     }
-
-    @Operation(summary = "Get detailed metadata from provider", description = "Fetch full metadata details for a specific item from a provider. Requires metadata edit permission or admin.")
-    @ApiResponse(responseCode = "200", description = "Detailed metadata returned successfully")
-    @GetMapping("/metadata/detail/{provider}/{providerItemId}")
-    @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
-    public ResponseEntity<BookMetadata> getDetailedProviderMetadata(
-            @Parameter(description = "Metadata provider") @PathVariable MetadataProvider provider,
-            @Parameter(description = "Provider-specific item ID") @PathVariable String providerItemId) {
-        BookMetadata metadata = metadataProviderService.getDetailedMetadata(provider, providerItemId);
-        if (metadata == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(metadata);
-    }
 }
