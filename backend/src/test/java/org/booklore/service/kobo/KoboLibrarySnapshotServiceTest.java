@@ -85,6 +85,7 @@ class KoboLibrarySnapshotServiceTest {
                 .build();
 
         BookFileEntity ownersPrimaryFile = new BookFileEntity();
+        ownersPrimaryFile.setBookFormat(true);
         ownersPrimaryFile.setBook(ownersBook);
         ownersBook.setBookFiles(Set.of(ownersPrimaryFile));
 
@@ -94,6 +95,7 @@ class KoboLibrarySnapshotServiceTest {
                 .build();
 
         BookFileEntity otherPrimaryFile = new BookFileEntity();
+        otherPrimaryFile.setBookFormat(true);
         otherPrimaryFile.setBook(otherUsersBook);
         otherUsersBook.setBookFiles(Set.of(otherPrimaryFile));
 

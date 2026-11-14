@@ -176,6 +176,7 @@ class KoboCompatibilityServiceTest {
         bookWithNullType.setId(1L);
 
         BookFileEntity primaryFile = new BookFileEntity();
+        primaryFile.setBookFormat(true);
         primaryFile.setBook(bookWithNullType);
         primaryFile.setBookType(null);
         bookWithNullType.setBookFiles(Set.of(primaryFile));
@@ -297,6 +298,7 @@ class KoboCompatibilityServiceTest {
         book.setId(id);
 
         BookFileEntity primaryFile = new BookFileEntity();
+        primaryFile.setBookFormat(true);
         primaryFile.setBook(book);
         primaryFile.setBookType(bookType);
         primaryFile.setFileSizeKb(fileSizeKb);

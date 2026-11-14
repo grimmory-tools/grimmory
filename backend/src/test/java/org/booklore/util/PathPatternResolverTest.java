@@ -246,6 +246,7 @@ class PathPatternResolverTest {
         BookEntity book = new BookEntity();
 
         BookFileEntity primaryFile = new BookFileEntity();
+        primaryFile.setBookFormat(true);
         primaryFile.setBook(book);
         primaryFile.setFileName("book.epub");
         primaryFile.setFileSubPath("");

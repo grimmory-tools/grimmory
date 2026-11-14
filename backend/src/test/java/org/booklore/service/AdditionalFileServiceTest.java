@@ -186,6 +186,23 @@ class AdditionalFileServiceTest {
     }
 
     @Test
+    void deleteAdditionalFile_WhenSupplementWithoutEbook_ShouldRemoveFromBook() {
+        bookEntity.setIsPhysical(true);
+        fileEntity.setBookFormat(false);
+        bookEntity.setBookFiles(new HashSet<>(Set.of(fileEntity)));
+        when(additionalFileRepository.findByIdAndBookIdWithBookAndLibraryPath(1L, 100L)).thenReturn(Optional.of(fileEntity));
+
+        try (MockedStatic<Files> filesMock = mockStatic(Files.class)) {
+            filesMock.when(() -> Files.deleteIfExists(fileEntity.getFullFilePath())).thenReturn(true);
+
+            additionalFileService.deleteAdditionalFile(100L, 1L);
+
+            assertTrue(bookEntity.getBookFiles().isEmpty());
+            verify(additionalFileRepository).delete(fileEntity);
+        }
+    }
+
+    @Test
     void deleteAdditionalFile_WhenIOExceptionOccurs_ShouldStillDeleteFromRepository() {
         Long bookId = 100L;
         Long fileId = 1L;
@@ -312,7 +329,9 @@ class AdditionalFileServiceTest {
     void deleteAdditionalFile_WhenFileIsPrimaryBookFile_ShouldThrowException() {
         Long bookId = 100L;
         Long fileId = 1L;
-        bookEntity.setBookFiles(Set.of(fileEntity));
+        BookFileEntity supplement = createBookFile(0L, "extras.zip");
+        supplement.setBookFormat(false);
+        bookEntity.setBookFiles(Set.of(supplement, fileEntity));
         when(additionalFileRepository.findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId)).thenReturn(Optional.of(fileEntity));
 
         IllegalArgumentException exception = assertThrows(
@@ -329,7 +348,9 @@ class AdditionalFileServiceTest {
     void downloadAdditionalFile_WhenFileIsPrimaryBookFile_ShouldThrowException() {
         Long bookId = 100L;
         Long fileId = 1L;
-        bookEntity.setBookFiles(Set.of(fileEntity));
+        BookFileEntity supplement = createBookFile(0L, "extras.zip");
+        supplement.setBookFormat(false);
+        bookEntity.setBookFiles(Set.of(supplement, fileEntity));
         when(additionalFileRepository.findByIdAndBookIdWithBookAndLibraryPath(fileId, bookId)).thenReturn(Optional.of(fileEntity));
 
         IllegalArgumentException exception = assertThrows(
