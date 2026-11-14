@@ -1,16 +1,19 @@
 package org.booklore.model.dto.request;
 
+import java.time.Instant;
+
 import org.booklore.model.enums.BookFileType;
+
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.Instant;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ReadingSessionRequest {
     @NotNull
     private Long bookId;
