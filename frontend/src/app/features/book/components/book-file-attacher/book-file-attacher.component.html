@@ -45,7 +45,7 @@
         <p-autocomplete [(ngModel)]="targetInputValue"
           [suggestions]="filteredBooks()" (completeMethod)="filterBooks($event)"
           (input)="onSearchInput($event)" (onClear)="onBookClear()" optionLabel="metadata.title" [dropdown]="true" [showClear]="true"
-          [completeOnFocus]="true" [forceSelection]="true" [delay]="0" [placeholder]="t('searchPlaceholder')"
+          [completeOnFocus]="true" [delay]="0" [placeholder]="t('searchPlaceholder')"
           appendTo="self" [overlayOptions]="{styleClass: 'w-full'}" fluid [disabled]="attachMutation.isPending()">
           <ng-template let-book #item>
             <div class="book-suggestion">
