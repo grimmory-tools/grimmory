@@ -55,7 +55,8 @@ public class MagicShelfBookService {
         try {
             Pageable pageable = PageRequest.of(Math.max(page, 0), size);
 
-            Page<BookEntity> booksPage = bookRepository.findAll(specification, pageable);
+            Page<BookEntity> booksPage = bookRepository.findBy(specification,
+                    query -> query.project("metadata", "metadata.comicMetadata").page(pageable));
 
             List<BookEntity> filteredEntities = contentRestrictionService.applyRestrictions(booksPage.getContent(), userId);
             List<Book> books = filteredEntities.stream()
