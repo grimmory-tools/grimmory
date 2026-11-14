@@ -14,6 +14,7 @@ import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.*;
 import org.booklore.service.audit.AuditService;
+import org.booklore.service.metadata.sidecar.SidecarMetadataWriter;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
 import org.booklore.service.progress.ReadingProgressService;
 import org.booklore.util.FileService;
@@ -21,6 +22,7 @@ import org.booklore.util.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -79,6 +81,8 @@ class BookServiceTest {
     @Mock
     private AuditService auditService;
     @Mock
+    private SidecarMetadataWriter sidecarMetadataWriter;
+    @Mock
     private EntityManager entityManager;
 
     @InjectMocks
@@ -88,6 +92,8 @@ class BookServiceTest {
 
     private Path epubPath;
     private Path pdfPath;
+    @TempDir
+    private Path tempDir;
 
     @BeforeEach
     void setUp() {
@@ -407,6 +413,44 @@ class BookServiceTest {
         assertTrue(response.getFailedFileDeletions().isEmpty());
         assertEquals(Set.of(11L), response.getDeleted());
         Files.deleteIfExists(filePath);
+    }
+
+    @Test
+    void deleteBooks_deletesEmptyParentDirsAfterDeletingSidecars() throws Exception {
+        Path libraryRoot = Files.createDirectory(tempDir.resolve("library"));
+        Path bookDir = Files.createDirectories(libraryRoot.resolve("Author/Series"));
+        Path filePath = Files.writeString(bookDir.resolve("Book.epub"), "book");
+        Path metadataPath = Files.writeString(bookDir.resolve("Book.metadata.json"), "metadata");
+        Path coverPath = Files.writeString(bookDir.resolve("Book.cover.jpg"), "cover");
+
+        BookEntity entity = new BookEntity();
+        entity.setId(11L);
+        LibraryPathEntity libPath = new LibraryPathEntity();
+        libPath.setPath(libraryRoot.toString());
+        LibraryEntity library = new LibraryEntity();
+        library.setId(42L);
+        library.setLibraryPaths(List.of(libPath));
+        entity.setLibrary(library);
+        entity.setLibraryPath(libPath);
+        BookFileEntity primaryFile = new BookFileEntity();
+        primaryFile.setBook(entity);
+        primaryFile.setFileSubPath("Author/Series");
+        primaryFile.setFileName("Book.epub");
+        entity.setBookFiles(Set.of(primaryFile));
+
+        when(bookQueryService.findAllWithMetadataByIds(Set.of(11L))).thenReturn(List.of(entity));
+        when(authenticationService.getAuthenticatedUser()).thenReturn(testUser);
+        doNothing().when(bookRepository).deleteAllInBatch(anyList());
+        doAnswer(invocation -> {
+            Files.deleteIfExists(metadataPath);
+            Files.deleteIfExists(coverPath);
+            return null;
+        }).when(sidecarMetadataWriter).deleteSidecarFiles(filePath);
+
+        bookService.deleteBooks(Set.of(11L));
+
+        assertFalse(Files.exists(bookDir));
+        assertTrue(Files.exists(libraryRoot));
     }
 
     @Test

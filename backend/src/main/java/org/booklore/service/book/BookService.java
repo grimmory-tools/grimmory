@@ -393,13 +393,13 @@ public class BookService {
                                 .map(Path::normalize)
                                 .collect(Collectors.toSet());
 
-                        deleteEmptyParentDirsUpToLibraryFolders(fullFilePath.getParent(), libraryRoots);
-
                         try {
                             sidecarMetadataWriter.deleteSidecarFiles(fullFilePath);
                         } catch (Exception e) {
                             log.warn("Failed to delete sidecar files for: {}", fullFilePath, e);
                         }
+
+                        deleteEmptyParentDirsUpToLibraryFolders(fullFilePath.getParent(), libraryRoots);
                     }
                 } catch (IOException e) {
                     log.warn("Failed to delete book file: {}", fullFilePath, e);
