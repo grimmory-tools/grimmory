@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.booklore.model.enums.TaskType;
+import org.booklore.task.options.HardcoverImportOptions;
 import org.booklore.task.options.LibraryRescanOptions;
 
 @Data
@@ -26,6 +27,7 @@ public class TaskCreateRequest {
     @JsonSubTypes({
             @JsonSubTypes.Type(value = LibraryRescanOptions.class, name = "REFRESH_LIBRARY_METADATA"),
             @JsonSubTypes.Type(value = MetadataRefreshRequest.class, name = "REFRESH_METADATA_MANUAL"),
+            @JsonSubTypes.Type(value = HardcoverImportOptions.class, name = "HARDCOVER_IMPORT"),
     })
     private Object options;
 

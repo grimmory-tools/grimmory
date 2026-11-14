@@ -58,6 +58,14 @@ public enum TaskType {
             true,
             "Refresh Metadata",
             "Updates metadata information for your selected books."
+    ),
+    HARDCOVER_IMPORT(
+        false,
+        true,
+        true,
+        false,
+        "Import Hardcover data",
+        "Imports the data your Hardcover library into Grimmory"
     );
 
     @Getter
