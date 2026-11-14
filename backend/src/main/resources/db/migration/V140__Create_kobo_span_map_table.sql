@@ -5,7 +5,7 @@ CREATE TABLE kobo_span_map
     file_hash     VARCHAR(128)          NOT NULL,
     span_map_json LONGTEXT              NOT NULL,
     created_at    datetime              NOT NULL,
-    CONSTRAINT pk_kobo_span_map PRIMARY KEY (id),
+    PRIMARY KEY (id),
     CONSTRAINT uk_kobo_span_map_book_file UNIQUE (book_file_id)
 );
 
