@@ -172,6 +172,16 @@ public class BrowseService<E, T> {
         return new FacetGroupsResponse(builder.pagedLinks(term, page, limit, hasNext), List.of(group));
     }
 
+    public List<String> allValues(String facetName, String search) {
+        BrowseScope scope = scopeFactory.current();
+        FacetDef<E> def = entity.facets().find(facetName);
+        Specification<E> base = entity.filter(null, Map.of(), FacetLogic.OR, scope, def.key());
+        String term = search == null || search.isBlank() ? null : search.trim();
+        return count(def.groupBy().getFirst(), base, scope, term, 0, Integer.MAX_VALUE).stream()
+                .map(FacetResponseBuilder.FacetCount::value)
+                .toList();
+    }
+
     // Package-private: lets tests reset the shared singleton cache between runs.
     void clearCache() {
         cache.invalidateAll();

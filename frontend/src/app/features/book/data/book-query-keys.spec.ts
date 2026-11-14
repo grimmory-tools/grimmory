@@ -20,7 +20,7 @@ describe('book query keys', () => {
     const keys = [
       bookQueryKeys.boundedPage(page),
       bookQueryKeys.infinitePage(page),
-      bookQueryKeys.facet('genre', normalizeBookCollectionFilterParams(query), ''),
+      bookQueryKeys.facet('genre', normalizeBookCollectionFilterParams(query), '', 0, 100),
       bookQueryKeys.ids(normalizeBookQueryParams(query)),
       bookQueryKeys.detail(12, true),
       bookQueryKeys.recommendation(12, 20),
@@ -42,7 +42,7 @@ describe('book query keys', () => {
     const genreSelected = normalizeBookCollectionFilterParams(query);
     const unfiltered = normalizeBookCollectionFilterParams({...query, facets: {}});
 
-    expect(bookQueryKeys.facet('author', genreSelected, '')).not.toEqual(bookQueryKeys.facet('author', unfiltered, ''));
+    expect(bookQueryKeys.facet('author', genreSelected, '', 0, 100)).not.toEqual(bookQueryKeys.facet('author', unfiltered, '', 0, 100));
   });
 
   it('nests every leaf under the prefix its invalidation targets', () => {

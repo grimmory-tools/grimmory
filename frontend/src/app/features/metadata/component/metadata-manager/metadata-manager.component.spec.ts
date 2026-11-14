@@ -1,123 +1,127 @@
-import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
-import {BehaviorSubject, of} from 'rxjs';
+import {HttpTestingController, TestRequest} from '@angular/common/http/testing';
+import {BehaviorSubject, map} from 'rxjs';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {TranslocoService} from '@jsverse/transloco';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute, convertToParamMap, Router} from '@angular/router';
 import {MessageService} from '@openng/optimus-ui/api';
 
-import {Book} from '../../../book/model/book.model';
 import {BookMetadataManageService} from '../../../book/service/book-metadata-manage.service';
-import {BookService} from '../../../book/service/book.service';
+import {BookQueryService} from '../../../book/data/book-query.service';
+import {AuthService} from '../../../../shared/service/auth.service';
+import {createAuthServiceStub, createQueryClientHarness} from '../../../../core/testing/query-testing';
 import {PageTitleService} from '../../../../shared/service/page-title.service';
 import {MetadataManagerComponent} from './metadata-manager.component';
 
 describe('MetadataManagerComponent', () => {
-  const books = signal<Book[]>([]);
-  const isBooksLoading = signal(false);
   const add = vi.fn();
   const navigate = vi.fn(() => Promise.resolve(true));
   const setPageTitle = vi.fn();
   const translate = vi.fn((key: string) => `translated:${key}`);
-  const consolidateMetadata = vi.fn(() => of(void 0));
-  const deleteMetadata = vi.fn(() => of(void 0));
   let queryParams$: BehaviorSubject<Record<string, unknown>>;
+  let http: HttpTestingController;
 
   beforeEach(() => {
     add.mockClear();
     navigate.mockClear();
     setPageTitle.mockClear();
     translate.mockClear();
-    consolidateMetadata.mockClear();
-    deleteMetadata.mockClear();
-    books.set([]);
-    isBooksLoading.set(false);
     queryParams$ = new BehaviorSubject<Record<string, unknown>>({});
+    const harness = createQueryClientHarness();
+    harness.queryClient.setDefaultOptions({queries: {retry: false}});
 
     TestBed.configureTestingModule({
       providers: [
-        {provide: BookService, useValue: {books, isBooksLoading}},
-        {provide: BookMetadataManageService, useValue: {consolidateMetadata, deleteMetadata}},
+        ...harness.providers,
+        BookQueryService,
+        BookMetadataManageService,
+        {provide: AuthService, useValue: createAuthServiceStub()},
         {provide: PageTitleService, useValue: {setPageTitle}},
         {provide: TranslocoService, useValue: {translate}},
         {provide: MessageService, useValue: {add}},
-        {provide: ActivatedRoute, useValue: {queryParams: queryParams$}},
+        {provide: ActivatedRoute, useValue: {queryParamMap: queryParams$.pipe(map(convertToParamMap))}},
         {provide: Router, useValue: {navigate}},
       ]
     });
+    http = TestBed.inject(HttpTestingController);
   });
-
-  function createBook(id: number, metadata: Partial<Book['metadata']> = {}): Book {
-    return {
-      id,
-      title: `Book ${id}`,
-      libraryId: 1,
-      libraryName: 'Library',
-      metadata: {
-        bookId: id,
-        ...metadata,
-      },
-    };
-  }
 
   function createComponent() {
     return TestBed.runInInjectionContext(() => new MetadataManagerComponent());
   }
 
-  it('aggregates metadata once books finish loading', () => {
-    books.set([
-      createBook(1, {
-        authors: ['Alice', 'Bob'],
-        categories: ['Fantasy'],
-        moods: ['Cozy'],
-        tags: ['magic'],
-        seriesName: 'Series A',
-        publisher: 'Pub One',
-        language: 'en',
-      }),
-      createBook(2, {
-        authors: ['Alice'],
-        categories: ['Fantasy', 'Adventure'],
-        moods: ['Epic'],
-        tags: ['magic', 'epic'],
-        seriesName: 'Series A',
-        publisher: 'Pub Two',
-        language: 'fr',
-      }),
-    ]);
+  function expectFacetPage(page: number): TestRequest {
+    TestBed.tick();
+    return http.expectOne(req =>
+      req.url.endsWith('/api/v1/books/facets/author')
+      && (req.params.get('page') ?? '0') === String(page));
+  }
 
+  function facetResponse(values: [string, number][], hasNext: boolean) {
+    return {
+      links: hasNext ? [{rel: 'next', href: '', type: 'application/json'}] : [],
+      facets: [{
+        metadata: {rel: 'facet', key: 'author', title: 'Authors'},
+        links: values.map(([value, count]) => ({rel: 'facet', href: '', type: '', title: value, value, properties: {numberOfItems: count}})),
+      }],
+    };
+  }
+
+  async function expectCommand(path: string): Promise<TestRequest> {
+    let request: TestRequest | undefined;
+    await vi.waitFor(() => {
+      TestBed.tick();
+      request = http.expectOne(req => req.method === 'POST' && req.url.endsWith(path));
+    });
+    return request!;
+  }
+
+  async function settle(component: MetadataManagerComponent) {
+    await vi.waitFor(() => {
+      TestBed.tick();
+      expect(component.rowsQuery.isFetching()).toBe(false);
+    });
+  }
+
+  it('sends select all as the search with the unticked names left out', async () => {
     const component = createComponent();
-    TestBed.flushEffects();
+    expectFacetPage(0).flush(facetResponse([['Alice', 3], ['Bob', 1]], true));
+    await settle(component);
 
-    expect(component.loading()).toBe(false);
-    expect(component.authors[0]).toEqual({value: 'Alice', count: 2, bookIds: [1, 2], selected: false});
-    expect(component.categories[0]).toEqual({value: 'Fantasy', count: 2, bookIds: [1, 2], selected: false});
-    expect(component.series).toEqual([{value: 'Series A', count: 2, bookIds: [1, 2], selected: false}]);
-    expect(component.publishers).toEqual([
-      {value: 'Pub One', count: 1, bookIds: [1], selected: false},
-      {value: 'Pub Two', count: 1, bookIds: [2], selected: false},
-    ]);
-    expect(component.languages).toEqual([
-      {value: 'en', count: 1, bookIds: [1], selected: false},
-      {value: 'fr', count: 1, bookIds: [2], selected: false},
-    ]);
+    component.setAllSelected(true);
+    component.setRowSelected({value: 'Bob', count: 1}, false);
+    component.openDeleteDialog('authors');
+    component.confirmDelete();
+
+    const request = await expectCommand('/api/v1/books/metadata/manage/delete');
+    expect(request.request.body).toEqual({metadataType: 'authors', selectAll: true, search: '', excludedValues: ['Bob']});
   });
 
-  it('waits for the book list to finish loading before extracting metadata', () => {
-    books.set([createBook(1, {authors: ['Alice']})]);
-    isBooksLoading.set(true);
-
+  it('keeps ticks across pages and counts the books affected once', async () => {
     const component = createComponent();
-    TestBed.flushEffects();
+    expectFacetPage(0).flush(facetResponse([['Alice', 3]], true));
+    await settle(component);
+    component.setRowSelected({value: 'Alice', count: 3}, true);
 
-    expect(component.loading()).toBe(true);
-    expect(component.authors).toEqual([]);
+    component.page.set(1);
+    expectFacetPage(1).flush(facetResponse([['Bob', 2]], false));
+    await settle(component);
+    component.setRowSelected({value: 'Bob', count: 2}, true);
 
-    isBooksLoading.set(false);
-    TestBed.flushEffects();
+    component.openMergeDialog('authors');
+    TestBed.tick();
+    const count = http.expectOne(req => req.url.endsWith('/api/v1/books/page'));
+    expect(count.request.params.getAll('facet')).toEqual(['author:Alice', 'author:Bob']);
+    expect(count.request.params.get('size')).toBe('1');
+    count.flush({content: [], page: {number: 0, size: 1, totalElements: 4, totalPages: 4, cursor: ''}, links: []});
 
-    expect(component.loading()).toBe(false);
-    expect(component.authors).toEqual([{value: 'Alice', count: 1, bookIds: [1], selected: false}]);
+    await vi.waitFor(() => expect(component.affectedBooks()).toBe(4));
+
+    component.mergeTarget = 'Alice';
+    component.confirmMerge();
+
+    const request = await expectCommand('/api/v1/books/metadata/manage/consolidate');
+    expect(request.request.body).toEqual({metadataType: 'authors', targetValues: ['Alice'], valuesToMerge: ['Alice', 'Bob']});
   });
 
   it('tracks valid and invalid tabs from query params and updates the page title', () => {
@@ -126,12 +130,12 @@ describe('MetadataManagerComponent', () => {
     const component = createComponent();
     component.ngOnInit();
 
-    expect(component.activeTab).toBe('tags');
+    expect(component.activeTab()).toBe('tags');
     expect(setPageTitle).toHaveBeenCalledWith('translated:metadata.manager.title: translated:metadata.manager.tabs.tag');
 
     queryParams$.next({tab: 'invalid'});
 
-    expect(component.activeTab).toBe('authors');
+    expect(component.activeTab()).toBe('authors');
     expect(navigate).toHaveBeenCalledWith([], {
       relativeTo: expect.anything(),
       queryParams: {tab: 'authors'},
@@ -140,51 +144,20 @@ describe('MetadataManagerComponent', () => {
     });
   });
 
-  it('navigates when the active tab changes through the setter', () => {
+  it('navigates when a tab is selected', () => {
     const component = createComponent();
     component.ngOnInit();
     navigate.mockClear();
     setPageTitle.mockClear();
 
-    component.activeTab = 'categories';
+    component.selectTab('categories');
 
-    expect(component.activeTab).toBe('categories');
+    expect(component.activeTab()).toBe('categories');
     expect(setPageTitle).toHaveBeenCalledWith('translated:metadata.manager.title: translated:metadata.manager.tabs.genre');
     expect(navigate).toHaveBeenCalledWith([], {
       relativeTo: expect.anything(),
       queryParams: {tab: 'categories'},
       queryParamsHandling: 'merge',
-    });
-  });
-
-  it('toggles selections, selects similar values, filters tables, and navigates to filtered books', () => {
-    const component = createComponent();
-    component.authors = [
-      {value: 'Alice', count: 2, bookIds: [1, 2], selected: false},
-      {value: 'Al', count: 1, bookIds: [3], selected: false},
-      {value: 'Bob', count: 1, bookIds: [4], selected: false},
-    ];
-    const filterGlobal = vi.fn();
-
-    component.toggleAll('authors', true);
-    expect(component.authors.every(item => item.selected)).toBe(true);
-    expect(component.selectAllAuthors).toBe(true);
-
-    component.clearSelection('authors');
-    component.selectSimilar('authors', ' alice ');
-
-    expect(component.authors[0].selected).toBe(true);
-    expect(component.authors[1].selected).toBe(true);
-    expect(component.authors[2].selected).toBe(false);
-
-    component.filterGlobal({target: {value: 'magic'}} as unknown as Event, {filterGlobal});
-    expect(filterGlobal).toHaveBeenCalledWith('magic', 'contains');
-
-    component.onMetadataClick('authors', 'A&B');
-    expect(navigate).toHaveBeenCalledWith(['/all-books'], {
-      queryParams: {
-        facet: 'author:A&B',
-      }
     });
   });
 });

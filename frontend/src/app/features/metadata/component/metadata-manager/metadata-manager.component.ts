@@ -1,4 +1,4 @@
-import {Component, effect, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {Component, computed, inject, linkedSignal, OnDestroy, OnInit, signal} from '@angular/core';
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from '@openng/optimus-ui/tabs';
 import {TableModule} from '@openng/optimus-ui/table';
 import {Button} from '@openng/optimus-ui/button';
@@ -6,10 +6,16 @@ import {Checkbox} from '@openng/optimus-ui/checkbox';
 import {InputText} from '@openng/optimus-ui/inputtext';
 import {Dialog} from '@openng/optimus-ui/dialog';
 import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
+import {injectQuery} from '@tanstack/angular-query-experimental';
 import {PageTitleService} from "../../../../shared/service/page-title.service";
-import {BookService} from '../../../book/service/book.service';
-import {BookMetadataManageService} from '../../../book/service/book-metadata-manage.service';
-import {Book} from '../../../book/model/book.model';
+import {BookMetadataManageService, MetadataValuesSelectAll} from '../../../book/service/book-metadata-manage.service';
+import {BookMetadataValueType} from '../../../book/data/book-command.models';
+import {injectBookActionFeedback} from '../../../book/service/book-action-feedback';
+import {BookQueryService} from '../../../book/data/book-query.service';
+import {BookQueryFacetKey, EMPTY_FACET_SELECTION} from '../../../book/data/book-query-params';
+import {withBrowseFacetValues} from '../../../../shared/browse/facets';
+import {debouncedSignal} from '../../../../shared/util/debounced-signal';
+import {SEARCH_DEBOUNCE_MS} from '../../../../shared/util/search-terms';
 import {FormsModule} from '@angular/forms';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {IconField} from '@openng/optimus-ui/iconfield';
@@ -22,20 +28,32 @@ import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/tran
 interface MetadataItem {
   value: string;
   count: number;
-  bookIds: number[];
-  selected: boolean;
 }
 
-type MetadataType = 'authors' | 'categories' | 'moods' | 'tags' | 'series' | 'publishers' | 'languages';
-
 interface TabConfig {
-  type: MetadataType;
+  type: BookMetadataValueType;
   labelKey: string;
   labelPluralKey: string;
   placeholderKey: string;
-  selectAllKey: 'selectAllAuthors' | 'selectAllCategories' | 'selectAllMoods' | 'selectAllTags' | 'selectAllSeries' | 'selectAllPublishers' | 'selectAllLanguages';
   icon: string;
 }
+
+type RowSelection =
+  | {kind: 'values'; values: ReadonlyMap<string, number>}
+  | {kind: 'matching'; excluded: ReadonlySet<string>};
+
+const FACET_KEYS: Record<BookMetadataValueType, BookQueryFacetKey> = {
+  authors: 'author',
+  categories: 'genre',
+  moods: 'mood',
+  tags: 'tag',
+  series: 'series',
+  publishers: 'publisher',
+  languages: 'language'
+};
+const NO_SELECTION: RowSelection = {kind: 'values', values: new Map()};
+const NO_FILTERS = {facets: EMPTY_FACET_SELECTION};
+const PAGE_SIZE = 50;
 
 @Component({
   selector: 'app-metadata-manager',
@@ -64,93 +82,119 @@ interface TabConfig {
   styleUrls: ['./metadata-manager.component.scss']
 })
 export class MetadataManagerComponent implements OnInit, OnDestroy {
-  private readonly bookService = inject(BookService);
+  private readonly bookQuery = inject(BookQueryService);
   private readonly bookMetadataManageService = inject(BookMetadataManageService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly pageTitle = inject(PageTitleService);
   private readonly t = inject(TranslocoService);
+  private readonly feedback = injectBookActionFeedback();
 
   private routeSub!: Subscription;
-  private readonly syncMetadataEffect = effect(() => {
-    const isLoading = this.bookService.isBooksLoading();
-    this.loading.set(isLoading);
-
-    if (isLoading) {
-      return;
-    }
-
-    this.extractMetadata(this.bookService.books());
-  });
-
-  authors: MetadataItem[] = [];
-  categories: MetadataItem[] = [];
-  moods: MetadataItem[] = [];
-  tags: MetadataItem[] = [];
-  series: MetadataItem[] = [];
-  publishers: MetadataItem[] = [];
-  languages: MetadataItem[] = [];
-
-  selectAllAuthors = false;
-  selectAllCategories = false;
-  selectAllMoods = false;
-  selectAllTags = false;
-  selectAllSeries = false;
-  selectAllPublishers = false;
-  selectAllLanguages = false;
-
-  readonly loading = signal(false);
   readonly mergingInProgress = signal(false);
   readonly deletingInProgress = signal(false);
-  showMergeDialog = false;
-  showRenameDialog = false;
-  showDeleteDialog = false;
+  readonly showMergeDialog = signal(false);
+  readonly showRenameDialog = signal(false);
+  readonly showDeleteDialog = signal(false);
   mergeTarget = '';
   renameTarget = '';
-  currentMergeType: MetadataType = 'authors';
+  currentMergeType: BookMetadataValueType = 'authors';
   currentRenameItem: MetadataItem | null = null;
   currentDeleteItem: MetadataItem | null = null;
 
-  private readonly validTabs: MetadataType[] = ['authors', 'categories', 'moods', 'tags', 'series', 'publishers', 'languages'];
-  private _activeTab: MetadataType = 'authors';
-
-  get activeTab(): MetadataType {
-    return this._activeTab;
-  }
-
-  set activeTab(value: MetadataType) {
-    this._activeTab = value;
-
-    this.updatePageTitle();
-
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: {tab: value},
-      queryParamsHandling: 'merge'
-    });
-  }
+  private readonly validTabs: BookMetadataValueType[] = ['authors', 'categories', 'moods', 'tags', 'series', 'publishers', 'languages'];
+  readonly activeTab = signal<BookMetadataValueType>('authors');
 
   tabConfigs: TabConfig[] = [
-    {type: 'authors', labelKey: 'tabs.author', labelPluralKey: 'tabs.authors', placeholderKey: 'placeholders.searchAuthors', selectAllKey: 'selectAllAuthors', icon: 'pi-user'},
-    {type: 'categories', labelKey: 'tabs.genre', labelPluralKey: 'tabs.genres', placeholderKey: 'placeholders.searchGenres', selectAllKey: 'selectAllCategories', icon: 'pi-tag'},
-    {type: 'moods', labelKey: 'tabs.mood', labelPluralKey: 'tabs.moods', placeholderKey: 'placeholders.searchMoods', selectAllKey: 'selectAllMoods', icon: 'pi-heart'},
-    {type: 'tags', labelKey: 'tabs.tag', labelPluralKey: 'tabs.tags', placeholderKey: 'placeholders.searchTags', selectAllKey: 'selectAllTags', icon: 'pi-tags'},
-    {type: 'series', labelKey: 'tabs.series', labelPluralKey: 'tabs.seriesPlural', placeholderKey: 'placeholders.searchSeries', selectAllKey: 'selectAllSeries', icon: 'pi-book'},
-    {type: 'publishers', labelKey: 'tabs.publisher', labelPluralKey: 'tabs.publishers', placeholderKey: 'placeholders.searchPublishers', selectAllKey: 'selectAllPublishers', icon: 'pi-building'},
-    {type: 'languages', labelKey: 'tabs.language', labelPluralKey: 'tabs.languages', placeholderKey: 'placeholders.searchLanguages', selectAllKey: 'selectAllLanguages', icon: 'pi-globe'}
+    {type: 'authors', labelKey: 'tabs.author', labelPluralKey: 'tabs.authors', placeholderKey: 'placeholders.searchAuthors', icon: 'pi-user'},
+    {type: 'categories', labelKey: 'tabs.genre', labelPluralKey: 'tabs.genres', placeholderKey: 'placeholders.searchGenres', icon: 'pi-tag'},
+    {type: 'moods', labelKey: 'tabs.mood', labelPluralKey: 'tabs.moods', placeholderKey: 'placeholders.searchMoods', icon: 'pi-heart'},
+    {type: 'tags', labelKey: 'tabs.tag', labelPluralKey: 'tabs.tags', placeholderKey: 'placeholders.searchTags', icon: 'pi-tags'},
+    {type: 'series', labelKey: 'tabs.series', labelPluralKey: 'tabs.seriesPlural', placeholderKey: 'placeholders.searchSeries', icon: 'pi-book'},
+    {type: 'publishers', labelKey: 'tabs.publisher', labelPluralKey: 'tabs.publishers', placeholderKey: 'placeholders.searchPublishers', icon: 'pi-building'},
+    {type: 'languages', labelKey: 'tabs.language', labelPluralKey: 'tabs.languages', placeholderKey: 'placeholders.searchLanguages', icon: 'pi-globe'}
   ];
 
+  readonly searchInput = linkedSignal({source: this.activeTab, computation: () => ''});
+  private readonly debouncedSearch = debouncedSignal(
+    computed(() => ({tab: this.activeTab(), search: this.searchInput().trim()})),
+    SEARCH_DEBOUNCE_MS,
+  );
+  readonly search = computed(() => {
+    const debounced = this.debouncedSearch();
+    return debounced.tab === this.activeTab() ? debounced.search : '';
+  });
+  private readonly scope = computed(
+    () => ({tab: this.activeTab(), search: this.search()}),
+    {equal: (a, b) => a.tab === b.tab && a.search === b.search},
+  );
+
+  readonly page = linkedSignal({source: this.scope, computation: () => 0});
+  readonly selection = linkedSignal({source: this.scope, computation: (): RowSelection => NO_SELECTION});
+
+  readonly rowsQuery = injectQuery(() => {
+    const facetKey = FACET_KEYS[this.activeTab()];
+    return {
+      ...this.bookQuery.facet(facetKey, NO_FILTERS, this.search(), this.page(), PAGE_SIZE),
+      placeholderData: previous => previous?.key === facetKey ? previous : undefined,
+    };
+  });
+  readonly rows = computed(() => this.rowsQuery.data()?.values ?? []);
+  readonly hasNextPage = computed(() => !this.rowsQuery.isPlaceholderData() && this.rowsQuery.data()?.complete === false);
+
+  private readonly affectedBooksQuery = injectQuery(() => {
+    const values = this.selectedItems().map(item => item.value);
+    const facets = withBrowseFacetValues(EMPTY_FACET_SELECTION, FACET_KEYS[this.activeTab()], {include: values, exclude: []});
+    return {
+      ...this.bookQuery.page({facets, sort: [], size: 1}),
+      enabled: values.length > 0 && (this.showMergeDialog() || this.showDeleteDialog()),
+    };
+  });
+  readonly affectedBooks = computed(() => this.affectedBooksQuery.data()?.page.totalElements ?? null);
+
+  readonly selectedItems = computed((): MetadataItem[] => {
+    const selection = this.selection();
+    return selection.kind === 'values'
+      ? [...selection.values].map(([value, count]) => ({value, count}))
+      : [];
+  });
+  readonly allSelected = computed(() => {
+    const selection = this.selection();
+    return selection.kind === 'matching' && selection.excluded.size === 0;
+  });
+  readonly hasSelection = computed(() => {
+    const selection = this.selection();
+    return selection.kind === 'matching' || selection.values.size > 0;
+  });
+  readonly canMerge = computed(() => {
+    const selection = this.selection();
+    return selection.kind === 'matching' || selection.values.size >= 2;
+  });
+  readonly selectionLabel = computed(() => {
+    const selection = this.selection();
+    const type = this.getTypeLabel(this.activeTab(), true);
+    const except = selection.kind === 'matching' ? selection.excluded.size : 0;
+    const search = this.search();
+    let key: string;
+    if (search === '') {
+      key = except > 0 ? 'allValuesExcept' : 'allValues';
+    } else {
+      key = except > 0 ? 'allMatchingExcept' : 'allMatching';
+    }
+    return this.t.translate('metadata.manager.' + key, {type, search, count: except});
+  });
+
   ngOnInit() {
-    this.routeSub = this.route.queryParams.subscribe(params => {
-      const tabParam = params['tab'] as MetadataType;
-      if (this.validTabs.includes(tabParam)) {
-        this._activeTab = tabParam;
+    this.routeSub = this.route.queryParamMap.subscribe(params => {
+      const tab = this.findTab(params.get('tab') ?? undefined);
+      if (tab) {
+        this.activeTab.set(tab);
       } else {
-        this._activeTab = 'authors';
+        this.activeTab.set('authors');
         this.router.navigate([], {
           relativeTo: this.route,
-          queryParams: {tab: this._activeTab},
+          queryParams: {tab: this.activeTab()},
           queryParamsHandling: 'merge',
           replaceUrl: true
         });
@@ -160,8 +204,8 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
   }
 
   updatePageTitle() {
-    const currentTab = this.tabConfigs.find((tab) => tab.type === this._activeTab);
-    const label = currentTab ? this.t.translate('metadata.manager.' + currentTab.labelKey) : this._activeTab;
+    const currentTab = this.tabConfigs.find((tab) => tab.type === this.activeTab());
+    const label = currentTab ? this.t.translate('metadata.manager.' + currentTab.labelKey) : this.activeTab();
     this.pageTitle.setPageTitle(`${this.t.translate('metadata.manager.title')}: ${label}`);
   }
 
@@ -169,70 +213,21 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
     this.routeSub.unsubscribe();
   }
 
-  private extractMetadata(books: Book[]) {
-    const authorsMap = new Map<string, Set<number>>();
-    const categoriesMap = new Map<string, Set<number>>();
-    const moodsMap = new Map<string, Set<number>>();
-    const tagsMap = new Map<string, Set<number>>();
-    const seriesMap = new Map<string, Set<number>>();
-    const publishersMap = new Map<string, Set<number>>();
-    const languagesMap = new Map<string, Set<number>>();
-
-    books.forEach(book => {
-      if (book.metadata) {
-        this.addToMap(authorsMap, book.metadata.authors, book.id);
-        this.addToMap(categoriesMap, book.metadata.categories, book.id);
-        this.addToMap(moodsMap, book.metadata.moods, book.id);
-        this.addToMap(tagsMap, book.metadata.tags, book.id);
-        if (book.metadata.seriesName) {
-          this.addToMap(seriesMap, [book.metadata.seriesName], book.id);
-        }
-        if (book.metadata.publisher) {
-          this.addToMap(publishersMap, [book.metadata.publisher], book.id);
-        }
-        if (book.metadata.language) {
-          this.addToMap(languagesMap, [book.metadata.language], book.id);
-        }
-      }
-    });
-
-    this.authors = this.mapToItems(authorsMap);
-    this.categories = this.mapToItems(categoriesMap);
-    this.moods = this.mapToItems(moodsMap);
-    this.tags = this.mapToItems(tagsMap);
-    this.series = this.mapToItems(seriesMap);
-    this.publishers = this.mapToItems(publishersMap);
-    this.languages = this.mapToItems(languagesMap);
-  }
-
-  private addToMap(map: Map<string, Set<number>>, values: string[] | undefined, bookId: number) {
-    if (!values) return;
-    values.forEach(value => {
-      if (!map.has(value)) {
-        map.set(value, new Set());
-      }
-      map.get(value)!.add(bookId);
+  selectTab(value: string | number | undefined) {
+    const tab = this.findTab(value);
+    if (!tab) return;
+    this.activeTab.set(tab);
+    this.updatePageTitle();
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {tab},
+      queryParamsHandling: 'merge'
     });
   }
 
-  private mapToItems(map: Map<string, Set<number>>): MetadataItem[] {
-    return Array.from(map.entries())
-      .map(([value, bookIds]) => ({
-        value,
-        count: bookIds.size,
-        bookIds: Array.from(bookIds),
-        selected: false
-      }))
-      .sort((a, b) => b.count - a.count);
-  }
-
-  getSelectedItems(type: MetadataType): MetadataItem[] {
-    return this[type].filter(item => item.selected);
-  }
-
-  openMergeDialog(type: MetadataType) {
-    const selected = this.getSelectedItems(type);
-    if (selected.length < 2) {
+  openMergeDialog(type: BookMetadataValueType) {
+    const selection = this.selection();
+    if (!this.canMerge()) {
       this.messageService.add({
         severity: 'warn',
         summary: this.t.translate('metadata.manager.toast.invalidSelectionSummary'),
@@ -242,25 +237,26 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
     }
 
     this.currentMergeType = type;
-    this.mergeTarget = selected[0].value;
-    this.showMergeDialog = true;
+    this.mergeTarget = selection.kind === 'values'
+      ? this.selectedItems()[0].value
+      : this.rows().find(row => !selection.excluded.has(row.value))?.value ?? '';
+    this.showMergeDialog.set(true);
   }
 
-  openRenameDialog(type: MetadataType, item: MetadataItem) {
+  openRenameDialog(type: BookMetadataValueType, item: MetadataItem) {
     this.currentMergeType = type;
     this.currentRenameItem = item;
     this.renameTarget = item.value;
-    this.showRenameDialog = true;
+    this.showRenameDialog.set(true);
   }
 
-  openDeleteDialog(type: MetadataType, item?: MetadataItem) {
+  openDeleteDialog(type: BookMetadataValueType, item?: MetadataItem) {
     if (item) {
       this.currentMergeType = type;
       this.currentDeleteItem = item;
-      this.showDeleteDialog = true;
+      this.showDeleteDialog.set(true);
     } else {
-      const selected = this.getSelectedItems(type);
-      if (selected.length === 0) {
+      if (!this.hasSelection()) {
         this.messageService.add({
           severity: 'warn',
           summary: this.t.translate('metadata.manager.toast.invalidSelectionSummary'),
@@ -270,7 +266,7 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
       }
       this.currentMergeType = type;
       this.currentDeleteItem = null;
-      this.showDeleteDialog = true;
+      this.showDeleteDialog.set(true);
     }
   }
 
@@ -305,7 +301,7 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
     }
 
     if (targetValues.length === 1 && targetValues[0] === this.currentRenameItem.value) {
-      this.showRenameDialog = false;
+      this.showRenameDialog.set(false);
       return;
     }
 
@@ -322,7 +318,6 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
       ? `"${targetValues[0]}"`
       : `${targetValues.length} values`;
 
-    this.loading.set(true);
     this.mergingInProgress.set(true);
     this.bookMetadataManageService.consolidateMetadata(this.currentMergeType, targetValues, [oldValue]).subscribe({
       next: () => {
@@ -336,23 +331,15 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
             : this.t.translate('metadata.manager.toast.splitSuccessfulDetail', {oldValue, resultText, count: affectedBooks}),
           life: 5000
         });
-        this.showRenameDialog = false;
+        this.showRenameDialog.set(false);
         this.currentRenameItem = null;
         this.renameTarget = '';
+        this.clearSelection();
+        this.page.set(0);
         this.mergingInProgress.set(false);
-        this.loading.set(false);
       },
-      error: (error) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: action === 'renamed'
-            ? this.t.translate('metadata.manager.toast.renameFailedSummary')
-            : this.t.translate('metadata.manager.toast.splitFailedSummary'),
-          detail: error?.error?.message || (action === 'renamed'
-            ? this.t.translate('metadata.manager.toast.renameFailedDetail')
-            : this.t.translate('metadata.manager.toast.splitFailedDetail'))
-        });
-        this.loading.set(false);
+      error: (error: unknown) => {
+        this.feedback.error(action === 'renamed' ? 'metadata.manager.toast.renameFailed' : 'metadata.manager.toast.splitFailed', error);
         this.mergingInProgress.set(false);
       }
     });
@@ -392,53 +379,47 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
   }
 
   private performMerge(targetValues: string[]) {
-    const selected = this.getSelectedItems(this.currentMergeType);
-    const valuesToMerge = selected.map(s => s.value);
-    const affectedBooks = this.getTotalAffectedBooks(selected);
+    const selected = this.selectedItems();
+    const affectedBooks = this.affectedBooks();
     const operation = targetValues.length === 1 ? 'merge' : 'merge/split';
+    let detail: string | undefined;
+    if (affectedBooks !== null) {
+      detail = operation === 'merge'
+        ? this.t.translate('metadata.manager.toast.mergeSuccessfulDetail', {selectedCount: selected.length, type: this.getTypeLabel(this.currentMergeType, true), targetCount: targetValues.length, bookCount: affectedBooks})
+        : this.t.translate('metadata.manager.toast.mergeSplitSuccessfulDetail', {selectedCount: selected.length, type: this.getTypeLabel(this.currentMergeType, true), targetCount: targetValues.length, bookCount: affectedBooks});
+    }
 
-    this.loading.set(true);
     this.mergingInProgress.set(true);
-    this.bookMetadataManageService.consolidateMetadata(this.currentMergeType, targetValues, valuesToMerge).subscribe({
+    this.bookMetadataManageService.consolidateMetadata(this.currentMergeType, targetValues, this.selectAllRequest() ?? selected.map(item => item.value)).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
           summary: operation === 'merge'
             ? this.t.translate('metadata.manager.toast.mergeSuccessfulSummary')
             : this.t.translate('metadata.manager.toast.mergeSplitSuccessfulSummary'),
-          detail: operation === 'merge'
-            ? this.t.translate('metadata.manager.toast.mergeSuccessfulDetail', {selectedCount: selected.length, type: this.getTypeLabel(this.currentMergeType, true), targetCount: targetValues.length, bookCount: affectedBooks})
-            : this.t.translate('metadata.manager.toast.mergeSplitSuccessfulDetail', {selectedCount: selected.length, type: this.getTypeLabel(this.currentMergeType, true), targetCount: targetValues.length, bookCount: affectedBooks}),
+          detail,
           life: 5000
         });
-        this.showMergeDialog = false;
+        this.showMergeDialog.set(false);
         this.mergeTarget = '';
-        this.clearSelection(this.currentMergeType);
+        this.clearSelection();
+        this.page.set(0);
         this.mergingInProgress.set(false);
-        this.loading.set(false);
       },
-      error: (error) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: operation === 'merge'
-            ? this.t.translate('metadata.manager.toast.mergeFailedSummary')
-            : this.t.translate('metadata.manager.toast.mergeSplitFailedSummary'),
-          detail: error?.error?.message || (operation === 'merge'
-            ? this.t.translate('metadata.manager.toast.mergeFailedDetail')
-            : this.t.translate('metadata.manager.toast.mergeSplitFailedDetail'))
-        });
-        this.loading.set(false);
+      error: (error: unknown) => {
+        this.feedback.error(operation === 'merge' ? 'metadata.manager.toast.mergeFailed' : 'metadata.manager.toast.mergeSplitFailed', error);
         this.mergingInProgress.set(false);
       }
     });
   }
 
   confirmDelete() {
-    const itemsToDelete = this.currentDeleteItem
+    const selectAll = this.currentDeleteItem ? null : this.selectAllRequest();
+    const valuesToDelete = this.currentDeleteItem
       ? [this.currentDeleteItem.value]
-      : this.getSelectedItems(this.currentMergeType).map(item => item.value);
+      : this.selectedItems().map(item => item.value);
 
-    if (itemsToDelete.length === 0) {
+    if (!selectAll && valuesToDelete.length === 0) {
       this.messageService.add({
         severity: 'warn',
         summary: this.t.translate('metadata.manager.toast.invalidSelectionSummary'),
@@ -447,148 +428,79 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.performDelete(itemsToDelete);
+    this.performDelete(selectAll ?? valuesToDelete);
   }
 
-  private performDelete(valuesToDelete: string[]) {
-    const itemCount = valuesToDelete.length;
+  private performDelete(valuesToDelete: string[] | MetadataValuesSelectAll) {
     const affectedBooks = this.currentDeleteItem
       ? this.currentDeleteItem.count
-      : this.getTotalAffectedBooks(this.getSelectedItems(this.currentMergeType));
+      : this.affectedBooks();
+    const deletedCount = Array.isArray(valuesToDelete) ? valuesToDelete.length : null;
 
-    this.loading.set(true);
     this.deletingInProgress.set(true);
     this.bookMetadataManageService.deleteMetadata(this.currentMergeType, valuesToDelete).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
           summary: this.t.translate('metadata.manager.toast.deleteSuccessfulSummary'),
-          detail: this.t.translate('metadata.manager.toast.deleteSuccessfulDetail', {count: itemCount, type: itemCount > 1 ? this.getTypeLabel(this.currentMergeType, true) : this.getTypeLabel(this.currentMergeType, false), bookCount: affectedBooks}),
+          detail: deletedCount !== null && affectedBooks !== null
+            ? this.t.translate('metadata.manager.toast.deleteSuccessfulDetail', {count: deletedCount, type: deletedCount > 1 ? this.getTypeLabel(this.currentMergeType, true) : this.getTypeLabel(this.currentMergeType, false), bookCount: affectedBooks})
+            : undefined,
           life: 5000
         });
-        this.showDeleteDialog = false;
+        this.showDeleteDialog.set(false);
         this.currentDeleteItem = null;
-        this.clearSelection(this.currentMergeType);
+        this.clearSelection();
+        this.page.set(0);
         this.deletingInProgress.set(false);
-        this.loading.set(false);
       },
-      error: (error) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: this.t.translate('metadata.manager.toast.deleteFailedSummary'),
-          detail: error?.error?.message || this.t.translate('metadata.manager.toast.deleteFailedDetail')
-        });
-        this.loading.set(false);
+      error: (error: unknown) => {
+        this.feedback.error('metadata.manager.toast.deleteFailed', error);
         this.deletingInProgress.set(false);
       }
     });
   }
 
-  getMetadataItems(type: MetadataType): MetadataItem[] {
-    return this[type];
+  isSelected(item: MetadataItem): boolean {
+    const selection = this.selection();
+    return selection.kind === 'values' ? selection.values.has(item.value) : !selection.excluded.has(item.value);
   }
 
-  getSelectAll(key: TabConfig['selectAllKey']): boolean {
-    return this[key];
-  }
-
-  setSelectAll(key: TabConfig['selectAllKey'], value: boolean) {
-    this[key] = value;
-  }
-
-  toggleAll(type: MetadataType, checked: boolean, filteredItems?: MetadataItem[]) {
-    const itemsToToggle = filteredItems ?? this[type];
-    itemsToToggle.forEach(item => item.selected = checked);
-    this.updateSelectAllState(type);
-  }
-
-  private updateSelectAllState(type: MetadataType) {
-    const allItems = this[type];
-    const allSelected = allItems.length > 0 && allItems.every(item => item.selected);
-
-    switch (type) {
-      case 'authors':
-        this.selectAllAuthors = allSelected;
-        break;
-      case 'categories':
-        this.selectAllCategories = allSelected;
-        break;
-      case 'moods':
-        this.selectAllMoods = allSelected;
-        break;
-      case 'tags':
-        this.selectAllTags = allSelected;
-        break;
-      case 'series':
-        this.selectAllSeries = allSelected;
-        break;
-      case 'publishers':
-        this.selectAllPublishers = allSelected;
-        break;
-      case 'languages':
-        this.selectAllLanguages = allSelected;
-        break;
+  setRowSelected(item: MetadataItem, selected: boolean) {
+    const selection = this.selection();
+    if (selection.kind === 'values') {
+      const values = new Map(selection.values);
+      if (selected) {
+        values.set(item.value, item.count);
+      } else {
+        values.delete(item.value);
+      }
+      this.selection.set({kind: 'values', values});
+    } else {
+      const excluded = new Set(selection.excluded);
+      if (selected) {
+        excluded.delete(item.value);
+      } else {
+        excluded.add(item.value);
+      }
+      this.selection.set({kind: 'matching', excluded});
     }
   }
 
-  onRowSelect(type: MetadataType) {
-    this.updateSelectAllState(type);
+  setAllSelected(selected: boolean) {
+    this.selection.set(selected ? {kind: 'matching', excluded: new Set()} : NO_SELECTION);
   }
 
-  clearSelection(type: MetadataType) {
-    this[type].forEach(item => item.selected = false);
-    switch (type) {
-      case 'authors':
-        this.selectAllAuthors = false;
-        break;
-      case 'categories':
-        this.selectAllCategories = false;
-        break;
-      case 'moods':
-        this.selectAllMoods = false;
-        break;
-      case 'tags':
-        this.selectAllTags = false;
-        break;
-      case 'series':
-        this.selectAllSeries = false;
-        break;
-      case 'publishers':
-        this.selectAllPublishers = false;
-        break;
-      case 'languages':
-        this.selectAllLanguages = false;
-        break;
-    }
+  clearSelection() {
+    this.selection.set(NO_SELECTION);
   }
 
-  selectSimilar(type: MetadataType, value: string) {
-    const normalized = value.toLowerCase().trim();
-    this[type].forEach(item => {
-      const itemNormalized = item.value.toLowerCase().trim();
-      item.selected = itemNormalized.includes(normalized) || normalized.includes(itemNormalized);
-    });
+  selectSimilar(value: string) {
+    this.searchInput.set(value);
   }
 
-  filterGlobal(event: Event, dt: { filterGlobal: (value: string, matchMode: string) => void }): void {
-    const target = event.target as HTMLInputElement;
-    if (target) {
-      dt.filterGlobal(target.value, 'contains');
-    }
-  }
-
-  onMetadataClick(type: MetadataType, value: string): void {
-    const filterKeyMap: Record<MetadataType, string> = {
-      authors: 'author',
-      categories: 'genre',
-      moods: 'mood',
-      tags: 'tag',
-      series: 'series',
-      publishers: 'publisher',
-      languages: 'language'
-    };
-
-    this.navigateToFilteredBooks(filterKeyMap[type], value);
+  onMetadataClick(type: BookMetadataValueType, value: string): void {
+    this.navigateToFilteredBooks(FACET_KEYS[type], value);
   }
 
   navigateToFilteredBooks(filterKey: string, filterValue: string): void {
@@ -599,21 +511,24 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
     });
   }
 
-  protected getTypeLabel(type: MetadataType, plural: boolean): string {
+  protected getTypeLabel(type: BookMetadataValueType, plural: boolean): string {
     const tab = this.tabConfigs.find(tc => tc.type === type);
     if (!tab) return type;
     return this.t.translate('metadata.manager.' + (plural ? tab.labelPluralKey : tab.labelKey));
   }
 
-  protected isSingleValueField(type: MetadataType): boolean {
+  protected isSingleValueField(type: BookMetadataValueType): boolean {
     return type === 'series' || type === 'publishers' || type === 'languages';
   }
 
-  protected getTotalAffectedBooks(items: MetadataItem[]): number {
-    const uniqueBookIds = new Set<number>();
-    items.forEach(item => {
-      item.bookIds.forEach(bookId => uniqueBookIds.add(bookId));
-    });
-    return uniqueBookIds.size;
+  private findTab(value: string | number | undefined): BookMetadataValueType | undefined {
+    return this.validTabs.find(tab => tab === value);
+  }
+
+  private selectAllRequest(): MetadataValuesSelectAll | null {
+    const selection = this.selection();
+    return selection.kind === 'matching'
+      ? {selectAll: true, search: this.search(), excludedValues: [...selection.excluded]}
+      : null;
   }
 }

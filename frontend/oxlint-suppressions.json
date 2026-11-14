@@ -796,20 +796,6 @@
       "count": 1
     }
   },
-  "src/app/features/metadata/component/metadata-manager/metadata-manager.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 3
-    },
-    "typescript/no-unnecessary-condition": {
-      "count": 1
-    },
-    "typescript/no-unsafe-assignment": {
-      "count": 3
-    },
-    "typescript/no-unsafe-member-access": {
-      "count": 3
-    }
-  },
   "src/app/features/metadata/component/metadata-options-dialog/metadata-advanced-fetch-options/metadata-advanced-fetch-options.component.ts": {
     "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 7
