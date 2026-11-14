@@ -104,31 +104,6 @@ public class SidecarMetadataWriter {
         }
     }
 
-    public void moveSidecarFiles(Path oldBookPath, Path newBookPath) {
-        if (oldBookPath == null || newBookPath == null) {
-            return;
-        }
-
-        try {
-            Path oldSidecarPath = getSidecarPath(oldBookPath);
-            if (Files.exists(oldSidecarPath)) {
-                Path newSidecarPath = getSidecarPath(newBookPath);
-                Files.createDirectories(newSidecarPath.getParent());
-                Files.move(oldSidecarPath, newSidecarPath, StandardCopyOption.REPLACE_EXISTING);
-                log.info("Moved sidecar file from {} to {}", oldSidecarPath, newSidecarPath);
-            }
-
-            Path oldCoverPath = getCoverPath(oldBookPath);
-            if (Files.exists(oldCoverPath)) {
-                Path newCoverPath = getCoverPath(newBookPath);
-                Files.move(oldCoverPath, newCoverPath, StandardCopyOption.REPLACE_EXISTING);
-                log.info("Moved sidecar cover from {} to {}", oldCoverPath, newCoverPath);
-            }
-        } catch (IOException e) {
-            log.warn("Failed to move sidecar files from {} to {}: {}", oldBookPath, newBookPath, e.getMessage());
-        }
-    }
-
     public Path getSidecarPath(Path bookPath) {
         String fileName = bookPath.getFileName().toString();
         int dotIndex = fileName.lastIndexOf('.');
