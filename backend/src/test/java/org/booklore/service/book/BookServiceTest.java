@@ -454,6 +454,48 @@ class BookServiceTest {
     }
 
     @Test
+    void deleteBooks_preservesParentDirContainingUnrelatedFile() throws Exception {
+        Path libraryRoot = Files.createDirectory(tempDir.resolve("library"));
+        Path bookDir = Files.createDirectories(libraryRoot.resolve("Author/Series"));
+        Path filePath = Files.writeString(bookDir.resolve("Book.epub"), "book");
+        Path metadataPath = Files.writeString(bookDir.resolve("Book.metadata.json"), "metadata");
+        Path coverPath = Files.writeString(bookDir.resolve("Book.cover.jpg"), "cover");
+        Path unrelatedFile = Files.writeString(bookDir.resolve("notes.txt"), "keep");
+
+        BookEntity entity = new BookEntity();
+        entity.setId(11L);
+        LibraryPathEntity libPath = new LibraryPathEntity();
+        libPath.setPath(libraryRoot.toString());
+        LibraryEntity library = new LibraryEntity();
+        library.setId(42L);
+        library.setLibraryPaths(List.of(libPath));
+        entity.setLibrary(library);
+        entity.setLibraryPath(libPath);
+        BookFileEntity primaryFile = new BookFileEntity();
+        primaryFile.setBook(entity);
+        primaryFile.setFileSubPath("Author/Series");
+        primaryFile.setFileName("Book.epub");
+        entity.setBookFiles(Set.of(primaryFile));
+
+        when(bookQueryService.findAllWithMetadataByIds(Set.of(11L))).thenReturn(List.of(entity));
+        when(authenticationService.getAuthenticatedUser()).thenReturn(testUser);
+        doNothing().when(bookRepository).deleteAllInBatch(anyList());
+        doAnswer(invocation -> {
+            Files.deleteIfExists(metadataPath);
+            Files.deleteIfExists(coverPath);
+            return null;
+        }).when(sidecarMetadataWriter).deleteSidecarFiles(filePath);
+
+        bookService.deleteBooks(Set.of(11L));
+
+        assertFalse(Files.exists(filePath));
+        assertFalse(Files.exists(metadataPath));
+        assertFalse(Files.exists(coverPath));
+        assertTrue(Files.exists(unrelatedFile));
+        assertTrue(Files.isDirectory(bookDir));
+    }
+
+    @Test
     void deleteBooks_fileDoesNotExist_deletesEntityOnly() {
         BookEntity entity = new BookEntity();
         entity.setId(13L);
