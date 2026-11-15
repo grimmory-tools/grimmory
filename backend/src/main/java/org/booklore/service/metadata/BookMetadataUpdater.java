@@ -105,7 +105,7 @@ public class BookMetadataUpdater {
         var primaryFile = bookEntity.getPrimaryBookFile();
         BookFileType bookType = primaryFile != null ? primaryFile.getBookType() : null;
 
-        boolean hasValueChangesForFileWrite = MetadataChangeDetector.hasValueChangesForFileWrite(newMetadata, metadata, clearFlags);
+        boolean hasValueChangesForFileWrite = MetadataChangeDetector.hasValueChangesForFileWrite(newMetadata, metadata, clearFlags, respectLocks);
 
         updateBasicFields(newMetadata, metadata, clearFlags, replaceMode, respectLocks);
         updateAuthorsIfNeeded(newMetadata, metadata, clearFlags, mergeCategories, replaceMode, respectLocks);

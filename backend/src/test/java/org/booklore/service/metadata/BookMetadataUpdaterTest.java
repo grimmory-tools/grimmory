@@ -35,6 +35,7 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -106,7 +107,7 @@ class BookMetadataUpdaterTest {
         mcd.when(() -> MetadataChangeDetector.isDifferent(any(), any(), any())).thenReturn(hasDiff);
         mcd.when(() -> MetadataChangeDetector.hasValueChanges(any(), any(), any())).thenReturn(hasValueChanges);
         mcd.when(() -> MetadataChangeDetector.hasLockChanges(any(), any())).thenReturn(false);
-        mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any())).thenReturn(false);
+        mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any(), eq(true))).thenReturn(false);
     }
 
     @Test
@@ -1887,7 +1888,7 @@ class BookMetadataUpdaterTest {
                 mcd.when(() -> MetadataChangeDetector.isDifferent(any(), any(), any())).thenReturn(true);
                 mcd.when(() -> MetadataChangeDetector.hasValueChanges(any(), any(), any())).thenReturn(true);
                 mcd.when(() -> MetadataChangeDetector.hasLockChanges(any(), any())).thenReturn(false);
-                mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any())).thenReturn(false);
+                mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any(), eq(true))).thenReturn(false);
 
                 updater.setBookMetadata(context);
 
@@ -1912,7 +1913,7 @@ class BookMetadataUpdaterTest {
                 mcd.when(() -> MetadataChangeDetector.isDifferent(any(), any(), any())).thenReturn(true);
                 mcd.when(() -> MetadataChangeDetector.hasValueChanges(any(), any(), any())).thenReturn(true);
                 mcd.when(() -> MetadataChangeDetector.hasLockChanges(any(), any())).thenReturn(false);
-                mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any())).thenReturn(false);
+                mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any(), eq(true))).thenReturn(false);
 
                 updater.setBookMetadata(context);
 
@@ -1949,7 +1950,7 @@ class BookMetadataUpdaterTest {
                 mcd.when(() -> MetadataChangeDetector.isDifferent(any(), any(), any())).thenReturn(true);
                 mcd.when(() -> MetadataChangeDetector.hasValueChanges(any(), any(), any())).thenReturn(true);
                 mcd.when(() -> MetadataChangeDetector.hasLockChanges(any(), any())).thenReturn(false);
-                mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any())).thenReturn(false);
+                mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any(), eq(true))).thenReturn(false);
 
                 updater.setBookMetadata(context);
 
@@ -1979,7 +1980,7 @@ class BookMetadataUpdaterTest {
                 mcd.when(() -> MetadataChangeDetector.isDifferent(any(), any(), any())).thenReturn(true);
                 mcd.when(() -> MetadataChangeDetector.hasValueChanges(any(), any(), any())).thenReturn(true);
                 mcd.when(() -> MetadataChangeDetector.hasLockChanges(any(), any())).thenReturn(false);
-                mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any())).thenReturn(false);
+                mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any(), eq(true))).thenReturn(false);
 
                 updater.setBookMetadata(context);
 
@@ -2031,6 +2032,22 @@ class BookMetadataUpdaterTest {
     class NetworkStorageGating {
 
         @Test
+        void updateBookMetadata_allowLockedFieldEdits_passesPolicyToFileWriteCheck() {
+            BookMetadata newMeta = BookMetadata.builder().title("Manual Title").build();
+            MetadataUpdateContext context = buildContext(newMeta, MetadataReplaceMode.REPLACE_ALL);
+            context.setLockPolicy(MetadataLockPolicy.ALLOW_LOCKED_FIELD_EDITS);
+
+            try (MockedStatic<MetadataChangeDetector> mcd = mockStatic(MetadataChangeDetector.class)) {
+                mockSettingsAndChangeDetector(mcd, true, true);
+                mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any(), eq(false))).thenReturn(true);
+
+                updater.setBookMetadata(context);
+
+                mcd.verify(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any(), eq(false)));
+            }
+        }
+
+        @Test
         void updateBookMetadata_networkStorage_skipsFileWrite() {
             when(appProperties.isLocalStorage()).thenReturn(false);
 
@@ -2045,7 +2062,7 @@ class BookMetadataUpdaterTest {
 
             try (MockedStatic<MetadataChangeDetector> mcd = mockStatic(MetadataChangeDetector.class)) {
                 mockSettingsAndChangeDetector(mcd, true, true);
-                mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any())).thenReturn(true);
+                mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any(), eq(true))).thenReturn(true);
 
                 updater.setBookMetadata(context);
 

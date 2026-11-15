@@ -6,6 +6,7 @@ import org.booklore.model.dto.settings.AppSettings;
 import org.booklore.model.dto.settings.MetadataPersistenceSettings;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
+import org.booklore.model.enums.MetadataLockPolicy;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.projection.BookCoverUpdateProjection;
 import org.booklore.service.NotificationService;
@@ -297,7 +298,7 @@ class BookCoverServiceTest {
 
         @Test
         void successfulRegenerationUpdatesCoverMetadata() {
-            BookEntity book = buildBook(1L, false);
+            BookEntity book = buildBook(1L, true);
             BookFileEntity ebookFile = BookFileEntity.builder()
                     .bookType(BookFileType.EPUB)
                     .isBookFormat(true)
@@ -309,7 +310,7 @@ class BookCoverServiceTest {
             when(processorRegistry.getProcessorOrThrow(BookFileType.EPUB)).thenReturn(processor);
             when(processor.generateCover(book, ebookFile)).thenReturn(true);
 
-            service.regenerateCover(1L);
+            service.regenerateCover(1L, MetadataLockPolicy.ALLOW_LOCKED_FIELD_EDITS);
 
             assertThat(book.getMetadata().getCoverUpdatedOn()).isNotNull();
             assertThat(book.getMetadataUpdatedAt()).isNotNull();
@@ -418,7 +419,7 @@ class BookCoverServiceTest {
 
         @Test
         void generatesCoverWithTitleAndAuthor() {
-            BookEntity book = buildBook(1L, false);
+            BookEntity book = buildBook(1L, true);
             AuthorEntity author = AuthorEntity.builder().name("Jane Doe").build();
             book.getMetadata().setAuthors(List.of(author));
             book.setBookFiles(new HashSet<>());
@@ -426,7 +427,7 @@ class BookCoverServiceTest {
             when(coverImageGenerator.generateCover("Test Book", "Jane Doe")).thenReturn(new byte[]{1, 2, 3});
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
 
-            service.generateCustomCover(1L);
+            service.generateCustomCover(1L, MetadataLockPolicy.ALLOW_LOCKED_FIELD_EDITS);
 
             verify(coverImageGenerator).generateCover("Test Book", "Jane Doe");
             verify(fileService).createThumbnailFromBytes(eq(1L), any());
@@ -588,13 +589,13 @@ class BookCoverServiceTest {
 
         @Test
         void successfullyUpdatesCoverFromFile() {
-            BookEntity book = buildBook(1L, false);
+            BookEntity book = buildBook(1L, true);
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
             when(fileService.getCoverFile(1)).thenReturn("cover.jpg");
             MultipartFile file = mock(MultipartFile.class);
 
-            service.updateCoverFromFile(1L, file);
+            service.updateCoverFromFile(1L, file, MetadataLockPolicy.ALLOW_LOCKED_FIELD_EDITS);
 
             verify(fileService).createThumbnailFromFile(1L, file);
             verify(bookRepository).save(book);
@@ -607,14 +608,14 @@ class BookCoverServiceTest {
 
         @Test
         void successfullyUpdatesCoverFromFile() {
-            BookEntity book = buildBookWithAudiobookLock(1L, false);
+            BookEntity book = buildBookWithAudiobookLock(1L, true);
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
             when(fileService.getAudiobookCoverFile(1)).thenReturn("cover.jpg");
 
             MultipartFile file = mock(MultipartFile.class);
 
-            service.updateAudiobookCoverFromFile(1L, file);
+            service.updateAudiobookCoverFromFile(1L, file, MetadataLockPolicy.ALLOW_LOCKED_FIELD_EDITS);
 
             verify(fileService).createAudiobookThumbnailFromFile(1L, file);
             verify(bookRepository).save(book);
@@ -664,7 +665,7 @@ class BookCoverServiceTest {
 
         @Test
         void successfullyRegeneratesAudiobookCover() {
-            BookEntity book = buildBookWithAudiobookLock(1L, false);
+            BookEntity book = buildBookWithAudiobookLock(1L, true);
             BookFileEntity audiobookFile = BookFileEntity.builder()
                     .bookType(BookFileType.AUDIOBOOK)
                     .build();
@@ -676,7 +677,7 @@ class BookCoverServiceTest {
             when(processor.generateAudiobookCover(book)).thenReturn(true);
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
 
-            service.regenerateAudiobookCover(1L);
+            service.regenerateAudiobookCover(1L, MetadataLockPolicy.ALLOW_LOCKED_FIELD_EDITS);
 
             assertThat(book.getMetadata().getAudiobookCoverUpdatedOn()).isNotNull();
             assertThat(book.getAudiobookCoverHash()).isNotNull();
@@ -689,14 +690,14 @@ class BookCoverServiceTest {
 
         @Test
         void successfullyGeneratesCustomAudiobookCover() {
-            BookEntity book = buildBookWithAudiobookLock(1L, false);
+            BookEntity book = buildBookWithAudiobookLock(1L, true);
             AuthorEntity author = AuthorEntity.builder().name("Author Name").build();
             book.getMetadata().setAuthors(List.of(author));
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
             when(coverImageGenerator.generateSquareCover("Test Audiobook", "Author Name")).thenReturn(new byte[]{1, 2});
             when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
 
-            service.generateCustomAudiobookCover(1L);
+            service.generateCustomAudiobookCover(1L, MetadataLockPolicy.ALLOW_LOCKED_FIELD_EDITS);
 
             verify(coverImageGenerator).generateSquareCover("Test Audiobook", "Author Name");
             verify(fileService).createAudiobookThumbnailFromBytes(eq(1L), any());

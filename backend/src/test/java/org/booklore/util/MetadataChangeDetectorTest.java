@@ -291,6 +291,17 @@ public class MetadataChangeDetectorTest {
     }
 
     @Test
+    void testHasValueChangesForFileWrite_whenLockedTitleChanged_respectsLockPolicy() {
+        existingMeta.setTitleLocked(true);
+        newMeta.setTitle("Manual Title");
+
+        assertFalse(MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags, true),
+                "RESPECT_LOCKS should ignore value changes to locked fields");
+        assertTrue(MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags, false),
+                "ALLOW_LOCKED_FIELD_EDITS should detect locked value changes for file writes");
+    }
+
+    @Test
     void testHasValueChangesForFileWrite_includesRatingsForFileWrite() {
         newMeta.setAmazonRating(4.8);
         newMeta.setGoodreadsRating(4.4);

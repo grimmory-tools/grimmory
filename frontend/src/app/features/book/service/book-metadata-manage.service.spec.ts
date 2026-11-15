@@ -171,6 +171,35 @@ describe('BookMetadataManageService', () => {
     expect(service.supportsDualCovers(audiobookOnlyBook)).toBe(false);
   });
 
+  it('adds ALLOW_LOCKED_FIELD_EDITS to manual cover actions when requested', () => {
+    const lockBehavior = 'ALLOW_LOCKED_FIELD_EDITS';
+    expect(service.getUploadCoverUrl(12, lockBehavior)).toBe('http://localhost:6060/api/v1/books/12/metadata/cover/upload?lockBehavior=ALLOW_LOCKED_FIELD_EDITS');
+    expect(service.getUploadAudiobookCoverUrl(12, lockBehavior)).toBe('http://localhost:6060/api/v1/books/12/metadata/audiobook-cover/upload?lockBehavior=ALLOW_LOCKED_FIELD_EDITS');
+
+    service.regenerateCover(12, lockBehavior).subscribe();
+    service.generateCustomCover(12, lockBehavior).subscribe();
+    service.regenerateAudiobookCover(12, lockBehavior).subscribe();
+    service.generateCustomAudiobookCover(12, lockBehavior).subscribe();
+
+    for (const endpoint of [
+      '/api/v1/books/12/regenerate-cover',
+      '/api/v1/books/12/generate-custom-cover',
+      '/api/v1/books/12/regenerate-audiobook-cover',
+      '/api/v1/books/12/generate-custom-audiobook-cover',
+    ]) {
+      const request = httpTestingController.expectOne(req => req.urlWithParams === `http://localhost:6060${endpoint}?lockBehavior=${lockBehavior}`);
+      expect(request.request.method).toBe('POST');
+      request.flush(null);
+    }
+  });
+
+  it('includes the requested lock behavior when uploading an audiobook cover directly', () => {
+    service.uploadAudiobookCoverFromFile(13, new File(['cover'], 'cover.png'), 'ALLOW_LOCKED_FIELD_EDITS').subscribe();
+
+    const request = httpTestingController.expectOne(req => req.urlWithParams === 'http://localhost:6060/api/v1/books/13/metadata/audiobook-cover/upload?lockBehavior=ALLOW_LOCKED_FIELD_EDITS');
+    expect(request.request.method).toBe('POST');
+    request.flush(null);
+  });
   it('returns stable upload URLs for ebook and audiobook cover endpoints', () => {
     expect(service.getUploadCoverUrl(9)).toBe('http://localhost:6060/api/v1/books/9/metadata/cover/upload');
     expect(service.getUploadAudiobookCoverUrl(9)).toBe('http://localhost:6060/api/v1/books/9/metadata/audiobook-cover/upload');

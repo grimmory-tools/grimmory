@@ -23,12 +23,27 @@ describe('MetadataEditorComponent manual lock behavior', () => {
   afterEach(() => TestBed.resetTestingModule());
   it('keeps locked fields editable and submits with ALLOW_LOCKED_FIELD_EDITS', () => {
     const updateBookMetadata = vi.fn(() => of({}));
+    const regenerateCover = vi.fn(() => of(void 0));
+    const generateCustomCover = vi.fn(() => of(void 0));
+    const regenerateAudiobookCover = vi.fn(() => of(void 0));
+    const generateCustomAudiobookCover = vi.fn(() => of(void 0));
+    const getUploadCoverUrl = vi.fn(() => 'ebook-cover-upload');
+    const getUploadAudiobookCoverUrl = vi.fn(() => 'audiobook-cover-upload');
     const messageAdd = vi.fn();
     TestBed.configureTestingModule({
       providers: [
         {provide: MessageService, useValue: {add: messageAdd}},
         {provide: BookService, useValue: {}},
-        {provide: BookMetadataManageService, useValue: {updateBookMetadata}},
+        {provide: BookMetadataManageService, useValue: {
+          updateBookMetadata,
+          regenerateCover,
+          generateCustomCover,
+          regenerateAudiobookCover,
+          generateCustomAudiobookCover,
+          getUploadCoverUrl,
+          getUploadAudiobookCoverUrl,
+        }},
+
         {provide: TaskHelperService, useValue: {}},
         {provide: UrlHelperService, useValue: {}},
         {provide: BookDialogHelperService, useValue: {}},
@@ -70,5 +85,19 @@ describe('MetadataEditorComponent manual lock behavior', () => {
       'REPLACE_ALL',
       'ALLOW_LOCKED_FIELD_EDITS',
     );
+
+    expect(component.getUploadCoverUrl()).toBe('ebook-cover-upload');
+    expect(component.getUploadAudiobookCoverUrl()).toBe('audiobook-cover-upload');
+    component.regenerateCover(21);
+    component.generateCustomCover(21);
+    component.regenerateAudiobookCover(21);
+    component.generateCustomAudiobookCover(21);
+
+    expect(getUploadCoverUrl).toHaveBeenCalledWith(21, 'ALLOW_LOCKED_FIELD_EDITS');
+    expect(getUploadAudiobookCoverUrl).toHaveBeenCalledWith(21, 'ALLOW_LOCKED_FIELD_EDITS');
+    expect(regenerateCover).toHaveBeenCalledWith(21, 'ALLOW_LOCKED_FIELD_EDITS');
+    expect(generateCustomCover).toHaveBeenCalledWith(21, 'ALLOW_LOCKED_FIELD_EDITS');
+    expect(regenerateAudiobookCover).toHaveBeenCalledWith(21, 'ALLOW_LOCKED_FIELD_EDITS');
+    expect(generateCustomAudiobookCover).toHaveBeenCalledWith(21, 'ALLOW_LOCKED_FIELD_EDITS');
   });
 });

@@ -9,6 +9,7 @@ import org.booklore.model.entity.AuthorEntity;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.enums.BookFileType;
+import org.booklore.model.enums.MetadataLockPolicy;
 import org.booklore.model.websocket.LogNotification;
 import org.booklore.model.websocket.Topic;
 import org.booklore.repository.BookRepository;
@@ -90,9 +91,13 @@ public class BookCoverService {
      * Generate a custom cover for a single book.
      */
     public void generateCustomCover(long bookId) {
+        generateCustomCover(bookId, MetadataLockPolicy.RESPECT_LOCKS);
+    }
+
+    public void generateCustomCover(long bookId, MetadataLockPolicy lockPolicy) {
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
-        if (isCoverLocked(bookEntity)) {
+        if (shouldRespectLocks(lockPolicy) && isCoverLocked(bookEntity)) {
             throw ApiError.METADATA_LOCKED.createException();
         }
 
@@ -117,9 +122,13 @@ public class BookCoverService {
      */
     @Transactional
     public void updateCoverFromFile(Long bookId, MultipartFile file) {
+        updateCoverFromFile(bookId, file, MetadataLockPolicy.RESPECT_LOCKS);
+    }
+
+    public void updateCoverFromFile(Long bookId, MultipartFile file, MetadataLockPolicy lockPolicy) {
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
-        if (isCoverLocked(bookEntity)) {
+        if (shouldRespectLocks(lockPolicy) && isCoverLocked(bookEntity)) {
             throw ApiError.METADATA_LOCKED.createException();
         }
 
@@ -162,9 +171,13 @@ public class BookCoverService {
      */
     @Transactional
     public void updateAudiobookCoverFromFile(Long bookId, MultipartFile file) {
+        updateAudiobookCoverFromFile(bookId, file, MetadataLockPolicy.RESPECT_LOCKS);
+    }
+
+    public void updateAudiobookCoverFromFile(Long bookId, MultipartFile file, MetadataLockPolicy lockPolicy) {
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
-        if (isAudiobookCoverLocked(bookEntity)) {
+        if (shouldRespectLocks(lockPolicy) && isAudiobookCoverLocked(bookEntity)) {
             throw ApiError.METADATA_LOCKED.createException();
         }
 
@@ -191,8 +204,12 @@ public class BookCoverService {
      * Regenerate audiobook cover for a single book by extracting from the audiobook file.
      */
     public void regenerateAudiobookCover(long bookId) {
+        regenerateAudiobookCover(bookId, MetadataLockPolicy.RESPECT_LOCKS);
+    }
+
+    public void regenerateAudiobookCover(long bookId, MetadataLockPolicy lockPolicy) {
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
-        if (isAudiobookCoverLocked(bookEntity)) {
+        if (shouldRespectLocks(lockPolicy) && isAudiobookCoverLocked(bookEntity)) {
             throw ApiError.METADATA_LOCKED.createException();
         }
 
@@ -217,9 +234,13 @@ public class BookCoverService {
      * Uses square cover format appropriate for audiobooks.
      */
     public void generateCustomAudiobookCover(long bookId) {
+        generateCustomAudiobookCover(bookId, MetadataLockPolicy.RESPECT_LOCKS);
+    }
+
+    public void generateCustomAudiobookCover(long bookId, MetadataLockPolicy lockPolicy) {
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
-        if (isAudiobookCoverLocked(bookEntity)) {
+        if (shouldRespectLocks(lockPolicy) && isAudiobookCoverLocked(bookEntity)) {
             throw ApiError.METADATA_LOCKED.createException();
         }
 
@@ -252,8 +273,12 @@ public class BookCoverService {
      * respecting the library's format priority setting.
      */
     public void regenerateCover(long bookId) {
+        regenerateCover(bookId, MetadataLockPolicy.RESPECT_LOCKS);
+    }
+
+    public void regenerateCover(long bookId, MetadataLockPolicy lockPolicy) {
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
-        if (isCoverLocked(bookEntity)) {
+        if (shouldRespectLocks(lockPolicy) && isCoverLocked(bookEntity)) {
             throw ApiError.METADATA_LOCKED.createException();
         }
 
@@ -513,6 +538,10 @@ public class BookCoverService {
 
     private boolean isAudiobookCoverLocked(BookEntity book) {
         return book.getMetadata() != null && Boolean.TRUE.equals(book.getMetadata().getAudiobookCoverLocked());
+    }
+
+    private boolean shouldRespectLocks(MetadataLockPolicy lockPolicy) {
+        return lockPolicy == null || lockPolicy == MetadataLockPolicy.RESPECT_LOCKS;
     }
 
     private boolean isEbookBookFile(BookFileEntity file) {

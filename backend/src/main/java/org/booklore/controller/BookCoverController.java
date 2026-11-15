@@ -4,6 +4,7 @@ import org.booklore.config.security.annotation.CheckBookAccess;
 import org.booklore.model.dto.CoverImage;
 import org.booklore.model.dto.request.BulkBookIdsRequest;
 import org.booklore.model.dto.request.CoverFetchRequest;
+import org.booklore.model.enums.MetadataLockPolicy;
 import org.booklore.service.metadata.BookCoverService;
 import org.booklore.service.metadata.DuckDuckGoCoverService;
 import org.booklore.exception.ApiError;
@@ -41,8 +42,9 @@ public class BookCoverController {
     @CheckBookAccess(bookIdParam = "bookId")
     public void uploadCoverFromFile(
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
-            @Parameter(description = "Cover image file") @RequestParam("file") MultipartFile file) {
-        bookCoverService.updateCoverFromFile(bookId, file);
+            @Parameter(description = "Cover image file") @RequestParam("file") MultipartFile file,
+            @RequestParam(name = "lockBehavior", defaultValue = "RESPECT_LOCKS") MetadataLockPolicy lockPolicy) {
+        bookCoverService.updateCoverFromFile(bookId, file, lockPolicy);
     }
 
     @Operation(summary = "Upload cover image from URL", description = "Upload a cover image for a book from a URL. Requires metadata edit permission or admin.")
@@ -63,8 +65,9 @@ public class BookCoverController {
     @CheckBookAccess(bookIdParam = "bookId")
     public void uploadAudiobookCoverFromFile(
             @Parameter(description = "ID of the book") @PathVariable Long bookId,
-            @Parameter(description = "Cover image file") @RequestParam("file") MultipartFile file) {
-        bookCoverService.updateAudiobookCoverFromFile(bookId, file);
+            @Parameter(description = "Cover image file") @RequestParam("file") MultipartFile file,
+            @RequestParam(name = "lockBehavior", defaultValue = "RESPECT_LOCKS") MetadataLockPolicy lockPolicy) {
+        bookCoverService.updateAudiobookCoverFromFile(bookId, file, lockPolicy);
     }
 
     @Operation(summary = "Upload audiobook cover image from URL", description = "Upload an audiobook cover image for a book from a URL. Requires metadata edit permission or admin.")
@@ -83,8 +86,10 @@ public class BookCoverController {
     @PostMapping("/{bookId}/regenerate-audiobook-cover")
     @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
     @CheckBookAccess(bookIdParam = "bookId")
-    public void regenerateAudiobookCover(@Parameter(description = "ID of the book") @PathVariable Long bookId) {
-        bookCoverService.regenerateAudiobookCover(bookId);
+    public void regenerateAudiobookCover(
+            @Parameter(description = "ID of the book") @PathVariable Long bookId,
+            @RequestParam(name = "lockBehavior", defaultValue = "RESPECT_LOCKS") MetadataLockPolicy lockPolicy) {
+        bookCoverService.regenerateAudiobookCover(bookId, lockPolicy);
     }
 
     @Operation(summary = "Generate custom audiobook cover for a book", description = "Generate a custom audiobook cover for a specific book based on its metadata. Requires metadata edit permission or admin.")
@@ -92,8 +97,10 @@ public class BookCoverController {
     @PostMapping("/{bookId}/generate-custom-audiobook-cover")
     @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
     @CheckBookAccess(bookIdParam = "bookId")
-    public void generateCustomAudiobookCover(@Parameter(description = "ID of the book") @PathVariable Long bookId) {
-        bookCoverService.generateCustomAudiobookCover(bookId);
+    public void generateCustomAudiobookCover(
+            @Parameter(description = "ID of the book") @PathVariable Long bookId,
+            @RequestParam(name = "lockBehavior", defaultValue = "RESPECT_LOCKS") MetadataLockPolicy lockPolicy) {
+        bookCoverService.generateCustomAudiobookCover(bookId, lockPolicy);
     }
 
     @Operation(summary = "Regenerate all covers", description = "Regenerate covers for all books. Requires metadata edit permission or admin.")
@@ -109,8 +116,10 @@ public class BookCoverController {
     @PostMapping("/{bookId}/regenerate-cover")
     @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
     @CheckBookAccess(bookIdParam = "bookId")
-    public void regenerateCovers(@Parameter(description = "ID of the book") @PathVariable Long bookId) {
-        bookCoverService.regenerateCover(bookId);
+    public void regenerateCovers(
+            @Parameter(description = "ID of the book") @PathVariable Long bookId,
+            @RequestParam(name = "lockBehavior", defaultValue = "RESPECT_LOCKS") MetadataLockPolicy lockPolicy) {
+        bookCoverService.regenerateCover(bookId, lockPolicy);
     }
 
     @Operation(summary = "Generate custom cover for a book", description = "Generate a custom cover for a specific book based on its metadata. Requires metadata edit permission or admin.")
@@ -118,8 +127,10 @@ public class BookCoverController {
     @PostMapping("/{bookId}/generate-custom-cover")
     @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
     @CheckBookAccess(bookIdParam = "bookId")
-    public void generateCustomCover(@Parameter(description = "ID of the book") @PathVariable Long bookId) {
-        bookCoverService.generateCustomCover(bookId);
+    public void generateCustomCover(
+            @Parameter(description = "ID of the book") @PathVariable Long bookId,
+            @RequestParam(name = "lockBehavior", defaultValue = "RESPECT_LOCKS") MetadataLockPolicy lockPolicy) {
+        bookCoverService.generateCustomCover(bookId, lockPolicy);
     }
 
     @Operation(summary = "Regenerate covers for selected books", description = "Regenerate covers for a list of books. Requires metadata edit permission or admin.")

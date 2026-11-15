@@ -638,7 +638,7 @@ export class MetadataEditorComponent implements OnInit {
   }
 
   getUploadCoverUrl(): string {
-    return this.bookMetadataManageService.getUploadCoverUrl(this.currentBookId);
+    return this.bookMetadataManageService.getUploadCoverUrl(this.currentBookId, "ALLOW_LOCKED_FIELD_EDITS");
   }
 
   onBeforeSend(): void {
@@ -674,7 +674,7 @@ export class MetadataEditorComponent implements OnInit {
   }
 
   regenerateCover(bookId: number) {
-    this.bookMetadataManageService.regenerateCover(bookId).pipe(
+    this.bookMetadataManageService.regenerateCover(bookId, "ALLOW_LOCKED_FIELD_EDITS").pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: () => {
@@ -702,7 +702,7 @@ export class MetadataEditorComponent implements OnInit {
 
   generateCustomCover(bookId: number) {
     this.isGeneratingCover = true;
-    this.bookMetadataManageService.generateCustomCover(bookId).pipe(
+    this.bookMetadataManageService.generateCustomCover(bookId, "ALLOW_LOCKED_FIELD_EDITS").pipe(
       finalize(() => this.isGeneratingCover = false),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
@@ -724,7 +724,7 @@ export class MetadataEditorComponent implements OnInit {
   }
 
   regenerateAudiobookCover(bookId: number) {
-    this.bookMetadataManageService.regenerateAudiobookCover(bookId).pipe(
+    this.bookMetadataManageService.regenerateAudiobookCover(bookId, "ALLOW_LOCKED_FIELD_EDITS").pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: () => {
@@ -746,7 +746,7 @@ export class MetadataEditorComponent implements OnInit {
 
   generateCustomAudiobookCover(bookId: number) {
     this.isGeneratingAudiobookCover = true;
-    this.bookMetadataManageService.generateCustomAudiobookCover(bookId).pipe(
+    this.bookMetadataManageService.generateCustomAudiobookCover(bookId, "ALLOW_LOCKED_FIELD_EDITS").pipe(
       finalize(() => this.isGeneratingAudiobookCover = false),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
@@ -922,7 +922,7 @@ export class MetadataEditorComponent implements OnInit {
   }
 
   getUploadAudiobookCoverUrl(): string {
-    return this.bookMetadataManageService.getUploadAudiobookCoverUrl(this.currentBookId);
+    return this.bookMetadataManageService.getUploadAudiobookCoverUrl(this.currentBookId, "ALLOW_LOCKED_FIELD_EDITS");
   }
 
   async openAudiobookCoverSearch() {

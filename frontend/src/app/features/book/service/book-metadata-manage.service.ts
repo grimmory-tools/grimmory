@@ -99,8 +99,8 @@ export class BookMetadataManageService {
     );
   }
 
-  getUploadCoverUrl(bookId: number): string {
-    return this.url + '/' + bookId + '/metadata/cover/upload';
+  getUploadCoverUrl(bookId: number, lockPolicy: 'RESPECT_LOCKS' | 'ALLOW_LOCKED_FIELD_EDITS' = 'RESPECT_LOCKS'): string {
+    return this.url + '/' + bookId + '/metadata/cover/upload' + this.lockPolicyQuery(lockPolicy);
   }
 
   uploadCoverFromUrl(bookId: number, url: string): Observable<BookMetadata> {
@@ -119,16 +119,16 @@ export class BookMetadataManageService {
     );
   }
 
-  regenerateCover(bookId: number): Observable<void> {
-    return this.http.post<void>(`${this.url}/${bookId}/regenerate-cover`, {}).pipe(
+  regenerateCover(bookId: number, lockPolicy: 'RESPECT_LOCKS' | 'ALLOW_LOCKED_FIELD_EDITS' = 'RESPECT_LOCKS'): Observable<void> {
+    return this.http.post<void>(`${this.url}/${bookId}/regenerate-cover${this.lockPolicyQuery(lockPolicy)}`, {}).pipe(
       tap(() => {
         invalidateBooksById(this.queryClient, [bookId]);
       })
     );
   }
 
-  generateCustomCover(bookId: number): Observable<void> {
-    return this.http.post<void>(`${this.url}/${bookId}/generate-custom-cover`, {}).pipe(
+  generateCustomCover(bookId: number, lockPolicy: 'RESPECT_LOCKS' | 'ALLOW_LOCKED_FIELD_EDITS' = 'RESPECT_LOCKS'): Observable<void> {
+    return this.http.post<void>(`${this.url}/${bookId}/generate-custom-cover${this.lockPolicyQuery(lockPolicy)}`, {}).pipe(
       tap(() => {
         invalidateBooksById(this.queryClient, [bookId]);
       })
@@ -159,12 +159,13 @@ export class BookMetadataManageService {
     );
   }
 
-  uploadAudiobookCoverFromFile(bookId: number, file: File): Observable<void> {
+  uploadAudiobookCoverFromFile(bookId: number, file: File, lockPolicy: 'RESPECT_LOCKS' | 'ALLOW_LOCKED_FIELD_EDITS' = 'RESPECT_LOCKS'): Observable<void> {
+
     const formData = new FormData();
     formData.append('file', file);
 
     const req = mitigateWebkitUploadBug(
-      new HttpRequest('POST', `${this.url}/${bookId}/metadata/audiobook-cover/upload`, formData)
+      new HttpRequest('POST', `${this.url}/${bookId}/metadata/audiobook-cover/upload${this.lockPolicyQuery(lockPolicy)}`, formData)
     );
 
     return this.http.request<void>(req)
@@ -177,24 +178,28 @@ export class BookMetadataManageService {
       );
   }
 
-  getUploadAudiobookCoverUrl(bookId: number): string {
-    return this.url + '/' + bookId + '/metadata/audiobook-cover/upload';
+  getUploadAudiobookCoverUrl(bookId: number, lockPolicy: 'RESPECT_LOCKS' | 'ALLOW_LOCKED_FIELD_EDITS' = 'RESPECT_LOCKS'): string {
+    return this.url + '/' + bookId + '/metadata/audiobook-cover/upload' + this.lockPolicyQuery(lockPolicy);
   }
 
-  regenerateAudiobookCover(bookId: number): Observable<void> {
-    return this.http.post<void>(`${this.url}/${bookId}/regenerate-audiobook-cover`, {}).pipe(
+  regenerateAudiobookCover(bookId: number, lockPolicy: 'RESPECT_LOCKS' | 'ALLOW_LOCKED_FIELD_EDITS' = 'RESPECT_LOCKS'): Observable<void> {
+    return this.http.post<void>(`${this.url}/${bookId}/regenerate-audiobook-cover${this.lockPolicyQuery(lockPolicy)}`, {}).pipe(
       tap(() => {
         invalidateBooksById(this.queryClient, [bookId]);
       })
     );
   }
 
-  generateCustomAudiobookCover(bookId: number): Observable<void> {
-    return this.http.post<void>(`${this.url}/${bookId}/generate-custom-audiobook-cover`, {}).pipe(
+  generateCustomAudiobookCover(bookId: number, lockPolicy: 'RESPECT_LOCKS' | 'ALLOW_LOCKED_FIELD_EDITS' = 'RESPECT_LOCKS'): Observable<void> {
+    return this.http.post<void>(`${this.url}/${bookId}/generate-custom-audiobook-cover${this.lockPolicyQuery(lockPolicy)}`, {}).pipe(
       tap(() => {
         invalidateBooksById(this.queryClient, [bookId]);
       })
     );
+  }
+
+  private lockPolicyQuery(lockPolicy: 'RESPECT_LOCKS' | 'ALLOW_LOCKED_FIELD_EDITS'): string {
+    return lockPolicy === 'ALLOW_LOCKED_FIELD_EDITS' ? `?lockBehavior=${lockPolicy}` : '';
   }
 
   supportsDualCovers(book: Book): boolean {

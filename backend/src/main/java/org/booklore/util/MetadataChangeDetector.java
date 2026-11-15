@@ -331,13 +331,17 @@ public class MetadataChangeDetector {
     }
 
     public static boolean hasValueChangesForFileWrite(BookMetadata newMeta, BookMetadataEntity existingMeta, MetadataClearFlags clear) {
+        return hasValueChangesForFileWrite(newMeta, existingMeta, clear, true);
+    }
+
+    public static boolean hasValueChangesForFileWrite(BookMetadata newMeta, BookMetadataEntity existingMeta, MetadataClearFlags clear, boolean respectLocks) {
         for (FieldDescriptor<?> field : SIMPLE_FIELDS) {
-            if (field.includedInFileWrite() && hasValueDifference(field, newMeta, existingMeta, clear)) {
+            if (field.includedInFileWrite() && hasValueDifference(field, newMeta, existingMeta, clear, respectLocks)) {
                 return true;
             }
         }
         for (CollectionFieldDescriptor field : COLLECTION_FIELDS) {
-            if (field.includedInFileWrite() && hasCollectionValueDifference(field, newMeta, existingMeta, clear)) {
+            if (field.includedInFileWrite() && hasCollectionValueDifference(field, newMeta, existingMeta, clear, respectLocks)) {
                 return true;
             }
         }
@@ -367,20 +371,28 @@ public class MetadataChangeDetector {
     }
 
     private static <T> boolean hasValueDifference(FieldDescriptor<T> field, BookMetadata newMeta, BookMetadataEntity existingMeta, MetadataClearFlags clear) {
+        return hasValueDifference(field, newMeta, existingMeta, clear, true);
+    }
+
+    private static <T> boolean hasValueDifference(FieldDescriptor<T> field, BookMetadata newMeta, BookMetadataEntity existingMeta, MetadataClearFlags clear, boolean respectLocks) {
         return differs(
                 field.shouldClear(clear),
                 field.getNewValue(newMeta),
                 field.getOldValue(existingMeta),
-                field.isUnlocked(existingMeta)
+                !respectLocks || field.isUnlocked(existingMeta)
         );
     }
 
     private static boolean hasCollectionValueDifference(CollectionFieldDescriptor field, BookMetadata newMeta, BookMetadataEntity existingMeta, MetadataClearFlags clear) {
+        return hasCollectionValueDifference(field, newMeta, existingMeta, clear, true);
+    }
+
+    private static boolean hasCollectionValueDifference(CollectionFieldDescriptor field, BookMetadata newMeta, BookMetadataEntity existingMeta, MetadataClearFlags clear, boolean respectLocks) {
         return differs(
                 field.shouldClear(clear),
                 field.getNewValue(newMeta),
                 field.getOldValue(existingMeta),
-                field.isUnlocked(existingMeta)
+                !respectLocks || field.isUnlocked(existingMeta)
         );
     }
 
