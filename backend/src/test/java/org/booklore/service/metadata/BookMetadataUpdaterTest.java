@@ -12,6 +12,7 @@ import org.booklore.model.dto.settings.MetadataPersistenceSettings;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.ComicCreatorRole;
+import org.booklore.model.enums.MetadataLockPolicy;
 import org.booklore.model.enums.MetadataReplaceMode;
 import org.booklore.repository.*;
 import org.booklore.service.appsettings.AppSettingService;
@@ -106,6 +107,12 @@ class BookMetadataUpdaterTest {
         mcd.when(() -> MetadataChangeDetector.hasValueChanges(any(), any(), any())).thenReturn(hasValueChanges);
         mcd.when(() -> MetadataChangeDetector.hasLockChanges(any(), any())).thenReturn(false);
         mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any())).thenReturn(false);
+    }
+
+    @Test
+    void metadataUpdateContext_defaultsToRespectLocks() {
+        assertThat(MetadataUpdateContext.builder().build().getLockPolicy())
+                .isEqualTo(MetadataLockPolicy.RESPECT_LOCKS);
     }
 
     @Test
@@ -289,6 +296,65 @@ class BookMetadataUpdaterTest {
     }
 
     @Test
+    void setBookMetadata_allowLockedFieldEdits_updatesValueAndKeepsLock() {
+        metadataEntity.applyLockToAllFields(true);
+        metadataEntity.setTitleLocked(true);
+        BookMetadata newMeta = BookMetadata.builder().title("Manual Title").titleLocked(true).build();
+        MetadataUpdateContext context = MetadataUpdateContext.builder()
+                .bookEntity(bookEntity)
+                .metadataUpdateWrapper(MetadataUpdateWrapper.builder().metadata(newMeta).build())
+                .replaceMode(MetadataReplaceMode.REPLACE_ALL)
+                .lockPolicy(MetadataLockPolicy.ALLOW_LOCKED_FIELD_EDITS)
+                .build();
+
+        try (MockedStatic<MetadataChangeDetector> mcd = mockStatic(MetadataChangeDetector.class)) {
+            mockSettingsAndChangeDetector(mcd, true, true);
+
+            updater.setBookMetadata(context);
+
+            assertThat(metadataEntity.getTitle()).isEqualTo("Manual Title");
+            assertThat(metadataEntity.getTitleLocked()).isTrue();
+        }
+    }
+
+    @Test
+    void setBookMetadata_allowLockedFieldEdits_updatesLockedCover() {
+        metadataEntity.setCoverLocked(true);
+        MetadataUpdateContext context = MetadataUpdateContext.builder()
+                .bookEntity(bookEntity)
+                .metadataUpdateWrapper(MetadataUpdateWrapper.builder().metadata(BookMetadata.builder().title("T").thumbnailUrl("https://example.test/cover.jpg").build()).build())
+                .updateThumbnail(true)
+                .replaceMode(MetadataReplaceMode.REPLACE_ALL)
+                .lockPolicy(MetadataLockPolicy.ALLOW_LOCKED_FIELD_EDITS)
+                .build();
+        try (MockedStatic<MetadataChangeDetector> mcd = mockStatic(MetadataChangeDetector.class)) {
+            mockSettingsAndChangeDetector(mcd, true, true);
+            updater.setBookMetadata(context);
+            verify(fileService).createThumbnailFromUrl(1L, "https://example.test/cover.jpg");
+            assertThat(metadataEntity.getCoverLocked()).isTrue();
+        }
+    }
+
+    @Test
+    void setBookMetadata_allowLockedFieldEdits_updatesLockedAudiobookCover() {
+        metadataEntity.setAudiobookCoverLocked(true);
+        bookEntity.setBookFiles(new HashSet<>(Set.of(BookFileEntity.builder().id(1L).bookType(BookFileType.AUDIOBOOK).isBookFormat(true).build())));
+        MetadataUpdateContext context = MetadataUpdateContext.builder()
+                .bookEntity(bookEntity)
+                .metadataUpdateWrapper(MetadataUpdateWrapper.builder().metadata(BookMetadata.builder().title("T").thumbnailUrl("https://example.test/audiobook-cover.jpg").build()).build())
+                .updateThumbnail(true)
+                .replaceMode(MetadataReplaceMode.REPLACE_ALL)
+                .lockPolicy(MetadataLockPolicy.ALLOW_LOCKED_FIELD_EDITS)
+                .build();
+        try (MockedStatic<MetadataChangeDetector> mcd = mockStatic(MetadataChangeDetector.class)) {
+            mockSettingsAndChangeDetector(mcd, true, true);
+            updater.setBookMetadata(context);
+            verify(fileService).createAudiobookThumbnailFromUrl(1L, "https://example.test/audiobook-cover.jpg");
+            assertThat(metadataEntity.getAudiobookCoverLocked()).isTrue();
+        }
+    }
+
+    @Test
     void setBookMetadata_clearFlag_setsFieldToNull() {
         metadataEntity.setPublisher("Some Publisher");
         BookMetadata newMeta = BookMetadata.builder().title("T").publisher("Ignored").build();
@@ -385,6 +451,27 @@ class BookMetadataUpdaterTest {
             updater.setBookMetadata(context);
 
             assertThat(metadataEntity.getAuthors()).containsExactly(newAuthor);
+        }
+    }
+
+    @Test
+    void setBookMetadata_allowLockedFieldEdits_updatesLockedAuthors() {
+        metadataEntity.setAuthorsLocked(true);
+        AuthorEntity existing = AuthorEntity.builder().id(1L).name("Locked").build();
+        AuthorEntity replacement = AuthorEntity.builder().id(2L).name("Manual Author").build();
+        metadataEntity.setAuthors(new ArrayList<>(List.of(existing)));
+        when(authorRepository.findByName("Manual Author")).thenReturn(Optional.of(replacement));
+        MetadataUpdateContext context = MetadataUpdateContext.builder()
+                .bookEntity(bookEntity)
+                .metadataUpdateWrapper(MetadataUpdateWrapper.builder().metadata(BookMetadata.builder().title("T").authors(List.of("Manual Author")).build()).build())
+                .replaceMode(MetadataReplaceMode.REPLACE_ALL)
+                .lockPolicy(MetadataLockPolicy.ALLOW_LOCKED_FIELD_EDITS)
+                .build();
+        try (MockedStatic<MetadataChangeDetector> mcd = mockStatic(MetadataChangeDetector.class)) {
+            mockSettingsAndChangeDetector(mcd, true, true);
+            updater.setBookMetadata(context);
+            assertThat(metadataEntity.getAuthors()).containsExactly(replacement);
+            assertThat(metadataEntity.getAuthorsLocked()).isTrue();
         }
     }
 
@@ -665,6 +752,42 @@ class BookMetadataUpdaterTest {
     }
 
     @Test
+    void setBookMetadata_allowLockedFieldEdits_updatesLockedCollections() {
+        metadataEntity.setCategoriesLocked(true);
+        metadataEntity.setMoodsLocked(true);
+        metadataEntity.setTagsLocked(true);
+        CategoryEntity category = CategoryEntity.builder().id(2L).name("Manual Category").build();
+        MoodEntity mood = MoodEntity.builder().id(2L).name("Manual Mood").build();
+        TagEntity tag = TagEntity.builder().id(2L).name("Manual Tag").build();
+        when(categoryRepository.findByName("Manual Category")).thenReturn(Optional.of(category));
+        when(moodRepository.findByName("Manual Mood")).thenReturn(Optional.of(mood));
+        when(tagRepository.findByName("Manual Tag")).thenReturn(Optional.of(tag));
+        BookMetadata metadata = BookMetadata.builder()
+                .title("T")
+                .categories(Set.of("Manual Category"))
+                .moods(Set.of("Manual Mood"))
+                .tags(Set.of("Manual Tag"))
+                .build();
+        MetadataUpdateContext context = MetadataUpdateContext.builder()
+                .bookEntity(bookEntity)
+                .metadataUpdateWrapper(MetadataUpdateWrapper.builder().metadata(metadata).build())
+                .replaceMode(MetadataReplaceMode.REPLACE_ALL)
+                .lockPolicy(MetadataLockPolicy.ALLOW_LOCKED_FIELD_EDITS)
+                .build();
+
+        try (MockedStatic<MetadataChangeDetector> mcd = mockStatic(MetadataChangeDetector.class)) {
+            mockSettingsAndChangeDetector(mcd, true, true);
+            updater.setBookMetadata(context);
+            assertThat(metadataEntity.getCategories()).containsExactly(category);
+            assertThat(metadataEntity.getMoods()).containsExactly(mood);
+            assertThat(metadataEntity.getTags()).containsExactly(tag);
+            assertThat(metadataEntity.getCategoriesLocked()).isTrue();
+            assertThat(metadataEntity.getMoodsLocked()).isTrue();
+            assertThat(metadataEntity.getTagsLocked()).isTrue();
+        }
+    }
+
+    @Test
     void setBookMetadata_categoriesLocked_notUpdated() {
         metadataEntity.setCategoriesLocked(true);
         CategoryEntity existing = CategoryEntity.builder().id(1L).name("Locked").build();
@@ -914,6 +1037,24 @@ class BookMetadataUpdaterTest {
                 mockSettingsAndChangeDetector(mcd, true, true);
                 updater.setBookMetadata(context);
                 assertThat(metadataEntity.getAbridged()).isTrue();
+            }
+        }
+
+        @Test
+        void allowLockedFieldEdits_updatesLockedNarrator() {
+            metadataEntity.setNarratorLocked(true);
+            metadataEntity.setNarrator("Old Narrator");
+            MetadataUpdateContext context = MetadataUpdateContext.builder()
+                    .bookEntity(bookEntity)
+                    .metadataUpdateWrapper(MetadataUpdateWrapper.builder().metadata(BookMetadata.builder().title("T").narrator("Manual Narrator").build()).build())
+                    .replaceMode(MetadataReplaceMode.REPLACE_ALL)
+                    .lockPolicy(MetadataLockPolicy.ALLOW_LOCKED_FIELD_EDITS)
+                    .build();
+            try (MockedStatic<MetadataChangeDetector> mcd = mockStatic(MetadataChangeDetector.class)) {
+                mockSettingsAndChangeDetector(mcd, true, true);
+                updater.setBookMetadata(context);
+                assertThat(metadataEntity.getNarrator()).isEqualTo("Manual Narrator");
+                assertThat(metadataEntity.getNarratorLocked()).isTrue();
             }
         }
 
@@ -1194,6 +1335,28 @@ class BookMetadataUpdaterTest {
 
                 assertThat(existing.getCreatorMappings()).hasSize(1);
                 assertThat(existing.getCreatorMappings().iterator().next().getRole()).isEqualTo(ComicCreatorRole.PENCILLER);
+            }
+        }
+
+        @Test
+        void allowLockedFieldEdits_updatesLockedComicCreatorRole() {
+            ComicMetadataEntity existing = ComicMetadataEntity.builder().bookId(1L).pencillersLocked(true).build();
+            metadataEntity.setComicMetadata(existing);
+            ComicCreatorEntity creator = ComicCreatorEntity.builder().id(1L).name("Manual Creator").build();
+            when(comicCreatorRepository.findByName("Manual Creator")).thenReturn(Optional.of(creator));
+            when(comicMetadataRepository.save(any(ComicMetadataEntity.class))).thenReturn(existing);
+            ComicMetadata comicDto = ComicMetadata.builder().pencillers(Set.of("Manual Creator")).build();
+            MetadataUpdateContext context = MetadataUpdateContext.builder()
+                    .bookEntity(bookEntity)
+                    .metadataUpdateWrapper(MetadataUpdateWrapper.builder().metadata(BookMetadata.builder().title("T").comicMetadata(comicDto).build()).build())
+                    .replaceMode(MetadataReplaceMode.REPLACE_ALL)
+                    .lockPolicy(MetadataLockPolicy.ALLOW_LOCKED_FIELD_EDITS)
+                    .build();
+            try (MockedStatic<MetadataChangeDetector> mcd = mockStatic(MetadataChangeDetector.class)) {
+                mockSettingsAndChangeDetector(mcd, true, true);
+                updater.setBookMetadata(context);
+                assertThat(existing.getCreatorMappings()).hasSize(1);
+                assertThat(existing.getPencillersLocked()).isTrue();
             }
         }
 

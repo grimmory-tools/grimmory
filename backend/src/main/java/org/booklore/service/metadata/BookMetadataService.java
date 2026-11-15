@@ -67,6 +67,12 @@ public class BookMetadataService {
     @Transactional
     public BookMetadata updateBookMetadata(long bookId, MetadataUpdateWrapper metadataUpdateWrapper,
                                            boolean mergeCategories, MetadataReplaceMode replaceMode) {
+        return updateBookMetadata(bookId, metadataUpdateWrapper, mergeCategories, replaceMode, MetadataLockPolicy.RESPECT_LOCKS);
+    }
+
+    @Transactional
+    public BookMetadata updateBookMetadata(long bookId, MetadataUpdateWrapper metadataUpdateWrapper,
+                                           boolean mergeCategories, MetadataReplaceMode replaceMode, MetadataLockPolicy lockPolicy) {
         BookEntity bookEntity = bookRepository.findAllWithMetadataByIds(Collections.singleton(bookId)).stream()
                 .findFirst()
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
@@ -77,6 +83,7 @@ public class BookMetadataService {
                 .updateThumbnail(true)
                 .mergeCategories(mergeCategories)
                 .replaceMode(replaceMode)
+                .lockPolicy(lockPolicy)
                 .mergeMoods(false)
                 .mergeTags(false)
                 .build();
@@ -292,6 +299,7 @@ public class BookMetadataService {
                     .mergeCategories(mergeCategories)
                     .mergeMoods(mergeMoods)
                     .mergeTags(mergeTags)
+                    .lockPolicy(MetadataLockPolicy.ALLOW_LOCKED_FIELD_EDITS)
                     .build();
 
             bookMetadataUpdater.setBookMetadata(context);

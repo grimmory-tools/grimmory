@@ -373,69 +373,6 @@ export class MetadataEditorComponent implements OnInit {
       comicPatch[field.lockedKey] = comicMeta?.[modelLockKey as keyof ComicMetadata] ?? false;
     }
     this.metadataForm.patchValue(comicPatch);
-
-    const lockableFields: { key: keyof BookMetadata; control: string }[] = [
-      {key: "titleLocked", control: "title"},
-      {key: "subtitleLocked", control: "subtitle"},
-      {key: "authorsLocked", control: "authors"},
-      {key: "categoriesLocked", control: "categories"},
-      {key: "moodsLocked", control: "moods"},
-      {key: "tagsLocked", control: "tags"},
-      {key: "publisherLocked", control: "publisher"},
-      {key: "publishedDateLocked", control: "publishedDate"},
-      {key: "languageLocked", control: "language"},
-      {key: "isbn10Locked", control: "isbn10"},
-      {key: "isbn13Locked", control: "isbn13"},
-      ...this.providerFields.fields().map(field => ({key: field.lockName, control: field.name})),
-      {key: "pageCountLocked", control: "pageCount"},
-      {key: "descriptionLocked", control: "description"},
-      {key: "seriesNameLocked", control: "seriesName"},
-      {key: "seriesNumberLocked", control: "seriesNumber"},
-      {key: "seriesTotalLocked", control: "seriesTotal"},
-      {key: "coverLocked", control: "thumbnailUrl"},
-      {key: "audiobookCoverLocked", control: "audiobookCover"},
-      {key: "reviewsLocked", control: "reviews"},
-      {key: "ageRatingLocked", control: "ageRating"},
-      {key: "contentRatingLocked", control: "contentRating"},
-    ];
-
-    for (const {key, control} of lockableFields) {
-      const isLocked = metadata[key] === true;
-      const formControl = this.metadataForm.get(control);
-      if (formControl) {
-        if (isLocked) {
-          formControl.disable();
-        } else {
-          formControl.enable();
-        }
-      }
-    }
-
-    // Apply audiobook lock states
-    for (const field of AUDIOBOOK_METADATA_FIELDS) {
-      const isLocked = this.metadataForm.get(field.lockedKey)?.value === true;
-      const formControl = this.metadataForm.get(field.controlName);
-      if (formControl) {
-        if (isLocked) {
-          formControl.disable();
-        } else {
-          formControl.enable();
-        }
-      }
-    }
-
-    // Apply comic lock states
-    for (const field of ALL_COMIC_METADATA_FIELDS) {
-      const isLocked = this.metadataForm.get(field.lockedKey)?.value === true;
-      const formControl = this.metadataForm.get(field.controlName);
-      if (formControl) {
-        if (isLocked) {
-          formControl.disable();
-        } else {
-          formControl.enable();
-        }
-      }
-    }
   }
 
   onAutoCompleteSelect(fieldName: string, event: AutoCompleteSelectEvent) {
@@ -470,7 +407,9 @@ export class MetadataEditorComponent implements OnInit {
       .updateBookMetadata(
         this.currentBookId,
         this.buildMetadataWrapper(undefined),
-        false
+        false,
+        "REPLACE_ALL",
+        "ALLOW_LOCKED_FIELD_EDITS"
       )
       .pipe(
         tap({
@@ -508,12 +447,6 @@ export class MetadataEditorComponent implements OnInit {
     const isLocked = this.metadataForm.get(field + "Locked")?.value;
     const updatedLockedState = !isLocked;
     this.metadataForm.get(field + "Locked")?.setValue(updatedLockedState);
-
-    if (updatedLockedState) {
-      this.metadataForm.get(field)?.disable();
-    } else {
-      this.metadataForm.get(field)?.enable();
-    }
     this.updateMetadata(undefined);
   }
 
@@ -521,8 +454,6 @@ export class MetadataEditorComponent implements OnInit {
     Object.keys(this.metadataForm.controls).forEach((key) => {
       if (key.endsWith("Locked")) {
         this.metadataForm.get(key)?.setValue(true);
-        const fieldName = key.replace("Locked", "");
-        this.metadataForm.get(fieldName)?.disable();
       }
     });
     this.updateMetadata(true);
@@ -532,8 +463,6 @@ export class MetadataEditorComponent implements OnInit {
     Object.keys(this.metadataForm.controls).forEach((key) => {
       if (key.endsWith("Locked")) {
         this.metadataForm.get(key)?.setValue(false);
-        const fieldName = key.replace("Locked", "");
-        this.metadataForm.get(fieldName)?.enable();
       }
     });
     this.updateMetadata(false);
@@ -682,7 +611,7 @@ export class MetadataEditorComponent implements OnInit {
   private updateMetadata(shouldLockAllFields: boolean | undefined): void {
     const metadataUpdateWrapper = this.buildMetadataWrapper(shouldLockAllFields);
     this.bookMetadataManageService
-      .updateBookMetadata(this.currentBookId, metadataUpdateWrapper, false)
+      .updateBookMetadata(this.currentBookId, metadataUpdateWrapper, false, "REPLACE_ALL", "ALLOW_LOCKED_FIELD_EDITS")
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

@@ -19,6 +19,7 @@ import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.Lock;
+import org.booklore.model.enums.MetadataLockPolicy;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.repository.BookMetadataRepository;
 import org.booklore.repository.BookRepository;
@@ -568,7 +569,7 @@ class BookMetadataServiceTest {
 
             service.bulkUpdateMetadata(request, true, false, true);
 
-            verify(bookMetadataUpdater, times(2)).setBookMetadata(any());
+            verify(bookMetadataUpdater, times(2)).setBookMetadata(argThat(ctx -> ctx.getLockPolicy() == MetadataLockPolicy.ALLOW_LOCKED_FIELD_EDITS));
             verify(notificationService, times(2)).sendMessage(any(), any());
         }
 
@@ -617,7 +618,7 @@ class BookMetadataServiceTest {
 
             verify(bookMetadataUpdater).setBookMetadata(argThat(ctx -> {
                 BookMetadata md = ctx.getMetadataUpdateWrapper().getMetadata();
-                return md.getCategories().isEmpty() && md.getMoods().isEmpty() && md.getTags().isEmpty();
+                return ctx.getLockPolicy() == MetadataLockPolicy.ALLOW_LOCKED_FIELD_EDITS && md.getCategories().isEmpty() && md.getMoods().isEmpty() && md.getTags().isEmpty();
             }));
         }
     }

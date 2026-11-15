@@ -19,8 +19,8 @@ export class BookMetadataManageService {
 
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/books`;
 
-  updateBookMetadata(bookId: number | undefined, wrapper: MetadataUpdateWrapper, mergeCategories: boolean, replaceMode: 'REPLACE_ALL' | 'REPLACE_WHEN_PROVIDED' = 'REPLACE_ALL'): Observable<BookMetadata> {
-    const params = new HttpParams().set('mergeCategories', mergeCategories.toString()).set('replaceMode', replaceMode);
+  updateBookMetadata(bookId: number | undefined, wrapper: MetadataUpdateWrapper, mergeCategories: boolean, replaceMode: 'REPLACE_ALL' | 'REPLACE_WHEN_PROVIDED' = 'REPLACE_ALL', lockPolicy: 'RESPECT_LOCKS' | 'ALLOW_LOCKED_FIELD_EDITS' = 'RESPECT_LOCKS'): Observable<BookMetadata> {
+    const params = new HttpParams().set('mergeCategories', mergeCategories.toString()).set('replaceMode', replaceMode).set('lockBehavior', lockPolicy);
     return this.http.put<BookMetadata>(`${this.url}/${bookId}/metadata`, wrapper, {params}).pipe(
       tap(updatedMetadata => {
         if (bookId != null) {

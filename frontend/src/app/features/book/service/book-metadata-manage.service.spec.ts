@@ -77,10 +77,23 @@ describe('BookMetadataManageService', () => {
     expect(request.request.method).toBe('PUT');
     expect(request.request.params.get('mergeCategories')).toBe('true');
     expect(request.request.params.get('replaceMode')).toBe('REPLACE_WHEN_PROVIDED');
+    expect(request.request.params.get('lockBehavior')).toBe('RESPECT_LOCKS');
     expect(request.request.body).toEqual(wrapper);
     request.flush({bookId: 7, title: 'Updated Title'});
 
     expect(queryClient.getQueryData<Book[]>(BOOKS_QUERY_KEY)?.[0].metadata?.title).toBe('Updated Title');
+  });
+
+  it('sends ALLOW_LOCKED_FIELD_EDITS only when explicitly requested', () => {
+    const wrapper: MetadataUpdateWrapper = {
+      metadata: {bookId: 8, title: 'Manual Title'},
+      clearFlags: {},
+    };
+    service.updateBookMetadata(8, wrapper, false, 'REPLACE_ALL', 'ALLOW_LOCKED_FIELD_EDITS').subscribe();
+
+    const request = httpTestingController.expectOne(req => req.url.endsWith('/api/v1/books/8/metadata'));
+    expect(request.request.params.get('lockBehavior')).toBe('ALLOW_LOCKED_FIELD_EDITS');
+    request.flush({bookId: 8, title: 'Manual Title'});
   });
 
   it('toggles cached metadata lock fields for successful bulk lock updates', () => {

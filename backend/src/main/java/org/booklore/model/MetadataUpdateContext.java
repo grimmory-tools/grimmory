@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.booklore.model.entity.BookEntity;
+import org.booklore.model.enums.MetadataLockPolicy;
 import org.booklore.model.enums.MetadataReplaceMode;
 
 @Data
@@ -19,4 +20,6 @@ public class MetadataUpdateContext {
     private boolean mergeMoods;
     private boolean mergeTags;
     private MetadataReplaceMode replaceMode;
+    @Builder.Default
+    private MetadataLockPolicy lockPolicy = MetadataLockPolicy.RESPECT_LOCKS;
 }

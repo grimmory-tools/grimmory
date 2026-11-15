@@ -9,6 +9,7 @@ import org.booklore.config.security.annotation.CheckBookAccess;
 import org.booklore.model.MetadataUpdateWrapper;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.request.*;
+import org.booklore.model.enums.MetadataLockPolicy;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.model.enums.MetadataReplaceMode;
 import org.booklore.service.metadata.BookMetadataService;
@@ -55,8 +56,9 @@ public class MetadataController {
             @Parameter(description = "Metadata update wrapper") @Validated @RequestBody MetadataUpdateWrapper metadataUpdateWrapper,
             @Parameter(description = "ID of the book") @PathVariable long bookId,
             @Parameter(description = "Merge categories") @RequestParam(defaultValue = "false") boolean mergeCategories,
-            @Parameter(description = "Replace mode") @RequestParam(defaultValue = "REPLACE_ALL") MetadataReplaceMode replaceMode) {
-        BookMetadata bookMetadata = bookMetadataService.updateBookMetadata(bookId, metadataUpdateWrapper, mergeCategories, replaceMode);
+            @Parameter(description = "Replace mode") @RequestParam(defaultValue = "REPLACE_ALL") MetadataReplaceMode replaceMode,
+            @Parameter(description = "How metadata locks are applied") @RequestParam(name = "lockBehavior", defaultValue = "RESPECT_LOCKS") MetadataLockPolicy lockPolicy) {
+        BookMetadata bookMetadata = bookMetadataService.updateBookMetadata(bookId, metadataUpdateWrapper, mergeCategories, replaceMode, lockPolicy);
         return ResponseEntity.ok(bookMetadata);
     }
 
