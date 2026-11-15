@@ -119,7 +119,7 @@
   },
   "src/app/features/author-browser/components/author-detail/author-detail.component.ts": {
     "typescript/no-unnecessary-condition": {
-      "count": 3
+      "count": 2
     }
   },
   "src/app/features/author-browser/components/author-editor/author-editor.component.ts": {
@@ -408,11 +408,6 @@
       "count": 1
     }
   },
-  "src/app/features/book/data/book-query-cache.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
   "src/app/features/book/data/book-query.service.ts": {
     "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 1
@@ -427,11 +422,6 @@
     },
     "typescript/no-unnecessary-condition": {
       "count": 2
-    }
-  },
-  "src/app/features/book/service/book-command-legacy-adapter.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
     }
   },
   "src/app/features/book/service/book-dialog-helper.service.ts": {
@@ -605,14 +595,6 @@
       "count": 1
     }
   },
-  "src/app/features/dashboard/services/dashboard-config.service.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    },
-    "typescript/no-unnecessary-condition": {
-      "count": 3
-    }
-  },
   "src/app/features/library-creator/library-creator.component.ts": {
     "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 5
@@ -674,7 +656,7 @@
       "count": 3
     },
     "typescript/no-unnecessary-condition": {
-      "count": 5
+      "count": 3
     },
     "typescript/no-unsafe-argument": {
       "count": 1
@@ -686,7 +668,7 @@
       "count": 2
     },
     "typescript/require-await": {
-      "count": 2
+      "count": 1
     }
   },
   "src/app/features/metadata/component/book-metadata-center/book-reading-sessions/book-reading-sessions.component.ts": {
@@ -1768,20 +1750,6 @@
   },
   "src/app/shared/components/change-password/change-password.component.ts": {
     "typescript/no-unsafe-assignment": {
-      "count": 1
-    },
-    "typescript/no-unsafe-member-access": {
-      "count": 1
-    }
-  },
-  "src/app/shared/components/file-mover/file-mover-component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 4
-    },
-    "typescript/no-unnecessary-condition": {
-      "count": 7
-    },
-    "typescript/no-unsafe-argument": {
       "count": 1
     },
     "typescript/no-unsafe-member-access": {

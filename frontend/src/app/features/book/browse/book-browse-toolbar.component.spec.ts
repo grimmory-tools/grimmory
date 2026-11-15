@@ -22,7 +22,7 @@ describe('BookBrowseToolbarComponent', () => {
     fixture = TestBed.createComponent(BookBrowseToolbarComponent);
     fixture.componentRef.setInput(
       'sortOptions',
-      bookSortOptions(['title', '-title', 'pageCount', '-pageCount']),
+      bookSortOptions(['title', '-title', 'pageCount', '-pageCount'], new Set()),
     );
     fixture.componentRef.setInput('sortTerms', [{key: 'title', direction: 'asc'}]);
     fixture.componentRef.setInput('viewMode', 'grid');

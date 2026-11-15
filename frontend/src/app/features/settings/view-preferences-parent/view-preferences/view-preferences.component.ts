@@ -25,6 +25,7 @@ import {
   type BookSortTerm,
 } from '../../../book/data/book-query-params';
 import {BookQueryService} from '../../../book/data/book-query.service';
+import {injectHiddenProviderFieldKeys} from '../../../book/browse/book-browse-fields';
 import {bookSortOptions, bookSortTermsFromCriteria} from '../../../book/browse/book-browse-sort';
 import {entityViewSortCriteria, entityViewSortPatch} from '../../user-management/entity-view-preferences';
 import {type BookBrowseMultiSortDialogResult} from '../../../book/browse/book-browse-multi-sort-dialog.component';
@@ -57,6 +58,7 @@ export class ViewPreferencesComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly messageService = inject(MessageService);
   private readonly dialogLauncher = inject(DialogLauncherService);
+  private readonly hiddenProviderFields = injectHiddenProviderFieldKeys();
 
   entityTypeOptions: {label: string; value: string; translationKey: string}[] = [];
 
@@ -84,8 +86,10 @@ export class ViewPreferencesComponent implements OnInit {
   globalSortTerms: readonly BookSortTerm[] = [];
   private readonly sortTokensQuery = injectQuery(() =>
     this.bookQuery.facetIndex({facets: EMPTY_FACET_SELECTION}));
-  readonly editorSortOptions = computed(() =>
-    bookSortOptions(this.sortTokensQuery.data()?.sortTokens ?? []));
+  readonly editorSortOptions = computed(() => bookSortOptions(
+    this.sortTokensQuery.data()?.sortTokens ?? [],
+    this.hiddenProviderFields(),
+  ));
 
   overrides: {
     entityType: 'LIBRARY' | 'SHELF' | 'MAGIC_SHELF';

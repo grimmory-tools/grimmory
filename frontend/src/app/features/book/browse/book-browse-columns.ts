@@ -57,11 +57,12 @@ export function normalizeBookColumnPreferences(
 
 export function bookColumnOptions(
   preferences: readonly TableColumnPreference[],
+  hidden: ReadonlySet<string>,
 ): BookColumnOption[] {
   const visibleByField = new Map(
     preferences.map(preference => [preference.field, preference.visible]),
   );
-  return COLUMNS.map(({key, labelKey, column}) => ({
+  return COLUMNS.filter(({key}) => !hidden.has(key)).map(({key, labelKey, column}) => ({
     field: key,
     labelKey,
     visible: visibleByField.get(key) === true,
@@ -71,11 +72,12 @@ export function bookColumnOptions(
 
 export function bookVisibleColumnOptions(
   preferences: readonly TableColumnPreference[],
+  hidden: ReadonlySet<string>,
 ): BookColumnOption[] {
   const orderByField = new Map(preferences.map(preference => [preference.field, preference.order]));
   const orderOf = (option: BookColumnOption) =>
     option.field === 'title' ? -1 : orderByField.get(option.field) ?? Number.MAX_SAFE_INTEGER;
-  return bookColumnOptions(preferences)
+  return bookColumnOptions(preferences, hidden)
     .filter(option => option.visible)
     .sort((first, second) => orderOf(first) - orderOf(second));
 }
@@ -90,7 +92,7 @@ export function bookColumnSections(
       const option = column.group === id ? optionsByField.get(key) : undefined;
       return option ? [option] : [];
     }),
-  }));
+  })).filter(section => section.columns.length > 0);
 }
 
 export function bookColumnSortKey(field: string): BookQuerySortKey | undefined {

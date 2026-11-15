@@ -1,17 +1,21 @@
 import {inject} from '@angular/core';
 import {Router, type CanActivateChildFn, type ParamMap} from '@angular/router';
 
+import {browseFacetEntries} from '../../../shared/browse/facets';
 import {type LibraryShelfMenuTarget} from '../../../shared/layout/navigation/library-shelf-menu-target.model';
 import {type EntityViewPreferenceContext} from '../../settings/user-management/entity-view-preferences';
+import {type BookQueryFacetKey, type FacetValueMap, isBookQueryFacetKey} from '../data/book-query-params';
 
-export type BookBrowseScope =
-  | {kind: 'library'; entityId: number; facetKey: 'library'; facetValue: string}
-  | {kind: 'shelf'; entityId: number; facetKey: 'shelf'; facetValue: string}
-  | {kind: 'magicShelf'; entityId: number; facetKey: 'shelf'; facetValue: string}
-  | {kind: 'unshelved'; facetKey: 'shelf_status'; facetValue: 'unshelved'};
+export type BookBrowseScope = {readonly facets: FacetValueMap} & (
+  | {readonly kind: 'library'; readonly entityId: number}
+  | {readonly kind: 'shelf'; readonly entityId: number}
+  | {readonly kind: 'magicShelf'; readonly entityId: number}
+  | {readonly kind: 'unshelved'}
+  | {readonly kind: 'dashboardRow'; readonly titleKey: string}
+);
 
 export interface BookBrowseRouteData {
-  browseScope?: 'unshelved';
+  browseScope?: BookBrowseScope;
 }
 
 export const validBookBrowseScope: CanActivateChildFn = route => {
@@ -21,18 +25,18 @@ export const validBookBrowseScope: CanActivateChildFn = route => {
 };
 
 export const UNSHELVED_BROWSE_SCOPE: BookBrowseScope =
-  {kind: 'unshelved', facetKey: 'shelf_status', facetValue: 'unshelved'};
+  {kind: 'unshelved', facets: {shelf_status: {include: ['unshelved'], exclude: [], matchAll: true}}};
 
 export function libraryBrowseScope(entityId: number): BookBrowseScope {
-  return {kind: 'library', entityId, facetKey: 'library', facetValue: `${entityId}`};
+  return {kind: 'library', entityId, facets: {library: {include: [`${entityId}`], exclude: [], matchAll: true}}};
 }
 
 export function shelfBrowseScope(entityId: number): BookBrowseScope {
-  return {kind: 'shelf', entityId, facetKey: 'shelf', facetValue: `${entityId}`};
+  return {kind: 'shelf', entityId, facets: {shelf: {include: [`${entityId}`], exclude: [], matchAll: true}}};
 }
 
 export function magicShelfBrowseScope(entityId: number): BookBrowseScope {
-  return {kind: 'magicShelf', entityId, facetKey: 'shelf', facetValue: `magic:${entityId}`};
+  return {kind: 'magicShelf', entityId, facets: {shelf: {include: [`magic:${entityId}`], exclude: [], matchAll: true}}};
 }
 
 export function bookBrowseScope(
@@ -54,11 +58,14 @@ export function bookBrowseScope(
     return magicShelfBrowseScope(magicShelfId);
   }
 
-  if (routeData.browseScope === 'unshelved') {
-    return UNSHELVED_BROWSE_SCOPE;
-  }
+  return routeData.browseScope ?? null;
+}
 
-  return null;
+export function bookBrowseScopeHiddenFacetKeys(scope: BookBrowseScope | null): ReadonlySet<BookQueryFacetKey> {
+  if (scope?.kind !== 'dashboardRow') {
+    return new Set();
+  }
+  return new Set(browseFacetEntries(scope.facets, isBookQueryFacetKey).map(([key]) => key));
 }
 
 export function bookBrowseScopeTitle(
@@ -66,7 +73,7 @@ export function bookBrowseScopeTitle(
   libraries: readonly {id?: number | null; name: string}[],
   shelves: readonly {id?: number | null; name: string}[],
   magicShelves: readonly {id?: number | null; name: string}[],
-  labels: {readonly allBooks: string; readonly unshelved: string},
+  translate: (key: string) => string,
 ): string {
   switch (scope?.kind) {
     case 'library':
@@ -76,9 +83,11 @@ export function bookBrowseScopeTitle(
     case 'magicShelf':
       return magicShelves.find(shelf => shelf.id === scope.entityId)?.name ?? '';
     case 'unshelved':
-      return labels.unshelved;
+      return translate('book.browser.labels.unshelvedBooks');
+    case 'dashboardRow':
+      return translate(scope.titleKey);
     case undefined:
-      return labels.allBooks;
+      return translate('book.browser.labels.allBooks');
   }
 }
 
@@ -93,6 +102,7 @@ export function bookBrowseScopePreferenceContext(
     case 'magicShelf':
       return {entityType: 'MAGIC_SHELF', entityId: scope.entityId};
     case 'unshelved':
+    case 'dashboardRow':
     case undefined:
       return null;
   }
@@ -127,6 +137,7 @@ export function bookBrowseScopeMenuTarget(
           };
     }
     case 'unshelved':
+    case 'dashboardRow':
     case undefined:
       return null;
   }

@@ -11,6 +11,10 @@ on:
       - main
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   lint-threshold:
     name: Frontend Lint Threshold Check
@@ -35,6 +39,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: true
+          save-cache: false
           install: false
 
       - name: Install Frontend Dependencies

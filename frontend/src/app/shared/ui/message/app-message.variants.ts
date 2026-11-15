@@ -1,5 +1,5 @@
 import { cva } from 'class-variance-authority';
-import { LucideCircleAlert, LucideCircleCheck, LucideInfo, LucideTriangleAlert, type LucideIconData } from '@lucide/angular';
+import { LucideCircleCheck, LucideCircleExclamationPoint, LucideInfo, LucideTriangleExclamationPoint, type LucideIconData } from '@lucide/angular';
 import { neutralControlBorderClass } from '../control.styles';
 
 export type MessageColor = 'neutral' | 'primary' | 'green' | 'amber' | 'red';
@@ -21,6 +21,6 @@ export const MESSAGE_ICONS: Record<MessageColor, LucideIconData> = {
   neutral: LucideInfo.icon,
   primary: LucideInfo.icon,
   green: LucideCircleCheck.icon,
-  amber: LucideTriangleAlert.icon,
-  red: LucideCircleAlert.icon,
+  amber: LucideTriangleExclamationPoint.icon,
+  red: LucideCircleExclamationPoint.icon,
 };

@@ -44,6 +44,7 @@ describe('ReadingSessionService', () => {
     TestBed.resetTestingModule();
     vi.useRealTimers();
     vi.restoreAllMocks();
+    Reflect.deleteProperty(document, 'hidden');
   });
 
   it('starts and tracks an active reading session', () => {

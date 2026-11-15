@@ -9,11 +9,11 @@ describe('book browse sort options', () => {
       'title', '-title',
       'seriesName', '-seriesName',
       'amazonReviewCount', '-amazonReviewCount',
-    ]);
+    ], new Set());
 
     expect(options.map(option => option.id)).toEqual(['title', 'seriesName', 'pageCount', 'amazonReviewCount']);
     expect(options[2]).toMatchObject({group: 'more', defaultDirection: 'desc', directions: ['asc', 'desc']});
-    expect(bookSortOptions(['futureScore', '-title']).map(option => option.id)).toEqual(['title']);
-    expect(bookSortOptions(['random', '-random'])).toMatchObject([{id: 'random', directions: ['asc']}]);
+    expect(bookSortOptions(['futureScore', '-title'], new Set()).map(option => option.id)).toEqual(['title']);
+    expect(bookSortOptions(['random', '-random'], new Set())).toMatchObject([{id: 'random', directions: ['asc']}]);
   });
 });

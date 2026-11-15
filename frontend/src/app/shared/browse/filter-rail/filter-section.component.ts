@@ -123,13 +123,20 @@ export class BrowseFilterSectionComponent<K extends string = string> {
 
   protected readonly foldLimit = computed(() => this.group().showAllValues ? Infinity : COLLAPSED_VALUE_COUNT);
 
+  protected readonly foldReserve = linkedSignal<number, {rows: number; more: number}>({
+    source: () => this.group().values.length,
+    computation: (count, previous) => ({
+      rows: Math.max(Math.min(count, COLLAPSED_VALUE_COUNT), previous?.value.rows ?? 0),
+      more: Math.max(count > COLLAPSED_VALUE_COUNT ? 1 : 0, previous?.value.more ?? 0),
+    }),
+  });
   protected readonly foldClass = computed(() => {
     if (this.activeQuery()) {
       return 'min-h-56 pointer-coarse:min-h-[22rem]';
     }
     return this.group().showAllValues || this.expanded()
       ? ''
-      : 'min-h-[calc(8*1.75rem+1.875rem)] pointer-coarse:min-h-[calc(8*2.75rem+2.875rem)]';
+      : 'min-h-[calc(var(--fold-rows)*1.75rem+var(--fold-more)*1.875rem)] pointer-coarse:min-h-[calc(var(--fold-rows)*2.75rem+var(--fold-more)*2.875rem)]';
   });
 
   private readonly held = linkedSignal<readonly [boolean, boolean, string], {value: string; slot: number} | null>({

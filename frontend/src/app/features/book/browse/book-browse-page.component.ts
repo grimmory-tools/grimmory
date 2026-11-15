@@ -40,7 +40,7 @@ import {createBookBrowseQueries} from './book-browse-queries';
 import {createBookBrowsePreferences} from './book-browse-preferences';
 import {createBookBrowseUrlState} from './book-browse-url-state';
 import {type BookBrowseMultiSortDialogResult} from './book-browse-multi-sort-dialog.component';
-import {type BookDetailLineSortKey} from './book-browse-fields';
+import {injectHiddenProviderFieldKeys, type BookDetailLineSortKey} from './book-browse-fields';
 import {bookSortHasDetailLine, bookSortOptions} from './book-browse-sort';
 import {BookBrowseDetailLineService} from './book-browse-detail-line.service';
 import {cn} from '../../../shared/ui/cn';
@@ -140,6 +140,7 @@ export class BookBrowsePageComponent {
   private readonly pendingReadStatuses = injectPendingBookReadStatuses();
   private readonly pendingProgressResets = injectPendingBookProgressResets();
   protected readonly pendingDeletions = injectPendingBookDeletions();
+  private readonly hiddenProviderFields = injectHiddenProviderFieldKeys();
 
   private readonly gridRef = viewChild(BrowseGridComponent);
   private readonly tableRef = viewChild(BookBrowseTableComponent);
@@ -193,7 +194,10 @@ export class BookBrowsePageComponent {
     enabled: this.railVisible,
   });
   protected readonly railReady = computed(() => !this.queries.pending());
-  protected readonly sortOptions = computed(() => bookSortOptions(this.queries.sortTokens()));
+  protected readonly sortOptions = computed(() => bookSortOptions(
+    this.queries.sortTokens(),
+    this.hiddenProviderFields(),
+  ));
   private readonly availableSortKeys = computed<ReadonlySet<BookQuerySortKey>>(
     () => new Set(this.sortOptions().map(option => option.id)),
   );
@@ -326,11 +330,11 @@ export class BookBrowsePageComponent {
   });
   protected readonly railClass = computed(() =>
     cn(
-      'flex max-h-[calc(100dvh-var(--page-stuck-offset,0px))] w-[236px] shrink-0 flex-col',
+      'flex h-[calc(100dvh-var(--page-stuck-offset,0px))] w-[236px] shrink-0 flex-col',
       this.preferences.viewMode() === 'grid' && 'box-content border-l border-border/70 pl-6',
     ),
   );
-  protected readonly gridBoxClass = computed(() => cn('md:pb-8', !this.railVisible() && 'md:-mr-8 md:pr-8'));
+  protected readonly gridBoxClass = computed(() => cn('md:pb-8 md:-ml-4 md:pl-4', this.railVisible() ? 'md:-mr-7 md:pr-7' : 'md:-mr-8 md:pr-8'));
   protected readonly chipsBandClass = computed(() =>
     cn(
       'sticky top-[var(--page-stuck-offset,0px)] z-10 -mx-4 bg-page px-4',

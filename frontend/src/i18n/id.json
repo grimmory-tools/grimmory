@@ -84,19 +84,9 @@
     "main": {
       "pageTitle": "Dasbor",
       "welcomeTitle": "Selamat Datang di Grimmory!",
-      "welcomeSubtitle": "",
       "welcomeDescription": "",
-      "createLibrary": ""
-    },
-    "scroller": {
-      "noBooksFound": "",
-      "loadError": "",
-      "continueListening": "",
-      "continueReading": "",
-      "recentlyAdded": "",
-      "discoverNew": "",
-      "magicShelf": "",
-      "default": ""
+      "createLibrary": "",
+      "customize": ""
     }
   },
   "settings": {
@@ -478,13 +468,13 @@
       "sectionDesc": "",
       "type": "Tipe",
       "selectType": "",
-      "magicShelf": "",
       "selectMagicShelf": "",
+      "selectLibrary": "",
+      "selectShelf": "",
       "sortField": "",
       "selectField": "",
       "direction": "",
       "selectDirection": "",
-      "maxItems": "",
       "addScroller": "",
       "resetToDefault": "",
       "saveSettings": "",
@@ -494,7 +484,10 @@
         "lastRead": "",
         "lastListened": "",
         "latestAdded": "",
+        "recentlyFinished": "",
         "random": "",
+        "library": "",
+        "shelf": "",
         "magicShelf": "",
         "default": ""
       },
@@ -701,9 +694,7 @@
         "language": "",
         "isbn13": "",
         "isbn10": "",
-        "pageCount": "",
-        "doubanRating": "",
-        "doubanReviewCount": ""
+        "pageCount": ""
       }
     },
     "fieldSelector": {
@@ -2835,6 +2826,10 @@
         "continueReading": "",
         "readStatusMenu": ""
       }
+    },
+    "row": {
+      "previous": "",
+      "next": ""
     },
     "menu": {
       "label": "",
@@ -5256,7 +5251,8 @@
       "flipDirection": ""
     },
     "chips": {
-      "removeSearch": ""
+      "removeSearch": "",
+      "removeExcluded": ""
     },
     "rail": {
       "searchValues": "",
@@ -5266,13 +5262,21 @@
         "library": "",
         "shelf": "",
         "magicShelf": "",
-        "unshelved": ""
+        "unshelved": "",
+        "dashboardRow": ""
       },
       "noMatches": "",
       "minUnit": "",
       "maxUnit": "",
       "min": "",
-      "max": ""
+      "max": "",
+      "excluded": "",
+      "exclude": "",
+      "excludeValue": "",
+      "matchOptions": "",
+      "matchAny": "",
+      "matchAll": "",
+      "all": ""
     },
     "book": {
       "empty": "",
@@ -5300,7 +5304,6 @@
       "density": "Ukuran",
       "smallerCards": "",
       "largerCards": "",
-      "showFilters": "",
       "columns": "",
       "resetColumns": ""
     },

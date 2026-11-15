@@ -30,7 +30,7 @@ import {
   BookDuplicateRequest,
   BookPage,
 } from './book-query.models';
-import {BookDetail, BookRecommendation, BookReviewResponse, BookSummary} from './book-response.models';
+import {BookDetail, BookReviewResponse, BookSummary} from './book-response.models';
 import {httpGet, QUERY_DEFAULTS, toAbortablePromise} from '../../../core/data/query-transport';
 import {AuthService} from '../../../shared/service/auth.service';
 
@@ -180,7 +180,7 @@ export class BookQueryService {
   recommendations(bookId: number, limit: number) {
     return queryOptions({
       queryKey: bookQueryKeys.recommendation(bookId, limit),
-      queryFn: ({signal}) => httpGet<BookRecommendation[]>(
+      queryFn: ({signal}) => httpGet<BookSummary[]>(
         this.http,
         `${this.booksUrl}/${bookId}/recommendations`,
         signal,

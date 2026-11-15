@@ -84,19 +84,9 @@
     "main": {
       "pageTitle": "Panel",
       "welcomeTitle": "Bienvenido a Grimmory!",
-      "welcomeSubtitle": "Vamos a crear tu primera biblioteca",
       "welcomeDescription": "Una biblioteca es donde viven todos tus libros. ¡Comienza a construir tu colección digital hoy!",
-      "createLibrary": "Crear tu biblioteca"
-    },
-    "scroller": {
-      "noBooksFound": "No se encontraron libros para este carrusel.",
-      "loadError": "Error al cargar los libros. Por favor, intenta actualizar la página.",
-      "continueListening": "Seguir escuchando",
-      "continueReading": "Seguir leyendo",
-      "recentlyAdded": "Añadidos recientemente",
-      "discoverNew": "Descubre algo nuevo",
-      "magicShelf": "Estante mágico",
-      "default": "Carrusel"
+      "createLibrary": "Crear tu biblioteca",
+      "customize": ""
     }
   },
   "settings": {
@@ -475,16 +465,16 @@
     },
     "dashboardScrollers": {
       "sectionTitle": "Configuración del panel",
-      "sectionDesc": "Añade hasta 5 carruseles de diferentes colecciones de libros y personaliza su comportamiento",
+      "sectionDesc": "Añade carruseles de diferentes colecciones de libros y personaliza su comportamiento",
       "type": "Tipo",
       "selectType": "Seleccionar tipo",
-      "magicShelf": "Estante mágico",
       "selectMagicShelf": "Seleccionar estante mágico",
+      "selectLibrary": "",
+      "selectShelf": "",
       "sortField": "Campo de orden",
       "selectField": "Seleccionar campo",
       "direction": "Dirección",
       "selectDirection": "Seleccionar dirección",
-      "maxItems": "Máximo de elementos",
       "addScroller": "Añadir carrusel",
       "resetToDefault": "Restablecer valores",
       "saveSettings": "",
@@ -494,7 +484,10 @@
         "lastRead": "Seguir leyendo",
         "lastListened": "Seguir escuchando",
         "latestAdded": "Añadidos recientemente",
+        "recentlyFinished": "",
         "random": "Descubre algo nuevo",
+        "library": "",
+        "shelf": "",
         "magicShelf": "Estante mágico",
         "default": "Carrusel"
       },
@@ -523,7 +516,7 @@
       "sectionTitle": "Preferencias de vista y ordenación de biblioteca y estantes",
       "sectionDesc": "Configura las preferencias predeterminadas y por biblioteca/estante para la ordenación y el modo de vista (cuadrícula o tabla) en el navegador.",
       "defaultPreferences": "Preferencias predeterminadas",
-      "defaultPreferencesDesc": "Configura el modo de vista predeterminado y la ordenación multicampo para todas las bibliotecas y estantes. Arrastra para reordenar la prioridad.",
+      "defaultPreferencesDesc": "Configura el modo de vista predeterminado y la ordenación multicampo para todas las bibliotecas y estantes.",
       "sortOrderLabel": "Orden de clasificación (arrastra para reordenar)",
       "formatOverlay": "Indicador de formato de archivo",
       "ascending": "Ascendente",
@@ -663,7 +656,7 @@
     },
     "publicReviews": {
       "sectionTitle": "Reseñas públicas",
-      "sectionDesc": "Configura la descarga automática de reseñas de usuarios desde plataformas externas. Las reseñas se pueden obtener de Amazon, Goodreads y Hardcover para acceso sin conexión.",
+      "sectionDesc": "Configura la descarga automática de reseñas de usuarios desde plataformas externas para acceso sin conexión.",
       "downloadLabel": "Descargar reseñas públicas",
       "autoDownloadLabel": "Descargar automáticamente al abrir libro",
       "autoDownloadDesc": "Obtener automáticamente reseñas cuando abres la página de detalles de un libro. Cuando está deshabilitado, las reseñas solo se descargarán manualmente o durante la actualización de metadatos.",
@@ -701,9 +694,7 @@
         "language": "Idioma",
         "isbn13": "",
         "isbn10": "",
-        "pageCount": "Número de páginas",
-        "doubanRating": "Valoración de Douban",
-        "doubanReviewCount": "Valoración de Douban #"
+        "pageCount": "Número de páginas"
       }
     },
     "fieldSelector": {
@@ -2836,6 +2827,10 @@
         "readStatusMenu": "Cambiar estado de lectura"
       }
     },
+    "row": {
+      "previous": "",
+      "next": ""
+    },
     "menu": {
       "label": "",
       "openInNewTab": "",
@@ -3362,7 +3357,7 @@
       }
     },
     "sorting": {
-      "saveAsDefault": "Guardar como predeterminado"
+      "saveAsDefault": "Guardar como predeterminado para {{scope}}"
     },
     "fileAttacher": {
       "title": "Adjuntar archivo a otro libro",
@@ -5256,7 +5251,8 @@
       "flipDirection": ""
     },
     "chips": {
-      "removeSearch": ""
+      "removeSearch": "",
+      "removeExcluded": ""
     },
     "rail": {
       "searchValues": "",
@@ -5266,13 +5262,21 @@
         "library": "",
         "shelf": "",
         "magicShelf": "",
-        "unshelved": ""
+        "unshelved": "",
+        "dashboardRow": ""
       },
       "noMatches": "Sin coincidencias",
       "minUnit": "",
       "maxUnit": "",
       "min": "",
-      "max": ""
+      "max": "",
+      "excluded": "",
+      "exclude": "",
+      "excludeValue": "",
+      "matchOptions": "",
+      "matchAny": "",
+      "matchAll": "",
+      "all": ""
     },
     "book": {
       "empty": "",
@@ -5300,7 +5304,6 @@
       "density": "Tamaño",
       "smallerCards": "",
       "largerCards": "",
-      "showFilters": "",
       "columns": "",
       "resetColumns": "Restablecer valores"
     },

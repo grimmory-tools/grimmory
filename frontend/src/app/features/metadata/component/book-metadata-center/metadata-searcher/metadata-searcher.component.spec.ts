@@ -10,7 +10,8 @@ import {AppSettings} from '../../../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
 import {CoverComponent} from '../../../../../shared/components/cover/cover.component';
 import {Book, BookMetadata} from '../../../../book/model/book.model';
-import {MetadataSourceQueryService, type MetadataSearchParams, type MetadataSearchResult} from '../../../sources/metadata-source-query.service';
+import {MetadataSourceQueryService} from '../../../sources/metadata-source-query.service';
+import type {MetadataSearchParams, MetadataSearchResult} from '../../../sources/metadata-source-query.models';
 import {MetadataPickerComponent} from '../metadata-picker/metadata-picker.component';
 import {MetadataSearcherComponent} from './metadata-searcher.component';
 

@@ -1,28 +1,28 @@
 {
   "common": {
-    "save": "",
-    "cancel": "",
-    "delete": "",
-    "close": "",
-    "confirm": "",
-    "search": "",
-    "loading": "",
-    "error": "",
+    "save": "Uložit",
+    "cancel": "Zrušit",
+    "delete": "Smazat",
+    "close": "Zavřít",
+    "confirm": "Potvrdit",
+    "search": "Hledat",
+    "loading": "Načítání…",
+    "error": "Chyba",
     "success": "",
-    "yes": "",
-    "no": "",
-    "ok": "",
+    "yes": "Ano",
+    "no": "Ne",
+    "ok": "OK",
     "retry": "",
-    "back": "",
-    "next": "",
+    "back": "Zpět",
+    "next": "Další",
     "submit": "",
-    "remove": "",
-    "clear": "",
-    "edit": "",
+    "remove": "Odebrat",
+    "clear": "Vyčistit",
+    "edit": "Upravit",
     "info": "",
-    "select": "",
-    "dismiss": "",
-    "discard": "",
+    "select": "Vybrat",
+    "dismiss": "Zrušit",
+    "discard": "Zahodit",
     "review": "",
     "libraryPathInaccessible": "",
     "displaySettings": "",
@@ -84,19 +84,9 @@
     "main": {
       "pageTitle": "",
       "welcomeTitle": "",
-      "welcomeSubtitle": "",
       "welcomeDescription": "",
-      "createLibrary": ""
-    },
-    "scroller": {
-      "noBooksFound": "",
-      "loadError": "",
-      "continueListening": "",
-      "continueReading": "",
-      "recentlyAdded": "",
-      "discoverNew": "",
-      "magicShelf": "",
-      "default": ""
+      "createLibrary": "",
+      "customize": ""
     }
   },
   "settings": {
@@ -478,13 +468,13 @@
       "sectionDesc": "",
       "type": "",
       "selectType": "",
-      "magicShelf": "",
       "selectMagicShelf": "",
+      "selectLibrary": "",
+      "selectShelf": "",
       "sortField": "",
       "selectField": "",
       "direction": "",
       "selectDirection": "",
-      "maxItems": "",
       "addScroller": "",
       "resetToDefault": "",
       "saveSettings": "",
@@ -494,7 +484,10 @@
         "lastRead": "",
         "lastListened": "",
         "latestAdded": "",
+        "recentlyFinished": "",
         "random": "",
+        "library": "",
+        "shelf": "",
         "magicShelf": "",
         "default": ""
       },
@@ -701,9 +694,7 @@
         "language": "",
         "isbn13": "",
         "isbn10": "",
-        "pageCount": "",
-        "doubanRating": "",
-        "doubanReviewCount": ""
+        "pageCount": ""
       }
     },
     "fieldSelector": {
@@ -2835,6 +2826,10 @@
         "continueReading": "",
         "readStatusMenu": ""
       }
+    },
+    "row": {
+      "previous": "",
+      "next": ""
     },
     "menu": {
       "label": "",
@@ -5256,7 +5251,8 @@
       "flipDirection": ""
     },
     "chips": {
-      "removeSearch": ""
+      "removeSearch": "",
+      "removeExcluded": ""
     },
     "rail": {
       "searchValues": "",
@@ -5266,13 +5262,21 @@
         "library": "",
         "shelf": "",
         "magicShelf": "",
-        "unshelved": ""
+        "unshelved": "",
+        "dashboardRow": ""
       },
       "noMatches": "",
       "minUnit": "",
       "maxUnit": "",
       "min": "",
-      "max": ""
+      "max": "",
+      "excluded": "",
+      "exclude": "",
+      "excludeValue": "",
+      "matchOptions": "",
+      "matchAny": "",
+      "matchAll": "",
+      "all": ""
     },
     "book": {
       "empty": "",
@@ -5300,7 +5304,6 @@
       "density": "",
       "smallerCards": "",
       "largerCards": "",
-      "showFilters": "",
       "columns": "",
       "resetColumns": ""
     },

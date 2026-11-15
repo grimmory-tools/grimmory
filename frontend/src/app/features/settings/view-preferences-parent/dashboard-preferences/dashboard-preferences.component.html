@@ -20,7 +20,7 @@
               </div>
 
               <div class="scroller-fields">
-                <div class="scroller-field" [class.expanded]="scroller.type !== ScrollerType.MAGIC_SHELF">
+                <div class="scroller-field" [class.expanded]="!entityFieldOf(scroller.type)">
                   <label [for]="'dashboard-scroller-type-' + scroller.id">{{ t('type') }}</label>
                   <p-select
                     fluid
@@ -32,15 +32,16 @@
                     appendTo="body" />
                 </div>
 
-                @if (scroller.type === ScrollerType.MAGIC_SHELF) {
+                @if (entityFieldOf(scroller.type); as field) {
+                  @let entity = entityFields()[field];
                   <div class="scroller-field">
-                    <label [for]="'dashboard-scroller-magic-shelf-' + scroller.id">{{ t('magicShelf') }}</label>
+                    <label [for]="'dashboard-scroller-entity-' + scroller.id">{{ t(entity.labelKey) }}</label>
                     <p-select
                       fluid
-                      [inputId]="'dashboard-scroller-magic-shelf-' + scroller.id"
-                      [options]="magicShelves()"
-                      [(ngModel)]="scroller.magicShelfId"
-                      [placeholder]="t('selectMagicShelf')"
+                      [inputId]="'dashboard-scroller-entity-' + scroller.id"
+                      [options]="entity.options"
+                      [(ngModel)]="scroller[field]"
+                      [placeholder]="t(entity.placeholderKey)"
                       appendTo="body" />
                   </div>
 
@@ -66,17 +67,6 @@
                       appendTo="body" />
                   </div>
                 }
-              </div>
-
-              <div class="scroller-field max-items-field">
-                <label [for]="'dashboard-scroller-max-items-' + scroller.id">{{ t('maxItems') }}</label>
-                <p-inputNumber
-                  fluid
-                  [inputId]="'dashboard-scroller-max-items-' + scroller.id"
-                  [(ngModel)]="scroller.maxItems"
-                  [min]="MIN_ITEMS"
-                  [max]="MAX_ITEMS"
-                  [showButtons]="true" />
               </div>
 
               <div class="scroller-controls-right">
@@ -118,8 +108,7 @@
             severity="primary"
             outlined
             size="small"
-            (onClick)="addScroller()"
-            [disabled]="config.scrollers.length >= MAX_SCROLLERS" />
+            (onClick)="addScroller()" />
           <p-button
             [label]="t('resetToDefault')"
             icon="pi pi-refresh"

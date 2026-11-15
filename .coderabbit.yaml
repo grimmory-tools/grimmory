@@ -1,20 +1,8 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 
 inheritance: true
-language: "en-US"
 
 reviews:
-  profile: "assertive"
-  request_changes_workflow: false
-  high_level_summary: true
-  high_level_summary_placeholder: "@coderabbitai summary"
-  collapse_walkthrough: false
-  sequence_diagrams: true
-  changed_files_summary: true
-  review_status: true
-  poem: false
-
-
   path_filters:
     - "!frontend/src/i18n/**"
     - "!**/build/**"
@@ -263,36 +251,15 @@ reviews:
         - Flag missing permissions: blocks (principle of least privilege).
         - Ensure Java 25 is configured in the workflow, and verify `--enable-preview` is passed where the JVM is actually launched (for example via Gradle/Maven args, `JAVA_TOOL_OPTIONS`, or the explicit `java` command).
 
-  auto_review:
-    enabled: true
-    drafts: false
-    auto_incremental_review: true
-
   tools:
     eslint:
       enabled: false
     oxc:
       enabled: false
-    shellcheck:
-      enabled: true
-    markdownlint:
-      enabled: true
-    hadolint:
-      enabled: true
-    yamllint:
-      enabled: true
-    languagetool:
-      enabled: false
-
-chat:
-  auto_reply: true
 
 knowledge_base:
-  opt_out: false
   code_guidelines:
     enabled: true
     filePatterns:
       - "frontend/DEVELOPMENT.md"
       - "backend/DEVELOPMENT.md"
-  learnings:
-    scope: auto

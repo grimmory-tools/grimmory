@@ -13,7 +13,6 @@ import {
 import {
   BOOKS_QUERY_KEY,
   bookDetailQueryKey,
-  bookRecommendationsQueryKey
 } from './book-query-keys';
 
 function makeBook(id: number, overrides: Partial<Book> = {}): Book {
@@ -44,7 +43,6 @@ describe('legacy book cache adapter', () => {
     queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, [makeBook(1), makeBook(201), makeBook(401)]);
     queryClient.setQueryData(bookDetailQueryKey(201, false), makeBook(201));
     queryClient.setQueryData(bookDetailQueryKey(401, false), makeBook(401));
-    queryClient.setQueryData(bookRecommendationsQueryKey(1, 20), []);
     queryClient.setQueryData(bookQueryKeys.detail(201, false), makeBook(201));
 
     await reconcileBookCacheChangeSet(
@@ -56,7 +54,6 @@ describe('legacy book cache adapter', () => {
     expect(isInvalidated(BOOKS_QUERY_KEY)).toBe(true);
     expect(isInvalidated(bookDetailQueryKey(201, false))).toBe(true);
     expect(isInvalidated(bookDetailQueryKey(401, false))).toBe(false);
-    expect(queryClient.getQueryData(bookRecommendationsQueryKey(1, 20))).toBeUndefined();
     expect(isInvalidated(bookQueryKeys.detail(201, false))).toBe(true);
   });
 

@@ -84,19 +84,9 @@
     "main": {
       "pageTitle": "",
       "welcomeTitle": "Willkommen bei Grimmory!",
-      "welcomeSubtitle": "Erstellen Sie Ihre erste Bibliothek",
       "welcomeDescription": "Eine Bibliothek ist der Ort, an dem alle Ihre Bücher leben. Beginnen Sie noch heute mit dem Aufbau Ihrer digitalen Sammlung!",
-      "createLibrary": "Ihre Bibliothek erstellen"
-    },
-    "scroller": {
-      "noBooksFound": "Keine Bücher für diesen Scroller gefunden.",
-      "loadError": "Bücher konnten nicht geladen werden! Bitte versuchen Sie, die Seite zu aktualisieren.",
-      "continueListening": "Weiter hören",
-      "continueReading": "Weiterlesen",
-      "recentlyAdded": "Kürzlich hinzugefügt",
-      "discoverNew": "Etwas Neues entdecken",
-      "magicShelf": "Magisches Regal",
-      "default": ""
+      "createLibrary": "Ihre Bibliothek erstellen",
+      "customize": ""
     }
   },
   "settings": {
@@ -475,16 +465,16 @@
     },
     "dashboardScrollers": {
       "sectionTitle": "Dashboard-Konfiguration",
-      "sectionDesc": "Fügen Sie bis zu 5 Scroller aus verschiedenen Buchsammlungen hinzu und passen Sie deren Verhalten an",
+      "sectionDesc": "Fügen Sie Scroller aus verschiedenen Buchsammlungen hinzu und passen Sie deren Verhalten an",
       "type": "Typ",
       "selectType": "Typ auswählen",
-      "magicShelf": "Magisches Regal",
       "selectMagicShelf": "Magisches Regal auswählen",
+      "selectLibrary": "",
+      "selectShelf": "",
       "sortField": "Sortierfeld",
       "selectField": "Feld auswählen",
       "direction": "Richtung",
       "selectDirection": "Richtung auswählen",
-      "maxItems": "Max. Einträge",
       "addScroller": "Scroller hinzufügen",
       "resetToDefault": "Auf Standard zurücksetzen",
       "saveSettings": "",
@@ -494,7 +484,10 @@
         "lastRead": "Weiterlesen",
         "lastListened": "Weiter hören",
         "latestAdded": "Kürzlich hinzugefügt",
+        "recentlyFinished": "",
         "random": "Etwas Neues entdecken",
+        "library": "",
+        "shelf": "",
         "magicShelf": "Magisches Regal",
         "default": ""
       },
@@ -523,7 +516,7 @@
       "sectionTitle": "Bibliotheks- und Regal-Ansicht & Sortiereinstellungen",
       "sectionDesc": "Konfigurieren Sie Standard- und bibliotheks-/regalspezifische Einstellungen für Sortierung und Ansichtsmodus (Raster oder Tabelle) im Browser.",
       "defaultPreferences": "Standardeinstellungen",
-      "defaultPreferencesDesc": "Konfigurieren Sie den Standard-Ansichtsmodus und die Mehrfeld-Sortierung für alle Bibliotheken und Regale. Ziehen Sie zum Neuordnen der Sortierpriorität.",
+      "defaultPreferencesDesc": "Konfigurieren Sie den Standard-Ansichtsmodus und die Mehrfeld-Sortierung für alle Bibliotheken und Regale.",
       "sortOrderLabel": "Sortierreihenfolge (zum Neuordnen ziehen)",
       "formatOverlay": "Dateiformat-Overlay",
       "ascending": "Aufsteigend",
@@ -663,7 +656,7 @@
     },
     "publicReviews": {
       "sectionTitle": "Öffentliche Rezensionen",
-      "sectionDesc": "Konfigurieren Sie den automatischen Download von Benutzerrezensionen von externen Plattformen. Rezensionen können von Amazon, Goodreads und Hardcover für den Offline-Zugriff abgerufen werden.",
+      "sectionDesc": "Konfigurieren Sie den automatischen Download von Benutzerrezensionen von externen Plattformen für den Offline-Zugriff.",
       "downloadLabel": "Öffentliche Rezensionen herunterladen",
       "autoDownloadLabel": "Automatisch beim Öffnen des Buches herunterladen",
       "autoDownloadDesc": "Rezensionen automatisch abrufen, wenn Sie die Detailseite eines Buches öffnen. Wenn deaktiviert, werden Rezensionen nur manuell oder bei der Metadaten-Aktualisierung heruntergeladen.",
@@ -701,9 +694,7 @@
         "language": "Sprache",
         "isbn13": "",
         "isbn10": "",
-        "pageCount": "Seitenzahl",
-        "doubanRating": "Douban Bewertung",
-        "doubanReviewCount": "Douban Bewertung #"
+        "pageCount": "Seitenzahl"
       }
     },
     "fieldSelector": {
@@ -2797,7 +2788,7 @@
         "deleteBookHeader": "Löschen bestätigen",
         "deleteFileMessage": "Sind Sie sicher, dass Sie die zusätzliche Datei \"{{ fileName }}\" löschen möchten?",
         "deleteFileHeader": "Dateilöschung bestätigen",
-        "largeFileMessage": "Diese Datei überschreitet 25 MB. Einige E-Mail-Anbieter lehnen möglicherweise große Anhänge ab..\n\nMöchten Sie es dennoch versenden?",
+        "largeFileMessage": "Diese Datei überschreitet 25 MB. Einige E-Mail-Anbieter lehnen möglicherweise große Anhänge ab.\n\nMöchten Sie es dennoch versenden?",
         "largeFileHeader": "Warnung vor großen Dateien",
         "sendAnyway": "Trotzdem senden"
       },
@@ -2836,6 +2827,10 @@
         "readStatusMenu": "Lesestatus ändern"
       }
     },
+    "row": {
+      "previous": "",
+      "next": ""
+    },
     "menu": {
       "label": "",
       "openInNewTab": "",
@@ -2863,7 +2858,7 @@
         "deleteBookHeader": "Löschen bestätigen",
         "deleteFileMessage": "Sind Sie sicher, dass Sie die zusätzliche Datei \"{{ fileName }}\" löschen möchten?",
         "deleteFileHeader": "Dateilöschung bestätigen",
-        "largeFileMessage": "Diese Datei überschreitet 25 MB. Einige E-Mail-Anbieter lehnen möglicherweise große Anhänge ab..\n\nMöchten Sie es dennoch versenden?",
+        "largeFileMessage": "Diese Datei überschreitet 25 MB. Einige E-Mail-Anbieter lehnen möglicherweise große Anhänge ab.\n\nMöchten Sie es dennoch versenden?",
         "largeFileHeader": "Warnung vor großen Dateien",
         "sendAnyway": "Trotzdem senden"
       }
@@ -3362,7 +3357,7 @@
       }
     },
     "sorting": {
-      "saveAsDefault": "Als Standard speichern"
+      "saveAsDefault": "Als Standard für {{scope}} speichern"
     },
     "fileAttacher": {
       "title": "Datei an ein anderes Buch anhängen",
@@ -5256,7 +5251,8 @@
       "flipDirection": ""
     },
     "chips": {
-      "removeSearch": ""
+      "removeSearch": "",
+      "removeExcluded": ""
     },
     "rail": {
       "searchValues": "",
@@ -5266,13 +5262,21 @@
         "library": "",
         "shelf": "",
         "magicShelf": "",
-        "unshelved": ""
+        "unshelved": "",
+        "dashboardRow": ""
       },
       "noMatches": "",
       "minUnit": "",
       "maxUnit": "",
       "min": "",
-      "max": ""
+      "max": "",
+      "excluded": "",
+      "exclude": "",
+      "excludeValue": "",
+      "matchOptions": "",
+      "matchAny": "",
+      "matchAll": "",
+      "all": ""
     },
     "book": {
       "empty": "",
@@ -5300,7 +5304,6 @@
       "density": "Größe",
       "smallerCards": "",
       "largerCards": "",
-      "showFilters": "",
       "columns": "",
       "resetColumns": "Auf Standard zurücksetzen"
     },

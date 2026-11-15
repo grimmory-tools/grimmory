@@ -9,6 +9,7 @@ import {bookQueryKeys} from '../../../features/book/data/book-query-keys';
 import {BookQueryService} from '../../../features/book/data/book-query.service';
 import type {BookCollectionFilterParams} from '../../../features/book/data/book-query-params';
 import type {BookBrowseScope} from '../../../features/book/browse/book-browse-scope';
+import {browseFacetEntries} from '../../browse/facets';
 import { Router, RouterLink } from '@angular/router';
 import { AppSidebarSectionComponent } from './app.sidebar-section.component';
 import { CdkTrapFocus } from '@angular/cdk/a11y';
@@ -72,6 +73,9 @@ const DOCUMENTATION_URL = 'https://grimmory.org/docs/getting-started';
 const SERIES_COUNT_QUERY_KEY = [...bookQueryKeys.collections(), 'series-count'] as const;
 const AUTHOR_COUNT_QUERY_KEY = [...bookQueryKeys.collections(), 'author-count'] as const;
 const UNFILTERED_BOOKS: BookCollectionFilterParams = {facets: {}};
+type SidebarCountFacet = 'library' | 'shelf' | 'shelf_status';
+const isSidebarCountFacet = (key: string): key is SidebarCountFacet =>
+  key === 'library' || key === 'shelf' || key === 'shelf_status';
 const ABOVE_ALIGN_LEFT: ConnectedPosition[] = [
   { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom', offsetY: -8 },
   { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 8 },
@@ -248,7 +252,7 @@ export class AppSidebarComponent {
     shelf_status: this.facetCountsQuery('shelf_status', ['home', 'shelf']),
   };
 
-  private facetCountsQuery(facet: BookBrowseScope['facetKey'], sections: readonly string[]) {
+  private facetCountsQuery(facet: SidebarCountFacet, sections: readonly string[]) {
     return injectQuery(() => ({
       ...this.bookQuery.facet(facet, UNFILTERED_BOOKS),
       enabled: this.authService.isAuthenticated()
@@ -257,8 +261,16 @@ export class AppSidebarComponent {
   }
 
   private bookCount(scope: BookBrowseScope | null): number | undefined {
-    return this.facetCounts[scope?.facetKey ?? 'shelf_status'].data()?.values
-      .filter(value => scope === null || value.value === scope.facetValue)
+    if (scope === null) {
+      return this.facetTotal('shelf_status');
+    }
+    const countFacet = browseFacetEntries(scope.facets, isSidebarCountFacet).at(0);
+    return countFacet === undefined ? undefined : this.facetTotal(countFacet[0], countFacet[1].include);
+  }
+
+  private facetTotal(facet: SidebarCountFacet, values?: readonly string[]): number | undefined {
+    return this.facetCounts[facet].data()?.values
+      .filter(value => values === undefined || values.includes(value.value))
       .reduce((total, value) => total + value.count, 0);
   }
 

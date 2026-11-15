@@ -66,8 +66,8 @@ public class LibraryService {
     private final UserRepository userRepository;
     private final AuditService auditService;
     private final LibraryProcessingService libraryProcessingService;
-    private final Executor taskExecutor;
-    private final Set<Long> scanningLibraries = ConcurrentHashMap.newKeySet();
+    private final Executor libraryScanExecutor;
+    private final Set<Long> pendingRescans = ConcurrentHashMap.newKeySet();
 
     @Transactional
     @EventListener(ApplicationReadyEvent.class)
@@ -202,11 +202,12 @@ public class LibraryService {
         LibraryEntity lib = libraryRepository.findById(libraryId).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
         auditService.log(AuditAction.LIBRARY_SCANNED, "Library", libraryId, "Scanned library: " + lib.getName());
 
-        taskExecutor.execute(() -> {
-            if (!scanningLibraries.add(libraryId)) {
-                log.warn("Library {} is already being scanned, skipping duplicate rescan request", libraryId);
-                return;
-            }
+        if (!pendingRescans.add(libraryId)) {
+            log.warn("Library {} already has a rescan queued, skipping duplicate rescan request", libraryId);
+            return;
+        }
+        libraryScanExecutor.execute(() -> {
+            pendingRescans.remove(libraryId);
             try {
                 RescanLibraryContext context = RescanLibraryContext.builder()
                         .libraryId(libraryId)
@@ -216,8 +217,6 @@ public class LibraryService {
                 log.debug("InvalidDataAccessApiUsageException - Library id: {}", libraryId);
             } catch (IOException e) {
                 log.error("Error while parsing library books", e);
-            } finally {
-                scanningLibraries.remove(libraryId);
             }
             log.info("Parsing task completed!");
         });
@@ -360,17 +359,11 @@ public class LibraryService {
     }
 
     private void startBackgroundScan(long libraryId) {
-        taskExecutor.execute(() -> {
-            if (!scanningLibraries.add(libraryId)) {
-                log.warn("Library {} is already being scanned, skipping duplicate process request", libraryId);
-                return;
-            }
+        libraryScanExecutor.execute(() -> {
             try {
                 libraryProcessingService.processLibrary(libraryId);
             } catch (InvalidDataAccessApiUsageException e) {
                 log.debug("InvalidDataAccessApiUsageException - Library id: {}", libraryId);
-            } finally {
-                scanningLibraries.remove(libraryId);
             }
             log.info("Parsing task completed!");
         });

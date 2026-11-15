@@ -8,7 +8,6 @@ import {
   BookCoverPatch,
   invalidateAllBookCaches,
   invalidateBooksById,
-  invalidateLegacyBookRecommendations,
   patchBookCoversInCache,
   patchListOnlyBooks,
   reconcileBookCacheChangeSet,
@@ -63,10 +62,7 @@ export class BookSocketService {
     if (payload.taskType !== 'UPDATE_BOOK_RECOMMENDATIONS' || payload.taskStatus !== TaskStatus.COMPLETED) {
       return;
     }
-    void Promise.all([
-      invalidateBookRecommendations(this.queryClient),
-      invalidateLegacyBookRecommendations(this.queryClient),
-    ]);
+    void invalidateBookRecommendations(this.queryClient);
   }
 
   handleReconnect(): void {

@@ -84,19 +84,9 @@
     "main": {
       "pageTitle": "",
       "welcomeTitle": "Welkom bij Grimmory!",
-      "welcomeSubtitle": "Laten we je eerste bibliotheek maken",
       "welcomeDescription": "Een bibliotheek is waar je boeken leven. Start vandaag met je digitale collectie te bouwen!",
-      "createLibrary": "Maak jouw bibliotheek"
-    },
-    "scroller": {
-      "noBooksFound": "Geen boeken gevonden voor deze scroller.",
-      "loadError": "Boeken laden mislukt! Probeer de pagina te vernieuwen.",
-      "continueListening": "Luister Verder",
-      "continueReading": "Lees Verder",
-      "recentlyAdded": "Recent toegevoegd",
-      "discoverNew": "Ontdek Iets Nieuws",
-      "magicShelf": "Magische plank",
-      "default": ""
+      "createLibrary": "Maak jouw bibliotheek",
+      "customize": ""
     }
   },
   "settings": {
@@ -126,7 +116,7 @@
       "title": "Email Providers",
       "description": "",
       "addProvider": "Provider toevoegen",
-      "emptyTitle": "Geen e-mail provider geconfigureerd",
+      "emptyTitle": "Geen e-mailprovider geconfigureerd",
       "emptySubtitle": "",
       "default": "",
       "sharedTooltip": "",
@@ -475,16 +465,16 @@
     },
     "dashboardScrollers": {
       "sectionTitle": "Dashboardconfiguratie",
-      "sectionDesc": "Voeg maximaal 5 scrollers toe uit verschillende boekcollecties en pas hun gedrag aan",
+      "sectionDesc": "Voeg scrollers toe uit verschillende boekcollecties en pas hun gedrag aan",
       "type": "",
       "selectType": "Selecteer type",
-      "magicShelf": "",
       "selectMagicShelf": "",
+      "selectLibrary": "",
+      "selectShelf": "",
       "sortField": "Sorteerveld",
       "selectField": "Selecteer veld",
       "direction": "Richting",
       "selectDirection": "Selecteer richting",
-      "maxItems": "Max. items",
       "addScroller": "Scroller toevoegen",
       "resetToDefault": "Naar standaard resetten",
       "saveSettings": "",
@@ -494,7 +484,10 @@
         "lastRead": "Verder lezen",
         "lastListened": "Verder luisteren",
         "latestAdded": "Recent toegevoegd",
+        "recentlyFinished": "",
         "random": "Ontdek iets nieuws",
+        "library": "",
+        "shelf": "",
         "magicShelf": "",
         "default": ""
       },
@@ -701,9 +694,7 @@
         "language": "",
         "isbn13": "",
         "isbn10": "",
-        "pageCount": "",
-        "doubanRating": "",
-        "doubanReviewCount": ""
+        "pageCount": ""
       }
     },
     "fieldSelector": {
@@ -2835,6 +2826,10 @@
         "continueReading": "",
         "readStatusMenu": ""
       }
+    },
+    "row": {
+      "previous": "",
+      "next": ""
     },
     "menu": {
       "label": "",
@@ -5256,7 +5251,8 @@
       "flipDirection": ""
     },
     "chips": {
-      "removeSearch": ""
+      "removeSearch": "",
+      "removeExcluded": ""
     },
     "rail": {
       "searchValues": "",
@@ -5266,13 +5262,21 @@
         "library": "",
         "shelf": "",
         "magicShelf": "",
-        "unshelved": ""
+        "unshelved": "",
+        "dashboardRow": ""
       },
       "noMatches": "",
       "minUnit": "",
       "maxUnit": "",
       "min": "",
-      "max": ""
+      "max": "",
+      "excluded": "",
+      "exclude": "",
+      "excludeValue": "",
+      "matchOptions": "",
+      "matchAny": "",
+      "matchAll": "",
+      "all": ""
     },
     "book": {
       "empty": "",
@@ -5300,7 +5304,6 @@
       "density": "",
       "smallerCards": "",
       "largerCards": "",
-      "showFilters": "",
       "columns": "",
       "resetColumns": "Naar standaard resetten"
     },

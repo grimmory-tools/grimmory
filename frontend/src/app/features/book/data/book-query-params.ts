@@ -32,6 +32,7 @@ export const BOOK_QUERY_FACET_KEYS = [
   'ranobedb_rating',
   'lubimyczytac_rating',
   'audible_rating',
+  'applebooks_rating',
   'comic_character',
   'comic_team',
   'comic_location',
@@ -41,6 +42,7 @@ export const BOOK_QUERY_FACET_KEYS = [
 export const BOOK_QUERY_SORT_KEYS = [
   'random',
   'title',
+  'subtitle',
   'authorName',
   'authorSortName',
   'seriesName',
@@ -66,6 +68,8 @@ export const BOOK_QUERY_SORT_KEYS = [
   'lubimyczytacRating',
   'audibleRating',
   'audibleReviewCount',
+  'applebooksRating',
+  'applebooksReviewCount',
 ] as const;
 
 export type BookQueryFacetKey = typeof BOOK_QUERY_FACET_KEYS[number];
@@ -80,7 +84,7 @@ export type BookSortTerm = BrowseSortTerm<BookQuerySortKey>;
 export interface BookCollectionFilterParams {
   query?: string;
   facets: FacetValueMap;
-  scope?: {readonly facetKey: BookQueryFacetKey; readonly facetValue: string};
+  scope?: FacetValueMap;
 }
 
 export interface BookQueryParams extends BookCollectionFilterParams {
@@ -206,7 +210,7 @@ export function normalizeBookCollectionFilterParams(
   return {
     ...(query ? {query} : {}),
     facets,
-    ...(params.scope ? {scope: {facetKey: params.scope.facetKey, facetValue: params.scope.facetValue}} : {}),
+    ...(params.scope ? {scope: params.scope} : {}),
   };
 }
 
@@ -217,8 +221,7 @@ export function toCollectionHttpParams(params: BookCollectionFilterParams): Http
     httpParams = httpParams.set('query', params.query);
   }
 
-  const scope = params.scope ? [`+${params.scope.facetKey}:${params.scope.facetValue}`] : [];
-  return [...scope, ...facetTokens(params.facets)].reduce((result, token) => result.append('facet', token), httpParams);
+  return [...facetTokens(params.scope ?? {}), ...facetTokens(params.facets)].reduce((result, token) => result.append('facet', token), httpParams);
 }
 
 function compareCodeUnits(first: string, second: string): number {

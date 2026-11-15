@@ -53,6 +53,7 @@ describe('ReaderSelectionService', () => {
 
   afterEach(() => {
     TestBed.resetTestingModule();
+    Reflect.deleteProperty(navigator, 'clipboard');
   });
 
   it('tracks text selection state and identifies overlapping annotations', () => {

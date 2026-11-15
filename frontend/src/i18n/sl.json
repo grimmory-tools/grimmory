@@ -84,19 +84,9 @@
     "main": {
       "pageTitle": "Nadzorna plošča",
       "welcomeTitle": "Dobrodošel v Grimmory!",
-      "welcomeSubtitle": "Ustvariva tvojo prvo knjižnico",
       "welcomeDescription": "Knjižnica je dom vseh tvojih knjig. Začni graditi svojo digitalno zbirko še danes!",
-      "createLibrary": "Ustvari svojo knjižnico"
-    },
-    "scroller": {
-      "noBooksFound": "Za ta drsnik ni bilo najdenih knjig.",
-      "loadError": "Nalaganje knjig ni uspelo! Prosim, poskusi osvežiti stran.",
-      "continueListening": "Nadaljuj s poslušanjem",
-      "continueReading": "Nadaljuj z branjem",
-      "recentlyAdded": "Zadnje dodano",
-      "discoverNew": "Odkrij nekaj novega",
-      "magicShelf": "Čarobna polica",
-      "default": "Drsnik"
+      "createLibrary": "Ustvari svojo knjižnico",
+      "customize": ""
     }
   },
   "settings": {
@@ -475,16 +465,16 @@
     },
     "dashboardScrollers": {
       "sectionTitle": "Konfiguracija nadzorne plošče",
-      "sectionDesc": "Dodaj do 5 drsnikov iz različnih zbirk knjig in prilagodi njihovo delovanje",
+      "sectionDesc": "Dodaj drsnike iz različnih zbirk knjig in prilagodi njihovo delovanje",
       "type": "Vrsta",
       "selectType": "Izberi vrsto",
-      "magicShelf": "Čarobna polica",
       "selectMagicShelf": "Izberi čarobno polico",
+      "selectLibrary": "",
+      "selectShelf": "",
       "sortField": "Polje za razvrščanje",
       "selectField": "Izberi polje",
       "direction": "Smer",
       "selectDirection": "Izberi smer",
-      "maxItems": "Največje št. elementov",
       "addScroller": "Dodaj drsnik",
       "resetToDefault": "Ponastavi na privzeto",
       "saveSettings": "",
@@ -494,7 +484,10 @@
         "lastRead": "Nadaljuj z branjem",
         "lastListened": "Nadaljuj s poslušanjem",
         "latestAdded": "Zadnje dodano",
+        "recentlyFinished": "",
         "random": "Odkrij nekaj novega",
+        "library": "",
+        "shelf": "",
         "magicShelf": "Čarobna polica",
         "default": "Drsnik"
       },
@@ -523,7 +516,7 @@
       "sectionTitle": "Nastavitve pogleda in razvrščanja knjižnic ter polic",
       "sectionDesc": "Konfiguriraj privzete nastavitve in specifične povozitve za razvrščanje ter način pogleda (mreža ali tabela) v brskalniku.",
       "defaultPreferences": "Privzete nastavitve",
-      "defaultPreferencesDesc": "Nastavi privzeti način pogleda in večnivojsko razvrščanje za vse knjižnice in police. Pridrži in povleci za spremembo prioritete razvrščanja.",
+      "defaultPreferencesDesc": "Nastavi privzeti način pogleda in večnivojsko razvrščanje za vse knjižnice in police.",
       "sortOrderLabel": "Vrstni red razvrščanja (povleci za spremembo)",
       "formatOverlay": "Oznaka formata knjige",
       "ascending": "Naraščajoče",
@@ -663,7 +656,7 @@
     },
     "publicReviews": {
       "sectionTitle": "Javna mnenja",
-      "sectionDesc": "Nastavi samodejni prenos mnenj uporabnikov z zunanjih platform. Mnenja se lahko prenesejo z Amazon, Goodreads in Hardcover za dostop brez povezave.",
+      "sectionDesc": "Nastavi samodejni prenos mnenj uporabnikov z zunanjih platform za dostop brez povezave.",
       "downloadLabel": "Prenesi javna mnenja",
       "autoDownloadLabel": "Prenesi samodejno ob odprtju knjige",
       "autoDownloadDesc": "Samodejno pridobi mnenja, ko odpreš stran s podrobnostmi o knjigi. Ko je onemogočeno, se mnenja prenesejo le ročno ali med osveževanjem metapodatkov.",
@@ -701,9 +694,7 @@
         "language": "Jezik",
         "isbn13": "",
         "isbn10": "",
-        "pageCount": "Število strani",
-        "doubanRating": "Douban ocena",
-        "doubanReviewCount": "Douban ocena #"
+        "pageCount": "Število strani"
       }
     },
     "fieldSelector": {
@@ -2836,6 +2827,10 @@
         "readStatusMenu": "Spremeni status branja"
       }
     },
+    "row": {
+      "previous": "",
+      "next": ""
+    },
     "menu": {
       "label": "",
       "openInNewTab": "",
@@ -3362,7 +3357,7 @@
       }
     },
     "sorting": {
-      "saveAsDefault": "Shrani kot privzeto"
+      "saveAsDefault": "Shrani kot privzeto: {{scope}}"
     },
     "fileAttacher": {
       "title": "Pripni datoteko k drugi knjigi",
@@ -5256,7 +5251,8 @@
       "flipDirection": ""
     },
     "chips": {
-      "removeSearch": ""
+      "removeSearch": "",
+      "removeExcluded": ""
     },
     "rail": {
       "searchValues": "",
@@ -5266,13 +5262,21 @@
         "library": "",
         "shelf": "",
         "magicShelf": "",
-        "unshelved": ""
+        "unshelved": "",
+        "dashboardRow": ""
       },
       "noMatches": "",
       "minUnit": "",
       "maxUnit": "",
       "min": "",
-      "max": ""
+      "max": "",
+      "excluded": "",
+      "exclude": "",
+      "excludeValue": "",
+      "matchOptions": "",
+      "matchAny": "",
+      "matchAll": "",
+      "all": ""
     },
     "book": {
       "empty": "",
@@ -5300,7 +5304,6 @@
       "density": "Velikost",
       "smallerCards": "",
       "largerCards": "",
-      "showFilters": "",
       "columns": "",
       "resetColumns": "Ponastavi na privzeto"
     },

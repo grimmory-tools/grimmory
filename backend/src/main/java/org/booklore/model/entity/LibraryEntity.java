@@ -38,6 +38,7 @@ public class LibraryEntity {
 
     @OneToMany(mappedBy = "library", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @BatchSize(size = 20)
+    @OrderBy("id")
     @Builder.Default
     private List<LibraryPathEntity> libraryPaths = new ArrayList<>();
 

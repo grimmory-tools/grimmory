@@ -6,6 +6,7 @@ export const bookCommandKeys = {
   attachBookFiles: () => [...bookCommandKeys.all(), 'attach-files'] as const,
   resetProgress: () => [...bookCommandKeys.all(), 'reset-progress'] as const,
   setAllMetadataLocks: () => [...bookCommandKeys.all(), 'metadata', 'all-locks'] as const,
+  moveFiles: () => [...bookCommandKeys.all(), 'move-files'] as const,
   setPersonalRating: () => [...bookCommandKeys.all(), 'personal-rating', 'set'] as const,
   resetPersonalRating: () => [...bookCommandKeys.all(), 'personal-rating', 'reset'] as const,
   saveProgress: () => [...bookCommandKeys.all(), 'progress'] as const,

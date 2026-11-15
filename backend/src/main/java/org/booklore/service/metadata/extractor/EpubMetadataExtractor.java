@@ -314,8 +314,8 @@ public class EpubMetadataExtractor implements FileMetadataExtractor {
                             switch (scheme) {
                                 case "ISBN", "ISBN10", "ISBN13" -> {
                                     String cleanValue = ISBN_SEPARATOR_PATTERN.matcher(value).replaceAll("");
-                                    if (cleanValue.length() == 13) builderMeta.isbn13(value);
-                                    else if (cleanValue.length() == 10) builderMeta.isbn10(value);
+                                    if (cleanValue.length() == 13) builderMeta.isbn13(cleanValue);
+                                    else if (cleanValue.length() == 10) builderMeta.isbn10(cleanValue);
                                 }
                                 case "OPENLIBRARY" -> builderMeta.openlibraryId(value);
                                 case "GOODREADS" -> builderMeta.goodreadsId(value);

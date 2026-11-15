@@ -63,7 +63,6 @@ afterEach(() => {
   } else {
     delete (HTMLElement.prototype as {scrollIntoView?: unknown}).scrollIntoView;
   }
-  vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
 

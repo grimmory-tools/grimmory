@@ -14,11 +14,8 @@ import {MetadataPickerComponent} from '../metadata-picker/metadata-picker.compon
 import {CoverComponent} from '../../../../../shared/components/cover/cover.component';
 import {MetadataCatalogService} from '../../../../../shared/metadata/metadata-catalog.service';
 import type {MetadataProviderId} from '../../../../../shared/metadata/metadata-providers';
-import {
-  MetadataSourceQueryService,
-  type MetadataSearchParams,
-  type MetadataSearchResult,
-} from '../../../sources/metadata-source-query.service';
+import {MetadataSourceQueryService} from '../../../sources/metadata-source-query.service';
+import type {MetadataSearchParams, MetadataSearchResult} from '../../../sources/metadata-source-query.models';
 
 const NO_SEARCH: MetadataSearchParams = {bookId: 0, providers: []};
 

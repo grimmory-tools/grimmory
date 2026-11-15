@@ -58,6 +58,11 @@ label {
   white-space: nowrap;
 }
 
+:host {
+  display: block;
+  height: 100%;
+}
+
 .metadata-form {
   display: flex;
   flex-direction: column;
@@ -89,7 +94,7 @@ label {
   flex-direction: column;
   flex-grow: 1;
   overflow: auto;
-  height: 72.5dvh;
+  min-height: 0;
 
   @media (width >= 768px) {
     padding: 0.4375rem;

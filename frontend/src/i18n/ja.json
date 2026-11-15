@@ -84,19 +84,9 @@
     "main": {
       "pageTitle": "ダッシュボード",
       "welcomeTitle": "Grimmoryへようこそ！",
-      "welcomeSubtitle": "最初のライブラリを作成しましょう",
       "welcomeDescription": "ライブラリはすべての本が保管される場所です。今日からデジタルコレクションを始めましょう！",
-      "createLibrary": "ライブラリを作成"
-    },
-    "scroller": {
-      "noBooksFound": "このスクローラーに本が見つかりません。",
-      "loadError": "本の読み込みに失敗しました。ページを更新してください。",
-      "continueListening": "聴き続ける",
-      "continueReading": "読み続ける",
-      "recentlyAdded": "最近追加",
-      "discoverNew": "新しい本を発見",
-      "magicShelf": "マジックシェルフ",
-      "default": "スクローラー"
+      "createLibrary": "ライブラリを作成",
+      "customize": ""
     }
   },
   "settings": {
@@ -475,16 +465,16 @@
     },
     "dashboardScrollers": {
       "sectionTitle": "ダッシュボード設定",
-      "sectionDesc": "異なるブックコレクションから最大5つのスクローラーを追加し、動作をカスタマイズできます",
+      "sectionDesc": "異なるブックコレクションからスクローラーを追加し、動作をカスタマイズできます",
       "type": "タイプ",
       "selectType": "タイプを選択",
-      "magicShelf": "マジックシェルフ",
       "selectMagicShelf": "マジックシェルフを選択",
+      "selectLibrary": "",
+      "selectShelf": "",
       "sortField": "ソートフィールド",
       "selectField": "フィールドを選択",
       "direction": "方向",
       "selectDirection": "方向を選択",
-      "maxItems": "最大アイテム数",
       "addScroller": "スクローラーを追加",
       "resetToDefault": "デフォルトに戻す",
       "saveSettings": "",
@@ -494,7 +484,10 @@
         "lastRead": "読み続ける",
         "lastListened": "聴き続ける",
         "latestAdded": "最近追加",
+        "recentlyFinished": "",
         "random": "新しい本を発見",
+        "library": "",
+        "shelf": "",
         "magicShelf": "マジックシェルフ",
         "default": "スクローラー"
       },
@@ -523,7 +516,7 @@
       "sectionTitle": "ライブラリとシェルフの表示・ソート設定",
       "sectionDesc": "ブラウザでのソートと表示モード（グリッドまたはテーブル）のデフォルトおよびライブラリ/シェルフごとの設定を構成します。",
       "defaultPreferences": "デフォルト設定",
-      "defaultPreferencesDesc": "すべてのライブラリとシェルフのデフォルト表示モードとマルチフィールドソートを設定します。ドラッグでソートの優先順位を並べ替えます。",
+      "defaultPreferencesDesc": "すべてのライブラリとシェルフのデフォルト表示モードとマルチフィールドソートを設定します。",
       "sortOrderLabel": "ソート順（ドラッグで並べ替え）",
       "formatOverlay": "本の種類オーバーレイ",
       "ascending": "昇順",
@@ -663,7 +656,7 @@
     },
     "publicReviews": {
       "sectionTitle": "パブリックレビュー",
-      "sectionDesc": "外部プラットフォームからのユーザーレビューの自動ダウンロードを設定します。オフラインアクセス用にAmazon、Goodreads、Hardcoverからレビューを取得できます。",
+      "sectionDesc": "オフラインアクセス用に、外部プラットフォームからのユーザーレビューの自動ダウンロードを設定します。",
       "downloadLabel": "パブリックレビューをダウンロード",
       "autoDownloadLabel": "本を開いた時に自動ダウンロード",
       "autoDownloadDesc": "本の詳細ページを開いた際にレビューを自動的に取得します。無効にすると、レビューは手動またはメタデータ更新時にのみダウンロードされます。",
@@ -701,9 +694,7 @@
         "language": "",
         "isbn13": "",
         "isbn10": "",
-        "pageCount": "",
-        "doubanRating": "",
-        "doubanReviewCount": ""
+        "pageCount": ""
       }
     },
     "fieldSelector": {
@@ -2836,6 +2827,10 @@
         "readStatusMenu": ""
       }
     },
+    "row": {
+      "previous": "",
+      "next": ""
+    },
     "menu": {
       "label": "",
       "openInNewTab": "",
@@ -3362,7 +3357,7 @@
       }
     },
     "sorting": {
-      "saveAsDefault": "デフォルトとして保存"
+      "saveAsDefault": "{{scope}}のデフォルトとして保存"
     },
     "fileAttacher": {
       "title": "ファイルを別の本に添付",
@@ -5256,7 +5251,8 @@
       "flipDirection": ""
     },
     "chips": {
-      "removeSearch": ""
+      "removeSearch": "",
+      "removeExcluded": ""
     },
     "rail": {
       "searchValues": "",
@@ -5266,13 +5262,21 @@
         "library": "",
         "shelf": "",
         "magicShelf": "",
-        "unshelved": ""
+        "unshelved": "",
+        "dashboardRow": ""
       },
       "noMatches": "",
       "minUnit": "",
       "maxUnit": "",
       "min": "",
-      "max": ""
+      "max": "",
+      "excluded": "",
+      "exclude": "",
+      "excludeValue": "",
+      "matchOptions": "",
+      "matchAny": "",
+      "matchAll": "",
+      "all": ""
     },
     "book": {
       "empty": "",
@@ -5300,7 +5304,6 @@
       "density": "サイズ",
       "smallerCards": "",
       "largerCards": "",
-      "showFilters": "",
       "columns": "",
       "resetColumns": "デフォルトに戻す"
     },
