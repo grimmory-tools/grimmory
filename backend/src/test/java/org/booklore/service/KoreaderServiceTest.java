@@ -25,6 +25,8 @@ import org.booklore.service.koreader.KoreaderService;
 import org.booklore.util.koreader.EpubCfiService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -373,6 +375,56 @@ class KoreaderServiceTest {
     }
 
     @Test
+    void saveProgress_pdfPageWithUpperCaseHash_updatesWebReaderPage() {
+        when(details.isSyncEnabled()).thenReturn(true);
+        BookEntity book = bookWithPrimaryFile(9L, BookFileType.PDF);
+        when(bookRepo.findByCurrentHash("H")).thenReturn(Optional.of(book));
+        when(userRepo.findById(42L)).thenReturn(Optional.of(user(42L)));
+        var existing = new UserBookProgressEntity();
+        when(progressRepo.findByUserIdAndBookId(42L, 9L)).thenReturn(Optional.of(existing));
+
+        var dto = KoreaderProgress.builder()
+                .document("H").progress("10").percentage(0.0714F).device("d").device_id("id").build();
+        service.saveProgress("H", dto);
+
+        assertEquals(10, existing.getPdfProgress());
+    }
+
+    @ParameterizedTest
+    @CsvSource({"PDF, CBX", "CBX, PDF", "PDF, PDF"})
+    void saveProgress_pageFromSecondaryFile_keepsPrimaryFilePage(BookFileType primaryType, BookFileType secondaryType) {
+        when(details.isSyncEnabled()).thenReturn(true);
+        BookEntity book = bookWithPrimaryFile(9L, primaryType);
+        BookFileEntity secondaryFile = new BookFileEntity();
+        secondaryFile.setId(2L);
+        secondaryFile.setBook(book);
+        secondaryFile.setBookType(secondaryType);
+        secondaryFile.setCurrentHash("secondary");
+        secondaryFile.setFileSubPath("subdir");
+        secondaryFile.setFileName("book.other");
+        book.setBookFiles(Set.of(book.getPrimaryBookFile(), secondaryFile));
+        when(bookRepo.findByCurrentHash("secondary")).thenReturn(Optional.of(book));
+        when(userRepo.findById(42L)).thenReturn(Optional.of(user(42L)));
+        var existing = new UserBookProgressEntity();
+        existing.setPdfProgress(3);
+        existing.setPdfProgressPercent(2.1f);
+        existing.setCbxProgress(4);
+        existing.setCbxProgressPercent(8.0f);
+        when(progressRepo.findByUserIdAndBookId(42L, 9L)).thenReturn(Optional.of(existing));
+
+        var dto = KoreaderProgress.builder()
+                .document("secondary").progress("25").percentage(0.5F).device("d").device_id("id").build();
+        service.saveProgress("secondary", dto);
+
+        assertEquals(3, existing.getPdfProgress());
+        assertEquals(2.1f, existing.getPdfProgressPercent());
+        assertEquals(4, existing.getCbxProgress());
+        assertEquals(8.0f, existing.getCbxProgressPercent());
+        assertEquals("25", existing.getKoreaderProgress());
+        verifyNoInteractions(epubCfiService);
+    }
+
+    @Test
     void saveProgress_pdfWithInvalidPage_keepsWebReaderPage() {
         when(details.isSyncEnabled()).thenReturn(true);
         BookEntity book = bookWithPrimaryFile(9L, BookFileType.PDF);
@@ -639,6 +691,7 @@ class KoreaderServiceTest {
         primaryFile.setId(1L);
         primaryFile.setBook(book);
         primaryFile.setBookType(bookFileType);
+        primaryFile.setCurrentHash("h");
         primaryFile.setFileSubPath("subdir");
         primaryFile.setFileName("book.epub");
         book.setBookFiles(Set.of(primaryFile));

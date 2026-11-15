@@ -85,7 +85,7 @@ public class KoreaderService {
         UserBookProgressEntity userProgress = getOrCreateUserProgress(user, book);
         Float previousProgressPercent = userProgress.getKoreaderProgressPercent();
         ReadStatus previousReadStatus = userProgress.getReadStatus();
-        updateProgressData(userProgress, koProgress, book);
+        updateProgressData(userProgress, koProgress, book, bookHash);
 
         progressRepository.save(userProgress);
 
@@ -187,7 +187,7 @@ public class KoreaderService {
         }
     }
 
-    private void updateProgressData(UserBookProgressEntity userProgress, KoreaderProgress koProgress, BookEntity book) {
+    private void updateProgressData(UserBookProgressEntity userProgress, KoreaderProgress koProgress, BookEntity book, String bookHash) {
         userProgress.setKoreaderProgress(koProgress.getProgress());
         userProgress.setKoreaderProgressPercent(koProgress.getPercentage());
         userProgress.setKoreaderDevice(koProgress.getDevice());
@@ -197,7 +197,12 @@ public class KoreaderService {
         BookFileEntity primaryFile = book.getPrimaryBookFile();
         BookFileType bookType = primaryFile != null ? primaryFile.getBookType() : null;
         if (koProgress.getProgress() != null && (bookType == BookFileType.PDF || bookType == BookFileType.CBX)) {
-            updatePageProgress(userProgress, bookType, koProgress);
+            // The page belongs to the file KOReader has open; only the primary file's page is stored
+            if (bookHash.equalsIgnoreCase(primaryFile.getCurrentHash())) {
+                updatePageProgress(userProgress, bookType, koProgress);
+            } else {
+                log.info("Not applying KOReader page '{}': hash {} is not the book's primary file", koProgress.getProgress(), bookHash);
+            }
         } else if (koProgress.getProgress() != null) {
             try {
                 String cfi = epubCfiService.convertXPointerToCfi(book.getFullFilePath(), koProgress.getProgress());
