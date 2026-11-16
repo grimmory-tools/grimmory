@@ -129,6 +129,11 @@ jobs:
         run: |
           set -eu
 
+          if [ -z "${DISCORD_WEBHOOK:-}" ]; then
+            echo "::notice::No Discord webhook configured; skipping notification."
+            exit 0
+          fi
+
           payload="$(jq -n \
             --arg content "$CONTENT" \
             --arg description "$DESCRIPTION" \
