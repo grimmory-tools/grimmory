@@ -89,6 +89,7 @@ class BookRuleEvaluatorServiceIntegrationTest {
     private LibraryEntity library;
     private LibraryPathEntity libraryPath;
     private BookLoreUserEntity user;
+    private BookLoreUserEntity otherUser;
 
     @BeforeEach
     void setUp() {
@@ -100,14 +101,20 @@ class BookRuleEvaluatorServiceIntegrationTest {
         em.persist(libraryPath);
         em.flush();
 
-        user = BookLoreUserEntity.builder()
-                .username("testuser")
+        user = createUser("testuser");
+        otherUser = createUser("other-testuser");
+    }
+
+    private BookLoreUserEntity createUser(String username) {
+        var user = BookLoreUserEntity.builder()
+                .username(username)
                 .passwordHash("hash")
                 .isDefaultPassword(true)
                 .name("Test User")
                 .build();
         em.persist(user);
         em.flush();
+        return user;
     }
 
     private BookEntity createBook(String title) {
@@ -140,10 +147,18 @@ class BookRuleEvaluatorServiceIntegrationTest {
     }
 
     private UserBookProgressEntity createProgress(BookEntity book, ReadStatus status) {
-        return createProgress(book, status, null, null);
+        return createProgress(user, book, status, null, null);
+    }
+
+    private UserBookProgressEntity createProgress(BookLoreUserEntity user, BookEntity book, ReadStatus status) {
+        return createProgress(user, book, status, null, null);
     }
 
     private UserBookProgressEntity createProgress(BookEntity book, ReadStatus status, Float koreaderPercent, Instant dateFinished) {
+        return createProgress(user, book, status, koreaderPercent, dateFinished);
+    }
+
+    private UserBookProgressEntity createProgress(BookLoreUserEntity user, BookEntity book, ReadStatus status, Float koreaderPercent, Instant dateFinished) {
         UserBookProgressEntity progress = UserBookProgressEntity.builder()
                 .user(user)
                 .book(book)
@@ -304,6 +319,20 @@ class BookRuleEvaluatorServiceIntegrationTest {
         }
 
         @Test
+        void read_ignoresOtherUsersProgression() {
+            BookEntity b1 = createBook("OtherUsersFullRead S1", "OtherUsersFullRead Series", 1f, 3);
+            BookEntity b2 = createBook("OtherUsersFullRead S2", "OtherUsersFullRead Series", 2f, 3);
+            createProgress(b1, ReadStatus.READ);
+            createProgress(otherUser, b1, ReadStatus.READ);
+            createProgress(otherUser, b2, ReadStatus.READ);
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.SERIES_STATUS, RuleOperator.EQUALS, "fully_read"));
+            assertThat(ids).isEmpty();
+        }
+
+        @Test
         void notStarted_matchesSeriesWithNoProgress() {
             BookEntity u1 = createBook("NotStarted S1", "Fresh Series", 1f, 2);
             BookEntity u2 = createBook("NotStarted S2", "Fresh Series", 2f, 2);
@@ -323,6 +352,18 @@ class BookRuleEvaluatorServiceIntegrationTest {
         }
 
         @Test
+        void notStarted_ignoresOtherUsersProgress() {
+            BookEntity u1 = createBook("OtherUserNotStarted S1", "OtherUsersNotStarted Series", 1f, 2);
+            BookEntity u2 = createBook("OtherUsersNotStarted S2", "OtherUsersNotStarted Series", 2f, 2);
+            createProgress(otherUser, u1, ReadStatus.READ);
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.SERIES_STATUS, RuleOperator.EQUALS, "not_started"));
+            assertThat(ids).contains(u1.getId(), u2.getId());
+        }
+
+        @Test
         void reading_matchesSeriesWithActiveReading() {
             BookEntity b1 = createBook("Active S1", "Active Series", 1f, 3);
             BookEntity b2 = createBook("Active S2", "Active Series", 2f, 3);
@@ -333,6 +374,19 @@ class BookRuleEvaluatorServiceIntegrationTest {
 
             List<Long> ids = findMatchingIds(singleRule(RuleField.SERIES_STATUS, RuleOperator.EQUALS, "reading"));
             assertThat(ids).contains(b1.getId(), b2.getId());
+        }
+
+        @Test
+        void reading_ignoresOtherUsers() {
+            BookEntity b1 = createBook("OtherUsersActive S1", "OtherUsersActive Series", 1f, 3);
+            BookEntity b2 = createBook("OtherUsersActive S2", "OtherUsersActive Series", 2f, 3);
+            createProgress(b1, ReadStatus.READ);
+            createProgress(otherUser, b2, ReadStatus.READING);
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.SERIES_STATUS, RuleOperator.EQUALS, "reading"));
+            assertThat(ids).isEmpty();
         }
 
         @Test
@@ -784,6 +838,38 @@ class BookRuleEvaluatorServiceIntegrationTest {
 
     @Nested
     class SeriesPositionEdgeCases {
+        @Test
+        void nextUnread_ignoresOtherUserProgress() {
+            BookEntity b1 = createBook("S1", "OtherUser Series", 1f, 3);
+            BookEntity b2 = createBook("S2", "OtherUser Series", 2f, 3);
+            BookEntity b3 = createBook("S3", "OtherUser Series", 3f, 3);
+
+            createProgress(user, b1, ReadStatus.READ);
+            createProgress(otherUser, b1, ReadStatus.READ);
+            createProgress(otherUser, b2, ReadStatus.READ);
+            createProgress(otherUser, b3, ReadStatus.READ);
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.SERIES_POSITION, RuleOperator.EQUALS, "next_unread"));
+            assertThat(ids).containsExactly(b2.getId());
+        }
+
+        @Test
+        void nextUnread_otherUserProgressOnly() {
+            BookEntity b1 = createBook("S1", "OtherUserOnly Series", 1f, 3);
+            BookEntity b2 = createBook("S2", "OtherUserOnly Series", 2f, 3);
+            BookEntity b3 = createBook("S3", "OtherUserOnly Series", 3f, 3);
+
+            createProgress(otherUser, b1, ReadStatus.READ);
+            createProgress(otherUser, b2, ReadStatus.READ);
+            createProgress(otherUser, b3, ReadStatus.READ);
+
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.SERIES_POSITION, RuleOperator.EQUALS, "next_unread"));
+            assertThat(ids).isEmpty();
+        }
+
         @Test
         void nextUnread_noReadBooks_doesNotMatch() {
             BookEntity b1 = createBook("AllUnread S1", "AllUnread Series", 1f, 3);
