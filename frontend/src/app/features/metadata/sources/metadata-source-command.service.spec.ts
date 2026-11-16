@@ -72,6 +72,6 @@ describe('MetadataSourceCommandService batch reconciliation', () => {
     expect(invalidate).not.toHaveBeenCalled();
 
     service.handleBatchProgress(batchProgress(MetadataBatchStatus.COMPLETED));
-    expect(invalidate).toHaveBeenCalledTimes(5);
+    expect(invalidate).toHaveBeenCalledTimes(6);
   });
 });

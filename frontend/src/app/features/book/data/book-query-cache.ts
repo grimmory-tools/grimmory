@@ -2,6 +2,7 @@ import {QueryClient} from '@tanstack/angular-query-experimental';
 
 import {metadataSourceQueryKeys} from '../../metadata/sources/metadata-source-query-keys';
 import {readingQueryKeys} from '../../reading/data/reading-query-keys';
+import {statsQueryKeys} from '../../stats/data/stats-query-keys';
 import {bookQueryKeys} from './book-query-keys';
 
 export interface BookQueryChangeSet {
@@ -14,11 +15,15 @@ export async function invalidateAllBookQueries(queryClient: QueryClient): Promis
     queryClient.invalidateQueries({queryKey: bookQueryKeys.all()}),
     queryClient.invalidateQueries({queryKey: readingQueryKeys.all()}),
     queryClient.invalidateQueries({queryKey: metadataSourceQueryKeys.sidecars()}),
+    queryClient.invalidateQueries({queryKey: statsQueryKeys.all()}),
   ]);
 }
 
-export function invalidateBookCollections(queryClient: QueryClient): Promise<void> {
-  return queryClient.invalidateQueries({queryKey: bookQueryKeys.collections()});
+export async function invalidateBookCollections(queryClient: QueryClient): Promise<void> {
+  await Promise.all([
+    queryClient.invalidateQueries({queryKey: bookQueryKeys.collections()}),
+    queryClient.invalidateQueries({queryKey: statsQueryKeys.all()}),
+  ]);
 }
 
 export function invalidateBookRecommendations(queryClient: QueryClient): Promise<void> {
