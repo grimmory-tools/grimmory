@@ -1,10 +1,11 @@
 import { MetadataProviderSpecificFields } from '../model/app-settings.model';
-import type { MetadataProviderField } from './metadata-provider-fields';
+import { METADATA_PROVIDER_FIELDS } from './metadata-provider-fields';
 
 export type FieldType = 'string' | 'number' | 'array' | 'textarea' | 'boolean';
 
 export interface MetadataFieldConfig {
   label?: string;
+  labelKey?: string;
   controlName: string;
   lockedKey: string;
   fetchedKey: string;
@@ -31,18 +32,17 @@ export const GENERIC_METADATA_FIELDS: MetadataFieldConfig[] = [
   { label: 'Pages', controlName: 'pageCount', lockedKey: 'pageCountLocked', fetchedKey: 'pageCount', type: 'number' },
 ];
 
-export function allMetadataFields(providerFields: readonly MetadataProviderField[]): MetadataFieldConfig[] {
-  return [
-    ...GENERIC_METADATA_FIELDS,
-    ...providerFields.map(field => ({
-      controlName: field.name,
-      lockedKey: field.lockName,
-      fetchedKey: field.name,
-      type: field.valueType,
-      providerKey: field.name,
-    })),
-  ];
-}
+export const ALL_METADATA_FIELDS: MetadataFieldConfig[] = [
+  ...GENERIC_METADATA_FIELDS,
+  ...METADATA_PROVIDER_FIELDS.map(field => ({
+    labelKey: field.labelKey,
+    controlName: field.name,
+    lockedKey: field.lockName,
+    fetchedKey: field.name,
+    type: field.valueType,
+    providerKey: field.name,
+  })),
+];
 
 // Audiobook content metadata fields (narrator/abridged) - now stored at top level of BookMetadata
 export const AUDIOBOOK_METADATA_FIELDS: MetadataFieldConfig[] = [

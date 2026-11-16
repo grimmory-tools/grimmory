@@ -1,4 +1,4 @@
-import {Component, computed, DestroyRef, effect, inject} from '@angular/core';
+import {Component, DestroyRef, effect, inject} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MessageService} from '@openng/optimus-ui/api';
@@ -7,7 +7,7 @@ import {Button} from '@openng/optimus-ui/button';
 import {AppSettingKey, MetadataMatchWeights} from '../../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {InputNumber} from '@openng/optimus-ui/inputnumber';
-import {MetadataProviderFieldsService} from '../../../../shared/metadata';
+import {METADATA_PROVIDER_SCORE_FIELDS} from '../../../../shared/metadata';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
 const GENERIC_WEIGHT_KEYS = [
@@ -34,13 +34,12 @@ export class MetadataMatchWeightsComponent {
   private readonly appSettingsService = inject(AppSettingsService);
   private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
-  private readonly providerFields = inject(MetadataProviderFieldsService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly orderedKeys = computed(() => [
+  readonly orderedKeys = [
     ...GENERIC_WEIGHT_KEYS,
-    ...this.providerFields.scoreFields().map(field => field.name),
-  ]);
+    ...METADATA_PROVIDER_SCORE_FIELDS.map(field => field.name),
+  ];
 
   form: FormGroup = this.buildForm();
   isSaving = false;
@@ -55,13 +54,13 @@ export class MetadataMatchWeightsComponent {
 
   private buildForm(): FormGroup {
     return this.fb.group(Object.fromEntries(
-      this.orderedKeys().map(key => [key, [0, [Validators.required, Validators.min(0)]]]),
+      this.orderedKeys.map(key => [key, [0, [Validators.required, Validators.min(0)]]]),
     ));
   }
 
   getFieldLabel(key: string): string {
-    const providerField = this.providerFields.fields().find(field => field.name === key);
-    return providerField ? this.providerFields.label(providerField.name) : this.t.translate('settingsMeta.matchWeights.fields.' + key);
+    const providerField = METADATA_PROVIDER_SCORE_FIELDS.find(field => field.name === key);
+    return this.t.translate(providerField?.labelKey ?? 'settingsMeta.matchWeights.fields.' + key);
   }
 
   save(): void {

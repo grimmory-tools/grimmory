@@ -716,7 +716,7 @@
           <div class="section-content">
             @for (field of metadataProviderFields(); track field) {
               <div class="field-row">
-                <span class="field-label">{{ providerFields.label(field.providerKey!) }}</span>
+                <span class="field-label">{{ field.labelKey | transloco }}</span>
                 <div class="field-content">
                   <div class="field-side current">
                     <button

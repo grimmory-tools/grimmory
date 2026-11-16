@@ -11,7 +11,7 @@ import {
 } from '../../../shared/browse/facets';
 import {type BrowseSortKind} from '../../../shared/browse/sort';
 import {toIconSelection, type IconSelection, type IconType} from '../../../shared/icons/icon-selection';
-import {type MetadataProviderScoreFieldName} from '../../../shared/metadata/metadata-providers';
+import {type MetadataProviderScoreFieldName} from '../../../shared/metadata/metadata-provider-fields';
 import {AppSettingsService} from '../../../shared/service/app-settings.service';
 import {formatFileSizeKb} from '../../../shared/util/file-size';
 import {

@@ -14,7 +14,7 @@ import {
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 
-import {MetadataProviderFieldsService} from '../../../../../shared/metadata';
+import {METADATA_PROVIDER_FIELDS} from '../../../../../shared/metadata';
 import type {MetadataProviderId} from '../../../../../shared/metadata/metadata-providers';
 import {MetadataSourceQueryService} from '../../../sources/metadata-source-query.service';
 
@@ -30,7 +30,6 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
   private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
   private readonly sources = inject(MetadataSourceQueryService);
-  private readonly providerFields = inject(MetadataProviderFieldsService);
   private readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
 
   readonly metadataOptionsSubmitted = output<MetadataRefreshOptions>();
@@ -43,12 +42,12 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
     'language', 'categories', 'cover', 'pageCount',
   ];
 
-  readonly providerSpecificFields = computed<(keyof FieldOptions)[]>(() => [
-    ...this.providerFields.fields().map(field => field.name),
+  readonly providerSpecificFields: (keyof FieldOptions)[] = [
+    ...METADATA_PROVIDER_FIELDS.map(field => field.name),
     'moods', 'tags',
-  ]);
+  ];
 
-  readonly fields = computed<(keyof FieldOptions)[]>(() => [...this.nonProviderSpecificFields, ...this.providerSpecificFields()]);
+  readonly fields: (keyof FieldOptions)[] = [...this.nonProviderSpecificFields, ...this.providerSpecificFields];
 
   readonly providerOptions = computed(() => this.sources.enabledProviders().map(provider => ({
     value: provider.id,
@@ -96,14 +95,14 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
   private justSubmitted = false;
 
   private initializeFieldOptions(): FieldOptions {
-    return this.fields().reduce((acc, field) => {
+    return this.fields.reduce((acc, field) => {
       acc[field] = {p1: null, p2: null, p3: null, p4: null};
       return acc;
     }, {} as FieldOptions);
   }
 
   private initializeEnabledFields(): Record<keyof FieldOptions, boolean> {
-    return this.fields().reduce((acc, field) => {
+    return this.fields.reduce((acc, field) => {
       acc[field] = true;
       return acc;
     }, {} as Record<keyof FieldOptions, boolean>);
@@ -117,7 +116,7 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
       this.replaceMode = this.currentMetadataOptions.replaceMode || 'REPLACE_MISSING';
 
       const backendFieldOptions = this.deepCloneFieldOptions(this.currentMetadataOptions.fieldOptions as FieldOptions || {});
-      for (const field of this.fields()) {
+      for (const field of this.fields) {
         if (!backendFieldOptions[field]) {
           backendFieldOptions[field] = {p1: null, p2: null, p3: null, p4: null};
         } else {
@@ -136,7 +135,7 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
 
   private deepCloneFieldOptions(fieldOptions: FieldOptions): FieldOptions {
     const cloned = {} as FieldOptions;
-    for (const field of this.fields()) {
+    for (const field of this.fields) {
       cloned[field] = {
         p1: fieldOptions[field]?.p1 || null,
         p2: fieldOptions[field]?.p2 || null,
@@ -254,13 +253,13 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
 
     if (fieldLabels[field]) return fieldLabels[field];
 
-    const providerField = this.providerFields.fields().find(providerField => providerField.name === field);
+    const providerField = METADATA_PROVIDER_FIELDS.find(providerField => providerField.name === field);
     return providerField
-      ? this.providerFields.label(providerField.name)
+      ? this.t.translate(providerField.labelKey)
       : field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).trim();
   }
 
   isProviderSpecificField(field: keyof FieldOptions): boolean {
-    return this.providerSpecificFields().includes(field);
+    return this.providerSpecificFields.includes(field);
   }
 }
