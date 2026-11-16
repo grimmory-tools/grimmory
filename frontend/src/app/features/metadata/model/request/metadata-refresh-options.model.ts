@@ -1,4 +1,4 @@
-import type {MetadataProviderFieldRecord} from '../../../../shared/metadata/metadata-provider-fields';
+import type {MetadataProviderFieldRecord} from '../../../../shared/metadata/metadata-fields';
 
 export type MetadataReplaceMode = 'REPLACE_ALL' | 'REPLACE_MISSING' | 'REPLACE_WHEN_PROVIDED';
 

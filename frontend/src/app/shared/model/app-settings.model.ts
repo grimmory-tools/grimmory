@@ -1,5 +1,5 @@
 import {MetadataRefreshOptions} from '../../features/metadata/model/request/metadata-refresh-options.model';
-import type {MetadataProviderFieldRecord, MetadataProviderScoreFieldName} from '../metadata/metadata-provider-fields';
+import type {MetadataProviderFieldRecord, MetadataProviderScoreFieldName} from '../metadata/metadata-fields';
 
 interface GenericMatchWeights {
   title: number;

@@ -1,4 +1,4 @@
-import type {MetadataProviderIdFieldName} from '../../../shared/metadata/metadata-provider-fields';
+import type {MetadataProviderIdFieldName} from '../../../shared/metadata/metadata-fields';
 
 interface SidecarCoverInfo {
   source: string;
