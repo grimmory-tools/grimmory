@@ -24,7 +24,9 @@ import {STATS_CARD} from '../../card/stats-context';
       <tanstack-chart class="absolute inset-0 text-text-secondary" [options]="chart()">
         @if (tooltipBody(); as body) {
           <ng-template [tanstackChartTooltipBody]="chart().definition" let-tooltip>
-            <ng-container [ngTemplateOutlet]="body" [ngTemplateOutletContext]="{$implicit: tooltip}" />
+            <div class="stats-tooltip-card">
+              <ng-container [ngTemplateOutlet]="body" [ngTemplateOutletContext]="{$implicit: tooltip}" />
+            </div>
           </ng-template>
         }
       </tanstack-chart>

@@ -3,7 +3,7 @@ import {defineChart} from '@tanstack/charts';
 import {pie, polar, radialArc} from '@tanstack/charts/polar';
 
 import {STATS_CARD} from '../../card/stats-context';
-import {statsChartColors, statsTooltip} from './stats-chart-style';
+import {STATS_BAR_FOCUS, statsChartColors, statsTooltip} from './stats-chart-style';
 import {StatsChartPlotComponent} from './stats-chart-plot.component';
 import {injectStatsText} from './stats-chart-text';
 import {type StatsInsight} from './stats-insight-list.component';
@@ -91,6 +91,7 @@ export class StatsCircularChartComponent {
                 key: sliceId,
                 color: sliceId,
                 innerRadius: ({radius}) => (donut ? radius * 0.52 : 0),
+                states: STATS_BAR_FOCUS,
               }),
             ],
           }),
@@ -98,6 +99,7 @@ export class StatsCircularChartComponent {
         scales: {x: null, y: null},
         color: {domain: slices.map(({id}) => id), range: slices.map(({color}) => color)},
         svgAnimation: true,
+        focusRing: false,
         tooltip: statsTooltip<{readonly source: readonly StatsSlice[]}>(([{datum: arc, color}]) => {
           const slice = arc.source[0];
           const share = number(Math.round((slice.value / total) * 1000) / 10);

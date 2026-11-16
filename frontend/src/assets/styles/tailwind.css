@@ -243,6 +243,8 @@
   --ts-chart-tooltip-border: 1px solid var(--color-border);
   --ts-chart-tooltip-shadow: var(--shadow-pop);
   --ts-chart-tooltip-font: 500 0.75rem/1.3 var(--font-sans);
+  --ts-chart-tooltip-padding: 0.4rem 0.55rem;
+  --ts-chart-tooltip-border-radius: 0.45rem;
 }
 
 @media (pointer: coarse) {
@@ -331,6 +333,15 @@
 }
 .ts-chart-tooltip__rows:not(:has(.ts-chart-tooltip__swatch)) > .ts-chart-tooltip__row > :first-child {
   display: none;
+}
+.stats-tooltip-card {
+  padding: var(--ts-chart-tooltip-padding);
+  border: var(--ts-chart-tooltip-border);
+  border-radius: var(--ts-chart-tooltip-border-radius);
+  background: var(--ts-chart-tooltip-background);
+  color: var(--ts-chart-tooltip-color);
+  box-shadow: var(--ts-chart-tooltip-shadow);
+  font: var(--ts-chart-tooltip-font);
 }
 
 [data-app-theme="cobalt"] {

@@ -16,12 +16,7 @@ import {
 } from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
-import {
-  LucideEllipsisVertical,
-  type LucideIconData,
-  LucideRotateCcw,
-  LucideSquarePen,
-} from '@lucide/angular';
+import {LucideEllipsis} from '@lucide/angular';
 
 import {AppPageHeaderComponent} from '../../../shared/layout/page-header/app.page-header.component';
 import {type PageHeader} from '../../../shared/layout/page-header/page-header.service';
@@ -87,7 +82,7 @@ type LibraryChoice = number | 'all';
     CdkDragHandle,
     CdkDropList,
     CdkDropListGroup,
-    LucideEllipsisVertical,
+    LucideEllipsis,
     StatsCardComponent,
     TranslocoPipe,
   ],
@@ -147,8 +142,6 @@ export class StatsPageComponent implements StatsContext {
     return {title: this.transloco.translate(this.config.titleKey, {name: user ? user.name || user.username : ''})};
   });
 
-  protected readonly iconEdit: LucideIconData = LucideSquarePen.icon;
-  protected readonly iconReset: LucideIconData = LucideRotateCcw.icon;
   protected readonly chartDragStartDelay = {touch: 180, mouse: 0};
 
   constructor() {

@@ -185,6 +185,7 @@ export class BookFlowChartComponent {
           };
         },
         svgAnimation: true,
+        focusRing: false,
         tooltip: statsTooltip<FlowItem>(([{datum: item}]) => {
           switch (item.kind) {
             case 'node':

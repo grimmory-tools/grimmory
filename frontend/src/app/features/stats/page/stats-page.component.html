@@ -31,6 +31,7 @@
 
         <app-button
           tone="primary"
+          variant="solid"
           [label]="'stats.config.done' | transloco"
           (clicked)="finishEditing()" />
       </ng-container>
@@ -43,20 +44,20 @@
       buttonId="stats-page-config-trigger"
       [ariaLabel]="'stats.config.title' | transloco"
       [appMenuTriggerFor]="chartConfigMenuPanel">
-      <svg lucideEllipsisVertical aria-hidden="true"></svg>
+      <svg lucideEllipsis aria-hidden="true"></svg>
     </app-button>
 
     <app-menu #chartConfigMenuPanel [ariaLabel]="'stats.config.title' | transloco">
       <ng-template appMenuContent>
         @if (!isEditing()) {
-          <app-menu-item value="edit" [icon]="iconEdit" (selected)="isEditing.set(true)">
+          <app-menu-item value="edit" (selected)="isEditing.set(true)">
             {{ 'common.edit' | transloco }}
           </app-menu-item>
 
           <app-menu-separator />
         }
 
-        <app-menu-item value="reset" [icon]="iconReset" (selected)="grid.resetOrder()">
+        <app-menu-item value="reset" (selected)="grid.resetOrder()">
           {{ 'stats.config.resetOrder' | transloco }}
         </app-menu-item>
       </ng-template>

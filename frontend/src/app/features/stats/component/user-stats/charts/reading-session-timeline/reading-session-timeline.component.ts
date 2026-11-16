@@ -7,7 +7,7 @@ import {addDays, addWeeks, min, startOfDay} from 'date-fns';
 import {UrlHelperService} from '../../../../../../shared/service/url-helper.service';
 import {STATS_CARD} from '../../../../card/stats-context';
 import {type StatsWeek, type StatsWeekSession} from '../../../../data/stats-response.models';
-import {statsAxis, statsChartColors, statsColorScale, statsTooltip} from '../../../shared/stats-chart-style';
+import {STATS_BAR_FOCUS, statsAxis, statsChartColors, statsColorScale, statsTooltip} from '../../../shared/stats-chart-style';
 import {isoWeekStart} from '../../../shared/stats-chart-data';
 import {StatsChartPlotComponent} from '../../../shared/stats-chart-plot.component';
 import {injectStatsText, STATS_CHART_HOST_CLASS} from '../../../shared/stats-chart-text';
@@ -133,6 +133,7 @@ export class ReadingSessionTimelineComponent {
                 color: 'format',
                 inset: BLOCK_INSET,
                 radius: 4,
+                states: STATS_BAR_FOCUS,
               }),
             ],
             scales: {
@@ -156,6 +157,7 @@ export class ReadingSessionTimelineComponent {
           };
         },
         svgAnimation: true,
+        focusRing: false,
         tooltip: statsTooltip<TimelineBlock>(([{datum: block, color}]) => ({
           title: block.bookTitle || t('readingSession'),
           rows: [

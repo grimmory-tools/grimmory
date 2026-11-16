@@ -4,7 +4,7 @@ import {decorative} from '@tanstack/charts/mark/decorative';
 import {scaleBand} from '@tanstack/charts/scales/band';
 
 import {STATS_CARD} from '../../card/stats-context';
-import {STATS_CHART_VALUE, statsAxis, statsTooltip} from './stats-chart-style';
+import {STATS_BAR_FOCUS, STATS_CHART_VALUE, statsAxis, statsTooltip} from './stats-chart-style';
 import {StatsChartPlotComponent} from './stats-chart-plot.component';
 import {injectStatsText} from './stats-chart-text';
 
@@ -108,7 +108,7 @@ export class StatsHeatmapComponent {
                 color: (each) => String(level(each)),
                 inset,
                 radius: 2,
-                states: [{when: {focus: 'primary'}, style: {stroke: 'var(--color-text-strong)', strokeWidth: 1.5}}],
+                states: STATS_BAR_FOCUS,
               }),
               decorative(cell(future, {
                 x: ({column}) => String(column),
