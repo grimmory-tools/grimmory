@@ -183,7 +183,7 @@ const GENERIC_FIELD_CONFIGS = {
 const FIELD_CONFIGS: Record<RuleField, FullFieldConfig> = {
   ...GENERIC_FIELD_CONFIGS,
   ...providerFieldRecord(METADATA_PROVIDER_SCORE_FIELDS, (field): FullFieldConfig => ({
-    label: field.name, labelKey: field.labelKey, type: field.role === 'rating' ? 'decimal' : 'number', max: field.role === 'rating' ? 5 : undefined,
+    label: field.name, labelKey: field.labelKey, type: field.providerRole === 'rating' ? 'decimal' : 'number', max: field.providerRole === 'rating' ? 5 : undefined,
   })),
 };
 
@@ -364,7 +364,7 @@ export class MagicShelfComponent implements OnInit {
 
   private providerFieldOptions(role: MetadataProviderFieldRole) {
     return METADATA_PROVIDER_FIELDS
-      .filter(field => field.role === role && field.name !== RULE_UNSUPPORTED_PROVIDER_FIELD)
+      .filter(field => field.providerRole === role && field.name !== RULE_UNSUPPORTED_PROVIDER_FIELD)
       .map(field => ({label: this.t.translate(field.labelKey), value: field.name}));
   }
 

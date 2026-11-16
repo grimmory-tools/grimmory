@@ -1660,11 +1660,6 @@
       "count": 1
     }
   },
-  "src/app/shared/metadata/metadata-provider-fields.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
   "src/app/shared/metadata/metadata-utils.service.ts": {
     "anti-slop/no-unknown-parameters": {
       "count": 5

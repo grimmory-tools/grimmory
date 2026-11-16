@@ -5,7 +5,7 @@ import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {LanguageResolverService} from '../../../../shared/service/language-resolver.service';
 import {CoverComponent} from '../../../../shared/components/cover/cover.component';
 import {MetadataCatalogService} from '../../../../shared/metadata/metadata-catalog.service';
-import {METADATA_PROVIDER_SCORE_FIELDS} from '../../../../shared/metadata/metadata-provider-fields';
+import {METADATA_PROVIDER_SCORE_FIELDS} from '../../../../shared/metadata/metadata-fields';
 
 @Component({
   selector: 'app-reader-book-metadata-dialog',
@@ -30,7 +30,7 @@ export class ReaderBookMetadataDialogComponent {
     const metadata = this.metadata;
     return this.catalog.providers().flatMap(provider => {
       const score = (role: 'rating' | 'reviewCount') => {
-        const field = METADATA_PROVIDER_SCORE_FIELDS.find(candidate => candidate.provider === provider.id && candidate.role === role);
+        const field = METADATA_PROVIDER_SCORE_FIELDS.find(candidate => candidate.provider === provider.id && candidate.providerRole === role);
         return field ? metadata?.[field.name] : undefined;
       };
       const rating = score('rating');

@@ -46,7 +46,7 @@ import {Dialog} from '@openng/optimus-ui/dialog';
 import {Checkbox} from '@openng/optimus-ui/checkbox';
 import DOMPurify from 'dompurify';
 import {MetadataCatalogService} from '../../../../../shared/metadata/metadata-catalog.service';
-import {METADATA_PROVIDER_SCORE_FIELDS} from '../../../../../shared/metadata/metadata-provider-fields';
+import {METADATA_PROVIDER_SCORE_FIELDS} from '../../../../../shared/metadata/metadata-fields';
 import type {MetadataProviderId} from '../../../../../shared/metadata/metadata-providers';
 
 interface ProviderBadge {
@@ -114,7 +114,7 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
 
     return this.catalog.providers().map(provider => {
       const score = (role: 'rating' | 'reviewCount') => {
-        const field = METADATA_PROVIDER_SCORE_FIELDS.find(candidate => candidate.provider === provider.id && candidate.role === role);
+        const field = METADATA_PROVIDER_SCORE_FIELDS.find(candidate => candidate.provider === provider.id && candidate.providerRole === role);
         return (field ? metadata[field.name] : null) ?? null;
       };
       const rating = score('rating');

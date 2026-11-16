@@ -1,5 +1,5 @@
 import { MetadataProviderSpecificFields } from '../model/app-settings.model';
-import { METADATA_PROVIDER_FIELDS } from './metadata-provider-fields';
+import { METADATA_PROVIDER_FIELDS } from './metadata-fields';
 
 export type FieldType = 'string' | 'number' | 'array' | 'textarea' | 'boolean';
 
@@ -34,12 +34,12 @@ export const GENERIC_METADATA_FIELDS: MetadataFieldConfig[] = [
 
 export const ALL_METADATA_FIELDS: MetadataFieldConfig[] = [
   ...GENERIC_METADATA_FIELDS,
-  ...METADATA_PROVIDER_FIELDS.map(field => ({
+  ...METADATA_PROVIDER_FIELDS.map((field): MetadataFieldConfig => ({
     labelKey: field.labelKey,
     controlName: field.name,
     lockedKey: field.lockName,
     fetchedKey: field.name,
-    type: field.valueType,
+    type: field.kind === 'number' ? 'number' : 'string',
     providerKey: field.name,
   })),
 ];
