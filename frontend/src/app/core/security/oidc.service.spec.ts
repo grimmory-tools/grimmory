@@ -4,6 +4,9 @@ import {of} from 'rxjs';
 import {AppSettingsService} from '../../shared/service/app-settings.service';
 import {API_CONFIG} from '../config/api-config';
 import {OidcService} from './oidc.service';
+import {sha256} from '@noble/hashes/sha2.js';
+
+vi.mock('@noble/hashes/sha2.js', () => ({ sha256: vi.fn() }))
 
 describe('OidcService', () => {
   interface OidcServiceInternals {
@@ -36,14 +39,13 @@ describe('OidcService', () => {
 
   it('generates PKCE verifier and challenge pairs', async () => {
     const {service} = createService();
-    const digestSpy = vi.fn(async (_algorithm: string, value: Uint8Array) => value);
+    const digestSpy = vi.mocked(sha256).mockReturnValue(new Uint8Array());
     const getRandomValuesSpy = vi.fn((array: Uint8Array) => {
       array.set(Uint8Array.from({length: array.length}, (_, index) => index + 1));
       return array;
     });
     vi.stubGlobal('crypto', {
-      getRandomValues: getRandomValuesSpy,
-      subtle: {digest: digestSpy},
+      getRandomValues: getRandomValuesSpy
     });
 
     const result = await service.generatePkce();
@@ -60,8 +62,7 @@ describe('OidcService', () => {
       getRandomValues: (array: Uint8Array) => {
         array.set(Uint8Array.from({length: array.length}, (_, index) => index + 10));
         return array;
-      },
-      subtle: {digest: vi.fn()},
+      }
     });
 
     const value = service.generateRandomString();
