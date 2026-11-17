@@ -48,7 +48,7 @@ describe('OidcService', () => {
       getRandomValues: getRandomValuesSpy
     });
 
-    const result = await service.generatePkce();
+    const result = service.generatePkce();
 
     expect(getRandomValuesSpy).toHaveBeenCalledOnce();
     expect(digestSpy).toHaveBeenCalledOnce();
