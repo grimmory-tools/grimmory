@@ -628,14 +628,22 @@ class BookRuleEvaluatorServiceIntegrationTest {
         }
 
         @Test
-        @Disabled("This test fails at the end of the month because of a timezone bug")
         void thisPeriod_month_matchesThisMonthBook() {
             BookEntity thisMonth = createBook("This Month Book");
-            thisMonth.setAddedOn(Instant.now().minus(1, ChronoUnit.HOURS));
+            Instant midMonth = Instant.now()
+                    .atZone(ZoneId.systemDefault())
+                    .withDayOfMonth(15)
+                    .withHour(17)
+                    .withMinute(0)
+                    .withSecond(0)
+                    .withNano(0)
+                    .toInstant();
+
+            thisMonth.setAddedOn(midMonth);
             em.merge(thisMonth);
 
             BookEntity notThisMonth = createBook("Not This Month Book");
-            notThisMonth.setAddedOn(Instant.now().minus(60, ChronoUnit.DAYS));
+            notThisMonth.setAddedOn(midMonth.minus(60, ChronoUnit.DAYS));
             em.merge(notThisMonth);
             em.flush();
             em.clear();
