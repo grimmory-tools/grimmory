@@ -24,7 +24,7 @@ export class OidcService {
   private readonly http = inject(HttpClient);
   private readonly appSettingsService = inject(AppSettingsService);
 
-  generatePkce(): {codeVerifier: string; codeChallenge: string} {
+  generatePkce() {
     const array = new Uint8Array(32);
     crypto.getRandomValues(array);
     const codeVerifier = this.base64UrlEncode(array);
