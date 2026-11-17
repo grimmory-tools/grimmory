@@ -1,5 +1,6 @@
 import {inject, Service} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
+import {sha256} from '@noble/hashes/sha2.js';
 import {firstValueFrom, Observable} from 'rxjs';
 import {API_CONFIG} from '../config/api-config';
 import {AppSettingsService} from '../../shared/service/app-settings.service';
@@ -29,7 +30,7 @@ export class OidcService {
     const codeVerifier = this.base64UrlEncode(array);
 
     const encoder = new TextEncoder();
-    const hash = await crypto.subtle.digest('SHA-256', encoder.encode(codeVerifier));
+    const hash = sha256(encoder.encode(codeVerifier));
     const codeChallenge = this.base64UrlEncode(new Uint8Array(hash));
 
     return {codeVerifier, codeChallenge};
