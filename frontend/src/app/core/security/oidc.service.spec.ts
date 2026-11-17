@@ -4,7 +4,7 @@ import {of} from 'rxjs';
 import {AppSettingsService} from '../../shared/service/app-settings.service';
 import {API_CONFIG} from '../config/api-config';
 import {OidcService} from './oidc.service';
-import {Digest} from './digest';
+import {DigestService} from './digest.service';
 
 describe('OidcService', () => {
   interface OidcServiceInternals {
@@ -13,7 +13,7 @@ describe('OidcService', () => {
       post: ReturnType<typeof vi.fn>;
     };
     appSettingsService: AppSettingsService;
-    digest: Digest;
+    digest: DigestService;
   }
 
   const createService = () => {

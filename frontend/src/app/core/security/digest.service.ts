@@ -1,8 +1,8 @@
-import {Injectable} from '@angular/core';
+import {Service} from '@angular/core';
 import { sha256 } from '@noble/hashes/sha2.js';
 
-@Injectable()
-export class Digest {
+@Service()
+export class DigestService {
   sha256(value: Uint8Array): Uint8Array {
     return sha256(value);
   }

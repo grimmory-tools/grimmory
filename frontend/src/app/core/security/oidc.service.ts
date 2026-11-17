@@ -3,7 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {firstValueFrom, Observable} from 'rxjs';
 import {API_CONFIG} from '../config/api-config';
 import {AppSettingsService} from '../../shared/service/app-settings.service';
-import {Digest} from './digest';
+import {DigestService} from './digest.service';
 
 interface OidcPkceState {
   codeVerifier: string;
@@ -23,7 +23,7 @@ export class OidcService {
 
   private readonly http = inject(HttpClient);
   private readonly appSettingsService = inject(AppSettingsService);
-  private readonly digest = inject(Digest);
+  private readonly digest = inject(DigestService);
 
   generatePkce() {
     const array = new Uint8Array(32);
