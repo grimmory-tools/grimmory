@@ -58,6 +58,7 @@ public enum ApiError {
     CONFLICT(HttpStatus.CONFLICT, "%s"),
     FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "File not found: %s"),
     SHELF_CANNOT_BE_DELETED(HttpStatus.FORBIDDEN, "'%s' shelf can't be deleted"),
+    SHELF_CANNOT_BE_RENAMED(HttpStatus.FORBIDDEN, "'%s' shelf can't be renamed"),
     TASK_NOT_FOUND(HttpStatus.NOT_FOUND, "Scheduled task not found: %s"),
     TASK_ALREADY_RUNNING(HttpStatus.CONFLICT, "Task is already running: %s"),
     ICON_ALREADY_EXISTS(HttpStatus.CONFLICT, "SVG icon with name '%s' already exists"),
