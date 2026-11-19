@@ -88,6 +88,7 @@ ENV JAVA_TOOL_OPTIONS="-XX:+UseShenandoahGC \
     -XX:ShenandoahUncommitDelay=5000 \
     -XX:ShenandoahGuaranteedGCInterval=30000 \
     -XX:MaxDirectMemorySize=256m \
+    -XX:-UseBASE64Intrinsics \
     --enable-native-access=ALL-UNNAMED \
     --enable-preview"
 
