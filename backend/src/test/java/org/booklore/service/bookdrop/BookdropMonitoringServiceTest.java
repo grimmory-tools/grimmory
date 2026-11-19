@@ -5,13 +5,18 @@ import org.booklore.repository.BookdropFileRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.MockedStatic;
 
 import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.AdditionalAnswers.delegatesTo;
 import static org.mockito.Mockito.*;
 
 class BookdropMonitoringServiceTest {
@@ -84,5 +89,64 @@ class BookdropMonitoringServiceTest {
 
         verify(eventHandler, never()).enqueueFile(eq(alreadyTracked), eq(StandardWatchEventKinds.ENTRY_CREATE));
         verify(eventHandler).enqueueFile(eq(newFile), eq(StandardWatchEventKinds.ENTRY_CREATE));
+    }
+
+    @Test
+    void rescanBookdropFolder_WhenMonitorCannotStart_ShouldStillScanBookdropFolder() throws IOException {
+        when(bookdropFileRepository.findAllFilePathsIn(anyList())).thenReturn(List.of());
+
+        try (MockedStatic<FileSystems> fileSystems = mockFileSystemsWithoutWatchService()) {
+            monitoringService.start();
+            assertThat(monitoringService.isRunning()).isFalse();
+
+            Path book = Files.createFile(tempDir.resolve("book.epub"));
+            monitoringService.rescanBookdropFolder();
+
+            verify(eventHandler).enqueueFile(eq(book), eq(StandardWatchEventKinds.ENTRY_CREATE));
+            assertThat(monitoringService.isRunning()).isFalse();
+        }
+    }
+
+    @Test
+    void rescanBookdropFolder_WhenMonitorCanStartAgain_ShouldStartMonitoring() throws IOException {
+        when(bookdropFileRepository.findAllFilePathsIn(anyList())).thenReturn(List.of());
+
+        try (MockedStatic<FileSystems> fileSystems = mockFileSystemsWithoutWatchService()) {
+            monitoringService.start();
+        }
+        assertThat(monitoringService.isRunning()).isFalse();
+
+        Path book = Files.createFile(tempDir.resolve("book.epub"));
+        monitoringService.rescanBookdropFolder();
+
+        try {
+            assertThat(monitoringService.isRunning()).isTrue();
+            verify(eventHandler, timeout(5000)).enqueueFile(eq(book), eq(StandardWatchEventKinds.ENTRY_CREATE));
+        } finally {
+            monitoringService.stop();
+        }
+    }
+
+    @Test
+    void rescanBookdropFolder_WhenBookdropFolderIsNotADirectory_ShouldSkipRescan() throws IOException {
+        Path notADirectory = Files.createFile(tempDir.resolve("bookdrop"));
+        when(appProperties.getBookdropFolder()).thenReturn(notADirectory.toString());
+
+        monitoringService.start();
+        monitoringService.rescanBookdropFolder();
+
+        assertThat(monitoringService.isRunning()).isFalse();
+        verifyNoInteractions(eventHandler, bookdropFileRepository);
+    }
+
+    private static MockedStatic<FileSystems> mockFileSystemsWithoutWatchService() throws IOException {
+        FileSystem realFileSystem = FileSystems.getDefault();
+        FileSystem fileSystem = mock(FileSystem.class, delegatesTo(realFileSystem));
+        doThrow(new IOException("User limit of inotify instances reached or too many open files"))
+                .when(fileSystem).newWatchService();
+
+        MockedStatic<FileSystems> fileSystems = mockStatic(FileSystems.class);
+        fileSystems.when(FileSystems::getDefault).thenReturn(fileSystem);
+        return fileSystems;
     }
 }
