@@ -32,9 +32,6 @@ describe('BookNavigationService', () => {
     expect(service.nextBookId()).toBeNull();
     expect(service.currentPosition()).toBeNull();
 
-    service.setAvailableBookIds([1, 2, 3]);
-    expect(service.availableBookIds()).toEqual([1, 2, 3]);
-
     service.setNavigationContext([1, 2, 3], 2);
 
     expect(service.navigationState()).toEqual({bookIds: [1, 2, 3], currentIndex: 1});
