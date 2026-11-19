@@ -97,7 +97,7 @@
       "count": 4
     },
     "@angular-eslint/template/prefer-contextual-for-variables": {
-      "count": 3
+      "count": 2
     }
   },
   "src/app/features/bookdrop/component/bookdrop-file-metadata-picker/bookdrop-file-metadata-picker.component.html": {

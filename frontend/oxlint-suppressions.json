@@ -337,23 +337,14 @@
     }
   },
   "src/app/features/book/components/series-page/series-page.component.ts": {
-    "anti-slop/no-known-value-widening": {
-      "count": 1
-    },
     "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 1
     },
-    "typescript/no-misused-promises": {
-      "count": 3
-    },
     "typescript/no-unnecessary-condition": {
-      "count": 6
+      "count": 5
     },
     "typescript/no-unsafe-enum-comparison": {
       "count": 8
-    },
-    "typescript/no-unsafe-member-access": {
-      "count": 1
     }
   },
   "src/app/features/book/components/shelf-assigner/shelf-assigner.component.ts": {

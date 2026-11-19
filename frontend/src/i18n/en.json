@@ -2712,18 +2712,6 @@
         "customCoverMessage": "Are you sure you want to generate custom covers for {{ count }} book(s)?",
         "customCoverHeader": "Confirm Custom Cover Generation"
       },
-      "toast": {
-        "regenCoverStartedSummary": "Cover Regeneration Started",
-        "regenCoverStartedDetail": "Regenerating covers for {{ count }} book(s). Refresh the page when complete.",
-        "customCoverStartedSummary": "Custom Cover Generation Started",
-        "customCoverStartedDetail": "Generating custom covers for {{ count }} book(s).",
-        "failedSummary": "Failed",
-        "regenCoverFailedDetail": "Could not start cover regeneration.",
-        "customCoverFailedDetail": "Could not start custom cover generation."
-      },
-      "loading": {
-        "deleting": "Deleting {{ count }} book(s)..."
-      },
       "labels": {
         "allBooks": "All Books",
         "unshelvedBooks": "Unshelved Books"
@@ -3408,7 +3396,6 @@
       "showMore": "Show more",
       "noBooksFound": "No books found for this series.",
       "booksInSeries": "Books in Series",
-      "selected": "selected",
       "loadingSeriesDetails": "Loading series details...",
       "completionOwned": "You own {{ owned }} of {{ total }} books",
       "missingBooks": "Missing: #{{ numbers }}",
@@ -3439,16 +3426,6 @@
         "abandoned": "ABANDONED",
         "wontRead": "WON'T READ",
         "unset": "UNSET"
-      },
-      "tooltip": {
-        "metadataActions": "Metadata actions",
-        "assignToShelf": "Assign to shelf",
-        "lockUnlockMetadata": "Lock/Unlock metadata",
-        "organizeFiles": "Organize Files",
-        "moreActions": "More actions",
-        "selectAll": "Select all books",
-        "deselectAll": "Deselect all books",
-        "deleteSelected": "Delete selected books"
       }
     },
     "duplicateMerger": {
