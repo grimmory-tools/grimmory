@@ -22,6 +22,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -892,7 +893,16 @@ class BookRuleEvaluatorEdgeCasesTest {
         @Test
         void thisPeriod_defaultsToYear() {
             BookEntity recent = createBook("Recent");
-            recent.setAddedOn(Instant.now().minusSeconds(86400));
+            Instant midYear = Instant.now()
+                    .atZone(ZoneId.systemDefault())
+                    .withMonth(6)
+                    .withDayOfMonth(15)
+                    .withHour(17)
+                    .withMinute(0)
+                    .withSecond(0)
+                    .withNano(0)
+                    .toInstant();
+            recent.setAddedOn(midYear);
             em.merge(recent);
             em.flush();
             em.clear();
