@@ -15,12 +15,21 @@ function isIOSWebkit() {
     || (navigator.userAgent.includes("Mac") && "ontouchend" in document)
 }
 
+function isControlledByServiceWorker() {
+  return 'serviceWorker' in navigator && navigator.serviceWorker.controller != null;
+}
+
 /**
- * Creates a copy of an HTTP Request to disable the service worker capture &
- * copy FormData `File`s for web browser engines which have bugs that prevent
- * file uploads.
+ * Creates a copy of an HTTP Request that skips the service worker, and copies
+ * FormData `File`s for web browser engines which have bugs that prevent file
+ * uploads.
+ *
+ * Uploads routed through the service worker get no upload progress, and
+ * browsers abort them once the transfer runs for about a minute, so every
+ * upload made while a service worker controls the page bypasses it.
  *
  * @see https://bugs.webkit.org/show_bug.cgi?id=319985
+ * @see https://github.com/grimmory-tools/grimmory/issues/3012
  *
  * @param request Target request
  * @return HttpRequest<FormData> Either the original target request, or a mutated request.
@@ -47,6 +56,12 @@ export function mitigateWebkitUploadBug(request: HttpRequest<FormData>): HttpReq
     return request.clone({
       headers: request.headers.append('ngsw-bypass', '1'),
       body: request.body ? body : null,
+    });
+  }
+
+  if (isControlledByServiceWorker()) {
+    return request.clone({
+      headers: request.headers.append('ngsw-bypass', '1'),
     });
   }
 
