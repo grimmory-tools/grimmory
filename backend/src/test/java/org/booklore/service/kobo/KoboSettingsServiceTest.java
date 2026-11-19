@@ -90,7 +90,6 @@ class KoboSettingsServiceTest {
         when(authenticationService.getAuthenticatedUser()).thenReturn(user);
         when(repository.findByUserId(1L)).thenReturn(Optional.of(settingsEntity));
         when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        when(shelfService.getShelf(eq(1L), eq(ShelfType.KOBO.getName()))).thenReturn(Optional.of(ShelfEntity.builder().id(100L).build()));
 
         KoboSyncSettings dto = service.createOrUpdateToken();
 
@@ -116,8 +115,7 @@ class KoboSettingsServiceTest {
     void updateSettings_disableSync_deletesShelf() {
         when(authenticationService.getAuthenticatedUser()).thenReturn(user);
         when(repository.findByUserId(1L)).thenReturn(Optional.of(settingsEntity));
-        Shelf shelf = Shelf.builder().id(100L).build();
-        when(shelfService.getUserKoboShelf()).thenReturn(shelf);
+        when(shelfService.hasUserKoboShelf()).thenReturn(true);
         when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         KoboSyncSettings update = new KoboSyncSettings();
@@ -126,7 +124,25 @@ class KoboSettingsServiceTest {
 
         KoboSyncSettings dto = service.updateSettings(update);
 
-        verify(shelfService).deleteShelf(100L);
+        verify(shelfService).deleteUserKoboShelf();
+        assertFalse(dto.isSyncEnabled());
+        assertFalse(dto.isAutoAddToShelf());
+    }
+
+    @Test
+    void updateSettings_disableSync_ignoresNoShelf() {
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+        when(repository.findByUserId(1L)).thenReturn(Optional.of(settingsEntity));
+        when(shelfService.hasUserKoboShelf()).thenReturn(false);
+        when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        KoboSyncSettings update = new KoboSyncSettings();
+        update.setSyncEnabled(false);
+        update.setAutoAddToShelf(false);
+
+        KoboSyncSettings dto = service.updateSettings(update);
+
+        verify(shelfService, never()).deleteUserKoboShelf();
         assertFalse(dto.isSyncEnabled());
         assertFalse(dto.isAutoAddToShelf());
     }
@@ -136,10 +152,8 @@ class KoboSettingsServiceTest {
         when(authenticationService.getAuthenticatedUser()).thenReturn(user);
         settingsEntity.setSyncEnabled(false);
         when(repository.findByUserId(1L)).thenReturn(Optional.of(settingsEntity));
-        when(shelfService.getUserKoboShelf()).thenReturn(null);
+        when(shelfService.hasUserKoboShelf()).thenReturn(false);
         when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        when(shelfService.getShelf(eq(1L), eq(ShelfType.KOBO.getName()))).thenReturn(Optional.empty());
-        doReturn(Shelf.builder().id(100L).build()).when(shelfService).createShelf(any(ShelfCreateRequest.class));
 
         KoboSyncSettings update = new KoboSyncSettings();
         update.setSyncEnabled(true);
@@ -147,9 +161,26 @@ class KoboSettingsServiceTest {
 
         KoboSyncSettings dto = service.updateSettings(update);
 
-        verify(shelfService).createShelf(any(ShelfCreateRequest.class));
+        verify(shelfService).createUserKoboShelf();
         assertTrue(dto.isSyncEnabled());
         assertTrue(dto.isAutoAddToShelf());
+    }
+
+    @Test
+    void updateSettings_enableSync_ignoresAlreadyExistingShelf() {
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+        settingsEntity.setSyncEnabled(false);
+        when(repository.findByUserId(1L)).thenReturn(Optional.of(settingsEntity));
+        when(shelfService.hasUserKoboShelf()).thenReturn(true);
+        when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        KoboSyncSettings update = new KoboSyncSettings();
+        update.setSyncEnabled(true);
+        update.setAutoAddToShelf(true);
+
+        service.updateSettings(update);
+
+        verify(shelfService, never()).createUserKoboShelf();
     }
 
     @Test
@@ -212,7 +243,6 @@ class KoboSettingsServiceTest {
     void updateSettings_getUserKoboShelfReturnsNull_shouldNotThrow() {
         when(authenticationService.getAuthenticatedUser()).thenReturn(user);
         when(repository.findByUserId(1L)).thenReturn(Optional.of(settingsEntity));
-        when(shelfService.getUserKoboShelf()).thenReturn(null);
         when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         KoboSyncSettings update = new KoboSyncSettings();
@@ -223,51 +253,12 @@ class KoboSettingsServiceTest {
     }
 
     @Test
-    void ensureKoboShelfExists_doesNotCreateIfExists() throws Exception {
-        when(shelfService.getShelf(eq(1L), eq(ShelfType.KOBO.getName()))).thenReturn(Optional.of(ShelfEntity.builder().id(100L).build()));
-
-        var method = service.getClass().getDeclaredMethod("ensureKoboShelfExists", Long.class);
-        method.setAccessible(true);
-        assertDoesNotThrow(() -> method.invoke(service, 1L));
-        verify(shelfService, never()).createShelf(any());
-    }
-
-    @Test
-    void ensureKoboShelfExists_createsIfMissing() throws Exception {
-        when(shelfService.getShelf(eq(1L), eq(ShelfType.KOBO.getName()))).thenReturn(Optional.empty());
-        doReturn(Shelf.builder().id(100L).build()).when(shelfService).createShelf(any(ShelfCreateRequest.class));
-
-        var method = service.getClass().getDeclaredMethod("ensureKoboShelfExists", Long.class);
-        method.setAccessible(true);
-        assertDoesNotThrow(() -> method.invoke(service, 1L));
-        verify(shelfService).createShelf(any(ShelfCreateRequest.class));
-    }
-
-    @Test
-    void ensureKoboShelfExists_idempotentIfCalledTwice() throws Exception {
-        when(shelfService.getShelf(eq(1L), eq(ShelfType.KOBO.getName())))
-                .thenReturn(Optional.empty())
-                .thenReturn(Optional.of(ShelfEntity.builder().id(100L).build()));
-        doReturn(Shelf.builder().id(100L).build()).when(shelfService).createShelf(any(ShelfCreateRequest.class));
-
-        var method = service.getClass().getDeclaredMethod("ensureKoboShelfExists", Long.class);
-        method.setAccessible(true);
-
-        method.invoke(service, 1L);
-        method.invoke(service, 1L);
-
-        verify(shelfService, times(1)).createShelf(any(ShelfCreateRequest.class));
-    }
-
-    @Test
     void createOrUpdateToken_multipleCalls_generateDifferentTokens() {
         when(authenticationService.getAuthenticatedUser()).thenReturn(user);
         when(repository.findByUserId(1L))
                 .thenReturn(Optional.empty())
                 .thenReturn(Optional.of(settingsEntity));
         when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        when(shelfService.getShelf(eq(1L), eq(ShelfType.KOBO.getName()))).thenReturn(Optional.empty());
-        doReturn(Shelf.builder().id(100L).build()).when(shelfService).createShelf(any(ShelfCreateRequest.class));
 
         KoboSyncSettings dto1 = service.createOrUpdateToken();
         // Simulate a new call with an existing entity
