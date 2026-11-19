@@ -4,6 +4,7 @@ import {of} from 'rxjs';
 import {AppSettingsService} from '../../shared/service/app-settings.service';
 import {API_CONFIG} from '../config/api-config';
 import {OidcService} from './oidc.service';
+import {DigestService} from './digest.service';
 
 describe('OidcService', () => {
   interface OidcServiceInternals {
@@ -12,6 +13,7 @@ describe('OidcService', () => {
       post: ReturnType<typeof vi.fn>;
     };
     appSettingsService: AppSettingsService;
+    digest: DigestService;
   }
 
   const createService = () => {
@@ -22,7 +24,8 @@ describe('OidcService', () => {
       post: vi.fn(),
     };
     internals.appSettingsService = {} as AppSettingsService;
-    return {service, http: internals.http};
+    internals.digest = { sha256: vi.fn(value => value) };
+    return {service, http: internals.http, sha256: internals.digest.sha256};
   };
 
   beforeEach(() => {
@@ -35,18 +38,16 @@ describe('OidcService', () => {
   });
 
   it('generates PKCE verifier and challenge pairs', async () => {
-    const {service} = createService();
-    const digestSpy = vi.fn(async (_algorithm: string, value: Uint8Array) => value);
+    const {service, sha256: digestSpy} = createService();
     const getRandomValuesSpy = vi.fn((array: Uint8Array) => {
       array.set(Uint8Array.from({length: array.length}, (_, index) => index + 1));
       return array;
     });
     vi.stubGlobal('crypto', {
-      getRandomValues: getRandomValuesSpy,
-      subtle: {digest: digestSpy},
+      getRandomValues: getRandomValuesSpy
     });
 
-    const result = await service.generatePkce();
+    const result = service.generatePkce();
 
     expect(getRandomValuesSpy).toHaveBeenCalledOnce();
     expect(digestSpy).toHaveBeenCalledOnce();
@@ -60,8 +61,7 @@ describe('OidcService', () => {
       getRandomValues: (array: Uint8Array) => {
         array.set(Uint8Array.from({length: array.length}, (_, index) => index + 10));
         return array;
-      },
-      subtle: {digest: vi.fn()},
+      }
     });
 
     const value = service.generateRandomString();
