@@ -145,6 +145,7 @@ export class SeriesPageComponent implements AfterViewChecked {
   private readonly seriesGridOffset = signal(0);
   protected readonly seriesVirtualGrid = createVirtualGrid({
     items: this.seriesBooks.items,
+    itemKey: book => book.id,
     scrollElement: this.tabPanels,
     scrollMargin: this.seriesGridOffset,
     minItemWidth: computed(() => this.coverScale.currentCardSize().width),
