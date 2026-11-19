@@ -103,7 +103,8 @@ export class SeriesPageComponent implements AfterViewChecked {
   tab: string = "view";
   readonly isExpanded = signal(false);
   readonly isOverflowing = signal(false);
-  protected isBooksLoading = this.bookService.isBooksLoading;
+  private readonly booksQuery = injectQuery(() => this.bookService.booksQueryOptions());
+  protected readonly isBooksLoading = computed(() => this.booksQuery.isPending());
 
   private readonly seriesParam = toSignal(this.route.paramMap.pipe(
     map((params) => params.get("seriesName") || ""),
@@ -111,7 +112,7 @@ export class SeriesPageComponent implements AfterViewChecked {
 
   readonly filteredBooks = computed(() => {
     const seriesName = this.seriesParam().trim().toLowerCase();
-    const inSeries = this.bookService.books().filter(
+    const inSeries = (this.booksQuery.data() ?? []).filter(
       (book) => book.metadata?.seriesName?.trim().toLowerCase() === seriesName
     );
 

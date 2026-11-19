@@ -7,6 +7,7 @@ import {InputText} from '@openng/optimus-ui/inputtext';
 import {Dialog} from '@openng/optimus-ui/dialog';
 import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
 import {PageTitleService} from "../../../../shared/service/page-title.service";
+import {injectQuery} from '@tanstack/angular-query-experimental';
 import {BookService} from '../../../book/service/book.service';
 import {BookMetadataManageService} from '../../../book/service/book-metadata-manage.service';
 import {Book} from '../../../book/model/book.model';
@@ -73,15 +74,16 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
   private readonly t = inject(TranslocoService);
 
   private routeSub!: Subscription;
+  private readonly booksQuery = injectQuery(() => this.bookService.booksQueryOptions());
   private readonly syncMetadataEffect = effect(() => {
-    const isLoading = this.bookService.isBooksLoading();
+    const isLoading = this.booksQuery.isPending();
     this.loading.set(isLoading);
 
     if (isLoading) {
       return;
     }
 
-    this.extractMetadata(this.bookService.books());
+    this.extractMetadata(this.booksQuery.data() ?? []);
   });
 
   authors: MetadataItem[] = [];

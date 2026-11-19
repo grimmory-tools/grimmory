@@ -1,13 +1,16 @@
 import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
+import {queryOptions} from '@tanstack/angular-query-experimental';
 import {BehaviorSubject, of} from 'rxjs';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {TranslocoService} from '@jsverse/transloco';
 import {ActivatedRoute, Router} from '@angular/router';
 import {MessageService} from '@openng/optimus-ui/api';
 
+import {createQueryClientHarness, flushQueryAsync} from '../../../../core/testing/query-testing';
 import {Book} from '../../../book/model/book.model';
 import {BookMetadataManageService} from '../../../book/service/book-metadata-manage.service';
+import {BOOKS_QUERY_KEY} from '../../../book/service/book-query-keys';
 import {BookService} from '../../../book/service/book.service';
 import {PageTitleService} from '../../../../shared/service/page-title.service';
 import {MetadataManagerComponent} from './metadata-manager.component';
@@ -15,6 +18,7 @@ import {MetadataManagerComponent} from './metadata-manager.component';
 describe('MetadataManagerComponent', () => {
   const books = signal<Book[]>([]);
   const isBooksLoading = signal(false);
+  const booksQueryOptions = () => queryOptions({queryKey: BOOKS_QUERY_KEY, queryFn: () => Promise.resolve(books()), enabled: !isBooksLoading()});
   const add = vi.fn();
   const navigate = vi.fn(() => Promise.resolve(true));
   const setPageTitle = vi.fn();
@@ -36,7 +40,8 @@ describe('MetadataManagerComponent', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        {provide: BookService, useValue: {books, isBooksLoading}},
+        ...createQueryClientHarness().providers,
+        {provide: BookService, useValue: {booksQueryOptions}},
         {provide: BookMetadataManageService, useValue: {consolidateMetadata, deleteMetadata}},
         {provide: PageTitleService, useValue: {setPageTitle}},
         {provide: TranslocoService, useValue: {translate}},
@@ -64,7 +69,7 @@ describe('MetadataManagerComponent', () => {
     return TestBed.runInInjectionContext(() => new MetadataManagerComponent());
   }
 
-  it('aggregates metadata once books finish loading', () => {
+  it('aggregates metadata once books finish loading', async () => {
     books.set([
       createBook(1, {
         authors: ['Alice', 'Bob'],
@@ -87,7 +92,7 @@ describe('MetadataManagerComponent', () => {
     ]);
 
     const component = createComponent();
-    TestBed.flushEffects();
+    await flushQueryAsync();
 
     expect(component.loading()).toBe(false);
     expect(component.authors[0]).toEqual({value: 'Alice', count: 2, bookIds: [1, 2], selected: false});
@@ -103,18 +108,18 @@ describe('MetadataManagerComponent', () => {
     ]);
   });
 
-  it('waits for the book list to finish loading before extracting metadata', () => {
+  it('waits for the book list to finish loading before extracting metadata', async () => {
     books.set([createBook(1, {authors: ['Alice']})]);
     isBooksLoading.set(true);
 
     const component = createComponent();
-    TestBed.flushEffects();
+    await flushQueryAsync();
 
     expect(component.loading()).toBe(true);
     expect(component.authors).toEqual([]);
 
     isBooksLoading.set(false);
-    TestBed.flushEffects();
+    await flushQueryAsync();
 
     expect(component.loading()).toBe(false);
     expect(component.authors).toEqual([{value: 'Alice', count: 1, bookIds: [1], selected: false}]);

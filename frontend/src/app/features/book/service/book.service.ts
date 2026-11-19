@@ -1,4 +1,4 @@
-import {computed, effect, inject, Service} from '@angular/core';
+import {effect, inject, Service} from '@angular/core';
 import {lastValueFrom, Observable, throwError} from 'rxjs';
 import {HttpClient, HttpErrorResponse, HttpParams} from '@angular/common/http';
 import {catchError, tap} from 'rxjs/operators';
@@ -12,7 +12,7 @@ import {BookSocketService} from './book-socket.service';
 import type {BookCoverPatch} from './legacy-book-cache';
 import {BookPatchService} from './book-patch.service';
 import {TranslocoService} from '@jsverse/transloco';
-import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
+import {queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
 import {
   BOOKS_QUERY_KEY,
   bookDetailQueryKey,
@@ -37,24 +37,6 @@ export class BookService {
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/books`;
   private readonly token = this.authService.token;
 
-  private readonly booksQuery = injectQuery(() => ({
-    ...this.getBooksQueryOptions(),
-    enabled: !!this.token(),
-  }));
-
-  readonly books = computed(() => this.booksQuery.data() ?? []);
-
-  readonly booksError = computed<string | null>(() => {
-    if (!this.token() || !this.booksQuery.isError()) {
-      return null;
-    }
-
-    const error = this.booksQuery.error();
-    return error instanceof Error ? error.message : 'Failed to load books';
-  });
-
-  readonly isBooksLoading = computed(() => !!this.token() && this.booksQuery.isPending());
-
   constructor() {
     effect(() => {
       const token = this.token();
@@ -64,11 +46,10 @@ export class BookService {
     });
   }
 
-  private getBooksQueryOptions() {
+  booksQueryOptions() {
     return queryOptions({
       queryKey: BOOKS_QUERY_KEY,
       queryFn: () => lastValueFrom(this.http.get<Book[]>(this.url, {params: {stripForListView: false}})),
-      staleTime: 5 * 60_000,
     });
   }
 
@@ -103,7 +84,7 @@ export class BookService {
 
   removeBooksFromShelf(shelfId: number): void {
     this.queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, current =>
-      (current ?? []).map(book => ({
+      current?.map(book => ({
         ...book,
         shelves: book.shelves?.filter(shelf => shelf.id !== shelfId),
       }))
