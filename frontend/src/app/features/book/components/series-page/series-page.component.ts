@@ -1,39 +1,35 @@
 import {FormsModule} from "@angular/forms";
-import {Button} from "@openng/optimus-ui/button";
 import {ActivatedRoute, Router} from "@angular/router";
 import {toSignal} from '@angular/core/rxjs-interop';
 import {DecimalPipe, KeyValuePipe} from "@angular/common";
-import {finalize, map, take} from "rxjs/operators";
+import {map} from "rxjs/operators";
 import {Book, BookType, computeSeriesReadStatus, ReadStatus} from "../../model/book.model";
 import {BookService} from "../../service/book.service";
-import {BookMetadataManageService} from "../../service/book-metadata-manage.service";
-import {LegacyBookCardComponent} from "../legacy-book-card/legacy-book-card.component";
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from "@openng/optimus-ui/tabs";
 import {ProgressSpinner} from "@openng/optimus-ui/progressspinner";
 import {ProgressBar} from "@openng/optimus-ui/progressbar";
-import {DynamicDialogRef} from "@openng/optimus-ui/dynamicdialog";
-import {ConfirmationService, MenuItem, MessageService} from "@openng/optimus-ui/api";
-import {UserService} from "../../../settings/user-management/user.service";
-import {BookMenuService} from "../../service/book-menu.service";
-import {LoadingService} from "../../../../core/services/loading.service";
-import {BookDialogHelperService} from "../../service/book-dialog-helper.service";
-import {BookNavigationService} from "../../service/book-navigation.service";
-import {TaskHelperService} from "../../../settings/task-management/task-helper.service";
-import {MetadataRefreshType} from "../../../metadata/model/request/metadata-refresh-type.enum";
-import {TieredMenu} from "@openng/optimus-ui/tieredmenu";
-import {AppSettingsService} from "../../../../shared/service/app-settings.service";
+import {BookNavigationService, type ReadableBook} from "../../service/book-navigation.service";
 import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {Tooltip} from "@openng/optimus-ui/tooltip";
-import {Divider} from "@openng/optimus-ui/divider";
 import {TagComponent} from "../../../../shared/components/tag/tag.component";
-import {AfterViewChecked, ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, signal, viewChild} from '@angular/core';
-import {BookCardOverlayPreferenceService} from '../legacy-book-card/book-card-overlay-preference.service';
+import {AfterViewChecked, ChangeDetectionStrategy, Component, computed, effect, ElementRef, inject, signal, untracked, viewChild} from '@angular/core';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {LanguageResolverService} from '../../../../shared/service/language-resolver.service';
 import {CoverComponent} from '../../../../shared/components/cover/cover.component';
-import {injectQuery} from '@tanstack/angular-query-experimental';
+import {injectInfiniteQuery, injectQuery} from '@tanstack/angular-query-experimental';
 import {AuthorService} from '../../../author-browser/service/author.service';
-import {LayoutService} from '../../../../shared/layout/layout.service';
+import {BookQueryService} from '../../data/book-query.service';
+import {type BookPageParams} from '../../data/book-query-params';
+import {type BookSummary} from '../../data/book-response.models';
+import {createBrowseResults} from '../../../../shared/browse/results';
+import {createVirtualGrid} from '../../../../shared/util/virtual-grid.util';
+import {CoverScalePreferenceService} from '../../../../shared/service/cover-scale-preference.service';
+import {BookCardComponent} from '../cards/book-card.component';
+import {bookCardHeightForWidth} from '../cards/book-card.layout';
+import {BookMenuComponent} from '../book-menu/book-menu.component';
+
+const SERIES_BOOKS_PAGE_SIZE = 60;
+const SERIES_GRID_GAP = 16;
 
 interface ReadStatusSegment {
   status: ReadStatus;
@@ -74,9 +70,7 @@ interface SeriesStats {
   imports: [
     DecimalPipe,
     KeyValuePipe,
-    Button,
     FormsModule,
-    LegacyBookCardComponent,
     ProgressSpinner,
     ProgressBar,
     Tabs,
@@ -84,64 +78,32 @@ interface SeriesStats {
     Tab,
     TabPanels,
     TabPanel,
-    TieredMenu,
     Tooltip,
-    Divider,
     TranslocoDirective,
     TagComponent,
     CoverComponent,
+    BookCardComponent,
+    BookMenuComponent,
   ],
 })
 export class SeriesPageComponent implements AfterViewChecked {
   private readonly route = inject(ActivatedRoute);
   private readonly bookService = inject(BookService);
   private readonly languageResolver = inject(LanguageResolverService);
-  private readonly bookMetadataManageService = inject(BookMetadataManageService);
   private readonly router = inject(Router);
-  protected userService = inject(UserService);
-  private readonly bookMenuService = inject(BookMenuService);
-  protected confirmationService = inject(ConfirmationService);
-  private readonly loadingService = inject(LoadingService);
-  private readonly dialogHelperService = inject(BookDialogHelperService);
-  protected taskHelperService = inject(TaskHelperService);
-  private readonly messageService = inject(MessageService);
-  protected bookCardOverlayPreferenceService = inject(BookCardOverlayPreferenceService);
-  protected appSettingsService = inject(AppSettingsService);
   private readonly t = inject(TranslocoService);
   protected urlHelper = inject(UrlHelperService);
   private readonly authorService = inject(AuthorService);
-  private readonly layoutService = inject(LayoutService);
   private readonly bookNavigation = inject(BookNavigationService);
+  private readonly bookQuery = inject(BookQueryService);
+  private readonly coverScale = inject(CoverScalePreferenceService);
 
-  private readonly DEFAULT_SERIES_CARD_WIDTH = 135;
-  private readonly DEFAULT_SERIES_CARD_HEIGHT = 220;
-  private readonly DESKTOP_SERIES_GRID_GAP = 21;
-  private readonly MOBILE_SERIES_GRID_GAP = 8;
-  private readonly MOBILE_GRID_COLUMNS = 2;
-  private readonly metadataCenterViewMode: "route" | "dialog" = "route";
-  private dialogRef?: DynamicDialogRef | null;
 
   private readonly descriptionContentRef = viewChild<ElementRef<HTMLElement>>('descriptionContent');
-  private readonly seriesGridElement = viewChild<ElementRef<HTMLElement>>('seriesGrid');
-  private readonly seriesGridWidth = signal(0);
   tab: string = "view";
   readonly isExpanded = signal(false);
   readonly isOverflowing = signal(false);
-  protected appSettings = this.appSettingsService.appSettings;
-  protected currentUser = this.userService.currentUser;
   protected isBooksLoading = this.bookService.isBooksLoading;
-
-  // Selection state
-  readonly selectedBooks = signal(new Set<number>());
-  readonly lastSelectedIndex = signal<number | null>(null);
-
-  // Menu items
-  protected readonly metadataMenuItems = signal<MenuItem[] | undefined>(undefined);
-  protected readonly moreActionsMenuItems = signal<MenuItem[] | undefined>(undefined);
-  protected readonly seriesViewEnabled = false;
-  protected readonly seriesCardsCollapsed = false;
-  protected readonly seriesCardsUseSquareCovers = false;
-  protected readonly onSeriesBookCardSelect = this.handleBookSelect.bind(this);
 
   private readonly seriesParam = toSignal(this.route.paramMap.pipe(
     map((params) => params.get("seriesName") || ""),
@@ -159,23 +121,38 @@ export class SeriesPageComponent implements AfterViewChecked {
       return aNum - bNum;
     });
   });
-  protected readonly seriesGridColumns = computed(() => {
-    if (!this.layoutService.isDesktop()) {
-      return this.MOBILE_GRID_COLUMNS;
-    }
 
-    return this.seriesGridColumnCount(this.seriesGridWidth());
+  private readonly seriesBooksQuery = injectInfiniteQuery(() => ({
+    ...this.bookQuery.infinitePage({
+      size: SERIES_BOOKS_PAGE_SIZE,
+      sort: [{key: 'seriesNumber', direction: 'asc'}],
+      facets: {series: {include: [this.seriesParam()], exclude: []}},
+    } satisfies BookPageParams),
+    enabled: this.seriesParam() !== '',
+  }));
+  protected readonly seriesBooks = createBrowseResults<BookSummary>({
+    query: this.seriesBooksQuery,
+    listKey: this.seriesParam,
+    artworkUrls: () => [],
+    scrollToTop: () => undefined,
   });
-  protected readonly seriesGridGap = computed(() =>
-    this.layoutService.isDesktop() ? this.DESKTOP_SERIES_GRID_GAP : this.MOBILE_SERIES_GRID_GAP
-  );
-  protected readonly seriesGridCardWidth = computed(() => this.seriesGridItemWidth(
-    this.seriesGridWidth(),
-    this.seriesGridColumns()
-  ));
-  protected readonly seriesGridCardHeight = computed(() =>
-    this.seriesCardSizeForWidth(this.seriesGridCardWidth()).height
-  );
+  protected readonly bookMenu = viewChild(BookMenuComponent);
+  protected readonly menuOpenBookId = computed(() => this.bookMenu()?.openBookId() ?? null);
+
+  private readonly tabPanels = viewChild<TabPanels, ElementRef<HTMLElement>>(TabPanels, {read: ElementRef});
+  private readonly seriesDetails = viewChild<ElementRef<HTMLElement>>('seriesDetails');
+  private readonly seriesGridContent = viewChild<ElementRef<HTMLElement>>('seriesGridContent');
+  private readonly seriesGridOffset = signal(0);
+  protected readonly seriesVirtualGrid = createVirtualGrid({
+    items: this.seriesBooks.items,
+    itemKey: book => book.id,
+    scrollElement: this.tabPanels,
+    scrollMargin: this.seriesGridOffset,
+    minItemWidth: computed(() => this.coverScale.currentCardSize().width),
+    estimateItemHeight: width => bookCardHeightForWidth(width, {square: false, metaLines: 2}),
+    gap: SERIES_GRID_GAP,
+    fillItemWidth: true,
+  });
 
   readonly coverBook = computed(() => this.filteredBooks()[0] ?? null);
   private readonly firstBookId = computed(() => this.coverBook()?.id ?? null);
@@ -372,74 +349,28 @@ export class SeriesPageComponent implements AfterViewChecked {
   });
 
   constructor() {
-    effect(() => {
-      const user = this.currentUser();
-      if (!user) {
+    effect(onCleanup => {
+      const scroller = this.tabPanels()?.nativeElement;
+      const details = this.seriesDetails()?.nativeElement;
+      const grid = this.seriesGridContent()?.nativeElement;
+      if (!scroller || !details || !grid) {
         return;
       }
-
-      this.metadataMenuItems.set(this.bookMenuService.getMetadataMenuItems(
-        () => this.autoFetchMetadata(),
-        () => this.fetchMetadata(),
-        () => this.bulkEditMetadata(),
-        () => this.multiBookEditMetadata(),
-        () => this.regenerateCoversForSelected(),
-        () => this.generateCustomCoversForSelected(),
-        user
-      ));
-      this.moreActionsMenuItems.set(this.bookMenuService.getMoreActionsMenu(this.selectedBooks(), user));
+      const observer = new ResizeObserver(() => this.seriesGridOffset.set(Math.round(
+        grid.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop
+      )));
+      observer.observe(details);
+      onCleanup(() => observer.disconnect());
     });
 
-    effect((onCleanup) => {
-      const element = this.seriesGridElement()?.nativeElement;
-      if (!element) return;
-
-      const updateGridWidth = () => {
-        this.seriesGridWidth.set(this.getElementContentWidth(element));
-      };
-      updateGridWidth();
-
-      if (typeof ResizeObserver === 'undefined') return;
-
-      const resizeObserver = new ResizeObserver(updateGridWidth);
-      resizeObserver.observe(element);
-      onCleanup(() => resizeObserver.disconnect());
+    effect(() => {
+      const virtualItems = this.seriesVirtualGrid.virtualizer.getVirtualItems();
+      const first = virtualItems.at(0);
+      const last = virtualItems.at(-1);
+      if (first && last) {
+        untracked(() => this.seriesBooks.onRenderedRange({start: first.index, end: last.index}));
+      }
     });
-  }
-
-  private getElementContentWidth(element: HTMLElement): number {
-    const style = getComputedStyle(element);
-    const horizontalPadding = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
-    return Math.max(0, Math.round(element.clientWidth - horizontalPadding));
-  }
-
-  private seriesGridColumnCount(containerWidth: number): number {
-    if (containerWidth <= 0) {
-      return 1;
-    }
-
-    return Math.max(
-      1,
-      Math.floor((containerWidth + this.seriesGridGap()) / (this.DEFAULT_SERIES_CARD_WIDTH + this.seriesGridGap()))
-    );
-  }
-
-  private seriesGridItemWidth(containerWidth: number, columns: number): number {
-    if (containerWidth <= 0 || columns <= 0) {
-      return this.DEFAULT_SERIES_CARD_WIDTH;
-    }
-
-    const totalGap = (columns - 1) * this.seriesGridGap();
-    return Math.max(1, (containerWidth - totalGap) / columns);
-  }
-
-  private seriesCardSizeForWidth(width: number): { width: number; height: number } {
-    const cardWidth = Math.round(width);
-    const aspectRatio = this.DEFAULT_SERIES_CARD_HEIGHT / this.DEFAULT_SERIES_CARD_WIDTH;
-    return {
-      width: cardWidth,
-      height: Math.round(cardWidth * aspectRatio),
-    };
   }
 
   goToAuthorBooks(author: string): void {
@@ -448,17 +379,17 @@ export class SeriesPageComponent implements AfterViewChecked {
         this.router.navigate(['/author', authorDetails.id]);
       },
       error: () => {
-        this.handleMetadataClick('author', author);
+        this.navigateToFilteredBooks('author', author);
       }
     });
   }
 
   goToCategory(category: string): void {
-    this.handleMetadataClick("genre", category);
+    this.navigateToFilteredBooks("genre", category);
   }
 
   goToPublisher(publisher: string): void {
-    this.handleMetadataClick("publisher", publisher);
+    this.navigateToFilteredBooks("publisher", publisher);
   }
 
   private navigateToFilteredBooks(
@@ -470,18 +401,6 @@ export class SeriesPageComponent implements AfterViewChecked {
         facet: `${filterKey}:${filterValue}`,
       },
     });
-  }
-
-  private handleMetadataClick(filterKey: string, filterValue: string): void {
-    if (this.metadataCenterViewMode === "dialog") {
-      this.dialogRef?.close();
-      setTimeout(
-        () => this.navigateToFilteredBooks(filterKey, filterValue),
-        200
-      );
-    } else {
-      this.navigateToFilteredBooks(filterKey, filterValue);
-    }
   }
 
   ngAfterViewChecked(): void {
@@ -560,7 +479,7 @@ export class SeriesPageComponent implements AfterViewChecked {
       : this.urlHelper.getThumbnailUrl(book.id, book.metadata?.coverUpdatedOn);
   }
 
-  protected readBook(book: Book): void {
+  protected readBook(book: ReadableBook): void {
     this.bookNavigation.readBook(book);
   }
 
@@ -595,239 +514,5 @@ export class SeriesPageComponent implements AfterViewChecked {
   getRatingPercent(rating: number | null | undefined): number {
     if (rating == null) return 0;
     return Math.round((rating / 5) * 100);
-  }
-
-  private getSelectableBookIds(book: Book): number[] {
-    return book.seriesBooks?.length
-      ? book.seriesBooks.map(seriesBook => seriesBook.id)
-      : [book.id];
-  }
-
-  isBookSelected(book: Book): boolean {
-    return this.getSelectableBookIds(book).every(id => this.selectedBooks().has(id));
-  }
-
-  handleBookSelection(book: Book, selected: boolean) {
-    const ids = this.getSelectableBookIds(book);
-    this.selectedBooks.update(selectedBooks => {
-      const nextSelectedBooks = new Set(selectedBooks);
-      if (selected) {
-        ids.forEach(id => nextSelectedBooks.add(id));
-      } else {
-        ids.forEach(id => nextSelectedBooks.delete(id));
-      }
-      return nextSelectedBooks;
-    });
-  }
-
-  onCheckboxClicked(event: { index: number; book: Book; selected: boolean; shiftKey: boolean }) {
-    const {index, book, selected, shiftKey} = event;
-    const lastSelectedIndex = this.lastSelectedIndex();
-    if (!shiftKey || lastSelectedIndex === null) {
-      this.handleBookSelection(book, selected);
-      this.lastSelectedIndex.set(index);
-    } else {
-      const start = Math.min(lastSelectedIndex, index);
-      const end = Math.max(lastSelectedIndex, index);
-      const isUnselectingRange = !selected;
-      const books = this.filteredBooks();
-      for (let i = start; i <= end; i++) {
-        const book = books[i];
-        if (!book) continue;
-        this.handleBookSelection(book, !isUnselectingRange);
-      }
-    }
-  }
-
-  handleBookSelect(book: Book, selected: boolean): void {
-    this.handleBookSelection(book, selected);
-  }
-
-  selectAllBooks(): void {
-    this.selectedBooks.update(selectedBooks => {
-      const nextSelectedBooks = new Set(selectedBooks);
-      for (const book of this.filteredBooks()) {
-        this.getSelectableBookIds(book).forEach(id => nextSelectedBooks.add(id));
-      }
-      return nextSelectedBooks;
-    });
-  }
-
-  deselectAllBooks(): void {
-    this.selectedBooks.set(new Set());
-  }
-
-  confirmDeleteBooks(): void {
-    const selectedBooks = this.selectedBooks();
-    this.confirmationService.confirm({
-      message: this.t.translate('book.browser.confirm.deleteMessage', {count: selectedBooks.size}),
-      header: this.t.translate('book.browser.confirm.deleteHeader'),
-      icon: 'pi pi-exclamation-triangle',
-      acceptIcon: 'pi pi-trash',
-      rejectIcon: 'pi pi-times',
-      acceptLabel: this.t.translate('common.delete'),
-      rejectLabel: this.t.translate('common.cancel'),
-      acceptButtonStyleClass: 'p-button-danger',
-      rejectButtonStyleClass: 'p-button-outlined',
-      accept: () => {
-        const count = selectedBooks.size;
-        const loader = this.loadingService.show(this.t.translate('book.browser.loading.deleting', {count}));
-
-        this.bookService.deleteBooks(selectedBooks)
-          .pipe(finalize(() => this.loadingService.hide(loader)))
-          .subscribe(() => {
-            this.deselectAllBooks();
-          });
-      }
-    });
-  }
-
-  async openShelfAssigner() {
-    this.dialogRef = await this.dialogHelperService.openShelfAssignerDialog(null, this.selectedBooks());
-    if (this.dialogRef) {
-      this.dialogRef.onClose.pipe(take(1)).subscribe(result => {
-        if (result?.assigned) {
-          this.deselectAllBooks();
-        }
-      });
-    }
-  }
-
-  async lockUnlockMetadata() {
-    this.dialogRef = await this.dialogHelperService.openLockUnlockMetadataDialog(this.selectedBooks());
-    if (this.dialogRef) {
-      this.dialogRef.onClose.pipe(take(1)).subscribe(() => {
-        this.deselectAllBooks();
-      });
-    }
-  }
-
-  autoFetchMetadata(): void {
-    const selectedBooks = this.selectedBooks();
-    if (selectedBooks.size === 0) return;
-    this.taskHelperService.refreshMetadataTask({
-      refreshType: MetadataRefreshType.BOOKS,
-      bookIds: Array.from(selectedBooks),
-    }).subscribe();
-  }
-
-  async fetchMetadata() {
-    await this.dialogHelperService.openMetadataRefreshDialog(this.selectedBooks());
-  }
-
-  async bulkEditMetadata() {
-    this.dialogRef = await this.dialogHelperService.openBulkMetadataEditDialog(this.selectedBooks());
-    if (this.dialogRef) {
-      this.dialogRef.onClose.pipe(take(1)).subscribe(() => {
-        this.deselectAllBooks();
-      });
-    }
-  }
-
-  async multiBookEditMetadata() {
-    this.dialogRef = await this.dialogHelperService.openMultibookMetadataEditorDialog(this.selectedBooks());
-    if (this.dialogRef) {
-      this.dialogRef.onClose.pipe(take(1)).subscribe(() => {
-        this.deselectAllBooks();
-      });
-    }
-  }
-
-  regenerateCoversForSelected(): void {
-    const selectedBooks = this.selectedBooks();
-    if (selectedBooks.size === 0) return;
-    const count = selectedBooks.size;
-    this.confirmationService.confirm({
-      message: this.t.translate('book.browser.confirm.regenCoverMessage', {count}),
-      header: this.t.translate('book.browser.confirm.regenCoverHeader'),
-      icon: 'pi pi-image',
-      acceptLabel: this.t.translate('common.yes'),
-      rejectLabel: this.t.translate('common.no'),
-      acceptButtonProps: {
-        label: this.t.translate('common.yes'),
-        severity: 'success'
-      },
-      rejectButtonProps: {
-        label: this.t.translate('common.no'),
-        severity: 'secondary'
-      },
-      accept: () => {
-        this.bookMetadataManageService.regenerateCoversForBooks(Array.from(selectedBooks)).subscribe({
-          next: () => {
-            this.messageService.add({
-              severity: 'success',
-              summary: this.t.translate('book.browser.toast.regenCoverStartedSummary'),
-              detail: this.t.translate('book.browser.toast.regenCoverStartedDetail', {count}),
-              life: 3000
-            });
-          },
-          error: () => {
-            this.messageService.add({
-              severity: 'error',
-              summary: this.t.translate('book.browser.toast.failedSummary'),
-              detail: this.t.translate('book.browser.toast.regenCoverFailedDetail'),
-              life: 3000
-            });
-          }
-        });
-      }
-    });
-  }
-
-  generateCustomCoversForSelected(): void {
-    const selectedBooks = this.selectedBooks();
-    if (selectedBooks.size === 0) return;
-    const count = selectedBooks.size;
-    this.confirmationService.confirm({
-      message: this.t.translate('book.browser.confirm.customCoverMessage', {count}),
-      header: this.t.translate('book.browser.confirm.customCoverHeader'),
-      icon: 'pi pi-palette',
-      acceptLabel: this.t.translate('common.yes'),
-      rejectLabel: this.t.translate('common.no'),
-      acceptButtonProps: {
-        label: this.t.translate('common.yes'),
-        severity: 'success'
-      },
-      rejectButtonProps: {
-        label: this.t.translate('common.no'),
-        severity: 'secondary'
-      },
-      accept: () => {
-        this.bookMetadataManageService.generateCustomCoversForBooks(Array.from(selectedBooks)).subscribe({
-          next: () => {
-            this.messageService.add({
-              severity: 'success',
-              summary: this.t.translate('book.browser.toast.customCoverStartedSummary'),
-              detail: this.t.translate('book.browser.toast.customCoverStartedDetail', {count}),
-              life: 3000
-            });
-          },
-          error: () => {
-            this.messageService.add({
-              severity: 'error',
-              summary: this.t.translate('book.browser.toast.failedSummary'),
-              detail: this.t.translate('book.browser.toast.customCoverFailedDetail'),
-              life: 3000
-            });
-          }
-        });
-      }
-    });
-  }
-
-  async moveFiles() {
-    await this.dialogHelperService.openFileMoverDialog(this.selectedBooks());
-  }
-
-  user() {
-    return this.currentUser();
-  }
-
-  get hasMetadataMenuItems(): boolean {
-    return (this.metadataMenuItems()?.length ?? 0) > 0;
-  }
-
-  get hasMoreActionsItems(): boolean {
-    return (this.moreActionsMenuItems()?.length ?? 0) > 0;
   }
 }

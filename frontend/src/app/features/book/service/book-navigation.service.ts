@@ -29,9 +29,6 @@ export class BookNavigationService {
   private readonly _navigationState = signal<BookNavigationState | null>(null);
   readonly navigationState = this._navigationState.asReadonly();
 
-  private readonly _availableBookIds = signal<number[]>([]);
-  readonly availableBookIds = this._availableBookIds.asReadonly();
-
   readonly canNavigatePrevious = computed(() => {
     const state = this.navigationState();
     return state !== null && state.currentIndex > 0;
@@ -65,10 +62,6 @@ export class BookNavigationService {
         }
       : null;
   });
-
-  setAvailableBookIds(bookIds: number[]): void {
-    this._availableBookIds.set(bookIds);
-  }
 
   readBook(book: ReadableBook, {bookType = book.primaryFile?.bookType, streaming = false}: ReadOptions = {}): void {
     const baseUrl = this.readerRoute(bookType);

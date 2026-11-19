@@ -111,14 +111,6 @@ export class BookService {
     void invalidateAllBookQueries(this.queryClient);
   }
 
-  /*------------------ Book Retrieval ------------------*/
-
-  getBooksByIds(bookIds: number[]): Book[] {
-    if (bookIds.length === 0) return [];
-    const idSet = new Set(bookIds.map(id => +id));
-    return this.books().filter(book => idSet.has(+book.id));
-  }
-
   /*------------------ Book Operations ------------------*/
 
   deleteBooks(ids: Set<number>): Observable<BookDeletionResponse> {

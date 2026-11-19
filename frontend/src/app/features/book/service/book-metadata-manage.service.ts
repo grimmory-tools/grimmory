@@ -135,21 +135,6 @@ export class BookMetadataManageService {
     );
   }
 
-  generateCustomCoversForBooks(bookIds: number[]): Observable<void> {
-    return this.http.post<void>(`${this.url}/bulk-generate-custom-covers`, {bookIds}).pipe(
-      tap(() => {
-        invalidateBooksById(this.queryClient, bookIds);
-      })
-    );
-  }
-
-  regenerateCoversForBooks(bookIds: number[]): Observable<void> {
-    return this.http.post<void>(`${this.url}/bulk-regenerate-covers`, {bookIds}).pipe(
-      tap(() => {
-        invalidateBooksById(this.queryClient, bookIds);
-      })
-    );
-  }
 
   uploadAudiobookCoverFromUrl(bookId: number, url: string): Observable<BookMetadata> {
     return this.http.post<BookMetadata>(`${this.url}/${bookId}/metadata/audiobook-cover/from-url`, {url}).pipe(

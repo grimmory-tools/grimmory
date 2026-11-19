@@ -301,33 +301,6 @@
       "count": 1
     }
   },
-  "src/app/features/book/components/legacy-book-card/book-card-overlay-preference.service.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 2
-    },
-    "typescript/no-unnecessary-condition": {
-      "count": 8
-    }
-  },
-  "src/app/features/book/components/legacy-book-card/legacy-book-card.component.spec.ts": {
-    "typescript/no-floating-promises": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/components/legacy-book-card/legacy-book-card.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 3
-    },
-    "typescript/no-floating-promises": {
-      "count": 2
-    },
-    "typescript/no-unnecessary-condition": {
-      "count": 5
-    },
-    "typescript/no-unsafe-argument": {
-      "count": 1
-    }
-  },
   "src/app/features/book/components/lock-unlock-metadata-dialog/lock-unlock-metadata-dialog.component.ts": {
     "typescript/no-unsafe-assignment": {
       "count": 1
@@ -337,23 +310,14 @@
     }
   },
   "src/app/features/book/components/series-page/series-page.component.ts": {
-    "anti-slop/no-known-value-widening": {
-      "count": 1
-    },
     "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 1
     },
-    "typescript/no-misused-promises": {
-      "count": 3
-    },
     "typescript/no-unnecessary-condition": {
-      "count": 6
+      "count": 5
     },
     "typescript/no-unsafe-enum-comparison": {
       "count": 8
-    },
-    "typescript/no-unsafe-member-access": {
-      "count": 1
     }
   },
   "src/app/features/book/components/shelf-assigner/shelf-assigner.component.ts": {
@@ -450,14 +414,6 @@
     },
     "typescript/no-unsafe-return": {
       "count": 4
-    }
-  },
-  "src/app/features/book/service/book-menu.service.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 8
-    },
-    "typescript/no-unnecessary-condition": {
-      "count": 7
     }
   },
   "src/app/features/book/service/book-metadata-manage.service.ts": {
@@ -1774,11 +1730,6 @@
   },
   "src/app/shared/service/settings-helper.service.ts": {
     "anti-slop/no-unknown-parameters": {
-      "count": 1
-    }
-  },
-  "src/app/shared/service/url-helper.service.ts": {
-    "typescript/switch-exhaustiveness-check": {
       "count": 1
     }
   },

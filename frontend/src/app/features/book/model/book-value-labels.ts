@@ -1,5 +1,4 @@
 import {type BrowseFacetBucket, formatRangeToken} from '../../../shared/browse/facet-ranges';
-import {ReadStatus} from './book.model';
 
 interface RangeConfig {
   id: number;
@@ -7,18 +6,6 @@ interface RangeConfig {
   min: number;
   max: number;
 }
-
-export const READ_STATUS_LABELS = {
-  [ReadStatus.UNREAD]: 'Unread',
-  [ReadStatus.READING]: 'Reading',
-  [ReadStatus.RE_READING]: 'Re-reading',
-  [ReadStatus.PARTIALLY_READ]: 'Partially Read',
-  [ReadStatus.PAUSED]: 'Paused',
-  [ReadStatus.READ]: 'Read',
-  [ReadStatus.WONT_READ]: 'Won\'t Read',
-  [ReadStatus.ABANDONED]: 'Abandoned',
-  [ReadStatus.UNSET]: 'Unset'
-} satisfies Readonly<Record<ReadStatus, string>>;
 
 export const PAGE_COUNT_RANGES: readonly RangeConfig[] = [
   {id: 0, label: '< 50 pages', min: 0, max: 50},

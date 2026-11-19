@@ -156,7 +156,6 @@ describe('BookService', () => {
     await flushBooksQuery();
 
     expect(service.books()).toEqual(response);
-    expect(service.getBooksByIds([2, 999, 1])).toEqual(response);
     expect(service.isBooksLoading()).toBe(false);
     expect(service.booksError()).toBeNull();
   });

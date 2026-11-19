@@ -82,11 +82,6 @@
       "count": 1
     }
   },
-  "src/app/features/book/components/legacy-book-card/legacy-book-card.component.html": {
-    "@angular-eslint/template/no-non-null-assertion": {
-      "count": 5
-    }
-  },
   "src/app/features/book/components/library-shelf-menu/library-shelf-menu-items.component.ts": {
     "@angular-eslint/template/require-switch-default": {
       "count": 1
@@ -97,7 +92,7 @@
       "count": 4
     },
     "@angular-eslint/template/prefer-contextual-for-variables": {
-      "count": 3
+      "count": 2
     }
   },
   "src/app/features/bookdrop/component/bookdrop-file-metadata-picker/bookdrop-file-metadata-picker.component.html": {

@@ -8,6 +8,7 @@
   </div>
 } @else {
   @let books = filteredBooks();
+  <app-book-menu [books]="seriesBooks.items()" />
   <div class="series-wrapper">
     <p-tabs [value]="tab" lazy="true" scrollable>
       <p-tablist>
@@ -20,12 +21,12 @@
           {{ t('bookListTab') }}
         </p-tab>
       </p-tablist>
-      <p-tabpanels class="tabpanels-responsive">
+      <p-tabpanels class="tabpanels-responsive virtual-scroller">
         <p-tabpanel value="view">
 
           @if (books[0]; as firstBook) {
             <div class="series-main">
-              <div class="series-details">
+              <div #seriesDetails class="series-details">
 
                 <!-- HERO: Cover + Identity info -->
                 <div class="series-hero">
@@ -275,25 +276,23 @@
                   <i class="pi pi-objects-column"></i>
                   {{ t('booksInSeries') }}
                 </h3>
-                <div
-                  #seriesGrid
-                  class="series-items-grid"
-                  [style.--series-grid-columns]="seriesGridColumns()"
-                  [style.--series-grid-card-width.px]="seriesGridCardWidth()"
-                  [style.--series-grid-card-height.px]="seriesGridCardHeight()"
-                  [style.--series-grid-gap.px]="seriesGridGap()">
-                  @for (book of books; track book.id; let index = $index) {
-                    <app-legacy-book-card
-                      [index]="index"
-                      [book]="book"
-                      [isCheckboxEnabled]="true"
-                      [seriesViewEnabled]="seriesViewEnabled"
-                      [onBookSelect]="onSeriesBookCardSelect"
-                      [isSeriesCollapsed]="seriesCardsCollapsed"
-                      (checkboxClick)="onCheckboxClicked($event)"
-                      [isSelected]="isBookSelected(book)"
-                      [useSquareCovers]="seriesCardsUseSquareCovers"
-                      [overlayPreferenceService]="bookCardOverlayPreferenceService" />
+                <div #seriesGridContent class="virtual-content" [style.height.px]="seriesVirtualGrid.virtualizer.getTotalSize()">
+                  @for (virtualItem of seriesVirtualGrid.virtualizer.getVirtualItems(); track virtualItem.key) {
+                    @if (seriesBooks.items()[virtualItem.index]; as book) {
+                      <div
+                        class="virtual-cell"
+                        [style.width.px]="seriesVirtualGrid.itemWidth()"
+                        [style.height.px]="virtualItem.size"
+                        [style.transform]="seriesVirtualGrid.itemTransform(virtualItem)">
+                        <app-book-card
+                          [book]="book"
+                          [showFormatPill]="true"
+                          [detailMode]="'link'"
+                          (action)="readBook(book)"
+                          [menuOpen]="menuOpenBookId() === book.id"
+                          (menuRequested)="bookMenu()?.openFor(book, $event)" />
+                      </div>
+                    }
                   }
                 </div>
 
@@ -394,100 +393,6 @@
 
     </p-tabpanels>
   </p-tabs>
-  @if (selectedBooks().size > 0) {
-    @if (currentUser(); as user) {
-      <div class="book-browser-footer" [animate.enter]="'slide-in-up'" [animate.leave]="'slide-out-down'">
-        <div class="footer-content">
-          <div class="footer-left">
-            <div class="selected-count-badge">
-              <i class="pi pi-check-circle badge-icon"></i>
-              <span class="badge-count" style="color: var(--primary-color)">{{ selectedBooks().size }}</span>
-              <span class="badge-label">{{ t('selected') }}</span>
-            </div>
-          </div>
-          <div class="footer-center">
-              <div class="footer-action-group">
-                @if (hasMetadataMenuItems) {
-                  <p-tieredMenu #metadataMenu [model]="metadataMenuItems()" [popup]="true" appendTo="body"/>
-                  <p-button
-                    (click)="metadataMenu.toggle($event)"
-                    [pTooltip]="t('tooltip.metadataActions')"
-                    tooltipPosition="top"
-                    outlined="true"
-                    severity="info"
-                    icon="pi pi-database" />
-                }
-                <p-button
-                  icon="pi pi-bookmark-fill"
-                  outlined="true"
-                  severity="info"
-                  (onClick)="openShelfAssigner()"
-                  [pTooltip]="t('tooltip.assignToShelf')"
-                  tooltipPosition="top" />
-                @if (user.permissions.canBulkLockUnlockMetadata) {
-                  <p-button
-                    outlined="true"
-                    icon="pi pi-lock"
-                    severity="info"
-                  (click)="lockUnlockMetadata()"
-                  [pTooltip]="t('tooltip.lockUnlockMetadata')"
-                  tooltipPosition="top" />
-                }
-                @if (user.permissions.canMoveOrganizeFiles && appSettings()?.diskType === 'LOCAL') {
-                  <p-button
-                    outlined="true"
-                    icon="pi pi-arrows-h"
-                    severity="info"
-                    (click)="moveFiles()"
-                    [pTooltip]="t('tooltip.organizeFiles')"
-                    tooltipPosition="top" />
-                }
-                @if (hasMoreActionsItems) {
-                  <div class="more-actions-wrapper">
-                    <p-button
-                      (click)="moreActionsMenu.toggle($event)"
-                      [pTooltip]="t('tooltip.moreActions')"
-                      tooltipPosition="top"
-                      outlined="true"
-                      severity="info"
-                      icon="pi pi-ellipsis-v" />
-                    <p-tieredMenu #moreActionsMenu [model]="moreActionsMenuItems()" [popup]="true" appendTo="body"/>
-                  </div>
-                }
-              </div>
-            <p-divider layout="vertical" />
-            <div class="footer-action-group">
-              <p-button
-                outlined="true"
-                icon="pi pi-check-square"
-                severity="success"
-                (click)="selectAllBooks()"
-                [pTooltip]="t('tooltip.selectAll')"
-                tooltipPosition="top" />
-              <p-button
-                outlined="true"
-                icon="pi pi-times"
-                severity="warn"
-                (click)="deselectAllBooks()"
-                [pTooltip]="t('tooltip.deselectAll')"
-                tooltipPosition="top" />
-            </div>
-            @if (user.permissions.admin || user.permissions.canDeleteBook) {
-              <p-divider layout="vertical" />
-              <p-button
-                outlined="true"
-                icon="pi pi-trash"
-                severity="danger"
-                (click)="confirmDeleteBooks()"
-                [pTooltip]="t('tooltip.deleteSelected')"
-                tooltipPosition="top" />
-            }
-          </div>
-          <div class="footer-right"></div>
-        </div>
-      </div>
-    }
-  }
 </div>
 }
 </ng-container>

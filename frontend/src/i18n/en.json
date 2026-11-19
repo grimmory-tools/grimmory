@@ -2712,18 +2712,6 @@
         "customCoverMessage": "Are you sure you want to generate custom covers for {{ count }} book(s)?",
         "customCoverHeader": "Confirm Custom Cover Generation"
       },
-      "toast": {
-        "regenCoverStartedSummary": "Cover Regeneration Started",
-        "regenCoverStartedDetail": "Regenerating covers for {{ count }} book(s). Refresh the page when complete.",
-        "customCoverStartedSummary": "Custom Cover Generation Started",
-        "customCoverStartedDetail": "Generating custom covers for {{ count }} book(s).",
-        "failedSummary": "Failed",
-        "regenCoverFailedDetail": "Could not start cover regeneration.",
-        "customCoverFailedDetail": "Could not start custom cover generation."
-      },
-      "loading": {
-        "deleting": "Deleting {{ count }} book(s)..."
-      },
       "labels": {
         "allBooks": "All Books",
         "unshelvedBooks": "Unshelved Books"
@@ -2738,70 +2726,9 @@
         "bookMenu": "Options for {{ title }}",
         "coverAlt": "Cover of {{ title }}"
       },
-      "menu": {
-        "assignShelf": "Assign Shelf",
-        "viewDetails": "View Details",
-        "download": "Download",
-        "delete": "Delete",
-        "emailBook": "Email Book",
-        "quickSend": "Quick Send",
-        "customSend": "Custom Send",
-        "metadata": "Metadata",
-        "searchMetadata": "Search Metadata",
-        "autoFetch": "Auto Fetch",
-        "customFetch": "Custom Fetch",
-        "regenerateCover": "Regenerate Cover (File)",
-        "generateCustomCover": "Generate Custom Cover",
-        "moreActions": "More Actions",
-        "organizeFile": "Organize File",
-        "readStatus": "Read Status",
-        "resetGrimmoryProgress": "Reset Grimmory Progress",
-        "resetKOReaderProgress": "Reset KOReader Progress",
-        "book": "Book",
-        "loading": "Loading..."
-      },
-      "confirm": {
-        "deleteBookMessage": "Are you sure you want to delete \"{{ title }}\"?\n\nThis will permanently remove the book file from your filesystem.\n\nThis action cannot be undone.",
-        "deleteBookHeader": "Confirm Deletion",
-        "deleteFileMessage": "Are you sure you want to delete the additional file \"{{ fileName }}\"?",
-        "deleteFileHeader": "Confirm File Deletion",
-        "largeFileMessage": "This file exceeds 25MB. Some email providers may reject large attachments.\n\nDo you want to send it anyway?",
-        "largeFileHeader": "Large File Warning",
-        "sendAnyway": "Send Anyway"
-      },
       "toast": {
-        "quickSendSuccessDetail": "The book sending has been scheduled.",
-        "quickSendErrorDetail": "An error occurred while sending the book.",
-        "deleteFileSuccessDetail": "Additional file \"{{ fileName }}\" deleted successfully",
-        "deleteFileErrorDetail": "Failed to delete additional file: {{ error }}",
-        "readStatusUpdatedSummary": "Read Status Updated",
-        "readStatusUpdatedDetail": "Marked as \"{{ label }}\"",
-        "readStatusFailedSummary": "Update Failed",
-        "readStatusFailedDetail": "Could not update read status.",
-        "progressResetSummary": "Progress Reset",
-        "progressResetGrimmoryDetail": "Grimmory reading progress has been reset.",
-        "progressResetKOReaderDetail": "KOReader reading progress has been reset.",
-        "progressResetFailedSummary": "Failed",
-        "progressResetGrimmoryFailedDetail": "Could not reset Grimmory progress.",
-        "progressResetKOReaderFailedDetail": "Could not reset KOReader progress.",
         "coverRegenSuccessSummary": "Success",
-        "coverRegenSuccessDetail": "Cover regeneration started",
-        "coverRegenFailedDetail": "Failed to regenerate cover",
-        "customCoverSuccessSummary": "Success",
-        "customCoverSuccessDetail": "Cover generated successfully",
-        "customCoverFailedDetail": "Failed to generate cover"
-      },
-      "alt": {
-        "cover": "Cover of {{ title }}",
-        "titleTooltip": "Title: {{ title }}",
-        "seriesCollapsed": "Series collapsed: {{ count }} books",
-        "viewSeriesInfo": "View series information",
-        "viewDetails": "View book details",
-        "readBook": "Read book",
-        "playAudiobook": "Play audiobook",
-        "bookMenu": "Book actions menu",
-        "continueReading": "Continue reading",
-        "readStatusMenu": "Change read status"
+        "customCoverSuccessSummary": "Success"
       }
     },
     "row": {
@@ -2907,77 +2834,6 @@
         "filesAttachedDetail": "{{ count }} book file(s) have been attached successfully.",
         "attachmentFailedSummary": "Attachment Failed",
         "attachmentFailedDetail": "An error occurred while attaching the files."
-      }
-    },
-    "menuService": {
-      "menu": {
-        "autoFetchMetadata": "Auto Fetch Metadata",
-        "customFetchMetadata": "Custom Fetch Metadata",
-        "bulkMetadataEditor": "Bulk Metadata Editor",
-        "multiBookMetadataEditor": "Multi-Book Metadata Editor",
-        "regenerateCovers": "Regenerate Covers",
-        "generateCustomCovers": "Generate Custom Covers",
-        "updateReadStatus": "Update Read Status",
-        "setAgeRating": "Set Age Rating",
-        "clearAgeRating": "Clear Age Rating",
-        "setContentRating": "Set Content Rating",
-        "clearContentRating": "Clear Content Rating",
-        "removeFromAllShelves": "Remove from all shelves",
-        "resetGrimmoryProgress": "Reset Grimmory Progress",
-        "resetKOReaderProgress": "Reset KOReader Progress"
-      },
-      "confirm": {
-        "readStatusMessage": "Are you sure you want to mark {{ count }} book(s) as \"{{ label }}\"?",
-        "readStatusHeader": "Confirm Read Status Update",
-        "ageRatingMessage": "Are you sure you want to set the age rating to \"{{ label }}\" for {{ count }} book(s)?",
-        "ageRatingHeader": "Confirm Age Rating Update",
-        "clearAgeRatingMessage": "Are you sure you want to clear the age rating for {{ count }} book(s)?",
-        "clearAgeRatingHeader": "Confirm Clear Age Rating",
-        "contentRatingMessage": "Are you sure you want to set the content rating to \"{{ label }}\" for {{ count }} book(s)?",
-        "contentRatingHeader": "Confirm Content Rating Update",
-        "clearContentRatingMessage": "Are you sure you want to clear the content rating for {{ count }} book(s)?",
-        "clearContentRatingHeader": "Confirm Clear Content Rating",
-        "unshelveMessage": "Are you sure you want to remove {{ count }} book(s) from ALL their shelves?",
-        "unshelveHeader": "Confirm Unshelve",
-        "resetGrimmoryMessage": "Are you sure you want to reset Grimmory reading progress for {{ count }} book(s)?",
-        "resetKOReaderMessage": "Are you sure you want to reset KOReader reading progress for {{ count }} book(s)?",
-        "resetHeader": "Confirm Reset"
-      },
-      "toast": {
-        "readStatusUpdatedSummary": "Read Status Updated",
-        "readStatusUpdatedDetail": "Marked as \"{{ label }}\"",
-        "updateFailedSummary": "Update Failed",
-        "readStatusFailedDetail": "Could not update read status.",
-        "ageRatingUpdatedSummary": "Age Rating Updated",
-        "ageRatingUpdatedDetail": "Set to \"{{ label }}\"",
-        "ageRatingFailedDetail": "Could not update age rating.",
-        "ageRatingClearedSummary": "Age Rating Cleared",
-        "ageRatingClearedDetail": "Age rating has been cleared.",
-        "clearAgeRatingFailedDetail": "Could not clear age rating.",
-        "contentRatingUpdatedSummary": "Content Rating Updated",
-        "contentRatingUpdatedDetail": "Set to \"{{ label }}\"",
-        "contentRatingFailedDetail": "Could not update content rating.",
-        "contentRatingClearedSummary": "Content Rating Cleared",
-        "contentRatingClearedDetail": "Content rating has been cleared.",
-        "clearContentRatingFailedDetail": "Could not clear content rating.",
-        "noBooksOnShelvesDetail": "Selected books are not on any shelves.",
-        "unshelveSuccessDetail": "Books removed from all shelves",
-        "unshelveFailedDetail": "Failed to update books shelves",
-        "progressResetSummary": "Progress Reset",
-        "grimmoryProgressResetDetail": "Grimmory reading progress has been reset.",
-        "koreaderProgressResetDetail": "KOReader reading progress has been reset.",
-        "failedSummary": "Failed",
-        "progressResetFailedDetail": "Could not reset progress."
-      },
-      "loading": {
-        "updatingReadStatus": "Updating read status for {{ count }} book(s)...",
-        "settingAgeRating": "Setting age rating for {{ count }} book(s)...",
-        "clearingAgeRating": "Clearing age rating for {{ count }} book(s)...",
-        "settingContentRating": "Setting content rating for {{ count }} book(s)...",
-        "clearingContentRating": "Clearing content rating for {{ count }} book(s)...",
-        "removingFromShelves": "Removing {{ count }} book(s) from shelves...",
-        "resettingGrimmoryProgress": "Resetting Grimmory progress for {{ count }} book(s)...",
-        "resettingKOReaderProgress": "Resetting KOReader progress for {{ count }} book(s)..."
       }
     },
     "shelfMenuService": {
@@ -3408,7 +3264,6 @@
       "showMore": "Show more",
       "noBooksFound": "No books found for this series.",
       "booksInSeries": "Books in Series",
-      "selected": "selected",
       "loadingSeriesDetails": "Loading series details...",
       "completionOwned": "You own {{ owned }} of {{ total }} books",
       "missingBooks": "Missing: #{{ numbers }}",
@@ -3439,16 +3294,6 @@
         "abandoned": "ABANDONED",
         "wontRead": "WON'T READ",
         "unset": "UNSET"
-      },
-      "tooltip": {
-        "metadataActions": "Metadata actions",
-        "assignToShelf": "Assign to shelf",
-        "lockUnlockMetadata": "Lock/Unlock metadata",
-        "organizeFiles": "Organize Files",
-        "moreActions": "More actions",
-        "selectAll": "Select all books",
-        "deselectAll": "Deselect all books",
-        "deleteSelected": "Delete selected books"
       }
     },
     "duplicateMerger": {
