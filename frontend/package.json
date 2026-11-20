@@ -76,8 +76,8 @@
     "@types/d3-shape": "3.1.8",
     "@types/node": "^26.6.6",
     "@vitest/coverage-v8": "^5.1.0",
-    "angular-eslint": "^22.6.0",
-    "eslint": "^10.14.0",
+    "angular-eslint": "^22.7.0",
+    "eslint": "^10.15.0",
     "eslint-plugin-oxlint": "1.93.0",
     "jsdom": "^31.0.0",
     "ng-mocks": "^14.18.6",
@@ -88,7 +88,7 @@
     "stylelint-config-standard-scss": "^17.0.0",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.72.2",
+    "typescript-eslint": "^8.73.0",
     "vitest": "^5.1.0"
   }
 }
