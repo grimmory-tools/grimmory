@@ -2,7 +2,7 @@ import {signal} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {ActivatedRoute, Router} from '@angular/router';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {of, throwError} from 'rxjs';
+import {of, Subject, throwError} from 'rxjs';
 
 import {OidcService} from '../../../core/security/oidc.service';
 import {getTranslocoModule} from '../../../core/testing/transloco-testing';
@@ -160,6 +160,59 @@ describe('LoginComponent', () => {
     expect(component.showLocalLogin).toBe(false);
     expect(sessionStorage.getItem('oidc_redirect_count')).toBeNull();
     expect(loginWithOidcSpy).not.toHaveBeenCalled();
+  });
+
+  it('ignores repeated clicks while a login request is in flight', () => {
+    configureComponent();
+    const pending = new Subject<{isDefaultPassword: boolean}>();
+    authService.internalLogin.mockReturnValue(pending.asObservable());
+
+    component.username = 'admin';
+    component.password = 'password';
+    component.login();
+    component.login();
+
+    expect(authService.internalLogin).toHaveBeenCalledTimes(1);
+    expect(component.isLoginInProgress()).toBe(true);
+
+    pending.next({isDefaultPassword: false});
+    pending.complete();
+
+    expect(component.isLoginInProgress()).toBe(false);
+  });
+
+  it('re-enables the sign-in button after an asynchronous login failure', async () => {
+    configureComponent();
+    const pending = new Subject<{isDefaultPassword: boolean}>();
+    authService.internalLogin.mockReturnValue(pending.asObservable());
+    const signInButton = (): HTMLButtonElement => fixture.nativeElement.querySelector('.login-button button');
+
+    // NgModel registers its form control on the first model change, so seed the
+    // model before typing so that the form becomes valid and the button enabled.
+    component.username = 'admin';
+    component.password = 'password';
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const usernameInput: HTMLInputElement = fixture.nativeElement.querySelector('#username');
+    const passwordInput: HTMLInputElement = fixture.nativeElement.querySelector('p-password input');
+    usernameInput.value = component.username;
+    usernameInput.dispatchEvent(new Event('input'));
+    passwordInput.value = component.password;
+    passwordInput.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(signInButton().disabled).toBe(false);
+
+    component.login();
+    await fixture.whenStable();
+    expect(signInButton().disabled).toBe(true);
+
+    pending.error({status: 401});
+    await fixture.whenStable();
+
+    expect(component.isLoginInProgress()).toBe(false);
+    expect(signInButton().disabled).toBe(false);
   });
 
   it('navigates to change-password when the server marks the password as default', () => {

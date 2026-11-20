@@ -1,4 +1,4 @@
-import {Component, effect, inject, OnInit} from '@angular/core';
+import {Component, effect, inject, OnInit, signal} from '@angular/core';
 import {AuthService} from '../../service/auth.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {FormsModule} from '@angular/forms';
@@ -38,6 +38,7 @@ export class LoginComponent implements OnInit {
   oidcEnabled = false;
   oidcName = 'OIDC';
   isOidcLoginInProgress = false;
+  readonly isLoginInProgress = signal(false);
   showLocalLogin = true;
   private oidcOnlyAutoRedirect = false;
 
@@ -124,6 +125,14 @@ export class LoginComponent implements OnInit {
   }
 
   login(): void {
+    // A slow response invites a second click; ignore it so we do not create
+    // a second refresh token (and invalidate the first one) for one login attempt.
+    if (this.isLoginInProgress()) {
+      return;
+    }
+    this.isLoginInProgress.set(true);
+    this.errorMessage = '';
+
     this.authService.internalLogin({username: this.username, password: this.password}).subscribe({
       next: (response) => {
         if (response.isDefaultPassword) {
@@ -141,6 +150,8 @@ export class LoginComponent implements OnInit {
           this.errorMessage = error?.error?.message || this.translocoService.translate('auth.login.unexpectedError');
         }
       }
+    }).add(() => {
+      this.isLoginInProgress.set(false);
     });
   }
 
