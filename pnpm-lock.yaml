@@ -229,8 +229,8 @@ importers:
         specifier: 5.107.1
         version: 5.107.1(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(csstype@3.2.3)
       '@tanstack/angular-table':
-        specifier: 9.3.1
-        version: 9.3.1(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))
+        specifier: 9.3.2
+        version: 9.3.2(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))
       '@tanstack/angular-virtual':
         specifier: ^6.1.9
         version: 6.1.9(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))
@@ -2638,8 +2638,8 @@ packages:
       '@angular/common': '>=19.0.0'
       '@angular/core': '>=19.0.0'
 
-  '@tanstack/angular-table@9.3.1':
-    resolution: {integrity: sha512-/BQJXAZde3XSRxD4O4bskaUGd5WxkBRbM4rNsXT9cCnKwRLWcFkofAXZRJQ+FXy1Bnh03GzLxmCfExSIOW3q3w==}
+  '@tanstack/angular-table@9.3.2':
+    resolution: {integrity: sha512-07g1t02m8JWVMq/RjyRduLyfV6tQKAz14gHdyVzeddFxHCsK3ltsghsTa3E6l8XOEORDjYESG3ZzTz/talxewg==}
     engines: {node: '>=20'}
     peerDependencies:
       '@angular/core': '>=19'
@@ -6888,7 +6888,7 @@ snapshots:
       '@angular/core': 22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2)
       '@tanstack/store': 0.11.2
 
-  '@tanstack/angular-table@9.3.1(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))':
+  '@tanstack/angular-table@9.3.2(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))':
     dependencies:
       '@angular/core': 22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2)
       '@tanstack/angular-store': 0.11.2(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))

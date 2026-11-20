@@ -45,7 +45,7 @@
     "@stomp/rx-stomp": "^2.4.0",
     "@stomp/stompjs": "^7.5.0",
     "@tanstack/angular-query-experimental": "5.107.1",
-    "@tanstack/angular-table": "9.3.1",
+    "@tanstack/angular-table": "9.3.2",
     "@tanstack/angular-virtual": "^6.1.9",
     "@tanstack/charts": "1.5.0",
     "class-variance-authority": "^0.7.1",
