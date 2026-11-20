@@ -83,7 +83,7 @@
     "ng-mocks": "^14.18.6",
     "oxlint": "1.93.0",
     "oxlint-tsgolint": "7.0.2006",
-    "postcss": "^8.5.32",
+    "postcss": "^8.5.33",
     "stylelint": "^17.16.0",
     "stylelint-config-standard-scss": "^17.0.0",
     "tailwindcss": "^4.3.5",
