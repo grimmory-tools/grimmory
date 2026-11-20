@@ -1,4 +1,4 @@
-import {Component, computed, inject, OnInit} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 import {InputText} from '@openng/optimus-ui/inputtext';
@@ -7,7 +7,7 @@ import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {DatePicker} from '@openng/optimus-ui/datepicker';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {MessageService} from '@openng/optimus-ui/api';
-import {BookService} from '../../../book/service/book.service';
+import {FacetSuggestionsDirective} from '../../../book/components/facet-suggestions.directive';
 import {BookMetadataManageService} from '../../../book/service/book-metadata-manage.service';
 import {BulkMetadataUpdateRequest} from '../../../book/model/book.model';
 import {AGE_RATING_OPTIONS, CONTENT_RATING_LABELS} from '../../../book/model/book-value-labels';
@@ -31,6 +31,7 @@ import {Select} from '@openng/optimus-ui/select';
     ProgressSpinner,
     AutoComplete,
     Select,
+    FacetSuggestionsDirective,
   ],
   providers: [MessageService],
   templateUrl: './bulk-metadata-update-component.html',
@@ -40,7 +41,6 @@ export class BulkMetadataUpdateComponent implements OnInit {
   private readonly config = inject(DynamicDialogConfig);
   readonly ref = inject(DynamicDialogRef);
   private readonly fb = inject(FormBuilder);
-  private readonly bookService = inject(BookService);
   private readonly bookMetadataManageService = inject(BookMetadataManageService);
   private readonly messageService = inject(MessageService);
   metadataForm!: FormGroup;
@@ -68,62 +68,6 @@ export class BulkMetadataUpdateComponent implements OnInit {
   readonly ageRatingOptions = AGE_RATING_OPTIONS.map(({id, label}) => ({label, value: id}));
   readonly contentRatingOptions = Object.entries(CONTENT_RATING_LABELS)
     .map(([value, label]) => ({label, value}));
-  private readonly uniqueMetadata = computed(() => this.bookService.uniqueMetadata());
-
-  get allAuthors(): string[] { return this.uniqueMetadata().authors; }
-  get allGenres(): string[] { return this.uniqueMetadata().categories; }
-  get allMoods(): string[] { return this.uniqueMetadata().moods; }
-  get allTags(): string[] { return this.uniqueMetadata().tags; }
-  get allPublishers(): string[] { return this.uniqueMetadata().publishers; }
-  get allSeries(): string[] { return this.uniqueMetadata().series; }
-  filteredGenres: string[] = [];
-  filteredAuthors: string[] = [];
-  filteredMoods: string[] = [];
-  filteredTags: string[] = [];
-  filteredPublishers: string[] = [];
-  filteredSeries: string[] = [];
-
-  filterGenres(event: { query: string }) {
-    const query = event.query.toLowerCase();
-    this.filteredGenres = this.allGenres.filter((cat) =>
-      cat.toLowerCase().includes(query)
-    );
-  }
-
-  filterAuthors(event: { query: string }) {
-    const query = event.query.toLowerCase();
-    this.filteredAuthors = this.allAuthors.filter((author) =>
-      author.toLowerCase().includes(query)
-    );
-  }
-
-  filterMoods(event: { query: string }) {
-    const query = event.query.toLowerCase();
-    this.filteredMoods = this.allMoods.filter((mood) =>
-      mood.toLowerCase().includes(query)
-    );
-  }
-
-  filterTags(event: { query: string }) {
-    const query = event.query.toLowerCase();
-    this.filteredTags = this.allTags.filter((tag) =>
-      tag.toLowerCase().includes(query)
-    );
-  }
-
-  filterPublishers(event: { query: string }) {
-    const query = event.query.toLowerCase();
-    this.filteredPublishers = this.allPublishers.filter((publisher) =>
-      publisher.toLowerCase().includes(query)
-    );
-  }
-
-  filterSeries(event: { query: string }) {
-    const query = event.query.toLowerCase();
-    this.filteredSeries = this.allSeries.filter((seriesName) =>
-      seriesName.toLowerCase().includes(query)
-    );
-  }
 
   ngOnInit(): void {
     this.bookIds = this.config.data?.bookIds ?? [];

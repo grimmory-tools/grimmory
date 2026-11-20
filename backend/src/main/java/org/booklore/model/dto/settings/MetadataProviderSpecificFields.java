@@ -29,4 +29,7 @@ public class MetadataProviderSpecificFields {
     private Boolean applebooksId;
     private Boolean applebooksRating;
     private Boolean applebooksReviewCount;
+    private Boolean doubanId;
+    private Boolean doubanRating;
+    private Boolean doubanReviewCount;
 }

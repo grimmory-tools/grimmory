@@ -2,11 +2,13 @@ import {QueryClient} from '@tanstack/angular-query-experimental';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {observeActiveQuery} from '../../../core/testing/query-testing';
+import {statsQueryKeys} from '../../stats/data/stats-query-keys';
 import {
   invalidateAllBookQueries,
   invalidateBookCollections,
   applyBookQueryChangeSet,
 } from './book-query-cache';
+import {readingQueryKeys} from '../../reading/data/reading-query-keys';
 import {bookQueryKeys} from './book-query-keys';
 import {normalizeBookPageParams} from './book-query-params';
 
@@ -14,7 +16,6 @@ const firstBook = {id: 1};
 const secondBook = {id: 2};
 const pageKey = bookQueryKeys.boundedPage(normalizeBookPageParams({
   facets: {},
-  facetLogic: 'or',
   sort: [],
   size: 20,
 }));
@@ -22,6 +23,7 @@ const firstDetailKey = bookQueryKeys.detail(1, false);
 const secondDetailKey = bookQueryKeys.detail(2, false);
 const firstRecommendationKey = bookQueryKeys.recommendation(1, 20);
 const secondRecommendationKey = bookQueryKeys.recommendation(2, 20);
+const statsKey = statsQueryKeys.endpoint('library/distribution/format', {facets: {}, tz: 'UTC'}, {});
 
 function seedAllQueryFamilies(queryClient: QueryClient): void {
   queryClient.setQueryData(pageKey, {content: [firstBook, secondBook]});
@@ -29,6 +31,7 @@ function seedAllQueryFamilies(queryClient: QueryClient): void {
   queryClient.setQueryData(secondDetailKey, secondBook);
   queryClient.setQueryData(firstRecommendationKey, [secondBook]);
   queryClient.setQueryData(secondRecommendationKey, [firstBook]);
+  queryClient.setQueryData(statsKey, {rows: []});
 }
 
 describe('book query cache', () => {
@@ -46,6 +49,7 @@ describe('book query cache', () => {
     for (const query of queryClient.getQueryCache().findAll({queryKey: bookQueryKeys.all()})) {
       expect(query.state.isInvalidated).toBe(true);
     }
+    expect(queryClient.getQueryState(statsKey)?.isInvalidated).toBe(true);
   });
 
   it('invalidates only collection queries through the collection action', async () => {
@@ -54,6 +58,7 @@ describe('book query cache', () => {
     await invalidateBookCollections(queryClient);
 
     expect(queryClient.getQueryState(pageKey)?.isInvalidated).toBe(true);
+    expect(queryClient.getQueryState(statsKey)?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(firstDetailKey)?.isInvalidated).toBe(false);
     expect(queryClient.getQueryState(firstRecommendationKey)?.isInvalidated).toBe(false);
   });
@@ -68,7 +73,7 @@ describe('book query cache', () => {
     expect(queryClient.getQueryState(firstDetailKey)?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(secondDetailKey)?.isInvalidated).toBe(false);
     expect(queryClient.getQueryState(firstRecommendationKey)?.isInvalidated).toBe(true);
-    expect(invalidateQueriesSpy).toHaveBeenCalledTimes(3);
+    expect(invalidateQueriesSpy).toHaveBeenCalledTimes(5);
   });
 
   it('resolves without work when no changed or deleted book IDs are provided', async () => {
@@ -101,7 +106,7 @@ describe('book query cache', () => {
     expect(queryClient.getQueryState(pageKey)?.isInvalidated).toBe(true);
     expect(queryClient.getQueryState(secondRecommendationKey)?.isInvalidated).toBe(true);
     expect(removeQueriesSpy).toHaveBeenCalledTimes(1);
-    expect(invalidateQueriesSpy).toHaveBeenCalledTimes(2);
+    expect(invalidateQueriesSpy).toHaveBeenCalledTimes(4);
   });
 
   it('refetches each active dependent once without aborting it after a change', async () => {
@@ -254,5 +259,18 @@ describe('book query cache', () => {
     detail.finish();
     await invalidation;
     expect(settled).toBe(true);
+  });
+
+  it('leaves a changed book\'s reading queries alone and marks the notebook stale', async () => {
+    const notebookKey = readingQueryKeys.notebookBooks('');
+    queryClient.setQueryData(readingQueryKeys.bookmarks(1), []);
+    queryClient.setQueryData(readingQueryKeys.audiobookInfo(1, 'AUDIOBOOK'), {});
+    queryClient.setQueryData(notebookKey, []);
+
+    await applyBookQueryChangeSet(queryClient, {changedBookIds: [1]});
+
+    expect(queryClient.getQueryState(readingQueryKeys.bookmarks(1))?.isInvalidated).toBe(false);
+    expect(queryClient.getQueryState(readingQueryKeys.audiobookInfo(1, 'AUDIOBOOK'))?.isInvalidated).toBe(false);
+    expect(queryClient.getQueryState(notebookKey)?.isInvalidated).toBe(true);
   });
 });

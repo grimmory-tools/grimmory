@@ -160,9 +160,6 @@
                         [severity]="getBadgeSeverity(uploadFile.status)"/>
                       <span class="file-name" [pTooltip]="uploadFile.file.name" tooltipPosition="top">{{ uploadFile.file.name }}</span>
                       <span class="file-size">{{ formatSize(uploadFile.file.size) }}</span>
-                      @if (uploadFile.status === 'Uploading') {
-                        <span class="file-progress-text">{{ uploadFile.progress }}%</span>
-                      }
                     </div>
                     <div class="file-actions">
                       @switch (uploadFile.status) {

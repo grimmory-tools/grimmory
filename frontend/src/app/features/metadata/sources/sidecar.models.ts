@@ -1,4 +1,4 @@
-import type {MetadataProviderIdFieldName} from '../../../shared/metadata/metadata-providers';
+import type {MetadataProviderIdFieldName} from '../../../shared/metadata/metadata-fields';
 
 interface SidecarCoverInfo {
   source: string;
@@ -26,6 +26,7 @@ interface SidecarRatings {
   ranobedb?: SidecarRating;
   audible?: SidecarRating;
   applebooks?: SidecarRating;
+  douban?: SidecarRating;
 }
 
 interface SidecarBookMetadata {

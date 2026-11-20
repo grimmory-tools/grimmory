@@ -8,9 +8,11 @@ import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
+import org.booklore.model.entity.AuthorEntity;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.model.enums.ReadStatus;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -25,8 +27,8 @@ public class AuthorVisibleBooks {
         Predicate apply(Root<BookEntity> book, Join<?, ?> metadata, CriteriaQuery<?> query, CriteriaBuilder cb);
     }
 
-    public Predicate exists(Path<?> authorId, CriteriaQuery<?> query, CriteriaBuilder cb, BrowseScope scope) {
-        return exists(authorId, query, cb, scope, null);
+    public Specification<AuthorEntity> visibleAuthors(BrowseScope scope) {
+        return (root, query, cb) -> exists(root.get("id"), query, cb, scope, null);
     }
 
     public Predicate exists(Path<?> authorId, CriteriaQuery<?> query, CriteriaBuilder cb, BrowseScope scope, BookCondition extra) {
@@ -46,7 +48,7 @@ public class AuthorVisibleBooks {
         Subquery<Long> sq = query.subquery(Long.class);
         Root<BookEntity> book = sq.from(BookEntity.class);
         Join<?, ?> metadata = book.join("metadata");
-        sq.select(cb.count(book));
+        sq.select(cb.countDistinct(book));
         sq.where(predicates(authorId, book, metadata, query, cb, scope).toArray(Predicate[]::new));
         return sq;
     }

@@ -41,9 +41,15 @@
   overflow: auto;
 }
 
+.tabpanels-responsive > p-tabpanel {
+  display: block;
+  height: 100%;
+}
+
 :host-context(.book-details-dialog) {
   display: flex;
   width: 100%;
+  min-height: 0;
 }
 
 :host-context(.book-details-dialog) .book-metadata-center-container,

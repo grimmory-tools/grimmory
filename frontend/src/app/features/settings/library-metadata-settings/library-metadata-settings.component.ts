@@ -10,7 +10,7 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {Library} from '../../book/model/library.model';
 import {LibraryService} from '../../book/service/library.service';
 import {MetadataRefreshOptions} from '../../metadata/model/request/metadata-refresh-options.model';
-import {MetadataProviderFieldsService, providerFieldRecord} from '../../../shared/metadata';
+import {METADATA_PROVIDER_FIELDS, providerFieldRecord} from '../../../shared/metadata';
 import {AppSettingKey, AppSettings} from '../../../shared/model/app-settings.model';
 import {AppSettingsService} from '../../../shared/service/app-settings.service';
 import {ExternalDocLinkComponent} from '../../../shared/components/external-doc-link/external-doc-link.component';
@@ -31,7 +31,6 @@ export class LibraryMetadataSettingsComponent {
   private readonly sidecarService = inject(SidecarService);
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly providerFields = inject(MetadataProviderFieldsService);
 
   defaultMetadataOptions: MetadataRefreshOptions = this.getDefaultMetadataOptions();
   libraryMetadataOptions: Record<number, MetadataRefreshOptions> = {};
@@ -225,7 +224,7 @@ export class LibraryMetadataSettingsComponent {
         pageCount: {p1: null, p2: null, p3: null, p4: null},
         moods: {p1: null, p2: null, p3: null, p4: null},
         tags: {p1: null, p2: null, p3: null, p4: null},
-        ...providerFieldRecord(this.providerFields.fields(), () => ({p1: null, p2: null, p3: null, p4: null})),
+        ...providerFieldRecord(METADATA_PROVIDER_FIELDS, () => ({p1: null, p2: null, p3: null, p4: null})),
       }
     };
   }

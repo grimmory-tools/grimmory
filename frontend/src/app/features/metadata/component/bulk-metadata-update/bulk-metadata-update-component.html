@@ -54,8 +54,7 @@
             [multiple]="true"
             [dropdown]="false"
             [forceSelection]="false"
-            [suggestions]="filteredAuthors"
-            (completeMethod)="filterAuthors($event)"
+            appFacetSuggestions="author"
             (onKeyUp)="onAutoCompleteKeyUp('authors', $event)"
             (onSelect)="onAutoCompleteSelect('authors', $event)" />
         </div>
@@ -95,8 +94,7 @@
             [dropdown]="false"
             [showClear]="true"
             [forceSelection]="false"
-            [suggestions]="filteredPublishers"
-            (completeMethod)="filterPublishers($event)" />
+            appFacetSuggestions="publisher" />
         </div>
 
         <!-- Published Date -->
@@ -145,8 +143,7 @@
             [dropdown]="false"
             [showClear]="true"
             [forceSelection]="false"
-            [suggestions]="filteredSeries"
-            (completeMethod)="filterSeries($event)" />
+            appFacetSuggestions="series" />
         </div>
 
         <!-- Series Total -->
@@ -242,8 +239,7 @@
           [multiple]="true"
           [dropdown]="false"
           [forceSelection]="false"
-          [suggestions]="filteredGenres"
-          (completeMethod)="filterGenres($event)"
+          appFacetSuggestions="genre"
           (onKeyUp)="onAutoCompleteKeyUp('genres', $event)"
           (onSelect)="onAutoCompleteSelect('genres', $event)" />
 
@@ -285,8 +281,7 @@
           [multiple]="true"
           [dropdown]="false"
           [forceSelection]="false"
-          [suggestions]="filteredMoods"
-          (completeMethod)="filterMoods($event)"
+          appFacetSuggestions="mood"
           (onKeyUp)="onAutoCompleteKeyUp('moods', $event)"
           (onSelect)="onAutoCompleteSelect('moods', $event)" />
 
@@ -328,8 +323,7 @@
           [multiple]="true"
           [dropdown]="false"
           [forceSelection]="false"
-          [suggestions]="filteredTags"
-          (completeMethod)="filterTags($event)"
+          appFacetSuggestions="tag"
           (onKeyUp)="onAutoCompleteKeyUp('tags', $event)"
           (onSelect)="onAutoCompleteSelect('tags', $event)" />
 

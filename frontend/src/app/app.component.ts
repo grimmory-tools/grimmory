@@ -20,7 +20,7 @@ import {CommandPaletteComponent} from './features/command-palette/command-palett
 import {CommandPaletteService} from './features/command-palette/command-palette.service';
 import {LibraryImportProgressService} from './shared/service/library-import-progress.service';
 import {AuthorService} from './features/author-browser/service/author.service';
-import {MetadataRefreshSubmissionService} from './features/metadata/data/metadata-refresh-submission.service';
+import {MetadataSourceCommandService} from './features/metadata/sources/metadata-source-command.service';
 import {RxStompState} from '@stomp/rx-stomp';
 
 @Component({
@@ -40,7 +40,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private readonly metadataProgressService = inject(MetadataProgressService);
   private readonly bookdropFileService = inject(BookdropFileService);
   private readonly taskService = inject(TaskService);
-  private readonly metadataRefreshSubmissionService = inject(MetadataRefreshSubmissionService);
+  private readonly metadataSourceCommandService = inject(MetadataSourceCommandService);
   private readonly libraryHealthService = inject(LibraryHealthService);
   private readonly authService = inject(AuthService);
   private readonly commandPaletteService = inject(CommandPaletteService);
@@ -154,7 +154,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.rxStompService.watch('/user/queue/book-metadata-batch-progress').subscribe(msg => {
         const progress = JSON.parse(msg.body) as MetadataBatchProgressNotification;
         this.metadataProgressService.handleIncomingProgress(progress);
-        this.metadataRefreshSubmissionService.handleBatchProgress(progress);
+        this.metadataSourceCommandService.handleBatchProgress(progress);
       })
     );
     this.subscriptions.push(

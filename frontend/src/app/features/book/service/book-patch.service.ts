@@ -7,13 +7,11 @@ import {API_CONFIG} from '../../../core/config/api-config';
 import {ResetProgressType, ResetProgressTypes} from '../../../shared/constants/reset-progress-type';
 import {BookStatusUpdateResponse, PersonalRatingUpdateResponse} from '../model/book.model';
 import {QueryClient} from '@tanstack/angular-query-experimental';
-import {applyBookQueryChangeSet} from '../data/book-query-cache';
-import {BOOKS_QUERY_KEY} from './book-query-keys';
 import {
   patchBooksInCache,
   patchBookFieldsInCache,
 } from './legacy-book-cache';
-import {invalidateShelfDefinitions} from '../data/shelf-definition-query-cache';
+import {shelfQueryKeys} from '../../shelf/data/shelf-query-keys';
 
 function getResetProgressFields(type: ResetProgressType): Partial<Book> {
   if (type === ResetProgressTypes.KOREADER) {
@@ -103,7 +101,7 @@ export class BookPatchService {
     return this.http.post<Book[]>(`${this.url}/shelves`, requestPayload).pipe(
       tap(updatedBooks => {
         patchBooksInCache(this.queryClient, updatedBooks);
-        void invalidateShelfDefinitions(this.queryClient);
+        void this.queryClient.invalidateQueries({queryKey: shelfQueryKeys.all()});
       })
     );
   }
@@ -266,15 +264,5 @@ export class BookPatchService {
         })));
       })
     );
-  }
-
-  updateLastReadTime(bookId: number): void {
-    const timestamp = new Date().toISOString();
-    this.queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, current =>
-      current?.map(book =>
-        book.id === bookId ? {...book, lastReadTime: timestamp} : book
-      )
-    );
-    void applyBookQueryChangeSet(this.queryClient, {changedBookIds: [bookId]});
   }
 }

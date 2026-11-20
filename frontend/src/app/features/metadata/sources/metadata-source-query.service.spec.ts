@@ -9,12 +9,9 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {createAuthServiceStub, createQueryClientHarness, flushQueryAsync, sseResponse, sseStream} from '../../../core/testing/query-testing';
 import {AuthService} from '../../../shared/service/auth.service';
-import {
-  metadataSourceKeys,
-  type CoverSearchParams,
-  type MetadataSearchParams,
-  MetadataSourceQueryService,
-} from './metadata-source-query.service';
+import {metadataSourceQueryKeys} from './metadata-source-query-keys';
+import {MetadataSourceQueryService} from './metadata-source-query.service';
+import type {CoverSearchParams, MetadataSearchParams} from './metadata-source-query.models';
 
 const BOOKS_URL = `${API_CONFIG.BASE_URL}/api/v1/books`;
 const PROVIDERS_URL = `${API_CONFIG.BASE_URL}/api/v1/metadata/providers`;
@@ -133,12 +130,12 @@ describe('MetadataSourceQueryService', () => {
   });
 
   it('removes its cached metadata queries when the authenticated session ends', () => {
-    queryClient.setQueryData(metadataSourceKeys.fileMetadata(7), {bookId: 7});
+    queryClient.setQueryData(metadataSourceQueryKeys.fileMetadata(7), {bookId: 7});
 
     authService.token.set(null);
     TestBed.flushEffects();
 
-    expect(queryClient.getQueryData(metadataSourceKeys.fileMetadata(7))).toBeUndefined();
+    expect(queryClient.getQueryData(metadataSourceQueryKeys.fileMetadata(7))).toBeUndefined();
   });
 
   it('looks an isbn up with a POST carrying the trimmed isbn', async () => {

@@ -38,8 +38,8 @@ const BOOK_SORT_DEFINITIONS: BrowseSortDefinitions<BookQuerySortKey> = {
   parseToken: parseSortTermsToken,
 };
 
-export function bookSortOptions(serverSortTokens: readonly string[]): BookSortOption[] {
-  return browseSortOptions(serverSortTokens, BOOK_SORT_DEFINITIONS);
+export function bookSortOptions(serverSortTokens: readonly string[], hidden: ReadonlySet<string>): BookSortOption[] {
+  return browseSortOptions(serverSortTokens, BOOK_SORT_DEFINITIONS).filter(option => !hidden.has(option.id));
 }
 
 const LEGACY_SORT_KEYS: Readonly<Record<string, BookQuerySortKey>> = {

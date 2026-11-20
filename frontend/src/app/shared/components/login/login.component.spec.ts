@@ -219,7 +219,7 @@ describe('LoginComponent', () => {
 
   it('builds the OIDC auth URL and redirects the browser', async () => {
     configureComponent();
-    oidcService.generatePkce.mockResolvedValue({codeVerifier: 'verifier', codeChallenge: 'challenge'});
+    oidcService.generatePkce.mockReturnValue({codeVerifier: 'verifier', codeChallenge: 'challenge'});
     oidcService.fetchState.mockResolvedValue('state-token');
     oidcService.generateRandomString.mockReturnValue('nonce-token');
     oidcService.buildAuthUrl.mockResolvedValue('https://issuer.example/auth');
@@ -245,7 +245,7 @@ describe('LoginComponent', () => {
 
   it('shows a translated provider error when OIDC login initialization fails', async () => {
     configureComponent();
-    oidcService.generatePkce.mockRejectedValue(new Error('crypto unavailable'));
+    oidcService.generatePkce.mockThrow(new Error('crypto unavailable'));
 
     await component.loginWithOidc();
 

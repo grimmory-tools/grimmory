@@ -81,7 +81,9 @@ public class FileMoveService {
         Set<Long> libraryIds = new HashSet<>();
         
         for (FileMoveRequest.Move move : moves) {
-            libraryIds.add(move.getTargetLibraryId());
+            if (move.getTargetLibraryId() != null) {
+                libraryIds.add(move.getTargetLibraryId());
+            }
             bookRepository.findByIdWithBookFiles(move.getBookId())
                     .ifPresent(book -> libraryIds.add(book.getLibrary().getId()));
         }
@@ -101,20 +103,23 @@ public class FileMoveService {
 
         try {
             Optional<BookEntity> optionalBook = bookRepository.findByIdWithBookFiles(bookId);
-            Optional<LibraryEntity> optionalLibrary = libraryRepository.findByIdWithPaths(targetLibraryId);
             if (optionalBook.isEmpty()) {
                 log.warn("Book not found for move operation: bookId={}", bookId);
                 return;
             }
+            BookEntity bookEntity = optionalBook.get();
+            if (targetLibraryId == null) {
+                targetLibraryId = bookEntity.getLibrary().getId();
+            }
+            Optional<LibraryEntity> optionalLibrary = libraryRepository.findByIdWithPaths(targetLibraryId);
             if (optionalLibrary.isEmpty()) {
                 log.warn("Target library not found for move operation: libraryId={}", targetLibraryId);
                 return;
             }
-            BookEntity bookEntity = optionalBook.get();
             LibraryEntity targetLibrary = optionalLibrary.get();
 
             Optional<LibraryPathEntity> optionalLibraryPathEntity = targetLibrary.getLibraryPaths().stream()
-                    .filter(libraryPath -> Objects.equals(libraryPath.getId(), targetLibraryPathId))
+                    .filter(libraryPath -> targetLibraryPathId == null || Objects.equals(libraryPath.getId(), targetLibraryPathId))
                     .findFirst();
             if (optionalLibraryPathEntity.isEmpty()) {
                 log.warn("Target library path not found for move operation: libraryId={}, pathId={}", targetLibraryId, targetLibraryPathId);

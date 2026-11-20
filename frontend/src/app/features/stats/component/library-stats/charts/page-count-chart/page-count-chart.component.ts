@@ -1,185 +1,64 @@
-import {Component, computed, inject} from '@angular/core';
-import {BaseChartDirective} from 'ng2-charts';
-import {ChartConfiguration, ChartData} from 'chart.js';
-import {LibraryFilterService} from '../../service/library-filter.service';
-import {BookService} from '../../../../../book/service/book.service';
-import {Book} from '../../../../../book/model/book.model';
-import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {Component, computed, input} from '@angular/core';
+import {barY, defaultChartTheme, defineChart} from '@tanstack/charts';
+import {scaleLinear} from '@tanstack/charts/scales/linear';
 
-interface PageRange {
-  label: string;
-  min: number;
-  max: number;
-  color: string;
-}
-
-interface PageStats {
-  range: string;
-  count: number;
-  color: string;
-}
-
-type PageChartData = ChartData<'bar', number[], string>;
-
-const PAGE_RANGES: PageRange[] = [
-  {label: '0-100', min: 0, max: 100, color: '#06B6D4'},
-  {label: '101-200', min: 101, max: 200, color: '#0EA5E9'},
-  {label: '201-300', min: 201, max: 300, color: '#3B82F6'},
-  {label: '301-500', min: 301, max: 500, color: '#6366F1'},
-  {label: '501-750', min: 501, max: 750, color: '#8B5CF6'},
-  {label: '751-1000', min: 751, max: 1000, color: '#A855F7'},
-  {label: '1000+', min: 1001, max: Infinity, color: '#D946EF'}
-];
+import {type StatsPageBand} from '../../../../data/stats-response.models';
+import {type StatsKnownDistribution} from '../../../shared/stats-chart-data';
+import {
+  countTicks,
+  STATS_COMPACT_WIDTH,
+  STATS_PAGE_BAND_LABELS,
+  STATS_PAGE_LENGTHS,
+  STATS_ROTATED_LABELS,
+  statsAxis,
+  statsBar,
+  statsBarBand,
+  statsTooltip,
+} from '../../../shared/stats-chart-style';
+import {StatsChartPlotComponent} from '../../../shared/stats-chart-plot.component';
+import {injectStatsText, STATS_CHART_HOST_CLASS} from '../../../shared/stats-chart-text';
 
 @Component({
   selector: 'app-page-count-chart',
-  standalone: true,
-  imports: [BaseChartDirective, TranslocoDirective],
-  templateUrl: './page-count-chart.component.html',
-  styleUrls: ['./page-count-chart.component.scss']
+  imports: [StatsChartPlotComponent],
+  template: `<app-stats-chart-plot [options]="chart()" />`,
+  host: {class: STATS_CHART_HOST_CLASS},
 })
 export class PageCountChartComponent {
-  private readonly bookService = inject(BookService);
-  private readonly libraryFilterService = inject(LibraryFilterService);
-  private readonly t = inject(TranslocoService);
-  private readonly booksWithPageCount = computed(() => {
-    if (this.bookService.isBooksLoading()) {
-      return [];
-    }
+  private readonly text = injectStatsText('statsLibrary.pageCount');
 
-    const filteredBooks = this.filterBooksByLibrary(this.bookService.books(), this.libraryFilterService.selectedLibrary());
-    return filteredBooks.filter(b => b.metadata?.pageCount != null && b.metadata.pageCount > 0);
-  });
+  readonly data = input.required<StatsKnownDistribution<StatsPageBand>>();
 
-  public readonly chartType = 'bar' as const;
-  public readonly totalBooks = computed(() => this.booksWithPageCount().length);
-
-  public readonly chartOptions: ChartConfiguration<'bar'>['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    layout: {
-      padding: {top: 10, bottom: 10}
-    },
-    plugins: {
-      legend: {display: false},
-      tooltip: {
-        enabled: true,
-        borderColor: '#8B5CF6',
-        borderWidth: 2,
-        cornerRadius: 8,
-        padding: 12,
-        titleFont: {size: 13, weight: 'bold'},
-        bodyFont: {size: 11},
-        callbacks: {
-          title: (context) => this.t.translate('statsLibrary.pageCount.tooltipTitle', {label: context[0].label}),
-          label: (context) => {
-            const value = context.parsed.y;
-            return value === 1
-              ? this.t.translate('statsLibrary.pageCount.tooltipLabel', {value})
-              : this.t.translate('statsLibrary.pageCount.tooltipLabelPlural', {value});
-          }
-        }
-      }
-    },
-    scales: {
-      x: {
-        title: {
-          display: true,
-          text: this.t.translate('statsLibrary.pageCount.axisPageCount'),
-          font: {
-            family: "'Inter', sans-serif",
-            size: 11
-          }
-        },
-        ticks: {
-          font: {
-            family: "'Inter', sans-serif",
-            size: 10
-          }
-        },
-        grid: {display: false},
-        border: {display: false}
-      },
-      y: {
-        title: {
-          display: true,
-          text: this.t.translate('statsLibrary.pageCount.axisBooks'),
-          font: {
-            family: "'Inter', sans-serif",
-            size: 11
-          }
-        },
-        beginAtZero: true,
-        ticks: {
-          font: {
-            family: "'Inter', sans-serif",
-            size: 10
-          },
-          stepSize: 1,
-          maxTicksLimit: 6
-        },
-        grid: {
-        },
-        border: {display: false}
-      }
-    }
-  };
-
-  public readonly chartData = computed<PageChartData>(() => {
-    const booksWithPageCount = this.booksWithPageCount();
-    if (booksWithPageCount.length === 0) {
-      return {labels: [], datasets: []};
-    }
-
-    const stats = this.calculatePageStats(booksWithPageCount);
-    const labels = stats.map(s => s.range);
-    const data = stats.map(s => s.count);
-    const colors = stats.map(s => s.color);
+  readonly chart = computed(() => {
+    const {t, number} = this.text;
+    const bands = this.data().rows.map(({value, books}) => ({band: STATS_PAGE_BAND_LABELS[value], books}));
 
     return {
-      labels,
-      datasets: [{
-        data,
-        backgroundColor: colors,
-        borderWidth: 1,
-        borderRadius: 4,
-        barPercentage: 0.8,
-        categoryPercentage: 0.7
-      }]
+      ariaLabel: t('title'),
+      definition: defineChart({
+        chart: ({width}) => ({
+          marks: [barY(bands, {x: 'band', y: 'books', fill: defaultChartTheme.palette[0], ...statsBar(width)})],
+          scales: {
+            x: {
+              scale: statsBarBand(STATS_PAGE_LENGTHS),
+              axis: statsAxis(t('axisPageCount'), undefined, width < STATS_COMPACT_WIDTH ? STATS_ROTATED_LABELS : undefined),
+            },
+            y: {
+              scale: scaleLinear,
+              nice: true,
+              grid: true,
+              axis: statsAxis(t('axisBooks'), countTicks(Math.max(0, ...bands.map(({books}) => books)), number)),
+            },
+          },
+        }),
+        focus: 'nearest-x',
+        focusRing: false,
+        svgAnimation: true,
+        tooltip: statsTooltip<(typeof bands)[number]>(([{datum: row}]) => ({
+          title: t('tooltipTitle', {label: row.band}),
+          rows: [{label: t('axisBooks'), value: number(row.books)}],
+        })),
+      }),
     };
   });
-
-  private filterBooksByLibrary(books: Book[], selectedLibraryId: number | null): Book[] {
-    return selectedLibraryId
-      ? books.filter(book => book.libraryId === selectedLibraryId)
-      : books;
-  }
-
-  private calculatePageStats(books: Book[]): PageStats[] {
-    const rangeCounts = new Map<string, { count: number, color: string }>();
-
-    PAGE_RANGES.forEach(range => {
-      rangeCounts.set(range.label, {count: 0, color: range.color});
-    });
-
-    books.forEach(book => {
-      const pageCount = book.metadata!.pageCount!;
-      for (const range of PAGE_RANGES) {
-        if (pageCount >= range.min && pageCount <= range.max) {
-          const data = rangeCounts.get(range.label)!;
-          data.count++;
-          break;
-        }
-      }
-    });
-
-    return PAGE_RANGES.map(range => {
-      const data = rangeCounts.get(range.label)!;
-      return {
-        range: range.label,
-        count: data.count,
-        color: data.color
-      };
-    });
-  }
 }

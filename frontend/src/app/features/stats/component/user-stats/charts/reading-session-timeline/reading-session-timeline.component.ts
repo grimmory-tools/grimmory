@@ -1,415 +1,294 @@
-import {Component, inject, Input, OnInit} from '@angular/core';
-import {catchError} from 'rxjs/operators';
-import {of} from 'rxjs';
-import {Select} from '@openng/optimus-ui/select';
-import {FormsModule} from '@angular/forms';
-import {Tooltip} from '@openng/optimus-ui/tooltip';
-import {
-  addWeeks,
-  endOfISOWeek,
-  getISOWeek,
-  getISOWeeksInYear,
-  getISOWeekYear,
-  setISOWeek,
-  setISOWeekYear,
-  startOfISOWeek
-} from 'date-fns';
-import {BookType} from '../../../../../book/model/book.model';
-import {ReadingSessionTimelineResponse, UserStatsService} from '../../../../../settings/user-management/user-stats.service';
+import {NgTemplateOutlet} from '@angular/common';
+import {Component, computed, inject, input} from '@angular/core';
+import {defineChart, rect, ruleX} from '@tanstack/charts';
+import {scaleLinear} from '@tanstack/charts/scales/linear';
+import {addDays, addWeeks, min, startOfDay} from 'date-fns';
+
 import {UrlHelperService} from '../../../../../../shared/service/url-helper.service';
-import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {STATS_CARD} from '../../../../card/stats-context';
+import {type StatsWeek, type StatsWeekSession} from '../../../../data/stats-response.models';
+import {STATS_BAR_FOCUS, statsAxis, statsChartColors, statsColorScale, statsTooltip} from '../../../shared/stats-chart-style';
+import {isoWeekStart} from '../../../shared/stats-chart-data';
+import {StatsChartPlotComponent} from '../../../shared/stats-chart-plot.component';
+import {injectStatsText, STATS_CHART_HOST_CLASS} from '../../../shared/stats-chart-text';
+import {type StatsLegendItem, StatsLegendComponent} from '../../../shared/stats-legend.component';
 
-interface ReadingSession {
-  startTime: Date;
-  endTime: Date;
-  duration: number;
-  bookTitle?: string;
-  bookId: number;
-  bookType: BookType;
+export interface SessionTimelineData {
+  readonly year: number;
+  readonly week: number;
+  readonly sessions: StatsWeek;
 }
 
-interface TimelineSession {
-  startHour: number;
-  startMinute: number;
-  endHour: number;
-  endMinute: number;
-  duration: number;
-  left: number;
-  width: number;
-  bookTitle?: string;
-  bookId: number;
-  bookType: BookType;
-  level: number;
-  totalLevels: number;
-  tooltipContent: string;
+interface TimelineSegment {
+  readonly key: string;
+  readonly bookId: number;
+  readonly bookTitle: string;
+  readonly format: StatsWeekSession['format'];
+  readonly dayIndex: number;
+  readonly startHour: number;
+  readonly endHour: number;
+  readonly durationMinutes: number;
 }
 
-interface DayTimeline {
-  day: string;
-  dayOfWeek: number;
-  sessions: TimelineSession[];
+interface PlacedSegment extends TimelineSegment {
+  readonly y1: number;
+  readonly y2: number;
 }
+
+interface TimelineBlock extends PlacedSegment {
+  readonly x1: number;
+  readonly x2: number;
+}
+
+interface TimeWindow {
+  readonly start: number;
+  readonly end: number;
+  readonly segments: readonly PlacedSegment[];
+}
+
+const FORMATS: readonly StatsWeekSession['format'][] = ['EPUB', 'PDF', 'CBX', 'AUDIOBOOK', 'MOBI', 'AZW3', 'FB2'];
+const DAYS = [0, 1, 2, 3, 4, 5, 6];
+const DAY_BOUNDARIES = [...DAYS.map((day) => day - 0.5), 6.5];
+const MINIMUM_SPAN_HOURS = 2;
+const MINIMUM_BLOCK_PIXELS = 10;
+const BLOCK_INSET = 1;
+const MARGIN = {top: 26, bottom: 8};
 
 @Component({
   selector: 'app-reading-session-timeline',
-  standalone: true,
-  imports: [Select, FormsModule, Tooltip, TranslocoDirective],
-  templateUrl: './reading-session-timeline.component.html',
-  styleUrls: ['./reading-session-timeline.component.scss']
-})
-export class ReadingSessionTimelineComponent implements OnInit {
-  private readonly userStatsService = inject(UserStatsService);
-  private readonly urlHelperService = inject(UrlHelperService);
-  private readonly translocoService = inject(TranslocoService);
-  @Input() initialYear: number = new Date().getFullYear();
-  @Input() weekNumber: number = getISOWeek(new Date());
-
-  public daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  public hourLabels: string[] = [];
-  public timelineData: DayTimeline[] = [];
-  public currentYear: number = new Date().getFullYear();
-  public currentWeek: number = getISOWeek(new Date());
-  private currentDate: Date = new Date();
-
-  public yearOptions: { label: string; value: number }[] = [];
-  public weekOptions: { label: string; value: number }[] = [];
-
-  ngOnInit(): void {
-    this.currentYear = this.initialYear;
-    this.currentWeek = this.weekNumber;
-    this.updateDateFromYearAndWeek();
-    this.initializeYearOptions();
-    this.ensureYearInOptions();
-    this.updateWeekOptions();
-    this.initializeHourLabels();
-    this.loadReadingSessions();
-  }
-
-  private initializeYearOptions(): void {
-    const currentYear = new Date().getFullYear();
-    this.yearOptions = [];
-    for (let year = currentYear; year >= currentYear - 10; year--) {
-      this.yearOptions.push({label: year.toString(), value: year});
+  imports: [NgTemplateOutlet, StatsChartPlotComponent, StatsLegendComponent],
+  template: `
+    <div class="scroll-fade-x flex min-h-0 flex-1 overflow-x-auto pb-1">
+      <div class="flex flex-1 flex-col" [class.min-w-216]="card.state() === 'ready'">
+        <app-stats-chart-plot [options]="chart()" [tooltipBody]="bookTooltip" />
+      </div>
+    </div>
+    <app-stats-legend [items]="legend()" />
+    @if (truncatedNote(); as note) {
+      <p class="px-2 text-xs text-text-muted">{{ note }}</p>
     }
-  }
 
-  private updateWeekOptions(): void {
-    const weeksInYear = getISOWeeksInYear(this.currentDate);
-    this.weekOptions = [];
-    for (let week = 1; week <= weeksInYear; week++) {
-      this.weekOptions.push({label: this.translocoService.translate('statsUser.sessionTimeline.week', {number: week}), value: week});
-    }
-  }
-
-  public onYearChange(): void {
-    this.updateDateFromYearAndWeek();
-    const maxWeeks = getISOWeeksInYear(this.currentDate);
-    if (this.currentWeek > maxWeeks) {
-      this.currentWeek = maxWeeks;
-      this.updateDateFromYearAndWeek();
-    }
-    this.updateWeekOptions();
-    this.loadReadingSessions();
-  }
-
-  public onWeekChange(): void {
-    this.updateDateFromYearAndWeek();
-    this.loadReadingSessions();
-  }
-
-  private initializeHourLabels(): void {
-    for (let i = 0; i < 24; i++) {
-      const hour = i === 0 ? 12 : i > 12 ? i - 12 : i;
-      const period = i < 12 ? 'AM' : 'PM';
-      this.hourLabels.push(`${hour} ${period}`);
-    }
-  }
-
-  private loadReadingSessions(): void {
-    this.userStatsService.getTimelineForWeek(this.currentYear, this.currentWeek)
-      .pipe(
-        catchError((error) => {
-          console.error('Error loading reading sessions:', error);
-          return of([]);
-        })
-      )
-      .subscribe({
-        next: (response) => {
-          const sessions = this.convertResponseToSessions(response);
-          this.processSessionData(sessions);
+    <ng-template #bookTooltip let-tooltip>
+      <div class="flex max-w-sm items-start gap-3">
+        @if (tooltip.points[0]; as point) {
+          <img class="h-24 w-16 shrink-0 rounded object-cover" alt=""
+            [src]="urlHelper.getDirectThumbnailUrl(point.datum.bookId)" />
         }
-      });
-  }
-
-  private convertResponseToSessions(response: ReadingSessionTimelineResponse[]): ReadingSession[] {
-    const sessions: ReadingSession[] = [];
-
-    response.forEach((item) => {
-      const startTime = new Date(item.startDate);
-      const endTime = new Date(startTime.getTime() + item.totalDurationSeconds * 1000);
-      const duration = item.totalDurationSeconds / 60;
-
-      sessions.push({
-        startTime,
-        endTime,
-        duration,
-        bookId: item.bookId,
-        bookTitle: item.bookTitle,
-        bookType: item.bookType
-      });
-    });
-
-    return sessions.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
-  }
-
-  public changeWeek(delta: number): void {
-    this.currentDate = addWeeks(this.currentDate, delta);
-    this.currentYear = getISOWeekYear(this.currentDate);
-    this.currentWeek = getISOWeek(this.currentDate);
-
-    this.ensureYearInOptions();
-    this.updateWeekOptions();
-    this.loadReadingSessions();
-  }
-
-  private ensureYearInOptions(): void {
-    if (!this.yearOptions.some(option => option.value === this.currentYear)) {
-      this.yearOptions.unshift({label: this.currentYear.toString(), value: this.currentYear});
-      this.yearOptions.sort((a, b) => b.value - a.value);
-    }
-  }
-
-  private updateDateFromYearAndWeek(): void {
-    this.currentDate = setISOWeek(setISOWeekYear(new Date(), this.currentYear), this.currentWeek);
-  }
-
-  public getWeekDateRange(): string {
-    const weekStart = startOfISOWeek(this.currentDate);
-    const weekEnd = endOfISOWeek(this.currentDate);
-
-    const formatDate = (date: Date) => {
-      const month = date.toLocaleDateString('en-US', {month: 'short'});
-      const day = date.getDate();
-      return `${month} ${day}`;
-    };
-
-    return `${formatDate(weekStart)} - ${formatDate(weekEnd)}`;
-  }
-
-  private processSessionData(sessions: ReadingSession[]): void {
-    const dayMap = new Map<number, ReadingSession[]>();
-
-    sessions.forEach(session => {
-      const sessionStart = new Date(session.startTime);
-      const sessionEnd = new Date(session.endTime);
-
-      if (sessionStart.getDate() === sessionEnd.getDate()) {
-        const dayOfWeek = sessionStart.getDay();
-        if (!dayMap.has(dayOfWeek)) {
-          dayMap.set(dayOfWeek, []);
-        }
-        dayMap.get(dayOfWeek)!.push(session);
-      } else {
-        let currentStart = new Date(sessionStart);
-
-        while (currentStart < sessionEnd) {
-          const dayOfWeek = currentStart.getDay();
-          const endOfDay = new Date(currentStart);
-          endOfDay.setHours(23, 59, 59, 999);
-
-          const segmentEnd = sessionEnd < endOfDay ? sessionEnd : endOfDay;
-          const segmentDuration = Math.floor((segmentEnd.getTime() - currentStart.getTime()) / (1000 * 60));
-
-          if (!dayMap.has(dayOfWeek)) {
-            dayMap.set(dayOfWeek, []);
-          }
-
-          dayMap.get(dayOfWeek)!.push({
-            startTime: new Date(currentStart),
-            endTime: new Date(segmentEnd),
-            duration: segmentDuration,
-            bookTitle: session.bookTitle,
-            bookId: session.bookId,
-            bookType: session.bookType
-          });
-
-          currentStart = new Date(segmentEnd);
-          currentStart.setDate(currentStart.getDate() + 1);
-          currentStart.setHours(0, 0, 0, 0);
-        }
-      }
-    });
-
-    this.timelineData = [];
-    const displayOrder = [1, 2, 3, 4, 5, 6, 0];
-    for (let i = 0; i < 7; i++) {
-      const dayOfWeek = displayOrder[i];
-      const sessionsForDay = dayMap.get(dayOfWeek) ?? [];
-      const timelineSessions = this.layoutSessionsForDay(sessionsForDay);
-
-      this.timelineData.push({
-        day: this.daysOfWeek[i],
-        dayOfWeek: dayOfWeek,
-        sessions: timelineSessions
-      });
-    }
-  }
-
-  private static readonly MAX_TRACKS = 3;
-
-  private layoutSessionsForDay(sessions: ReadingSession[]): TimelineSession[] {
-    if (sessions.length === 0) {
-      return [];
-    }
-
-    sessions.sort((a, b) => {
-      if (a.startTime.getTime() !== b.startTime.getTime()) {
-        return a.startTime.getTime() - b.startTime.getTime();
-      }
-      return b.endTime.getTime() - a.endTime.getTime();
-    });
-
-    const tracks: ReadingSession[][] = [];
-
-    sessions.forEach(session => {
-      let placed = false;
-      for (const track of tracks) {
-        const lastSessionInTrack = track[track.length - 1];
-        if (session.startTime >= lastSessionInTrack.endTime) {
-          track.push(session);
-          placed = true;
-          break;
-        }
-      }
-      if (!placed) {
-        if (tracks.length < ReadingSessionTimelineComponent.MAX_TRACKS) {
-          tracks.push([session]);
-        } else {
-          tracks[tracks.length - 1].push(session);
-        }
-      }
-    });
-
-    const totalLevels = tracks.length;
-    const timelineSessions: TimelineSession[] = [];
-
-    tracks.forEach((track, level) => {
-      track.forEach(session => {
-        timelineSessions.push(this.convertToTimelineSession(session, level, totalLevels));
-      });
-    });
-
-    return timelineSessions;
-  }
-
-  private convertToTimelineSession(session: ReadingSession, level: number, totalLevels: number): TimelineSession {
-    const startHour = session.startTime.getHours();
-    const startMinute = session.startTime.getMinutes();
-    const endHour = session.endTime.getHours();
-    const endMinute = session.endTime.getMinutes();
-
-    const startDecimal = startHour + startMinute / 60;
-    const endDecimal = endHour + endMinute / 60;
-
-    const left = (startDecimal / 24) * 100;
-    let width = ((endDecimal - startDecimal) / 24) * 100;
-
-    if (width < 0.5) {
-      width = 0.5;
-    }
-
-    const timelineSession: TimelineSession = {
-      startHour,
-      startMinute,
-      endHour,
-      endMinute,
-      duration: session.duration,
-      left,
-      width,
-      bookTitle: session.bookTitle,
-      bookId: session.bookId,
-      bookType: session.bookType,
-      level,
-      totalLevels,
-      tooltipContent: ''
-    };
-    timelineSession.tooltipContent = this.buildTooltipContent(timelineSession);
-    return timelineSession;
-  }
-
-  public formatTime(hour: number, minute: number): string {
-    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-    const period = hour < 12 ? 'AM' : 'PM';
-    const displayMinute = minute.toString().padStart(2, '0');
-    return `${displayHour}:${displayMinute} ${period}`;
-  }
-
-  public formatDuration(minutes: number): string {
-    const totalSeconds = Math.round(minutes * 60);
-    const hours = Math.floor(totalSeconds / 3600);
-    const mins = Math.floor((totalSeconds % 3600) / 60);
-    const secs = totalSeconds % 60;
-
-    const parts: string[] = [];
-    if (hours) parts.push(`${hours}h`);
-    if (mins || hours) parts.push(`${mins}m`);
-    parts.push(`${secs}s`);
-
-    return parts.join(' ');
-  }
-
-  public formatDurationCompact(minutes: number): string {
-    const totalSeconds = Math.round(minutes * 60);
-    const hours = Math.floor(totalSeconds / 3600);
-    const mins = Math.floor((totalSeconds % 3600) / 60);
-    const secs = totalSeconds % 60;
-
-    if (hours > 0) return `${hours}h${mins > 0 ? mins + 'm' : ''}`;
-    if (mins > 0) return `${mins}m${secs > 0 ? secs + 's' : ''}`;
-    return `${secs}s`;
-  }
-
-  public isDurationGreaterThanOneHour(minutes: number): boolean {
-    return minutes >= 60;
-  }
-
-  public getCoverUrl(bookId: number): string {
-    return this.urlHelperService.getDirectThumbnailUrl(bookId);
-  }
-
-  private buildTooltipContent(session: TimelineSession): string {
-    return `
-      <div class="session-tooltip-content">
-        <div class="session-tooltip-cover">
-          <img src="${this.getCoverUrl(session.bookId)}" alt="Book Cover">
-        </div>
-        <div class="session-tooltip-details">
-          <div class="session-tooltip-header">
-            <i class="pi pi-book"></i>
-            <span class="session-tooltip-title">${session.bookTitle || this.translocoService.translate('statsUser.sessionTimeline.readingSession')}</span>
-          </div>
-          <div class="session-tooltip-divider"></div>
-          <div class="session-tooltip-body">
-            <div class="session-tooltip-row">
-              <i class="pi pi-clock"></i>
-              <span class="session-tooltip-label">${this.translocoService.translate('statsUser.sessionTimeline.tooltipTime')}</span>
-              <span class="session-tooltip-value">
-                ${this.formatTime(session.startHour, session.startMinute)} - ${this.formatTime(session.endHour, session.endMinute)}
-              </span>
-            </div>
-            <div class="session-tooltip-row">
-              <i class="pi pi-hourglass"></i>
-              <span class="session-tooltip-label">${this.translocoService.translate('statsUser.sessionTimeline.tooltipDuration')}</span>
-              <span class="session-tooltip-value">${this.formatDuration(session.duration)}</span>
-            </div>
-            <div class="session-tooltip-row">
-              <i class="pi pi-file"></i>
-              <span class="session-tooltip-label">${this.translocoService.translate('statsUser.sessionTimeline.tooltipFormat')}</span>
-              <span class="session-tooltip-value">${session.bookType || this.translocoService.translate('statsUser.sessionTimeline.unknown')}</span>
-            </div>
-          </div>
+        <div class="min-w-52 flex-1">
+          <ng-container [ngTemplateOutlet]="tooltip.defaultBody" />
         </div>
       </div>
-    `;
+    </ng-template>
+  `,
+  host: {class: STATS_CHART_HOST_CLASS},
+})
+export class ReadingSessionTimelineComponent {
+  protected readonly urlHelper = inject(UrlHelperService);
+  protected readonly card = inject(STATS_CARD);
+  private readonly text = injectStatsText('statsUser.sessionTimeline');
+  private readonly sessionText = injectStatsText('metadata.readingSessions');
+
+  readonly data = input.required<SessionTimelineData>();
+
+  readonly segments = computed(() => {
+    const {year, week, sessions} = this.data();
+    return weekSegments(sessions.rows, year, week);
+  });
+
+  private readonly window = computed(() => timeWindow(this.segments()));
+
+  private readonly formatColors = computed(() => {
+    const present = new Set(this.segments().map((segment) => segment.format));
+    return statsChartColors(FORMATS.filter((format) => present.has(format)));
+  });
+
+  protected readonly truncatedNote = computed(() => {
+    const {rows, truncated} = this.data().sessions;
+    return truncated ? this.text.t('truncated', {count: this.text.number(rows.length)}) : null;
+  });
+
+  protected readonly legend = computed<readonly StatsLegendItem[]>(() =>
+    this.formatColors().map(([format, color]) => ({label: this.formatName(format), color})),
+  );
+
+  protected readonly chart = computed(() => {
+    const {t, hour, duration} = this.text;
+    const window = this.window();
+    const colors = this.formatColors();
+
+    return {
+      ariaLabel: t('title'),
+      definition: defineChart({
+        chart: ({height}) => {
+          const hourPixels = (height - MARGIN.top - MARGIN.bottom) / (window.end - window.start);
+          return {
+            marks: [
+              ruleX(DAY_BOUNDARIES, {strokeOpacity: 0.11}),
+              rect(laneBlocks(window, (MINIMUM_BLOCK_PIXELS + 2 * BLOCK_INSET) / hourPixels), {
+                x1: 'x1',
+                x2: 'x2',
+                y1: 'y1',
+                y2: 'y2',
+                key: 'key',
+                color: 'format',
+                inset: BLOCK_INSET,
+                radius: 4,
+                states: STATS_BAR_FOCUS,
+              }),
+            ],
+            scales: {
+              x: {
+                scale: scaleLinear().domain([-0.5, 6.5]),
+                side: 'top',
+                axis: statsAxis(undefined, {values: DAYS, size: 0, format: (day: number) => this.text.weekday(day + 1)}),
+              },
+              y: {
+                scale: scaleLinear().domain([window.start, window.end]),
+                reverse: true,
+                grid: true,
+                axis: statsAxis(undefined, {
+                  count: Math.min(12, Math.max(2, Math.ceil(window.end - window.start))),
+                  format: (value: number) => hour(value),
+                }),
+              },
+            },
+            color: statsColorScale(colors),
+            margin: MARGIN,
+          };
+        },
+        svgAnimation: true,
+        focusRing: false,
+        tooltip: statsTooltip<TimelineBlock>(([{datum: block, color}]) => ({
+          title: block.bookTitle || t('readingSession'),
+          rows: [
+            {
+              label: t('tooltipTime'),
+              value: `${hour(block.startHour, '2-digit')}–${hour(block.endHour, '2-digit')}`,
+              color,
+            },
+            {label: t('tooltipDuration'), value: duration(block.durationMinutes)},
+            {label: t('tooltipFormat'), value: this.formatName(block.format)},
+          ],
+        })),
+      }),
+    };
+  });
+
+  private formatName(format: StatsWeekSession['format']): string {
+    return format === 'AUDIOBOOK' ? this.sessionText.t('audio') : format;
   }
+}
+
+function weekSegments(rows: readonly StatsWeekSession[], year: number, week: number): readonly TimelineSegment[] {
+  const weekStart = isoWeekStart(year, week);
+  const weekEnd = addWeeks(weekStart, 1);
+
+  return rows.flatMap((row, index) => {
+    const start = new Date(row.start);
+    const end = new Date(row.end);
+    const segments: TimelineSegment[] = [];
+
+    for (let cursor = start < weekStart ? weekStart : start; cursor < end && cursor < weekEnd;) {
+      const midnight = startOfDay(addDays(cursor, 1));
+      const until = min([end, weekEnd, midnight]);
+      const startHour = hourOf(cursor);
+      const endHour = until.getTime() === midnight.getTime() ? 24 : hourOf(until);
+      const durationMinutes = (until.getTime() - cursor.getTime()) / 60_000;
+      segments.push({
+        key: `${row.bookId}:${start.getTime()}:${index}:${cursor.getTime()}`,
+        bookId: row.bookId,
+        bookTitle: row.title,
+        format: row.format,
+        dayIndex: (cursor.getDay() + 6) % 7,
+        startHour,
+        endHour: endHour < startHour ? startHour + durationMinutes / 60 : endHour,
+        durationMinutes,
+      });
+      cursor = until;
+    }
+    return segments;
+  });
+}
+
+function hourOf(date: Date): number {
+  return date.getHours() + date.getMinutes() / 60 + date.getSeconds() / 3600 + date.getMilliseconds() / 3_600_000;
+}
+
+function unwrap(hour: number, wrap: number, intervalEnd: boolean): number {
+  return hour < wrap || (intervalEnd && hour === wrap) ? hour + 24 : hour;
+}
+
+function timeWindow(segments: readonly TimelineSegment[]): TimeWindow {
+  if (segments.length === 0) return {start: 0, end: MINIMUM_SPAN_HOURS, segments: []};
+
+  const merged: {start: number; end: number}[] = [];
+  const sorted = [...segments].sort((left, right) => left.startHour - right.startHour || left.endHour - right.endHour);
+  for (const {startHour: start, endHour: end} of sorted) {
+    const previous = merged.at(-1);
+    if (previous && start <= previous.end) previous.end = Math.max(previous.end, end);
+    else merged.push({start, end});
+  }
+
+  let wrap = merged[0].start;
+  let largestGap = -1;
+  merged.forEach((interval, index) => {
+    const last = index === merged.length - 1;
+    const next = merged[last ? 0 : index + 1];
+    const gap = next.start + (last ? 24 : 0) - interval.end;
+    if (gap > largestGap) {
+      largestGap = gap;
+      wrap = next.start;
+    }
+  });
+
+  const placed = segments.map((segment) => ({
+    ...segment,
+    y1: unwrap(segment.startHour, wrap, false),
+    y2: unwrap(segment.endHour, wrap, true),
+  }));
+  const start = Math.floor(Math.min(...placed.map(({y1}) => y1)));
+  const end = Math.ceil(Math.max(...placed.map(({y2}) => y2)));
+  return {start, end: Math.max(end, start + MINIMUM_SPAN_HOURS), segments: placed};
+}
+
+function laneBlocks({end, segments}: TimeWindow, minimumHours: number): readonly TimelineBlock[] {
+  const blocks = segments
+    .map((segment) => {
+      const y2 = Math.min(end, Math.max(segment.y2, segment.y1 + minimumHours));
+      return {...segment, y1: Math.min(segment.y1, y2 - minimumHours), y2};
+    })
+    .sort((left, right) => left.dayIndex - right.dayIndex || left.y1 - right.y1 || right.y2 - left.y2);
+
+  const lanes = new Map<string, number>();
+  const laneCounts = new Map<string, number>();
+  let cluster: string[] = [];
+  let laneEnds: number[] = [];
+  let clusterEnd = Number.NEGATIVE_INFINITY;
+  let day = -1;
+  const closeCluster = () => cluster.forEach((key) => laneCounts.set(key, laneEnds.length));
+
+  for (const block of blocks) {
+    if (block.dayIndex !== day || block.y1 >= clusterEnd) {
+      closeCluster();
+      cluster = [];
+      laneEnds = [];
+      clusterEnd = block.y2;
+      day = block.dayIndex;
+    }
+    clusterEnd = Math.max(clusterEnd, block.y2);
+    const free = laneEnds.findIndex((laneEnd) => block.y1 >= laneEnd);
+    const lane = free === -1 ? laneEnds.length : free;
+    laneEnds[lane] = block.y2;
+    lanes.set(block.key, lane);
+    cluster.push(block.key);
+  }
+  closeCluster();
+
+  return blocks.map((block) => {
+    const lane = lanes.get(block.key) ?? 0;
+    const laneWidth = 1 / (laneCounts.get(block.key) ?? 1);
+    const inset = Math.min(0.02, laneWidth * 0.1);
+    const x1 = block.dayIndex - 0.5 + lane * laneWidth + inset;
+    return {...block, x1, x2: x1 + laneWidth - 2 * inset};
+  });
 }

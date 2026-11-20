@@ -4,7 +4,7 @@ import {Button} from '@openng/optimus-ui/button';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {SeriesSummary} from '../../model/series.model';
-import {BookService} from '../../../book/service/book.service';
+import {BookNavigationService} from '../../../book/service/book-navigation.service';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {CoverComponent} from '../../../../shared/components/cover/cover.component';
 
@@ -18,7 +18,7 @@ import {CoverComponent} from '../../../../shared/components/cover/cover.componen
 })
 export class SeriesCardComponent {
   protected urlHelper = inject(UrlHelperService);
-  private readonly bookService = inject(BookService);
+  private readonly bookNavigation = inject(BookNavigationService);
 
   @Input({required: true}) series!: SeriesSummary;
   readonly cardClick = output<SeriesSummary>();
@@ -50,7 +50,7 @@ export class SeriesCardComponent {
   readNext(event: MouseEvent): void {
     event.stopPropagation();
     if (this.series.nextUnread) {
-      this.bookService.readBook(this.series.nextUnread.id);
+      this.bookNavigation.readBook(this.series.nextUnread);
     }
   }
 }

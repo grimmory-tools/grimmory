@@ -6,13 +6,13 @@ import {bookQueryKeys} from '../data/book-query-keys';
 import {
   invalidateDeletedBookQueries,
   patchBooksInCacheWith,
+  patchAttachedBookFilesInLegacyCache,
   reconcileBookCacheChangeSet,
   removeListOnlyBooks,
 } from './legacy-book-cache';
 import {
   BOOKS_QUERY_KEY,
   bookDetailQueryKey,
-  bookRecommendationsQueryKey
 } from './book-query-keys';
 
 function makeBook(id: number, overrides: Partial<Book> = {}): Book {
@@ -43,7 +43,6 @@ describe('legacy book cache adapter', () => {
     queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, [makeBook(1), makeBook(201), makeBook(401)]);
     queryClient.setQueryData(bookDetailQueryKey(201, false), makeBook(201));
     queryClient.setQueryData(bookDetailQueryKey(401, false), makeBook(401));
-    queryClient.setQueryData(bookRecommendationsQueryKey(1, 20), []);
     queryClient.setQueryData(bookQueryKeys.detail(201, false), makeBook(201));
 
     await reconcileBookCacheChangeSet(
@@ -55,7 +54,6 @@ describe('legacy book cache adapter', () => {
     expect(isInvalidated(BOOKS_QUERY_KEY)).toBe(true);
     expect(isInvalidated(bookDetailQueryKey(201, false))).toBe(true);
     expect(isInvalidated(bookDetailQueryKey(401, false))).toBe(false);
-    expect(queryClient.getQueryData(bookRecommendationsQueryKey(1, 20))).toBeUndefined();
     expect(isInvalidated(bookQueryKeys.detail(201, false))).toBe(true);
   });
 
@@ -89,4 +87,14 @@ describe('legacy book cache adapter', () => {
     expect(queryClient.getQueryData<Book[]>(BOOKS_QUERY_KEY)).toEqual([book]);
   });
 
+  it('refetches surviving source books after attachment instead of leaving their old files cached', async () => {
+    const sourceKey = bookDetailQueryKey(2, false);
+    queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, [makeBook(1), makeBook(2)]);
+    queryClient.setQueryData(sourceKey, makeBook(2));
+
+    await patchAttachedBookFilesInLegacyCache(queryClient, makeBook(1), [], [2]);
+
+    expect(isInvalidated(BOOKS_QUERY_KEY)).toBe(true);
+    expect(isInvalidated(sourceKey)).toBe(true);
+  });
 });

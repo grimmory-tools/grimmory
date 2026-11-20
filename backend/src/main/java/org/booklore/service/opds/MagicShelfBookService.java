@@ -31,6 +31,7 @@ import org.booklore.exception.APIException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -74,10 +75,18 @@ public class MagicShelfBookService {
 
     public Specification<BookEntity> toSpecification(Long userId, Long magicShelfId) {
         ShelfAccess access = validateMagicShelfAccess(userId, magicShelfId);
+        return ruleSpecification(access.shelf(), userId).and(createLibraryFilterSpecification(access.user()));
+    }
+
+    public Map<Long, Specification<BookEntity>> visibleShelfRules(Long userId) {
+        return magicShelfRepository.findAllByUserIdOrIsPublicIsTrue(userId).stream()
+                .collect(Collectors.toMap(MagicShelfEntity::getId, shelf -> ruleSpecification(shelf, userId)));
+    }
+
+    private Specification<BookEntity> ruleSpecification(MagicShelfEntity shelf, Long userId) {
         try {
-            GroupRule groupRule = objectMapper.readValue(access.shelf().getFilterJson(), GroupRule.class);
-            Specification<BookEntity> specification = ruleEvaluatorService.toSpecification(groupRule, userId);
-            return specification.and(createLibraryFilterSpecification(access.user()));
+            GroupRule groupRule = objectMapper.readValue(shelf.getFilterJson(), GroupRule.class);
+            return ruleEvaluatorService.toSpecification(groupRule, userId);
         } catch (APIException e) {
             throw e;
         } catch (Exception e) {
@@ -91,11 +100,8 @@ public class MagicShelfBookService {
     }
 
     public List<Long> getBookIdsByMagicShelfId(Long userId, Long magicShelfId, int limit) {
-        ShelfAccess access = validateMagicShelfAccess(userId, magicShelfId);
+        Specification<BookEntity> specification = toSpecification(userId, magicShelfId);
         try {
-            GroupRule groupRule = objectMapper.readValue(access.shelf().getFilterJson(), GroupRule.class);
-            Specification<BookEntity> specification = ruleEvaluatorService.toSpecification(groupRule, userId);
-            specification = specification.and(createLibraryFilterSpecification(access.user()));
 
             List<Long> ids = new ArrayList<>();
             int pageIndex = 0;

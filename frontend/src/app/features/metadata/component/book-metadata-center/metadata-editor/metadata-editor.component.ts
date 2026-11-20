@@ -9,10 +9,11 @@ import {MessageService} from "@openng/optimus-ui/api";
 import {Book, BookMetadata, ComicMetadata, MetadataClearFlags, MetadataUpdateWrapper,} from "../../../../book/model/book.model";
 import {UrlHelperService} from "../../../../../shared/service/url-helper.service";
 import {CoverComponent} from "../../../../../shared/components/cover/cover.component";
-import {ALL_COMIC_METADATA_FIELDS, AUDIOBOOK_METADATA_FIELDS, COMIC_FORM_TO_MODEL_LOCK, COMIC_TEXT_METADATA_FIELDS, COMIC_ARRAY_METADATA_FIELDS, COMIC_TEXTAREA_METADATA_FIELDS, isFieldEmbeddable, hasMetadataWriter, MetadataProviderFieldsService, providerFieldRecord} from '../../../../../shared/metadata';
+import {ALL_COMIC_METADATA_FIELDS, AUDIOBOOK_METADATA_FIELDS, COMIC_FORM_TO_MODEL_LOCK, COMIC_TEXT_METADATA_FIELDS, COMIC_ARRAY_METADATA_FIELDS, COMIC_TEXTAREA_METADATA_FIELDS, isFieldEmbeddable, hasMetadataWriter, METADATA_PROVIDER_FIELDS, providerFieldRecord} from '../../../../../shared/metadata';
 import {FileUpload, FileUploadErrorEvent, FileUploadEvent,} from "@openng/optimus-ui/fileupload";
 import {HttpResponse} from "@angular/common/http";
 import {BookService} from "../../../../book/service/book.service";
+import {FacetSuggestionsDirective} from '../../../../book/components/facet-suggestions.directive';
 import {BookMetadataManageService} from "../../../../book/service/book-metadata-manage.service";
 import {ProgressSpinner} from "@openng/optimus-ui/progressspinner";
 import {Tooltip} from "@openng/optimus-ui/tooltip";
@@ -31,7 +32,7 @@ import {Router} from '@angular/router';
 import {UserService} from '../../../../settings/user-management/user.service';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
 import {MetadataProviderSpecificFields} from '../../../../../shared/model/app-settings.model';
-import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/drag-drop';
 
 import {QueryClient} from '@tanstack/angular-query-experimental';
@@ -56,9 +57,11 @@ import {MetadataSourceQueryService} from '../../../sources/metadata-source-query
     Textarea,
     Select,
     TranslocoDirective,
+    TranslocoPipe,
     CdkDropList,
     CdkDrag,
     CoverComponent,
+    FacetSuggestionsDirective,
   ],
 })
 export class MetadataEditorComponent implements OnInit {
@@ -77,7 +80,7 @@ export class MetadataEditorComponent implements OnInit {
   private readonly t = inject(TranslocoService);
   private readonly queryClient = inject(QueryClient);
   private readonly sources = inject(MetadataSourceQueryService);
-  protected readonly providerFields = inject(MetadataProviderFieldsService);
+  protected readonly providerFields = METADATA_PROVIDER_FIELDS;
   private currentBook: Book | null = null;
 
   @Input()
@@ -108,7 +111,6 @@ export class MetadataEditorComponent implements OnInit {
   @Input() disableNext = false;
   @Input() disablePrevious = false;
   @Input() showNavigationButtons = false;
-  private readonly uniqueMetadata = computed(() => this.bookService.uniqueMetadata());
 
   metadataForm: FormGroup;
   currentBookId!: number;
@@ -125,19 +127,7 @@ export class MetadataEditorComponent implements OnInit {
 
   originalMetadata!: BookMetadata;
 
-  get allAuthors(): string[] { return this.uniqueMetadata().authors; }
-  get allCategories(): string[] { return this.uniqueMetadata().categories; }
-  get allMoods(): string[] { return this.uniqueMetadata().moods; }
-  get allTags(): string[] { return this.uniqueMetadata().tags; }
-  get allPublishers(): string[] { return this.uniqueMetadata().publishers; }
-  get allSeries(): string[] { return this.uniqueMetadata().series; }
-  filteredCategories: string[] = [];
-  filteredAuthors: string[] = [];
   authorInputValue = '';
-  filteredMoods: string[] = [];
-  filteredTags: string[] = [];
-  filteredPublishers: string[] = [];
-  filteredSeries: string[] = [];
   private metadataCenterViewMode: 'route' | 'dialog' = 'route';
 
   contentRatingOptions: {label: string, value: string}[] = [];
@@ -155,10 +145,10 @@ export class MetadataEditorComponent implements OnInit {
 
   private readonly providerSpecificFields = computed<MetadataProviderSpecificFields>(
     () => this.appSettingsService.appSettings()?.metadataProviderSpecificFields
-      ?? providerFieldRecord(this.providerFields.fields(), () => true),
+      ?? providerFieldRecord(METADATA_PROVIDER_FIELDS, () => true),
   );
 
-  private readonly providerFieldNames = computed(() => new Set(this.providerFields.fields().map(field => field.name)));
+  private readonly providerFieldNames = new Set(METADATA_PROVIDER_FIELDS.map(field => field.name));
 
   readonly navigationState = this.bookNavigationService.navigationState;
   readonly canNavigatePrevious = this.bookNavigationService.canNavigatePrevious;
@@ -169,20 +159,6 @@ export class MetadataEditorComponent implements OnInit {
       ? this.t.translate('metadata.editor.navigationPosition', {current: position.current, total: position.total})
       : '';
   });
-
-  filterCategories(event: { query: string }) {
-    const query = event.query.toLowerCase();
-    this.filteredCategories = this.allCategories.filter((cat) =>
-      cat.toLowerCase().includes(query)
-    );
-  }
-
-  filterAuthors(event: { query: string }) {
-    const query = event.query.toLowerCase();
-    this.filteredAuthors = this.allAuthors.filter((cat) =>
-      cat.toLowerCase().includes(query)
-    );
-  }
 
   dropAuthor(event: CdkDragDrop<string[]>) {
     const authors = [...(this.metadataForm.get('authors')?.value ?? [])];
@@ -220,34 +196,6 @@ export class MetadataEditorComponent implements OnInit {
       this.metadataForm.get('authors')?.markAsDirty();
     }
     setTimeout(() => this.authorInputValue = '');
-  }
-
-  filterMoods(event: { query: string }) {
-    const query = event.query.toLowerCase();
-    this.filteredMoods = this.allMoods.filter((mood) =>
-      mood.toLowerCase().includes(query)
-    );
-  }
-
-  filterTags(event: { query: string }) {
-    const query = event.query.toLowerCase();
-    this.filteredTags = this.allTags.filter((tag) =>
-      tag.toLowerCase().includes(query)
-    );
-  }
-
-  filterPublishers(event: { query: string }) {
-    const query = event.query.toLowerCase();
-    this.filteredPublishers = this.allPublishers.filter((publisher) =>
-      publisher.toLowerCase().includes(query)
-    );
-  }
-
-  filterSeries(event: { query: string }) {
-    const query = event.query.toLowerCase();
-    this.filteredSeries = this.allSeries.filter((seriesName) =>
-      seriesName.toLowerCase().includes(query)
-    );
   }
 
   constructor() {
@@ -320,7 +268,7 @@ export class MetadataEditorComponent implements OnInit {
       {label: '21+', value: 21}
     ];
 
-    for (const field of this.providerFields.fields()) {
+    for (const field of METADATA_PROVIDER_FIELDS) {
       this.metadataForm.addControl(field.name, new FormControl(''));
       this.metadataForm.addControl(field.lockName, new FormControl(false));
     }
@@ -394,7 +342,7 @@ export class MetadataEditorComponent implements OnInit {
     });
 
     const providerPatch: Record<string, string | number | boolean | null> = {};
-    for (const field of this.providerFields.fields()) {
+    for (const field of METADATA_PROVIDER_FIELDS) {
       providerPatch[field.name] = metadata[field.name] ?? null;
       providerPatch[field.lockName] = metadata[field.lockName] ?? false;
     }
@@ -439,7 +387,7 @@ export class MetadataEditorComponent implements OnInit {
       {key: "languageLocked", control: "language"},
       {key: "isbn10Locked", control: "isbn10"},
       {key: "isbn13Locked", control: "isbn13"},
-      ...this.providerFields.fields().map(field => ({key: field.lockName, control: field.name})),
+      ...METADATA_PROVIDER_FIELDS.map(field => ({key: field.lockName, control: field.name})),
       {key: "pageCountLocked", control: "pageCount"},
       {key: "descriptionLocked", control: "description"},
       {key: "seriesNameLocked", control: "seriesName"},
@@ -654,7 +602,7 @@ export class MetadataEditorComponent implements OnInit {
       }),
     };
 
-    for (const field of this.providerFields.fields()) {
+    for (const field of METADATA_PROVIDER_FIELDS) {
       metadata[field.name] = form.get(field.name)?.value;
       metadata[field.lockName] = form.get(field.lockName)?.value;
     }
@@ -725,7 +673,7 @@ export class MetadataEditorComponent implements OnInit {
       contentRating: wasCleared("contentRating"),
     };
 
-    for (const field of this.providerFields.fields()) {
+    for (const field of METADATA_PROVIDER_FIELDS) {
       clearFlags[field.name] = wasCleared(field.name);
     }
 
@@ -1038,7 +986,7 @@ export class MetadataEditorComponent implements OnInit {
   }
 
   isEmbeddable(controlName: string, book: Book): boolean {
-    return isFieldEmbeddable(book.primaryFile?.bookType, controlName, this.providerFieldNames());
+    return isFieldEmbeddable(book.primaryFile?.bookType, controlName, this.providerFieldNames);
   }
 
   hasWriter(book: Book): boolean {

@@ -3,6 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {firstValueFrom, Observable} from 'rxjs';
 import {API_CONFIG} from '../config/api-config';
 import {AppSettingsService} from '../../shared/service/app-settings.service';
+import {DigestService} from './digest.service';
 
 interface OidcPkceState {
   codeVerifier: string;
@@ -22,14 +23,15 @@ export class OidcService {
 
   private readonly http = inject(HttpClient);
   private readonly appSettingsService = inject(AppSettingsService);
+  private readonly digest = inject(DigestService);
 
-  async generatePkce(): Promise<{codeVerifier: string; codeChallenge: string}> {
+  generatePkce() {
     const array = new Uint8Array(32);
     crypto.getRandomValues(array);
     const codeVerifier = this.base64UrlEncode(array);
 
     const encoder = new TextEncoder();
-    const hash = await crypto.subtle.digest('SHA-256', encoder.encode(codeVerifier));
+    const hash = this.digest.sha256(encoder.encode(codeVerifier));
     const codeChallenge = this.base64UrlEncode(new Uint8Array(hash));
 
     return {codeVerifier, codeChallenge};

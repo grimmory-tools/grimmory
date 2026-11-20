@@ -10,6 +10,7 @@ import org.booklore.repository.LibraryRepository;
 import org.booklore.repository.UserBookProgressRepository;
 import org.booklore.service.task.TaskCronService;
 import org.flywaydb.core.Flyway;
+import org.hibernate.Session;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -1095,6 +1096,33 @@ class HibernateRegressionTest {
 
             BookEntity reloaded = bookRepository.findByIdWithMetadata(book.getId()).orElseThrow();
             assertThat(reloaded.getMetadata().getEmbeddingVector()).isEqualTo("[0.3, 0.4]");
+        }
+    }
+
+    @Nested
+    class AudiobookChapters {
+
+        @Test
+        void loadingFileWithChapters_leavesSessionClean() {
+            LibraryEntity library = LibraryEntity.builder().name("Chapter Library").icon("book").watch(false).build();
+            entityManager.persist(library);
+            BookEntity book = BookEntity.builder().library(library).addedOn(Instant.now()).deleted(false).build();
+            entityManager.persist(book);
+            BookFileEntity file = BookFileEntity.builder()
+                    .book(book)
+                    .fileName("book.m4b")
+                    .fileSubPath("")
+                    .isBookFormat(true)
+                    .bookType(BookFileType.AUDIOBOOK)
+                    .chapters(List.of(BookFileEntity.AudioFileChapter.builder().index(0).title("Full Audiobook").build()))
+                    .build();
+            entityManager.persist(file);
+            entityManager.flush();
+            entityManager.clear();
+
+            entityManager.find(BookFileEntity.class, file.getId());
+
+            assertThat(entityManager.unwrap(Session.class).isDirty()).isFalse();
         }
     }
 }

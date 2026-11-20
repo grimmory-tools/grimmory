@@ -23,6 +23,9 @@ import java.util.Set;
 public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpecificationExecutor<BookEntity> {
     Optional<BookEntity> findBookByIdAndLibraryId(long id, long libraryId);
 
+    @Query("SELECT COUNT(b) > 0 FROM BookEntity b JOIN b.metadata m WHERE b.library.id = :libraryId AND (b.deleted IS NULL OR b.deleted = false) AND (m.isbn13 = :isbn13 OR UPPER(m.isbn10) = :isbn10)")
+    boolean existsInLibraryByIsbn(@Param("libraryId") long libraryId, @Param("isbn13") String isbn13, @Param("isbn10") String isbn10);
+
     @EntityGraph(attributePaths = { "metadata", "metadata.authors", "bookFiles", "libraryPath" })
     @Query("SELECT b FROM BookEntity b WHERE b.id = :id AND (b.deleted IS NULL OR b.deleted = false)")
     Optional<BookEntity> findByIdForAudiobook(@Param("id") Long id);

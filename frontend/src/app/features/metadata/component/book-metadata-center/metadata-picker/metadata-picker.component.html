@@ -275,10 +275,9 @@
                           class="author-add-input"
                           [(ngModel)]="authorInputValue"
                           [ngModelOptions]="{ standalone: true }"
-                          [suggestions]="getFiltered('authors')"
+                          appFacetSuggestions="author"
                           [forceSelection]="false"
                           [dropdown]="false"
-                          (completeMethod)="filterItems($event, 'authors')"
                           (onKeyUp)="onAuthorInputKeyUp($event)"
                           (onSelect)="onAuthorInputSelect($event)"
                           placeholder="Add author..."
@@ -293,8 +292,7 @@
                       [dropdown]="false"
                       [forceSelection]="false"
                       [showClear]="true"
-                      [suggestions]="getFiltered(field.controlName)"
-                      (completeMethod)="filterItems($event, field.controlName)"
+                      [appFacetSuggestions]="facetByField[field.controlName]"
                       (onKeyUp)="onAutoCompleteKeyUp(field.controlName, $event)"
                       (onSelect)="onAutoCompleteSelect(field.controlName, $event)"
                     />
@@ -565,8 +563,7 @@
                         [dropdown]="false"
                         [forceSelection]="false"
                         [showClear]="true"
-                        [suggestions]="getFiltered(field.controlName)"
-                        (completeMethod)="filterItems($event, field.controlName)"
+                        [typeahead]="false"
                         (onKeyUp)="onAutoCompleteKeyUp(field.controlName, $event)"
                         (onSelect)="onAutoCompleteSelect(field.controlName, $event)"
                       />
@@ -719,7 +716,7 @@
           <div class="section-content">
             @for (field of metadataProviderFields(); track field) {
               <div class="field-row">
-                <span class="field-label">{{ providerFields.label(field.providerKey!) }}</span>
+                <span class="field-label">{{ field.labelKey | transloco }}</span>
                 <div class="field-content">
                   <div class="field-side current">
                     <button

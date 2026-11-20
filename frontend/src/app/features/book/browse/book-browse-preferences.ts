@@ -28,6 +28,7 @@ import {
   normalizeBookColumnPreferences,
   type BookBrowseColumnVisibilityChange,
 } from './book-browse-columns';
+import {injectHiddenProviderFieldKeys} from './book-browse-fields';
 import {bookSortTermsFromCriteria} from './book-browse-sort';
 import {type BookBrowseUrlState, type BookBrowseViewMode} from './book-browse-url-state';
 
@@ -47,9 +48,14 @@ export function createBookBrowsePreferences({context, availableSortKeys, urlStat
     urlState.view() ?? (entityViewMode(entityViewPreferences(), context()) === 'TABLE' ? 'table' : 'grid'));
   const formatPill = computed(() => entityViewPreferences()?.global?.overlayBookType ?? true);
 
+  const hiddenProviderFields = injectHiddenProviderFieldKeys();
+  const isAvailableSortTerm = (term: BookSortTerm): boolean => {
+    const available = availableSortKeys();
+    return !hiddenProviderFields().has(term.key) && (available.size === 0 || available.has(term.key));
+  };
+
   const defaultSortTerms = computed<readonly BookSortTerm[]>(() => {
     const preferences = entityViewPreferences();
-    const available = availableSortKeys();
     const scope = context();
     const candidates = [
       scope ? findEntityViewPreferenceOverride(preferences, scope) : undefined,
@@ -59,8 +65,7 @@ export function createBookBrowsePreferences({context, availableSortKeys, urlStat
       if (!candidate) {
         continue;
       }
-      const terms = bookSortTermsFromCriteria(entityViewSortCriteria(candidate))
-        .filter(term => available.size === 0 || available.has(term.key));
+      const terms = bookSortTermsFromCriteria(entityViewSortCriteria(candidate)).filter(isAvailableSortTerm);
       if (terms.length > 0) {
         return terms;
       }
@@ -68,7 +73,7 @@ export function createBookBrowsePreferences({context, availableSortKeys, urlStat
     return DEFAULT_BOOK_SORT_TERMS;
   });
   const sortTerms = computed<readonly BookSortTerm[]>(() => {
-    const terms = urlState.sortTerms();
+    const terms = urlState.sortTerms().filter(isAvailableSortTerm);
     return terms.length > 0 ? terms : defaultSortTerms();
   });
   const isDefaultSort = (terms: readonly BookSortTerm[]): boolean =>
@@ -79,8 +84,8 @@ export function createBookBrowsePreferences({context, availableSortKeys, urlStat
       userService.currentUser()?.userSettings.tableColumnPreference,
     ),
   );
-  const columnOptions = computed(() => bookColumnOptions(columnPreferences()));
-  const visibleColumns = computed(() => bookVisibleColumnOptions(columnPreferences()));
+  const columnOptions = computed(() => bookColumnOptions(columnPreferences(), hiddenProviderFields()));
+  const visibleColumns = computed(() => bookVisibleColumnOptions(columnPreferences(), hiddenProviderFields()));
 
   function onSaveError(): void {
     messages.add({

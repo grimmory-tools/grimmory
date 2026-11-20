@@ -1,3 +1,5 @@
+import {computed, inject, type Signal} from '@angular/core';
+
 import {
   formatRangeLabel,
   formatRangeToken,
@@ -9,13 +11,15 @@ import {
 } from '../../../shared/browse/facets';
 import {type BrowseSortKind} from '../../../shared/browse/sort';
 import {toIconSelection, type IconSelection, type IconType} from '../../../shared/icons/icon-selection';
+import {type MetadataProviderScoreFieldName} from '../../../shared/metadata/metadata-fields';
+import {AppSettingsService} from '../../../shared/service/app-settings.service';
 import {formatFileSizeKb} from '../../../shared/util/file-size';
 import {
   type BookQueryFacetKey,
   type BookQuerySortKey,
   type SortDirection,
 } from '../data/book-query-params';
-import {type BookSummary, type KnownBookReadStatus} from '../data/book-response.models';
+import {type BookSummary, type BookReadStatus} from '../data/book-response.models';
 import {MATCH_SCORE_BANDS} from '../model/book-value-labels';
 
 export type BookColumnKind = 'text' | 'number' | 'rating' | 'date' | 'fileSize' | 'readStatus';
@@ -46,6 +50,7 @@ interface FacetField {
   readonly stars?: number;
   readonly fileSize?: true;
   readonly openByDefault?: true;
+  readonly multiValued?: true;
   readonly bookValues?: (book: BookSummary) => readonly string[];
   readonly valueLabel?: (value: string, deps: BookFacetLabelDeps) => string | null;
   readonly valueIcon?: (value: string, deps: BookFacetLabelDeps) => IconSelection | null;
@@ -74,6 +79,7 @@ interface ColumnField {
 
 interface BookBrowseField {
   readonly labelKey: string;
+  readonly providerKey?: MetadataProviderScoreFieldName;
   readonly facet?: FacetField;
   readonly sort?: SortField;
   readonly column?: ColumnField;
@@ -96,7 +102,7 @@ const READ_STATUS_LABEL_KEYS = new Map<string, string>(Object.entries({
   WONT_READ: 'wontRead',
   ABANDONED: 'abandoned',
   UNSET: 'unset',
-} satisfies Record<KnownBookReadStatus, string>));
+} satisfies Record<BookReadStatus, string>));
 
 const CONTENT_RATING_LABEL_KEYS = new Map([
   ['EVERYONE', 'everyone'],
@@ -139,8 +145,14 @@ const FIELDS = [
       value: bookTitle},
   },
   {
+    labelKey: 'book.fields.subtitle',
+    sort: {key: 'subtitle', group: 'more', defaultDirection: 'asc', kind: 'alphabetical'},
+    column: {key: 'subtitle', group: 'publishing', defaultVisible: false,
+      defaultWidth: 240, value: book => book.metadata?.subtitle ?? ''},
+  },
+  {
     labelKey: 'book.fields.author',
-    facet: {key: 'author', openByDefault: true, bookValues: book => book.metadata?.authors ?? []},
+    facet: {key: 'author', multiValued: true, openByDefault: true, bookValues: book => book.metadata?.authors ?? []},
     sort: {key: 'authorName', group: 'common', defaultDirection: 'asc', kind: 'alphabetical', detailLine: false},
     column: {key: 'authorName', group: 'publishing', defaultVisible: true,
       defaultWidth: 220, value: book => book.metadata?.authors?.join(', ') ?? ''},
@@ -171,17 +183,17 @@ const FIELDS = [
   },
   {
     labelKey: 'book.fields.genre',
-    facet: {key: 'genre', openByDefault: true, bookValues: book => book.metadata?.categories ?? []},
+    facet: {key: 'genre', multiValued: true, openByDefault: true, bookValues: book => book.metadata?.categories ?? []},
     column: {key: 'categories', group: 'categorization', defaultVisible: true,
       defaultWidth: 220, value: book => book.metadata?.categories?.join(', ') ?? ''},
   },
   {
     labelKey: 'book.fields.tag',
-    facet: {key: 'tag', openByDefault: true},
+    facet: {key: 'tag', multiValued: true, openByDefault: true},
   },
   {
     labelKey: 'book.fields.mood',
-    facet: {key: 'mood'},
+    facet: {key: 'mood', multiValued: true},
   },
   {
     labelKey: 'book.fields.language',
@@ -197,7 +209,7 @@ const FIELDS = [
   },
   {
     labelKey: 'book.fields.fileType',
-    facet: {key: 'file_type'},
+    facet: {key: 'file_type', multiValued: true},
   },
   {
     labelKey: 'book.fields.readStatus',
@@ -219,6 +231,7 @@ const FIELDS = [
   },
   {
     labelKey: 'book.fields.amazonRating',
+    providerKey: 'amazonRating',
     facet: {key: 'amazon_rating', banded: true, stars: 5},
     sort: {key: 'amazonRating', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
     column: {key: 'amazonRating', group: 'ratings', defaultVisible: false,
@@ -226,12 +239,14 @@ const FIELDS = [
   },
   {
     labelKey: 'book.fields.amazonReviewCount',
+    providerKey: 'amazonReviewCount',
     sort: {key: 'amazonReviewCount', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
     column: {key: 'amazonReviewCount', group: 'ratings', defaultVisible: false,
       defaultWidth: 132, kind: 'number', value: book => book.metadata?.amazonReviewCount},
   },
   {
     labelKey: 'book.fields.goodreadsRating',
+    providerKey: 'goodreadsRating',
     facet: {key: 'goodreads_rating', banded: true, stars: 5},
     sort: {key: 'goodreadsRating', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
     column: {key: 'goodreadsRating', group: 'ratings', defaultVisible: false,
@@ -239,12 +254,14 @@ const FIELDS = [
   },
   {
     labelKey: 'book.fields.goodreadsReviewCount',
+    providerKey: 'goodreadsReviewCount',
     sort: {key: 'goodreadsReviewCount', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
     column: {key: 'goodreadsReviewCount', group: 'ratings', defaultVisible: false,
       defaultWidth: 132, kind: 'number', value: book => book.metadata?.goodreadsReviewCount},
   },
   {
     labelKey: 'book.fields.hardcoverRating',
+    providerKey: 'hardcoverRating',
     facet: {key: 'hardcover_rating', banded: true, stars: 5},
     sort: {key: 'hardcoverRating', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
     column: {key: 'hardcoverRating', group: 'ratings', defaultVisible: false,
@@ -252,12 +269,14 @@ const FIELDS = [
   },
   {
     labelKey: 'book.fields.hardcoverReviewCount',
+    providerKey: 'hardcoverReviewCount',
     sort: {key: 'hardcoverReviewCount', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
     column: {key: 'hardcoverReviewCount', group: 'ratings', defaultVisible: false,
       defaultWidth: 132, kind: 'number', value: book => book.metadata?.hardcoverReviewCount},
   },
   {
     labelKey: 'book.fields.ranobedbRating',
+    providerKey: 'ranobedbRating',
     facet: {key: 'ranobedb_rating', banded: true, stars: 5},
     sort: {key: 'ranobedbRating', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
     column: {key: 'ranobedbRating', group: 'ratings', defaultVisible: false,
@@ -265,6 +284,7 @@ const FIELDS = [
   },
   {
     labelKey: 'book.fields.lubimyczytacRating',
+    providerKey: 'lubimyczytacRating',
     facet: {key: 'lubimyczytac_rating', banded: true, stars: 5},
     sort: {key: 'lubimyczytacRating', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
     column: {key: 'lubimyczytacRating', group: 'ratings', defaultVisible: false,
@@ -272,6 +292,7 @@ const FIELDS = [
   },
   {
     labelKey: 'book.fields.audibleRating',
+    providerKey: 'audibleRating',
     facet: {key: 'audible_rating', banded: true, stars: 5},
     sort: {key: 'audibleRating', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
     column: {key: 'audibleRating', group: 'ratings', defaultVisible: false,
@@ -279,9 +300,25 @@ const FIELDS = [
   },
   {
     labelKey: 'book.fields.audibleReviewCount',
+    providerKey: 'audibleReviewCount',
     sort: {key: 'audibleReviewCount', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
     column: {key: 'audibleReviewCount', group: 'ratings', defaultVisible: false,
       defaultWidth: 132, kind: 'number', value: book => book.metadata?.audibleReviewCount},
+  },
+  {
+    labelKey: 'book.fields.applebooksRating',
+    providerKey: 'applebooksRating',
+    facet: {key: 'applebooks_rating', banded: true, stars: 5},
+    sort: {key: 'applebooksRating', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
+    column: {key: 'applebooksRating', group: 'ratings', defaultVisible: false,
+      defaultWidth: 124, kind: 'rating', value: book => book.metadata?.applebooksRating},
+  },
+  {
+    labelKey: 'book.fields.applebooksReviewCount',
+    providerKey: 'applebooksReviewCount',
+    sort: {key: 'applebooksReviewCount', group: 'more', defaultDirection: 'desc', kind: 'numeric'},
+    column: {key: 'applebooksReviewCount', group: 'ratings', defaultVisible: false,
+      defaultWidth: 132, kind: 'number', value: book => book.metadata?.applebooksReviewCount},
   },
   {
     labelKey: 'book.fields.pageCount',
@@ -348,6 +385,7 @@ const FIELDS = [
     labelKey: 'book.fields.shelf',
     facet: {
       key: 'shelf',
+      multiValued: true,
       valueLabel: (value, deps) => deps.shelf(value)?.name ?? null,
       valueIcon: (value, deps) => entityIcon(deps.shelf(value)),
     },
@@ -386,14 +424,15 @@ const FIELDS = [
           : null,
     },
   },
-  {labelKey: 'book.fields.comicCharacter', facet: {key: 'comic_character'}},
-  {labelKey: 'book.fields.comicTeam', facet: {key: 'comic_team'}},
-  {labelKey: 'book.fields.comicLocation', facet: {key: 'comic_location'}},
-  {labelKey: 'book.fields.comicCreator', facet: {key: 'comic_creator'}},
+  {labelKey: 'book.fields.comicCharacter', facet: {key: 'comic_character', multiValued: true}},
+  {labelKey: 'book.fields.comicTeam', facet: {key: 'comic_team', multiValued: true}},
+  {labelKey: 'book.fields.comicLocation', facet: {key: 'comic_location', multiValued: true}},
+  {labelKey: 'book.fields.comicCreator', facet: {key: 'comic_creator', multiValued: true}},
 ] as const satisfies readonly BookBrowseField[];
 
 const COLUMN_ORDER = [
   'title',
+  'subtitle',
   'authorName',
   'readStatus',
   'seriesName',
@@ -418,6 +457,8 @@ const COLUMN_ORDER = [
   'lubimyczytacRating',
   'audibleRating',
   'audibleReviewCount',
+  'applebooksRating',
+  'applebooksReviewCount',
 ] as const satisfies readonly BookColumnKey[];
 
 export const COLUMN_GROUP_ORDER = ['reading', 'publishing', 'file', 'categorization', 'ratings'] as const;
@@ -458,7 +499,21 @@ export const OPEN_RAIL_FACETS: ReadonlySet<BookQueryFacetKey> = new Set(
 );
 export const COLUMNS: readonly ColumnEntry[] = COLUMN_ORDER.map(key => COLUMNS_BY_KEY.get(key)!);
 
-export function bookReadStatusLabelKey(status: BookSummary['readStatus']): string | null {
+export function injectHiddenProviderFieldKeys(): Signal<ReadonlySet<string>> {
+  const appSettingsService = inject(AppSettingsService);
+  const fields: readonly BookBrowseField[] = FIELDS;
+  return computed(() => {
+    const enabled = appSettingsService.appSettings()?.metadataProviderSpecificFields;
+    if (!enabled) {
+      return new Set();
+    }
+    return new Set(fields
+      .filter(field => field.providerKey && !enabled[field.providerKey])
+      .flatMap(field => [field.facet?.key, field.sort?.key, field.column?.key].filter(key => key !== undefined)));
+  });
+}
+
+export function bookReadStatusLabelKey(status: string): string | null {
   const key = status && status !== 'UNSET' ? READ_STATUS_LABEL_KEYS.get(status) : undefined;
   return key ? `book.filter.readStatus.${key}` : null;
 }

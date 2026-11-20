@@ -59,10 +59,7 @@ describe('AppThemeService', () => {
       updateFavicon: vi.fn(),
     };
     vi.stubGlobal('localStorage', localStorageMock);
-    Object.defineProperty(window, 'matchMedia', {
-      writable: true,
-      value: createMatchMediaMock(false),
-    });
+    vi.stubGlobal('matchMedia', createMatchMediaMock(false));
     rootStyle.cssText = '';
     const computedStyle = createThemeComputedStyle();
     vi.spyOn(globalThis, 'getComputedStyle').mockReturnValue(computedStyle);

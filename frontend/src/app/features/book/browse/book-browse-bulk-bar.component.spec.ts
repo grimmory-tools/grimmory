@@ -9,7 +9,7 @@ import {type BrowseSelection, type BrowseSelectionState} from '../../../shared/b
 import {AppSettingsService} from '../../../shared/service/app-settings.service';
 import {UserService} from '../../settings/user-management/user.service';
 import {type BookSummary} from '../data/book-response.models';
-import {ShelfDefinitionQueryService} from '../data/shelf-definition-query.service';
+import {ShelfQueryService} from '../../shelf/data/shelf-query.service';
 import {BookDialogHelperService} from '../service/book-dialog-helper.service';
 import {BookBrowseBulkBarComponent} from './book-browse-bulk-bar.component';
 
@@ -40,7 +40,7 @@ describe('BookBrowseBulkBarComponent', () => {
   let fixture: ComponentFixture<BookBrowseBulkBarComponent>;
   let currentUser: WritableSignal<ReturnType<typeof user> | null>;
   let appSettings: WritableSignal<{diskType: string}>;
-  let shelfDefinitions: {id: number; userId: number; name: string}[];
+  let shelves: {id: number; userId: number; name: string}[];
 
   function mount(books: BookSummary[], selectedIds: number[]): BookBrowseBulkBarComponent {
     fixture = TestBed.createComponent(BookBrowseBulkBarComponent);
@@ -56,7 +56,7 @@ describe('BookBrowseBulkBarComponent', () => {
     const harness = createQueryClientHarness();
     currentUser = signal(null);
     appSettings = signal({diskType: 'LOCAL'});
-    shelfDefinitions = [];
+    shelves = [];
 
     TestBed.configureTestingModule({
       imports: [BookBrowseBulkBarComponent, getTranslocoModule()],
@@ -65,11 +65,11 @@ describe('BookBrowseBulkBarComponent', () => {
         {provide: UserService, useValue: {currentUser}},
         {provide: AppSettingsService, useValue: {appSettings}},
         {
-          provide: ShelfDefinitionQueryService,
+          provide: ShelfQueryService,
           useValue: {
-            definitions: () => ({
-              queryKey: ['shelves', 'query', 'definitions'] as const,
-              queryFn: () => Promise.resolve(shelfDefinitions),
+            shelves: () => ({
+              queryKey: ['shelves', 'query', 'regular'] as const,
+              queryFn: () => Promise.resolve(shelves),
             }),
           },
         },
@@ -137,7 +137,7 @@ describe('BookBrowseBulkBarComponent', () => {
 
   it('offers only the current user shelves for bulk assignment', async () => {
     currentUser.set(user({}, 7));
-    shelfDefinitions = [
+    shelves = [
       {id: 5, userId: 7, name: 'Mine'},
       {id: 6, userId: 9, name: 'Shared by someone else'},
     ];

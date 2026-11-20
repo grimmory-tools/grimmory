@@ -39,7 +39,10 @@ import {bookSortDirectionIcon, bookSortField, type BookSortOption} from './book-
           <svg lucideGripVertical class="size-4" aria-hidden="true"></svg>
         </span>
         <span class="flex size-5 shrink-0 items-center justify-center rounded-sm bg-page text-xs font-medium tabular-nums text-text-muted">{{ $index + 1 }}</span>
-        <span class="min-w-0 flex-1 truncate text-sm text-text">{{ row.label }}</span>
+        <span
+          class="min-w-0 flex-1 truncate text-sm"
+          [class.text-text]="row.available"
+          [class.text-text-muted]="!row.available">{{ row.label }}</span>
         <app-button
           class="pointer-coarse:hidden"
           variant="ghost"
@@ -106,6 +109,7 @@ export class BookBrowseMultiSortEditorComponent {
         key: term.key,
         label: this.transloco.translate((option ?? bookSortField(term.key)).labelKey),
         icon: bookSortDirectionIcon(term.key, term.direction),
+        available: option !== undefined,
         canFlip: option?.directions.length === 2,
       };
     });

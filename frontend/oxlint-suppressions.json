@@ -1,4 +1,9 @@
 {
+  "src/app/app.component.spec.ts": {
+    "no-restricted-imports": {
+      "count": 1
+    }
+  },
   "src/app/app.component.ts": {
     "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 3
@@ -67,6 +72,11 @@
       "count": 1
     }
   },
+  "src/app/core/security/secure-pipe.ts": {
+    "no-restricted-properties": {
+      "count": 1
+    }
+  },
   "src/app/core/services/loading.service.ts": {
     "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 1
@@ -109,7 +119,7 @@
   },
   "src/app/features/author-browser/components/author-detail/author-detail.component.ts": {
     "typescript/no-unnecessary-condition": {
-      "count": 3
+      "count": 2
     }
   },
   "src/app/features/author-browser/components/author-editor/author-editor.component.ts": {
@@ -222,14 +232,11 @@
     "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 1
     },
-    "typescript/no-unnecessary-condition": {
-      "count": 3
-    },
     "typescript/no-unsafe-assignment": {
-      "count": 2
+      "count": 1
     },
     "typescript/no-unsafe-member-access": {
-      "count": 5
+      "count": 3
     }
   },
   "src/app/features/book/components/book-menu/book-menu.component.ts": {
@@ -287,43 +294,10 @@
     }
   },
   "src/app/features/book/components/duplicate-merger/duplicate-merger.component.ts": {
-    "typescript/no-unnecessary-condition": {
-      "count": 2
-    },
     "typescript/no-unsafe-assignment": {
-      "count": 2
+      "count": 1
     },
     "typescript/no-unsafe-member-access": {
-      "count": 2
-    },
-    "typescript/switch-exhaustiveness-check": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/components/legacy-book-card/book-card-overlay-preference.service.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 2
-    },
-    "typescript/no-unnecessary-condition": {
-      "count": 8
-    }
-  },
-  "src/app/features/book/components/legacy-book-card/legacy-book-card.component.spec.ts": {
-    "typescript/no-floating-promises": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/components/legacy-book-card/legacy-book-card.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 3
-    },
-    "typescript/no-floating-promises": {
-      "count": 2
-    },
-    "typescript/no-unnecessary-condition": {
-      "count": 5
-    },
-    "typescript/no-unsafe-argument": {
       "count": 1
     }
   },
@@ -336,23 +310,14 @@
     }
   },
   "src/app/features/book/components/series-page/series-page.component.ts": {
-    "anti-slop/no-known-value-widening": {
-      "count": 1
-    },
     "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 1
     },
-    "typescript/no-misused-promises": {
-      "count": 3
-    },
     "typescript/no-unnecessary-condition": {
-      "count": 6
+      "count": 5
     },
     "typescript/no-unsafe-enum-comparison": {
       "count": 8
-    },
-    "typescript/no-unsafe-member-access": {
-      "count": 1
     }
   },
   "src/app/features/book/components/shelf-assigner/shelf-assigner.component.ts": {
@@ -407,21 +372,8 @@
       "count": 1
     }
   },
-  "src/app/features/book/data/book-command.service.ts": {
-    "anti-slop/no-unsafe-dictionary-type": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/data/book-query-cache.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
   "src/app/features/book/data/book-query.service.ts": {
     "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    },
-    "typescript/no-unnecessary-type-parameters": {
       "count": 1
     }
   },
@@ -434,11 +386,6 @@
     },
     "typescript/no-unnecessary-condition": {
       "count": 2
-    }
-  },
-  "src/app/features/book/service/book-command-legacy-adapter.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
     }
   },
   "src/app/features/book/service/book-dialog-helper.service.ts": {
@@ -460,21 +407,13 @@
       "count": 1
     },
     "typescript/no-unsafe-assignment": {
-      "count": 5
+      "count": 4
     },
     "typescript/no-unsafe-member-access": {
-      "count": 10
-    },
-    "typescript/no-unsafe-return": {
-      "count": 5
-    }
-  },
-  "src/app/features/book/service/book-menu.service.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 8
     },
-    "typescript/no-unnecessary-condition": {
-      "count": 7
+    "typescript/no-unsafe-return": {
+      "count": 4
     }
   },
   "src/app/features/book/service/book-metadata-manage.service.ts": {
@@ -488,9 +427,6 @@
     }
   },
   "src/app/features/book/service/book.service.ts": {
-    "anti-slop/no-known-value-widening": {
-      "count": 1
-    },
     "typescript/no-unnecessary-condition": {
       "count": 1
     },
@@ -502,9 +438,6 @@
     },
     "typescript/no-unsafe-return": {
       "count": 2
-    },
-    "typescript/switch-exhaustiveness-check": {
-      "count": 1
     }
   },
   "src/app/features/book/service/library-health.service.ts": {
@@ -618,14 +551,6 @@
       "count": 1
     }
   },
-  "src/app/features/dashboard/services/dashboard-config.service.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    },
-    "typescript/no-unnecessary-condition": {
-      "count": 3
-    }
-  },
   "src/app/features/library-creator/library-creator.component.ts": {
     "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 5
@@ -677,12 +602,17 @@
       "count": 5
     }
   },
+  "src/app/features/metadata/component/book-metadata-center/book-metadata-center.component.spec.ts": {
+    "no-restricted-imports": {
+      "count": 1
+    }
+  },
   "src/app/features/metadata/component/book-metadata-center/book-metadata-center.component.ts": {
     "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 3
     },
     "typescript/no-unnecessary-condition": {
-      "count": 5
+      "count": 3
     },
     "typescript/no-unsafe-argument": {
       "count": 1
@@ -694,7 +624,7 @@
       "count": 2
     },
     "typescript/require-await": {
-      "count": 2
+      "count": 1
     }
   },
   "src/app/features/metadata/component/book-metadata-center/book-reading-sessions/book-reading-sessions.component.ts": {
@@ -759,6 +689,11 @@
       "count": 1
     }
   },
+  "src/app/features/metadata/component/book-metadata-center/metadata-viewer/metadata-viewer.component.spec.ts": {
+    "no-restricted-imports": {
+      "count": 1
+    }
+  },
   "src/app/features/metadata/component/book-metadata-center/metadata-viewer/metadata-viewer.component.ts": {
     "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 2
@@ -774,6 +709,11 @@
     },
     "typescript/no-unsafe-member-access": {
       "count": 3
+    }
+  },
+  "src/app/features/metadata/component/book-metadata-center/sidecar-viewer/sidecar-viewer.component.spec.ts": {
+    "no-restricted-imports": {
+      "count": 1
     }
   },
   "src/app/features/metadata/component/bulk-metadata-update/bulk-metadata-update-component.ts": {
@@ -805,6 +745,11 @@
     },
     "typescript/no-unsafe-member-access": {
       "count": 4
+    }
+  },
+  "src/app/features/metadata/component/metadata-manager/metadata-manager.component.spec.ts": {
+    "no-restricted-imports": {
+      "count": 1
     }
   },
   "src/app/features/metadata/component/metadata-manager/metadata-manager.component.ts": {
@@ -1111,6 +1056,9 @@
     "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 18
     },
+    "no-restricted-imports": {
+      "count": 1
+    },
     "typescript/no-base-to-string": {
       "count": 1
     },
@@ -1139,6 +1087,9 @@
     },
     "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 24
+    },
+    "no-restricted-imports": {
+      "count": 1
     },
     "typescript/no-redundant-type-constituents": {
       "count": 2
@@ -1399,6 +1350,9 @@
   "src/app/features/settings/task-management/task.service.ts": {
     "anti-slop/no-unsafe-dictionary-type": {
       "count": 1
+    },
+    "no-restricted-imports": {
+      "count": 1
     }
   },
   "src/app/features/settings/user-management/content-restrictions-editor/content-restrictions-editor.component.ts": {
@@ -1434,11 +1388,6 @@
     },
     "typescript/no-unsafe-member-access": {
       "count": 1
-    }
-  },
-  "src/app/features/settings/user-management/user-stats.service.ts": {
-    "typescript/no-unnecessary-condition": {
-      "count": 4
     }
   },
   "src/app/features/settings/user-management/user.service.ts": {
@@ -1496,202 +1445,6 @@
       "count": 11
     }
   },
-  "src/app/features/stats/component/library-stats/charts/author-universe-chart/author-universe-chart.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 2
-    },
-    "typescript/no-unnecessary-condition": {
-      "count": 3
-    }
-  },
-  "src/app/features/stats/component/library-stats/charts/metadata-score-chart/metadata-score-chart.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 3
-    }
-  },
-  "src/app/features/stats/component/library-stats/charts/page-count-chart/page-count-chart.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 4
-    }
-  },
-  "src/app/features/stats/component/library-stats/charts/reading-journey-chart/reading-journey-chart.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 2
-    }
-  },
-  "src/app/features/stats/component/library-stats/charts/top-items-chart/top-items-chart.component.ts": {
-    "typescript/prefer-optional-chain": {
-      "count": 1
-    }
-  },
-  "src/app/features/stats/component/library-stats/service/libraries-summary.service.ts": {
-    "typescript/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "src/app/features/stats/component/library-stats/service/library-filter.service.spec.ts": {
-    "typescript/no-base-to-string": {
-      "count": 1
-    },
-    "typescript/restrict-template-expressions": {
-      "count": 1
-    }
-  },
-  "src/app/features/stats/component/library-stats/service/library-filter.service.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    },
-    "typescript/no-unnecessary-type-assertion": {
-      "count": 1
-    }
-  },
-  "src/app/features/stats/component/shared/stats-chart-theme.service.ts": {
-    "typescript/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/book-flow-chart/book-flow-chart.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 3
-    },
-    "typescript/no-unnecessary-condition": {
-      "count": 3
-    },
-    "typescript/switch-exhaustiveness-check": {
-      "count": 1
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/book-length-chart/book-length-chart.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 18
-    },
-    "typescript/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/completion-race-chart/completion-race-chart.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/genre-stats-chart/genre-stats-chart.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 4
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/page-turner-chart/page-turner-chart.component.ts": {
-    "typescript/no-unnecessary-condition": {
-      "count": 2
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/personal-rating-chart/personal-rating-chart.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 2
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/publication-era-chart/publication-era-chart.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 6
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/rating-taste-chart/rating-taste-chart.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 4
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/read-status-chart/read-status-chart.component.ts": {
-    "anti-slop/no-unknown-parameters": {
-      "count": 1
-    },
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 7
-    },
-    "typescript/no-unnecessary-condition": {
-      "count": 5
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/reading-clock-chart/reading-clock-chart.component.ts": {
-    "typescript/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/reading-debt-chart/reading-debt-chart.component.ts": {
-    "anti-slop/no-chained-type-assertions": {
-      "count": 1
-    },
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 4
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/reading-dna-chart/reading-dna-chart.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 3
-    },
-    "typescript/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/reading-habits-chart/reading-habits-chart.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 9
-    },
-    "typescript/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/reading-heatmap-chart/reading-heatmap-chart.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 7
-    },
-    "typescript/no-unnecessary-condition": {
-      "count": 3
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/reading-progress-chart/reading-progress-chart.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 2
-    },
-    "typescript/no-unnecessary-condition": {
-      "count": 1
-    },
-    "typescript/restrict-template-expressions": {
-      "count": 1
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/reading-session-heatmap/reading-session-heatmap.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 5
-    },
-    "typescript/no-unnecessary-condition": {
-      "count": 2
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/reading-session-timeline/reading-session-timeline.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 2
-    },
-    "typescript/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/series-progress-chart/series-progress-chart.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 5
-    },
-    "typescript/no-unnecessary-condition": {
-      "count": 2
-    }
-  },
-  "src/app/features/stats/component/user-stats/charts/session-archetypes-chart/session-archetypes-chart.component.ts": {
-    "typescript/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "src/app/features/stats/component/user-stats/service/user-chart-config.service.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 2
-    }
-  },
   "src/app/shared/browse/results.ts": {
     "anti-slop/no-unknown-returns": {
       "count": 2
@@ -1710,20 +1463,6 @@
   },
   "src/app/shared/components/change-password/change-password.component.ts": {
     "typescript/no-unsafe-assignment": {
-      "count": 1
-    },
-    "typescript/no-unsafe-member-access": {
-      "count": 1
-    }
-  },
-  "src/app/shared/components/file-mover/file-mover-component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 4
-    },
-    "typescript/no-unnecessary-condition": {
-      "count": 7
-    },
-    "typescript/no-unsafe-argument": {
       "count": 1
     },
     "typescript/no-unsafe-member-access": {
@@ -1778,6 +1517,9 @@
     }
   },
   "src/app/shared/components/metadata-progress-widget/metadata-progress-widget-component.spec.ts": {
+    "no-restricted-imports": {
+      "count": 1
+    },
     "typescript/no-explicit-any": {
       "count": 2
     }
@@ -1806,8 +1548,18 @@
       "count": 1
     }
   },
+  "src/app/shared/components/unified-notification-popover/unified-notification-popover-component.spec.ts": {
+    "no-restricted-imports": {
+      "count": 1
+    }
+  },
   "src/app/shared/layout/layout-sidebar/app.sidebar-section.component.spec.ts": {
     "typescript/prefer-nullish-coalescing": {
+      "count": 1
+    }
+  },
+  "src/app/shared/layout/layout-sidebar/app.sidebar.component.spec.ts": {
+    "no-restricted-imports": {
       "count": 1
     }
   },
@@ -1861,11 +1613,6 @@
       "count": 4
     },
     "anti-slop/no-unknown-returns": {
-      "count": 1
-    }
-  },
-  "src/app/shared/metadata/metadata-provider-fields.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 1
     }
   },
@@ -1942,6 +1689,11 @@
       "count": 1
     }
   },
+  "src/app/shared/service/language-resolver.service.spec.ts": {
+    "no-restricted-imports": {
+      "count": 1
+    }
+  },
   "src/app/shared/service/language-resolver.service.ts": {
     "anti-slop/no-known-value-widening": {
       "count": 4
@@ -1957,6 +1709,9 @@
   },
   "src/app/shared/service/metadata-progress.service.ts": {
     "anti-slop/require-safety-comment-for-type-assertion": {
+      "count": 1
+    },
+    "no-restricted-imports": {
       "count": 1
     },
     "typescript/no-unnecessary-condition": {
@@ -1978,17 +1733,17 @@
       "count": 1
     }
   },
-  "src/app/shared/service/url-helper.service.ts": {
-    "typescript/switch-exhaustiveness-check": {
-      "count": 1
-    }
-  },
   "src/app/shared/service/wake-lock.service.ts": {
     "typescript/no-floating-promises": {
       "count": 1
     },
     "typescript/no-misused-promises": {
       "count": 2
+    }
+  },
+  "src/app/shared/services/custom-svg-cache.service.ts": {
+    "no-restricted-imports": {
+      "count": 1
     }
   },
   "src/app/shared/services/custom-svg.service.ts": {
@@ -2122,6 +1877,11 @@
     },
     "typescript/no-unsafe-member-access": {
       "count": 5
+    }
+  },
+  "src/app/shared/websocket/notification-event.service.ts": {
+    "no-restricted-imports": {
+      "count": 1
     }
   },
   "src/app/shared/websocket/rx-stomp.config.spec.ts": {

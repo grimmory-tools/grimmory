@@ -74,7 +74,7 @@ describe('MetadataProviderFieldSelectorComponent', () => {
     expect(amazon?.fields).toEqual([
       {name: 'asin', label: 'Amazon ASIN'},
       {name: 'amazonRating', label: 'Amazon Rating'},
-      {name: 'amazonReviewCount', label: 'Amazon Review Count'},
+      {name: 'amazonReviewCount', label: 'Amazon Rating Count'},
     ]);
   });
 });

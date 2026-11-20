@@ -9,6 +9,7 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
+import org.booklore.browse.NumericRange;
 import org.booklore.exception.APIException;
 import org.booklore.exception.ApiError;
 import org.booklore.model.entity.AuthorEntity;
@@ -79,79 +80,6 @@ public class BookFilterSpecification {
         return result;
     }
 
-    private record NumericRange<T>(T min, T max, boolean maxExclusive) {
-    }
-
-    private static <T extends Comparable<? super T>> List<NumericRange<T>> parseNumericRanges(List<String> values, Function<String, T> parser, String paramName) {
-        List<String> invalid = new ArrayList<>();
-        List<NumericRange<T>> ranges = new ArrayList<>();
-        for (String value : values) {
-            if (value == null || value.isBlank()) {
-                continue;
-            }
-            NumericRange<T> range = parseNumericRange(value.trim(), parser);
-            if (range == null) {
-                invalid.add(value.trim());
-            } else {
-                ranges.add(range);
-            }
-        }
-        if (!invalid.isEmpty()) {
-            throw new APIException("Invalid " + paramName + " values: " + invalid
-                    + ". Expected a number, min..max, min..*, *..max, or min..<max to exclude max. Minimum must not exceed maximum.", HttpStatus.BAD_REQUEST);
-        }
-        return ranges;
-    }
-
-    private static <T extends Comparable<? super T>> NumericRange<T> parseNumericRange(String value, Function<String, T> parser) {
-        try {
-            int separator = value.indexOf("..");
-            if (separator < 0) {
-                T exact = parser.apply(value);
-                return new NumericRange<>(exact, exact, false);
-            }
-            String minPart = value.substring(0, separator).trim();
-            String maxPart = value.substring(separator + 2).trim();
-            boolean maxExclusive = maxPart.startsWith("<");
-            if (maxExclusive) {
-                maxPart = maxPart.substring(1).trim();
-            }
-            if (maxPart.equals("*") && (maxExclusive || minPart.equals("*"))) {
-                return null;
-            }
-            T min = minPart.equals("*") ? null : parser.apply(minPart);
-            T max = maxPart.equals("*") ? null : parser.apply(maxPart);
-            if (min != null && max != null && min.compareTo(max) > 0) {
-                return null;
-            }
-            return new NumericRange<>(min, max, maxExclusive);
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
-    private static <T extends Comparable<? super T>> Predicate rangesPredicate(
-            CriteriaBuilder cb, Expression<T> field, List<NumericRange<T>> ranges) {
-        List<Predicate> predicates = new ArrayList<>();
-        for (NumericRange<T> range : ranges) {
-            if (range.min() != null && range.max() != null) {
-                predicates.add(cb.and(
-                        cb.greaterThanOrEqualTo(field, range.min()),
-                        upperBound(cb, field, range)));
-            } else if (range.min() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(field, range.min()));
-            } else {
-                predicates.add(upperBound(cb, field, range));
-            }
-        }
-        return cb.or(predicates.toArray(Predicate[]::new));
-    }
-
-    private static <T extends Comparable<? super T>> Predicate upperBound(
-            CriteriaBuilder cb, Expression<T> field, NumericRange<T> range) {
-        return range.maxExclusive() ? cb.lessThan(field, range.max()) : cb.lessThanOrEqualTo(field, range.max());
-    }
-
     @SuppressWarnings("unchecked")
     private static <X, Y> Join<X, Y> getOrCreateJoin(From<?, X> from, String attribute, JoinType joinType) {
         for (Join<X, ?> join : from.getJoins()) {
@@ -177,16 +105,6 @@ public class BookFilterSpecification {
                 return cb.conjunction();
             }
             return cb.equal(root.get("library").get("id"), libraryId);
-        };
-    }
-
-    public static Specification<BookEntity> inShelf(Long shelfId) {
-        return (root, query, cb) -> {
-            if (shelfId == null) {
-                return cb.conjunction();
-            }
-            Join<BookEntity, ShelfEntity> shelvesJoin = root.join("shelves", JoinType.INNER);
-            return cb.equal(shelvesJoin.get("id"), shelfId);
         };
     }
 
@@ -426,19 +344,6 @@ public class BookFilterSpecification {
     }
 
     /**
-     * Filter books by multiple author names.
-     */
-    public static Specification<BookEntity> withAuthors(List<String> authorNames) {
-        return (root, query, cb) -> {
-            List<String> cleaned = cleanLowerCase(authorNames);
-            if (cleaned.isEmpty()) return cb.conjunction();
-
-            return buildManyToManySpec(root, query, cb, cleaned,
-                    "metadata", "authors", "name");
-        };
-    }
-
-    /**
      * Filter books by multiple language codes.
      */
     public static Specification<BookEntity> withLanguages(List<String> languages) {
@@ -467,19 +372,6 @@ public class BookFilterSpecification {
     }
 
     /**
-     * Filter books by multiple categories.
-     */
-    public static Specification<BookEntity> withCategories(List<String> categoryNames) {
-        return (root, query, cb) -> {
-            List<String> cleaned = cleanLowerCase(categoryNames);
-            if (cleaned.isEmpty()) return cb.conjunction();
-
-            return buildManyToManySpec(root, query, cb, cleaned,
-                    "metadata", "categories", "name");
-        };
-    }
-
-    /**
      * Filter books by multiple publishers.
      */
     public static Specification<BookEntity> withPublishers(List<String> publishers) {
@@ -491,29 +383,12 @@ public class BookFilterSpecification {
         };
     }
 
-    /**
-     * Filter books by multiple tags.
-     */
-    public static Specification<BookEntity> withTags(List<String> tagNames) {
+    public static Specification<BookEntity> withMetadataCollection(
+            String collectionAttr, List<String> names, Function<String, List<Long>> idsForName) {
         return (root, query, cb) -> {
-            List<String> cleaned = cleanLowerCase(tagNames);
+            List<String> cleaned = cleanLowerCase(names);
             if (cleaned.isEmpty()) return cb.conjunction();
-
-            return buildManyToManySpec(root, query, cb, cleaned,
-                    "metadata", "tags", "name");
-        };
-    }
-
-    /**
-     * Filter books by multiple moods.
-     */
-    public static Specification<BookEntity> withMoods(List<String> moodNames) {
-        return (root, query, cb) -> {
-            List<String> cleaned = cleanLowerCase(moodNames);
-            if (cleaned.isEmpty()) return cb.conjunction();
-
-            return buildManyToManySpec(root, query, cb, cleaned,
-                    "metadata", "moods", "name");
+            return buildManyToManySpec(root, query, cb, cleaned, collectionAttr, idsForName);
         };
     }
 
@@ -529,23 +404,13 @@ public class BookFilterSpecification {
         };
     }
 
-    public static Specification<BookEntity> unshelved() {
-        return (root, query, cb) -> {
-            Subquery<Long> subquery = query.subquery(Long.class);
-            Root<BookEntity> subRoot = subquery.correlate(root);
-            Join<BookEntity, ShelfEntity> shelvesJoin = subRoot.join("shelves", JoinType.INNER);
-            subquery.select(cb.literal(1L));
-            return cb.not(cb.exists(subquery));
-        };
-    }
-
     public static Specification<BookEntity> withAgeRatings(List<String> values) {
         return (root, query, cb) -> {
-            List<NumericRange<Integer>> ranges = parseNumericRanges(values, Integer::valueOf, "ageRating");
+            List<NumericRange<Integer>> ranges = NumericRange.parseAll(values, Integer::valueOf, "ageRating");
             if (ranges.isEmpty()) return cb.conjunction();
             Join<BookEntity, BookMetadataEntity> metadataJoin = getOrCreateJoin(root, "metadata", JoinType.INNER);
             Expression<Integer> ageRating = metadataJoin.get("ageRating");
-            Predicate combined = rangesPredicate(cb, ageRating, ranges);
+            Predicate combined = NumericRange.anyOf(cb, ageRating, ranges);
             return combined;
         };
     }
@@ -560,28 +425,28 @@ public class BookFilterSpecification {
 
     public static Specification<BookEntity> withMatchScores(List<String> values) {
         return (root, query, cb) -> {
-            List<NumericRange<Float>> ranges = parseNumericRanges(values, Float::valueOf, "matchScore");
+            List<NumericRange<Float>> ranges = NumericRange.parseAll(values, Float::valueOf, "matchScore");
             if (ranges.isEmpty()) return cb.conjunction();
             Expression<Float> score = root.get("metadataMatchScore");
-            Predicate combined = rangesPredicate(cb, score, ranges);
+            Predicate combined = NumericRange.anyOf(cb, score, ranges);
             return combined;
         };
     }
 
     public static Specification<BookEntity> withPublishedYears(List<String> years) {
         return (root, query, cb) -> {
-            List<NumericRange<Integer>> ranges = parseNumericRanges(years, Integer::valueOf, "publishedDate");
+            List<NumericRange<Integer>> ranges = NumericRange.parseAll(years, Integer::valueOf, "publishedDate");
             if (ranges.isEmpty()) return cb.conjunction();
             Join<BookEntity, BookMetadataEntity> metadataJoin = getOrCreateJoin(root, "metadata", JoinType.INNER);
             Expression<Integer> yearExpr = cb.function("YEAR", Integer.class, metadataJoin.get("publishedDate"));
-            Predicate combined = rangesPredicate(cb, yearExpr, ranges);
+            Predicate combined = NumericRange.anyOf(cb, yearExpr, ranges);
             return combined;
         };
     }
 
     public static Specification<BookEntity> withFileSizes(List<String> values) {
         return (root, query, cb) -> {
-            List<NumericRange<Long>> ranges = parseNumericRanges(values, Long::valueOf, "fileSize");
+            List<NumericRange<Long>> ranges = NumericRange.parseAll(values, Long::valueOf, "fileSize");
             if (ranges.isEmpty()) return cb.conjunction();
 
             // Matches against the book's first book-format file.
@@ -597,7 +462,7 @@ public class BookFilterSpecification {
                     cb.equal(file.get("book").get("id"), root.get("id")),
                     cb.equal(file.get("isBookFormat"), true),
                     cb.not(cb.exists(earlier)),
-                    rangesPredicate(cb, file.get("fileSizeKb"), ranges));
+                    NumericRange.anyOf(cb, file.get("fileSizeKb"), ranges));
 
             return cb.exists(sub);
         };
@@ -650,27 +515,27 @@ public class BookFilterSpecification {
     private static Specification<BookEntity> buildRatingRangeSpec(
             List<String> values, String fieldName) {
         return (root, query, cb) -> {
-            List<NumericRange<Double>> ranges = parseNumericRanges(values, Double::valueOf, fieldName);
+            List<NumericRange<Double>> ranges = NumericRange.parseAll(values, Double::valueOf, fieldName);
             if (ranges.isEmpty()) return cb.conjunction();
             Join<BookEntity, BookMetadataEntity> metadataJoin = getOrCreateJoin(root, "metadata", JoinType.INNER);
             Expression<Double> rating = metadataJoin.get(fieldName);
-            Predicate combined = rangesPredicate(cb, rating, ranges);
+            Predicate combined = NumericRange.anyOf(cb, rating, ranges);
             return combined;
         };
     }
 
     public static Specification<BookEntity> withPageCounts(List<String> values) {
         return (root, query, cb) -> {
-            List<NumericRange<Integer>> ranges = parseNumericRanges(values, Integer::valueOf, "pageCount");
+            List<NumericRange<Integer>> ranges = NumericRange.parseAll(values, Integer::valueOf, "pageCount");
             if (ranges.isEmpty()) return cb.conjunction();
             Join<BookEntity, BookMetadataEntity> metadataJoin = getOrCreateJoin(root, "metadata", JoinType.INNER);
             Expression<Integer> count = metadataJoin.get("pageCount");
-            Predicate combined = rangesPredicate(cb, count, ranges);
+            Predicate combined = NumericRange.anyOf(cb, count, ranges);
             return combined;
         };
     }
 
-    public static Specification<BookEntity> withShelfStatus(List<String> values) {
+    public static Specification<BookEntity> withShelfStatus(List<String> values, Long userId) {
         return (root, query, cb) -> {
             List<String> cleaned = cleanLowerCase(values);
             if (cleaned.isEmpty()) return cb.conjunction();
@@ -684,44 +549,21 @@ public class BookFilterSpecification {
             boolean wantShelved = cleaned.contains("shelved");
             boolean wantUnshelved = cleaned.contains("unshelved");
             if (wantShelved && wantUnshelved) return cb.conjunction();
-            Predicate hasShelves = cb.isNotEmpty(root.get("shelves"));
+            Subquery<Long> sub = query.subquery(Long.class);
+            Join<BookEntity, ShelfEntity> shelves = sub.correlate(root).join("shelves", JoinType.INNER);
+            sub.select(cb.literal(1L)).where(visibleShelf(cb, shelves, userId));
+            Predicate hasShelves = cb.exists(sub);
             Predicate combined = wantShelved ? hasShelves : cb.not(hasShelves);
             return combined;
         };
     }
 
-    public static Specification<BookEntity> withComicCharacters(List<String> values) {
-        return buildComicCollectionSpec(values, "characters");
+    public static Specification<BookEntity> withComicCollection(
+            String collectionAttr, List<String> values, Function<String, List<Long>> idsForName) {
+        return withMetadataCollection("comicMetadata." + collectionAttr, values, idsForName);
     }
 
-    public static Specification<BookEntity> withComicTeams(List<String> values) {
-        return buildComicCollectionSpec(values, "teams");
-    }
-
-    public static Specification<BookEntity> withComicLocations(List<String> values) {
-        return buildComicCollectionSpec(values, "locations");
-    }
-
-    private static Specification<BookEntity> buildComicCollectionSpec(
-            List<String> values, String collectionAttr) {
-        return (root, query, cb) -> {
-            List<String> cleaned = cleanLowerCase(values);
-            if (cleaned.isEmpty()) return cb.conjunction();
-            
-            Subquery<Long> sub = query.subquery(Long.class);
-            Root<BookMetadataEntity> metaRoot = sub.from(BookMetadataEntity.class);
-            Join<?, ?> comicJoin = metaRoot.join("comicMetadata", JoinType.INNER);
-            Join<?, ?> collJoin = comicJoin.join(collectionAttr, JoinType.INNER);
-            sub.select(cb.literal(1L))
-                    .where(
-                            cb.equal(metaRoot.get("id"), root.get("id")),
-                            cb.lower(collJoin.get("name")).in(cleaned)
-                    );
-            return cb.exists(sub);
-        };
-    }
-
-    public static Specification<BookEntity> inShelves(List<String> shelfIds) {
+    public static Specification<BookEntity> inShelves(List<String> shelfIds, Long userId) {
         return (root, query, cb) -> {
             if (shelfIds.isEmpty()) return cb.conjunction();
             List<Long> ids = parseLongList(shelfIds, "shelf");
@@ -730,9 +572,13 @@ public class BookFilterSpecification {
             Subquery<Long> sub = query.subquery(Long.class);
             Root<BookEntity> subRoot = sub.correlate(root);
             Join<BookEntity, ShelfEntity> subShelves = subRoot.join("shelves", JoinType.INNER);
-            sub.select(cb.literal(1L)).where(subShelves.get("id").in(ids));
+            sub.select(cb.literal(1L)).where(subShelves.get("id").in(ids), visibleShelf(cb, subShelves, userId));
             return cb.exists(sub);
         };
+    }
+
+    static Predicate visibleShelf(CriteriaBuilder cb, From<?, ShelfEntity> shelf, Long userId) {
+        return cb.or(cb.equal(shelf.get("user").get("id"), userId), cb.isTrue(shelf.get("isPublic")));
     }
 
     public static Specification<BookEntity> inLibraries(List<String> libraryIds) {
@@ -745,7 +591,8 @@ public class BookFilterSpecification {
         };
     }
 
-    public static Specification<BookEntity> withComicCreators(List<String> values) {
+    public static Specification<BookEntity> withComicCreators(
+            List<String> values, Function<String, List<Long>> idsForName) {
         return (root, query, cb) -> {
             if (values == null || values.isEmpty()) return cb.conjunction();
 
@@ -763,7 +610,7 @@ public class BookFilterSpecification {
 
                 List<Predicate> where = new ArrayList<>();
                 where.add(cb.equal(comicJoin.get("bookId"), root.get("id")));
-                where.add(cb.equal(cb.lower(creatorJoin.get("name")), name));
+                where.add(creatorJoin.get("id").in(idsForName.apply(name)));
 
                 if (roleName != null) {
                     ComicCreatorRole role = parseCreatorRole(roleName);
@@ -817,17 +664,25 @@ public class BookFilterSpecification {
     private static Predicate buildManyToManySpec(
             Root<BookEntity> root, CriteriaQuery<?> query, CriteriaBuilder cb,
             List<String> values,
-            String metadataAttr, String collectionAttr, String nameAttr) {
+            String collectionAttr, Function<String, List<Long>> idsForName) {
 
         Subquery<Long> sub = query.subquery(Long.class);
         Root<BookMetadataEntity> metaRoot = sub.from(BookMetadataEntity.class);
-        Join<?, ?> collJoin = metaRoot.join(collectionAttr, JoinType.INNER);
+        From<?, ?> collJoin = joinCollection(metaRoot, collectionAttr);
         sub.select(cb.literal(1L))
                 .where(
                         cb.equal(metaRoot.get("id"), root.get("id")),
-                        cb.lower(collJoin.get(nameAttr)).in(values)
+                        collJoin.get("id").in(values.stream()
+                                .flatMap(value -> idsForName.apply(value).stream()).distinct().toList())
                 );
         return cb.exists(sub);
+    }
+
+    private static From<?, ?> joinCollection(From<?, ?> from, String path) {
+        for (String attribute : path.split("\\.")) {
+            from = from.join(attribute, JoinType.INNER);
+        }
+        return from;
     }
 
     @SafeVarargs

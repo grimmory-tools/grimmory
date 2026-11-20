@@ -150,6 +150,7 @@ public class BookFileEntity {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    @EqualsAndHashCode
     public static class AudioFileChapter {
         private Integer index;
         private String title;

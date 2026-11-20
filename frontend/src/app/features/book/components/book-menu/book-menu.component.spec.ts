@@ -7,11 +7,10 @@ import {signal, type WritableSignal} from '@angular/core';
 import {createQueryClientHarness} from '../../../../core/testing/query-testing';
 import {getTranslocoModule} from '../../../../core/testing/transloco-testing';
 import {UserService} from '../../../settings/user-management/user.service';
-import {MetadataRefreshSubmissionService} from '../../../metadata/data/metadata-refresh-submission.service';
-import {BookBackgroundSubmissionService} from '../../data/book-background-submission.service';
+import {MetadataSourceCommandService} from '../../../metadata/sources/metadata-source-command.service';
 import {BookCommandService} from '../../data/book-command.service';
-import {BookShelfCommandService} from '../../data/book-shelf-command.service';
-import {ShelfDefinitionQueryService} from '../../data/shelf-definition-query.service';
+import {ShelfCommandService} from '../../../shelf/data/shelf-command.service';
+import {ShelfQueryService} from '../../../shelf/data/shelf-query.service';
 import {BookSummary} from '../../data/book-response.models';
 import {BookDialogHelperService} from '../../service/book-dialog-helper.service';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
@@ -60,26 +59,22 @@ describe('BookMenuComponent row gating', () => {
         ...harness.providers,
         provideRouter([{path: '**', children: []}]),
         {provide: UserService, useValue: {currentUser: () => ({id: 1, permissions: permissions()})}},
-        {provide: ShelfDefinitionQueryService, useValue: {definitions: () => ({queryKey: ['shelves'], queryFn: () => []})}},
-        {provide: MetadataRefreshSubmissionService, useValue: {refreshMetadata: () => ({mutationFn: () => Promise.resolve()})}},
-        {provide: BookBackgroundSubmissionService, useValue: {
-          changeCovers: () => ({mutationFn: () => Promise.resolve()}),
-          quickSend: () => ({mutationFn: () => Promise.resolve()}),
-        }},
+        {provide: ShelfQueryService, useValue: {shelves: () => ({queryKey: ['shelves'], queryFn: () => []})}},
+        {provide: MetadataSourceCommandService, useValue: {refreshMetadata: () => ({mutationFn: () => Promise.resolve()})}},
         {provide: BookCommandService, useValue: {
           setReadStatus: () => ({mutationFn: () => Promise.resolve([])}),
           deleteBooks: () => ({mutationFn: () => Promise.resolve({removedBookIds: []})}),
           deleteAdditionalFile: () => ({mutationFn: () => Promise.resolve({bookId: 1, fileId: 10})}),
           setAllMetadataLocks: () => ({mutationFn: () => Promise.reject(new Error('failed'))}),
           resetProgress: () => ({mutationFn: () => Promise.resolve([])}),
+          bulkRegenerateCovers: () => ({mutationFn: () => Promise.resolve()}),
+          bulkGenerateCovers: () => ({mutationFn: () => Promise.resolve()}),
+          quickSend: () => ({mutationFn: () => Promise.resolve()}),
         }},
-        {provide: BookShelfCommandService, useValue: {
+        {provide: ShelfCommandService, useValue: {
           updateMembership: () => ({
             mutationKey: ['test', 'shelf-membership'],
-            mutationFn: () => Promise.resolve({
-              confirmedBookIds: [1],
-              updatedBookShelves: [{bookId: 1, shelves: []}],
-            }),
+            mutationFn: () => Promise.resolve([{id: 1, shelves: []}]),
           }),
         }},
         {provide: BookDialogHelperService, useValue: {}},
@@ -183,7 +178,7 @@ describe('BookMenuComponent row gating', () => {
 
   it('keeps confirmed shelf state when the book leaves the current result page', async () => {
     showBook(makeBook({
-      shelves: [{id: 7, name: 'Reading List', publicShelf: false, bookCount: 1}],
+      shelves: [{id: 7, name: 'Reading List', userId: 1, publicShelf: false}],
     }));
     fixture.componentRef.setInput('books', []);
 

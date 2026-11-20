@@ -1,8 +1,10 @@
+import type {Shelf} from '../../shelf/data/shelf-query.models';
+
 export const BOOK_FILE_TYPES = ['PDF', 'EPUB', 'CBX', 'FB2', 'MOBI', 'AZW3', 'AUDIOBOOK'] as const;
-export type BookFileType = typeof BOOK_FILE_TYPES[number] | (string & {});
+export type BookFileType = typeof BOOK_FILE_TYPES[number];
 
 export const BOOK_ARCHIVE_TYPES = ['ZIP', 'RAR', 'SEVEN_ZIP', 'UNKNOWN'] as const;
-export type BookArchiveType = typeof BOOK_ARCHIVE_TYPES[number] | (string & {});
+export type BookArchiveType = typeof BOOK_ARCHIVE_TYPES[number];
 
 export const BOOK_READ_STATUSES = [
   'UNREAD',
@@ -15,8 +17,7 @@ export const BOOK_READ_STATUSES = [
   'ABANDONED',
   'UNSET',
 ] as const;
-export type KnownBookReadStatus = typeof BOOK_READ_STATUSES[number];
-export type BookReadStatus = KnownBookReadStatus | (string & {});
+export type BookReadStatus = typeof BOOK_READ_STATUSES[number];
 
 export interface BookFileResponse {
   id: number;
@@ -32,26 +33,6 @@ export interface BookFileResponse {
   extension?: string;
   description?: string;
   addedOn?: string;
-}
-
-export type BookShelfIconType = 'LUCIDE' | 'CUSTOM_SVG' | (string & {});
-
-export type BookShelfSortDirection = 'ASCENDING' | 'DESCENDING';
-
-export interface BookShelfSort {
-  field: string | null;
-  direction: BookShelfSortDirection | null;
-}
-
-export interface BookShelf {
-  id: number;
-  name: string;
-  icon?: string;
-  iconType?: BookShelfIconType;
-  sort?: BookShelfSort;
-  userId?: number;
-  publicShelf: boolean;
-  bookCount: number;
 }
 
 export interface BookLibraryPath {
@@ -135,6 +116,8 @@ interface BookMetadataFields {
   lubimyczytacRating?: number;
   audibleRating?: number;
   audibleReviewCount?: number;
+  applebooksRating?: number;
+  applebooksReviewCount?: number;
   coverUpdatedOn?: string;
   audiobookCoverUpdatedOn?: string;
   authors?: string[];
@@ -169,7 +152,7 @@ interface BookRecord<TMetadata extends BookMetadataFields> {
   koreaderProgress?: BookKoReaderProgress;
   koboProgress?: BookKoboProgress;
   personalRating?: number;
-  shelves?: BookShelf[];
+  shelves?: Shelf[];
   readStatus?: BookReadStatus;
   dateFinished?: string;
   alternativeFormats?: BookFileResponse[];
@@ -316,7 +299,16 @@ export interface BookDetail extends BookRecord<BookDetailMetadata> {
   libraryPath?: BookLibraryPath;
 }
 
-export interface BookRecommendation {
-  book: BookDetail;
-  similarityScore: number;
+export interface BookReviewResponse {
+  readonly id: number;
+  readonly metadataProvider?: string;
+  readonly reviewerName?: string;
+  readonly title?: string;
+  readonly rating?: number;
+  readonly date?: string;
+  readonly body?: string;
+  readonly country?: string;
+  readonly spoiler?: boolean;
+  readonly followersCount?: number;
+  readonly textReviewsCount?: number;
 }

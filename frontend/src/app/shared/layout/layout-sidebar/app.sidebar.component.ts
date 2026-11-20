@@ -6,6 +6,10 @@ import {map} from 'rxjs/operators';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {QUERY_DEFAULTS} from '../../../core/data/query-transport';
 import {bookQueryKeys} from '../../../features/book/data/book-query-keys';
+import {BookQueryService} from '../../../features/book/data/book-query.service';
+import type {BookCollectionFilterParams} from '../../../features/book/data/book-query-params';
+import type {BookBrowseScope} from '../../../features/book/browse/book-browse-scope';
+import {browseFacetEntries} from '../../browse/facets';
 import { Router, RouterLink } from '@angular/router';
 import { AppSidebarSectionComponent } from './app.sidebar-section.component';
 import { CdkTrapFocus } from '@angular/cdk/a11y';
@@ -68,6 +72,10 @@ const DOCUMENTATION_URL = 'https://grimmory.org/docs/getting-started';
 // Keyed under book collections so every book change refreshes these counts.
 const SERIES_COUNT_QUERY_KEY = [...bookQueryKeys.collections(), 'series-count'] as const;
 const AUTHOR_COUNT_QUERY_KEY = [...bookQueryKeys.collections(), 'author-count'] as const;
+const UNFILTERED_BOOKS: BookCollectionFilterParams = {facets: {}};
+type SidebarCountFacet = 'library' | 'shelf' | 'shelf_status';
+const isSidebarCountFacet = (key: string): key is SidebarCountFacet =>
+  key === 'library' || key === 'shelf' || key === 'shelf_status';
 const ABOVE_ALIGN_LEFT: ConnectedPosition[] = [
   { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom', offsetY: -8 },
   { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 8 },
@@ -180,6 +188,7 @@ export class AppSidebarComponent {
   private readonly versionService = inject(VersionService);
   private readonly magicShelfService = inject(MagicShelfService);
   private readonly http = inject(HttpClient);
+  private readonly bookQuery = inject(BookQueryService);
   private readonly t = inject(TranslocoService);
   private readonly metadataProgressService = inject(MetadataProgressService);
   private readonly bookdropFileService = inject(BookdropFileService);
@@ -237,6 +246,34 @@ export class AppSidebarComponent {
     ...QUERY_DEFAULTS,
   }));
 
+  private readonly facetCounts = {
+    library: this.facetCountsQuery('library', ['library']),
+    shelf: this.facetCountsQuery('shelf', ['shelf', 'magicShelf']),
+    shelf_status: this.facetCountsQuery('shelf_status', ['home', 'shelf']),
+  };
+
+  private facetCountsQuery(facet: SidebarCountFacet, sections: readonly string[]) {
+    return injectQuery(() => ({
+      ...this.bookQuery.facet(facet, UNFILTERED_BOOKS),
+      enabled: this.authService.isAuthenticated()
+        && sections.some(section => this.layoutService.areSidebarCountsVisible(section)),
+    }));
+  }
+
+  private bookCount(scope: BookBrowseScope | null): number | undefined {
+    if (scope === null) {
+      return this.facetTotal('shelf_status');
+    }
+    const countFacet = browseFacetEntries(scope.facets, isSidebarCountFacet).at(0);
+    return countFacet === undefined ? undefined : this.facetTotal(countFacet[0], countFacet[1].include);
+  }
+
+  private facetTotal(facet: SidebarCountFacet, values?: readonly string[]): number | undefined {
+    return this.facetCounts[facet].data()?.values
+      .filter(value => values === undefined || values.includes(value.value))
+      .reduce((total, value) => total + value.count, 0);
+  }
+
   private entityCount(entity: 'series' | 'authors'): Promise<number> {
     return lastValueFrom(this.http
       .get<{totalElements: number}>(`${API_CONFIG.BASE_URL}/api/v1/app/${entity}`, {params: {page: 0, size: 1}})
@@ -267,7 +304,11 @@ export class AppSidebarComponent {
         this.translate,
       ),
       ...buildToolsSection(this.translate, this.currentUser()?.permissions ?? {}),
-    ];
+    ].map(section => ({
+      ...section,
+      items: section.items.map(item =>
+        item.bookScope === undefined ? item : {...item, bookCount: this.bookCount(item.bookScope)}),
+    }));
   });
 
   readonly userInitials = computed(() => {

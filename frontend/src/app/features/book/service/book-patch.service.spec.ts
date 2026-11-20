@@ -2,13 +2,13 @@ import {provideHttpClient} from '@angular/common/http';
 import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
 import {TestBed} from '@angular/core/testing';
 import {QueryClient} from '@tanstack/angular-query-experimental';
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it} from 'vitest';
 
 import {ResetProgressTypes} from '../../../shared/constants/reset-progress-type';
 import {Book, ReadStatus} from '../model/book.model';
 import {BOOKS_QUERY_KEY} from './book-query-keys';
 import {BookPatchService} from './book-patch.service';
-import {shelfDefinitionQueryKeys} from '../data/shelf-definition-query-keys';
+import {shelfQueryKeys} from '../../shelf/data/shelf-query-keys';
 
 function buildBook(id: number, overrides: Partial<Book> = {}): Book {
   return {
@@ -192,26 +192,13 @@ describe('BookPatchService', () => {
     expect(cachedBook(2)).toMatchObject({readStatus: ReadStatus.READ, dateFinished: '2026-03-05'});
   });
 
-  it('updates the cached last read timestamp without calling the backend', () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2026-03-26T12:00:00Z'));
-    queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, [buildBook(3)]);
-
-    service.updateLastReadTime(3);
-
-    expect(cachedBook(3).lastReadTime).toBe('2026-03-26T12:00:00.000Z');
-    httpTestingController.expectNone(req => req.url.includes('/api/v1/books'));
-
-    vi.useRealTimers();
-  });
-
   it('refreshes shelf counts after changing book membership', () => {
-    queryClient.setQueryData(shelfDefinitionQueryKeys.definitions(), []);
+    queryClient.setQueryData(shelfQueryKeys.shelves(), []);
 
     service.updateBookShelves(new Set([1]), new Set([7]), new Set()).subscribe();
 
     httpTestingController.expectOne(req => req.url.endsWith('/api/v1/books/shelves')).flush([]);
 
-    expect(queryClient.getQueryState(shelfDefinitionQueryKeys.definitions())?.isInvalidated).toBe(true);
+    expect(queryClient.getQueryState(shelfQueryKeys.shelves())?.isInvalidated).toBe(true);
   });
 });

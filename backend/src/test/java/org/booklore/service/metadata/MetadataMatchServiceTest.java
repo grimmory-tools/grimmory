@@ -152,6 +152,23 @@ class MetadataMatchServiceTest {
         }
 
         @Test
+        void scoresDoubanRatingAndReviewCount() {
+            MetadataMatchWeights weights = MetadataMatchWeights.builder()
+                    .title(0).subtitle(0).description(0).authors(0).publisher(0)
+                    .publishedDate(0).seriesName(0).seriesNumber(0).seriesTotal(0)
+                    .isbn13(0).isbn10(0).language(0).pageCount(0).categories(0)
+                    .amazonRating(0).amazonReviewCount(0).goodreadsRating(0)
+                    .goodreadsReviewCount(0).hardcoverRating(0).hardcoverReviewCount(0)
+                    .doubanRating(3).doubanReviewCount(2).ranobedbRating(0).lubimyczytacRating(0)
+                    .audibleRating(0).audibleReviewCount(0).coverImage(0)
+                    .build();
+            stubWeights(weights);
+
+            BookEntity book = bookWith(BookMetadataEntity.builder().doubanRating(4.35).doubanReviewCount(1200).build());
+            assertThat(service.calculateMatchScore(book)).isCloseTo(100f, within(0.01f));
+        }
+
+        @Test
         void scoresMultipleFieldsProportionally() {
             stubWeights(defaultWeights);
 

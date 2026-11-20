@@ -5,7 +5,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {getTranslocoModule} from '../../../../core/testing/transloco-testing';
 import {Book} from '../../../book/model/book.model';
 import {ReadStatus} from '../../../book/model/book.model';
-import {BookService} from '../../../book/service/book.service';
+import {BookNavigationService} from '../../../book/service/book-navigation.service';
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {SeriesSummary} from '../../model/series.model';
 import {SeriesCardComponent} from './series-card.component';
@@ -50,14 +50,14 @@ function makeSeries(overrides: Partial<SeriesSummary> = {}): SeriesSummary {
 describe('SeriesCardComponent', () => {
   let fixture: ComponentFixture<SeriesCardComponent>;
   let component: SeriesCardComponent;
-  let bookService: {readBook: ReturnType<typeof vi.fn>};
+  let bookNavigation: {readBook: ReturnType<typeof vi.fn>};
   let urlHelper: {
     getThumbnailUrl: ReturnType<typeof vi.fn>;
     getAudiobookThumbnailUrl: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(async () => {
-    bookService = {
+    bookNavigation = {
       readBook: vi.fn(),
     };
     urlHelper = {
@@ -68,7 +68,7 @@ describe('SeriesCardComponent', () => {
     await TestBed.configureTestingModule({
       imports: [SeriesCardComponent, getTranslocoModule()],
       providers: [
-        {provide: BookService, useValue: bookService},
+        {provide: BookNavigationService, useValue: bookNavigation},
         {provide: UrlHelperService, useValue: urlHelper},
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -112,7 +112,7 @@ describe('SeriesCardComponent', () => {
     component.readNext(event);
 
     expect(event.stopPropagation).toHaveBeenCalled();
-    expect(bookService.readBook).toHaveBeenCalledWith(11);
+    expect(bookNavigation.readBook).toHaveBeenCalledWith(component.series.nextUnread);
   });
 
   it('renders the series name and progress label', () => {

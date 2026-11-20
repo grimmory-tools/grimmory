@@ -10,11 +10,10 @@ import {
   CLEAR_BOOK_READ_STATUS_LABEL_KEY,
 } from '../components/book-read-status-options';
 import {DeleteBooksPartialError, type BookProgressSource} from '../data/book-command.models';
-import {BookBackgroundSubmissionService} from '../data/book-background-submission.service';
 import {BookCommandService} from '../data/book-command.service';
-import {BookShelfCommandService} from '../data/book-shelf-command.service';
-import {type BookSummary, type KnownBookReadStatus} from '../data/book-response.models';
-import {MetadataRefreshSubmissionService} from '../../metadata/data/metadata-refresh-submission.service';
+import {ShelfCommandService} from '../../shelf/data/shelf-command.service';
+import {type BookSummary, type BookReadStatus} from '../data/book-response.models';
+import {MetadataSourceCommandService} from '../../metadata/sources/metadata-source-command.service';
 import {type BookFileAttacherSourceBook} from '../components/book-file-attacher/book-file-attacher.component';
 import {BookDialogHelperService} from '../service/book-dialog-helper.service';
 import {legacyBookCachePatches, withLegacyBookCache} from '../service/book-command-legacy-adapter';
@@ -31,25 +30,25 @@ export interface BookBrowseBulkCommandsOptions {
 export function createBookBrowseBulkCommands({selection, books, fetchIds}: BookBrowseBulkCommandsOptions) {
   const transloco = inject(TranslocoService);
   const dialogHelper = inject(BookDialogHelperService);
-  const metadataRefresh = inject(MetadataRefreshSubmissionService);
-  const backgroundSubmission = inject(BookBackgroundSubmissionService);
+  const metadataSourceCommands = inject(MetadataSourceCommandService);
   const confirmationService = inject(ConfirmationService);
   const messageService = inject(MessageService);
   const bookCommands = inject(BookCommandService);
-  const shelfCommands = inject(BookShelfCommandService);
+  const shelfCommands = inject(ShelfCommandService);
 
   const shelfMembershipMutation = injectMutation(() => withLegacyBookCache(
     shelfCommands.updateMembership(), legacyBookCachePatches.shelfMembership));
   const readStatusMutation = injectMutation(() => withLegacyBookCache(
     bookCommands.setReadStatus(), legacyBookCachePatches.readStatus));
-  const refreshMetadataMutation = injectMutation(() => metadataRefresh.refreshMetadata());
+  const refreshMetadataMutation = injectMutation(() => metadataSourceCommands.refreshMetadata());
   const deleteBooksMutation = injectMutation(() => withLegacyBookCache(
     bookCommands.deleteBooks(), legacyBookCachePatches.deleteBooks));
   const resetProgressMutation = injectMutation(() => withLegacyBookCache(
     bookCommands.resetProgress(), legacyBookCachePatches.resetProgress));
   const metadataLocksMutation = injectMutation(() => withLegacyBookCache(
     bookCommands.setAllMetadataLocks(), legacyBookCachePatches.metadataAllLocks));
-  const changeCoversMutation = injectMutation(() => backgroundSubmission.changeCovers());
+  const regenerateCoversMutation = injectMutation(() => bookCommands.bulkRegenerateCovers());
+  const generateCoversMutation = injectMutation(() => bookCommands.bulkGenerateCovers());
 
   const isResolving = signal(false);
 
@@ -166,13 +165,14 @@ export function createBookBrowseBulkCommands({selection, books, fetchIds}: BookB
         acceptLabel: transloco.translate('common.confirm'),
         rejectLabel: transloco.translate('common.cancel'),
         accept: () => {
-          void withSelectedBookIds(bookIds => changeCoversMutation.mutate({kind, bookIds: [...bookIds]}));
+          const mutation = regenerate ? regenerateCoversMutation : generateCoversMutation;
+          void withSelectedBookIds(bookIds => mutation.mutate({bookIds: [...bookIds]}));
         },
       });
     },
 
     fetchMetadata(): void {
-      void withSelectedBookIds(bookIds => refreshMetadataMutation.mutate({bookIds: [...bookIds]}));
+      void withSelectedBookIds(bookIds => refreshMetadataMutation.mutate({refreshType: 'BOOKS', bookIds: [...bookIds]}));
     },
 
     fetchMetadataWithOptions(): void {
@@ -201,7 +201,7 @@ export function createBookBrowseBulkCommands({selection, books, fetchIds}: BookB
       });
     },
 
-    markAs(status: KnownBookReadStatus): void {
+    markAs(status: BookReadStatus): void {
       const statusLabel = transloco.translate(
         status === 'UNSET' ? CLEAR_BOOK_READ_STATUS_LABEL_KEY : BOOK_READ_STATUS_LABEL_KEYS[status],
       );

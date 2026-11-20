@@ -167,6 +167,9 @@ public class BookFileDetachmentService {
         copy.setApplebooksId(source.getApplebooksId());
         copy.setApplebooksRating(source.getApplebooksRating());
         copy.setApplebooksReviewCount(source.getApplebooksReviewCount());
+        copy.setDoubanId(source.getDoubanId());
+        copy.setDoubanRating(source.getDoubanRating());
+        copy.setDoubanReviewCount(source.getDoubanReviewCount());
         copy.setNarrator(source.getNarrator());
         copy.setAbridged(source.getAbridged());
         copy.setAgeRating(source.getAgeRating());

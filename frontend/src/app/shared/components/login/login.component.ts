@@ -161,7 +161,7 @@ export class LoginComponent implements OnInit {
       }
 
       const details = publicSettings.oidcProviderDetails;
-      const pkce = await this.oidcService.generatePkce();
+      const pkce = this.oidcService.generatePkce();
       const state = await this.oidcService.fetchState();
       const nonce = this.oidcService.generateRandomString();
 

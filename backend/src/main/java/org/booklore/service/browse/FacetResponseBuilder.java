@@ -69,11 +69,25 @@ final class FacetResponseBuilder {
         return List.of(Link.json(List.of("self"), href(facetPath)));
     }
 
+    List<Link> pagedLinks(String search, int page, int size, boolean hasNext) {
+        String query = search == null ? preserved : join(preserved, "search=" + BrowseParams.encode(search));
+        List<Link> links = new ArrayList<>();
+        links.add(Link.json(List.of("self"), facetPath + "?" + join(query, "page=" + page + "&size=" + size)));
+        if (hasNext) {
+            links.add(Link.json(List.of("next"), facetPath + "?" + join(query, "page=" + (page + 1) + "&size=" + size)));
+        }
+        return links;
+    }
+
     private String pageLink(String param) {
-        return preserved.isBlank() ? pagePath + "?" + param : pagePath + "?" + preserved + "&" + param;
+        return pagePath + "?" + join(preserved, param);
     }
 
     private String href(String path) {
         return preserved.isBlank() ? path : path + "?" + preserved;
+    }
+
+    private static String join(String query, String params) {
+        return query.isBlank() ? params : query + "&" + params;
     }
 }

@@ -14,7 +14,9 @@ import org.booklore.repository.AuthorRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.CategoryRepository;
 import org.booklore.repository.LibraryRepository;
+import org.booklore.service.metadata.parser.ParserUtils;
 import org.booklore.util.BookCoverUtils;
+import org.booklore.util.BookUtils;
 import org.booklore.util.FileService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,14 +32,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 @Slf4j
 @Service
 @AllArgsConstructor
 public class PhysicalBookService {
 
-    private static final Pattern NON_ISBN_CHAR_PATTERN = Pattern.compile("[^0-9Xx]");
     private final BookRepository bookRepository;
     private final LibraryRepository libraryRepository;
     private final AuthorRepository authorRepository;
@@ -49,6 +49,15 @@ public class PhysicalBookService {
     public Book createPhysicalBook(CreatePhysicalBookRequest request) {
         LibraryEntity library = libraryRepository.findById(request.getLibraryId())
                 .orElseThrow(() -> new APIException("Library not found with id: " + request.getLibraryId(), HttpStatus.NOT_FOUND));
+
+        String isbn = ParserUtils.cleanIsbn(request.getIsbn());
+        String isbn13 = isbn != null && isbn.length() == 13 ? isbn : null;
+        String isbn10 = isbn != null && isbn.length() == 10 ? isbn : null;
+        String matchIsbn13 = isbn13 != null ? isbn13 : BookUtils.isbn10To13(isbn10);
+        String matchIsbn10 = isbn10 != null ? isbn10 : BookUtils.isbn13to10(isbn13);
+        if (matchIsbn13 != null && bookRepository.existsInLibraryByIsbn(library.getId(), matchIsbn13, matchIsbn10)) {
+            throw ApiError.BOOK_ALREADY_IN_LIBRARY.createException(isbn13 != null ? isbn13 : isbn10);
+        }
 
         BookEntity bookEntity = BookEntity.builder()
                 .library(library)
@@ -67,8 +76,8 @@ public class PhysicalBookService {
                 .publishedDate(parsePublishedDate(request.getPublishedDate()))
                 .language(request.getLanguage())
                 .pageCount(request.getPageCount())
-                .isbn13(extractIsbn13(request.getIsbn()))
-                .isbn10(extractIsbn10(request.getIsbn()))
+                .isbn13(isbn13)
+                .isbn10(isbn10)
                 .build();
 
         bookEntity.setMetadata(metadata);
@@ -113,18 +122,6 @@ public class PhysicalBookService {
             return LocalDate.of(year, 1, 1);
         } catch (NumberFormatException _) {}
         return null;
-    }
-
-    private String extractIsbn13(String isbn) {
-        if (isbn == null) return null;
-        String cleaned = NON_ISBN_CHAR_PATTERN.matcher(isbn).replaceAll("").toUpperCase();
-        return cleaned.length() == 13 ? cleaned : null;
-    }
-
-    private String extractIsbn10(String isbn) {
-        if (isbn == null) return null;
-        String cleaned = NON_ISBN_CHAR_PATTERN.matcher(isbn).replaceAll("").toUpperCase();
-        return cleaned.length() == 10 ? cleaned : null;
     }
 
     private void addAuthorsToBook(List<String> authors, BookEntity bookEntity) {

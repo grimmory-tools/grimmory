@@ -220,6 +220,9 @@ public class BookMetadataUpdater {
         handleFieldUpdate(e.getApplebooksIdLocked(), clear.isApplebooksId(), m.getApplebooksId(), v -> e.setApplebooksId(nullIfBlank(v)), e::getApplebooksId, replaceMode);
         handleFieldUpdate(e.getApplebooksRatingLocked(), clear.isApplebooksRating(), m.getApplebooksRating(), e::setApplebooksRating, e::getApplebooksRating, replaceMode);
         handleFieldUpdate(e.getApplebooksReviewCountLocked(), clear.isApplebooksReviewCount(), m.getApplebooksReviewCount(), e::setApplebooksReviewCount, e::getApplebooksReviewCount, replaceMode);
+        handleFieldUpdate(e.getDoubanIdLocked(), clear.isDoubanId(), m.getDoubanId(), v -> e.setDoubanId(nullIfBlank(v)), e::getDoubanId, replaceMode);
+        handleFieldUpdate(e.getDoubanRatingLocked(), clear.isDoubanRating(), m.getDoubanRating(), e::setDoubanRating, e::getDoubanRating, replaceMode);
+        handleFieldUpdate(e.getDoubanReviewCountLocked(), clear.isDoubanReviewCount(), m.getDoubanReviewCount(), e::setDoubanReviewCount, e::getDoubanReviewCount, replaceMode);
         handleFieldUpdate(e.getAgeRatingLocked(), clear.isAgeRating(), m.getAgeRating(), e::setAgeRating, e::getAgeRating, replaceMode);
         handleFieldUpdate(e.getContentRatingLocked(), clear.isContentRating(), m.getContentRating(), v -> e.setContentRating(nullIfBlank(v)), e::getContentRating, replaceMode);
     }
@@ -741,6 +744,9 @@ public class BookMetadataUpdater {
                 Pair.of(m.getApplebooksIdLocked(), e::setApplebooksIdLocked),
                 Pair.of(m.getApplebooksRatingLocked(), e::setApplebooksRatingLocked),
                 Pair.of(m.getApplebooksReviewCountLocked(), e::setApplebooksReviewCountLocked),
+                Pair.of(m.getDoubanIdLocked(), e::setDoubanIdLocked),
+                Pair.of(m.getDoubanRatingLocked(), e::setDoubanRatingLocked),
+                Pair.of(m.getDoubanReviewCountLocked(), e::setDoubanReviewCountLocked),
                 Pair.of(m.getCoverLocked(), e::setCoverLocked),
                 Pair.of(m.getAudiobookCoverLocked(), e::setAudiobookCoverLocked),
                 Pair.of(m.getAuthorsLocked(), e::setAuthorsLocked),

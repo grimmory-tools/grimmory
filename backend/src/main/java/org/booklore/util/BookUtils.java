@@ -129,7 +129,7 @@ public class BookUtils {
             total += (c - '0') * (oneThree ? 3 : 1);
             oneThree = !oneThree;
         }
-        int checkDigit = 10 - (total % 10);
+        int checkDigit = (10 - (total % 10)) % 10;
         isbn13 += checkDigit;
         return isbn13;
     }

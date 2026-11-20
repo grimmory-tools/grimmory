@@ -6,20 +6,23 @@ import {
 } from '@tanstack/angular-query-experimental';
 
 import {
-  DeleteAdditionalFileResult,
+  AttachBookFilesResult,
+  AttachBookFilesVariables,
+  BookProgressSource,
+  DeleteAdditionalFileVariables,
   DeleteBooksResult,
   ResetBookProgressResult,
-  SetAllBookMetadataLocksResult,
+  ResetBookProgressVariables,
   SetBookReadStatusResult,
 } from '../data/book-command.models';
-import {UpdateBookShelfMembershipResult} from '../data/book-shelf-command.models';
-import {BookShelf} from '../data/book-response.models';
-import {Book, ReadStatus} from '../model/book.model';
-import {Shelf} from '../model/shelf.model';
+import {BookDetail, BookDetailMetadata, BookFileResponse} from '../data/book-response.models';
+import {AdditionalFile, Book, BOOK_TYPES, ReadStatus} from '../model/book.model';
+import type {Shelf} from '../../shelf/data/shelf-query.models';
 import {
   invalidateAllLegacyBooks,
   patchListOnlyBookFields,
   patchListOnlyBooksWith,
+  patchAttachedBookFilesInLegacyCache,
   removeListOnlyBooks,
 } from './legacy-book-cache';
 import {SHELVES_QUERY_KEY} from './shelf-query-keys';
@@ -27,9 +30,10 @@ import {SHELVES_QUERY_KEY} from './shelf-query-keys';
 type MutationOptionsWithKey<TData, TError, TVariables, TOnMutateResult> =
   WithRequired<CreateMutationOptions<TData, TError, TVariables, TOnMutateResult>, 'mutationKey'>;
 
-type LegacyBookCachePatch<TData> = (
+type LegacyBookCachePatch<TData, TVariables> = (
   client: QueryClient,
   data: TData,
+  variables: TVariables,
 ) => Promise<void> | void;
 
 export function withLegacyBookCache<
@@ -39,7 +43,7 @@ export function withLegacyBookCache<
   TOnMutateResult = unknown,
 >(
   options: MutationOptionsWithKey<TData, TError, TVariables, TOnMutateResult>,
-  patch: LegacyBookCachePatch<TData>,
+  patch: LegacyBookCachePatch<TData, TVariables>,
 ): MutationOptionsWithKey<TData, TError, TVariables, TOnMutateResult> {
   const originalOnSuccess = options.onSuccess;
   const originalOnError = options.onError;
@@ -48,7 +52,7 @@ export function withLegacyBookCache<
     ...options,
     onSuccess: async (data, variables, onMutateResult, context) => {
       await Promise.all([
-        patch(context.client, data),
+        patch(context.client, data, variables),
         originalOnSuccess?.(data, variables, onMutateResult, context),
       ]);
     },
@@ -62,6 +66,21 @@ export function withLegacyBookCache<
 }
 
 export const legacyBookCachePatches = {
+  attachBookFiles: (
+    client: QueryClient,
+    result: AttachBookFilesResult,
+    variables: AttachBookFilesVariables,
+  ): Promise<void> => patchAttachedBookFilesInLegacyCache(
+    client,
+    {
+      id: result.updatedBook.id,
+      primaryFile: result.updatedBook.primaryFile && toLegacyBookFile(result.updatedBook.primaryFile),
+      alternativeFormats: result.updatedBook.alternativeFormats?.map(toLegacyBookFile),
+      supplementaryFiles: result.updatedBook.supplementaryFiles?.map(toLegacyBookFile),
+    },
+    result.deletedSourceBookIds,
+    variables.sourceBookIds,
+  ),
   readStatus: (
     client: QueryClient,
     results: readonly SetBookReadStatusResult[],
@@ -79,25 +98,27 @@ export const legacyBookCachePatches = {
   ): Promise<void> => removeListOnlyBooks(client, result.removedBookIds),
   deleteAdditionalFile: (
     client: QueryClient,
-    result: DeleteAdditionalFileResult,
+    _result: void,
+    {bookId, fileId}: DeleteAdditionalFileVariables,
   ): Promise<void> => patchListOnlyBooksWith(client, [{
-    bookId: result.bookId,
+    bookId,
     updater: book => ({
       ...book,
-      alternativeFormats: book.alternativeFormats?.filter(file => file.id !== result.fileId),
-      supplementaryFiles: book.supplementaryFiles?.filter(file => file.id !== result.fileId),
+      alternativeFormats: book.alternativeFormats?.filter(file => file.id !== fileId),
+      supplementaryFiles: book.supplementaryFiles?.filter(file => file.id !== fileId),
     }),
   }]),
   resetProgress: (
     client: QueryClient,
     results: readonly ResetBookProgressResult[],
+    {source}: ResetBookProgressVariables,
   ): Promise<void> => patchListOnlyBookFields(client, results.map(result => ({
     bookId: result.bookId,
-    fields: resetProgressPatchFields(result),
+    fields: resetProgressPatchFields(result, source),
   }))),
   metadataAllLocks: (
     client: QueryClient,
-    results: readonly SetAllBookMetadataLocksResult[],
+    results: readonly BookDetailMetadata[],
   ): Promise<void> => patchListOnlyBooksWith(client, results.map(result => ({
     bookId: result.bookId,
     updater: book => {
@@ -106,22 +127,32 @@ export const legacyBookCachePatches = {
       }
       return {
         ...book,
-        metadata: {...book.metadata, ...result.metadataLocks},
+        metadata: {...book.metadata, ...metadataLocks(result)},
       };
     },
   }))),
   shelfMembership: (
     client: QueryClient,
-    result: UpdateBookShelfMembershipResult,
-  ): Promise<void> => patchLegacyShelfMembership(client, result),
+    books: readonly BookDetail[],
+  ): Promise<void> => patchLegacyShelfMembership(client, books),
 } as const;
 
-function resetProgressPatchFields(result: ResetBookProgressResult): Partial<Book> {
-  if (result.source !== 'GRIMMORY') {
-    return clearedProgressFields(result.source);
+function metadataLocks(metadata: BookDetailMetadata): Record<string, boolean> {
+  const locks: Record<string, boolean> = {};
+  for (const [field, value] of Object.entries(metadata)) {
+    if (field.endsWith('Locked') && typeof value === 'boolean') {
+      locks[field] = value;
+    }
+  }
+  return locks;
+}
+
+function resetProgressPatchFields(result: ResetBookProgressResult, source: BookProgressSource): Partial<Book> {
+  if (source !== 'GRIMMORY') {
+    return clearedProgressFields(source);
   }
   return {
-    ...clearedProgressFields(result.source),
+    ...clearedProgressFields(source),
     readStatus: undefined,
     readStatusModifiedTime: result.readStatusModifiedTime ?? undefined,
     dateFinished: undefined,
@@ -129,7 +160,7 @@ function resetProgressPatchFields(result: ResetBookProgressResult): Partial<Book
   };
 }
 
-function clearedProgressFields(source: ResetBookProgressResult['source']): Partial<Book> {
+function clearedProgressFields(source: BookProgressSource): Partial<Book> {
   if (source === 'KOREADER') {
     return {koreaderProgress: undefined};
   }
@@ -146,28 +177,31 @@ function clearedProgressFields(source: ResetBookProgressResult['source']): Parti
 
 async function patchLegacyShelfMembership(
   client: QueryClient,
-  result: UpdateBookShelfMembershipResult,
+  books: readonly BookDetail[],
 ): Promise<void> {
   await Promise.all([
-    patchListOnlyBooksWith(client, result.updatedBookShelves.map(update => ({
-      bookId: update.bookId,
+    patchListOnlyBooksWith(client, books.map(updated => ({
+      bookId: updated.id,
       updater: book => ({
         ...book,
-        shelves: update.shelves.map(toLegacyShelf),
+        shelves: updated.shelves?.map(toLegacyShelf),
       }),
     }))),
     client.invalidateQueries({queryKey: SHELVES_QUERY_KEY, exact: true}),
   ]);
 }
 
-function toLegacyShelf(shelf: BookShelf): Shelf {
+function toLegacyBookFile(file: BookFileResponse): AdditionalFile {
+  return {...file, bookType: BOOK_TYPES.find(type => type === file.bookType)};
+}
+
+function toLegacyShelf(shelf: Shelf) {
   return {
     id: shelf.id,
     name: shelf.name,
     icon: shelf.icon,
-    iconType: shelf.iconType as Shelf['iconType'],
+    iconType: shelf.iconType,
     userId: shelf.userId,
     publicShelf: shelf.publicShelf,
-    bookCount: shelf.bookCount,
   };
 }

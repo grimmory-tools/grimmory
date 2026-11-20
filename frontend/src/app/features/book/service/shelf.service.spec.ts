@@ -4,7 +4,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {createAuthServiceStub, createQueryClientHarness, flushQueryAsync, flushSignalAndQueryEffects} from '../../../core/testing/query-testing';
 import type {Shelf} from '../model/shelf.model';
-import {shelfDefinitionQueryKeys} from '../data/shelf-definition-query-keys';
+import {shelfQueryKeys} from '../../shelf/data/shelf-query-keys';
 import {bookQueryKeys} from '../data/book-query-keys';
 import {AuthService} from '../../../shared/service/auth.service';
 import {BookService} from './book.service';
@@ -116,7 +116,7 @@ describe('ShelfService', () => {
     expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: ['shelves'], exact: true});
   });
 
-  it('invalidates shelf and shelf-definition caches when creating a shelf, without touching book caches', () => {
+  it('invalidates shelf caches when creating a shelf, without touching book caches', () => {
     const invalidateQueriesSpy = vi.spyOn(queryClientHarness.queryClient, 'invalidateQueries').mockResolvedValue(undefined);
 
     httpTestingController.expectOne(req => req.url.endsWith('/api/v1/shelves')).flush([]);
@@ -127,11 +127,11 @@ describe('ShelfService', () => {
     createRequest.flush(buildShelf({id: 11, name: 'New Shelf'}));
 
     expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: ['shelves'], exact: true});
-    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: shelfDefinitionQueryKeys.all()});
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: shelfQueryKeys.all()});
     expect(invalidateQueriesSpy).not.toHaveBeenCalledWith({queryKey: bookQueryKeys.all()});
   });
 
-  it('invalidates shelf-definition and book caches when renaming a shelf', () => {
+  it('invalidates shelf and book caches when renaming a shelf', () => {
     const invalidateQueriesSpy = vi.spyOn(queryClientHarness.queryClient, 'invalidateQueries').mockResolvedValue(undefined);
 
     httpTestingController.expectOne(req => req.url.endsWith('/api/v1/shelves')).flush([]);
@@ -142,7 +142,7 @@ describe('ShelfService', () => {
     updateRequest.flush(buildShelf({id: 11, name: 'Updated Shelf'}));
 
     expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: ['shelves'], exact: true});
-    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: shelfDefinitionQueryKeys.all()});
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: shelfQueryKeys.all()});
     expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: bookQueryKeys.all()});
     expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: ['books'], exact: true});
   });
@@ -158,7 +158,7 @@ describe('ShelfService', () => {
     deleteRequest.flush(null);
 
     expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: ['shelves'], exact: true});
-    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: shelfDefinitionQueryKeys.all()});
+    expect(invalidateQueriesSpy).toHaveBeenCalledWith({queryKey: shelfQueryKeys.all()});
     expect(bookService.removeBooksFromShelf).toHaveBeenCalledWith(11);
   });
 

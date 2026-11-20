@@ -13,6 +13,7 @@ public enum ApiError {
 
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "%s not found with ID: %d"),
     BOOK_NOT_FOUND(HttpStatus.NOT_FOUND, "Book not found with ID: %d"),
+    BOOK_ALREADY_IN_LIBRARY(HttpStatus.CONFLICT, "A book with ISBN %s is already in this library"),
     EMAIL_PROVIDER_NOT_FOUND(HttpStatus.NOT_FOUND, "Email provider with ID %s not found"),
     DEFAULT_EMAIL_PROVIDER_NOT_FOUND(HttpStatus.NOT_FOUND, "Default email provider not found"),
     EMAIL_RECIPIENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Email recipient with ID %s not found"),
@@ -57,6 +58,7 @@ public enum ApiError {
     CONFLICT(HttpStatus.CONFLICT, "%s"),
     FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "File not found: %s"),
     SHELF_CANNOT_BE_DELETED(HttpStatus.FORBIDDEN, "'%s' shelf can't be deleted"),
+    SHELF_CANNOT_BE_RENAMED(HttpStatus.FORBIDDEN, "'%s' shelf can't be renamed"),
     TASK_NOT_FOUND(HttpStatus.NOT_FOUND, "Scheduled task not found: %s"),
     TASK_ALREADY_RUNNING(HttpStatus.CONFLICT, "Task is already running: %s"),
     ICON_ALREADY_EXISTS(HttpStatus.CONFLICT, "SVG icon with name '%s' already exists"),

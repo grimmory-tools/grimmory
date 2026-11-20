@@ -26,11 +26,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0
           ref: ${{ inputs.checkout_ref }}
 
       - name: Install just
-        uses: taiki-e/install-action@a4d3f3f761dcd95cce1b72cb61cb6d1963438177 # v2.87.30
+        uses: taiki-e/install-action@c509219cf42fba86913069efd0ade2458c59337b # v2.90.1
         with:
           tool: just
 
@@ -45,16 +44,6 @@ jobs:
             **/gradle.lockfile
             **/settings.gradle*
             **/gradle/wrapper/gradle-wrapper.properties
-
-      # Needed for NightCompress
-      - name: Install libarchive
-        run: |
-          sudo apt-get update 
-          sudo apt-get install libarchive-dev --yes
-
-          # Place libarchive somewhere that java looks for it.
-          sudo mkdir -p /usr/java/packages/lib/
-          sudo cp /usr/lib/x86_64-linux-gnu/libarchive.* /usr/java/packages/lib/
 
       - name: Execute Backend Tests
         id: backend_tests
@@ -98,19 +87,19 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0
           ref: ${{ inputs.checkout_ref }}
 
       - name: Install just
-        uses: taiki-e/install-action@a4d3f3f761dcd95cce1b72cb61cb6d1963438177 # v2.87.30
+        uses: taiki-e/install-action@c509219cf42fba86913069efd0ade2458c59337b # v2.90.1
         with:
           tool: just
 
       - name: Set Up pnpm and Node.js
-        uses: pnpm/setup@a0881977cd8ea73b1ed212236c99ca10dcc80cf4 # v3.1.1
+        uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
         with:
           node-version-file: .nvmrc
           cache: true
+          save-cache: ${{ github.ref == 'refs/heads/develop' }}
           install: false
 
       - name: Install Frontend Dependencies

@@ -5,6 +5,7 @@ import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.ComicMetadata;
 import org.booklore.model.dto.sidecar.*;
 import org.booklore.model.entity.*;
+import org.booklore.model.enums.ComicCreatorRole;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -109,6 +110,7 @@ public class SidecarMetadataMapper {
                     .lubimyczytacId(ids.getLubimyczytacId())
                     .ranobedbId(ids.getRanobedbId())
                     .applebooksId(ids.getApplebooksId())
+                    .doubanId(ids.getDoubanId())
                     .audibleId(ids.getAudibleId());
         }
 
@@ -139,6 +141,10 @@ public class SidecarMetadataMapper {
             if (r.getApplebooks() != null) {
                 builder.applebooksRating(r.getApplebooks().getAverage())
                         .applebooksReviewCount(r.getApplebooks().getCount());
+            }
+            if (r.getDouban() != null) {
+                builder.doubanRating(r.getDouban().getAverage())
+                        .doubanReviewCount(r.getDouban().getCount());
             }
         }
 
@@ -203,6 +209,7 @@ public class SidecarMetadataMapper {
                 .ranobedbId(entity.getRanobedbId())
                 .audibleId(entity.getAudibleId())
                 .applebooksId(entity.getApplebooksId())
+                .doubanId(entity.getDoubanId())
                 .openlibraryId(entity.getOpenlibraryId())
                 .build();
     }
@@ -216,6 +223,7 @@ public class SidecarMetadataMapper {
                 .ranobedb(buildRating(entity.getRanobedbRating(), null))
                 .audible(buildRating(entity.getAudibleRating(), entity.getAudibleReviewCount()))
                 .applebooks(buildRating(entity.getApplebooksRating(), entity.getApplebooksReviewCount()))
+                .douban(buildRating(entity.getDoubanRating(), entity.getDoubanReviewCount()))
                 .build();
     }
 
@@ -254,6 +262,22 @@ public class SidecarMetadataMapper {
                         entity.getTeams().stream().map(ComicTeamEntity::getName).collect(Collectors.toSet()) : null)
                 .locations(entity.getLocations() != null ?
                         entity.getLocations().stream().map(ComicLocationEntity::getName).collect(Collectors.toSet()) : null)
+                .pencillers(extractCreatorNames(entity, ComicCreatorRole.PENCILLER))
+                .inkers(extractCreatorNames(entity, ComicCreatorRole.INKER))
+                .colorists(extractCreatorNames(entity, ComicCreatorRole.COLORIST))
+                .letterers(extractCreatorNames(entity, ComicCreatorRole.LETTERER))
+                .coverArtists(extractCreatorNames(entity, ComicCreatorRole.COVER_ARTIST))
+                .editors(extractCreatorNames(entity, ComicCreatorRole.EDITOR))
                 .build();
+    }
+
+    private Set<String> extractCreatorNames(ComicMetadataEntity entity, ComicCreatorRole role) {
+        if (entity.getCreatorMappings() == null) {
+            return null;
+        }
+        return entity.getCreatorMappings().stream()
+                .filter(mapping -> mapping.getRole() == role)
+                .map(mapping -> mapping.getCreator().getName())
+                .collect(Collectors.toSet());
     }
 }
