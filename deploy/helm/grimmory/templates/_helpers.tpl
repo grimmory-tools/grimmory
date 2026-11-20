@@ -5,6 +5,17 @@ Expand the name of the chart.
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
+{{/* Canonical servlet context path: root is empty, subpaths have no trailing slash. */}}
+{{- define "grimmory.basePath" -}}
+{{- $path := .Values.basePath | default "" -}}
+{{- if and (ne $path "") (ne $path "/") -}}
+{{- if or (not (hasPrefix "/" $path)) (hasSuffix "/" $path) -}}
+{{- fail "basePath must be empty, /, or a path starting with / without a trailing slash (e.g. /grimmory)" -}}
+{{- end -}}
+{{- $path -}}
+{{- end -}}
+{{- end -}}
+
 {{/*
 Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).

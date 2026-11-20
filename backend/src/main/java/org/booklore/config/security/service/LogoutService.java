@@ -1,5 +1,6 @@
 package org.booklore.config.security.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.security.oidc.OidcDiscoveryService;
@@ -36,14 +37,14 @@ public class LogoutService {
     private final AuthenticationService authenticationService;
 
     @Transactional
-    public LogoutResponse logout(Authentication auth, String refreshToken, String origin) {
+    public LogoutResponse logout(Authentication auth, String refreshToken, String origin, HttpServletRequest request) {
         BookLoreUserEntity user = resolveUser(auth, refreshToken);
 
         revokeRefreshToken(user);
 
         String logoutUrl = null;
         if (user.getProvisioningMethod() == ProvisioningMethod.OIDC && appSettingService.getAppSettings().isOidcEnabled()) {
-            logoutUrl = buildOidcLogoutUrl(user, origin);
+            logoutUrl = buildOidcLogoutUrl(user, origin, request);
         }
 
         auditService.log(AuditAction.LOGOUT, "User", user.getId(), "User logged out: " + user.getUsername());
@@ -70,7 +71,7 @@ public class LogoutService {
         refreshTokenService.revokeAllForUser(user);
     }
 
-    private String buildOidcLogoutUrl(BookLoreUserEntity user, String origin) {
+    private String buildOidcLogoutUrl(BookLoreUserEntity user, String origin, HttpServletRequest request) {
         try {
             var providerDetails = appSettingService.getAppSettings().getOidcProviderDetails();
             var session = oidcSessionRepository.findFirstByUserIdAndRevokedFalseOrderByCreatedAtDesc(user.getId());
@@ -82,7 +83,7 @@ public class LogoutService {
 
                 var discovery = discoveryService.discover(providerDetails.getIssuerUri());
                 if (discovery.endSessionEndpoint() != null) {
-                    String postLogoutRedirectUri = (origin != null && !origin.isBlank() ? origin : "") + "/login";
+                    String postLogoutRedirectUri = buildAppBaseUrl(origin, request) + "/login";
 
                     var builder = UriComponentsBuilder.fromUriString(discovery.endSessionEndpoint())
                             .queryParam("client_id", providerDetails.getClientId())
@@ -100,4 +101,13 @@ public class LogoutService {
         }
         return null;
     }
+
+    private String buildAppBaseUrl(String origin, HttpServletRequest request) {
+        String baseOrigin = origin != null && !origin.isBlank()
+                ? origin
+                : org.springframework.web.servlet.support.ServletUriComponentsBuilder
+                        .fromRequestUri(request).replacePath(null).replaceQuery(null).build().toUriString();
+        return baseOrigin + request.getContextPath();
+    }
+
 }

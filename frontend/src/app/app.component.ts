@@ -22,6 +22,7 @@ import {LibraryImportProgressService} from './shared/service/library-import-prog
 import {AuthorService} from './features/author-browser/service/author.service';
 import {MetadataSourceCommandService} from './features/metadata/sources/metadata-source-command.service';
 import {RxStompState} from '@stomp/rx-stomp';
+import {API_CONFIG} from './core/config/api-config';
 
 @Component({
   selector: 'app-root',
@@ -98,7 +99,7 @@ export class AppComponent implements OnInit, OnDestroy {
   };
 
   private checkServerReachable(): Promise<boolean> {
-    return fetch('/api/public/settings', {method: 'HEAD', cache: 'no-store'})
+    return fetch(`${API_CONFIG.BASE_URL}/api/v1/public-settings`, {method: 'HEAD', cache: 'no-store'})
       .then(() => true)
       .catch(() => false);
   }

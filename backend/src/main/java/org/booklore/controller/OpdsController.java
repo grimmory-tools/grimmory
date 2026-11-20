@@ -185,8 +185,8 @@ public class OpdsController {
             "application/xml",
             "text/xml"
     })
-    public ResponseEntity<String> getSearchDescription() {
-        String searchDoc = opdsFeedService.getOpenSearchDescription();
+    public ResponseEntity<String> getSearchDescription(HttpServletRequest request) {
+        String searchDoc = opdsFeedService.getOpenSearchDescription(request);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/opensearchdescription+xml;charset=utf-8"))
                 .body(searchDoc);

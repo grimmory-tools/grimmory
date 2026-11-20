@@ -41,6 +41,15 @@ class KoboUrlBuilderTest {
     }
 
     @Test
+    void testSubpathDownloadAndImageUrls() {
+        mockRequest.setContextPath("/grimmory");
+        assertEquals("http://localhost:6060/grimmory/api/kobo/testToken/v1/books/123/download",
+                koboUrlBuilder.downloadUrl("testToken", 123L));
+        assertTrue(koboUrlBuilder.imageUrlTemplate("testToken")
+                .startsWith("http://localhost:6060/grimmory/api/kobo/testToken/"));
+    }
+
+    @Test
     void testImageUrlTemplate() {
         String expected = "http://localhost:6060/api/kobo/testToken/v1/books/{ImageId}/thumbnail/{Width}/{Height}/false/image.jpg";
 

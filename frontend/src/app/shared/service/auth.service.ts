@@ -4,6 +4,7 @@ import { Observable, tap, finalize, of, throwError } from 'rxjs';
 import { catchError, map, shareReplay } from 'rxjs/operators';
 import { RxStompService } from '../websocket/rx-stomp.service';
 import { API_CONFIG } from '../../core/config/api-config';
+import { authRedirectUrl } from '../../core/config/app-url';
 import { createRxStompConfig } from '../websocket/rx-stomp.config';
 import { Router } from '@angular/router';
 import { PostLoginInitializerService } from '../../core/services/post-login-initializer.service';
@@ -203,10 +204,12 @@ export class AuthService {
   }
 
   protected redirectTo(url: string, replace = false): void {
+    // Resolve internal paths relative to the app's base href
+    const resolvedUrl = authRedirectUrl(url);
     if (replace) {
-      window.location.replace(url);
+      window.location.replace(resolvedUrl);
     } else {
-      window.location.href = url;
+      window.location.href = resolvedUrl;
     }
   }
 
