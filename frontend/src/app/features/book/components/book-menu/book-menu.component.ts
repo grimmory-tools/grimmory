@@ -17,7 +17,7 @@ import {ConfirmationService} from '@openng/optimus-ui/api';
 import {
   LucideBookOpen,
   LucidePlay,
-  LucideSquareArrowOutUpRight,
+  LucideSquareArrowUpRightExit,
   type LucideIconData,
 } from '@lucide/angular';
 import {injectMutation, injectQuery} from '@tanstack/angular-query-experimental';
@@ -224,7 +224,7 @@ export class BookMenuComponent {
         return undefined;
     }
   });
-  protected readonly newTabIcon: LucideIconData = LucideSquareArrowOutUpRight.icon;
+  protected readonly newTabIcon: LucideIconData = LucideSquareArrowUpRightExit.icon;
   protected readonly digital = computed(() => {
     const book = this.book();
     return book != null
