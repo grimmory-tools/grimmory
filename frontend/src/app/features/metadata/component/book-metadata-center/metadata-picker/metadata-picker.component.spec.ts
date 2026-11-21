@@ -117,7 +117,7 @@ describe('MetadataPickerComponent', () => {
     expect(component.currentBookId).toBe(21);
     expect(component.metadataForm.get('title')?.value).toBe('Original Title');
     expect(component.metadataForm.get('authors')?.value).toEqual(['Alice']);
-    expect(component.metadataForm.get('title')?.disabled).toBe(true);
+    expect(component.metadataForm.get('title')?.disabled).toBe(false);
     expect(component.originalMetadata.thumbnailUrl).toBe('thumb:21:2026-03-26');
     expect(component.comicSectionExpanded).toBe(true);
     expect(component.copiedFields).toEqual({});
@@ -154,7 +154,7 @@ describe('MetadataPickerComponent', () => {
     expect(component.metadataForm.get('categories')?.value).toEqual(['Fantasy', 'History']);
   });
 
-  it('copies fetched values, respects locked fields, and resets fields back to the original metadata', () => {
+  it('copies fetched values and resets fields back to the original metadata', () => {
     const component = TestBed.runInInjectionContext(() => new MetadataPickerComponent());
     component.fetchedMetadata = createMetadata({
       title: 'Fetched Title',
@@ -165,29 +165,12 @@ describe('MetadataPickerComponent', () => {
     component.book = createBook();
 
     component.copyFetchedToCurrent('title');
-    expect(messageAdd).toHaveBeenCalledWith({
-      severity: 'warn',
-      summary: 'Action Blocked',
-      detail: 'title is locked and cannot be updated.',
-    });
-
-    component.metadataForm.get('titleLocked')?.setValue(false);
-    component.metadataForm.get('title')?.enable();
-    component.copyFetchedToCurrent('title');
     expect(component.metadataForm.get('title')?.value).toBe('Fetched Title');
     expect(component.isValueCopied('title')).toBe(true);
 
     component.copyFetchedToCurrent('audiobookThumbnailUrl');
     expect(component.metadataForm.get('audiobookThumbnailUrl')?.value).toBe('https://covers.example/audiobook.jpg');
     expect(component.isValueCopied('audiobookThumbnailUrl')).toBe(true);
-
-    component.metadataForm.get('comicIssueNumberLocked')?.setValue(true);
-    component.copyFetchedToCurrent('comicIssueNumber');
-    expect(messageAdd).toHaveBeenLastCalledWith({
-      severity: 'warn',
-      summary: 'Action Blocked',
-      detail: 'Issue # is locked and cannot be updated.',
-    });
 
     component.resetField('title');
     expect(component.metadataForm.get('title')?.value).toBe('Original Title');
@@ -240,7 +223,7 @@ describe('MetadataPickerComponent', () => {
 
     component.toggleLock('thumbnailUrl');
     expect(component.metadataForm.get('coverLocked')?.value).toBe(true);
-    expect(component.metadataForm.get('thumbnailUrl')?.disabled).toBe(true);
+    expect(component.metadataForm.get('thumbnailUrl')?.disabled).toBe(false);
 
     component.lockAll();
     component.unlockAll();

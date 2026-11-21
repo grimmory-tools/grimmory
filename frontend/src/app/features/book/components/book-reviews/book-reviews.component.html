@@ -93,17 +93,16 @@
                              [pTooltip]="t('tooltip.reviewsLocked')"
                              tooltipPosition="top"></i>
                         </div>
-                      } @else {
-                        <p-button
-                          icon="pi pi-trash"
-                          size="small"
-                          severity="danger"
-                          text
-                          (onClick)="deleteReview(review)"
-                          [pTooltip]="t('tooltip.deleteReview')"
-                          tooltipPosition="top"
-                          class="action-btn-hover"/>
                       }
+                      <p-button
+                        icon="pi pi-trash"
+                        size="small"
+                        severity="danger"
+                        text
+                        (onClick)="deleteReview(review)"
+                        [pTooltip]="t('tooltip.deleteReview')"
+                        tooltipPosition="top"
+                        class="action-btn-hover"/>
                     }
                   </div>
                 </div>
@@ -181,9 +180,9 @@
           icon="pi pi-trash"
           size="small"
           severity="danger"
-          [disabled]="reviewsLocked || loading()"
+          [disabled]="loading()"
           (click)="deleteAllReviews()"
-          [pTooltip]="loading() ? t('tooltip.pleaseWait') : (reviewsLocked ? t('tooltip.reviewsLocked') : t('tooltip.deleteAllReviews'))"
+          [pTooltip]="loading() ? t('tooltip.pleaseWait') : t('tooltip.deleteAllReviews')"
           tooltipPosition="left"
           class="action-btn"/>
       }

@@ -51,7 +51,6 @@
                   [loading]="isGeneratingCover"
                   [disabled]="book.metadata!['coverLocked'] || isGeneratingCover" />
                 <p-button
-                  [disabled]="book.metadata!['coverLocked']"
                   outlined
                   size="small"
                   icon="pi pi-search"
@@ -63,7 +62,6 @@
                   [chooseStyleClass]="'p-button-sm p-button-outlined p-button-danger'"
                   [pTooltip]="t('uploadCoverTooltip')"
                   tooltipPosition="top"
-                  [disabled]="book.metadata!['coverLocked']"
                   name="file"
                   [url]="getUploadCoverUrl()"
                   mode="basic"
@@ -122,7 +120,6 @@
                   [loading]="isGeneratingAudiobookCover"
                   [disabled]="book.metadata!['audiobookCoverLocked'] || isGeneratingAudiobookCover" />
                 <p-button
-                  [disabled]="book.metadata!['audiobookCoverLocked']"
                   outlined
                   size="small"
                   icon="pi pi-search"
@@ -134,7 +131,6 @@
                   [chooseStyleClass]="'p-button-sm p-button-outlined p-button-danger'"
                   [pTooltip]="t('uploadAudiobookCoverTooltip')"
                   tooltipPosition="top"
-                  [disabled]="book.metadata!['audiobookCoverLocked']"
                   name="file"
                   [url]="getUploadAudiobookCoverUrl()"
                   mode="basic"
@@ -201,37 +197,32 @@
             <div class="field-group authors-field">
               <label for="authors">{{ t('authors') }} @if (isEmbeddable('authors', book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</label>
               <div class="field-with-lock authors-lock-wrapper">
-                <div class="author-chips-container" [class.disabled]="metadataForm.get('authors')?.disabled"
+                <div class="author-chips-container"
                      cdkDropList cdkDropListOrientation="mixed"
-                     [cdkDropListDisabled]="metadataForm.get('authors')?.disabled"
                      (cdkDropListDropped)="dropAuthor($event)">
                   @for (author of metadataForm.get('authors')!.value; track $index) {
                     <span class="author-chip" [class.main-author]="$first" cdkDrag>
                       @if ($first) { <span class="main-author-badge">m</span> }
                       {{ author }}
-                      @if (!metadataForm.get('authors')?.disabled) {
-                        <i
-                          class="pi pi-times author-chip-remove"
-                          role="button"
-                          tabindex="0"
-                          (click)="removeAuthor($index)"
-                          (keydown.enter)="removeAuthor($index)"></i>
-                      }
+                      <i
+                        class="pi pi-times author-chip-remove"
+                        role="button"
+                        tabindex="0"
+                        (click)="removeAuthor($index)"
+                        (keydown.enter)="removeAuthor($index)"></i>
                     </span>
                   }
-                  @if (!metadataForm.get('authors')?.disabled) {
-                    <p-autoComplete
-                      class="author-add-input"
-                      [(ngModel)]="authorInputValue"
-                      [ngModelOptions]="{ standalone: true }"
-                      appFacetSuggestions="author"
-                      [forceSelection]="false"
-                      [dropdown]="false"
-                      (onKeyUp)="onAuthorInputKeyUp($event)"
-                      (onSelect)="onAuthorInputSelect($event)"
-                      placeholder="Add author..."
-                    />
-                  }
+                  <p-autoComplete
+                    class="author-add-input"
+                    [(ngModel)]="authorInputValue"
+                    [ngModelOptions]="{ standalone: true }"
+                    appFacetSuggestions="author"
+                    [forceSelection]="false"
+                    [dropdown]="false"
+                    (onKeyUp)="onAuthorInputKeyUp($event)"
+                    (onSelect)="onAuthorInputSelect($event)"
+                    placeholder="Add author..."
+                  />
                 </div>
                 @if (!book.metadata!['authorsLocked']) {
                   <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('authors')" severity="success" />

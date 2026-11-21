@@ -374,69 +374,6 @@ export class MetadataEditorComponent implements OnInit {
       comicPatch[field.lockedKey] = comicMeta?.[modelLockKey as keyof ComicMetadata] ?? false;
     }
     this.metadataForm.patchValue(comicPatch);
-
-    const lockableFields: { key: keyof BookMetadata; control: string }[] = [
-      {key: "titleLocked", control: "title"},
-      {key: "subtitleLocked", control: "subtitle"},
-      {key: "authorsLocked", control: "authors"},
-      {key: "categoriesLocked", control: "categories"},
-      {key: "moodsLocked", control: "moods"},
-      {key: "tagsLocked", control: "tags"},
-      {key: "publisherLocked", control: "publisher"},
-      {key: "publishedDateLocked", control: "publishedDate"},
-      {key: "languageLocked", control: "language"},
-      {key: "isbn10Locked", control: "isbn10"},
-      {key: "isbn13Locked", control: "isbn13"},
-      ...METADATA_PROVIDER_FIELDS.map(field => ({key: field.lockName, control: field.name})),
-      {key: "pageCountLocked", control: "pageCount"},
-      {key: "descriptionLocked", control: "description"},
-      {key: "seriesNameLocked", control: "seriesName"},
-      {key: "seriesNumberLocked", control: "seriesNumber"},
-      {key: "seriesTotalLocked", control: "seriesTotal"},
-      {key: "coverLocked", control: "thumbnailUrl"},
-      {key: "audiobookCoverLocked", control: "audiobookCover"},
-      {key: "reviewsLocked", control: "reviews"},
-      {key: "ageRatingLocked", control: "ageRating"},
-      {key: "contentRatingLocked", control: "contentRating"},
-    ];
-
-    for (const {key, control} of lockableFields) {
-      const isLocked = metadata[key] === true;
-      const formControl = this.metadataForm.get(control);
-      if (formControl) {
-        if (isLocked) {
-          formControl.disable();
-        } else {
-          formControl.enable();
-        }
-      }
-    }
-
-    // Apply audiobook lock states
-    for (const field of AUDIOBOOK_METADATA_FIELDS) {
-      const isLocked = this.metadataForm.get(field.lockedKey)?.value === true;
-      const formControl = this.metadataForm.get(field.controlName);
-      if (formControl) {
-        if (isLocked) {
-          formControl.disable();
-        } else {
-          formControl.enable();
-        }
-      }
-    }
-
-    // Apply comic lock states
-    for (const field of ALL_COMIC_METADATA_FIELDS) {
-      const isLocked = this.metadataForm.get(field.lockedKey)?.value === true;
-      const formControl = this.metadataForm.get(field.controlName);
-      if (formControl) {
-        if (isLocked) {
-          formControl.disable();
-        } else {
-          formControl.enable();
-        }
-      }
-    }
   }
 
   onAutoCompleteSelect(fieldName: string, event: AutoCompleteSelectEvent) {
@@ -510,11 +447,6 @@ export class MetadataEditorComponent implements OnInit {
     const updatedLockedState = !isLocked;
     this.metadataForm.get(field + "Locked")?.setValue(updatedLockedState);
 
-    if (updatedLockedState) {
-      this.metadataForm.get(field)?.disable();
-    } else {
-      this.metadataForm.get(field)?.enable();
-    }
     this.updateMetadata(undefined);
   }
 
@@ -522,8 +454,6 @@ export class MetadataEditorComponent implements OnInit {
     Object.keys(this.metadataForm.controls).forEach((key) => {
       if (key.endsWith("Locked")) {
         this.metadataForm.get(key)?.setValue(true);
-        const fieldName = key.replace("Locked", "");
-        this.metadataForm.get(fieldName)?.disable();
       }
     });
     this.updateMetadata(true);
@@ -533,8 +463,6 @@ export class MetadataEditorComponent implements OnInit {
     Object.keys(this.metadataForm.controls).forEach((key) => {
       if (key.endsWith("Locked")) {
         this.metadataForm.get(key)?.setValue(false);
-        const fieldName = key.replace("Locked", "");
-        this.metadataForm.get(fieldName)?.enable();
       }
     });
     this.updateMetadata(false);
@@ -865,10 +793,23 @@ export class MetadataEditorComponent implements OnInit {
     }, 15000);
   }
 
+  private applyFileMetadata(metadata: BookMetadata): void {
+    const kept = new Map<string, unknown>();
+    for (const lockKey of Object.keys(this.metadataForm.controls).filter(key => key.endsWith('Locked'))) {
+      kept.set(lockKey, this.metadataForm.get(lockKey)?.value);
+      if (this.metadataForm.get(lockKey)?.value === true) {
+        const field = lockKey.slice(0, -'Locked'.length);
+        kept.set(field, this.metadataForm.get(field)?.value);
+      }
+    }
+    this.populateFormFromMetadata(metadata);
+    kept.forEach((value, key) => this.metadataForm.get(key)?.setValue(value));
+  }
+
   async fetchFromFile(bookId: number): Promise<void> {
     this.isFetchingFromFile = true;
     try {
-      this.populateFormFromMetadata(await this.queryClient.query(this.sources.fileMetadata(bookId)));
+      this.applyFileMetadata(await this.queryClient.query(this.sources.fileMetadata(bookId)));
       this.metadataForm.markAsDirty();
       this.messageService.add({
         severity: 'info',
