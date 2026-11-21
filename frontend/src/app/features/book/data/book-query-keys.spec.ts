@@ -5,6 +5,7 @@ import {
   normalizeBrowsePageParams,
   normalizeBrowseQueryParams,
 } from '../../../core/data/browse-query-params';
+import {DEFAULT_FACET_PAGE_SIZE} from '../../../core/data/browse-query-keys';
 import {bookQueryKeys} from './book-query-keys';
 import {isBookQueryFacetKey} from './book-query-params';
 
@@ -43,6 +44,20 @@ describe('book query keys', () => {
     const unfiltered = normalizeBrowseCollectionFilterParams({...query, facets: {}}, isBookQueryFacetKey);
 
     expect(bookQueryKeys.facet('author', genreSelected, '')).not.toEqual(bookQueryKeys.facet('author', unfiltered, ''));
+  });
+
+  it('keeps facet paging as part of query identity with default page and size', () => {
+    const filters = normalizeBrowseCollectionFilterParams(query, isBookQueryFacetKey);
+
+    expect(bookQueryKeys.facet('author', filters, '')).toEqual(
+      bookQueryKeys.facet('author', filters, '', {page: 0, size: DEFAULT_FACET_PAGE_SIZE}),
+    );
+    expect(bookQueryKeys.facet('author', filters, '', {page: 1, size: 50})).not.toEqual(
+      bookQueryKeys.facet('author', filters, '', {page: 0, size: 50}),
+    );
+    expect(bookQueryKeys.facet('author', filters, '', {page: 0, size: 50})).not.toEqual(
+      bookQueryKeys.facet('author', filters, '', {page: 0, size: DEFAULT_FACET_PAGE_SIZE}),
+    );
   });
 
   it('nests every leaf under the prefix its invalidation targets', () => {
