@@ -137,6 +137,28 @@ describe('MetadataManagerComponent', () => {
     expect(add).toHaveBeenCalledWith(expect.objectContaining({severity: 'warn'}));
   });
 
+  it('leaves a newly opened tab alone when an earlier delete finishes', async () => {
+    const component = createComponent();
+    component.ngOnInit();
+    expectFacetPage(0).flush(facetResponse([['Alice', 3]], false));
+    await settle(component);
+    component.setRowSelected({value: 'Alice', count: 3}, true);
+    component.openDeleteDialog('authors');
+    component.confirmDelete();
+    const request = await expectCommand('/api/v1/books/metadata/manage/delete');
+
+    queryParams$.next({tab: 'tags'});
+    expect(component.showDeleteDialog()).toBe(false);
+    component.page.set(1);
+    component.setRowSelected({value: 'Zebra', count: 1}, true);
+
+    request.flush(null);
+    await vi.waitFor(() => expect(component.deletingInProgress()).toBe(false));
+
+    expect(component.page()).toBe(1);
+    expect(component.selectedItems()).toEqual([{value: 'Zebra', count: 1}]);
+  });
+
   it('tracks valid and invalid tabs from query params and updates the page title', () => {
     queryParams$.next({tab: 'tags'});
 

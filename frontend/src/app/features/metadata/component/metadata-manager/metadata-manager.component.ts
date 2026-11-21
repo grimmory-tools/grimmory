@@ -95,7 +95,6 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
   readonly mergingInProgress = signal(false);
   readonly deletingInProgress = signal(false);
   readonly showRenameDialog = signal(false);
-  readonly showDeleteDialog = signal(false);
   mergeTarget = '';
   renameTarget = '';
   currentMergeType: BookMetadataValueType = 'authors';
@@ -132,6 +131,7 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
   readonly page = linkedSignal({source: this.scope, computation: () => 0});
   readonly selection = linkedSignal({source: this.scope, computation: (): RowSelection => NO_SELECTION});
   readonly showMergeDialog = linkedSignal({source: this.scope, computation: () => false});
+  readonly showDeleteDialog = linkedSignal({source: this.scope, computation: () => false});
 
   readonly rowsQuery = injectQuery(() => {
     const facetKey = FACET_KEYS[this.activeTab()];
@@ -318,6 +318,7 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
       ? `"${targetValues[0]}"`
       : `${targetValues.length} values`;
 
+    const scope = this.scope();
     this.mergingInProgress.set(true);
     this.bookMetadataManageService.consolidateMetadata(this.currentMergeType, targetValues, [oldValue]).subscribe({
       next: () => {
@@ -334,8 +335,10 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
         this.showRenameDialog.set(false);
         this.currentRenameItem = null;
         this.renameTarget = '';
-        this.clearSelection();
-        this.page.set(0);
+        if (this.scope() === scope) {
+          this.clearSelection();
+          this.page.set(0);
+        }
         this.mergingInProgress.set(false);
       },
       error: (error: unknown) => {
@@ -398,6 +401,7 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
         : this.t.translate('metadata.manager.toast.mergeSplitSuccessfulDetail', {selectedCount: selected.length, type: this.getTypeLabel(this.currentMergeType, true), targetCount: targetValues.length, bookCount: affectedBooks});
     }
 
+    const scope = this.scope();
     this.mergingInProgress.set(true);
     this.bookMetadataManageService.consolidateMetadata(this.currentMergeType, targetValues, this.selectAllRequest() ?? selected.map(item => item.value)).subscribe({
       next: () => {
@@ -411,8 +415,10 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
         });
         this.showMergeDialog.set(false);
         this.mergeTarget = '';
-        this.clearSelection();
-        this.page.set(0);
+        if (this.scope() === scope) {
+          this.clearSelection();
+          this.page.set(0);
+        }
         this.mergingInProgress.set(false);
       },
       error: (error: unknown) => {
@@ -446,6 +452,7 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
       : this.affectedBooks();
     const deletedCount = Array.isArray(valuesToDelete) ? valuesToDelete.length : null;
 
+    const scope = this.scope();
     this.deletingInProgress.set(true);
     this.bookMetadataManageService.deleteMetadata(this.currentMergeType, valuesToDelete).subscribe({
       next: () => {
@@ -459,8 +466,10 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
         });
         this.showDeleteDialog.set(false);
         this.currentDeleteItem = null;
-        this.clearSelection();
-        this.page.set(0);
+        if (this.scope() === scope) {
+          this.clearSelection();
+          this.page.set(0);
+        }
         this.deletingInProgress.set(false);
       },
       error: (error: unknown) => {
