@@ -8,7 +8,7 @@ import {type BrowseFacetSelection} from './facets';
 
 export type BrowseViewMode = 'grid' | 'table';
 
-export interface BrowseUrlKeys<FacetKey extends string, SortKey extends string> {
+export interface BrowseUrlKeyGuards<FacetKey extends string, SortKey extends string> {
   readonly isFacetKey: (key: string) => key is FacetKey;
   readonly isSortKey: (key: string) => key is SortKey;
 }
@@ -17,7 +17,7 @@ export type BrowseUrlState<FacetKey extends string, SortKey extends string> =
   ReturnType<typeof createBrowseUrlState<FacetKey, SortKey>>;
 
 export function createBrowseUrlState<FacetKey extends string, SortKey extends string>(
-  {isFacetKey, isSortKey}: BrowseUrlKeys<FacetKey, SortKey>,
+  {isFacetKey, isSortKey}: BrowseUrlKeyGuards<FacetKey, SortKey>,
 ) {
   const route = inject(ActivatedRoute);
   const router = inject(Router);
