@@ -166,6 +166,7 @@ export class DuplicateMergerComponent {
   }
 
   getBookFilePath(book: BookDetail): string {
+    if (book.primaryFile?.filePath) return book.primaryFile.filePath;
     const subPath = book.primaryFile?.fileSubPath;
     const fileName = book.primaryFile?.fileName || '';
     if (subPath) return `${subPath}/${fileName}`;
