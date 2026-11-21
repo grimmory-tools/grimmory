@@ -232,8 +232,8 @@ importers:
         specifier: 9.3.2
         version: 9.3.2(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))
       '@tanstack/angular-virtual':
-        specifier: ^6.1.9
-        version: 6.1.9(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))
+        specifier: ^6.1.12
+        version: 6.1.12(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))
       '@tanstack/charts':
         specifier: 1.5.0
         version: 1.5.0(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(@angular/platform-browser@22.2.5(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2)))(preact@10.29.8)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(solid-js@1.9.17)(svelte@5.55.9(@typescript-eslint/types@8.72.2))(vue@3.5.34(typescript@6.0.3))
@@ -2622,8 +2622,8 @@ packages:
     peerDependencies:
       '@angular/core': '>=19'
 
-  '@tanstack/angular-virtual@6.1.9':
-    resolution: {integrity: sha512-2v0O6QZ31sT1CQX1tc3u65rLymwL8ibJugaghpfVzKldJq6/7fyPsO027hal4k6GqVVLYxyFNlEarOMEa9SkpQ==}
+  '@tanstack/angular-virtual@6.1.12':
+    resolution: {integrity: sha512-Udga32sGZ9lSlAesEmvf7V5F4XTtS40f5aZosiK1y06qVEL9dc6VkmqQhU5HngTVSCZaadPFEygBKqaTxzZUqA==}
     peerDependencies:
       '@angular/core': '>=20.0.0'
 
@@ -2695,9 +2695,6 @@ packages:
 
   '@tanstack/virtual-core@3.19.11':
     resolution: {integrity: sha512-/5iHb0RHBvj8Di59FDs4ESNm45jls33aZAi4zccVXZjc/6ZvwQP6nzEYeT6weXjTf9E6/vrp2JhYWRyO+ZP13A==}
-
-  '@tanstack/virtual-core@3.19.8':
-    resolution: {integrity: sha512-Oz/SYBo/aVPyQkwtOw7Q23myITUgFIof2glQqydYJAPL6mH2SkJDkvDKZTklB+7gv5jGLZQhyTcd7SO1A1EODQ==}
 
   '@tybys/wasm-util@0.10.4':
     resolution: {integrity: sha512-W3c4gRigFS0T/Ma4qIYF3GDAc5AQdHb1yL5znJT1Zv1YaD9Kitx656wBjvr19qbiosmZT8lWDM5BEMynUqX65A==}
@@ -6687,10 +6684,10 @@ snapshots:
     transitivePeerDependencies:
       - '@angular/common'
 
-  '@tanstack/angular-virtual@6.1.9(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))':
+  '@tanstack/angular-virtual@6.1.12(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))':
     dependencies:
       '@angular/core': 22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2)
-      '@tanstack/virtual-core': 3.19.8
+      '@tanstack/virtual-core': 3.19.11
 
   '@tanstack/charts@1.5.0(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(@angular/platform-browser@22.2.5(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2)))(preact@10.29.8)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(solid-js@1.9.17)(svelte@5.55.9(@typescript-eslint/types@8.72.2))(vue@3.5.34(typescript@6.0.3))':
     dependencies:
@@ -6760,10 +6757,7 @@ snapshots:
     dependencies:
       '@tanstack/store': 0.11.2
 
-  '@tanstack/virtual-core@3.19.11':
-    optional: true
-
-  '@tanstack/virtual-core@3.19.8': {}
+  '@tanstack/virtual-core@3.19.11': {}
 
   '@tybys/wasm-util@0.10.4':
     dependencies:
