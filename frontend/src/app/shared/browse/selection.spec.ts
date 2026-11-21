@@ -44,4 +44,30 @@ describe('createBrowseSelection', () => {
     filtersKey.set('filters-b');
     expect(selection.count()).toBe(0);
   });
+
+  it('selects all member ids for a grouped item and across a shift range', () => {
+    const items = signal([
+      {id: 1, memberIds: [1, 2, 3]},
+      {id: 4, memberIds: [4]},
+      {id: 5, memberIds: [5, 6]},
+    ]);
+    const selection = createBrowseSelection({
+      filtersKey: signal('filters'),
+      listKey: signal('list'),
+      items,
+      totalElements: signal(6),
+      itemIds: item => item.memberIds,
+    });
+
+    selection.toggle(items()[0], 0, false);
+    expect(selection.count()).toBe(3);
+    expect(selection.isItemSelected(items()[0])).toBe(true);
+
+    selection.toggle(items()[2], 2, true);
+    expect(selection.count()).toBe(6);
+
+    selection.toggle(items()[0], 0, false);
+    expect(selection.count()).toBe(3);
+    expect(selection.isItemSelected(items()[0])).toBe(false);
+  });
 });

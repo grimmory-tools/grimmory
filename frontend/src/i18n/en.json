@@ -2721,12 +2721,15 @@
       },
       "labels": {
         "allBooks": "All Books",
+        "collapseSeries": "Collapse Series",
         "unshelvedBooks": "Unshelved Books"
       }
     },
     "card": {
       "book": {
         "physical": "PHY",
+        "seriesBookCount": "{{ count }} book",
+        "seriesBooksCount": "{{ count }} books",
         "unknownTitle": "Unknown Title"
       },
       "aria": {

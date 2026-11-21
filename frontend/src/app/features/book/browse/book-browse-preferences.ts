@@ -9,6 +9,7 @@ import {
 } from '../../settings/user-management/user.service';
 import {
   entityViewMode,
+  entityViewSeriesCollapsed,
   entityViewSortCriteria,
   entityViewSortPatch,
   findEntityViewPreferenceOverride,
@@ -46,6 +47,7 @@ export function createBookBrowsePreferences({context, urlState}: BookBrowsePrefe
   const viewMode = computed<BrowseViewMode>(() =>
     urlState.view() ?? (entityViewMode(entityViewPreferences(), context()) === 'TABLE' ? 'table' : 'grid'));
   const formatPill = computed(() => entityViewPreferences()?.global.overlayBookType ?? true);
+  const seriesCollapsed = linkedSignal(() => entityViewSeriesCollapsed(entityViewPreferences(), context()));
   const hiddenProviderFields = injectHiddenProviderFieldKeys();
 
   function defaultSortTerms(available: ReadonlySet<BookQuerySortKey>): readonly BookSortTerm[] {
@@ -107,6 +109,7 @@ export function createBookBrowsePreferences({context, urlState}: BookBrowsePrefe
   return {
     viewMode,
     formatPill,
+    seriesCollapsed: seriesCollapsed.asReadonly(),
     defaultSortTerms,
     columnOptions,
     visibleColumns,
@@ -127,6 +130,11 @@ export function createBookBrowsePreferences({context, urlState}: BookBrowsePrefe
     resetColumns(): void {
       columnPreferences.set(normalizeBookColumnPreferences(undefined));
       persistColumnPreferences();
+    },
+
+    setSeriesCollapsed(collapsed: boolean): void {
+      seriesCollapsed.set(collapsed);
+      updateViewPreference({seriesCollapsed: collapsed});
     },
 
     saveSortDefault(terms: readonly BookSortTerm[]): void {

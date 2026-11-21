@@ -66,6 +66,8 @@ export interface BrowsePageConfig<Item extends {id: number}, FacetKey extends st
   readonly clickAwayExempt: string;
   readonly selectionSuspended?: () => boolean;
   readonly scrollToTop?: () => void;
+  readonly pageParams?: Signal<Readonly<Record<string, string>> | undefined>;
+  readonly selectionIds?: (item: Item) => readonly number[];
 }
 
 export interface BrowsePageView {
@@ -154,10 +156,14 @@ export function createBrowsePage<Item extends {id: number}, FacetKey extends str
     size: PAGE_SIZE,
     sort: sortTerms(),
   }));
+  const pageParamsKey = computed(() => {
+    const pageParams = config.pageParams?.();
+    return pageParams === undefined ? '' : `:${JSON.stringify(pageParams)}`;
+  });
   const collectionKeys = computed(() => browseCollectionKeys(params(), config.facetDefinitions().isKey));
   const shuffleGeneration = signal(0);
-  const listKey = computed(() => `${collectionKeys().listKey}:${shuffleGeneration()}`);
-  const pageQuery = injectInfiniteQuery(() => source.infinitePage(params()));
+  const listKey = computed(() => `${collectionKeys().listKey}${pageParamsKey()}:${shuffleGeneration()}`);
+  const pageQuery = injectInfiniteQuery(() => source.infinitePage(params(), config.pageParams?.()));
 
   const results = createBrowseResults<Item>({
     query: pageQuery,
@@ -178,11 +184,12 @@ export function createBrowsePage<Item extends {id: number}, FacetKey extends str
     results.showingPreviousResults,
   );
 
-  const selection = createBrowseSelection({
-    filtersKey: computed(() => collectionKeys().filtersKey),
+  const selection = createBrowseSelection<Item>({
+    filtersKey: computed(() => `${collectionKeys().filtersKey}${pageParamsKey()}`),
     listKey,
     items: results.items,
     totalElements: results.total,
+    itemIds: config.selectionIds,
   });
   const selectionEnabled = computed(() => !isMobile() || mobileSelectMode());
   const selectionActive = computed(() => selectionEnabled() && (selection.active() || mobileSelectMode()));
@@ -213,7 +220,7 @@ export function createBrowsePage<Item extends {id: number}, FacetKey extends str
     selection,
     selectionEnabled,
     selectionActive,
-    isSelected: (id: number): boolean => selectionEnabled() && selection.isSelected(id),
+    isItemSelected: (item: Item): boolean => selectionEnabled() && selection.isItemSelected(item),
     fetchMatchingIds: (): Promise<readonly number[]> => queryClient.query(source.ids(params())),
     chipsBand,
     isMobile,
@@ -254,7 +261,7 @@ export function createBrowsePage<Item extends {id: number}, FacetKey extends str
 
     shuffle(): void {
       shuffleGeneration.update(generation => generation + 1);
-      void source.restartInfinitePage(params());
+      void source.restartInfinitePage(params(), config.pageParams?.());
     },
 
     toggleFacet(toggle: BrowseFilterToggle<FacetKey>): void {
