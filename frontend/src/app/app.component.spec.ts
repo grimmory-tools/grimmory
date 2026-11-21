@@ -253,6 +253,27 @@ describe("AppComponent", () => {
     });
   });
 
+  it("shows a toast for warning and error log notifications, but not for info", () => {
+    configureComponent();
+    const messageService = TestBed.inject(MessageService);
+    const addSpy = vi.spyOn(messageService, "add");
+    const log = topics.get("/user/queue/log");
+
+    log?.next({ body: JSON.stringify({ message: "just info", severity: "INFO" }) });
+    expect(addSpy).not.toHaveBeenCalled();
+
+    log?.next({ body: JSON.stringify({ message: "Not moved: \"a.cbz\" is already taken by another file.", severity: "WARN" }) });
+    expect(addSpy).toHaveBeenLastCalledWith(expect.objectContaining({
+      severity: "warn",
+      detail: "Not moved: \"a.cbz\" is already taken by another file.",
+      sticky: true,
+    }));
+
+    log?.next({ body: JSON.stringify({ message: "boom", severity: "ERROR" }) });
+    expect(addSpy).toHaveBeenLastCalledWith(expect.objectContaining({ severity: "error", detail: "boom", sticky: true }));
+    expect(addSpy).toHaveBeenCalledTimes(2);
+  });
+
   it("reconciles book caches after a websocket reconnect", () => {
     configureComponent();
 

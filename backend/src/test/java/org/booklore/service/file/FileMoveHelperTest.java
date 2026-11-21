@@ -12,9 +12,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -360,6 +363,184 @@ class FileMoveHelperTest {
             } catch (UnsupportedOperationException e) {
                 // Symlinks not supported on this system, skip test
             }
+        }
+    }
+
+    @Nested
+    @DisplayName("Overwrite Protection (#3013)")
+    class OverwriteProtectionTests {
+
+        @Test
+        @DisplayName("commitMove refuses to overwrite an existing target and keeps both files intact")
+        void commitMove_existingTarget_throwsAndKeepsBothFiles() throws Exception {
+            Path tempPath = tempDir.resolve("mine.cbz.tmp_move");
+            Path target = tempDir.resolve("Series 01.cbz");
+            Files.writeString(tempPath, "mine");
+            Files.writeString(target, "someone else's book");
+
+            assertThrows(FileAlreadyExistsException.class, () -> fileMoveHelper.commitMove(tempPath, target));
+
+            assertEquals("mine", Files.readString(tempPath));
+            assertEquals("someone else's book", Files.readString(target));
+        }
+
+        @Test
+        @DisplayName("moveFile refuses to overwrite an existing target")
+        void moveFile_existingTarget_throws() throws Exception {
+            Path source = tempDir.resolve("a.epub");
+            Path target = tempDir.resolve("b.epub");
+            Files.writeString(source, "a");
+            Files.writeString(target, "b");
+
+            assertThrows(FileAlreadyExistsException.class, () -> fileMoveHelper.moveFile(source, target));
+
+            assertEquals("a", Files.readString(source));
+            assertEquals("b", Files.readString(target));
+        }
+
+        @Test
+        @DisplayName("moveFileWithBackup does not clobber a leftover temp file from an earlier failed move")
+        void moveFileWithBackup_existingTemp_throws() throws Exception {
+            Path source = tempDir.resolve("book.epub");
+            Path leftover = tempDir.resolve("book.epub.tmp_move");
+            Files.writeString(source, "new");
+            Files.writeString(leftover, "orphaned copy");
+
+            assertThrows(FileAlreadyExistsException.class, () -> fileMoveHelper.moveFileWithBackup(source));
+
+            assertEquals("new", Files.readString(source));
+            assertEquals("orphaned copy", Files.readString(leftover));
+        }
+
+        @Test
+        @DisplayName("rollbackMove leaves the temp file in place if the original location got occupied")
+        void rollbackMove_occupiedSource_keepsTemp() throws Exception {
+            Path tempPath = tempDir.resolve("book.epub.tmp_move");
+            Path originalSource = tempDir.resolve("book.epub");
+            Files.writeString(tempPath, "mine");
+            Files.writeString(originalSource, "new arrival");
+
+            fileMoveHelper.rollbackMove(tempPath, originalSource);
+
+            assertEquals("mine", Files.readString(tempPath));
+            assertEquals("new arrival", Files.readString(originalSource));
+        }
+
+        @Test
+        @DisplayName("ensureTargetsAvailable passes when targets are free")
+        void ensureTargetsAvailable_freeTargets_passes() throws Exception {
+            Path source = tempDir.resolve("a.epub");
+            Files.writeString(source, "a");
+
+            assertDoesNotThrow(() -> fileMoveHelper.ensureTargetsAvailable(Map.of(source, tempDir.resolve("sub/new.epub")), Set.of()));
+        }
+
+        @Test
+        @DisplayName("ensureTargetsAvailable rejects a target occupied by another file")
+        void ensureTargetsAvailable_occupiedTarget_throws() throws Exception {
+            Path source = tempDir.resolve("a.cbz");
+            Path other = tempDir.resolve("Series 01.cbz");
+            Files.writeString(source, "a");
+            Files.writeString(other, "b");
+
+            assertThrows(FileAlreadyExistsException.class, () -> fileMoveHelper.ensureTargetsAvailable(Map.of(source, other), Set.of()));
+        }
+
+        @Test
+        @DisplayName("ensureTargetsAvailable rejects an occupied target even when the source does not exist (unclaimed sidecar slot)")
+        void ensureTargetsAvailable_absentSourceOccupiedTarget_throws() throws Exception {
+            Path absentSidecar = tempDir.resolve("Book.metadata.json");
+            Path othersSidecar = tempDir.resolve("Series 01.metadata.json");
+            Files.writeString(othersSidecar, "{}");
+
+            assertThrows(FileAlreadyExistsException.class,
+                    () -> fileMoveHelper.ensureTargetsAvailable(Map.of(absentSidecar, othersSidecar), Set.of()));
+        }
+
+        @Test
+        @DisplayName("ensureTargetsAvailable rejects a source that still has a leftover .tmp_move, naming the temp file")
+        void ensureTargetsAvailable_staleTemp_throwsNamingTemp() throws Exception {
+            Path source = tempDir.resolve("book.epub");
+            Path staleTemp = tempDir.resolve("book.epub.tmp_move");
+            Files.writeString(source, "current");
+            Files.writeString(staleTemp, "orphaned copy");
+
+            FileAlreadyExistsException e = assertThrows(FileAlreadyExistsException.class,
+                    () -> fileMoveHelper.ensureTargetsAvailable(Map.of(source, tempDir.resolve("new/book.epub")), Set.of()));
+
+            assertEquals(staleTemp.toString(), e.getFile());
+            assertEquals("orphaned copy", Files.readString(staleTemp));
+            assertEquals("current", Files.readString(source));
+        }
+
+        @Test
+        @DisplayName("ensureTargetsAvailable ignores a leftover .tmp_move when its source does not exist (e.g. absent sidecar)")
+        void ensureTargetsAvailable_staleTempWithoutSource_passes() throws Exception {
+            Path absentSidecar = tempDir.resolve("book.metadata.json");
+            Files.writeString(tempDir.resolve("book.metadata.json.tmp_move"), "{}");
+
+            assertDoesNotThrow(() -> fileMoveHelper.ensureTargetsAvailable(
+                    Map.of(absentSidecar, tempDir.resolve("new/book.metadata.json")), Set.of()));
+        }
+
+        @Test
+        @DisplayName("ensureTargetsAvailable passes when a reserved slot is free")
+        void ensureTargetsAvailable_freeReservedSlot_passes() throws Exception {
+            Path source = tempDir.resolve("Book.epub");
+            Files.writeString(source, "book");
+
+            assertDoesNotThrow(() -> fileMoveHelper.ensureTargetsAvailable(
+                    Map.of(source, tempDir.resolve("NewName.epub")), Set.of(tempDir.resolve("NewName.cover.jpg"))));
+        }
+
+        @Test
+        @DisplayName("ensureTargetsAvailable rejects a reserved slot occupied by another file, leaving it intact")
+        void ensureTargetsAvailable_occupiedReservedSlot_throws() throws Exception {
+            Path source = tempDir.resolve("Book.epub");
+            Path othersCover = tempDir.resolve("NewName.cover.jpg");
+            Files.writeString(source, "book");
+            Files.writeString(othersCover, "another book's cover");
+
+            FileAlreadyExistsException e = assertThrows(FileAlreadyExistsException.class,
+                    () -> fileMoveHelper.ensureTargetsAvailable(Map.of(source, tempDir.resolve("NewName.epub")), Set.of(othersCover)));
+
+            assertEquals(othersCover.toString(), e.getFile());
+            assertEquals("another book's cover", Files.readString(othersCover));
+        }
+
+        @Test
+        @DisplayName("ensureTargetsAvailable allows a reserved slot that is one of the files being moved")
+        void ensureTargetsAvailable_reservedSlotIsMovingSource_passes() throws Exception {
+            Path source = tempDir.resolve("Book.epub");
+            Path ownSidecar = tempDir.resolve("NewName.metadata.json");
+            Files.writeString(source, "book");
+            Files.writeString(ownSidecar, "{}");
+            Map<Path, Path> moves = new LinkedHashMap<>();
+            moves.put(source, tempDir.resolve("sub/NewName.epub"));
+            moves.put(ownSidecar, tempDir.resolve("sub/NewName.metadata.json"));
+
+            assertDoesNotThrow(() -> fileMoveHelper.ensureTargetsAvailable(moves, Set.of(ownSidecar)));
+        }
+
+        @Test
+        @DisplayName("ensureTargetsAvailable rejects two sources resolving to the same target")
+        void ensureTargetsAvailable_duplicateTargets_throws() throws Exception {
+            Map<Path, Path> moves = new LinkedHashMap<>();
+            moves.put(tempDir.resolve("a/cover.jpg"), tempDir.resolve("new/cover.jpg"));
+            moves.put(tempDir.resolve("b/cover.jpg"), tempDir.resolve("new/./cover.jpg"));
+
+            assertThrows(FileAlreadyExistsException.class, () -> fileMoveHelper.ensureTargetsAvailable(moves, Set.of()));
+        }
+
+        @Test
+        @DisplayName("ensureTargetsAvailable allows a target that is the source itself (e.g. case-only rename)")
+        void ensureTargetsAvailable_sameFile_passes() throws Exception {
+            Path source = tempDir.resolve("book.epub");
+            Files.writeString(source, "a");
+            Files.createDirectories(tempDir.resolve("sub"));
+            Path alias = tempDir.resolve("sub/../book.epub");
+
+            assertDoesNotThrow(() -> fileMoveHelper.ensureTargetsAvailable(Map.of(source, alias), Set.of()));
         }
     }
 }
