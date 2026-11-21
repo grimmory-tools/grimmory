@@ -5067,6 +5067,8 @@
       "title": "Possible duplicate authors",
       "description": "Names are compared without case, accents or punctuation, including commas and reversed word order. Similar spellings are also suggested. Suggestions can be different people: review each record before merging.",
       "empty": "No possible duplicates found.",
+      "refreshFailedSummary": "Refresh failed",
+      "refreshFailedDetail": "The authors were merged, but the duplicate list could not be refreshed from the server.",
       "count": "{{count}} possible duplicate groups found.",
       "review": "Review",
       "showMore": "Show more"

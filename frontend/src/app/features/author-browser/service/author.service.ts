@@ -56,6 +56,11 @@ export class AuthorService {
     invalidateAuthorsQuery(this.queryClient);
   }
 
+  async refreshAuthors(): Promise<AuthorSummary[]> {
+    await this.queryClient.cancelQueries({queryKey: AUTHORS_QUERY_KEY, exact: true});
+    return this.queryClient.fetchQuery({...this.getAuthorsQueryOptions(), staleTime: 0});
+  }
+
   handleNewlyCreatedBook(book: Book): void {
     if (!book.metadata?.authors?.length) {
       return;

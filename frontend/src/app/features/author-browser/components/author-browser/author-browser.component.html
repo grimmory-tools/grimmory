@@ -322,7 +322,9 @@
     [modal]="true"
     [style]="{width: 'min(48rem, 95vw)'}">
     <p>{{ t('duplicates.description') }}</p>
-    @if (duplicateGroups().length === 0) {
+    @if (findingDuplicates()) {
+      <p role="status">{{ 'common.loading' | transloco }}</p>
+    } @else if (duplicateGroups().length === 0) {
       <p>{{ t('duplicates.empty') }}</p>
     } @else {
       <p>{{ t('duplicates.count', {count: duplicateGroups().length}) }}</p>
@@ -351,7 +353,7 @@
     [closable]="!mergingAuthors()"
     [closeOnEscape]="!mergingAuthors()"
     [dismissableMask]="!mergingAuthors()"
-    [style]="{width: 'min(40rem, 95vw)'}">
+    [style]="{width: 'min(56rem, 95vw)', maxHeight: '90vh'}">
     <p>{{ t('mergeAuthors.description', {count: mergeCandidates().length}) }}</p>
     <div class="merge-target-field">
       <label for="merge-author-target">{{ t('mergeAuthors.targetLabel') }}</label>

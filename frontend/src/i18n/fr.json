@@ -4997,6 +4997,8 @@
       "title": "Doublons possibles d’auteurs",
       "description": "Les noms sont comparés sans tenir compte de la casse, des accents ni de la ponctuation, y compris les virgules et l’inversion des mots. Les orthographes proches sont également proposées. Ces suggestions peuvent désigner des personnes différentes : vérifiez chaque fiche avant toute fusion.",
       "empty": "Aucun doublon possible trouvé.",
+      "refreshFailedSummary": "Actualisation impossible",
+      "refreshFailedDetail": "Les auteurs ont été regroupés, mais la liste des doublons n'a pas pu être actualisée depuis le serveur.",
       "count": "{{count}} groupes de doublons possibles trouvés.",
       "review": "Vérifier",
       "showMore": "Afficher plus"

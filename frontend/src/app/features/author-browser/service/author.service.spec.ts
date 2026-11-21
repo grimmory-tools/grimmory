@@ -1,4 +1,5 @@
 import {HttpClient} from '@angular/common/http';
+import {HttpTestingController, TestRequest} from '@angular/common/http/testing';
 import {TestBed} from '@angular/core/testing';
 import {QueryClient} from '@tanstack/angular-query';
 import {SseClient} from 'ngx-sse-client';
@@ -11,6 +12,7 @@ import {Book} from '../../book/model/book.model';
 import {AUTHORS_QUERY_KEY} from './author-query-keys';
 import {AuthorService} from './author.service';
 import {bookQueryKeys} from '../../book/data/book-query-keys';
+import {createAuthServiceStub, createQueryClientHarness} from '../../../core/testing/query-testing';
 
 function makeBook(authors?: string[]): Book {
   return {
@@ -24,6 +26,39 @@ function makeBook(authors?: string[]): Book {
     },
   };
 }
+
+describe('AuthorService refreshAuthors', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('fetches fresh authors instead of reusing an older in-flight request', async () => {
+    const harness = createQueryClientHarness();
+    TestBed.configureTestingModule({
+      providers: [
+        ...harness.providers,
+        AuthorService,
+        {provide: AuthService, useValue: createAuthServiceStub()},
+        {provide: SseClient, useValue: {}},
+      ],
+    });
+    const service = TestBed.inject(AuthorService);
+    const http = TestBed.inject(HttpTestingController);
+    TestBed.tick();
+    const previous = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/authors`);
+
+    const refreshed = service.refreshAuthors();
+    let current!: TestRequest;
+    await vi.waitFor(() => {
+      current = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/authors`);
+    });
+    const authors = [{id: 1, name: 'Jane Doe', bookCount: 3, hasPhoto: false}];
+    current.flush(authors);
+    expect(await refreshed).toEqual(authors);
+
+    previous.flush([{id: 2, name: 'Doe, Jane', bookCount: 1, hasPhoto: false}]);
+    expect(harness.queryClient.getQueryData(AUTHORS_QUERY_KEY)).toEqual(authors);
+    http.verify();
+  });
+});
 
 describe('AuthorService', () => {
   const httpClient = {

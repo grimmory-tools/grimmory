@@ -1,4 +1,4 @@
-import {Component, computed, DestroyRef, effect, ElementRef, HostListener, inject, OnInit, signal, viewChild} from '@angular/core';
+import {Component, computed, DestroyRef, effect, ElementRef, HostListener, inject, OnInit, signal, untracked, viewChild} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
 import {InputText} from '@openng/optimus-ui/inputtext';
@@ -113,6 +113,9 @@ export class AuthorBrowserComponent implements OnInit {
       const authors = this.authorService.allAuthors();
       if (authors !== null) {
         this.allAuthorsState.set(authors);
+        if (untracked(() => this.duplicateDialogVisible() && !this.findingDuplicates())) {
+          this.duplicateGroups.set(findAuthorDuplicates(authors));
+        }
       }
     });
 
@@ -156,6 +159,7 @@ export class AuthorBrowserComponent implements OnInit {
   );
   private autoMatchQueue: AuthorSummary[] = [];
   private autoMatchStats = {matched: 0, ambiguous: 0, noResults: 0, failed: 0};
+  private returnToDuplicates = false;
 
   private readonly booksQuery = injectQuery(() => this.bookService.booksQueryOptions(true));
   readonly loading = computed(() => this.allAuthorsState() === null || this.booksQuery.isPending());
@@ -419,6 +423,7 @@ export class AuthorBrowserComponent implements OnInit {
       return;
     }
 
+    this.returnToDuplicates = false;
     this.openMergeCandidates(selectedAuthors);
   }
 
@@ -439,6 +444,7 @@ export class AuthorBrowserComponent implements OnInit {
 
   reviewDuplicateGroup(authors: AuthorSummary[]): void {
     this.duplicateDialogVisible.set(false);
+    this.returnToDuplicates = true;
     this.openMergeCandidates(authors);
   }
 
@@ -481,12 +487,18 @@ export class AuthorBrowserComponent implements OnInit {
       next: () => {
         const mergedIds = new Set(sources.map(author => author.id));
         this.allAuthorsState.update(current => (current ?? []).filter(author => !mergedIds.has(author.id)));
-        this.authorService.invalidateAuthors();
         this.selectionService.deselectAll();
         this.mergingAuthors.set(false);
+        const returnToDuplicates = this.returnToDuplicates;
+        this.returnToDuplicates = false;
         this.mergeAuthorsDialogVisible.set(false);
         this.mergeCandidates.set([]);
         this.mergeTargetAuthorId.set(null);
+        if (returnToDuplicates) {
+          this.refreshDuplicateResults(mergedIds);
+        } else {
+          this.authorService.invalidateAuthors();
+        }
         this.messageService.add({
           severity: 'success',
           summary: this.t.translate('authorBrowser.mergeAuthors.successSummary'),
@@ -511,9 +523,40 @@ export class AuthorBrowserComponent implements OnInit {
     if (this.mergingAuthors()) {
       return;
     }
+    const returnToDuplicates = this.returnToDuplicates;
+    this.returnToDuplicates = false;
     this.mergeAuthorsDialogVisible.set(false);
     this.mergeCandidates.set([]);
     this.mergeTargetAuthorId.set(null);
+    if (returnToDuplicates) {
+      this.duplicateDialogVisible.set(true);
+    }
+  }
+
+  private async refreshDuplicateResults(mergedIds: Set<number>): Promise<void> {
+    this.findingDuplicates.set(true);
+    this.duplicateDialogVisible.set(true);
+    try {
+      const authors = await this.authorService.refreshAuthors();
+      if (this.destroyRef.destroyed) return;
+      this.allAuthorsState.set(authors);
+      this.duplicateGroups.set(findAuthorDuplicates(authors));
+    } catch {
+      if (this.destroyRef.destroyed) return;
+      const authors = (this.allAuthorsState() ?? []).filter(author => !mergedIds.has(author.id));
+      this.allAuthorsState.set(authors);
+      this.duplicateGroups.set(findAuthorDuplicates(authors));
+      this.authorService.invalidateAuthors();
+      this.messageService.add({
+        severity: 'error',
+        summary: this.t.translate('authorBrowser.duplicates.refreshFailedSummary'),
+        detail: this.t.translate('authorBrowser.duplicates.refreshFailedDetail')
+      });
+    } finally {
+      if (!this.destroyRef.destroyed) {
+        this.findingDuplicates.set(false);
+      }
+    }
   }
 
   autoMatchSelected(): void {
