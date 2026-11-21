@@ -1146,11 +1146,6 @@
       "count": 1
     }
   },
-  "src/app/features/series-browser/service/series-data.service.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
   "src/app/features/settings/audit-logs/audit-logs.component.ts": {
     "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 1

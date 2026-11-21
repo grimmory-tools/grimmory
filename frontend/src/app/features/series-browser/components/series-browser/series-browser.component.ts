@@ -5,8 +5,8 @@ import {InputText} from '@openng/optimus-ui/inputtext';
 import {Select} from '@openng/optimus-ui/select';
 import {Popover} from '@openng/optimus-ui/popover';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
-import {SeriesDataService} from '../../service/series-data.service';
-import {SeriesSummary} from '../../model/series.model';
+import {injectQuery} from '@tanstack/angular-query-experimental';
+import {buildSeriesSummaries, SeriesSummary} from '../../model/series.model';
 import {SeriesCardComponent} from '../series-card/series-card.component';
 import {BookService} from '../../../book/service/book.service';
 import {ReadStatus} from '../../../book/model/book.model';
@@ -62,7 +62,6 @@ export class SeriesBrowserComponent implements OnInit {
   private static readonly MIN_SCALE = 0.7;
   private static readonly MAX_SCALE = 1.3;
 
-  private readonly seriesDataService = inject(SeriesDataService);
   private readonly bookService = inject(BookService);
   private readonly pageTitle = inject(PageTitleService);
   private readonly t = inject(TranslocoService);
@@ -73,12 +72,14 @@ export class SeriesBrowserComponent implements OnInit {
   private readonly localStorageService = inject(LocalStorageService);
   private readonly layoutService = inject(LayoutService);
 
-  readonly isBooksLoading = this.bookService.isBooksLoading;
+  private readonly booksQuery = injectQuery(() => this.bookService.booksQueryOptions());
+  readonly isBooksLoading = computed(() => this.booksQuery.isPending());
+  private readonly allSeries = computed(() => buildSeriesSummaries(this.booksQuery.data() ?? []));
   private readonly searchTerm = signal('');
   private readonly statusFilter = signal('all');
   private readonly sortBy = signal('name-asc');
   readonly filteredSeries = computed(() => {
-    let result = this.seriesDataService.allSeries();
+    let result = this.allSeries();
 
     const search = this.searchTerm().trim().toLowerCase();
     if (search) {
