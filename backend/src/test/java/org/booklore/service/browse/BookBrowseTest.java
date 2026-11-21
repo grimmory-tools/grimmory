@@ -75,6 +75,8 @@ class BookBrowseTest {
     private BrowseService<BookEntity, Book> bookBrowse;
     @Autowired
     private BookRepository bookRepository;
+    @Autowired
+    private BookSeriesCollapsePageFetcher bookSeriesCollapsePageFetcher;
     @MockitoBean
     private AuthenticationService authenticationService;
 
@@ -144,6 +146,17 @@ class BookBrowseTest {
 
     private BrowsePage<Book> browse(String sort, List<String> facet, String query, String cursor, int page, int size) {
         return bookBrowse.browse(sort, facet, null, query, cursor, PageRequest.of(page, size));
+    }
+
+    private BrowsePage<Book> browseCollapsed(String sort, List<String> facet, String cursor, int size) {
+        return bookBrowse.browse(sort, facet, null, null, cursor, PageRequest.of(0, size), bookSeriesCollapsePageFetcher, "collapse_series=true");
+    }
+
+    private BookEntity seriesBook(String title, String series, float number) {
+        BookEntity bookEntity = book(title, List.of());
+        bookEntity.getMetadata().setSeriesName(series);
+        bookEntity.getMetadata().setSeriesNumber(number);
+        return bookEntity;
     }
 
     private String nextCursor(BrowsePage<Book> page) {
@@ -410,6 +423,61 @@ class BookBrowseTest {
         assertThat(browse(null, null, null, null, 0, 20).content().stream().map(Book::getId))
                 .containsExactly(romance);
         assertThat(bookBrowse.findAllIds(null, null, null, null)).containsExactly(romance);
+    }
+
+    @Test
+    void collapsedSeriesPagesByGroupAndCountsMembers() {
+        Long alpha = book("Alpha", List.of()).getId();
+        Long second = seriesBook("Second", "Discworld", 2).getId();
+        Long first = seriesBook("First", "Discworld", 1).getId();
+        Long solo = seriesBook("Only", "Solo", 1).getId();
+        Long zeta = book("Zeta", List.of()).getId();
+        em.flush();
+
+        BrowsePage<Book> page0 = browseCollapsed("title", null, null, 3);
+        assertThat(page0.content().stream().map(Book::getId)).containsExactly(alpha, first, solo);
+        assertThat(page0.content().get(0).getSeriesBookIds()).isNull();
+        assertThat(page0.content().get(1).getSeriesBookIds()).containsExactly(second, first);
+        assertThat(page0.content().get(2).getSeriesBookIds()).containsExactly(solo);
+        assertThat(page0.page().totalElements()).isEqualTo(4);
+        assertThat(page0.page().totalMembers()).isEqualTo(5);
+
+        BrowsePage<Book> page1 = browseCollapsed(null, null, nextCursor(page0), 3);
+        assertThat(page1.content().stream().map(Book::getId)).containsExactly(zeta);
+        assertThatThrownBy(() -> browse(null, null, null, page0.page().cursor(), 0, 3))
+                .isInstanceOfSatisfying(APIException.class, e -> assertThat(e.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST));
+    }
+
+    @Test
+    void collapsedSeriesSortsByBestMatchingBook() {
+        Instant now = Instant.now();
+        BookEntity first = seriesBook("First", "Saga", 1);
+        first.setAddedOn(now.minusSeconds(200));
+        BookEntity latest = seriesBook("Second", "Saga", 2);
+        latest.setAddedOn(now);
+        BookEntity mid = book("Mid", List.of());
+        mid.setAddedOn(now.minusSeconds(100));
+        em.flush();
+
+        assertThat(browseCollapsed("-addedOn", null, null, 20).content().stream().map(Book::getId))
+                .containsExactly(first.getId(), mid.getId());
+    }
+
+    @Test
+    void collapsedSeriesFiltersMembersByActiveFacet() {
+        BookEntity excluded = book("First", List.of("Horror"));
+        excluded.getMetadata().setSeriesName("Discworld");
+        excluded.getMetadata().setSeriesNumber(1f);
+        BookEntity included = book("Second", List.of("Fantasy"));
+        included.getMetadata().setSeriesName("Discworld");
+        included.getMetadata().setSeriesNumber(2f);
+        em.flush();
+
+        BrowsePage<Book> page = browseCollapsed("title", List.of("genre:Fantasy"), null, 20);
+        assertThat(page.content().stream().map(Book::getId)).containsExactly(included.getId());
+        assertThat(page.content().getFirst().getSeriesBookIds()).containsExactly(included.getId());
+        assertThat(page.page().totalElements()).isEqualTo(1);
+        assertThat(page.page().totalMembers()).isEqualTo(1);
     }
 
     private BookLoreUser noLibrariesUser() {
