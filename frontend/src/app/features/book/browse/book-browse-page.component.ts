@@ -152,7 +152,7 @@ export class BookBrowsePageComponent {
       const primary = this.page.sortTerms().at(0);
       return primary && !this.page.isDefaultSort(this.page.sortTerms()) && bookSortHasDetailLine(primary.key)
         ? primary.key
-        : null;
+        : this.preferences.cardDetail();
     },
     this.page.results.showingPreviousResults,
   );

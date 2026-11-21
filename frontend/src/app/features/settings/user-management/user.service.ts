@@ -10,6 +10,7 @@ import { injectQuery, queryOptions, QueryClient } from '@tanstack/angular-query-
 import { CURRENT_USER_QUERY_KEY } from './user-query-keys';
 import { AppTheme, CustomPrimary } from '../../../shared/model/app-state.model';
 import {DEFAULT_UI_FONT, normalizeUiFont, type UiFontPreference} from '../../../shared/model/ui-font.model';
+import {type BookDetailLineSortKey} from '../../book/browse/book-browse-fields';
 
 export interface EntityViewPreferences {
   global: EntityViewPreference;
@@ -26,6 +27,7 @@ export interface EntityViewPreference {
   sortDir: 'ASC' | 'DESC';
   sortCriteria?: SortCriterion[];
   view: 'GRID' | 'TABLE';
+  cardDetail?: BookDetailLineSortKey | null;
   coverSize: number;
   seriesCollapsed: boolean;
   overlayBookType: boolean;

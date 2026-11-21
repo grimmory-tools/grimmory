@@ -73,6 +73,11 @@
   color: var(--text-color);
 }
 
+.card-detail-editor {
+  max-width: 24rem;
+  margin-top: 0.875rem;
+}
+
 .format-overlay-editor {
   display: flex;
   align-items: center;
