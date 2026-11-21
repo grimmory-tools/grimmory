@@ -1,4 +1,4 @@
-import {QueryClient} from '@tanstack/angular-query-experimental';
+import {QueryClient} from '@tanstack/angular-query';
 import {beforeEach, describe, expect, it} from 'vitest';
 
 import {Book} from '../model/book.model';

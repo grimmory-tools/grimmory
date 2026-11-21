@@ -9,7 +9,7 @@ import { MessageService } from '@openng/optimus-ui/api';
 import { createQueryClientHarness } from '../../core/testing/query-testing';
 import { getTranslocoModule } from '../../core/testing/transloco-testing';
 import { BookDialogHelperService } from '../book/service/book-dialog-helper.service';
-import { BookPage } from '../book/data/book-query.models';
+import { BrowsePage } from '../../core/data/browse.models';
 import { BookQueryService } from '../book/data/book-query.service';
 import { BookSummary } from '../book/data/book-response.models';
 import { LibraryService } from '../book/service/library.service';
@@ -106,7 +106,7 @@ describe('CommandPaletteService', () => {
     vi.restoreAllMocks();
   });
 
-  function makeBookPage(books: BookSummary[]): BookPage {
+  function makeBookPage(books: BookSummary[]): BrowsePage<BookSummary> {
     return {
       content: books,
       page: {
@@ -132,6 +132,7 @@ describe('CommandPaletteService', () => {
     expect(request.request.params.get('sort')).toBe('title');
     expect(request.request.params.get('size')).toBe('50');
     request.flush(makeBookPage(books));
+    await vi.advanceTimersByTimeAsync(0);
     await TestBed.inject(ApplicationRef).whenStable();
     TestBed.flushEffects();
   }
@@ -152,6 +153,7 @@ describe('CommandPaletteService', () => {
     expect(request.request.params.get('sort')).toBe('title');
     expect(request.request.params.get('size')).toBe('50');
     request.flush(makeBookPage([makeBook(1, 'It', ['Stephen King'])]));
+    await vi.advanceTimersByTimeAsync(0);
     await TestBed.inject(ApplicationRef).whenStable();
     TestBed.flushEffects();
 
@@ -170,6 +172,7 @@ describe('CommandPaletteService', () => {
 
     const request = http.expectOne(req => req.url.endsWith('/api/v1/books/page'));
     request.flush('Bad request', {status: 400, statusText: 'Bad Request'});
+    await vi.advanceTimersByTimeAsync(0);
     await TestBed.inject(ApplicationRef).whenStable();
     TestBed.flushEffects();
 
@@ -262,6 +265,7 @@ describe('CommandPaletteService', () => {
     TestBed.flushEffects();
     const duneRequest = http.expectOne(request => request.urlWithParams.includes('query=dune'));
     duneRequest.flush('Bad request', {status: 400, statusText: 'Bad Request'});
+    await vi.advanceTimersByTimeAsync(0);
     await TestBed.inject(ApplicationRef).whenStable();
     TestBed.flushEffects();
 

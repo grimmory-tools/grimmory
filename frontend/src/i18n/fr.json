@@ -2669,6 +2669,13 @@
       "deleteCannotUndo": "Cette action est irréversible",
       "totalBooksAffected": "Total de livres affectés :",
       "deleting": "Suppression...",
+      "previousPage": "Précédent",
+      "allValues": "l'ensemble des {{ type }}",
+      "allValuesExcept": "l'ensemble des {{ type }}, sauf {{ count }}",
+      "allMatching": "l'ensemble des {{ type }} correspondant à « {{ search }} »",
+      "allMatchingExcept": "l'ensemble des {{ type }} correspondant à « {{ search }} », sauf {{ count }}",
+      "mergeSplitAllDescription": "Vous fusionnez/divisez {{ selection }}.",
+      "deleteAllWarning": "Vous êtes sur le point de supprimer {{ selection }}.",
       "tabs": {
         "author": "Auteur",
         "authors": "Auteurs",

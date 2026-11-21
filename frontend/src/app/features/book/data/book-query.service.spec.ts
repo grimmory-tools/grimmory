@@ -2,7 +2,7 @@ import {HttpErrorResponse} from '@angular/common/http';
 import {HttpTestingController} from '@angular/common/http/testing';
 import {Injectable, inject} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
-import {injectInfiniteQuery, QueryClient} from '@tanstack/angular-query-experimental';
+import {injectInfiniteQuery, QueryClient} from '@tanstack/angular-query';
 import {afterEach, beforeEach, describe, expect, expectTypeOf, it, vi} from 'vitest';
 
 import {API_CONFIG} from '../../../core/config/api-config';
@@ -14,7 +14,7 @@ import {
 import {AuthService} from '../../../shared/service/auth.service';
 import {bookQueryKeys} from './book-query-keys';
 import {BookPageParams} from './book-query-params';
-import {BookPage} from './book-query.models';
+import {BrowsePage} from '../../../core/data/browse.models';
 import {BookDetail, BookSummary} from './book-response.models';
 import {retryTransientQueryError} from '../../../core/data/query-transport';
 import {BookQueryService} from './book-query.service';
@@ -26,7 +26,7 @@ const PARAMS: BookPageParams = {
   size: 20,
 };
 
-function page(ids: number[]): BookPage {
+function page(ids: number[]): BrowsePage<BookSummary> {
   return {
     content: ids.map(id => ({id, libraryId: 1, libraryName: 'Library'})),
     page: {
@@ -87,7 +87,7 @@ describe('BookQueryService', () => {
   });
 
   it('fetches one bounded summary page with normalized parameters', async () => {
-    const resultPromise = queryClient.fetchQuery(service.page(PARAMS));
+    const resultPromise = queryClient.query(service.page(PARAMS));
     const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/page?query=dune&facet=genre:Science%20Fiction&sort=title&size=20`);
     request.flush(page([1, 2]));
 
@@ -97,7 +97,7 @@ describe('BookQueryService', () => {
   });
 
   it('sends every selected facet value as a repeated facet parameter', async () => {
-    const resultPromise = queryClient.fetchQuery(service.page({
+    const resultPromise = queryClient.query(service.page({
       ...PARAMS,
       facets: {
         genre: {include: ['Science Fiction'], exclude: []},
@@ -113,7 +113,7 @@ describe('BookQueryService', () => {
   });
 
   it('fetches the facet index as the keys of facets with items and sort tokens', async () => {
-    const resultPromise = queryClient.fetchQuery(service.facetIndex(PARAMS));
+    const resultPromise = queryClient.query(service.facetIndex(PARAMS));
     const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/facets?query=dune&facet=genre:Science%20Fiction`);
     request.flush({
       links: [{rel: 'self', href: '/api/v1/books/facets?query=dune', type: 'application/json'}],
@@ -139,7 +139,7 @@ describe('BookQueryService', () => {
   });
 
   it('fetches one facet page with its search, noting whether more values follow', async () => {
-    const resultPromise = queryClient.fetchQuery(service.facet('author', PARAMS, ' tolk '));
+    const resultPromise = queryClient.query(service.facet('author', PARAMS, ' tolk '));
     const request = http.expectOne(
       `${API_CONFIG.BASE_URL}/api/v1/books/facets/author?query=dune&facet=genre:Science%20Fiction&size=100&search=tolk`,
     );
@@ -161,8 +161,28 @@ describe('BookQueryService', () => {
     });
   });
 
+  it('sends page and size parameters for paged facet queries', async () => {
+    const resultPromise = queryClient.query(service.facet('author', PARAMS, '', {page: 2, size: 50}));
+    const request = http.expectOne(
+      `${API_CONFIG.BASE_URL}/api/v1/books/facets/author?query=dune&facet=genre:Science%20Fiction&size=50&page=2`,
+    );
+    request.flush({
+      links: [{rel: 'self', href: '/api/v1/books/facets/author?page=2&size=50', type: 'application/json'}],
+      facets: [{
+        metadata: {rel: 'facet', key: 'author', title: 'Authors'},
+        links: [{rel: 'facet', href: '', type: '', title: 'Frank Herbert', value: 'Frank Herbert', properties: {numberOfItems: 2}}],
+      }],
+    });
+
+    await expect(resultPromise).resolves.toEqual({
+      key: 'author',
+      values: [{value: 'Frank Herbert', title: 'Frank Herbert', count: 2}],
+      complete: true,
+    });
+  });
+
   it('reads a number facet\'s bounds from its templated range link, keeping bands as values', async () => {
-    const resultPromise = queryClient.fetchQuery(service.facet('goodreads_rating', PARAMS));
+    const resultPromise = queryClient.query(service.facet('goodreads_rating', PARAMS));
     http.expectOne(request => request.url === `${API_CONFIG.BASE_URL}/api/v1/books/facets/goodreads_rating`).flush({
       links: [{rel: 'self', href: '/api/v1/books/facets/goodreads_rating', type: 'application/json'}],
       facets: [{
@@ -185,7 +205,7 @@ describe('BookQueryService', () => {
   });
 
   it('fetches matching IDs with sort but no size', async () => {
-    const resultPromise = queryClient.fetchQuery(service.ids(PARAMS));
+    const resultPromise = queryClient.query(service.ids(PARAMS));
     const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/ids?query=dune&facet=genre:Science%20Fiction&sort=title`);
     request.flush([3, 1, 2]);
 
@@ -240,7 +260,7 @@ describe('BookQueryService', () => {
   });
 
   it('fetches full book detail with the description flag', async () => {
-    const resultPromise = queryClient.fetchQuery(service.detail(42, {withDescription: true}));
+    const resultPromise = queryClient.query(service.detail(42, {withDescription: true}));
     expectTypeOf(resultPromise).toEqualTypeOf<Promise<BookDetail>>();
     const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/42?withDescription=true`);
     const response: BookDetail = {
@@ -272,7 +292,7 @@ describe('BookQueryService', () => {
 
   it('cancels an active HTTP request through the query signal', async () => {
     const options = service.detail(42, {withDescription: false});
-    const resultPromise = queryClient.fetchQuery(options);
+    const resultPromise = queryClient.query(options);
     const request = http.expectOne(`${API_CONFIG.BASE_URL}/api/v1/books/42?withDescription=false`);
 
     await queryClient.cancelQueries({queryKey: options.queryKey});

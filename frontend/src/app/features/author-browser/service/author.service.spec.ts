@@ -1,6 +1,6 @@
 import {HttpClient} from '@angular/common/http';
 import {TestBed} from '@angular/core/testing';
-import {QueryClient} from '@tanstack/angular-query-experimental';
+import {QueryClient} from '@tanstack/angular-query';
 import {SseClient} from 'ngx-sse-client';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {of} from 'rxjs';

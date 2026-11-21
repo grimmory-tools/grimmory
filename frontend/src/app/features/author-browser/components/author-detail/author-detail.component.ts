@@ -18,7 +18,7 @@ import { createVirtualGrid } from '../../../../shared/util/virtual-grid.util';
 import { createBrowseResults } from '../../../../shared/browse/results';
 import { BookQueryService } from '../../../book/data/book-query.service';
 import { DEFAULT_BOOK_SORT_TERMS } from '../../../book/data/book-query-params';
-import { injectInfiniteQuery } from '@tanstack/angular-query-experimental';
+import { injectInfiniteQuery } from '@tanstack/angular-query';
 import { BookCardComponent } from '../../../book/components/cards/book-card.component';
 import { bookCardHeightForWidth } from '../../../book/components/cards/book-card.layout';
 import { BookNavigationService } from '../../../book/service/book-navigation.service';

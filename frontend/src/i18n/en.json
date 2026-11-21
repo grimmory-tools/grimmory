@@ -2843,6 +2843,13 @@
       "deleteCannotUndo": "This action cannot be undone",
       "totalBooksAffected": "Total books affected:",
       "deleting": "Deleting...",
+      "previousPage": "Previous",
+      "allValues": "all {{ type }}",
+      "allValuesExcept": "all {{ type }} except {{ count }}",
+      "allMatching": "all {{ type }} matching \"{{ search }}\"",
+      "allMatchingExcept": "all {{ type }} matching \"{{ search }}\" except {{ count }}",
+      "mergeSplitAllDescription": "You are merging/splitting {{ selection }}.",
+      "deleteAllWarning": "You are about to delete {{ selection }}.",
       "tabs": {
         "author": "Author",
         "authors": "Authors",
@@ -3487,9 +3494,6 @@
         "failedDetail": "An error occurred while updating field lock statuses."
       }
     },
-    "sorting": {
-      "saveAsDefault": "Save as Default for {{scope}}"
-    },
     "fileAttacher": {
       "title": "Attach File to Another Book",
       "titleBulk": "Attach Files to Another Book",
@@ -3515,7 +3519,6 @@
     },
     "searcher": {
       "placeholder": "Title, Author, Series, Genre, or ISBN...",
-      "clearSearch": "Clear search",
       "bookCoverAlt": "Book Cover",
       "byPrefix": "by",
       "noResults": "No results found",
@@ -5214,7 +5217,8 @@
       "apply": "Apply",
       "moveUp": "Move Up",
       "moveDown": "Move Down",
-      "flipDirection": "Flip Direction"
+      "flipDirection": "Flip Direction",
+      "saveAsDefault": "Save as Default for {{scope}}"
     },
     "chips": {
       "removeSearch": "Remove Search Filter {{query}}",
@@ -5223,6 +5227,7 @@
     "rail": {
       "searchValues": "Search…",
       "searchFields": "Title, author, genre…",
+      "clearSearch": "Clear search",
       "searchScope": {
         "allBooks": "Search All Books",
         "library": "Search Library",

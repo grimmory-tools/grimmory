@@ -2,6 +2,7 @@ package org.booklore.service.metadata;
 
 import org.booklore.config.AppProperties;
 import org.booklore.exception.ApiError;
+import org.booklore.model.dto.Book;
 import org.booklore.model.dto.FileMoveResult;
 import org.booklore.model.dto.settings.MetadataPersistenceSettings;
 import org.booklore.model.entity.*;
@@ -9,6 +10,7 @@ import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.MergeMetadataType;
 import org.booklore.repository.*;
 import org.booklore.service.appsettings.AppSettingService;
+import org.booklore.service.browse.BrowseService;
 import org.booklore.service.file.FileFingerprint;
 import org.booklore.service.file.FileMoveService;
 import org.booklore.service.metadata.writer.MetadataWriter;
@@ -25,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -42,6 +45,7 @@ public class MetadataManagementService {
     private final FileMoveService fileMoveService;
     private final BookRepository bookRepository;
     private final FileService fileService;
+    private final BrowseService<BookEntity, Book> bookBrowse;
 
 
     @Transactional
@@ -59,6 +63,25 @@ public class MetadataManagementService {
             case publishers -> consolidatePublishers(targetValues, valuesToMerge, moveFile);
             case languages -> consolidateLanguages(targetValues, valuesToMerge, moveFile);
         }
+    }
+
+    public List<String> resolve(MergeMetadataType metadataType, List<String> values, boolean selectAll, String search, Set<String> excludedValues) {
+        if (!selectAll) {
+            return values;
+        }
+        String facetKey = switch (metadataType) {
+            case authors -> "author";
+            case categories -> "genre";
+            case moods -> "mood";
+            case tags -> "tag";
+            case series -> "series";
+            case publishers -> "publisher";
+            case languages -> "language";
+        };
+        Set<String> excluded = excludedValues == null ? Set.of() : excludedValues;
+        return bookBrowse.allValues(facetKey, search).stream()
+                .filter(value -> !excluded.contains(value))
+                .toList();
     }
 
     private void writeMetadataToFile(List<BookMetadataEntity> metadataList, boolean moveFile) {

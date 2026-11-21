@@ -3,7 +3,7 @@ import { MessageService } from '@openng/optimus-ui/api';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
-import { injectQuery, QueryClient } from '@tanstack/angular-query-experimental';
+import { injectQuery, QueryClient } from '@tanstack/angular-query';
 
 import { BookDialogHelperService } from '../book/service/book-dialog-helper.service';
 import { BookPageParams, EMPTY_FACET_SELECTION } from '../book/data/book-query-params';

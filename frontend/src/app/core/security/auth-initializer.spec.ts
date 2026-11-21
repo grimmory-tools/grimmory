@@ -1,7 +1,7 @@
 import {Injector, runInInjectionContext} from '@angular/core';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {of, throwError} from 'rxjs';
-import {QueryClient} from '@tanstack/angular-query-experimental';
+import {QueryClient} from '@tanstack/angular-query';
 
 import {AuthInitializationService} from './auth-initialization-service';
 import {AuthService} from '../../shared/service/auth.service';

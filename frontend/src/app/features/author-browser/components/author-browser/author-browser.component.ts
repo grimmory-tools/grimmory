@@ -9,6 +9,7 @@ import {Button} from '@openng/optimus-ui/button';
 import {Divider} from '@openng/optimus-ui/divider';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
+import {injectQuery} from '@tanstack/angular-query';
 import {RouteScrollPositionService} from '../../../../shared/service/route-scroll-position.service';
 import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
 import {AuthorService} from '../../service/author.service';
@@ -156,7 +157,8 @@ export class AuthorBrowserComponent implements OnInit {
   private autoMatchQueue: AuthorSummary[] = [];
   private autoMatchStats = {matched: 0, ambiguous: 0, noResults: 0, failed: 0};
 
-  readonly loading = computed(() => this.allAuthorsState() === null || this.bookService.isListViewBooksLoading());
+  private readonly booksQuery = injectQuery(() => this.bookService.booksQueryOptions(true));
+  readonly loading = computed(() => this.allAuthorsState() === null || this.booksQuery.isPending());
   protected currentUser = this.userService.currentUser;
   readonly selectedCount = computed(() => this.selectedAuthors().size);
   readonly searchTerm = signal('');
@@ -169,7 +171,7 @@ export class AuthorBrowserComponent implements OnInit {
       return [];
     }
 
-    return this.enrichAuthors(authors, this.bookService.listViewBooks());
+    return this.enrichAuthors(authors, this.booksQuery.data() ?? []);
   });
   readonly libraryOptions = computed<FilterOption[]>(() => {
     const allLabel = this.t.translate('authorBrowser.filters.all');
@@ -278,7 +280,6 @@ export class AuthorBrowserComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    this.bookService.loadBooksForListView();
     this.pageTitle.setPageTitle(this.t.translate('authorBrowser.pageTitle'));
 
     this.sortOptions = [

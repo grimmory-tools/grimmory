@@ -10,7 +10,7 @@ import {AutoComplete} from '@openng/optimus-ui/autocomplete';
 import {Button} from '@openng/optimus-ui/button';
 import {Checkbox} from '@openng/optimus-ui/checkbox';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
-import {injectMutation, injectQuery} from '@tanstack/angular-query-experimental';
+import {injectMutation, injectQuery} from '@tanstack/angular-query';
 
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import {debouncedSignal} from '../../../../shared/util/debounced-signal';

@@ -1,5 +1,5 @@
 import {TestBed} from '@angular/core/testing';
-import {QueryClient} from '@tanstack/angular-query-experimental';
+import {QueryClient} from '@tanstack/angular-query';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {observeActiveQuery} from '../../../core/testing/query-testing';
@@ -7,15 +7,16 @@ import {Book} from '../model/book.model';
 import {TaskStatus} from '../../settings/task-management/task.service';
 import {bookQueryKeys} from '../data/book-query-keys';
 import {BookDetail} from '../data/book-response.models';
-import {normalizeBookPageParams} from '../data/book-query-params';
+import {normalizeBrowsePageParams} from '../../../core/data/browse-query-params';
+import {isBookQueryFacetKey} from '../data/book-query-params';
 import {BOOKS_QUERY_KEY, bookDetailQueryKey} from './book-query-keys';
 import {BookSocketService} from './book-socket.service';
 
-const PAGE_QUERY_KEY = bookQueryKeys.boundedPage(normalizeBookPageParams({
+const PAGE_QUERY_KEY = bookQueryKeys.boundedPage(normalizeBrowsePageParams({
   size: 20,
   facets: {},
   sort: [],
-}));
+}, isBookQueryFacetKey));
 
 function makeBook(id: number, overrides: Partial<Book> = {}): Book {
   return {

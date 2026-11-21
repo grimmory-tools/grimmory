@@ -27,6 +27,7 @@ import org.springframework.data.domain.PageRequest;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -1382,13 +1383,22 @@ class BookRuleEvaluatorFieldCoverageTest {
         @Test
         void thisPeriod_year_matchesThisYearFinished() {
             BookEntity thisYear = createBook("Recently Finished");
+            Instant midYear = Instant.now()
+                    .atZone(ZoneId.systemDefault())
+                    .withMonth(6)
+                    .withDayOfMonth(15)
+                    .withHour(17)
+                    .withMinute(0)
+                    .withSecond(0)
+                    .withNano(0)
+                    .toInstant();
             UserBookProgressEntity p1 = createProgress(thisYear, ReadStatus.READ);
-            p1.setDateFinished(Instant.now().minus(10, ChronoUnit.DAYS));
+            p1.setDateFinished(midYear);
             em.merge(p1);
 
             BookEntity lastYear = createBook("Finished Last Year");
             UserBookProgressEntity p2 = createProgress(lastYear, ReadStatus.READ);
-            p2.setDateFinished(Instant.now().minus(400, ChronoUnit.DAYS));
+            p2.setDateFinished(midYear.minus(400, ChronoUnit.DAYS));
             em.merge(p2);
             em.flush();
             em.clear();

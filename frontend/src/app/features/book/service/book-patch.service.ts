@@ -6,7 +6,7 @@ import {Book, BookFileProgress, ReadStatus} from '../model/book.model';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {ResetProgressType, ResetProgressTypes} from '../../../shared/constants/reset-progress-type';
 import {BookStatusUpdateResponse, PersonalRatingUpdateResponse} from '../model/book.model';
-import {QueryClient} from '@tanstack/angular-query-experimental';
+import {QueryClient} from '@tanstack/angular-query';
 import {
   patchBooksInCache,
   patchBookFieldsInCache,

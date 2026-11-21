@@ -1,5 +1,5 @@
 import {DestroyRef, inject, Service} from '@angular/core';
-import {QueryClient} from '@tanstack/angular-query-experimental';
+import {QueryClient} from '@tanstack/angular-query';
 
 import {invalidateBookRecommendations} from '../data/book-query-cache';
 import {TaskProgressPayload, TaskStatus} from '../../settings/task-management/task.service';

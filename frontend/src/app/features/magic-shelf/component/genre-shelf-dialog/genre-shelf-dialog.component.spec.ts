@@ -2,7 +2,7 @@ import {TestBed} from '@angular/core/testing';
 import {TranslocoService} from '@jsverse/transloco';
 import {MessageService} from '@openng/optimus-ui/api';
 import {DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
-import {QueryClient} from '@tanstack/angular-query-experimental';
+import {QueryClient} from '@tanstack/angular-query';
 import {of, throwError} from 'rxjs';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 

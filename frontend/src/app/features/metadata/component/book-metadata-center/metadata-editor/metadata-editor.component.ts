@@ -35,7 +35,7 @@ import {MetadataProviderSpecificFields} from '../../../../../shared/model/app-se
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/drag-drop';
 
-import {QueryClient} from '@tanstack/angular-query-experimental';
+import {QueryClient} from '@tanstack/angular-query';
 import {MetadataSourceQueryService} from '../../../sources/metadata-source-query.service';
 
 @Component({

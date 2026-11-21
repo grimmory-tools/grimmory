@@ -1,6 +1,6 @@
 import { afterNextRender, ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, HostListener, inject, Injector, OnDestroy, OnInit, signal, untracked, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { QueryClient } from '@tanstack/angular-query-experimental';
+import { QueryClient } from '@tanstack/angular-query';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { forkJoin, from, Subject } from 'rxjs';
 import { debounceTime, map, switchMap, tap } from 'rxjs/operators';
@@ -1345,9 +1345,9 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
     const first = this.infiniteScrollPages()[0];
     if (first === undefined || first <= 0) return;
 
-    const anchorEl = container.querySelector(
+    const anchorEl = container.querySelector<HTMLElement>(
       `.infinite-scroll-wrapper img.page-image[data-page="${first}"]`
-    ) as HTMLElement | null;
+    );
     if (!anchorEl) return;
 
     const beforeTop = anchorEl.getBoundingClientRect().top;
@@ -1386,8 +1386,8 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
 
   private updateCurrentPageFromScroll(container: HTMLElement): void {
     const images = Array.from(
-      container.querySelectorAll('.infinite-scroll-wrapper img.page-image[data-page]')
-    ) as HTMLElement[];
+      container.querySelectorAll<HTMLElement>('.infinite-scroll-wrapper img.page-image[data-page]')
+    );
     if (!images.length) return;
 
     const containerRect = container.getBoundingClientRect();
@@ -1527,7 +1527,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const img = container.querySelector(`img[data-page="${this.currentPage()}"]`) as HTMLImageElement | null;
+    const img = container.querySelector<HTMLImageElement>(`img[data-page="${this.currentPage()}"]`);
     if (!img) {
       if (attempt < 30) {
         requestAnimationFrame(() => this.longStripWaitForImagesAndScroll(attempt + 1, layoutGen));
@@ -1688,7 +1688,7 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
   private longStripOnScrollEnd(container: HTMLElement): void {
     if (this.longStripIsScrolling()) return;
 
-    const images = Array.from(container.querySelectorAll('.long-strip-wrapper img[data-page]')) as HTMLImageElement[];
+    const images = Array.from(container.querySelectorAll<HTMLImageElement>('.long-strip-wrapper img[data-page]'));
     const closest = this.longStripFindClosestImage(images, container);
 
     if (closest) {
@@ -1814,9 +1814,9 @@ export class CbxReaderComponent implements OnInit, OnDestroy {
       const container = this.getImageScrollContainer();
       if (!container) return;
 
-      const targetImage = container.querySelector(
+      const targetImage = container.querySelector<HTMLElement>(
         `.infinite-scroll-wrapper img.page-image[data-page="${pageIndex}"]`
-      ) as HTMLElement | null;
+      );
 
       if (targetImage) {
         targetImage.scrollIntoView({ behavior, block: 'start' });

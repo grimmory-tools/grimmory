@@ -16,7 +16,7 @@ import {AfterViewChecked, ChangeDetectionStrategy, Component, computed, effect, 
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {LanguageResolverService} from '../../../../shared/service/language-resolver.service';
 import {CoverComponent} from '../../../../shared/components/cover/cover.component';
-import {injectInfiniteQuery, injectQuery} from '@tanstack/angular-query-experimental';
+import {injectInfiniteQuery, injectQuery} from '@tanstack/angular-query';
 import {AuthorService} from '../../../author-browser/service/author.service';
 import {BookQueryService} from '../../data/book-query.service';
 import {type BookPageParams} from '../../data/book-query-params';
@@ -103,7 +103,8 @@ export class SeriesPageComponent implements AfterViewChecked {
   tab: string = "view";
   readonly isExpanded = signal(false);
   readonly isOverflowing = signal(false);
-  protected isBooksLoading = this.bookService.isBooksLoading;
+  private readonly booksQuery = injectQuery(() => this.bookService.booksQueryOptions());
+  protected readonly isBooksLoading = computed(() => this.booksQuery.isPending());
 
   private readonly seriesParam = toSignal(this.route.paramMap.pipe(
     map((params) => params.get("seriesName") || ""),
@@ -111,7 +112,7 @@ export class SeriesPageComponent implements AfterViewChecked {
 
   readonly filteredBooks = computed(() => {
     const seriesName = this.seriesParam().trim().toLowerCase();
-    const inSeries = this.bookService.books().filter(
+    const inSeries = (this.booksQuery.data() ?? []).filter(
       (book) => book.metadata?.seriesName?.trim().toLowerCase() === seriesName
     );
 
@@ -349,7 +350,6 @@ export class SeriesPageComponent implements AfterViewChecked {
   });
 
   constructor() {
-    this.bookService.loadBooks();
     effect(onCleanup => {
       const scroller = this.tabPanels()?.nativeElement;
       const details = this.seriesDetails()?.nativeElement;

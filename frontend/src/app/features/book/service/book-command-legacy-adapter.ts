@@ -3,7 +3,7 @@ import {
   DefaultError,
   QueryClient,
   WithRequired,
-} from '@tanstack/angular-query-experimental';
+} from '@tanstack/angular-query';
 
 import {
   AttachBookFilesResult,

@@ -6,7 +6,7 @@ import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicd
 import {MessageService} from '@openng/optimus-ui/api';
 import {Select} from '@openng/optimus-ui/select';
 import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
-import {injectMutation, injectQuery} from '@tanstack/angular-query-experimental';
+import {injectMutation, injectQuery} from '@tanstack/angular-query';
 
 import {BookCommandService} from '../../../features/book/data/book-command.service';
 import {BookQueryService} from '../../../features/book/data/book-query.service';

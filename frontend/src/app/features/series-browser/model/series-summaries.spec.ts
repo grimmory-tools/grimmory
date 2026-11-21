@@ -1,10 +1,7 @@
-import {signal} from '@angular/core';
-import {TestBed} from '@angular/core/testing';
-import {afterEach, describe, expect, it} from 'vitest';
+import {describe, expect, it} from 'vitest';
 
-import {BookService} from '../../book/service/book.service';
 import {ReadStatus, type Book} from '../../book/model/book.model';
-import {SeriesDataService} from './series-data.service';
+import {buildSeriesSummaries} from './series.model';
 
 function makeBook(partial: Partial<Book> & Pick<Book, 'id' | 'libraryId' | 'libraryName'>): Book {
   return {
@@ -14,13 +11,9 @@ function makeBook(partial: Partial<Book> & Pick<Book, 'id' | 'libraryId' | 'libr
   } as Book;
 }
 
-describe('SeriesDataService', () => {
-  afterEach(() => {
-    TestBed.resetTestingModule();
-  });
-
+describe('buildSeriesSummaries', () => {
   it('groups books by normalized series name and derives summary fields', () => {
-    const books = signal<Book[]>([
+    const books: Book[] = [
       makeBook({
         id: 1,
         libraryId: 1,
@@ -51,17 +44,9 @@ describe('SeriesDataService', () => {
         lastReadTime: '2026-03-26T10:00:00Z',
         addedOn: '2026-03-26T09:00:00Z',
       }),
-    ]);
+    ];
 
-    TestBed.configureTestingModule({
-      providers: [
-        SeriesDataService,
-        {provide: BookService, useValue: {listViewBooks: books.asReadonly()}},
-      ],
-    });
-
-    const service = TestBed.inject(SeriesDataService);
-    const summaries = service.allSeries();
+    const summaries = buildSeriesSummaries(books);
 
     expect(summaries).toHaveLength(1);
     expect(summaries[0]).toMatchObject({
@@ -81,7 +66,7 @@ describe('SeriesDataService', () => {
   });
 
   it('skips books without a series and honors series status precedence', () => {
-    const books = signal<Book[]>([
+    const books: Book[] = [
       makeBook({id: 10, libraryId: 1, libraryName: 'Lib', metadata: {bookId: 10}}),
       makeBook({
         id: 11,
@@ -132,17 +117,9 @@ describe('SeriesDataService', () => {
         readStatus: ReadStatus.UNREAD,
         metadata: {bookId: 17, seriesName: 'Unread'},
       }),
-    ]);
+    ];
 
-    TestBed.configureTestingModule({
-      providers: [
-        SeriesDataService,
-        {provide: BookService, useValue: {listViewBooks: books.asReadonly()}},
-      ],
-    });
-
-    const service = TestBed.inject(SeriesDataService);
-    const summaries = Object.fromEntries(service.allSeries().map(summary => [summary.seriesName, summary.seriesStatus]));
+    const summaries = Object.fromEntries(buildSeriesSummaries(books).map(summary => [summary.seriesName, summary.seriesStatus]));
 
     expect(summaries).toEqual({
       'Wont Read': ReadStatus.WONT_READ,

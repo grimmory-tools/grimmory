@@ -120,115 +120,33 @@ describe('BookService', () => {
     vi.restoreAllMocks();
   });
 
-  it('loads books only when requested and hydrates query-backed state and loading state', async () => {
+  it('loads full and lightweight books on demand into separate caches', async () => {
     setup();
 
-    expect(service.books()).toEqual([]);
-    expect(service.isBooksLoading()).toBe(false);
     httpTestingController.expectNone(req => req.url.endsWith('/api/v1/books'));
 
-    service.loadBooks();
-    flushSignalAndQueryEffects();
-
-    const response = [
-      buildBook(1, {
-        metadata: {
-          authors: ['Le Guin', 'Le Guin'],
-          categories: ['Fantasy'],
-          moods: ['Calm'],
-          tags: ['Classic', 'Classic'],
-          publisher: 'Ace',
-          seriesName: 'Earthsea',
-        },
-      }),
-      buildBook(2, {
-        metadata: {
-          authors: ['Pratchett'],
-          categories: ['Fantasy', 'Humor'],
-          moods: ['Calm', 'Funny'],
-          tags: ['Classic', 'Satire'],
-          publisher: 'Corgi',
-          seriesName: 'Discworld',
-        },
-      }),
-    ];
-
-    expect(service.isBooksLoading()).toBe(true);
-    expect(service.booksError()).toBeNull();
-
-    const request = httpTestingController.expectOne(req => req.url.endsWith('/api/v1/books'));
-    expect(request.request.method).toBe('GET');
-    request.flush(response);
-    await flushBooksQuery();
-
-    expect(service.books()).toEqual(response);
-    expect(service.isBooksLoading()).toBe(false);
-    expect(service.booksError()).toBeNull();
-  });
-
-  it('waits for both a token and an explicit request before fetching books', async () => {
-    setup(null);
-
-    expect(service.books()).toEqual([]);
-    expect(service.isBooksLoading()).toBe(false);
-    expect(service.booksError()).toBeNull();
-    httpTestingController.expectNone(req => req.url.endsWith('/api/v1/books'));
-
-    service.loadBooks();
-    flushSignalAndQueryEffects();
-    httpTestingController.expectNone(req => req.url.endsWith('/api/v1/books'));
-
-    authService.token.set('token-123');
-    flushSignalAndQueryEffects();
-
-    const request = httpTestingController.expectOne(req => req.url.endsWith('/api/v1/books'));
-    expect(service.isBooksLoading()).toBe(true);
-    request.flush([buildBook(7)]);
-    await flushBooksQuery();
-
-    expect(service.books()).toEqual([buildBook(7)]);
-    expect(service.isBooksLoading()).toBe(false);
-    expect(service.booksError()).toBeNull();
-  });
-
-  it('loads list-view books into a separate lightweight cache', async () => {
-    setup();
-
-    service.loadBooksForListView();
-    flushSignalAndQueryEffects();
-
+    const lightweight = queryClientHarness.queryClient.fetchQuery(service.booksQueryOptions(true));
     const request = httpTestingController.expectOne(req => req.url.endsWith('/api/v1/books'));
     expect(request.request.params.get('stripForListView')).toBe('true');
     expect(queryClientHarness.queryClient.getQueryData(BOOKS_QUERY_KEY)).toBeUndefined();
 
     const response = [buildBook(42, {metadata: {seriesName: 'Series', authors: ['Author']}})];
     request.flush(response);
-    await flushBooksQuery();
+    expect(await lightweight).toEqual(response);
 
-    expect(service.listViewBooks()).toEqual(response);
-    expect(service.isListViewBooksLoading()).toBe(false);
     expect(queryClientHarness.queryClient.getQueryData(BOOKS_LIST_VIEW_QUERY_KEY)).toEqual(response);
-  });
 
-  it('surfaces query errors through booksError and clears the loading flag', async () => {
-    setup();
-
-    service.loadBooks();
-    flushSignalAndQueryEffects();
-    const request = httpTestingController.expectOne(req => req.url.endsWith('/api/v1/books'));
-    request.flush({message: 'boom'}, {status: 500, statusText: 'Server Error'});
-    await flushBooksQuery();
-
-    expect(service.books()).toEqual([]);
-    expect(service.isBooksLoading()).toBe(false);
-    expect(service.booksError()).toBe('Failed to load books');
+    const full = queryClientHarness.queryClient.fetchQuery(service.booksQueryOptions());
+    const fullRequest = httpTestingController.expectOne(req => req.url.endsWith('/api/v1/books'));
+    expect(fullRequest.request.params.get('stripForListView')).toBe('false');
+    fullRequest.flush([buildBook(7)]);
+    expect(await full).toEqual([buildBook(7)]);
+    expect(queryClientHarness.queryClient.getQueryData(BOOKS_LIST_VIEW_QUERY_KEY)).toEqual(response);
   });
 
   it('removes a shelf from the cached books query without disturbing other shelf assignments', async () => {
     setup();
 
-    service.loadBooks();
-    flushSignalAndQueryEffects();
     const targetShelf = buildShelf(10, {name: 'Favorites'});
     const untouchedShelf = buildShelf(11, {name: 'Archive'});
     const initialBooks = [
@@ -236,8 +154,7 @@ describe('BookService', () => {
       buildBook(2, {shelves: [targetShelf]}),
     ];
 
-    httpTestingController.expectOne(req => req.url.endsWith('/api/v1/books')).flush(initialBooks);
-    await flushBooksQuery();
+    queryClientHarness.queryClient.setQueryData(BOOKS_QUERY_KEY, initialBooks);
 
     queryClientHarness.queryClient.setQueryData(bookQueryKeys.detail(1, false), {id: 1});
     service.removeBooksFromShelf(10);
@@ -247,7 +164,6 @@ describe('BookService', () => {
       buildBook(2, {shelves: []}),
     ];
     expect(queryClientHarness.queryClient.getQueryData<Book[]>(BOOKS_QUERY_KEY)).toEqual(reconciledBooks);
-    expect(service.books()).toEqual(reconciledBooks);
     expect(queryClientHarness.queryClient.getQueryState(bookQueryKeys.detail(1, false))?.isInvalidated).toBe(true);
     expect(queryClientHarness.queryClient.getQueryState(BOOKS_QUERY_KEY)?.isInvalidated).toBe(false);
     httpTestingController.expectNone(req => req.url.endsWith('/api/v1/books'));
@@ -256,15 +172,13 @@ describe('BookService', () => {
   it('removes the books query cache when the auth token is cleared', async () => {
     setup();
 
-    service.loadBooks();
-    flushSignalAndQueryEffects();
     const removeQueriesSpy = vi.spyOn(queryClientHarness.queryClient, 'removeQueries');
 
-    httpTestingController.expectOne(req => req.url.endsWith('/api/v1/books')).flush([
+    queryClientHarness.queryClient.setQueryData(BOOKS_QUERY_KEY, [
       buildBook(1),
       buildBook(2),
     ]);
-    await flushBooksQuery();
+    queryClientHarness.queryClient.setQueryData(BOOKS_LIST_VIEW_QUERY_KEY, [buildBook(1)]);
 
     expect(queryClientHarness.queryClient.getQueryData<Book[]>(BOOKS_QUERY_KEY)).toEqual([
       buildBook(1),
@@ -276,7 +190,6 @@ describe('BookService', () => {
 
     expect(removeQueriesSpy).toHaveBeenCalledWith({queryKey: BOOKS_QUERY_KEY});
     expect(queryClientHarness.queryClient.getQueryData(BOOKS_QUERY_KEY)).toBeUndefined();
-    expect(service.isBooksLoading()).toBe(false);
-    expect(service.booksError()).toBeNull();
+    expect(queryClientHarness.queryClient.getQueryData(BOOKS_LIST_VIEW_QUERY_KEY)).toBeUndefined();
   });
 });

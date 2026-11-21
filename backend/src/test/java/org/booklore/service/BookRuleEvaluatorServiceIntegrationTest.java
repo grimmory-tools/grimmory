@@ -265,11 +265,20 @@ class BookRuleEvaluatorServiceIntegrationTest {
         @Test
         void thisPeriod_year_matchesThisYearBook() {
             BookEntity thisYear = createBook("This Year Book");
-            thisYear.setAddedOn(Instant.now().minus(10, ChronoUnit.DAYS));
+            Instant midYear = Instant.now()
+                    .atZone(ZoneId.systemDefault())
+                    .withMonth(6)
+                    .withDayOfMonth(15)
+                    .withHour(17)
+                    .withMinute(0)
+                    .withSecond(0)
+                    .withNano(0)
+                    .toInstant();
+            thisYear.setAddedOn(midYear);
             em.merge(thisYear);
 
             BookEntity lastYear = createBook("Last Year Book");
-            lastYear.setAddedOn(Instant.now().minus(400, ChronoUnit.DAYS));
+            lastYear.setAddedOn(midYear.minus(400, ChronoUnit.DAYS));
             em.merge(lastYear);
             em.flush();
             em.clear();
@@ -682,14 +691,22 @@ class BookRuleEvaluatorServiceIntegrationTest {
         }
 
         @Test
-        @Disabled("This test fails at the end of the month because of a timezone bug")
         void thisPeriod_month_matchesThisMonthBook() {
             BookEntity thisMonth = createBook("This Month Book");
-            thisMonth.setAddedOn(Instant.now().minus(1, ChronoUnit.HOURS));
+            Instant midMonth = Instant.now()
+                    .atZone(ZoneId.systemDefault())
+                    .withDayOfMonth(15)
+                    .withHour(17)
+                    .withMinute(0)
+                    .withSecond(0)
+                    .withNano(0)
+                    .toInstant();
+
+            thisMonth.setAddedOn(midMonth);
             em.merge(thisMonth);
 
             BookEntity notThisMonth = createBook("Not This Month Book");
-            notThisMonth.setAddedOn(Instant.now().minus(60, ChronoUnit.DAYS));
+            notThisMonth.setAddedOn(midMonth.minus(60, ChronoUnit.DAYS));
             em.merge(notThisMonth);
             em.flush();
             em.clear();
@@ -1558,11 +1575,14 @@ class BookRuleEvaluatorServiceIntegrationTest {
         @Test
         void thisPeriod_publishedDate_matchesThisYearBook() {
             BookEntity recentBook = createBook("This Year Published");
-            recentBook.getMetadata().setPublishedDate(LocalDate.now().minusDays(10));
+            LocalDate midYear = LocalDate.now(ZoneId.systemDefault())
+                    .withMonth(6)
+                    .withDayOfMonth(15);
+            recentBook.getMetadata().setPublishedDate(midYear);
             em.merge(recentBook.getMetadata());
 
             BookEntity oldBook = createBook("Two Years Ago Published");
-            oldBook.getMetadata().setPublishedDate(LocalDate.now().minusYears(2));
+            oldBook.getMetadata().setPublishedDate(midYear.minusYears(2));
             em.merge(oldBook.getMetadata());
             em.flush();
             em.clear();

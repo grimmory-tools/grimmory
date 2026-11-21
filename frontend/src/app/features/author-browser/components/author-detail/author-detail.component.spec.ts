@@ -376,6 +376,11 @@ describe('AuthorDetailComponent', () => {
     });
     const fixture = TestBed.createComponent(AuthorDetailComponent);
     fixture.detectChanges();
+    await flushQueryAsync();
+    const request = TestBed.inject(HttpTestingController).expectOne(
+      req => req.url === `${API_CONFIG.BASE_URL}/api/v1/books/page`
+    );
+    request.flush({content: [], page: {number: 0, size: 0, totalElements: 0, totalPages: 0, cursor: ''}, links: []});
 
     const button: HTMLButtonElement = fixture.nativeElement.querySelector('button');
     button.click();

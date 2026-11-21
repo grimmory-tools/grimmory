@@ -7,7 +7,7 @@ import {MetadataEditorComponent} from '../book-metadata-center/metadata-editor/m
 import {MetadataSearcherComponent} from '../book-metadata-center/metadata-searcher/metadata-searcher.component';
 import {Button} from '@openng/optimus-ui/button';
 import {TranslocoPipe} from '@jsverse/transloco';
-import {injectQuery} from '@tanstack/angular-query-experimental';
+import {injectQuery} from '@tanstack/angular-query';
 
 @Component({
   selector: 'app-multi-book-metadata-editor-component',

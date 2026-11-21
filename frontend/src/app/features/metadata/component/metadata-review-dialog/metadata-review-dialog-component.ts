@@ -11,7 +11,7 @@ import {TranslocoPipe} from '@jsverse/transloco';
 import {MetadataProgressService} from '../../../../shared/service/metadata-progress.service';
 import {MetadataPickerComponent} from '../book-metadata-center/metadata-picker/metadata-picker.component';
 import {DecimalPipe} from '@angular/common';
-import {injectQuery} from '@tanstack/angular-query-experimental';
+import {injectQuery} from '@tanstack/angular-query';
 import {retryTransientQueryError} from '../../../../core/data/query-transport';
 
 @Component({

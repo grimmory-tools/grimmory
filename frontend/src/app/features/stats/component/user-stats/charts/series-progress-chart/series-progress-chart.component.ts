@@ -1,5 +1,5 @@
 import {Component, computed, inject, input, linkedSignal, signal} from '@angular/core';
-import {injectQuery, keepPreviousData} from '@tanstack/angular-query-experimental';
+import {injectQuery, keepPreviousData} from '@tanstack/angular-query';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {LucideChevronLeft, LucideChevronRight} from '@lucide/angular';
 import {barX, defineChart, stack, text} from '@tanstack/charts';

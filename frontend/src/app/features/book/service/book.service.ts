@@ -1,4 +1,4 @@
-import {computed, effect, inject, Service, signal} from '@angular/core';
+import {effect, inject, Service} from '@angular/core';
 import {lastValueFrom, Observable, throwError} from 'rxjs';
 import {HttpClient, HttpErrorResponse, HttpParams} from '@angular/common/http';
 import {catchError, tap} from 'rxjs/operators';
@@ -12,7 +12,7 @@ import {BookSocketService} from './book-socket.service';
 import type {BookCoverPatch} from './legacy-book-cache';
 import {BookPatchService} from './book-patch.service';
 import {TranslocoService} from '@jsverse/transloco';
-import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
+import {queryOptions, QueryClient} from '@tanstack/angular-query';
 import {
   BOOKS_QUERY_KEY,
   BOOKS_LIST_VIEW_QUERY_KEY,
@@ -37,57 +37,16 @@ export class BookService {
 
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/books`;
   private readonly token = this.authService.token;
-  private readonly booksRequested = signal(false);
-  private readonly listViewBooksRequested = signal(false);
-
-  private readonly booksQuery = injectQuery(() => ({
-    ...this.getBooksQueryOptions(),
-    enabled: !!this.token() && this.booksRequested(),
-  }));
-  private readonly listViewBooksQuery = injectQuery(() => ({
-    ...this.getBooksQueryOptions(true),
-    enabled: !!this.token() && this.listViewBooksRequested(),
-  }));
-
-  readonly books = computed(() => this.booksQuery.data() ?? []);
-  readonly listViewBooks = computed(() => this.listViewBooksQuery.data() ?? []);
-
-  readonly booksError = computed<string | null>(() => {
-    if (!this.token() || !this.booksRequested() || !this.booksQuery.isError()) {
-      return null;
-    }
-
-    const error = this.booksQuery.error();
-    return error instanceof Error ? error.message : 'Failed to load books';
-  });
-
-  readonly isBooksLoading = computed(() =>
-    !!this.token() && this.booksRequested() && this.booksQuery.isPending(),
-  );
-  readonly isListViewBooksLoading = computed(() =>
-    !!this.token() && this.listViewBooksRequested() && this.listViewBooksQuery.isPending(),
-  );
-
   constructor() {
     effect(() => {
       const token = this.token();
       if (token === null) {
-        this.booksRequested.set(false);
         this.queryClient.removeQueries({queryKey: BOOKS_QUERY_KEY});
-        this.listViewBooksRequested.set(false);
       }
     });
   }
 
-  loadBooks(): void {
-    this.booksRequested.set(true);
-  }
-
-  loadBooksForListView(): void {
-    this.listViewBooksRequested.set(true);
-  }
-
-  private getBooksQueryOptions(stripForListView = false) {
+  booksQueryOptions(stripForListView = false) {
     return queryOptions({
       queryKey: stripForListView ? BOOKS_LIST_VIEW_QUERY_KEY : BOOKS_QUERY_KEY,
       queryFn: () => lastValueFrom(this.http.get<Book[]>(this.url, {params: {stripForListView}})),
@@ -126,7 +85,7 @@ export class BookService {
 
   removeBooksFromShelf(shelfId: number): void {
     this.queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, current =>
-      (current ?? []).map(book => ({
+      current?.map(book => ({
         ...book,
         shelves: book.shelves?.filter(shelf => shelf.id !== shelfId),
       }))

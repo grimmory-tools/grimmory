@@ -65,7 +65,7 @@ import { AppTabsComponent, type TabItem } from '../../shared/ui/tabs/app-tabs.co
 import { AppTagComponent } from '../../shared/ui/tag/app-tag.component';
 import { AppTextareaComponent } from '../../shared/ui/textarea/app-textarea.component';
 import { AppTooltipDirective } from '../../shared/ui/tooltip/app-tooltip.directive';
-import { injectQuery } from '@tanstack/angular-query-experimental';
+import { injectQuery } from '@tanstack/angular-query';
 import { BookQueryService } from '../book/data/book-query.service';
 import { EMPTY_FACET_SELECTION } from '../book/data/book-query-params';
 import { type BookSummary } from '../book/data/book-response.models';

@@ -1,6 +1,6 @@
 import {HttpClient} from '@angular/common/http';
 import {effect, inject, Service} from '@angular/core';
-import {queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
+import {queryOptions, QueryClient} from '@tanstack/angular-query';
 
 import {API_CONFIG} from '../../../core/config/api-config';
 import {httpGet, QUERY_DEFAULTS} from '../../../core/data/query-transport';

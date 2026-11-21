@@ -9,7 +9,7 @@ import {Select} from '@openng/optimus-ui/select';
 import {Textarea} from '@openng/optimus-ui/textarea';
 import {InputNumber} from '@openng/optimus-ui/inputnumber';
 import {AutoComplete} from '@openng/optimus-ui/autocomplete';
-import {QueryClient} from '@tanstack/angular-query-experimental';
+import {QueryClient} from '@tanstack/angular-query';
 import {BookService} from '../../service/book.service';
 import {FacetSuggestionsDirective} from '../facet-suggestions.directive';
 import {LibraryService} from '../../service/library.service';

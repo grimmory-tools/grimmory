@@ -1,5 +1,5 @@
 import {type Signal, type Type} from '@angular/core';
-import {type CreateQueryOptions} from '@tanstack/angular-query-experimental';
+import {type CreateQueryOptions} from '@tanstack/angular-query';
 
 import {type StatsQueryKey, type StatsScopeParams} from '../data/stats-query-keys';
 import {type StatsQueryService} from '../data/stats-query.service';
