@@ -61,8 +61,12 @@
       <app-menu-radio value="table">{{ 'book.viewMode.table' | transloco }}</app-menu-radio>
     </app-menu-radio-group>
   </div>
-  @if (viewMode() !== 'grid') {
-    <app-menu-separator class="sm:hidden" />
+  <app-menu-separator class="sm:hidden" />
+  @if (viewMode() === 'grid') {
+    <app-menu-item value="card-detail" [submenu]="cardDetailMenu">
+      {{ 'book.cardDetail.label' | transloco }}
+    </app-menu-item>
+  } @else {
     <app-menu-item value="columns" [submenu]="columnsMenu">{{ 'browse.toolbar.columns' | transloco }}</app-menu-item>
   }
   @if (actionTarget(); as target) {
@@ -70,6 +74,19 @@
     <app-menu-section>{{ target.entity.name }}</app-menu-section>
     <app-library-shelf-menu-items [target]="target" />
   }
+</app-menu>
+
+<app-menu
+  #cardDetailMenu="ngMenu"
+  menuClass="w-60"
+  [ariaLabel]="'book.cardDetail.label' | transloco">
+  <app-menu-radio-group
+    [value]="cardDetail()"
+    (valueSelected)="cardDetail.set($event)">
+    @for (option of cardDetailOptions(); track option.id) {
+      <app-menu-radio [value]="option.id">{{ option.labelKey | transloco }}</app-menu-radio>
+    }
+  </app-menu-radio-group>
 </app-menu>
 
 <app-menu

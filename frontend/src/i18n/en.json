@@ -498,9 +498,9 @@
     },
     "librarySort": {
       "sectionTitle": "Library and Shelf View & Sort Preferences",
-      "sectionDesc": "Configure default and per-library/shelf preferences for sorting and view mode (grid or table) in the browser.",
+      "sectionDesc": "Configure default and per-library/shelf preferences for sorting, card detail, and view mode (grid or table) in the browser.",
       "defaultPreferences": "Default Preferences",
-      "defaultPreferencesDesc": "Configure the default view mode and multi-field sorting for all libraries and shelves.",
+      "defaultPreferencesDesc": "Configure the default view mode, card detail, and multi-field sorting for all libraries and shelves.",
       "sortOrderLabel": "Sort Order (drag to reorder)",
       "formatOverlay": "File Format Overlay",
       "ascending": "Ascending",
@@ -2789,6 +2789,10 @@
     "viewMode": {
       "grid": "Grid",
       "table": "Table"
+    },
+    "cardDetail": {
+      "label": "Card Detail",
+      "none": "None"
     },
     "notes": {
       "confirm": {

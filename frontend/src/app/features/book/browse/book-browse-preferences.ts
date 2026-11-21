@@ -8,6 +8,7 @@ import {
   UserService,
 } from '../../settings/user-management/user.service';
 import {
+  entityViewCardDetail,
   entityViewMode,
   entityViewSortCriteria,
   entityViewSortPatch,
@@ -28,8 +29,8 @@ import {
   normalizeBookColumnPreferences,
   type BookBrowseColumnVisibilityChange,
 } from './book-browse-columns';
-import {injectHiddenProviderFieldKeys} from './book-browse-fields';
-import {bookSortTermsFromCriteria} from './book-browse-sort';
+import {injectHiddenProviderFieldKeys, type BookDetailLineSortKey} from './book-browse-fields';
+import {bookCardDetailOptions, bookSortTermsFromCriteria} from './book-browse-sort';
 import {type BrowseUrlState, type BrowseViewMode} from '../../../shared/browse/url-state';
 
 export interface BookBrowsePreferencesOptions {
@@ -47,6 +48,11 @@ export function createBookBrowsePreferences({context, urlState}: BookBrowsePrefe
     urlState.view() ?? (entityViewMode(entityViewPreferences(), context()) === 'TABLE' ? 'table' : 'grid'));
   const formatPill = computed(() => entityViewPreferences()?.global.overlayBookType ?? true);
   const hiddenProviderFields = injectHiddenProviderFieldKeys();
+  const cardDetailOptions = computed(() => bookCardDetailOptions(hiddenProviderFields()));
+  const cardDetail = linkedSignal(() => {
+    const key = entityViewCardDetail(entityViewPreferences(), context());
+    return key !== null && hiddenProviderFields().has(key) ? null : key;
+  });
 
   function defaultSortTerms(available: ReadonlySet<BookQuerySortKey>): readonly BookSortTerm[] {
     const preferences = entityViewPreferences();
@@ -107,6 +113,8 @@ export function createBookBrowsePreferences({context, urlState}: BookBrowsePrefe
   return {
     viewMode,
     formatPill,
+    cardDetail,
+    cardDetailOptions,
     defaultSortTerms,
     columnOptions,
     visibleColumns,
@@ -127,6 +135,11 @@ export function createBookBrowsePreferences({context, urlState}: BookBrowsePrefe
     resetColumns(): void {
       columnPreferences.set(normalizeBookColumnPreferences(undefined));
       persistColumnPreferences();
+    },
+
+    setCardDetail(value: BookDetailLineSortKey | null): void {
+      cardDetail.set(value);
+      updateViewPreference({cardDetail: value});
     },
 
     saveSortDefault(terms: readonly BookSortTerm[]): void {
