@@ -1,14 +1,18 @@
 import {
-  type BookCollectionFilterParams,
-  normalizeBookCollectionFilterParams,
+  type BrowseCollectionFilterParams,
+  normalizeBrowseCollectionFilterParams,
+} from '../../../core/data/browse-query-params';
+import {
+  type BookQueryFacetKey,
+  isBookQueryFacetKey,
 } from '../../book/data/book-query-params';
 
-export interface StatsScopeParams extends BookCollectionFilterParams {
+export interface StatsScopeParams extends BrowseCollectionFilterParams<BookQueryFacetKey> {
   readonly tz: string;
 }
 
 export function normalizeStatsScope(params: StatsScopeParams): StatsScopeParams {
-  return {...normalizeBookCollectionFilterParams(params), tz: params.tz};
+  return {...normalizeBrowseCollectionFilterParams(params, isBookQueryFacetKey), tz: params.tz};
 }
 
 export const statsQueryKeys = {

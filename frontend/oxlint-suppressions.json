@@ -165,41 +165,6 @@
       "count": 1
     }
   },
-  "src/app/features/book/browse/book-browse-columns.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-facet-definitions.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-fields.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-filter-page.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-multi-sort-dialog.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-preferences.ts": {
-    "typescript/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/browse/book-browse-sort.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
   "src/app/features/book/components/add-physical-book-dialog/add-physical-book-dialog.component.ts": {
     "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 3
@@ -288,11 +253,6 @@
       "count": 1
     }
   },
-  "src/app/features/book/components/cards/book-card.component.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 1
-    }
-  },
   "src/app/features/book/components/duplicate-merger/duplicate-merger.component.ts": {
     "typescript/no-unsafe-assignment": {
       "count": 1
@@ -369,11 +329,6 @@
       "count": 1
     },
     "typescript/no-unnecessary-type-parameters": {
-      "count": 1
-    }
-  },
-  "src/app/features/book/data/book-query.service.ts": {
-    "anti-slop/require-safety-comment-for-type-assertion": {
       "count": 1
     }
   },
@@ -1438,11 +1393,6 @@
     },
     "typescript/no-unnecessary-condition": {
       "count": 11
-    }
-  },
-  "src/app/shared/browse/results.ts": {
-    "anti-slop/no-unknown-returns": {
-      "count": 2
     }
   },
   "src/app/shared/components/book-uploader/book-uploader.component.ts": {

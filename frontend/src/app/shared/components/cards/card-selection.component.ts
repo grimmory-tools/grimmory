@@ -1,7 +1,7 @@
 import {booleanAttribute, ChangeDetectionStrategy, Component, computed, input, output} from '@angular/core';
 import {LucideCheck} from '@lucide/angular';
 
-import {cn} from '../../../../shared/ui/cn';
+import {cn} from '../../ui/cn';
 
 const cardCheckboxBaseClass =
   'group/check flex size-6 items-center justify-center rounded-md bg-black/80 text-white ring-1 ring-inset ring-white/30 transition-opacity motion-reduce:transition-none ' +

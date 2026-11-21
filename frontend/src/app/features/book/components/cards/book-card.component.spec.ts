@@ -85,19 +85,24 @@ describe('BookCardComponent', () => {
     expect(navigate).toHaveBeenCalledWith(['/book', 1]);
   });
 
-  it('swallows the click generated after a long press', () => {
+  it('opens the menu on a long press and swallows the click that follows', () => {
+    vi.useFakeTimers();
     fixture.componentRef.setInput('book', makeBook());
+    fixture.detectChanges();
     const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
-    const component = fixture.componentInstance as unknown as {
-      longPressFired: boolean;
-      openDetails(event: MouseEvent): void;
-    };
-    component.longPressFired = true;
-    const event = new MouseEvent('click', {button: 0, cancelable: true});
+    const requested = vi.fn();
+    fixture.componentInstance.menuRequested.subscribe(requested);
+    const press = new MouseEvent('pointerdown', {bubbles: true});
+    Object.defineProperty(press, 'pointerType', {value: 'touch'});
 
-    component.openDetails(event);
+    host.querySelector('[data-testid="slot"]')!.dispatchEvent(press);
+    vi.advanceTimersByTime(500);
+    const click = new MouseEvent('click', {bubbles: true, cancelable: true, button: 0});
+    host.querySelector('a')!.dispatchEvent(click);
+    vi.useRealTimers();
 
-    expect(event.defaultPrevented).toBe(true);
+    expect(requested).toHaveBeenCalledTimes(1);
+    expect(click.defaultPrevented).toBe(true);
     expect(navigate).not.toHaveBeenCalled();
   });
 });

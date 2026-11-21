@@ -6,7 +6,7 @@ import {injectQuery} from '@tanstack/angular-query-experimental';
 import {type BookMenuComponent} from '../../../book/components/book-menu/book-menu.component';
 import {BookRowComponent} from '../../../book/components/book-row/book-row.component';
 import {injectHiddenProviderFieldKeys} from '../../../book/browse/book-browse-fields';
-import {createBookBrowseScopeTitle} from '../../../book/browse/book-browse-queries';
+import {createBookBrowseScopeTitle} from '../../../book/browse/book-browse-labels';
 import {DEFAULT_BOOK_SORT_TERMS, EMPTY_FACET_SELECTION} from '../../../book/data/book-query-params';
 import {BookQueryService} from '../../../book/data/book-query.service';
 import {type BookSummary} from '../../../book/data/book-response.models';
