@@ -178,6 +178,7 @@ describe('ShelfEditDialogComponent', () => {
       icon: 'heart',
       iconType: 'LUCIDE',
       publicShelf: true,
+      koboSync: false,
     }, 7);
     expect(messageService.add).toHaveBeenCalledWith(expect.objectContaining({
       severity: 'success',
@@ -203,6 +204,7 @@ describe('ShelfEditDialogComponent', () => {
       icon: null,
       iconType: null,
       publicShelf: false,
+      koboSync: false,
     }, 7);
     expect(messageService.add).toHaveBeenCalledWith(expect.objectContaining({
       severity: 'error',
@@ -219,5 +221,20 @@ describe('ShelfEditDialogComponent', () => {
     component.closeDialog();
 
     expect(dialogRef.close).toHaveBeenCalledOnce();
+  });
+
+  it('hydrates and saves the Kobo sync flag', () => {
+    const {component, updateShelf} = createHarness({
+      shelvesData: [createShelf({koboSync: true})],
+      currentUser: {permissions: {admin: false, canSyncKobo: true}} as never,
+    });
+
+    expect(component.koboSync).toBe(true);
+    expect(component.canSyncKobo).toBe(true);
+
+    component.koboSync = false;
+    component.save();
+
+    expect(updateShelf).toHaveBeenCalledWith(expect.objectContaining({koboSync: false}), 7);
   });
 });

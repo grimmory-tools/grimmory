@@ -1,6 +1,7 @@
 package org.booklore.service;
 
 import org.booklore.config.security.service.AuthenticationService;
+import org.booklore.exception.ApiError;
 import org.booklore.model.dto.MagicShelf;
 import org.booklore.model.entity.MagicShelfEntity;
 import org.booklore.repository.MagicShelfRepository;
@@ -63,6 +64,10 @@ public class MagicShelfService {
             existing.setIconType(dto.getIconType());
             existing.setFilterJson(dto.getFilterJson());
             existing.setPublic(dto.getIsPublic());
+            if (dto.getKoboSync() != null) {
+                requireKoboSyncPermission(dto.getKoboSync() && !existing.isKoboSync());
+                existing.setKoboSync(dto.getKoboSync());
+            }
             MagicShelf result = toDto(magicShelfRepository.save(existing));
             auditService.log(AuditAction.MAGIC_SHELF_UPDATED, "MagicShelf", dto.getId(), "Updated magic shelf: " + dto.getName());
             return result;
@@ -70,9 +75,20 @@ public class MagicShelfService {
         if (magicShelfRepository.existsByUserIdAndName(userId, dto.getName())) {
             throw new IllegalArgumentException("A shelf with the same name already exists for this user.");
         }
+        requireKoboSyncPermission(Boolean.TRUE.equals(dto.getKoboSync()));
         MagicShelf result = toDto(magicShelfRepository.save(toEntity(dto, userId)));
         auditService.log(AuditAction.MAGIC_SHELF_CREATED, "MagicShelf", result.getId(), "Created magic shelf: " + dto.getName());
         return result;
+    }
+
+    private void requireKoboSyncPermission(boolean enablingKoboSync) {
+        if (!enablingKoboSync) {
+            return;
+        }
+        var permissions = authenticationService.getAuthenticatedUser().getPermissions();
+        if (!permissions.isAdmin() && !permissions.isCanSyncKobo()) {
+            throw ApiError.FORBIDDEN.createException("Kobo sync permission is required to sync a shelf to Kobo");
+        }
     }
 
     @Transactional
@@ -95,6 +111,7 @@ public class MagicShelfService {
         dto.setIconType(entity.getIconType());
         dto.setFilterJson(entity.getFilterJson());
         dto.setIsPublic(entity.isPublic());
+        dto.setKoboSync(entity.isKoboSync());
         return dto;
     }
 
@@ -106,6 +123,7 @@ public class MagicShelfService {
         entity.setIconType(dto.getIconType());
         entity.setFilterJson(dto.getFilterJson());
         entity.setPublic(dto.getIsPublic());
+        entity.setKoboSync(Boolean.TRUE.equals(dto.getKoboSync()));
         entity.setUserId(userId);
         return entity;
     }

@@ -40,6 +40,10 @@ public class MagicShelfEntity {
     @lombok.Builder.Default
     private boolean isPublic = false;
 
+    @Column(name = "kobo_sync", nullable = false)
+    @lombok.Builder.Default
+    private boolean koboSync = false;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     @lombok.Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();

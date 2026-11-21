@@ -48,6 +48,16 @@
         </div>
       </div>
 
+      @if (canSyncKobo && shelf?.systemKey !== 'kobo') {
+        <div class="shelf-row">
+          <span class="label">{{ t('koboLabel') }}</span>
+          <div class="visibility-section" style="display: flex; align-items: center; gap: 0.4375rem;">
+            <p-checkbox [(ngModel)]="koboSync" [binary]="true" inputId="koboSyncShelf" />
+            <label for="koboSyncShelf" style="cursor: pointer; user-select: none;">{{ t('syncToKoboLabel') }}</label>
+          </div>
+        </div>
+      }
+
       @if (isAdmin) {
         <div class="shelf-row">
         <span class="label">{{ t('visibilityLabel') }}</span>

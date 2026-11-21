@@ -20,5 +20,6 @@ public class Shelf {
     private Sort sort;
     private Long userId;
     private boolean publicShelf;
+    private boolean koboSync;
     private int bookCount;
 }

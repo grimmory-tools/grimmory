@@ -10,6 +10,7 @@ export interface Shelf {
   iconType?: IconType | null;
   sort?: SortOption;
   publicShelf?: boolean;
+  koboSync?: boolean;
   userId?: number;
   bookCount?: number;
   systemKey?: ShelfSystemKey | null;

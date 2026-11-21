@@ -126,6 +126,7 @@ describe('ShelfCreatorComponent', () => {
       icon: 'bookmark',
       iconType: 'LUCIDE',
       publicShelf: true,
+      koboSync: false,
     });
     expect(translate).toHaveBeenCalledWith('common.success');
     expect(translate).toHaveBeenCalledWith('book.shelfCreator.toast.createSuccessDetail', {
@@ -153,6 +154,7 @@ describe('ShelfCreatorComponent', () => {
       icon: null,
       iconType: null,
       publicShelf: false,
+      koboSync: false,
     });
   });
 
@@ -176,6 +178,7 @@ describe('ShelfCreatorComponent', () => {
       icon: 'custom-icons/moon.svg',
       iconType: 'CUSTOM_SVG',
       publicShelf: true,
+      koboSync: false,
     });
     expect(translate).toHaveBeenCalledWith('common.error');
     expect(translate).toHaveBeenCalledWith('book.shelfCreator.toast.createFailedDetail');
