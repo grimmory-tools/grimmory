@@ -194,26 +194,7 @@ export class MetadataPickerComponent {
     }
 
     this.metadataForm.patchValue(patchData);
-    this.applyLockStates(metadata);
     this.comicSectionExpanded = this.hasAnyFetchedComicData() || this.hasAnyCurrentComicData();
-  }
-
-  private applyLockStates(metadata: BookMetadata): void {
-    const lockedFields: Record<string, boolean> = {};
-    for (const field of ALL_METADATA_FIELDS) {
-      lockedFields[field.lockedKey] = !!metadata[field.lockedKey as keyof BookMetadata];
-    }
-    // Also handle audiobook metadata lock states (now at top-level of BookMetadata)
-    for (const field of AUDIOBOOK_METADATA_FIELDS) {
-      lockedFields[field.lockedKey] = !!metadata[field.lockedKey as keyof BookMetadata];
-    }
-    // Handle comic book metadata lock states (nested under comicMetadata)
-    const comicMeta = metadata.comicMetadata;
-    for (const field of ALL_COMIC_METADATA_FIELDS) {
-      const modelLockKey = COMIC_FORM_TO_MODEL_LOCK[field.lockedKey];
-      lockedFields[field.lockedKey] = !!comicMeta?.[modelLockKey as keyof ComicMetadata];
-    }
-    this.formBuilder.applyLockStates(this.metadataForm, lockedFields, ALL_METADATA_FIELDS);
   }
 
   onAutoCompleteSelect(fieldName: string, event: AutoCompleteSelectEvent) {
@@ -532,7 +513,6 @@ export class MetadataPickerComponent {
   }
 
   toggleLock(field: string): void {
-    const controlName = field;
     let lockField = field;
     if (field === 'thumbnailUrl') {
       lockField = 'cover';
@@ -542,11 +522,6 @@ export class MetadataPickerComponent {
     const isLocked = this.metadataForm.get(lockField + 'Locked')?.value;
     const updatedLockedState = !isLocked;
     this.metadataForm.get(lockField + 'Locked')?.setValue(updatedLockedState);
-    if (updatedLockedState) {
-      this.metadataForm.get(controlName)?.disable();
-    } else {
-      this.metadataForm.get(controlName)?.enable();
-    }
     this.updateMetadata(undefined);
   }
 
@@ -596,15 +571,6 @@ export class MetadataPickerComponent {
     // Handle comic fields (nested under comicMetadata)
     const comicConfig = this.getComicFieldConfig(field);
     if (comicConfig) {
-      const isLocked = this.metadataForm.get(comicConfig.lockedKey)?.value;
-      if (isLocked) {
-        this.messageService.add({
-          severity: 'warn',
-          summary: this.t.translate('metadata.picker.toast.actionBlockedSummary'),
-          detail: this.t.translate('metadata.picker.toast.fieldLockedDetail', {field: comicConfig.label})
-        });
-        return;
-      }
       const value = this.fetchedMetadata?.comicMetadata?.[comicConfig.fetchedKey as keyof ComicMetadata];
       if (value !== null && value !== undefined && value !== '') {
         this.metadataForm.get(field)?.setValue(value);
@@ -614,21 +580,6 @@ export class MetadataPickerComponent {
       return;
     }
 
-    let lockField = field;
-    if (field === 'thumbnailUrl') {
-      lockField = 'cover';
-    } else if (field === 'audiobookThumbnailUrl') {
-      lockField = 'audiobookCover';
-    }
-    const isLocked = this.metadataForm.get(`${lockField}Locked`)?.value;
-    if (isLocked) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: this.t.translate('metadata.picker.toast.actionBlockedSummary'),
-        detail: this.t.translate('metadata.picker.toast.fieldLockedDetail', {field: lockField})
-      });
-      return;
-    }
     // For audiobook cover from Audible, use the thumbnailUrl from fetched metadata
     if (field === 'audiobookThumbnailUrl') {
       this.metadataForm.get('audiobookThumbnailUrl')?.setValue(this.fetchedMetadata.thumbnailUrl);
