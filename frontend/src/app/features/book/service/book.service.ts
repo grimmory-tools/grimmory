@@ -12,7 +12,7 @@ import {BookSocketService} from './book-socket.service';
 import type {BookCoverPatch} from './legacy-book-cache';
 import {BookPatchService} from './book-patch.service';
 import {TranslocoService} from '@jsverse/transloco';
-import {queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
+import {queryOptions, QueryClient} from '@tanstack/angular-query';
 import {
   BOOKS_QUERY_KEY,
   bookDetailQueryKey,

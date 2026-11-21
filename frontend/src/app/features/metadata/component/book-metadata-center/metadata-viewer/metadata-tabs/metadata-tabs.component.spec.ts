@@ -1,6 +1,6 @@
 import {CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {provideTanStackQuery, QueryClient} from '@tanstack/angular-query-experimental';
+import {provideTanStackQuery, QueryClient} from '@tanstack/angular-query';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {AudiobookService} from '../../../../../readers/audiobook-player/audiobook.service';
@@ -48,7 +48,7 @@ describe('MetadataTabsComponent default tab selection', () => {
           },
         },
         {provide: AppSettingsService, useValue: {appSettings: () => null}},
-        provideTanStackQuery(new QueryClient()),
+        provideTanStackQuery(() => new QueryClient()),
       ],
     });
 

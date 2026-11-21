@@ -1,4 +1,4 @@
-import {hashKey} from '@tanstack/angular-query-experimental';
+import {hashKey} from '@tanstack/angular-query';
 
 import {
   BrowseCollectionFilterParams,

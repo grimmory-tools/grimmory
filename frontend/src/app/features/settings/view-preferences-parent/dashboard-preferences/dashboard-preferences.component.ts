@@ -5,7 +5,7 @@ import {MessageService} from '@openng/optimus-ui/api';
 import {Button} from '@openng/optimus-ui/button';
 import {Checkbox} from '@openng/optimus-ui/checkbox';
 import {Select} from '@openng/optimus-ui/select';
-import {injectQuery} from '@tanstack/angular-query-experimental';
+import {injectQuery} from '@tanstack/angular-query';
 import {injectHiddenProviderFieldKeys} from '../../../book/browse/book-browse-fields';
 import {bookSortOptions} from '../../../book/browse/book-browse-sort';
 import {EMPTY_FACET_SELECTION} from '../../../book/data/book-query-params';

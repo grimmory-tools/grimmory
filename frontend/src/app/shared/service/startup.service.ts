@@ -1,7 +1,7 @@
 import {Service, inject} from '@angular/core';
 import {AuthService} from './auth.service';
 import {User, UserService} from '../../features/settings/user-management/user.service';
-import {QueryClient} from '@tanstack/angular-query-experimental';
+import {QueryClient} from '@tanstack/angular-query';
 import {AppThemeService} from './app-theme.service';
 import {DEFAULT_CUSTOM_PRIMARY} from '../model/app-state.model';
 import {AppLocaleService} from './app-locale.service';

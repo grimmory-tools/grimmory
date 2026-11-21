@@ -16,7 +16,7 @@ import {AfterViewChecked, ChangeDetectionStrategy, Component, computed, effect, 
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {LanguageResolverService} from '../../../../shared/service/language-resolver.service';
 import {CoverComponent} from '../../../../shared/components/cover/cover.component';
-import {injectInfiniteQuery, injectQuery} from '@tanstack/angular-query-experimental';
+import {injectInfiniteQuery, injectQuery} from '@tanstack/angular-query';
 import {AuthorService} from '../../../author-browser/service/author.service';
 import {BookQueryService} from '../../data/book-query.service';
 import {type BookPageParams} from '../../data/book-query-params';

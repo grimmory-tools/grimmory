@@ -14,7 +14,7 @@ import {
 import {toSignal} from '@angular/core/rxjs-interop';
 import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {LucideChevronDown, LucideChevronLeft, LucideChevronRight, LucideChevronUp, LucideGripVertical, LucideX} from '@lucide/angular';
-import {injectQuery, keepPreviousData} from '@tanstack/angular-query-experimental';
+import {injectQuery, keepPreviousData} from '@tanstack/angular-query';
 import {addDays, addWeeks, getISOWeek, getISOWeekYear} from 'date-fns';
 
 import {createBrowseSkeletonDelay} from '../../../shared/browse/skeleton-delay';

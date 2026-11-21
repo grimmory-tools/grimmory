@@ -6,7 +6,7 @@ import {InputText} from '@openng/optimus-ui/inputtext';
 import {MultiSelect} from '@openng/optimus-ui/multiselect';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
-import {injectQuery, QueryClient} from '@tanstack/angular-query-experimental';
+import {injectQuery, QueryClient} from '@tanstack/angular-query';
 
 import {Book} from '../../../../book/model/book.model';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';

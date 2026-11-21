@@ -1,5 +1,5 @@
 import {Service} from '@angular/core';
-import {queryOptions} from '@tanstack/angular-query-experimental';
+import {queryOptions} from '@tanstack/angular-query';
 
 import {API_CONFIG} from '../../../core/config/api-config';
 import {BrowseQueryService} from '../../../core/data/browse-query.service';

@@ -2,7 +2,7 @@ import {ApplicationRef, provideZonelessChangeDetection, signal, type Environment
 import {provideHttpClient} from '@angular/common/http';
 import {provideHttpClientTesting} from '@angular/common/http/testing';
 import {TestBed} from '@angular/core/testing';
-import {provideTanStackQuery, QueryClient, QueryObserver} from '@tanstack/angular-query-experimental';
+import {provideTanStackQuery, QueryClient, QueryObserver} from '@tanstack/angular-query';
 import {of, type Observable} from 'rxjs';
 
 interface AuthServiceStub {
@@ -34,7 +34,7 @@ export function createQueryClientHarness(): QueryClientHarness {
       provideZonelessChangeDetection(),
       provideHttpClient(),
       provideHttpClientTesting(),
-      provideTanStackQuery(queryClient),
+      provideTanStackQuery(() => queryClient),
     ],
   };
 }

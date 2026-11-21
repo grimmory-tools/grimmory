@@ -1,5 +1,5 @@
 import {computed, inject, linkedSignal, signal, type Signal} from '@angular/core';
-import {injectInfiniteQuery, QueryClient} from '@tanstack/angular-query-experimental';
+import {injectInfiniteQuery, QueryClient} from '@tanstack/angular-query';
 
 import {type BrowseSortTerm} from '../../core/data/browse.models';
 import {browseCollectionKeys} from '../../core/data/browse-query-keys';

@@ -2,7 +2,7 @@ import {HttpErrorResponse} from '@angular/common/http';
 import {HttpTestingController} from '@angular/common/http/testing';
 import {Injectable, inject} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
-import {injectInfiniteQuery, QueryClient} from '@tanstack/angular-query-experimental';
+import {injectInfiniteQuery, QueryClient} from '@tanstack/angular-query';
 import {afterEach, beforeEach, describe, expect, expectTypeOf, it, vi} from 'vitest';
 
 import {API_CONFIG} from '../../../core/config/api-config';

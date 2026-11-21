@@ -7,7 +7,7 @@ import {API_CONFIG} from '../../../core/config/api-config';
 import {AuthorSummary, AuthorDetails, AuthorSearchResult, AuthorMatchRequest, AuthorUpdateRequest, AuthorPhotoResult} from '../model/author.model';
 import {Book} from '../../book/model/book.model';
 import {AuthService} from '../../../shared/service/auth.service';
-import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
+import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query';
 import {AUTHORS_QUERY_KEY} from './author-query-keys';
 import {invalidateAuthorsQuery, patchAuthorInCache} from './author-query-cache';
 import {invalidateAllBookCaches} from '../../book/service/legacy-book-cache';

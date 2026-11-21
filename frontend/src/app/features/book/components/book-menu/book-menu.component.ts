@@ -20,7 +20,7 @@ import {
   LucideSquareArrowUpRightExit,
   type LucideIconData,
 } from '@lucide/angular';
-import {injectMutation, injectQuery} from '@tanstack/angular-query-experimental';
+import {injectMutation, injectQuery} from '@tanstack/angular-query';
 import {API_CONFIG} from '../../../../core/config/api-config';
 
 import {AppMenuComponent, type ContextMenuRequest} from '../../../../shared/ui/menu/app-menu.component';

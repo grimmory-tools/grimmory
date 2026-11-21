@@ -1,7 +1,7 @@
 import {Component, computed, inject, signal} from '@angular/core';
 import {MessageService} from '@openng/optimus-ui/api';
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {injectQuery, QueryClient} from '@tanstack/angular-query-experimental';
+import {injectQuery, QueryClient} from '@tanstack/angular-query';
 import {Button} from '@openng/optimus-ui/button';
 import {InputText} from '@openng/optimus-ui/inputtext';
 import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
