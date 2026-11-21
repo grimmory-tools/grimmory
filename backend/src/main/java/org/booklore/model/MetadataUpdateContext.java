@@ -19,4 +19,5 @@ public class MetadataUpdateContext {
     private boolean mergeMoods;
     private boolean mergeTags;
     private MetadataReplaceMode replaceMode;
+    private boolean userEdit;
 }

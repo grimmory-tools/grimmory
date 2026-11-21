@@ -119,10 +119,6 @@ public class BookCoverService {
     public void updateCoverFromFile(Long bookId, MultipartFile file) {
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
-        if (isCoverLocked(bookEntity)) {
-            throw ApiError.METADATA_LOCKED.createException();
-        }
-
         fileService.createThumbnailFromFile(bookId, file);
         updateCoverFromPath(bookEntity, Path.of(fileService.getCoverFile(bookId)));
     }
@@ -133,10 +129,6 @@ public class BookCoverService {
     @Transactional
     public void updateCoverFromUrl(Long bookId, String url) {
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
-
-        if (isCoverLocked(bookEntity)) {
-            throw ApiError.METADATA_LOCKED.createException();
-        }
 
         fileService.createThumbnailFromUrl(bookId, url);
         updateCoverFromPath(bookEntity, Path.of(fileService.getCoverFile(bookId)));
@@ -164,10 +156,6 @@ public class BookCoverService {
     public void updateAudiobookCoverFromFile(Long bookId, MultipartFile file) {
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
-        if (isAudiobookCoverLocked(bookEntity)) {
-            throw ApiError.METADATA_LOCKED.createException();
-        }
-
         fileService.createAudiobookThumbnailFromFile(bookId, file);
         updateAudiobookCoverFromPath(bookEntity, Path.of(fileService.getAudiobookCoverFile(bookId)));
     }
@@ -178,10 +166,6 @@ public class BookCoverService {
     @Transactional
     public void updateAudiobookCoverFromUrl(Long bookId, String url) {
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
-
-        if (isAudiobookCoverLocked(bookEntity)) {
-            throw ApiError.METADATA_LOCKED.createException();
-        }
 
         fileService.createAudiobookThumbnailFromUrl(bookId, url);
         updateAudiobookCoverFromPath(bookEntity, Path.of(fileService.getAudiobookCoverFile(bookId)));
@@ -234,9 +218,9 @@ public class BookCoverService {
     public void updateCoverFromFileForBooks(Set<Long> bookIds, MultipartFile file) {
         validateCoverFile(file);
         byte[] coverImageBytes = extractBytesFromMultipartFile(file);
-        List<BookCoverInfo> unlockedBooks = getBooksWithAnyUnlockedCoverSlot(bookIds);
+        List<BookCoverInfo> books = getBooksWithMetadata(bookIds);
         String username = getCurrentUsername();
-        taskExecutor.execute(() -> processBulkCoverOperation(unlockedBooks, username,
+        taskExecutor.execute(() -> processBulkCoverOperation(books, username,
                 new BulkCoverMessages("Started updating covers for %d selected book(s)", "Updating cover for",
                         "Finished updating covers for selected books"),
                 book -> applyUploadedCoverSlots(book, coverImageBytes)));
@@ -381,7 +365,7 @@ public class BookCoverService {
 
     private boolean applyUploadedCoverSlots(BookEntity book, byte[] coverBytes) {
         boolean updated = false;
-        if (hasUnlockedEbookSlot(book)) {
+        if (hasEbookSlot(book)) {
             try {
                 fileService.createThumbnailFromBytes(book.getId(), coverBytes);
                 writeCoverToBookFile(book, coverBytes);
@@ -391,7 +375,7 @@ public class BookCoverService {
                 log.error("Failed to update ebook cover slot for book ID {}: {}", book.getId(), e.getMessage(), e);
             }
         }
-        if (hasUnlockedAudiobookSlot(book)) {
+        if (hasAudiobookFile(book)) {
             try {
                 fileService.createAudiobookThumbnailFromBytes(book.getId(), coverBytes);
                 writeAudiobookCoverToFile(book, coverBytes);
@@ -499,6 +483,13 @@ public class BookCoverService {
         }
     }
 
+    private List<BookCoverInfo> getBooksWithMetadata(Set<Long> bookIds) {
+        return bookQueryService.findAllWithMetadataByIds(bookIds).stream()
+                .filter(book -> book.getMetadata() != null)
+                .map(book -> new BookCoverInfo(book.getId(), book.getMetadata().getTitle()))
+                .toList();
+    }
+
     private List<BookCoverInfo> getBooksWithAnyUnlockedCoverSlot(Set<Long> bookIds) {
         return bookQueryService.findAllWithMetadataByIds(bookIds).stream()
                 .filter(book -> book.getMetadata() != null)
@@ -557,8 +548,12 @@ public class BookCoverService {
                 .orElse(null);
     }
 
+    private boolean hasEbookSlot(BookEntity book) {
+        return !hasAudiobookFile(book) || hasEbookFile(book);
+    }
+
     private boolean hasUnlockedEbookSlot(BookEntity book) {
-        return (!hasAudiobookFile(book) || hasEbookFile(book)) && !isCoverLocked(book);
+        return hasEbookSlot(book) && !isCoverLocked(book);
     }
 
     private boolean hasUnlockedAudiobookSlot(BookEntity book) {

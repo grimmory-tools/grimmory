@@ -54,7 +54,7 @@ class BookReviewUpdateServiceTest {
                     .bookReviews(List.of(review(MetadataProvider.Amazon, "r1", Instant.now())))
                     .build();
 
-            service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true);
+            service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true, false);
 
             assertThat(entity.getReviews()).isEmpty();
         }
@@ -69,7 +69,7 @@ class BookReviewUpdateServiceTest {
                     .bookReviews(List.of(review(MetadataProvider.Amazon, "r1", Instant.now())))
                     .build();
 
-            service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true);
+            service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true, false);
 
             assertThat(entity.getReviews()).hasSize(1);
         }
@@ -89,7 +89,7 @@ class BookReviewUpdateServiceTest {
             MetadataClearFlags flags = new MetadataClearFlags();
             flags.setReviews(true);
 
-            service.updateBookReviews(BookMetadata.builder().build(), entity, flags, true);
+            service.updateBookReviews(BookMetadata.builder().build(), entity, flags, true, false);
 
             assertThat(entity.getReviews()).isEmpty();
         }
@@ -103,7 +103,7 @@ class BookReviewUpdateServiceTest {
             BookMetadataEntity entity = entityWithReviews(new HashSet<>());
             BookMetadata metadata = BookMetadata.builder().bookReviews(null).build();
 
-            service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true);
+            service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true, false);
 
             assertThat(entity.getReviews()).isEmpty();
         }
@@ -116,7 +116,7 @@ class BookReviewUpdateServiceTest {
             reviews.add(review(MetadataProvider.Amazon, "valid", Instant.now()));
 
             BookMetadata metadata = BookMetadata.builder().bookReviews(reviews).build();
-            service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true);
+            service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true, false);
 
             assertThat(entity.getReviews()).hasSize(1);
         }
@@ -129,7 +129,7 @@ class BookReviewUpdateServiceTest {
             BookMetadata metadata = BookMetadata.builder()
                     .bookReviews(List.of(noProvider))
                     .build();
-            service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true);
+            service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true, false);
 
             assertThat(entity.getReviews()).isEmpty();
         }
@@ -150,7 +150,7 @@ class BookReviewUpdateServiceTest {
             BookMetadata metadata = BookMetadata.builder()
                     .bookReviews(List.of(review(MetadataProvider.GoodReads, "new", Instant.now())))
                     .build();
-            service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true);
+            service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true, false);
 
             assertThat(entity.getReviews()).hasSize(2);
         }
@@ -167,7 +167,7 @@ class BookReviewUpdateServiceTest {
             BookMetadata metadata = BookMetadata.builder()
                     .bookReviews(List.of(review(MetadataProvider.GoodReads, "replacement", Instant.now())))
                     .build();
-            service.updateBookReviews(metadata, entity, new MetadataClearFlags(), false);
+            service.updateBookReviews(metadata, entity, new MetadataClearFlags(), false, false);
 
             assertThat(entity.getReviews()).hasSize(1);
             assertThat(entity.getReviews().iterator().next().getReviewerName()).isEqualTo("replacement");
@@ -187,7 +187,7 @@ class BookReviewUpdateServiceTest {
                     .toList();
 
             BookMetadata metadata = BookMetadata.builder().bookReviews(sevenReviews).build();
-            service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true);
+            service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true, false);
 
             assertThat(entity.getReviews()).hasSize(5);
         }
@@ -206,7 +206,7 @@ class BookReviewUpdateServiceTest {
             }
 
             BookMetadata metadata = BookMetadata.builder().bookReviews(reviews).build();
-            service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true);
+            service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true, false);
 
             long amazonCount = entity.getReviews().stream()
                     .filter(r -> r.getMetadataProvider() == MetadataProvider.Amazon)
@@ -229,7 +229,7 @@ class BookReviewUpdateServiceTest {
                     .toList();
 
             BookMetadata metadata = BookMetadata.builder().bookReviews(reviews).build();
-            service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true);
+            service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true, false);
 
             Set<String> keptNames = new HashSet<>();
             entity.getReviews().forEach(r -> keptNames.add(r.getReviewerName()));
@@ -247,7 +247,7 @@ class BookReviewUpdateServiceTest {
             reviews.add(review(MetadataProvider.Amazon, "undated", null));
 
             BookMetadata metadata = BookMetadata.builder().bookReviews(reviews).build();
-            service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true);
+            service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true, false);
 
             assertThat(entity.getReviews()).hasSize(2);
         }
@@ -303,7 +303,7 @@ class BookReviewUpdateServiceTest {
                 .build();
 
         BookMetadata metadata = BookMetadata.builder().bookReviews(List.of(review)).build();
-        service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true);
+        service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true, false);
 
         BookReviewEntity created = entity.getReviews().iterator().next();
         assertThat(created.getMetadataProvider()).isEqualTo(MetadataProvider.Hardcover);
@@ -330,7 +330,7 @@ class BookReviewUpdateServiceTest {
                 .build();
 
         BookMetadata metadata = BookMetadata.builder().bookReviews(List.of(review)).build();
-        service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true);
+        service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true, false);
 
         BookReviewEntity created = entity.getReviews().iterator().next();
         assertThat(created.getReviewerName()).hasSize(512);
@@ -349,7 +349,7 @@ class BookReviewUpdateServiceTest {
                 .build();
 
         BookMetadata metadata = BookMetadata.builder().bookReviews(List.of(review)).build();
-        service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true);
+        service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true, false);
 
         BookReviewEntity created = entity.getReviews().iterator().next();
         assertThat(created.getReviewerName()).hasSize(512);
@@ -368,7 +368,7 @@ class BookReviewUpdateServiceTest {
                 .build();
 
         BookMetadata metadata = BookMetadata.builder().bookReviews(List.of(review)).build();
-        service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true);
+        service.updateBookReviews(metadata, entity, new MetadataClearFlags(), true, false);
 
         BookReviewEntity created = entity.getReviews().iterator().next();
         assertThat(created.getReviewerName()).isNull();

@@ -386,11 +386,6 @@ public class PdfMetadataWriter implements MetadataWriter {
             return false;
         }
         
-        // Check if either field is locked - if so, respect the lock
-        if (Boolean.TRUE.equals(metadata.getSeriesNameLocked()) || Boolean.TRUE.equals(metadata.getSeriesNumberLocked())) {
-            return false;
-        }
-        
         // Both name AND number must be valid
         return metadata.getSeriesName() != null 
                 && !metadata.getSeriesName().isBlank()

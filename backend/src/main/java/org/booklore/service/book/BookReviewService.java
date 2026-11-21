@@ -46,8 +46,10 @@ public class BookReviewService {
 
         MetadataPublicReviewsSettings reviewSettings = appSettingService.getAppSettings().getMetadataPublicReviewsSettings();
 
-        // Return existing reviews if download is disabled or reviews already exist
-        if (!reviewSettings.isDownloadEnabled() || !existingReviews.isEmpty()) {
+        // Return existing reviews if download is disabled, reviews are locked, or reviews already exist
+        if (!reviewSettings.isDownloadEnabled()
+                || (bookEntity.getMetadata() != null && Boolean.TRUE.equals(bookEntity.getMetadata().getReviewsLocked()))
+                || !existingReviews.isEmpty()) {
             return existingReviews;
         }
 
@@ -108,14 +110,16 @@ public class BookReviewService {
         BookEntity bookEntity = bookRepository.findByIdWithMetadata(bookId)
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
-        bookEntity.getMetadata().getReviews().clear();
-        bookRepository.save(bookEntity);
+        if (!Boolean.TRUE.equals(bookEntity.getMetadata().getReviewsLocked())) {
+            bookEntity.getMetadata().getReviews().clear();
+            bookRepository.save(bookEntity);
 
-        bookReviewRepository.deleteByBookMetadataBookId(bookId);
+            bookReviewRepository.deleteByBookMetadataBookId(bookId);
 
-        List<BookReview> freshReviews = fetchBookReviews(bookEntity);
-        bookReviewUpdateService.addReviewsToBook(freshReviews, bookEntity.getMetadata());
-        bookRepository.save(bookEntity);
+            List<BookReview> freshReviews = fetchBookReviews(bookEntity);
+            bookReviewUpdateService.addReviewsToBook(freshReviews, bookEntity.getMetadata());
+            bookRepository.save(bookEntity);
+        }
 
         return bookReviewRepository.findByBookMetadataBookId(bookId).stream()
                 .map(mapper::toDto)
