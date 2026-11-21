@@ -10,6 +10,7 @@ export interface BrowsePageMetadata {
   totalElements: number;
   totalPages: number;
   cursor: string;
+  totalMembers?: number;
 }
 
 export interface BrowsePage<T> {
