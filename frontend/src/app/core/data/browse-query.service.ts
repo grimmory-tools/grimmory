@@ -20,7 +20,11 @@ import {
   type RawBrowsePage,
   type RawFacetResponse,
 } from './browse-response';
-import {BrowseQueryKeys} from './browse-query-keys';
+import {
+  type BrowseFacetPageOptions,
+  type BrowseQueryKeys,
+  DEFAULT_FACET_PAGE_SIZE,
+} from './browse-query-keys';
 import {
   BrowseCollectionFilterParams,
   BrowsePageParams,
@@ -33,8 +37,6 @@ import {
   toPageHttpParams,
 } from './browse-query-params';
 import {httpGet, QUERY_DEFAULTS} from './query-transport';
-
-const FACET_PAGE_SIZE = 100;
 
 export interface BrowseQueryConfig<FacetKey extends string, SortKey extends string> {
   readonly path: string;
@@ -115,18 +117,26 @@ export abstract class BrowseQueryService<Item extends {id: number}, FacetKey ext
     });
   }
 
-  facet(key: FacetKey, params: BrowseCollectionFilterParams<FacetKey>, search = '') {
+  facet(
+    key: FacetKey,
+    params: BrowseCollectionFilterParams<FacetKey>,
+    search = '',
+    {page = 0, size = DEFAULT_FACET_PAGE_SIZE}: BrowseFacetPageOptions = {},
+  ) {
     const own = browseFacetValues(params.facets, key);
     const otherFacets = own.matchAll ? params.facets : withBrowseFacetValues(params.facets, key, {...own, include: []});
     const normalized = normalizeBrowseCollectionFilterParams({...params, facets: otherFacets}, this.isFacetKey);
     const term = search.trim();
-    let httpParams = toCollectionHttpParams(normalized).set('size', FACET_PAGE_SIZE);
+    let httpParams = toCollectionHttpParams(normalized).set('size', size);
+    if (page > 0) {
+      httpParams = httpParams.set('page', page);
+    }
     if (term) {
       httpParams = httpParams.set('search', term);
     }
 
     return queryOptions({
-      queryKey: this.keys.facet(key, normalized, term),
+      queryKey: this.keys.facet(key, normalized, term, {page, size}),
       queryFn: ({signal}): Promise<BrowseFacetGroup> =>
         httpGet<RawFacetResponse>(this.http, `${this.baseUrl}/facets/${encodeURIComponent(key)}`, signal, httpParams)
           .then(mapBrowseFacetPage),
