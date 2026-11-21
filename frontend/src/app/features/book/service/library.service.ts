@@ -8,7 +8,6 @@ import {Library} from '../model/library.model';
 import {API_CONFIG} from '../../../core/config/api-config';
 import {AuthService} from '../../../shared/service/auth.service';
 import {LIBRARIES_QUERY_KEY, libraryFormatCountsQueryKey} from './library-query-keys';
-import {AUTHORS_QUERY_KEY} from '../../author-browser/service/author-query-keys';
 import {shelfQueryKeys} from '../../shelf/data/shelf-query-keys';
 import {libraryQueryKeys} from '../../library/data/library-query-keys';
 import {invalidateAllBookCaches} from './legacy-book-cache';
@@ -97,7 +96,6 @@ export class LibraryService {
         void invalidateAllBookCaches(this.queryClient);
         void this.queryClient.invalidateQueries({queryKey: shelfQueryKeys.all()});
         void this.queryClient.invalidateQueries({queryKey: SHELVES_QUERY_KEY, exact: true});
-        void this.queryClient.invalidateQueries({queryKey: AUTHORS_QUERY_KEY, exact: true});
         this.queryClient.removeQueries({queryKey: libraryFormatCountsQueryKey(id), exact: true});
       })
     );

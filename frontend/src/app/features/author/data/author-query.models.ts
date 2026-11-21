@@ -15,3 +15,18 @@ export interface AuthorDetail {
   readonly asinLocked: boolean;
   readonly photoLocked: boolean;
 }
+
+export interface AuthorSearchResult {
+  readonly source: 'AUDNEXUS';
+  readonly asin: string;
+  readonly name: string;
+  readonly description: string | null;
+  readonly imageUrl: string | null;
+}
+
+export interface AuthorPhotoResult {
+  readonly url: string;
+  readonly width: number;
+  readonly height: number;
+  readonly index: number;
+}

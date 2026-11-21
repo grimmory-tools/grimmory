@@ -8,7 +8,6 @@ import {
   MetadataBatchProgressNotification,
   MetadataBatchStatus,
 } from '../../../shared/model/metadata-batch-progress.model';
-import {invalidateAuthorsQuery} from '../../author-browser/service/author-query-cache';
 import {bookCommandScopes} from '../../book/data/book-command-keys';
 import {requireBookIds} from '../../book/data/book-command.models';
 import {applyBookQueryChangeSet, invalidateAllBookQueries} from '../../book/data/book-query-cache';
@@ -47,7 +46,6 @@ export class MetadataSourceCommandService {
       mutationFn: ({bookId}: {readonly bookId: number}) =>
         lastValueFrom(this.http.post<void>(`${this.booksUrl}/${bookId}/sidecar/import`, {})),
       onSettled: async (_data, _error, {bookId}, _onMutateResult, {client}) => {
-        invalidateAuthorsQuery(client);
         await applyBookQueryChangeSet(client, {changedBookIds: [bookId]});
       },
     });
@@ -71,7 +69,6 @@ export class MetadataSourceCommandService {
       mutationFn: ({libraryId}: {readonly libraryId: number}) =>
         lastValueFrom(this.http.post<{readonly message: string; readonly imported: number}>(`${this.librariesUrl}/${libraryId}/sidecar/import-all`, {})),
       onSettled: async (_data, _error, _variables, _onMutateResult, {client}) => {
-        invalidateAuthorsQuery(client);
         await invalidateAllBookQueries(client);
       },
     });
@@ -142,5 +139,4 @@ export class MetadataSourceCommandService {
 function reconcileMetadataRefresh(client: QueryClient): void {
   void invalidateAllBookQueries(client);
   void client.invalidateQueries({queryKey: metadataSourceQueryKeys.reviewTaskQueries()});
-  invalidateAuthorsQuery(client);
 }

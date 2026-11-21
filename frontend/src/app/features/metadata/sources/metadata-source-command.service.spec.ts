@@ -8,7 +8,6 @@ import {
   MetadataBatchStatus,
 } from '../../../shared/model/metadata-batch-progress.model';
 import {authorQueryKeys} from '../../author/data/author-query-keys';
-import {AUTHORS_QUERY_KEY} from '../../author-browser/service/author-query-keys';
 import {bookQueryKeys} from '../../book/data/book-query-keys';
 import {metadataSourceQueryKeys} from './metadata-source-query-keys';
 import {MetadataSourceCommandService} from './metadata-source-command.service';
@@ -50,7 +49,6 @@ describe('MetadataSourceCommandService batch reconciliation', () => {
     expect(invalidate).toHaveBeenCalledWith({queryKey: bookQueryKeys.all()});
     expect(invalidate).toHaveBeenCalledWith({queryKey: metadataSourceQueryKeys.sidecars()});
     expect(invalidate).toHaveBeenCalledWith({queryKey: metadataSourceQueryKeys.reviewTaskQueries()});
-    expect(invalidate).toHaveBeenCalledWith({queryKey: AUTHORS_QUERY_KEY, exact: true});
     expect(invalidate).toHaveBeenCalledWith({queryKey: authorQueryKeys.collections()});
   });
 

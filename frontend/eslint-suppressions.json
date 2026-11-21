@@ -4,17 +4,17 @@
       "count": 1
     }
   },
-  "src/app/features/author-browser/components/author-editor/author-editor.component.ts": {
+  "src/app/features/author/detail/author-editor/author-editor.component.ts": {
     "@angular-eslint/prefer-signals": {
       "count": 2
     }
   },
-  "src/app/features/author-browser/components/author-match/author-match.component.ts": {
+  "src/app/features/author/detail/author-match/author-match.component.ts": {
     "@angular-eslint/prefer-signals": {
       "count": 2
     }
   },
-  "src/app/features/author-browser/components/author-photo-search/author-photo-search.component.html": {
+  "src/app/features/author/detail/author-photo-search/author-photo-search.component.html": {
     "@angular-eslint/template/prefer-contextual-for-variables": {
       "count": 1
     }

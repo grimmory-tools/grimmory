@@ -17,6 +17,11 @@ export const QUERY_DEFAULTS = {
   retry: retryTransientQueryError,
 } as const;
 
+export const SEARCH_DEFAULTS = {
+  refetchOnWindowFocus: false,
+  retry: false,
+} as const;
+
 export function abortSignal(signal: AbortSignal): Observable<void> {
   return new Observable(subscriber => {
     if (signal.aborted) {
@@ -58,18 +63,35 @@ export async function postFormData(
   await lastValueFrom(http.request(mitigateWebkitUploadBug(new HttpRequest('POST', url, body))));
 }
 
-export async function postSseJson<T>(
+export function postSseJson<T>(
   auth: AuthService,
   url: string,
   body: string,
   signal?: AbortSignal,
 ): Promise<AsyncIterable<T>> {
+  return fetchSseJson<T>(auth, url, {method: 'POST', body, headers: {'Content-Type': 'application/json'}}, signal);
+}
+
+export function getSseJson<T>(
+  auth: AuthService,
+  url: string,
+  signal: AbortSignal,
+): Promise<AsyncIterable<T>> {
+  return fetchSseJson<T>(auth, url, {method: 'GET'}, signal);
+}
+
+async function fetchSseJson<T>(
+  auth: AuthService,
+  url: string,
+  {method, body, headers}: {method: 'GET' | 'POST'; body?: string; headers?: Record<string, string>},
+  signal?: AbortSignal,
+): Promise<AsyncIterable<T>> {
   const send = async (options: {forceRefresh?: boolean} = {}) => {
     const token = await firstValueFrom(auth.ensureAccessToken(options));
     return fetch(url, {
-      method: 'POST',
+      method,
       headers: {
-        'Content-Type': 'application/json',
+        ...headers,
         'Authorization': `Bearer ${token}`,
       },
       body,

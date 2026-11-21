@@ -1,4 +1,14 @@
 import {browseQueryKeys} from '../../../core/data/browse-query-keys';
-import {AuthorQueryFacetKey, AuthorQuerySortKey} from './author-query-params';
+import {AuthorMetadataSearchParams, AuthorQueryFacetKey, AuthorQuerySortKey} from './author-query-params';
 
-export const authorQueryKeys = browseQueryKeys<AuthorQueryFacetKey, AuthorQuerySortKey>('authors');
+const browseKeys = browseQueryKeys<AuthorQueryFacetKey, AuthorQuerySortKey>('authors');
+
+export const authorQueryKeys = {
+  ...browseKeys,
+  details: () => [...browseKeys.all(), 'detail'] as const,
+  detail: (authorId: number) => [...authorQueryKeys.details(), authorId] as const,
+  metadataSearch: (authorId: number, params: AuthorMetadataSearchParams) =>
+    [...browseKeys.all(), 'metadata-search', authorId, params] as const,
+  photoSearch: (authorId: number, query: string) => [...browseKeys.all(), 'photo-search', authorId, query] as const,
+  byName: (name: string) => [...authorQueryKeys.details(), 'by-name', name] as const,
+};

@@ -16,8 +16,8 @@ import {AfterViewChecked, ChangeDetectionStrategy, Component, computed, effect, 
 import {UrlHelperService} from '../../../../shared/service/url-helper.service';
 import {LanguageResolverService} from '../../../../shared/service/language-resolver.service';
 import {CoverComponent} from '../../../../shared/components/cover/cover.component';
-import {injectInfiniteQuery, injectQuery} from '@tanstack/angular-query-experimental';
-import {AuthorService} from '../../../author-browser/service/author.service';
+import {injectInfiniteQuery, injectQuery, QueryClient} from '@tanstack/angular-query-experimental';
+import {AuthorQueryService} from '../../../author/data/author-query.service';
 import {BookQueryService} from '../../data/book-query.service';
 import {type BookPageParams} from '../../data/book-query-params';
 import {type BookSummary} from '../../data/book-response.models';
@@ -93,7 +93,8 @@ export class SeriesPageComponent implements AfterViewChecked {
   private readonly router = inject(Router);
   private readonly t = inject(TranslocoService);
   protected urlHelper = inject(UrlHelperService);
-  private readonly authorService = inject(AuthorService);
+  private readonly authorQueries = inject(AuthorQueryService);
+  private readonly queryClient = inject(QueryClient);
   private readonly bookNavigation = inject(BookNavigationService);
   private readonly bookQuery = inject(BookQueryService);
   private readonly coverScale = inject(CoverScalePreferenceService);
@@ -375,14 +376,14 @@ export class SeriesPageComponent implements AfterViewChecked {
   }
 
   goToAuthorBooks(author: string): void {
-    this.authorService.getAuthorByName(author).subscribe({
-      next: (authorDetails) => {
+    this.queryClient.query(this.authorQueries.byName(author)).then(
+      (authorDetails) => {
         this.router.navigate(['/author', authorDetails.id]);
       },
-      error: () => {
+      () => {
         this.navigateToFilteredBooks('author', author);
       }
-    });
+    );
   }
 
   goToCategory(category: string): void {
