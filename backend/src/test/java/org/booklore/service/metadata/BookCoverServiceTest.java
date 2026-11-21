@@ -344,7 +344,7 @@ class BookCoverServiceTest {
             when(bookRepository.findCoverUpdateInfoByIds(List.of(1L))).thenReturn(List.of(update));
 
             assertThat(service.regenerateCoversFromBookFiles(book, MetadataReplaceMode.REPLACE_MISSING)).isTrue();
-            service.saveRegeneratedCovers(List.of(book));
+            service.saveUpdatedCovers(List.of(book));
 
             Files.createFile(coverFile);
             assertThat(service.regenerateCoversFromBookFiles(book, MetadataReplaceMode.REPLACE_MISSING)).isFalse();
