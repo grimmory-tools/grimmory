@@ -5017,6 +5017,11 @@
     "browseAllAuthors": "Browse All Authors",
     "searchPlaceholder": "Search by author name...",
     "noAuthorsFound": "No authors match your search.",
+    "bookDetails": {
+      "loading": "Loading data for advanced filters and sorting…",
+      "loadFailed": "Could not load the book data required for advanced filters and sorting.",
+      "back": "Return to authors"
+    },
     "sort": {
       "name": "Name",
       "bookCount": "Book Count",

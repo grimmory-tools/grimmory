@@ -14,9 +14,16 @@
 .loading-state {
   display: flex;
   flex: 1 1 auto;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 0.75rem;
   min-height: 0;
+  text-align: center;
+}
+
+.book-details-error {
+  color: var(--color-text-secondary);
 }
 
 .browse-header {
@@ -320,6 +327,10 @@
   max-height: 40vh;
   overflow: auto;
   padding-left: 1.25rem;
+}
+
+.merge-author-list:has(> li:nth-child(2):last-child) {
+  padding-bottom: 1lh;
 }
 
 .merge-author-list span {

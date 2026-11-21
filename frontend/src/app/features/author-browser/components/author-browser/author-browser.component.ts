@@ -55,6 +55,10 @@ const DEFAULT_SORT_DIRECTIONS: Record<string, SortDirection> = {
   'series-count': 'desc'
 };
 
+const BOOK_DEPENDENT_SORTS = new Set([
+  'recently-added', 'recently-read', 'reading-progress', 'avg-rating', 'series-count'
+]);
+
 @Component({
   selector: 'app-author-browser',
   standalone: true,
@@ -161,8 +165,23 @@ export class AuthorBrowserComponent implements OnInit {
   private autoMatchStats = {matched: 0, ambiguous: 0, noResults: 0, failed: 0};
   private returnToDuplicates = false;
 
-  private readonly booksQuery = injectQuery(() => this.bookService.booksQueryOptions(true));
-  readonly loading = computed(() => this.allAuthorsState() === null || this.booksQuery.isPending());
+  private readonly bookDetailsRequested = signal(false);
+  private readonly booksQuery = injectQuery(() => ({
+    ...this.bookService.booksQueryOptions(true),
+    enabled: this.bookDetailsRequested(),
+  }));
+  readonly bookDetailsAvailable = computed(() => this.booksQuery.data() !== undefined);
+  readonly bookDetailsError = computed(() => this.booksQuery.isError() && !this.booksQuery.isFetching());
+  readonly bookDetailsRequired = computed(() =>
+    BOOK_DEPENDENT_SORTS.has(this.sortBy())
+    || this.filters().readStatus !== 'all'
+    || this.filters().library !== 'all'
+    || this.filters().genre !== 'all'
+  );
+  readonly loading = computed(() =>
+    this.allAuthorsState() === null
+    || (this.bookDetailsRequired() && !this.bookDetailsAvailable() && !this.bookDetailsError())
+  );
   protected currentUser = this.userService.currentUser;
   readonly selectedCount = computed(() => this.selectedAuthors().size);
   readonly searchTerm = signal('');
@@ -303,6 +322,9 @@ export class AuthorBrowserComponent implements OnInit {
     if (sortParam && this.validSortValues.includes(sortParam)) {
       this.sortBy.set(sortParam);
       this.sortDirection.set(dirParam === 'asc' || dirParam === 'desc' ? dirParam : DEFAULT_SORT_DIRECTIONS[sortParam]);
+      if (BOOK_DEPENDENT_SORTS.has(sortParam)) {
+        this.requestBookDetails();
+      }
     }
 
     this.scrollService.trackRoute({
@@ -323,6 +345,9 @@ export class AuthorBrowserComponent implements OnInit {
   }
 
   onSortChange(value: string): void {
+    if (BOOK_DEPENDENT_SORTS.has(value)) {
+      this.requestBookDetails();
+    }
     this.sortBy.set(value);
     const nextDirection = DEFAULT_SORT_DIRECTIONS[value] || 'asc';
     this.sortDirection.set(nextDirection);
@@ -336,7 +361,23 @@ export class AuthorBrowserComponent implements OnInit {
   }
 
   onFilterChange(key: keyof AuthorFilters, value: string): void {
+    if (value !== 'all' && (key === 'readStatus' || key === 'library' || key === 'genre')) {
+      this.requestBookDetails();
+    }
     this.filters.update(current => ({...current, [key]: value}));
+  }
+
+  requestBookDetails(): void {
+    this.bookDetailsRequested.set(true);
+  }
+
+  retryBookDetails(): void {
+    void this.booksQuery.refetch();
+  }
+
+  returnToBasicAuthors(): void {
+    this.resetFilters();
+    this.onSortChange('name');
   }
 
   resetFilters(): void {

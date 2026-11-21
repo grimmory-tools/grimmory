@@ -12,6 +12,7 @@ import {LocalStorageService} from '../../../../shared/service/local-storage.serv
 import {PageTitleService} from '../../../../shared/service/page-title.service';
 import {RouteScrollPositionService} from '../../../../shared/service/route-scroll-position.service';
 import {BookMetadataManageService} from '../../../book/service/book-metadata-manage.service';
+import {ReadStatus, type Book} from '../../../book/model/book.model';
 import {BookService} from '../../../book/service/book.service';
 import {UserService} from '../../../settings/user-management/user.service';
 import {AuthorSummary} from '../../model/author.model';
@@ -31,6 +32,8 @@ describe('AuthorBrowserComponent duplicate review', () => {
   let invalidateAuthors: ReturnType<typeof vi.fn>;
   let addMessage: ReturnType<typeof vi.fn>;
   let authorsState: WritableSignal<AuthorSummary[]>;
+  let getBooks: ReturnType<typeof vi.fn>;
+  let queryParams: {get: (key: string) => string | null};
   let component: AuthorBrowserComponent;
 
   beforeEach(() => {
@@ -39,20 +42,23 @@ describe('AuthorBrowserComponent duplicate review', () => {
     invalidateAuthors = vi.fn();
     addMessage = vi.fn();
     authorsState = signal(authors);
+    getBooks = vi.fn().mockResolvedValue([]);
+    queryParams = {get: () => null};
     const harness = createQueryClientHarness();
+    harness.queryClient.setDefaultOptions({queries: {retry: false}});
     TestBed.configureTestingModule({
       providers: [
         ...harness.providers,
         {provide: AuthorService, useValue: {allAuthors: authorsState, refreshAuthors, invalidateAuthors}},
         {provide: BookMetadataManageService, useValue: {mergeAuthors: vi.fn(() => merge$)}},
-        {provide: BookService, useValue: {booksQueryOptions: () => ({queryKey: ['test-books'], queryFn: () => Promise.resolve([]), enabled: false})}},
+        {provide: BookService, useValue: {booksQueryOptions: () => ({queryKey: ['test-books'], queryFn: getBooks})}},
         {provide: ConfirmationService, useValue: {}},
         {provide: MessageService, useValue: {add: addMessage}},
-        {provide: PageTitleService, useValue: {}},
-        {provide: RouteScrollPositionService, useValue: {}},
+        {provide: PageTitleService, useValue: {setPageTitle: vi.fn()}},
+        {provide: RouteScrollPositionService, useValue: {trackRoute: vi.fn()}},
         {provide: TranslocoService, useValue: {translate: (key: string) => key}},
-        {provide: Router, useValue: {}},
-        {provide: ActivatedRoute, useValue: {}},
+        {provide: Router, useValue: {navigate: vi.fn()}},
+        {provide: ActivatedRoute, useValue: {snapshot: {queryParamMap: queryParams}}},
         {provide: LocalStorageService, useValue: {get: () => null}},
         {provide: LayoutService, useValue: {isDesktop: () => true}},
         {provide: UserService, useValue: {currentUser: signal(null)}},
@@ -71,6 +77,101 @@ describe('AuthorBrowserComponent duplicate review', () => {
   afterEach(() => {
     TestBed.resetTestingModule();
     vi.restoreAllMocks();
+  });
+
+  it('shows and searches authors without requesting the complete book list', () => {
+    expect(component.loading()).toBe(false);
+    expect(getBooks).not.toHaveBeenCalled();
+
+    component.onSearchChange('jane');
+    expect(component.filteredAuthors().map(author => author.id)).toEqual([2, 1]);
+    component.onSortChange('book-count');
+    expect(getBooks).not.toHaveBeenCalled();
+  });
+
+  it('loads book data when an advanced sort is selected and applies it only after loading', async () => {
+    let finish!: (books: Book[]) => void;
+    getBooks.mockReturnValue(new Promise<Book[]>(resolve => finish = resolve));
+
+    component.onSortChange('reading-progress');
+    TestBed.tick();
+    expect(getBooks).toHaveBeenCalledOnce();
+    expect(component.loading()).toBe(true);
+
+    finish([{
+      id: 10,
+      libraryId: 1,
+      libraryName: 'Library',
+      readStatus: ReadStatus.READ,
+      metadata: {bookId: 10, authors: ['Jane Doe']},
+    }]);
+    await vi.waitFor(() => {
+      TestBed.tick();
+      expect(component.loading()).toBe(false);
+    });
+
+    expect(component.filteredAuthors()[0].id).toBe(1);
+    expect(component.filteredAuthors()[0].readingProgress).toBe(100);
+  });
+
+  it('loads book data for a saved advanced sort', () => {
+    queryParams.get = key => key === 'sort' ? 'series-count' : null;
+    component.ngOnInit();
+    TestBed.tick();
+
+    expect(getBooks).toHaveBeenCalledOnce();
+  });
+
+  it('loads book data for the filter options and applies library and genre filters', async () => {
+    getBooks.mockResolvedValue([{
+      id: 10,
+      libraryId: 1,
+      libraryName: 'Library',
+      metadata: {bookId: 10, authors: ['Jane Doe'], categories: ['Fantasy']},
+    }]);
+    component.requestBookDetails();
+    await vi.waitFor(() => {
+      TestBed.tick();
+      expect(component.bookDetailsAvailable()).toBe(true);
+    });
+
+    component.onFilterChange('library', 'Library');
+    component.onFilterChange('genre', 'Fantasy');
+    expect(component.filteredAuthors().map(author => author.id)).toEqual([1]);
+  });
+
+  it('reports an advanced-data failure and can retry or return to basic authors', async () => {
+    getBooks.mockRejectedValueOnce(new Error('network error')).mockResolvedValue([]);
+    component.onSortChange('recently-added');
+    await vi.waitFor(() => {
+      TestBed.tick();
+      expect(component.bookDetailsError()).toBe(true);
+    });
+    expect(component.loading()).toBe(false);
+    expect(component.bookDetailsRequired()).toBe(true);
+
+    component.retryBookDetails();
+    await vi.waitFor(() => {
+      TestBed.tick();
+      expect(component.bookDetailsAvailable()).toBe(true);
+    });
+
+    component.returnToBasicAuthors();
+    expect(component.sortBy()).toBe('name');
+    expect(component.bookDetailsRequired()).toBe(false);
+  });
+
+  it('can return to basic authors without retrying a failed advanced sort', async () => {
+    getBooks.mockRejectedValue(new Error('network error'));
+    component.onSortChange('avg-rating');
+    await vi.waitFor(() => {
+      TestBed.tick();
+      expect(component.bookDetailsError()).toBe(true);
+    });
+
+    component.returnToBasicAuthors();
+    expect(component.loading()).toBe(false);
+    expect(component.filteredAuthors()).toHaveLength(authors.length);
   });
 
   it('returns to duplicate results on cancel, but not for a manual selection', () => {

@@ -4947,6 +4947,11 @@
     "browseAllAuthors": "Parcourir tous les auteurs",
     "searchPlaceholder": "Rechercher par nom d’auteur...",
     "noAuthorsFound": "Aucun auteur ne correspond à votre recherche.",
+    "bookDetails": {
+      "loading": "Chargement des données pour les filtres et tris avancés…",
+      "loadFailed": "Impossible de charger les données des livres nécessaires aux filtres et tris avancés.",
+      "back": "Revenir aux auteurs"
+    },
     "sort": {
       "name": "Nom",
       "bookCount": "Nombre de livres",

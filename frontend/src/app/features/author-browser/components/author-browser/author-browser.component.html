@@ -7,10 +7,19 @@
         strokeWidth="3"
         fill="transparent"
         animationDuration="1.5s" />
+      @if (bookDetailsRequired()) {
+        <p role="status">{{ t('bookDetails.loading') }}</p>
+      }
     </div>
   }
 
-  @else {
+  @else if (bookDetailsRequired() && !bookDetailsAvailable() && bookDetailsError()) {
+    <div class="loading-state book-details-error" role="alert">
+      <p>{{ t('bookDetails.loadFailed') }}</p>
+      <p-button [label]="'common.retry' | transloco" (onClick)="retryBookDetails()" />
+      <p-button [label]="t('bookDetails.back')" [outlined]="true" (onClick)="returnToBasicAuthors()" />
+    </div>
+  } @else {
     <div class="browse-header">
       <h2 class="browse-title">{{ t('browseAllAuthors') }}</h2>
 
@@ -60,7 +69,7 @@
             <i class="pi" [class.pi-arrow-up]="sortDirection() === 'asc'" [class.pi-arrow-down]="sortDirection() === 'desc'"></i>
           </button>
 
-          <button type="button" class="filter-btn" (click)="filterPopover.toggle($event)">
+          <button type="button" class="filter-btn" (click)="requestBookDetails(); filterPopover.toggle($event)">
             <i class="pi pi-filter"></i>
             @if (activeFilterCount() > 0) {
               <span class="filter-badge"></span>
@@ -90,6 +99,14 @@
 
       <p-popover #filterPopover>
             <div class="filter-popover-content">
+              @if (!bookDetailsAvailable()) {
+                @if (bookDetailsError()) {
+                  <p role="alert">{{ t('bookDetails.loadFailed') }}</p>
+                  <p-button [label]="'common.retry' | transloco" (onClick)="retryBookDetails()" />
+                } @else {
+                  <p role="status">{{ t('bookDetails.loading') }}</p>
+                }
+              }
               <div class="filter-group">
                 <span class="filter-label">{{ t('filters.matchStatus') }}</span>
                 <p-select
@@ -123,6 +140,7 @@
               <div class="filter-group">
                 <span class="filter-label">{{ t('filters.readStatus') }}</span>
                 <p-select
+                  [disabled]="!bookDetailsAvailable()"
                   [options]="[
                     {label: t('filters.all'), value: 'all'},
                     {label: t('filters.allRead'), value: 'all-read'},
@@ -163,6 +181,7 @@
               <div class="filter-group">
                 <span class="filter-label">{{ t('filters.library') }}</span>
                 <p-select
+                  [disabled]="!bookDetailsAvailable()"
                   [options]="libraryOptions()"
                   [ngModel]="filters().library"
                   (ngModelChange)="onFilterChange('library', $event)"
@@ -174,6 +193,7 @@
               <div class="filter-group">
                 <span class="filter-label">{{ t('filters.genre') }}</span>
                 <p-select
+                  [disabled]="!bookDetailsAvailable()"
                   [options]="genreOptions()"
                   [ngModel]="filters().genre"
                   (ngModelChange)="onFilterChange('genre', $event)"
