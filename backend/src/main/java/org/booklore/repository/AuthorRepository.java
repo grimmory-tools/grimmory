@@ -22,6 +22,9 @@ public interface AuthorRepository extends JpaRepository<AuthorEntity, Long> {
 
     Optional<AuthorEntity> findByAsin(String asin);
 
+    @Query("SELECT a FROM AuthorEntity a WHERE a.bookMetadataEntityList IS EMPTY")
+    List<AuthorEntity> findAuthorsWithoutBooks();
+
     @Query("SELECT a, COUNT(bm) FROM AuthorEntity a LEFT JOIN a.bookMetadataEntityList bm GROUP BY a ORDER BY a.name")
     List<Object[]> findAllWithBookCount();
 

@@ -8,7 +8,7 @@ export class SeriesDataService {
 
   private readonly bookService = inject(BookService);
 
-  readonly allSeries = computed(() => this.buildSeriesSummaries(this.bookService.books()));
+  readonly allSeries = computed(() => this.buildSeriesSummaries(this.bookService.listViewBooks()));
 
   private buildSeriesSummaries(books: Book[]): SeriesSummary[] {
     const seriesMap = new Map<string, Book[]>();

@@ -12,13 +12,17 @@ import org.booklore.service.file.FileFingerprint;
 import org.booklore.service.file.FileMoveService;
 import org.booklore.service.metadata.writer.MetadataWriter;
 import org.booklore.service.metadata.writer.MetadataWriterFactory;
+import org.booklore.util.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -36,6 +40,7 @@ public class MetadataManagementService {
     private final MetadataWriterFactory metadataWriterFactory;
     private final FileMoveService fileMoveService;
     private final BookRepository bookRepository;
+    private final FileService fileService;
 
 
     @Transactional
@@ -56,6 +61,7 @@ public class MetadataManagementService {
     }
 
     private void writeMetadataToFile(List<BookMetadataEntity> metadataList, boolean moveFile) {
+        boolean hasModifiedBooks = false;
         for (BookMetadataEntity metadata : metadataList) {
             if (metadata.getBook() != null) {
                 BookEntity book = metadata.getBook();
@@ -87,9 +93,13 @@ public class MetadataManagementService {
                 }
 
                 if (bookModified) {
-                    bookRepository.saveAndFlush(book);
+                    hasModifiedBooks = true;
                 }
             }
+        }
+
+        if (hasModifiedBooks) {
+            bookRepository.flush();
         }
     }
 
@@ -111,20 +121,35 @@ public class MetadataManagementService {
                 .map(authorRepository::findByNameIgnoreCase)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
+                .filter(author -> !targetAuthors.contains(author))
                 .toList();
 
+        Map<Long, BookMetadataEntity> affectedBooksById = new LinkedHashMap<>();
         for (AuthorEntity oldAuthor : authorsToMerge) {
-            List<BookMetadataEntity> booksWithOldAuthor = bookMetadataRepository.findAllByAuthorsContaining(oldAuthor);
-
-            for (BookMetadataEntity metadata : booksWithOldAuthor) {
-                metadata.getAuthors().remove(oldAuthor);
-                metadata.getAuthors().addAll(targetAuthors);
-                metadata.updateSearchText();
+            for (BookMetadataEntity metadata : bookMetadataRepository.findAllByAuthorsContaining(oldAuthor)) {
+                affectedBooksById.putIfAbsent(metadata.getBookId(), metadata);
             }
+        }
 
-            bookMetadataRepository.saveAll(booksWithOldAuthor);
+        List<BookMetadataEntity> affectedBooks = new ArrayList<>(affectedBooksById.values());
+        for (BookMetadataEntity metadata : affectedBooks) {
+            List<AuthorEntity> authors = metadata.getAuthors();
+            authors.removeIf(authorsToMerge::contains);
+            for (AuthorEntity targetAuthor : targetAuthors) {
+                if (!authors.contains(targetAuthor)) {
+                    authors.add(targetAuthor);
+                }
+            }
+            metadata.updateSearchText();
+        }
+
+        if (!affectedBooks.isEmpty()) {
             bookMetadataRepository.flush();
-            writeMetadataToFile(booksWithOldAuthor, moveFile);
+            writeMetadataToFile(affectedBooks, moveFile);
+        }
+
+        for (AuthorEntity oldAuthor : authorsToMerge) {
+            fileService.deleteAuthorImages(oldAuthor.getId());
             authorRepository.delete(oldAuthor);
         }
 

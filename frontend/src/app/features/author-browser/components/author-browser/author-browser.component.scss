@@ -290,3 +290,23 @@
     width: 36px;
   }
 }
+
+.merge-target-field {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.merge-target-select {
+  width: 100%;
+}
+
+.merge-author-list {
+  max-height: 12rem;
+  overflow: auto;
+  padding-left: 1.25rem;
+}
+
+.merge-author-list span {
+  color: var(--color-text-secondary);
+}

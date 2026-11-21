@@ -6,8 +6,12 @@ import org.booklore.mapper.BookMapper;
 import org.booklore.mapper.BookMetadataMapper;
 import org.booklore.mapper.MetadataClearFlagsMapper;
 import org.booklore.model.MetadataClearFlags;
+import org.booklore.model.MetadataUpdateContext;
 import org.booklore.model.dto.Book;
 import org.booklore.model.dto.BookMetadata;
+import org.booklore.model.dto.BulkMetadataUpdateFailure;
+import org.booklore.model.dto.BulkMetadataUpdateProgress;
+import org.booklore.model.dto.BulkMetadataUpdateResult;
 import org.booklore.model.dto.request.BulkMetadataUpdateRequest;
 import org.booklore.model.dto.request.FetchMetadataRequest;
 import org.booklore.model.dto.request.IsbnLookupRequest;
@@ -17,9 +21,12 @@ import org.booklore.model.dto.settings.AppSettings;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.BookMetadataEntity;
+import org.booklore.model.entity.ComicMetadataEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.Lock;
+import org.booklore.model.enums.MetadataReplaceMode;
 import org.booklore.model.enums.MetadataProvider;
+import org.booklore.model.websocket.Topic;
 import org.booklore.repository.BookMetadataRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.NotificationService;
@@ -34,6 +41,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -550,7 +558,7 @@ class BookMetadataServiceTest {
         @Test
         void processesEachBookId() {
             BulkMetadataUpdateRequest request = new BulkMetadataUpdateRequest();
-            request.setBookIds(Set.of(1L, 2L));
+            request.setBookIds(new LinkedHashSet<>(List.of(1L, 2L)));
             request.setGenres(Set.of("Fiction"));
             request.setMoods(Set.of("Dark"));
             request.setTags(Set.of("Favorite"));
@@ -566,10 +574,11 @@ class BookMetadataServiceTest {
             var txStatus = mock(TransactionStatus.class);
             when(transactionManager.getTransaction(any())).thenReturn(txStatus);
 
-            service.bulkUpdateMetadata(request, true, false, true);
+            BulkMetadataUpdateResult result = service.bulkUpdateMetadata(request, true, false, true, progress -> {});
 
+            assertThat(result).isEqualTo(new BulkMetadataUpdateResult(2, 2, 2, 0));
             verify(bookMetadataUpdater, times(2)).setBookMetadata(any());
-            verify(notificationService, times(2)).sendMessage(any(), any());
+            verify(notificationService).sendMessage(Topic.BOOK_UPDATE, List.of(1L, 2L));
         }
 
         @Test
@@ -591,9 +600,85 @@ class BookMetadataServiceTest {
             when(bookRepository.findByIdFull(1L)).thenReturn(Optional.empty());
             when(bookRepository.findByIdFull(2L)).thenReturn(Optional.of(book2));
 
-            service.bulkUpdateMetadata(request, false, false, false);
+            List<BulkMetadataUpdateProgress> progressUpdates = new ArrayList<>();
+            BulkMetadataUpdateResult result = service.bulkUpdateMetadata(request, false, false, false, progressUpdates::add);
 
+            assertThat(result).isEqualTo(new BulkMetadataUpdateResult(2, 2, 1, 1));
+            assertThat(progressUpdates).containsExactly(new BulkMetadataUpdateProgress(
+                    2, 2, 1, 1, List.of(new BulkMetadataUpdateFailure(1L, null, "Book not found"))));
             verify(bookMetadataUpdater, times(1)).setBookMetadata(any());
+            verify(notificationService).sendMessage(Topic.BOOK_UPDATE, List.of(2L));
+        }
+
+        @Test
+        void reportsTitleAndContinuesWhenMetadataUpdateThrows() {
+            BulkMetadataUpdateRequest request = new BulkMetadataUpdateRequest();
+            request.setBookIds(new LinkedHashSet<>(List.of(1L, 2L)));
+            when(metadataClearFlagsMapper.toClearFlags(request)).thenReturn(new MetadataClearFlags());
+            when(transactionManager.getTransaction(any())).thenReturn(mock(TransactionStatus.class));
+            when(bookRepository.findByIdFull(1L)).thenReturn(Optional.of(BookEntity.builder()
+                    .id(1L)
+                    .metadata(BookMetadataEntity.builder().title("Book one").build())
+                    .build()));
+            when(bookRepository.findByIdFull(2L)).thenReturn(Optional.of(BookEntity.builder().id(2L).build()));
+            doThrow(new IllegalStateException("Metadata write failed"))
+                    .doNothing()
+                    .when(bookMetadataUpdater).setBookMetadata(any());
+            List<BulkMetadataUpdateProgress> progressUpdates = new ArrayList<>();
+
+            BulkMetadataUpdateResult result = service.bulkUpdateMetadata(request, false, false, false, progressUpdates::add);
+
+            assertThat(result).isEqualTo(new BulkMetadataUpdateResult(2, 2, 1, 1));
+            assertThat(progressUpdates.get(0).failedBooks())
+                    .containsExactly(new BulkMetadataUpdateFailure(1L, "Book one", "Metadata write failed"));
+            verify(bookMetadataUpdater, times(2)).setBookMetadata(any());
+            verify(notificationService).sendMessage(Topic.BOOK_UPDATE, List.of(2L));
+        }
+
+        @Test
+        void replaceAllClearsUnprovidedMetadataAndReplacesProvidedCollections() {
+            BulkMetadataUpdateRequest request = new BulkMetadataUpdateRequest();
+            request.setBookIds(Set.of(1L));
+            request.setReplaceAll(true);
+            request.setPublisher("New publisher");
+            request.setGenres(Set.of("New genre"));
+            when(metadataClearFlagsMapper.toClearFlags(request)).thenReturn(new MetadataClearFlags());
+            when(transactionManager.getTransaction(any())).thenReturn(mock(TransactionStatus.class));
+            BookMetadataEntity existingMetadata = BookMetadataEntity.builder()
+                    .bookId(1L)
+                    .title("Required title")
+                    .comicMetadata(ComicMetadataEntity.builder().bookId(1L).build())
+                    .build();
+            when(bookRepository.findByIdFull(1L)).thenReturn(Optional.of(BookEntity.builder()
+                    .id(1L)
+                    .metadata(existingMetadata)
+                    .build()));
+            ArgumentCaptor<MetadataUpdateContext> contextCaptor = ArgumentCaptor.forClass(MetadataUpdateContext.class);
+            List<BulkMetadataUpdateProgress> progressUpdates = new ArrayList<>();
+
+            BulkMetadataUpdateResult result = service.bulkUpdateMetadata(request, true, true, true, progressUpdates::add);
+
+            verify(bookMetadataUpdater).setBookMetadata(contextCaptor.capture());
+            MetadataUpdateContext context = contextCaptor.getValue();
+            MetadataClearFlags flags = context.getMetadataUpdateWrapper().getClearFlags();
+            BookMetadata updatedMetadata = context.getMetadataUpdateWrapper().getMetadata();
+            assertThat(result).isEqualTo(new BulkMetadataUpdateResult(1, 1, 1, 0));
+            assertThat(context.getReplaceMode()).isEqualTo(MetadataReplaceMode.REPLACE_ALL);
+            assertThat(context.isMergeCategories()).isFalse();
+            assertThat(context.isMergeMoods()).isFalse();
+            assertThat(context.isMergeTags()).isFalse();
+            assertThat(updatedMetadata.getTitle()).isEqualTo("Required title");
+            assertThat(updatedMetadata.getPublisher()).isEqualTo("New publisher");
+            assertThat(updatedMetadata.getComicMetadata()).isNotNull();
+            assertThat(flags.isTitle()).isFalse();
+            assertThat(flags.isPublisher()).isFalse();
+            assertThat(flags.isCategories()).isFalse();
+            assertThat(flags.isDescription()).isTrue();
+            assertThat(flags.isGoodreadsId()).isTrue();
+            assertThat(flags.isRating()).isTrue();
+            assertThat(flags.isReviewCount()).isTrue();
+            assertThat(flags.isReviews()).isTrue();
+            assertThat(flags.isCover()).isFalse();
         }
 
         @Test
@@ -613,7 +698,7 @@ class BookMetadataServiceTest {
             BookEntity book = BookEntity.builder().id(1L).build();
             when(bookRepository.findByIdFull(1L)).thenReturn(Optional.of(book));
 
-            service.bulkUpdateMetadata(request, false, false, false);
+            service.bulkUpdateMetadata(request, false, false, false, progress -> {});
 
             verify(bookMetadataUpdater).setBookMetadata(argThat(ctx -> {
                 BookMetadata md = ctx.getMetadataUpdateWrapper().getMetadata();

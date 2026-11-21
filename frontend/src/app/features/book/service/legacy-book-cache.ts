@@ -8,6 +8,7 @@ import {Book, BookMetadata} from '../model/book.model';
 import {
   BOOK_DETAIL_QUERY_PREFIX,
   BOOKS_QUERY_KEY,
+  BOOKS_LIST_VIEW_QUERY_KEY,
   bookDetailQueryPrefix,
 } from './book-query-keys';
 
@@ -36,6 +37,14 @@ function removeLegacyBookQueries(queryClient: QueryClient, bookIds: Iterable<num
   }
 }
 
+function updateBookListCaches(
+  queryClient: QueryClient,
+  updater: (current: Book[] | undefined) => Book[] | undefined,
+): void {
+  queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, updater);
+  queryClient.setQueryData<Book[]>(BOOKS_LIST_VIEW_QUERY_KEY, updater);
+}
+
 async function reconcileLegacyBookChangeSet(
   queryClient: QueryClient,
   changeSet: NormalizedBookCacheChangeSet,
@@ -44,6 +53,7 @@ async function reconcileLegacyBookChangeSet(
 
   await Promise.all([
     queryClient.invalidateQueries({queryKey: BOOKS_QUERY_KEY, exact: true}),
+    queryClient.invalidateQueries({queryKey: BOOKS_LIST_VIEW_QUERY_KEY, exact: true}),
     ...[...changeSet.changedBookIds].map(bookId => queryClient.invalidateQueries({
       queryKey: bookDetailQueryPrefix(bookId),
     })),
@@ -53,6 +63,7 @@ async function reconcileLegacyBookChangeSet(
 export async function invalidateAllLegacyBooks(queryClient: QueryClient): Promise<void> {
   await Promise.all([
     queryClient.invalidateQueries({queryKey: BOOKS_QUERY_KEY, exact: true}),
+    queryClient.invalidateQueries({queryKey: BOOKS_LIST_VIEW_QUERY_KEY, exact: true}),
     queryClient.invalidateQueries({queryKey: BOOK_DETAIL_QUERY_PREFIX}),
   ]);
 }
@@ -104,7 +115,7 @@ export function patchListOnlyBooksWith(
   updates: readonly {readonly bookId: number; readonly updater: (book: Book) => Book}[],
 ): Promise<void> {
   const updaterMap = new Map(updates.map(update => [update.bookId, update.updater]));
-  queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, current =>
+  updateBookListCaches(queryClient, current =>
     current?.map(book => updaterMap.get(book.id)?.(book) ?? book)
   );
   return reconcilePatchedLegacyBookChangeSet(queryClient, {
@@ -115,7 +126,7 @@ export function patchListOnlyBooksWith(
 
 export function patchListOnlyBooks(queryClient: QueryClient, updatedBooks: readonly Book[]): void {
   const updatedMap = new Map(updatedBooks.map(book => [book.id, book]));
-  queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, current =>
+  updateBookListCaches(queryClient, current =>
     current?.map(book => updatedMap.get(book.id) ?? book)
   );
 }
@@ -125,7 +136,7 @@ export function removeListOnlyBooks(
   bookIds: Iterable<number>,
 ): Promise<void> {
   const deletedBookIds = new Set(bookIds);
-  queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, current =>
+  updateBookListCaches(queryClient, current =>
     current?.filter(book => !deletedBookIds.has(book.id))
   );
   return reconcilePatchedLegacyBookChangeSet(queryClient, {
@@ -139,14 +150,14 @@ export function patchBookCoversInCache(
   patches: readonly BookCoverPatch[],
 ): void {
   const patchMap = new Map(patches.map(patch => [patch.id, patch.coverUpdatedOn]));
-  queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, current =>
+  const patchCovers = (current: Book[] | undefined): Book[] | undefined =>
     current?.map(book => {
       const coverUpdatedOn = patchMap.get(book.id);
       return coverUpdatedOn && book.metadata
         ? {...book, metadata: {...book.metadata, coverUpdatedOn}}
         : book;
-    })
-  );
+    });
+  updateBookListCaches(queryClient, patchCovers);
 }
 
 export function invalidateAllBookCaches(queryClient: QueryClient): void {
@@ -181,7 +192,7 @@ export function patchBooksInCache(queryClient: QueryClient, updatedBooks: readon
 
 export function upsertListOnlyBooks(queryClient: QueryClient, updatedBooks: readonly Book[]): void {
   const updatedMap = new Map(updatedBooks.map(book => [book.id, book]));
-  queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, current => {
+  const upsert = (current: Book[] | undefined): Book[] | undefined => {
     if (!current) {
       return current;
     }
@@ -190,7 +201,8 @@ export function upsertListOnlyBooks(queryClient: QueryClient, updatedBooks: read
       ...current.map(book => updatedMap.get(book.id) ?? book),
       ...updatedBooks.filter(book => !currentBookIds.has(book.id)),
     ];
-  });
+  };
+  updateBookListCaches(queryClient, upsert);
 }
 
 export function upsertBooksInCache(queryClient: QueryClient, updatedBooks: readonly Book[]): void {
@@ -239,7 +251,7 @@ export function patchAttachedBookFilesInLegacyCache(
 ): Promise<void> {
   const deleted = new Set(deletedBookIds);
   const surviving = new Set(sourceBookIds.filter(bookId => !deleted.has(bookId)));
-  queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, current =>
+  updateBookListCaches(queryClient, current =>
     current
       ?.filter(book => !deleted.has(book.id))
       .map(book => book.id === targetFiles.id ? {...book, ...targetFiles} : book)

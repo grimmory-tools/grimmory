@@ -107,7 +107,13 @@ export class BookCardComponent {
     return this.transloco.translate('book.card.book.unknownTitle');
   });
   protected readonly authors = computed(() => this.book().metadata?.authors ?? []);
-  protected readonly authorsLabel = computed(() => this.authors().join(', '));
+  protected readonly authorsLabel = computed(() => {
+    const authors = this.authors();
+    if (authors.length <= 2) {
+      return authors.join(', ');
+    }
+    return `${authors.slice(0, 2).join(', ')} +${authors.length - 2}`;
+  });
   protected readonly seriesNumber = computed(() => this.book().metadata?.seriesNumber ?? null);
 
   protected readonly shownFile = computed(() => this.file() ?? this.book().primaryFile);

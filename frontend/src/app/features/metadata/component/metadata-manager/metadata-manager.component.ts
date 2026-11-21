@@ -142,6 +142,7 @@ export class MetadataManagerComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit() {
+    this.bookService.loadBooks();
     this.routeSub = this.route.queryParams.subscribe(params => {
       const tabParam = params['tab'] as MetadataType;
       if (this.validTabs.includes(tabParam)) {

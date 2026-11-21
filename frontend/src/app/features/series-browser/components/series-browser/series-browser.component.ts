@@ -73,7 +73,7 @@ export class SeriesBrowserComponent implements OnInit {
   private readonly localStorageService = inject(LocalStorageService);
   private readonly layoutService = inject(LayoutService);
 
-  readonly isBooksLoading = this.bookService.isBooksLoading;
+  readonly isBooksLoading = this.bookService.isListViewBooksLoading;
   private readonly searchTerm = signal('');
   private readonly statusFilter = signal('all');
   private readonly sortBy = signal('name-asc');
@@ -165,6 +165,7 @@ export class SeriesBrowserComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.bookService.loadBooksForListView();
     this.pageTitle.setPageTitle(this.t.translate('seriesBrowser.pageTitle'));
     this.scrollService.trackRoute({
       scrollElement: this.scrollElement,

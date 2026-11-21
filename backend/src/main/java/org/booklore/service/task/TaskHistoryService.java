@@ -50,6 +50,7 @@ public class TaskHistoryService {
             return sb.toString();
         }
         Object bookIds = options.get("bookIds");
+        Object bookCount = options.get("bookCount");
         Object libraryId = options.get("libraryId");
         if (bookIds instanceof Collection<?> ids && !ids.isEmpty()) {
             sb.append(" (").append(ids.size()).append(" books, IDs: ");
@@ -72,6 +73,8 @@ public class TaskHistoryService {
             if (truncated) {
                 sb.append(truncationSuffix);
             }
+        } else if (bookCount instanceof Number count) {
+            sb.append(" (").append(count.intValue()).append(" books)");
         } else if (libraryId != null) {
             sb.append(" (Library ID: ").append(libraryId).append(")");
         }
@@ -88,6 +91,8 @@ public class TaskHistoryService {
             if (status == TaskStatus.COMPLETED || status == TaskStatus.FAILED) {
                 task.setCompletedAt(LocalDateTime.now());
                 task.setProgressPercentage(100);
+            } else if (status == TaskStatus.CANCELLED) {
+                task.setCompletedAt(LocalDateTime.now());
             }
 
             taskHistoryRepository.save(task);

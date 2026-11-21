@@ -12,7 +12,9 @@ export enum TaskType {
   SYNC_LIBRARY_FILES = 'SYNC_LIBRARY_FILES',
   BOOKDROP_PERIODIC_SCANNING = 'BOOKDROP_PERIODIC_SCANNING',
   CLEANUP_TEMP_METADATA = 'CLEANUP_TEMP_METADATA',
-  REFRESH_METADATA_MANUAL = 'REFRESH_METADATA_MANUAL'
+  REFRESH_METADATA_MANUAL = 'REFRESH_METADATA_MANUAL',
+  BULK_UPDATE_BOOK_METADATA = 'BULK_UPDATE_BOOK_METADATA',
+  REPAIR_EPUB_CONTAINERS = 'REPAIR_EPUB_CONTAINERS'
 }
 
 export const TASK_TYPE_CONFIG: Record<TaskType, { parallel: boolean; async: boolean; displayOrder: number }> = {
@@ -24,6 +26,8 @@ export const TASK_TYPE_CONFIG: Record<TaskType, { parallel: boolean; async: bool
   [TaskType.CLEANUP_TEMP_METADATA]: {parallel: false, async: false, displayOrder: 6},
   [TaskType.REFRESH_METADATA_MANUAL]: {parallel: false, async: false, displayOrder: 7},
   [TaskType.CLEAR_PDF_CACHE]: {parallel: false, async: false, displayOrder: 8},
+  [TaskType.BULK_UPDATE_BOOK_METADATA]: {parallel: false, async: true, displayOrder: 9},
+  [TaskType.REPAIR_EPUB_CONTAINERS]: {parallel: false, async: true, displayOrder: 10},
 };
 
 export enum MetadataReplaceMode {
@@ -42,11 +46,10 @@ export interface TaskCreateRequest {
 }
 
 export interface TaskCreateResponse {
-  id?: string;
-  type: string;
+  taskId: string;
+  taskType: TaskType;
   status: TaskStatus;
   message?: string;
-  createdAt?: string;
 }
 
 export interface TaskStatusResponse {
@@ -111,6 +114,17 @@ export interface TaskProgressPayload {
   message: string;
   progress: number; // 0-100 percentage
   taskStatus: TaskStatus;
+  processedCount?: number;
+  totalCount?: number;
+  succeededCount?: number;
+  failedCount?: number;
+  failedBooks?: BulkMetadataUpdateFailure[];
+}
+
+export interface BulkMetadataUpdateFailure {
+  bookId: number;
+  title?: string | null;
+  reason: string;
 }
 
 @Service()

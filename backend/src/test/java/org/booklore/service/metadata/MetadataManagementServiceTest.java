@@ -12,6 +12,7 @@ import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.file.FileMoveService;
 import org.booklore.service.metadata.writer.MetadataWriter;
 import org.booklore.service.metadata.writer.MetadataWriterFactory;
+import org.booklore.util.FileService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,6 +45,7 @@ class MetadataManagementServiceTest {
     @Mock private MetadataWriterFactory metadataWriterFactory;
     @Mock private FileMoveService fileMoveService;
     @Mock private BookRepository bookRepository;
+    @Mock private FileService fileService;
 
     @InjectMocks
     private MetadataManagementService service;
@@ -78,7 +80,55 @@ class MetadataManagementServiceTest {
         assertThat(metadata.getAuthors()).contains(targetAuthor);
         assertThat(metadata.getAuthors()).doesNotContain(oldAuthor);
         verify(authorRepository).delete(oldAuthor);
-        verify(bookMetadataRepository).saveAll(anyList());
+        verify(fileService).deleteAuthorImages(1L);
+        verify(bookMetadataRepository).flush();
+    }
+
+    @Test
+    void consolidateAuthorsProcessesSharedBooksOnlyOnce() {
+        AuthorEntity oldAuthorOne = AuthorEntity.builder().id(1L).name("Old One").build();
+        AuthorEntity oldAuthorTwo = AuthorEntity.builder().id(2L).name("Old Two").build();
+        AuthorEntity targetAuthor = AuthorEntity.builder().id(3L).name("Target").build();
+        when(authorRepository.findByNameIgnoreCase("Target")).thenReturn(Optional.of(targetAuthor));
+        when(authorRepository.save(targetAuthor)).thenReturn(targetAuthor);
+        when(authorRepository.findByNameIgnoreCase("Old One")).thenReturn(Optional.of(oldAuthorOne));
+        when(authorRepository.findByNameIgnoreCase("Old Two")).thenReturn(Optional.of(oldAuthorTwo));
+        when(appSettingService.getAppSettings()).thenReturn(
+                AppSettings.builder()
+                        .metadataPersistenceSettings(MetadataPersistenceSettings.builder()
+                                .moveFilesToLibraryPattern(true)
+                                .build())
+                        .build()
+        );
+
+        BookFileEntity bookFile = BookFileEntity.builder()
+                .fileName("old.epub")
+                .bookType(BookFileType.EPUB)
+                .isBookFormat(true)
+                .build();
+        BookEntity book = BookEntity.builder().id(10L).bookFiles(Set.of(bookFile)).build();
+        BookMetadataEntity metadata = BookMetadataEntity.builder()
+                .bookId(10L)
+                .authors(new ArrayList<>(List.of(oldAuthorOne, oldAuthorTwo)))
+                .book(book)
+                .build();
+        book.setMetadata(metadata);
+        when(bookMetadataRepository.findAllByAuthorsContaining(oldAuthorOne)).thenReturn(List.of(metadata));
+        when(bookMetadataRepository.findAllByAuthorsContaining(oldAuthorTwo)).thenReturn(List.of(metadata));
+        when(fileMoveService.moveSingleFile(book)).thenReturn(
+                FileMoveResult.builder().moved(true).newFileName("target.epub").newFileSubPath("").build()
+        );
+
+        service.consolidateMetadata(
+                MergeMetadataType.authors,
+                List.of("Target"),
+                List.of("Old One", "Old Two")
+        );
+
+        assertThat(metadata.getAuthors()).containsExactly(targetAuthor);
+        verify(fileMoveService, times(1)).moveSingleFile(book);
+        verify(bookMetadataRepository, times(1)).flush();
+        verify(bookRepository, times(1)).flush();
     }
 
     @Test
@@ -96,6 +146,26 @@ class MetadataManagementServiceTest {
 
         service.consolidateMetadata(MergeMetadataType.authors, List.of("New Author"), List.of("Old"));
 
+        verify(authorRepository).delete(oldAuthor);
+    }
+
+    @Test
+    void consolidateAuthorsDoesNotDeleteTheTargetWhenItIsIncludedAmongMergeValues() {
+        AuthorEntity oldAuthor = AuthorEntity.builder().id(1L).name("Old Author").build();
+        AuthorEntity targetAuthor = AuthorEntity.builder().id(2L).name("Target Author").build();
+
+        when(authorRepository.findByNameIgnoreCase("Target Author")).thenReturn(Optional.of(targetAuthor));
+        when(authorRepository.save(targetAuthor)).thenReturn(targetAuthor);
+        when(authorRepository.findByNameIgnoreCase("Old Author")).thenReturn(Optional.of(oldAuthor));
+        when(bookMetadataRepository.findAllByAuthorsContaining(oldAuthor)).thenReturn(List.of());
+
+        service.consolidateMetadata(
+                MergeMetadataType.authors,
+                List.of("Target Author"),
+                List.of("Target Author", "Old Author")
+        );
+
+        verify(authorRepository, never()).delete(targetAuthor);
         verify(authorRepository).delete(oldAuthor);
     }
 
@@ -255,7 +325,7 @@ class MetadataManagementServiceTest {
         }
 
         verify(writer).saveMetadataToFile(any(), eq(metadata), isNull());
-        verify(bookRepository).saveAndFlush(book);
+        verify(bookRepository).flush();
 
         Files.deleteIfExists(tempFile);
         Files.deleteIfExists(subDir);
@@ -314,7 +384,7 @@ class MetadataManagementServiceTest {
 
         assertThat(bookFile.getFileName()).isEqualTo("new.epub");
         assertThat(bookFile.getFileSubPath()).isEqualTo("new/sub");
-        verify(bookRepository).saveAndFlush(book);
+        verify(bookRepository).flush();
 
         Files.deleteIfExists(tempFile);
         Files.deleteIfExists(subDir);
@@ -456,7 +526,7 @@ class MetadataManagementServiceTest {
         service.consolidateMetadata(MergeMetadataType.series, List.of("New"), List.of("Old"));
 
         verify(metadataWriterFactory, never()).getWriter(any());
-        verify(bookRepository, never()).saveAndFlush(any());
+        verify(bookRepository, never()).flush();
     }
 
     @Test
@@ -479,7 +549,7 @@ class MetadataManagementServiceTest {
         service.consolidateMetadata(MergeMetadataType.series, List.of("New"), List.of("Old"));
 
         verify(metadataWriterFactory, never()).getWriter(any());
-        verify(bookRepository, never()).saveAndFlush(any());
+        verify(bookRepository, never()).flush();
     }
 
     @Test
@@ -514,7 +584,7 @@ class MetadataManagementServiceTest {
 
         service.consolidateMetadata(MergeMetadataType.series, List.of("New"), List.of("Old"));
 
-        verify(bookRepository, never()).saveAndFlush(any());
+        verify(bookRepository, never()).flush();
 
         Files.deleteIfExists(tempFile);
         Files.deleteIfExists(subDir);
@@ -572,7 +642,7 @@ class MetadataManagementServiceTest {
         service.consolidateMetadata(MergeMetadataType.authors, List.of("Target"), List.of("Old"));
 
         assertThat(bookFile.getFileName()).isEqualTo("original.epub");
-        verify(bookRepository, never()).saveAndFlush(any());
+        verify(bookRepository, never()).flush();
 
         Files.deleteIfExists(tempFile);
         Files.deleteIfExists(subDir);
@@ -644,7 +714,7 @@ class MetadataManagementServiceTest {
         assertThat(metadata.getAuthors()).contains(targetAuthor);
         assertThat(metadata.getAuthors()).doesNotContain(oldAuthor);
         verify(metadataWriterFactory, never()).getWriter(any());
-        verify(bookRepository, never()).saveAndFlush(any());
+        verify(bookRepository, never()).flush();
         verify(authorRepository).delete(oldAuthor);
     }
 }

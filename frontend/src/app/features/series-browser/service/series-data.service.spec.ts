@@ -56,7 +56,7 @@ describe('SeriesDataService', () => {
     TestBed.configureTestingModule({
       providers: [
         SeriesDataService,
-        {provide: BookService, useValue: {books: books.asReadonly()}},
+        {provide: BookService, useValue: {listViewBooks: books.asReadonly()}},
       ],
     });
 
@@ -137,7 +137,7 @@ describe('SeriesDataService', () => {
     TestBed.configureTestingModule({
       providers: [
         SeriesDataService,
-        {provide: BookService, useValue: {books: books.asReadonly()}},
+        {provide: BookService, useValue: {listViewBooks: books.asReadonly()}},
       ],
     });
 

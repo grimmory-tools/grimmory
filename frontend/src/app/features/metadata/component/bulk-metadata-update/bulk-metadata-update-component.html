@@ -12,15 +12,51 @@
       [rounded]="true"
       [text]="true"
       severity="secondary"
+      [disabled]="loading"
       (click)="ref.close()"
       class="close-button" />
   </div>
 
   <div class="dialog-content">
-    @if (loading) {
-      <div class="loading-overlay">
-        <p-progressSpinner />
+    @if (progressMessage) {
+      <div class="task-progress" role="status" aria-live="polite">
+        <div class="task-progress-heading">
+          <strong>{{ progressMessage }}</strong>
+          @if (activeTaskId) {
+            <span>{{ processedCount }} / {{ bookIds.length }} books</span>
+          }
+        </div>
+        @if (loading) {
+          <progress class="task-progress-bar" max="100" [value]="taskProgress"></progress>
+        }
+        @if (activeTaskId) {
+          <small>{{ succeededCount }} updated · {{ failedCount }} failed</small>
+        }
       </div>
+    }
+
+    @if (failedBooks.length > 0 && !loading) {
+      <section class="failed-books" aria-labelledby="failed-books-title">
+        <div class="failed-books-heading">
+          <div>
+            <h3 id="failed-books-title">Books that could not be updated ({{ failedCount }})</h3>
+            <p>Book IDs and error details are listed below. Export the complete list for large batches.</p>
+          </div>
+          <p-button label="Export CSV" icon="pi pi-download" size="small" (onClick)="downloadFailedBooks()" />
+        </div>
+        <ul class="failed-books-list">
+          @for (failure of visibleFailedBooks; track failure.bookId) {
+            <li>
+              <strong>{{ failure.title || ('#' + failure.bookId) }}</strong>
+              @if (failure.title) { <span>(#{{ failure.bookId }})</span> }
+              — {{ failure.reason }}
+            </li>
+          }
+        </ul>
+        @if (failedBooks.length > visibleFailedBooks.length) {
+          <small>Showing {{ visibleFailedBooks.length }} of {{ failedBooks.length }} failed books.</small>
+        }
+      </section>
     }
 
     <div class="warning-text">
@@ -29,6 +65,23 @@
     </div>
 
     <form [formGroup]="metadataForm" (ngSubmit)="onSubmit()" (keydown)="onFormKeydown($event)" class="bulk-form">
+      <div class="replace-all-option">
+        <p-checkbox
+          inputId="replaceAllMetadata"
+          [(ngModel)]="replaceAll"
+          [ngModelOptions]="{standalone: true}"
+          binary="true"
+          [disabled]="loading" />
+        <label for="replaceAllMetadata" class="replace-all-label">
+          Replace all metadata for the selected books
+        </label>
+      </div>
+      @if (replaceAll) {
+        <p class="replace-all-warning">
+          Empty and unlisted metadata fields will be erased, including provider IDs, ratings, reviews, and audiobook/comic details.
+          Locked fields and the required book title are preserved. Cover images are not changed.
+        </p>
+      }
 
       <div class="form-row">
         <!-- Authors -->
@@ -250,6 +303,7 @@
             [(ngModel)]="mergeCategories"
             [ngModelOptions]="{ standalone: true }"
             binary="true"
+            [disabled]="replaceAll || loading"
           />
           <label for="mergeCategories" class="clear-label">
             Keep existing genres and add new ones (uncheck to remove all existing genres)
@@ -292,6 +346,7 @@
             [(ngModel)]="mergeMoods"
             [ngModelOptions]="{ standalone: true }"
             binary="true"
+            [disabled]="replaceAll || loading"
           />
           <label for="mergeMoods" class="clear-label">
             Keep existing moods and add new ones (uncheck to remove all existing moods)
@@ -334,6 +389,7 @@
             [(ngModel)]="mergeTags"
             [ngModelOptions]="{ standalone: true }"
             binary="true"
+            [disabled]="replaceAll || loading"
           />
           <label for="mergeTags" class="clear-label">
             Keep existing tags and add new ones (uncheck to remove all existing tags)

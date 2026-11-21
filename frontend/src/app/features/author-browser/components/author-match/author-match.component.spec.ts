@@ -4,6 +4,7 @@ import {MessageService} from '@openng/optimus-ui/api';
 import {Subject, throwError} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
+import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 import type {AuthorDetails, AuthorSearchResult} from '../../model/author.model';
 import {AuthorService} from '../../service/author.service';
 import {AuthorMatchComponent} from './author-match.component';
@@ -48,6 +49,12 @@ describe('AuthorMatchComponent', () => {
             translate,
           },
         },
+        {
+          provide: AppSettingsService,
+          useValue: {
+            appSettings: () => ({metadataProviderSettings: {amazon: {domain: 'co.uk'}}}),
+          },
+        },
       ],
     });
   });
@@ -63,6 +70,7 @@ describe('AuthorMatchComponent', () => {
     component.ngOnInit();
 
     expect(component.searchQuery()).toBe('  Ada Lovelace  ');
+    expect(component.selectedRegion()).toBe('uk');
     expect(component.canSearch()).toBe(true);
 
     component.searchQuery.set('   ');

@@ -1,10 +1,10 @@
 import {computed, DestroyRef, effect, inject, Service} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {lastValueFrom, Observable} from 'rxjs';
-import {map, tap} from 'rxjs/operators';
+import {lastValueFrom, Observable, of} from 'rxjs';
+import {map, switchMap, tap} from 'rxjs/operators';
 import {SseClient} from 'ngx-sse-client';
 import {API_CONFIG} from '../../../core/config/api-config';
-import {AuthorSummary, AuthorDetails, AuthorSearchResult, AuthorMatchRequest, AuthorUpdateRequest, AuthorPhotoResult} from '../model/author.model';
+import {AuthorSummary, AuthorDetails, AuthorSearchResult, AuthorMatchRequest, AuthorMatchResolution, AuthorUpdateRequest, AuthorPhotoResult} from '../model/author.model';
 import {Book} from '../../book/model/book.model';
 import {AuthService} from '../../../shared/service/auth.service';
 import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
@@ -93,8 +93,11 @@ export class AuthorService {
     return this.http.get<AuthorDetails>(`${this.baseUrl}/by-name`, {params: {name}});
   }
 
-  searchAuthorMetadata(authorId: number, query: string, region: string, asin?: string): Observable<AuthorSearchResult[]> {
-    const params: Record<string, string> = {region};
+  searchAuthorMetadata(authorId: number, query: string, region?: string, asin?: string): Observable<AuthorSearchResult[]> {
+    const params: Record<string, string> = {};
+    if (region) {
+      params['region'] = region;
+    }
     if (asin) {
       params['asin'] = asin;
     } else {
@@ -103,13 +106,41 @@ export class AuthorService {
     return this.http.get<AuthorSearchResult[]>(`${this.baseUrl}/${authorId}/search-metadata`, {params});
   }
 
+  resolveAuthorMatch(authorId: number, authorName: string, region?: string): Observable<AuthorMatchResolution> {
+    return this.searchAuthorMetadata(authorId, authorName, region).pipe(
+      map(results => {
+        const uniqueCandidates = new Map<string, AuthorSearchResult>();
+        for (const result of results) {
+          if (!uniqueCandidates.has(result.asin)) {
+            uniqueCandidates.set(result.asin, result);
+          }
+        }
+        return [...uniqueCandidates.values()];
+      }),
+      switchMap(candidates => {
+        if (candidates.length === 0) {
+          return of({status: 'not-found'} as const);
+        }
+        if (candidates.length > 1) {
+          return of({status: 'ambiguous', candidates} as const);
+        }
+        const candidate = candidates[0];
+        return this.matchAuthor(authorId, {
+          source: candidate.source,
+          asin: candidate.asin,
+          region,
+        }).pipe(map(author => ({status: 'matched', author, candidate} as const)));
+      })
+    );
+  }
+
   matchAuthor(authorId: number, request: AuthorMatchRequest): Observable<AuthorDetails> {
     return this.http.post<AuthorDetails>(`${this.baseUrl}/${authorId}/match`, request);
   }
 
-  quickMatchAuthor(authorId: number, region: string = 'us'): Observable<AuthorDetails> {
+  quickMatchAuthor(authorId: number, region?: string): Observable<AuthorDetails> {
     return this.http.post<AuthorDetails>(`${this.baseUrl}/${authorId}/quick-match`, null, {
-      params: {region}
+      params: region ? {region} : {},
     });
   }
 
@@ -150,6 +181,12 @@ export class AuthorService {
         invalidateAllBookCaches(this.queryClient);
         invalidateAuthorsQuery(this.queryClient);
       })
+    );
+  }
+
+  deleteAuthorsWithoutBooks(): Observable<number> {
+    return this.http.delete<number>(`${this.baseUrl}/without-books`).pipe(
+      tap(() => invalidateAuthorsQuery(this.queryClient))
     );
   }
 

@@ -405,6 +405,7 @@ export interface BulkMetadataUpdateRequest {
   mergeCategories?: boolean;
   mergeMoods?: boolean;
   mergeTags?: boolean;
+  replaceAll?: boolean;
   ageRating?: number | null;
   clearAgeRating?: boolean;
   contentRating?: string | null;

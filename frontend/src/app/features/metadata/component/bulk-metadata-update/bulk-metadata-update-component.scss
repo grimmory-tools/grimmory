@@ -24,14 +24,58 @@
   position: relative;
 }
 
-.loading-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 50;
+.task-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4375rem;
+  margin: 0 0 0.875rem;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.3281rem;
+  background: var(--color-surface);
+}
+
+.task-progress-heading,
+.failed-books-heading {
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: color-mix(in srgb, var(--color-surface-950) 60%, transparent);
+  justify-content: space-between;
+  gap: 0.875rem;
+}
+
+.task-progress-bar {
+  width: 100%;
+  height: 0.625rem;
+  accent-color: var(--color-primary);
+}
+
+.failed-books {
+  margin-bottom: 0.875rem;
+  padding: 0.875rem;
+  border: 1px solid var(--color-warning);
+  border-radius: 0.3281rem;
+}
+
+.failed-books-heading h3,
+.failed-books-heading p {
+  margin: 0 0 0.25rem;
+}
+
+.failed-books-heading p,
+.failed-books small {
+  color: var(--color-text-secondary);
+  font-size: var(--app-text-sm);
+}
+
+.failed-books-list {
+  max-height: 15rem;
+  overflow: auto;
+  padding-left: 1.25rem;
+  font-size: var(--app-text-sm);
+}
+
+.failed-books-list li + li {
+  margin-top: 0.25rem;
 }
 
 .warning-text {
@@ -43,6 +87,27 @@
 
 .warning-icon {
   margin-right: 0.2188rem;
+}
+
+.replace-all-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.3281rem;
+}
+
+.replace-all-label {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.replace-all-warning {
+  margin: -0.5rem 0 0;
+  padding: 0 0.875rem;
+  color: var(--color-warning);
+  font-size: var(--app-text-sm);
 }
 
 .bulk-form {

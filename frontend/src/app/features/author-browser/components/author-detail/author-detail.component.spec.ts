@@ -10,7 +10,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {BookService} from '../../../book/service/book.service';
 import {CoverScalePreferenceService} from '../../../../shared/service/cover-scale-preference.service';
 import {UserService} from '../../../settings/user-management/user.service';
-import type {AuthorDetails} from '../../model/author.model';
+import type {AuthorDetails, AuthorMatchResolution, AuthorSearchResult} from '../../model/author.model';
 import {AuthorService} from '../../service/author.service';
 import {PageTitleService} from '../../../../shared/service/page-title.service';
 import {AuthorDetailComponent} from './author-detail.component';
@@ -22,7 +22,8 @@ describe('AuthorDetailComponent', () => {
   let getAuthorDetails: ReturnType<typeof vi.fn>;
   let getAuthorPhotoUrl: ReturnType<typeof vi.fn>;
   let patchAuthorInCache: ReturnType<typeof vi.fn>;
-  let quickMatchAuthor: ReturnType<typeof vi.fn>;
+  let resolveAuthorMatch: ReturnType<typeof vi.fn>;
+  let matchAuthor: ReturnType<typeof vi.fn>;
   let getCurrentUser: ReturnType<typeof vi.fn>;
   let setPageTitle: ReturnType<typeof vi.fn>;
   let translate: ReturnType<typeof vi.fn>;
@@ -59,7 +60,8 @@ describe('AuthorDetailComponent', () => {
     getAuthorDetails = vi.fn();
     getAuthorPhotoUrl = vi.fn((authorId: number) => `/api/authors/${authorId}/photo`);
     patchAuthorInCache = vi.fn();
-    quickMatchAuthor = vi.fn();
+    resolveAuthorMatch = vi.fn();
+    matchAuthor = vi.fn();
     getCurrentUser = vi.fn(() => null);
     setPageTitle = vi.fn();
     translate = vi.fn((key: string) => key);
@@ -91,7 +93,8 @@ describe('AuthorDetailComponent', () => {
             getAuthorDetails,
             getAuthorPhotoUrl,
             patchAuthorInCache,
-            quickMatchAuthor,
+            resolveAuthorMatch,
+            matchAuthor,
           },
         },
         {
@@ -260,7 +263,7 @@ describe('AuthorDetailComponent', () => {
     const component = createComponent();
 
     component.quickMatch();
-    expect(quickMatchAuthor).not.toHaveBeenCalled();
+    expect(resolveAuthorMatch).not.toHaveBeenCalled();
 
     component.onAuthorUpdated(baseAuthor);
     vi.clearAllMocks();
@@ -268,16 +271,16 @@ describe('AuthorDetailComponent', () => {
 
     component.quickMatch();
 
-    expect(quickMatchAuthor).not.toHaveBeenCalled();
+    expect(resolveAuthorMatch).not.toHaveBeenCalled();
   });
 
   it('quick-matches the loaded author, patches state, and reports a translated success toast', () => {
-    const quickMatch$ = new Subject<AuthorDetails>();
+    const resolveMatch$ = new Subject<AuthorMatchResolution>();
     const matchedAuthor: AuthorDetails = {
       ...baseAuthor,
       asin: 'B00MATCH',
     };
-    quickMatchAuthor.mockReturnValue(quickMatch$);
+    resolveAuthorMatch.mockReturnValue(resolveMatch$);
 
     const component = createComponent();
     component.onAuthorUpdated(baseAuthor);
@@ -285,11 +288,15 @@ describe('AuthorDetailComponent', () => {
 
     component.quickMatch();
 
-    expect(quickMatchAuthor).toHaveBeenCalledWith(9);
+    expect(resolveAuthorMatch).toHaveBeenCalledWith(9, 'Ada Lovelace');
     expect(component.quickMatching).toBe(true);
 
-    quickMatch$.next(matchedAuthor);
-    quickMatch$.complete();
+    resolveMatch$.next({
+      status: 'matched',
+      author: matchedAuthor,
+      candidate: {source: 'AUDNEXUS', asin: 'B00MATCH', name: 'Ada Lovelace'},
+    });
+    resolveMatch$.complete();
 
     expect(component.quickMatching).toBe(false);
     expect(component.author()).toEqual(matchedAuthor);
@@ -307,8 +314,35 @@ describe('AuthorDetailComponent', () => {
     });
   });
 
+  it('requires explicit selection when quick match returns multiple candidates', () => {
+    const candidate: AuthorSearchResult = {
+      source: 'AUDNEXUS',
+      asin: 'B00MATCH',
+      name: 'Ada Lovelace',
+    };
+    resolveAuthorMatch.mockReturnValue(of({status: 'ambiguous', candidates: [candidate]}));
+    matchAuthor.mockReturnValue(of({...baseAuthor, asin: 'B00MATCH'}));
+
+    const component = createComponent();
+    component.onAuthorUpdated(baseAuthor);
+    vi.clearAllMocks();
+
+    resolveAuthorMatch.mockReturnValue(of({status: 'ambiguous', candidates: [candidate]}));
+    component.quickMatch();
+
+    expect(component.showMatchValidation).toBe(true);
+    expect(component.matchCandidates).toEqual([candidate]);
+    expect(matchAuthor).not.toHaveBeenCalled();
+
+    component.selectMatchCandidate(candidate);
+
+    expect(matchAuthor).toHaveBeenCalledWith(9, {source: 'AUDNEXUS', asin: 'B00MATCH'});
+    expect(component.showMatchValidation).toBe(false);
+    expect(component.author()?.asin).toBe('B00MATCH');
+  });
+
   it('clears the in-flight quick-match flag and reports a translated error toast on failure', () => {
-    quickMatchAuthor.mockReturnValue(throwError(() => new Error('quick match failed')));
+    resolveAuthorMatch.mockReturnValue(throwError(() => new Error('quick match failed')));
 
     const component = createComponent();
     component.onAuthorUpdated(baseAuthor);

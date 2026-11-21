@@ -4729,9 +4729,28 @@
     "footer": {
       "selected": "selected",
       "autoMatch": "Auto-match selected",
+      "mergeAuthors": "Merge authors",
       "deleteSelected": "Delete selected",
       "selectAll": "Select all",
       "deselectAll": "Deselect all"
+    },
+    "cleanup": {
+      "button": "Delete authors without books",
+      "confirmTitle": "Delete authors without books?",
+      "confirmMessage": "This permanently deletes every author that is not associated with a book, along with their images.",
+      "confirmAccept": "Delete",
+      "confirmReject": "Cancel"
+    },
+    "mergeAuthors": {
+      "title": "Merge authors",
+      "description": "{{count}} authors are selected. Choose the author record to keep; books from the other records will be reassigned to it, then the duplicate records and their photos will be removed. Descriptions and ASINs from removed records are not combined.",
+      "targetLabel": "Author record to keep",
+      "targetPlaceholder": "Choose the primary author",
+      "confirm": "Merge authors",
+      "successSummary": "Authors merged",
+      "successDetail": "{{count}} author record(s) were merged into “{{target}}”.",
+      "failureSummary": "Merge failed",
+      "failureDetail": "Could not merge the selected authors."
     },
     "toast": {
       "deleteSuccessSummary": "Author Deleted",
@@ -4740,6 +4759,7 @@
       "deleteFailedDetail": "Failed to delete author.",
       "autoMatchSuccessSummary": "Auto-Match Complete",
       "autoMatchSuccessDetail": "Selected authors have been matched successfully.",
+      "autoMatchResultsDetail": "{{matched}} updated, {{ambiguous}} ambiguous skipped, {{noResults}} with no result, {{failed}} failed.",
       "autoMatchFailedSummary": "Auto-Match Failed",
       "autoMatchFailedDetail": "Failed to auto-match selected authors.",
       "quickMatchSuccessSummary": "Quick Match Complete",
@@ -4747,7 +4767,13 @@
       "quickMatchFailedSummary": "Quick Match Failed",
       "quickMatchFailedDetail": "Failed to quick-match the author.",
       "deleteSelectedSuccessSummary": "Authors Deleted",
-      "deleteSelectedSuccessDetail": "Selected authors have been deleted successfully."
+      "deleteSelectedSuccessDetail": "Selected authors have been deleted successfully.",
+      "cleanupSuccessSummary": "Cleanup complete",
+      "cleanupSuccessDetail": "Deleted {{count}} author(s) without books.",
+      "cleanupEmptySummary": "Nothing to clean up",
+      "cleanupEmptyDetail": "No authors without books were found.",
+      "cleanupFailedSummary": "Cleanup failed",
+      "cleanupFailedDetail": "Could not delete authors without books."
     },
     "card": {
       "matched": "Matched",
@@ -4831,6 +4857,12 @@
         "matchFailedSummary": "Match Failed",
         "matchFailedDetail": "Failed to match author with external metadata."
       }
+    },
+    "matchValidation": {
+      "title": "Validate author match",
+      "description": "Multiple matches were found for “{{author}}”. Choose the correct author before updating metadata.",
+      "select": "Use this match",
+      "skip": "Skip this author"
     }
   },
   "browse": {

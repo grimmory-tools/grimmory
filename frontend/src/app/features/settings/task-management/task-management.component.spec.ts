@@ -200,6 +200,28 @@ describe('TaskManagementComponent', () => {
     expect(loadTasksSpy).toHaveBeenCalledTimes(2);
   });
 
+  it('reloads task history after a task is cancelled', () => {
+    const loadTasksSpy = vi.spyOn(component, 'loadTasks');
+    fixture.detectChanges();
+
+    taskProgressSubject.next({
+      taskId: 'task-2',
+      taskType: TaskType.REPAIR_EPUB_CONTAINERS,
+      message: 'cancelled',
+      progress: 10,
+      taskStatus: TaskStatus.CANCELLED,
+    });
+
+    expect(component.getTaskHistory(TaskType.REPAIR_EPUB_CONTAINERS)).toMatchObject({
+      id: 'task-2',
+      status: TaskStatus.CANCELLED,
+      completedAt: expect.any(String),
+    });
+
+    vi.advanceTimersByTime(1000);
+    expect(loadTasksSpy).toHaveBeenCalledTimes(2);
+  });
+
   it('refreshes task progress in the DOM after websocket updates', async () => {
     vi.useRealTimers();
 

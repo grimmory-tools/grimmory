@@ -11,6 +11,7 @@ import {
   removeListOnlyBooks,
 } from './legacy-book-cache';
 import {
+  BOOKS_LIST_VIEW_QUERY_KEY,
   BOOKS_QUERY_KEY,
   bookDetailQueryKey,
 } from './book-query-keys';
@@ -41,6 +42,7 @@ describe('legacy book cache adapter', () => {
 
   it('fans a changeset out to both worlds and removes deleted legacy leaves', async () => {
     queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, [makeBook(1), makeBook(201), makeBook(401)]);
+    queryClient.setQueryData<Book[]>(BOOKS_LIST_VIEW_QUERY_KEY, [makeBook(1), makeBook(201), makeBook(401)]);
     queryClient.setQueryData(bookDetailQueryKey(201, false), makeBook(201));
     queryClient.setQueryData(bookDetailQueryKey(401, false), makeBook(401));
     queryClient.setQueryData(bookQueryKeys.detail(201, false), makeBook(201));
@@ -52,6 +54,7 @@ describe('legacy book cache adapter', () => {
     );
 
     expect(isInvalidated(BOOKS_QUERY_KEY)).toBe(true);
+    expect(isInvalidated(BOOKS_LIST_VIEW_QUERY_KEY)).toBe(true);
     expect(isInvalidated(bookDetailQueryKey(201, false))).toBe(true);
     expect(isInvalidated(bookDetailQueryKey(401, false))).toBe(false);
     expect(isInvalidated(bookQueryKeys.detail(201, false))).toBe(true);
@@ -60,6 +63,7 @@ describe('legacy book cache adapter', () => {
   it('leaves the surgically patched legacy list fresh while invalidating dependents', () => {
     const original = makeBook(1);
     queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, [original]);
+    queryClient.setQueryData<Book[]>(BOOKS_LIST_VIEW_QUERY_KEY, [original]);
     queryClient.setQueryData(bookDetailQueryKey(1, false), original);
     queryClient.setQueryData(bookQueryKeys.detail(1, false), original);
 
@@ -68,7 +72,9 @@ describe('legacy book cache adapter', () => {
     ]);
 
     expect(queryClient.getQueryData<Book[]>(BOOKS_QUERY_KEY)![0].metadata!.titleLocked).toBe(true);
+    expect(queryClient.getQueryData<Book[]>(BOOKS_LIST_VIEW_QUERY_KEY)![0].metadata!.titleLocked).toBe(true);
     expect(isInvalidated(BOOKS_QUERY_KEY)).toBe(false);
+    expect(isInvalidated(BOOKS_LIST_VIEW_QUERY_KEY)).toBe(false);
     expect(isInvalidated(bookDetailQueryKey(1, false))).toBe(true);
     expect(isInvalidated(bookQueryKeys.detail(1, false))).toBe(true);
   });

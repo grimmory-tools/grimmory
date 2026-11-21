@@ -55,6 +55,7 @@ public class BookMetadata {
     private String lubimyczytacId;
     private String ranobedbId;
     private Double ranobedbRating;
+    private Integer reviewCount;
     private String audibleId;
     private Double audibleRating;
     private Integer audibleReviewCount;

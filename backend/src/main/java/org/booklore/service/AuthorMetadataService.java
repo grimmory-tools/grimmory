@@ -13,6 +13,7 @@ import org.booklore.model.dto.Library;
 import org.booklore.model.dto.request.AuthorMatchRequest;
 import org.booklore.model.dto.request.AuthorUpdateRequest;
 import org.booklore.model.dto.settings.AppSettings;
+import org.booklore.model.dto.settings.MetadataProviderSettings;
 import org.booklore.model.entity.AuthorEntity;
 import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.enums.AuditAction;
@@ -37,6 +38,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,6 +55,28 @@ import java.util.stream.Stream;
 @AllArgsConstructor
 @Transactional(readOnly = true)
 public class AuthorMetadataService {
+
+    private static final Map<String, String> AMAZON_DOMAIN_REGIONS = Map.ofEntries(
+            Map.entry("com", "us"),
+            Map.entry("de", "de"),
+            Map.entry("co.uk", "uk"),
+            Map.entry("co.jp", "jp"),
+            Map.entry("ca", "ca"),
+            Map.entry("in", "in"),
+            Map.entry("com.au", "au"),
+            Map.entry("fr", "fr"),
+            Map.entry("it", "it"),
+            Map.entry("es", "es"),
+            Map.entry("nl", "nl"),
+            Map.entry("com.br", "br"),
+            Map.entry("sg", "sg"),
+            Map.entry("com.mx", "mx"),
+            Map.entry("se", "se"),
+            Map.entry("pl", "pl"),
+            Map.entry("ae", "ae"),
+            Map.entry("sa", "sa"),
+            Map.entry("tr", "tr")
+    );
 
     private final AuthorRepository authorRepository;
     private final Map<AuthorMetadataSource, AuthorParser> authorParserMap;
@@ -89,17 +113,18 @@ public class AuthorMetadataService {
     }
 
     public List<AuthorSearchResult> searchAuthorMetadata(String name, String region) {
-        return authorParserMap.values().stream()
-                .flatMap(provider -> {
-                    List<AuthorSearchResult> results = provider.searchAuthors(name, region);
-                    return results != null ? results.stream() : Stream.empty();
-                })
-                .toList();
+        MetadataProviderSettings.Amazon amazonSettings = getAmazonSettings();
+        ensureAmazonProviderEnabled(amazonSettings);
+        String resolvedRegion = resolveRegion(region, amazonSettings);
+        return searchAuthorCandidates(name, resolvedRegion);
     }
 
     public List<AuthorSearchResult> lookupAuthorByAsin(String asin, String region) {
+        MetadataProviderSettings.Amazon amazonSettings = getAmazonSettings();
+        ensureAmazonProviderEnabled(amazonSettings);
+        String resolvedRegion = resolveRegion(region, amazonSettings);
         return authorParserMap.values().stream()
-                .map(provider -> provider.getAuthorByAsin(asin, region))
+                .map(provider -> provider.getAuthorByAsin(asin, resolvedRegion))
                 .filter(Objects::nonNull)
                 .toList();
     }
@@ -114,7 +139,10 @@ public class AuthorMetadataService {
             throw ApiError.GENERIC_BAD_REQUEST.createException("Unsupported author metadata source: " + request.getSource());
         }
 
-        AuthorSearchResult result = provider.getAuthorByAsin(request.getAsin(), request.getRegion());
+        MetadataProviderSettings.Amazon amazonSettings = getAmazonSettings();
+        ensureAmazonProviderEnabled(amazonSettings);
+        String region = resolveRegion(request.getRegion(), amazonSettings);
+        AuthorSearchResult result = provider.getAuthorByAsin(request.getAsin(), region);
         if (result == null) {
             throw ApiError.GENERIC_BAD_REQUEST.createException("Failed to fetch author metadata");
         }
@@ -134,36 +162,69 @@ public class AuthorMetadataService {
 
     @Transactional
     public AuthorDetails quickMatchAuthor(Long authorId, String region) {
+        MetadataProviderSettings.Amazon amazonSettings = getAmazonSettings();
+        ensureAmazonProviderEnabled(amazonSettings);
+        return quickMatchAuthor(authorId, resolveRegion(region, amazonSettings), amazonSettings);
+    }
+
+    private AuthorDetails quickMatchAuthor(
+            Long authorId,
+            String region,
+            MetadataProviderSettings.Amazon amazonSettings) {
         AuthorEntity author = authorRepository.findById(authorId)
                 .orElseThrow(() -> ApiError.AUTHOR_NOT_FOUND.createException(authorId));
 
-        for (AuthorParser provider : authorParserMap.values()) {
-            AuthorSearchResult result = provider.quickSearch(author.getName(), region);
-            if (result != null) {
-                applyMetadataResult(author, result);
-                authorRepository.save(author);
-
-                if (!author.isPhotoLocked() && result.getImageUrl() != null && !result.getImageUrl().isBlank()) {
-                    fileService.createAuthorThumbnailFromUrl(author.getId(), result.getImageUrl());
-                }
-
-                auditService.log(AuditAction.AUTHOR_METADATA_UPDATED, "Author", authorId,
-                        "Quick-matched author '" + author.getName() + "' via " + result.getSource() + " (ASIN: " + result.getAsin() + ")");
-
-                return toAuthorDetails(author);
-            }
+        List<AuthorSearchResult> candidates = searchAuthorCandidates(author.getName(), region);
+        if (candidates.isEmpty()) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("No metadata found for author: " + author.getName());
+        }
+        if (candidates.size() > 1) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException(
+                    "Multiple metadata matches found for author; manual validation required: " + author.getName());
         }
 
-        throw ApiError.GENERIC_BAD_REQUEST.createException("No metadata found for author: " + author.getName());
+        AuthorSearchResult result = candidates.getFirst();
+        applyMetadataResult(author, result);
+        authorRepository.save(author);
+
+        if (!author.isPhotoLocked() && result.getImageUrl() != null && !result.getImageUrl().isBlank()) {
+            fileService.createAuthorThumbnailFromUrl(author.getId(), result.getImageUrl());
+        }
+
+        auditService.log(AuditAction.AUTHOR_METADATA_UPDATED, "Author", authorId,
+                "Quick-matched author '" + author.getName() + "' via " + result.getSource() + " (ASIN: " + result.getAsin() + ")");
+
+        return toAuthorDetails(author);
+    }
+
+    private List<AuthorSearchResult> searchAuthorCandidates(String name, String region) {
+        Map<String, AuthorSearchResult> candidatesByAsin = new LinkedHashMap<>();
+        for (AuthorParser provider : authorParserMap.values()) {
+            List<AuthorSearchResult> candidates = provider.searchAuthors(name, region);
+            if (candidates == null) {
+                continue;
+            }
+            for (AuthorSearchResult candidate : candidates) {
+                if (candidate != null && candidate.getAsin() != null && !candidate.getAsin().isBlank()) {
+                    candidatesByAsin.putIfAbsent(candidate.getAsin(), candidate);
+                }
+            }
+        }
+        return new ArrayList<>(candidatesByAsin.values());
     }
 
     public Flux<AuthorSummary> autoMatchAuthors(List<Long> authorIds) {
+        MetadataProviderSettings.Amazon amazonSettings = getAmazonSettings();
+        if (!isAmazonProviderEnabled(amazonSettings)) {
+            return Flux.error(ApiError.GENERIC_BAD_REQUEST.createException("Amazon metadata provider is disabled"));
+        }
+        String region = resolveRegion(null, amazonSettings);
         return Flux.fromIterable(authorIds)
                 .concatMap(authorId ->
                         Mono.fromCallable(() -> {
                             AuthorEntity author = authorRepository.findById(authorId).orElse(null);
                             if (author == null) return null;
-                            AuthorDetails details = quickMatchAuthor(authorId, "us");
+                            AuthorDetails details = quickMatchAuthor(authorId, region, amazonSettings);
                             return AuthorSummary.builder()
                                     .id(details.getId())
                                     .name(details.getName())
@@ -180,6 +241,31 @@ public class AuthorMetadataService {
                         })
                 )
                 .filter(Objects::nonNull);
+    }
+
+    private MetadataProviderSettings.Amazon getAmazonSettings() {
+        AppSettings settings = appSettingService.getAppSettings();
+        return settings == null || settings.getMetadataProviderSettings() == null
+                ? null
+                : settings.getMetadataProviderSettings().getAmazon();
+    }
+
+    private boolean isAmazonProviderEnabled(MetadataProviderSettings.Amazon amazonSettings) {
+        return amazonSettings != null && amazonSettings.isEnabled();
+    }
+
+    private void ensureAmazonProviderEnabled(MetadataProviderSettings.Amazon amazonSettings) {
+        if (!isAmazonProviderEnabled(amazonSettings)) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("Amazon metadata provider is disabled");
+        }
+    }
+
+    private String resolveRegion(String requestedRegion, MetadataProviderSettings.Amazon amazonSettings) {
+        if (requestedRegion != null && !requestedRegion.isBlank()) {
+            return requestedRegion.trim();
+        }
+        String domain = amazonSettings == null ? null : amazonSettings.getDomain();
+        return AMAZON_DOMAIN_REGIONS.getOrDefault(domain, "us");
     }
 
     @Transactional
@@ -204,20 +290,32 @@ public class AuthorMetadataService {
             AuthorEntity author = authorRepository.findById(authorId).orElse(null);
             if (author == null) continue;
 
-            String authorName = author.getName();
-
-            if (author.getBookMetadataEntityList() != null) {
-                for (BookMetadataEntity metadata : author.getBookMetadataEntityList()) {
-                    metadata.getAuthors().remove(author);
-                }
-            }
-
-            fileService.deleteAuthorImages(authorId);
-            authorRepository.delete(author);
-
-            auditService.log(AuditAction.AUTHOR_DELETED, "Author", authorId,
-                    "Deleted author '" + authorName + "'");
+            deleteAuthor(author);
         }
+    }
+
+    @Transactional
+    public int deleteAuthorsWithoutBooks() {
+        List<AuthorEntity> authors = authorRepository.findAuthorsWithoutBooks();
+        authors.forEach(this::deleteAuthor);
+        return authors.size();
+    }
+
+    private void deleteAuthor(AuthorEntity author) {
+        Long authorId = author.getId();
+        String authorName = author.getName();
+
+        if (author.getBookMetadataEntityList() != null) {
+            for (BookMetadataEntity metadata : author.getBookMetadataEntityList()) {
+                metadata.getAuthors().remove(author);
+            }
+        }
+
+        fileService.deleteAuthorImages(authorId);
+        authorRepository.delete(author);
+
+        auditService.log(AuditAction.AUTHOR_DELETED, "Author", authorId,
+                "Deleted author '" + authorName + "'");
     }
 
     private long getMaxFileUploadSizeMb() {

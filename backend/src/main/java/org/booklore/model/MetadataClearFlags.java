@@ -23,6 +23,8 @@ public class MetadataClearFlags {
     private boolean hardcoverBookId;
     private boolean googleId;
     private boolean pageCount;
+    private boolean rating;
+    private boolean reviewCount;
     private boolean language;
     private boolean amazonRating;
     private boolean amazonReviewCount;

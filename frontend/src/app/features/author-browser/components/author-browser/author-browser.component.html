@@ -27,6 +27,16 @@
             class="search-input"/>
         </div>
 
+        @if (canDeleteBook) {
+          <p-button
+            [label]="t('cleanup.button')"
+            icon="pi pi-user-minus"
+            severity="danger"
+            [outlined]="true"
+            [disabled]="deletingAuthorsWithoutBooks()"
+            (onClick)="cleanupAuthorsWithoutBooks()" />
+        }
+
         <div class="filter-sort-wrapper">
           <p-select
             [options]="sortOptions"
@@ -222,14 +232,26 @@
             <span class="selected-count">{{ selectedCount() }}</span>
             <span class="selected-label">{{ t('footer.selected') }}</span>
           </div>
-          @if (canEditMetadata || canDeleteBook) {
+          @if (canEditMetadata || canBulkEditMetadata || canDeleteBook) {
             <p-divider layout="vertical" />
             <div class="action-buttons-group">
+              @if (canBulkEditMetadata) {
+                <p-button
+                  icon="pi pi-users"
+                  outlined="true"
+                  severity="help"
+                  [disabled]="selectedCount() < 2 || mergingAuthors() || autoMatchInProgress()"
+                  (onClick)="openMergeAuthorsDialog()"
+                  [pTooltip]="t('footer.mergeAuthors')"
+                  tooltipPosition="top" />
+              }
               @if (canEditMetadata) {
                 <p-button
                   icon="pi pi-bolt"
                   outlined="true"
                   severity="info"
+                  [loading]="autoMatchInProgress()"
+                  [disabled]="autoMatchInProgress()"
                   (onClick)="autoMatchSelected()"
                   [pTooltip]="t('footer.autoMatch')"
                   tooltipPosition="top" />
@@ -266,5 +288,55 @@
       </div>
     }
   }
+  <app-author-match-validation-dialog
+    [visible]="pendingMatch() !== null"
+    [authorName]="pendingMatch()?.author?.name ?? ''"
+    [candidates]="pendingMatch()?.candidates ?? []"
+    [disabled]="applyingPendingMatch()"
+    (candidateSelected)="selectPendingMatch($event)"
+    (dismissed)="skipPendingMatch()" />
+  <p-dialog
+    [header]="t('mergeAuthors.title')"
+    [visible]="mergeAuthorsDialogVisible()"
+    (onHide)="closeMergeAuthorsDialog()"
+    [modal]="true"
+    [closable]="!mergingAuthors()"
+    [closeOnEscape]="!mergingAuthors()"
+    [dismissableMask]="!mergingAuthors()"
+    [style]="{width: 'min(40rem, 95vw)'}">
+    <p>{{ t('mergeAuthors.description', {count: mergeCandidates().length}) }}</p>
+    <div class="merge-target-field">
+      <label for="merge-author-target">{{ t('mergeAuthors.targetLabel') }}</label>
+      <p-select
+        inputId="merge-author-target"
+        [options]="mergeCandidates()"
+        [ngModel]="mergeTargetAuthorId()"
+        (ngModelChange)="mergeTargetAuthorId.set($event)"
+        [filter]="true"
+        filterBy="name"
+        optionLabel="name"
+        optionValue="id"
+        [placeholder]="t('mergeAuthors.targetPlaceholder')"
+        class="merge-target-select" />
+    </div>
+    <ul class="merge-author-list">
+      @for (author of mergeCandidates(); track author.id) {
+        <li>{{ author.name }} <span>({{ author.bookCount }} {{ t('card.books') }})</span></li>
+      }
+    </ul>
+    <ng-template #footer>
+      <p-button
+        [label]="'common.cancel' | transloco"
+        severity="secondary"
+        [disabled]="mergingAuthors()"
+        (onClick)="closeMergeAuthorsDialog()" />
+      <p-button
+        [label]="t('mergeAuthors.confirm')"
+        icon="pi pi-users"
+        [loading]="mergingAuthors()"
+        [disabled]="mergingAuthors() || mergeTargetAuthorId() === null"
+        (onClick)="confirmMergeAuthors()" />
+    </ng-template>
+  </p-dialog>
 </div>
 </ng-container>

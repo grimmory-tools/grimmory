@@ -100,6 +100,26 @@ class TaskHistoryServiceTest {
     }
 
     @Test
+    void testUpdateTaskStatus_marksCancelledTaskAsComplete() {
+        String taskId = "cancelled-task";
+        TaskHistoryEntity entity = TaskHistoryEntity.builder()
+                .id(taskId)
+                .type(TaskType.BULK_UPDATE_BOOK_METADATA)
+                .status(TaskStatus.IN_PROGRESS)
+                .progressPercentage(25)
+                .createdAt(FIXED_TIME)
+                .build();
+        when(taskHistoryRepository.findById(taskId)).thenReturn(Optional.of(entity));
+
+        taskHistoryService.updateTaskStatus(taskId, TaskStatus.CANCELLED, "Cancelled");
+
+        assertEquals(TaskStatus.CANCELLED, entity.getStatus());
+        assertEquals(25, entity.getProgressPercentage());
+        assertNotNull(entity.getCompletedAt());
+        verify(taskHistoryRepository).save(entity);
+    }
+
+    @Test
     void testUpdateTaskError_foundAndUpdated() {
         String taskId = "task3";
         TaskHistoryEntity entity = TaskHistoryEntity.builder()

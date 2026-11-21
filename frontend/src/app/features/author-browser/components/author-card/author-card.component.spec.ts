@@ -2,16 +2,17 @@ import {ChangeDetectorRef, SimpleChange} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {TranslocoService} from '@jsverse/transloco';
 import {MessageService} from '@openng/optimus-ui/api';
-import {Subject, throwError} from 'rxjs';
+import {of, Subject, throwError} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
-import type {AuthorDetails, AuthorSummary} from '../../model/author.model';
+import type {AuthorDetails, AuthorMatchResolution, AuthorSearchResult, AuthorSummary} from '../../model/author.model';
 import {AuthorService} from '../../service/author.service';
 import {AuthorCardComponent} from './author-card.component';
 
 describe('AuthorCardComponent', () => {
   let getAuthorThumbnailUrl: ReturnType<typeof vi.fn>;
-  let quickMatchAuthor: ReturnType<typeof vi.fn>;
+  let resolveAuthorMatch: ReturnType<typeof vi.fn>;
+  let matchAuthor: ReturnType<typeof vi.fn>;
   let messageService: Pick<MessageService, 'add'>;
   let translate: ReturnType<typeof vi.fn>;
   let markForCheck: ReturnType<typeof vi.fn>;
@@ -47,7 +48,8 @@ describe('AuthorCardComponent', () => {
 
   beforeEach(() => {
     getAuthorThumbnailUrl = vi.fn((authorId: number, cacheBuster?: number) => `/authors/${authorId}/thumbnail?t=${cacheBuster ?? 'none'}`);
-    quickMatchAuthor = vi.fn();
+    resolveAuthorMatch = vi.fn();
+    matchAuthor = vi.fn();
     messageService = {
       add: vi.fn(),
     };
@@ -60,7 +62,8 @@ describe('AuthorCardComponent', () => {
           provide: AuthorService,
           useValue: {
             getAuthorThumbnailUrl,
-            quickMatchAuthor,
+            resolveAuthorMatch,
+            matchAuthor,
           },
         },
         {
@@ -218,8 +221,8 @@ describe('AuthorCardComponent', () => {
   });
 
   it('quick-matches through the lazy menu command and reports success state', () => {
-    const quickMatch$ = new Subject<AuthorDetails>();
-    quickMatchAuthor.mockReturnValue(quickMatch$);
+    const resolveMatch$ = new Subject<AuthorMatchResolution>();
+    resolveAuthorMatch.mockReturnValue(resolveMatch$);
 
     const component = createComponent({canQuickMatch: true});
     const emitSpy = vi.spyOn(component.quickMatched, 'emit');
@@ -229,19 +232,28 @@ describe('AuthorCardComponent', () => {
 
     quickMatchItem?.command?.({originalEvent: new Event('click'), item: quickMatchItem});
 
-    expect(quickMatchAuthor).toHaveBeenCalledWith(9);
+    expect(resolveAuthorMatch).toHaveBeenCalledWith(9, 'Ada Lovelace');
     expect(component.quickMatching).toBe(true);
 
-    quickMatch$.next({
-      id: 9,
-      name: 'Ada Lovelace',
-      asin: 'B00MATCH',
-      nameLocked: false,
-      descriptionLocked: false,
-      asinLocked: true,
-      photoLocked: false,
+    resolveMatch$.next({
+      status: 'matched',
+      author: {
+        id: 9,
+        name: 'Ada Lovelace',
+        asin: 'B00MATCH',
+        nameLocked: false,
+        descriptionLocked: false,
+        asinLocked: true,
+        photoLocked: false,
+      },
+      candidate: {
+        source: 'AUDNEXUS',
+        asin: 'B00MATCH',
+        name: 'Ada Lovelace',
+        imageUrl: 'https://example.com/ada.jpg',
+      },
     });
-    quickMatch$.complete();
+    resolveMatch$.complete();
 
     expect(component.quickMatching).toBe(false);
     expect(component.author).toEqual({
@@ -261,8 +273,43 @@ describe('AuthorCardComponent', () => {
     expect(markForCheck).toHaveBeenCalledTimes(2);
   });
 
+  it('shows multiple candidates and only updates after the user selects one', () => {
+    const candidate: AuthorSearchResult = {
+      source: 'AUDNEXUS',
+      asin: 'B00MATCH',
+      name: 'Ada Lovelace',
+    };
+    resolveAuthorMatch.mockReturnValue(of({status: 'ambiguous', candidates: [candidate]}));
+    matchAuthor.mockReturnValue(of({
+      id: 9,
+      name: 'Ada Lovelace',
+      asin: 'B00MATCH',
+      nameLocked: false,
+      descriptionLocked: false,
+      asinLocked: false,
+      photoLocked: false,
+    } satisfies AuthorDetails));
+
+    const component = createComponent({canQuickMatch: true});
+    const emitSpy = vi.spyOn(component.quickMatched, 'emit');
+
+    component.onMenuToggle(new Event('click'), {toggle: vi.fn()} as never);
+    const quickMatchItem = component.items.find(item => item.label === 'authorBrowser.card.menu.quickMatch');
+    quickMatchItem?.command?.({originalEvent: new Event('click'), item: quickMatchItem});
+
+    expect(component.showMatchValidation).toBe(true);
+    expect(component.matchCandidates).toEqual([candidate]);
+    expect(matchAuthor).not.toHaveBeenCalled();
+
+    component.selectMatchCandidate(candidate);
+
+    expect(matchAuthor).toHaveBeenCalledWith(9, {source: 'AUDNEXUS', asin: 'B00MATCH'});
+    expect(component.showMatchValidation).toBe(false);
+    expect(emitSpy).toHaveBeenCalledOnce();
+  });
+
   it('clears quickMatching and reports an error toast when quick match fails', () => {
-    quickMatchAuthor.mockReturnValue(throwError(() => new Error('boom')));
+    resolveAuthorMatch.mockReturnValue(throwError(() => new Error('boom')));
 
     const component = createComponent({canQuickMatch: true});
     const emitSpy = vi.spyOn(component.quickMatched, 'emit');

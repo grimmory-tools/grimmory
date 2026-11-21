@@ -74,6 +74,22 @@ describe('BookCardComponent', () => {
     expect(progressWidth(makeBook())).toBeUndefined();
   });
 
+  it('summarizes long author lists while retaining the complete names in the title', () => {
+    fixture.componentRef.setInput('book', makeBook({
+      metadata: {
+        bookId: 1,
+        title: 'The Warden',
+        authors: ['Anthony Trollope', 'Author Two', 'Author Three'],
+        allMetadataLocked: false,
+      },
+    }));
+    fixture.detectChanges();
+
+    const authorLabel = host.querySelector<HTMLElement>('[data-testid="meta"] div:nth-child(2)');
+    expect(authorLabel?.textContent?.trim()).toBe('Anthony Trollope, Author Two +1');
+    expect(authorLabel?.title).toBe('Anthony Trollope, Author Two, Author Three');
+  });
+
   it('uses client-side navigation for an ordinary link click', () => {
     fixture.componentRef.setInput('book', makeBook());
     const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);

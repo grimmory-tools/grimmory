@@ -349,6 +349,7 @@ export class SeriesPageComponent implements AfterViewChecked {
   });
 
   constructor() {
+    this.bookService.loadBooks();
     effect(onCleanup => {
       const scroller = this.tabPanels()?.nativeElement;
       const details = this.seriesDetails()?.nativeElement;

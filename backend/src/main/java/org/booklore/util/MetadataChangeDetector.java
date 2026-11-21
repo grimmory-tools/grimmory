@@ -26,7 +26,7 @@ public class MetadataChangeDetector {
             boolean includedInFileWrite
     ) {
         boolean isUnlocked(BookMetadataEntity entity) {
-            return !isTrue(entityLockGetter.apply(entity));
+            return entityLockGetter == null || !isTrue(entityLockGetter.apply(entity));
         }
 
         boolean shouldClear(MetadataClearFlags flags) {
@@ -187,6 +187,14 @@ public class MetadataChangeDetector {
                     BookMetadata::getPageCount, BookMetadataEntity::getPageCount,
                     BookMetadata::getPageCountLocked, BookMetadataEntity::getPageCountLocked,
                     MetadataClearFlags::isPageCount, true),
+            new FieldDescriptor<>("rating",
+                    BookMetadata::getRating, BookMetadataEntity::getRating,
+                    null, null,
+                    MetadataClearFlags::isRating, true),
+            new FieldDescriptor<>("reviewCount",
+                    BookMetadata::getReviewCount, BookMetadataEntity::getReviewCount,
+                    null, null,
+                    MetadataClearFlags::isReviewCount, true),
             new FieldDescriptor<>("amazonRating",
                     BookMetadata::getAmazonRating, BookMetadataEntity::getAmazonRating,
                     BookMetadata::getAmazonRatingLocked, BookMetadataEntity::getAmazonRatingLocked,

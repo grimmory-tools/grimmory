@@ -4,6 +4,7 @@ import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.APIException;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.TaskInfo;
+import org.booklore.model.dto.request.BulkMetadataUpdateRequest;
 import org.booklore.model.dto.request.TaskCreateRequest;
 import org.booklore.model.dto.response.CronConfig;
 import org.booklore.model.dto.response.TaskCreateResponse;
@@ -20,6 +21,7 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -199,6 +201,39 @@ class TaskServiceTest {
 
         assertEquals(asyncType, resp.getTaskType());
         assertEquals(TaskStatus.ACCEPTED, resp.getStatus());
+    }
+
+    @Test
+    void bulkMetadataTaskStoresOnlyBookCountInTaskHistoryOptions() {
+        TaskType taskType = TaskType.BULK_UPDATE_BOOK_METADATA;
+        Task bulkTask = mock(Task.class);
+        when(bulkTask.getTaskType()).thenReturn(taskType);
+        taskService = new TaskService(
+                authenticationService,
+                taskHistoryService,
+                taskCronService,
+                List.of(bulkTask),
+                cancellationManager,
+                taskExecutor,
+                objectMapper,
+                taskScheduler
+        );
+
+        BookLoreUser user = new BookLoreUser();
+        user.setId(10L);
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+
+        BulkMetadataUpdateRequest updateRequest = new BulkMetadataUpdateRequest();
+        updateRequest.setBookIds(Set.of(1L, 2L, 3L));
+        TaskCreateRequest request = TaskCreateRequest.builder()
+                .taskType(taskType)
+                .options(updateRequest)
+                .build();
+
+        TaskCreateResponse response = taskService.runAsUser(request);
+
+        assertEquals(TaskStatus.ACCEPTED, response.getStatus());
+        verify(taskHistoryService).createTask(anyString(), eq(taskType), eq(10L), eq(Map.of("bookCount", 3)));
     }
 
     @Test

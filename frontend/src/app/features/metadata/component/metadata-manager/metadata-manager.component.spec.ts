@@ -36,7 +36,7 @@ describe('MetadataManagerComponent', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        {provide: BookService, useValue: {books, isBooksLoading}},
+        {provide: BookService, useValue: {books, isBooksLoading, loadBooks: vi.fn()}},
         {provide: BookMetadataManageService, useValue: {consolidateMetadata, deleteMetadata}},
         {provide: PageTitleService, useValue: {setPageTitle}},
         {provide: TranslocoService, useValue: {translate}},

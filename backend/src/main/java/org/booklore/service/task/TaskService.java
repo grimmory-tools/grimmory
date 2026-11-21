@@ -5,6 +5,7 @@ import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.exception.APIException;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.TaskInfo;
+import org.booklore.model.dto.request.BulkMetadataUpdateRequest;
 import org.booklore.model.dto.request.TaskCreateRequest;
 import org.booklore.model.dto.response.TaskCancelResponse;
 import org.booklore.model.dto.response.TaskCreateResponse;
@@ -273,9 +274,17 @@ public class TaskService {
         if (!taskType.isParallel()) {
             runningTasks.put(taskType, taskId);
         }
-        Map<String, Object> options = convertOptionsToMap(request.getOptions());
+        Map<String, Object> options = getTaskOptionsForHistory(request, taskType);
         taskHistoryService.createTask(taskId, taskType, user.getId(), options);
         return taskId;
+    }
+
+    private Map<String, Object> getTaskOptionsForHistory(TaskCreateRequest request, TaskType taskType) {
+        if (taskType == TaskType.BULK_UPDATE_BOOK_METADATA) {
+            BulkMetadataUpdateRequest updateRequest = request.getOptionsAs(BulkMetadataUpdateRequest.class);
+            return Map.of("bookCount", updateRequest.getBookIds().size());
+        }
+        return convertOptionsToMap(request.getOptions());
     }
 
     @SuppressWarnings("unchecked")

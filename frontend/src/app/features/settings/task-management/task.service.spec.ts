@@ -52,9 +52,9 @@ describe('TaskService', () => {
       taskType: TaskType.REFRESH_METADATA_MANUAL,
       options: {metadataReplaceMode: MetadataReplaceMode.REPLACE_ALL}
     });
-    request.flush({type: TaskType.REFRESH_METADATA_MANUAL, status: TaskStatus.ACCEPTED});
+    request.flush({taskId: 'task-1', taskType: TaskType.REFRESH_METADATA_MANUAL, status: TaskStatus.ACCEPTED});
 
-    await expect(requestPromise).resolves.toEqual({type: TaskType.REFRESH_METADATA_MANUAL, status: TaskStatus.ACCEPTED});
+    await expect(requestPromise).resolves.toEqual({taskId: 'task-1', taskType: TaskType.REFRESH_METADATA_MANUAL, status: TaskStatus.ACCEPTED});
   });
 
   it('loads the latest task for each type', async () => {

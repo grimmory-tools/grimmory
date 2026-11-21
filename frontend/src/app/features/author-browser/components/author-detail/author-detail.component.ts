@@ -8,7 +8,7 @@ import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { MessageService } from '@openng/optimus-ui/api';
 import { Tooltip } from '@openng/optimus-ui/tooltip';
 import { AuthorService } from '../../service/author.service';
-import { AuthorDetails } from '../../model/author.model';
+import { AuthorDetails, AuthorSearchResult } from '../../model/author.model';
 import { CoverScalePreferenceService } from '../../../../shared/service/cover-scale-preference.service';
 import { UserService } from '../../../settings/user-management/user.service';
 import { AuthorMatchComponent } from '../author-match/author-match.component';
@@ -23,6 +23,7 @@ import { BookCardComponent } from '../../../book/components/cards/book-card.comp
 import { bookCardHeightForWidth } from '../../../book/components/cards/book-card.layout';
 import { BookNavigationService } from '../../../book/service/book-navigation.service';
 import { BookMenuComponent } from '../../../book/components/book-menu/book-menu.component';
+import { AuthorMatchValidationDialogComponent } from '../author-match-validation-dialog/author-match-validation-dialog.component';
 
 @Component({
   selector: 'app-author-detail',
@@ -43,7 +44,8 @@ import { BookMenuComponent } from '../../../book/components/book-menu/book-menu.
     AuthorMatchComponent,
     AuthorEditorComponent,
     BookCardComponent,
-    BookMenuComponent
+    BookMenuComponent,
+    AuthorMatchValidationDialogComponent
   ]
 })
 export class AuthorDetailComponent implements OnInit, AfterViewChecked {
@@ -74,6 +76,8 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
   hasPhoto = true;
   photoTimestamp = Date.now();
   quickMatching = false;
+  showMatchValidation = false;
+  matchCandidates: AuthorSearchResult[] = [];
   private readonly authorState = signal<AuthorDetails | null>(null);
   author = this.authorState.asReadonly();
 
@@ -182,26 +186,67 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
 
   quickMatch(): void {
     const author = this.author();
-    if (!author || this.quickMatching) return;
+    if (!author || this.quickMatching || this.showMatchValidation) return;
     this.quickMatching = true;
-    this.authorService.quickMatchAuthor(author.id).subscribe({
-      next: (matched) => {
-        this.onAuthorUpdated(matched);
+    this.authorService.resolveAuthorMatch(author.id, author.name).subscribe({
+      next: resolution => {
         this.quickMatching = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: this.t.translate('authorBrowser.toast.quickMatchSuccessSummary'),
-          detail: this.t.translate('authorBrowser.toast.quickMatchSuccessDetail')
-        });
+        if (resolution.status === 'matched') {
+          this.finishQuickMatch(resolution.author);
+        } else if (resolution.status === 'ambiguous') {
+          this.matchCandidates = resolution.candidates;
+          this.showMatchValidation = true;
+        } else {
+          this.showQuickMatchError();
+        }
       },
       error: () => {
         this.quickMatching = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: this.t.translate('authorBrowser.toast.quickMatchFailedSummary'),
-          detail: this.t.translate('authorBrowser.toast.quickMatchFailedDetail')
-        });
+        this.showQuickMatchError();
       }
+    });
+  }
+
+  selectMatchCandidate(candidate: AuthorSearchResult): void {
+    const author = this.author();
+    if (!author || this.quickMatching) return;
+    this.quickMatching = true;
+    this.showMatchValidation = false;
+    this.authorService.matchAuthor(author.id, {
+      source: candidate.source,
+      asin: candidate.asin,
+    }).subscribe({
+      next: updated => {
+        this.quickMatching = false;
+        this.finishQuickMatch(updated);
+      },
+      error: () => {
+        this.quickMatching = false;
+        this.showQuickMatchError();
+      }
+    });
+  }
+
+  dismissMatchValidation(): void {
+    this.showMatchValidation = false;
+    this.matchCandidates = [];
+  }
+
+  private finishQuickMatch(updated: AuthorDetails): void {
+    this.onAuthorUpdated(updated);
+    this.matchCandidates = [];
+    this.messageService.add({
+      severity: 'success',
+      summary: this.t.translate('authorBrowser.toast.quickMatchSuccessSummary'),
+      detail: this.t.translate('authorBrowser.toast.quickMatchSuccessDetail')
+    });
+  }
+
+  private showQuickMatchError(): void {
+    this.messageService.add({
+      severity: 'error',
+      summary: this.t.translate('authorBrowser.toast.quickMatchFailedSummary'),
+      detail: this.t.translate('authorBrowser.toast.quickMatchFailedDetail')
     });
   }
 

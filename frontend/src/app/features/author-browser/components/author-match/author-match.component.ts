@@ -8,6 +8,7 @@ import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {MessageService} from '@openng/optimus-ui/api';
 import {AuthorService} from '../../service/author.service';
 import {AuthorDetails, AuthorMatchRequest, AuthorSearchResult} from '../../model/author.model';
+import {AppSettingsService} from '../../../../shared/service/app-settings.service';
 
 interface RegionOption {
   label: string;
@@ -33,6 +34,7 @@ export class AuthorMatchComponent implements OnInit {
   private readonly authorService = inject(AuthorService);
   private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
+  private readonly appSettingsService = inject(AppSettingsService);
 
   @Input({required: true}) authorId!: number;
   @Input({required: true}) authorName!: string;
@@ -58,11 +60,22 @@ export class AuthorMatchComponent implements OnInit {
     {label: 'DE', value: 'de'},
     {label: 'IT', value: 'it'},
     {label: 'ES', value: 'es'},
-    {label: 'JP', value: 'jp'}
+    {label: 'JP', value: 'jp'},
+    {label: 'NL', value: 'nl'},
+    {label: 'BR', value: 'br'},
+    {label: 'SG', value: 'sg'},
+    {label: 'MX', value: 'mx'},
+    {label: 'SE', value: 'se'},
+    {label: 'PL', value: 'pl'},
+    {label: 'AE', value: 'ae'},
+    {label: 'SA', value: 'sa'},
+    {label: 'TR', value: 'tr'}
   ];
 
   ngOnInit(): void {
     this.searchQuery.set(this.authorName);
+    const domain = this.appSettingsService.appSettings()?.metadataProviderSettings?.amazon?.domain;
+    this.selectedRegion.set(authorRegionForAmazonDomain(domain));
   }
 
   search(): void {
@@ -121,4 +134,30 @@ export class AuthorMatchComponent implements OnInit {
       }
     });
   }
+}
+
+const AMAZON_DOMAIN_REGION_MAP: Record<string, string> = {
+  com: 'us',
+  'co.uk': 'uk',
+  'com.au': 'au',
+  ca: 'ca',
+  in: 'in',
+  fr: 'fr',
+  de: 'de',
+  it: 'it',
+  es: 'es',
+  'co.jp': 'jp',
+  nl: 'nl',
+  'com.br': 'br',
+  sg: 'sg',
+  'com.mx': 'mx',
+  se: 'se',
+  pl: 'pl',
+  ae: 'ae',
+  sa: 'sa',
+  tr: 'tr',
+};
+
+export function authorRegionForAmazonDomain(domain: string | null | undefined): string {
+  return AMAZON_DOMAIN_REGION_MAP[domain ?? 'com'] ?? 'us';
 }

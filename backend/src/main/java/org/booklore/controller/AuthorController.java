@@ -164,7 +164,7 @@ public class AuthorController {
             @Parameter(description = "ID of the author") @PathVariable long authorId,
             @Parameter(description = "Author name to search") @RequestParam(value = "q", required = false) String query,
             @Parameter(description = "Author ASIN to look up") @RequestParam(required = false) String asin,
-            @Parameter(description = "Region for provider lookup") @RequestParam(defaultValue = "us") String region) {
+            @Parameter(description = "Region for provider lookup") @RequestParam(required = false) String region) {
         if (asin != null && !asin.isBlank()) {
             return ResponseEntity.ok(authorMetadataService.lookupAuthorByAsin(asin.trim(), region));
         }
@@ -184,17 +184,17 @@ public class AuthorController {
         return ResponseEntity.ok(authorMetadataService.matchAuthor(authorId, request));
     }
 
-    @Operation(summary = "Quick-match author", description = "Search and match an author with the first result in a single call.")
+    @Operation(summary = "Quick-match author", description = "Automatically match only when the search returns one unambiguous result.")
     @ApiResponse(responseCode = "200", description = "Author quick-matched successfully")
     @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
     @PostMapping("/{authorId}/quick-match")
     public ResponseEntity<AuthorDetails> quickMatchAuthor(
             @Parameter(description = "ID of the author") @PathVariable long authorId,
-            @RequestParam(defaultValue = "us") String region) {
+            @RequestParam(required = false) String region) {
         return ResponseEntity.ok(authorMetadataService.quickMatchAuthor(authorId, region));
     }
 
-    @Operation(summary = "Auto-match authors", description = "Automatically match multiple authors, streaming results as each is matched.")
+    @Operation(summary = "Auto-match authors", description = "Automatically match only authors with one unambiguous search result, streaming successful matches.")
     @ApiResponse(responseCode = "200", description = "Authors auto-matched successfully")
     @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
     @PostMapping(value = "/auto-match", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -239,5 +239,13 @@ public class AuthorController {
     public ResponseEntity<Void> deleteAuthors(@RequestBody List<Long> authorIds) {
         authorMetadataService.deleteAuthors(authorIds);
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "Delete authors without books", description = "Delete authors that are not associated with any book, including their images.")
+    @ApiResponse(responseCode = "200", description = "Number of authors deleted")
+    @PreAuthorize("@securityUtil.canDeleteBook() or @securityUtil.isAdmin()")
+    @DeleteMapping("/without-books")
+    public ResponseEntity<Integer> deleteAuthorsWithoutBooks() {
+        return ResponseEntity.ok(authorMetadataService.deleteAuthorsWithoutBooks());
     }
 }

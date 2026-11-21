@@ -38,6 +38,7 @@ RUN --mount=type=cache,target=/home/gradle/.gradle \
 
 COPY LICENSE NOTICE /workspace/
 COPY backend/ ./
+RUN chmod +x ./gradlew
 COPY --from=frontend-build /workspace/frontend/dist/grimmory/browser /tmp/frontend-dist
 
 RUN --mount=type=cache,target=/home/gradle/.gradle \

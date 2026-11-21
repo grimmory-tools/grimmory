@@ -64,7 +64,7 @@
                       [outlined]="true"
                       severity="warn"
                       size="small"
-                      [disabled]="quickMatching"
+                      [disabled]="quickMatching || showMatchValidation"
                       (onClick)="quickMatch()"
                       [pTooltip]="t('quickMatchTooltip')"
                       tooltipPosition="top" />
@@ -149,4 +149,11 @@
       </p-tabs>
     </div>
   }
+  <app-author-match-validation-dialog
+    [visible]="showMatchValidation"
+    [authorName]="author()?.name ?? ''"
+    [candidates]="matchCandidates"
+    [disabled]="quickMatching"
+    (candidateSelected)="selectMatchCandidate($event)"
+    (dismissed)="dismissMatchValidation()" />
 </ng-container>

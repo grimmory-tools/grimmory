@@ -6,15 +6,16 @@ import {FormsModule} from '@angular/forms';
 import {TieredMenu} from '@openng/optimus-ui/tieredmenu';
 import {Button} from '@openng/optimus-ui/button';
 import {MenuItem, MessageService} from '@openng/optimus-ui/api';
-import {AuthorSummary} from '../../model/author.model';
+import {AuthorDetails, AuthorSearchResult, AuthorSummary} from '../../model/author.model';
 import {AuthorService} from '../../service/author.service';
+import {AuthorMatchValidationDialogComponent} from '../author-match-validation-dialog/author-match-validation-dialog.component';
 
 @Component({
   selector: 'app-author-card',
   standalone: true,
   templateUrl: './author-card.component.html',
   styleUrls: ['./author-card.component.scss'],
-  imports: [TranslocoPipe, Tooltip, Checkbox, FormsModule, TieredMenu, Button]
+  imports: [TranslocoPipe, Tooltip, Checkbox, FormsModule, TieredMenu, Button, AuthorMatchValidationDialogComponent]
 })
 export class AuthorCardComponent implements OnChanges {
   private readonly authorService = inject(AuthorService);
@@ -40,6 +41,8 @@ export class AuthorCardComponent implements OnChanges {
 
   hasPhoto = false;
   quickMatching = false;
+  showMatchValidation = false;
+  matchCandidates: AuthorSearchResult[] = [];
 
   items: MenuItem[] = [];
   private menuInitialized = false;
@@ -132,7 +135,7 @@ export class AuthorCardComponent implements OnChanges {
         {
           label: this.t.translate('authorBrowser.card.menu.quickMatch'),
           icon: this.quickMatching ? 'pi pi-spin pi-spinner' : 'pi pi-bolt',
-          disabled: this.quickMatching,
+          disabled: this.quickMatching || this.showMatchValidation,
           command: () => this.onQuickMatch()
         }
       ] : []),
@@ -147,30 +150,75 @@ export class AuthorCardComponent implements OnChanges {
   }
 
   private onQuickMatch(): void {
-    if (this.quickMatching) return;
+    if (this.quickMatching || this.showMatchValidation) return;
 
     this.quickMatching = true;
-    this.authorService.quickMatchAuthor(this.author.id).subscribe({
-      next: (updated) => {
+    this.authorService.resolveAuthorMatch(this.author.id, this.author.name).subscribe({
+      next: (resolution) => {
         this.quickMatching = false;
-        this.author = {...this.author, asin: updated.asin, hasPhoto: true};
-        this.hasPhoto = true;
-        this.menuInitialized = false;
-        this.quickMatched.emit(this.author);
-        this.messageService.add({
-          severity: 'success',
-          summary: this.t.translate('authorBrowser.toast.quickMatchSuccessSummary'),
-          detail: this.t.translate('authorBrowser.toast.quickMatchSuccessDetail')
-        });
+        if (resolution.status === 'matched') {
+          this.finishQuickMatch(resolution.author, resolution.candidate);
+        } else if (resolution.status === 'ambiguous') {
+          this.matchCandidates = resolution.candidates;
+          this.showMatchValidation = true;
+        } else {
+          this.showQuickMatchError();
+        }
       },
       error: () => {
         this.quickMatching = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: this.t.translate('authorBrowser.toast.quickMatchFailedSummary'),
-          detail: this.t.translate('authorBrowser.toast.quickMatchFailedDetail')
-        });
+        this.showQuickMatchError();
       }
+    });
+  }
+
+  selectMatchCandidate(candidate: AuthorSearchResult): void {
+    if (this.quickMatching) return;
+    this.quickMatching = true;
+    this.showMatchValidation = false;
+    this.authorService.matchAuthor(this.author.id, {
+      source: candidate.source,
+      asin: candidate.asin,
+    }).subscribe({
+      next: updated => {
+        this.quickMatching = false;
+        this.finishQuickMatch(updated, candidate);
+      },
+      error: () => {
+        this.quickMatching = false;
+        this.showQuickMatchError();
+      }
+    });
+  }
+
+  dismissMatchValidation(): void {
+    this.showMatchValidation = false;
+    this.matchCandidates = [];
+  }
+
+  private finishQuickMatch(updated: AuthorDetails, candidate: AuthorSearchResult): void {
+    this.author = {
+      ...this.author,
+      name: updated.name,
+      asin: updated.asin,
+      hasPhoto: this.author.hasPhoto || !!candidate.imageUrl,
+    };
+    this.hasPhoto = this.author.hasPhoto;
+    this.matchCandidates = [];
+    this.menuInitialized = false;
+    this.quickMatched.emit(this.author);
+    this.messageService.add({
+      severity: 'success',
+      summary: this.t.translate('authorBrowser.toast.quickMatchSuccessSummary'),
+      detail: this.t.translate('authorBrowser.toast.quickMatchSuccessDetail')
+    });
+  }
+
+  private showQuickMatchError(): void {
+    this.messageService.add({
+      severity: 'error',
+      summary: this.t.translate('authorBrowser.toast.quickMatchFailedSummary'),
+      detail: this.t.translate('authorBrowser.toast.quickMatchFailedDetail')
     });
   }
 }

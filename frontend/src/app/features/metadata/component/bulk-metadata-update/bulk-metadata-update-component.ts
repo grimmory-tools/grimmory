@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 import {InputText} from '@openng/optimus-ui/inputtext';
@@ -14,8 +14,11 @@ import {AGE_RATING_OPTIONS, CONTENT_RATING_LABELS} from '../../../book/model/boo
 import {Checkbox} from '@openng/optimus-ui/checkbox';
 import {AutoComplete} from '@openng/optimus-ui/autocomplete';
 import {AutoCompleteSelectEvent} from '@openng/optimus-ui/autocomplete';
-import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
 import {Select} from '@openng/optimus-ui/select';
+import {filter, skip} from 'rxjs/operators';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {BulkMetadataUpdateFailure, TaskProgressPayload, TaskService, TaskStatus, TaskType} from '../../../settings/task-management/task.service';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-bulk-metadata-update-component',
@@ -28,7 +31,6 @@ import {Select} from '@openng/optimus-ui/select';
     Tooltip,
     DatePicker,
     Checkbox,
-    ProgressSpinner,
     AutoComplete,
     Select,
     FacetSuggestionsDirective,
@@ -41,15 +43,30 @@ export class BulkMetadataUpdateComponent implements OnInit {
   private readonly config = inject(DynamicDialogConfig);
   readonly ref = inject(DynamicDialogRef);
   private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly bookMetadataManageService = inject(BookMetadataManageService);
+  private readonly taskService = inject(TaskService);
   private readonly messageService = inject(MessageService);
   metadataForm!: FormGroup;
   bookIds: number[] = [];
   mergeCategories = true;
   mergeMoods = true;
   mergeTags = true;
+  replaceAll = false;
   loading = false;
+  taskProgress = 0;
+  progressMessage = '';
+  processedCount = 0;
+  succeededCount = 0;
+  failedCount = 0;
+  failedBooks: BulkMetadataUpdateFailure[] = [];
   selectedCoverFile: File | null = null;
+  coverUploadFailed = false;
+  activeTaskId: string | null = null;
+  private taskProgressSubscription: Subscription | null = null;
+  private pendingTaskProgress: TaskProgressPayload[] = [];
+  private completionHandled = false;
+  private readonly maxDisplayedFailures = 200;
 
   clearFields = {
     authors: false,
@@ -97,6 +114,10 @@ export class BulkMetadataUpdateComponent implements OnInit {
     } else {
       control.enable();
     }
+  }
+
+  get visibleFailedBooks(): BulkMetadataUpdateFailure[] {
+    return this.failedBooks.slice(0, this.maxDisplayedFailures);
   }
 
   onAutoCompleteSelect(fieldName: string, event: AutoCompleteSelectEvent) {
@@ -176,47 +197,50 @@ export class BulkMetadataUpdateComponent implements OnInit {
 
       mergeCategories: this.mergeCategories,
       mergeMoods: this.mergeMoods,
-      mergeTags: this.mergeTags
+      mergeTags: this.mergeTags,
+      replaceAll: this.replaceAll
     };
 
     this.loading = true;
+    this.taskProgress = 0;
+    this.progressMessage = 'Submitting metadata update...';
+    this.processedCount = 0;
+    this.succeededCount = 0;
+    this.failedCount = 0;
+    this.failedBooks = [];
+    this.coverUploadFailed = false;
+    this.activeTaskId = null;
+    this.pendingTaskProgress = [];
+    this.completionHandled = false;
+
+    this.taskProgressSubscription?.unsubscribe();
+    this.taskProgressSubscription = this.taskService.taskProgress$
+      .pipe(
+        skip(1),
+        filter((progress): progress is TaskProgressPayload =>
+          progress !== null && progress.taskType === TaskType.BULK_UPDATE_BOOK_METADATA),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(progress => this.receiveTaskProgress(progress));
+
     this.bookMetadataManageService.updateBooksMetadata(payload).subscribe({
-      next: () => {
-        if (this.selectedCoverFile) {
-          this.bookMetadataManageService.bulkUploadCover(this.bookIds, this.selectedCoverFile).subscribe({
-            next: () => {
-              this.loading = false;
-              this.messageService.add({
-                severity: 'success',
-                summary: 'Metadata & Cover Updated',
-                detail: 'Books updated and cover upload started. Refresh the page when complete.'
-              });
-              this.ref.close(true);
-            },
-            error: err => {
-              console.error('Bulk cover upload failed:', err);
-              this.loading = false;
-              this.messageService.add({
-                severity: 'warn',
-                summary: 'Partial Success',
-                detail: 'Metadata updated but cover upload failed'
-              });
-              this.ref.close(true);
-            }
-          });
-        } else {
-          this.loading = false;
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Metadata Updated',
-            detail: 'Books updated successfully'
-          });
-          this.ref.close(true);
+      next: response => {
+        this.activeTaskId = response.taskId;
+        this.progressMessage = 'Metadata update queued...';
+        const earlyProgress = this.pendingTaskProgress;
+        this.pendingTaskProgress = [];
+        for (const progress of earlyProgress) {
+          if (progress.taskId === this.activeTaskId) {
+            this.applyTaskProgress(progress);
+          }
         }
       },
       error: err => {
+        this.taskProgressSubscription?.unsubscribe();
+        this.taskProgressSubscription = null;
         console.error('Bulk metadata update failed:', err);
         this.loading = false;
+        this.progressMessage = '';
         this.messageService.add({
           severity: 'error',
           summary: 'Update Failed',
@@ -224,6 +248,112 @@ export class BulkMetadataUpdateComponent implements OnInit {
         });
       }
     });
+  }
+
+  private receiveTaskProgress(progress: TaskProgressPayload): void {
+    if (!this.activeTaskId) {
+      this.pendingTaskProgress.push(progress);
+      return;
+    }
+    if (progress.taskId === this.activeTaskId) {
+      this.applyTaskProgress(progress);
+    }
+  }
+
+  private applyTaskProgress(progress: TaskProgressPayload): void {
+    if (this.completionHandled) return;
+
+    this.taskProgress = progress.progress;
+    this.progressMessage = progress.message;
+    this.processedCount = progress.processedCount ?? this.processedCount;
+    this.succeededCount = progress.succeededCount ?? this.succeededCount;
+    this.failedCount = progress.failedCount ?? this.failedCount;
+
+    for (const failure of progress.failedBooks ?? []) {
+      this.failedBooks.push(failure);
+    }
+
+    if ([TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.CANCELLED].includes(progress.taskStatus)) {
+      this.completionHandled = true;
+      this.taskProgressSubscription?.unsubscribe();
+      this.taskProgressSubscription = null;
+      this.bookMetadataManageService.refreshAllBookCaches();
+      if (progress.taskStatus === TaskStatus.COMPLETED && this.selectedCoverFile) {
+        this.uploadSelectedCover();
+      } else {
+        this.finishUpdate(progress.taskStatus);
+      }
+    }
+  }
+
+  private uploadSelectedCover(): void {
+    const coverFile = this.selectedCoverFile;
+    if (!coverFile) return;
+
+    this.progressMessage = 'Uploading cover image...';
+    this.bookMetadataManageService.bulkUploadCover(this.bookIds, coverFile).subscribe({
+      next: () => this.finishUpdate(TaskStatus.COMPLETED),
+      error: error => {
+        console.error('Bulk cover upload failed:', error);
+        this.coverUploadFailed = true;
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Cover Upload Failed',
+          detail: 'Metadata processing finished, but the cover upload failed.'
+        });
+        this.finishUpdate(TaskStatus.COMPLETED);
+      }
+    });
+  }
+
+  private finishUpdate(status: TaskStatus): void {
+    this.loading = false;
+    if (status === TaskStatus.COMPLETED && this.failedCount === 0 && !this.coverUploadFailed) {
+      this.messageService.add({
+        severity: 'success',
+        summary: this.selectedCoverFile ? 'Metadata & Cover Updated' : 'Metadata Updated',
+        detail: this.selectedCoverFile
+          ? 'Books updated and cover upload started. Refresh the page when complete.'
+          : 'Books updated successfully.'
+      });
+      this.ref.close(true);
+      return;
+    }
+
+    const detail = this.coverUploadFailed
+      ? 'Metadata processing finished, but the cover upload failed.'
+      : status === TaskStatus.COMPLETED
+        ? `${this.failedCount} of ${this.bookIds.length} books failed. Review the list below.`
+        : `Processing stopped after ${this.processedCount} of ${this.bookIds.length} books.`;
+    this.progressMessage = status === TaskStatus.COMPLETED ? 'Metadata update completed with errors.' : 'Metadata update did not complete.';
+    this.messageService.add({
+      severity: status === TaskStatus.COMPLETED ? 'warn' : 'error',
+      summary: status === TaskStatus.COMPLETED ? 'Partial Success' : 'Update Incomplete',
+      detail
+    });
+  }
+
+  downloadFailedBooks(): void {
+    if (this.failedBooks.length === 0) return;
+    const csvRows = [
+      'Book ID,Title,Reason',
+      ...this.failedBooks.map(failure =>
+        [failure.bookId, failure.title ?? '', failure.reason].map(value => this.toCsvCell(value)).join(','))
+    ];
+    const url = URL.createObjectURL(new Blob([csvRows.join('\r\n')], {type: 'text/csv;charset=utf-8'}));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'bulk-metadata-update-failures.csv';
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  private toCsvCell(value: string | number): string {
+    let text = String(value).replace(/"/g, '""');
+    if (/^[=+\-@]/.test(text)) {
+      text = `'${text}`;
+    }
+    return `"${text}"`;
   }
 
   onCoverFileSelect(event: Event): void {

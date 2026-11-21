@@ -83,6 +83,26 @@ describe('BookMetadataManageService', () => {
     expect(queryClient.getQueryData<Book[]>(BOOKS_QUERY_KEY)?.[0].metadata?.title).toBe('Updated Title');
   });
 
+  it('starts bulk metadata updates asynchronously and invalidates caches when processing finishes', () => {
+    const requestBody = {bookIds: [1, 2], mergeCategories: true};
+    let response: unknown;
+
+    service.updateBooksMetadata(requestBody).subscribe(result => {
+      response = result;
+    });
+
+    const request = httpTestingController.expectOne(req => req.url.endsWith('/api/v1/books/bulk-edit-metadata'));
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual(requestBody);
+    request.flush({taskId: 'bulk-task', taskType: 'BULK_UPDATE_BOOK_METADATA', status: 'ACCEPTED'});
+
+    expect(response).toEqual({taskId: 'bulk-task', taskType: 'BULK_UPDATE_BOOK_METADATA', status: 'ACCEPTED'});
+    expect(queryClient.invalidateQueries).not.toHaveBeenCalled();
+
+    service.refreshAllBookCaches();
+    expect(queryClient.invalidateQueries).toHaveBeenCalled();
+  });
+
   it('toggles cached metadata lock fields for successful bulk lock updates', () => {
     queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, [
       makeBook(1, {titleLocked: false, authorsLocked: false}),

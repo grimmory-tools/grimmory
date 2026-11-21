@@ -1,0 +1,47 @@
+<ng-container *transloco="let t; prefix: 'authorBrowser.matchValidation'">
+  <p-dialog
+    [header]="t('title')"
+    [visible]="visible"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [closable]="false"
+    [closeOnEscape]="false"
+    [dismissableMask]="false"
+    [style]="{width: 'min(58rem, 95vw)'}">
+    <p class="validation-message">{{ t('description', {author: authorName}) }}</p>
+    <div class="candidate-list">
+      @for (candidate of candidates; track candidate.asin) {
+        <article class="candidate-card">
+          @if (candidate.imageUrl) {
+            <img class="candidate-image" [src]="candidate.imageUrl" [alt]="candidate.name" loading="lazy"/>
+          } @else {
+            <div class="candidate-image candidate-placeholder">
+              <i class="pi pi-user"></i>
+            </div>
+          }
+          <div class="candidate-details">
+            <h4>{{ candidate.name }}</h4>
+            <span>ASIN: {{ candidate.asin }}</span>
+            @if (candidate.description) {
+              <p>{{ candidate.description }}</p>
+            }
+          </div>
+          <p-button
+            [label]="t('select')"
+            icon="pi pi-check"
+            severity="success"
+            [disabled]="disabled"
+            (onClick)="candidateSelected.emit(candidate)" />
+        </article>
+      }
+    </div>
+    <ng-template #footer>
+      <p-button
+        [label]="t('skip')"
+        severity="secondary"
+        [disabled]="disabled"
+        (onClick)="dismissed.emit()" />
+    </ng-template>
+  </p-dialog>
+</ng-container>

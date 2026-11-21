@@ -46,5 +46,12 @@
           icon="pi pi-ellipsis-v" />
       </div>
     </div>
+    <app-author-match-validation-dialog
+      [visible]="showMatchValidation"
+      [authorName]="author.name"
+      [candidates]="matchCandidates"
+      [disabled]="quickMatching"
+      (candidateSelected)="selectMatchCandidate($event)"
+      (dismissed)="dismissMatchValidation()" />
   </div>
 </div>

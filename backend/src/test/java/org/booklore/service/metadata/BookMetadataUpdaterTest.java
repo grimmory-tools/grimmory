@@ -768,6 +768,32 @@ class BookMetadataUpdaterTest {
         }
 
         @Test
+        void replaceAllClearsUnprovidedRatingAndReviewCount() {
+            metadataEntity.setRating(4.5);
+            metadataEntity.setReviewCount(12);
+            MetadataClearFlags clearFlags = new MetadataClearFlags();
+            clearFlags.setRating(true);
+            clearFlags.setReviewCount(true);
+            BookMetadata newMeta = BookMetadata.builder().title("Original Title").build();
+            MetadataUpdateContext context = MetadataUpdateContext.builder()
+                    .bookEntity(bookEntity)
+                    .metadataUpdateWrapper(MetadataUpdateWrapper.builder()
+                            .metadata(newMeta)
+                            .clearFlags(clearFlags)
+                            .build())
+                    .replaceMode(MetadataReplaceMode.REPLACE_ALL)
+                    .build();
+
+            try (MockedStatic<MetadataChangeDetector> mcd = mockStatic(MetadataChangeDetector.class)) {
+                mockSettingsAndChangeDetector(mcd, true, true);
+                updater.setBookMetadata(context);
+
+                assertThat(metadataEntity.getRating()).isNull();
+                assertThat(metadataEntity.getReviewCount()).isNull();
+            }
+        }
+
+        @Test
         void updatesGoodreadsRating() {
             BookMetadata newMeta = BookMetadata.builder().title("T").goodreadsRating(4.5).build();
             MetadataUpdateContext context = buildContext(newMeta, MetadataReplaceMode.REPLACE_ALL);

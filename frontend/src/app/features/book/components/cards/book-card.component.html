@@ -85,9 +85,9 @@
   @if (showMeta()) {
     <div class="px-0.5 pt-2" data-testid="meta">
       <div [class]="metaTitleClass" [attr.title]="title()">{{ title() }}</div>
-      <div [class]="metaSecondaryClass + ' mt-px'">{{ authorsLabel() }}</div>
+      <div [class]="metaSecondaryClass + ' mt-px'" [attr.title]="authors().join(', ')">{{ authorsLabel() }}</div>
       @if (detailLine() !== null) {
-        <div [class]="metaSecondaryClass">{{ detailLine() }}</div>
+        <div [class]="metaSecondaryClass" [attr.title]="detailLine()">{{ detailLine() }}</div>
       }
     </div>
   }

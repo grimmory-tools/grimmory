@@ -3,16 +3,19 @@ import {FormsModule} from '@angular/forms';
 import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
 import {InputText} from '@openng/optimus-ui/inputtext';
 import {Select} from '@openng/optimus-ui/select';
+import {Dialog} from '@openng/optimus-ui/dialog';
 import {Popover} from '@openng/optimus-ui/popover';
 import {Button} from '@openng/optimus-ui/button';
 import {Divider} from '@openng/optimus-ui/divider';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {RouteScrollPositionService} from '../../../../shared/service/route-scroll-position.service';
-import {MessageService} from '@openng/optimus-ui/api';
+import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
 import {AuthorService} from '../../service/author.service';
-import {AuthorSummary, EnrichedAuthor, AuthorFilters, DEFAULT_AUTHOR_FILTERS} from '../../model/author.model';
+import {AuthorSummary, AuthorSearchResult, AuthorDetails, EnrichedAuthor, AuthorFilters, DEFAULT_AUTHOR_FILTERS} from '../../model/author.model';
 import {AuthorCardComponent} from '../author-card/author-card.component';
+import {AuthorMatchValidationDialogComponent} from '../author-match-validation-dialog/author-match-validation-dialog.component';
+import {BookMetadataManageService} from '../../../book/service/book-metadata-manage.service';
 import {AuthorSelectionService, AuthorCheckboxClickEvent} from '../../service/author-selection.service';
 import {PageTitleService} from '../../../../shared/service/page-title.service';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -55,11 +58,13 @@ const DEFAULT_SORT_DIRECTIONS: Record<string, SortDirection> = {
   standalone: true,
   templateUrl: './author-browser.component.html',
   styleUrls: ['./author-browser.component.scss'],
+  providers: [ConfirmationService],
   imports: [
     FormsModule,
     ProgressSpinner,
     InputText,
     Select,
+    Dialog,
     Popover,
     Button,
     Divider,
@@ -68,6 +73,7 @@ const DEFAULT_SORT_DIRECTIONS: Record<string, SortDirection> = {
     TranslocoPipe,
     GridDensityButtonsComponent,
     AuthorCardComponent,
+    AuthorMatchValidationDialogComponent,
   ]
 })
 export class AuthorBrowserComponent implements OnInit {
@@ -85,7 +91,9 @@ export class AuthorBrowserComponent implements OnInit {
   private static readonly MAX_SCALE = 1.3;
 
   private readonly authorService = inject(AuthorService);
+  private readonly bookMetadataManageService = inject(BookMetadataManageService);
   private readonly bookService = inject(BookService);
+  private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
   private readonly pageTitle = inject(PageTitleService);
   private readonly scrollService = inject(RouteScrollPositionService);
@@ -125,8 +133,18 @@ export class AuthorBrowserComponent implements OnInit {
   thumbnailCacheBusters = new Map<number, number>();
   private readonly selectedAuthors = this.selectionService.selectedAuthors;
   private readonly allAuthorsState = signal<AuthorSummary[] | null>(null);
+  readonly deletingAuthorsWithoutBooks = signal(false);
+  readonly pendingMatch = signal<{author: AuthorSummary; candidates: AuthorSearchResult[]} | null>(null);
+  readonly applyingPendingMatch = signal(false);
+  readonly autoMatchInProgress = signal(false);
+  readonly mergeCandidates = signal<AuthorSummary[]>([]);
+  readonly mergeAuthorsDialogVisible = signal(false);
+  readonly mergeTargetAuthorId = signal<number | null>(null);
+  readonly mergingAuthors = signal(false);
+  private autoMatchQueue: AuthorSummary[] = [];
+  private autoMatchStats = {matched: 0, ambiguous: 0, noResults: 0, failed: 0};
 
-  readonly loading = computed(() => this.allAuthorsState() === null || this.bookService.isBooksLoading());
+  readonly loading = computed(() => this.allAuthorsState() === null || this.bookService.isListViewBooksLoading());
   protected currentUser = this.userService.currentUser;
   readonly selectedCount = computed(() => this.selectedAuthors().size);
   readonly searchTerm = signal('');
@@ -139,7 +157,7 @@ export class AuthorBrowserComponent implements OnInit {
       return [];
     }
 
-    return this.enrichAuthors(authors, this.bookService.books());
+    return this.enrichAuthors(authors, this.bookService.listViewBooks());
   });
   readonly libraryOptions = computed<FilterOption[]>(() => {
     const allLabel = this.t.translate('authorBrowser.filters.all');
@@ -248,6 +266,7 @@ export class AuthorBrowserComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    this.bookService.loadBooksForListView();
     this.pageTitle.setPageTitle(this.t.translate('authorBrowser.pageTitle'));
 
     this.sortOptions = [
@@ -312,6 +331,11 @@ export class AuthorBrowserComponent implements OnInit {
     return !!user?.permissions?.admin || !!user?.permissions?.canEditMetadata;
   }
 
+  get canBulkEditMetadata(): boolean {
+    const user = this.userService.currentUser();
+    return !!user?.permissions?.admin || !!user?.permissions?.canBulkEditMetadata;
+  }
+
   get canDeleteBook(): boolean {
     const user = this.userService.currentUser();
     return !!user?.permissions?.admin || !!user?.permissions?.canDeleteBook;
@@ -368,31 +392,188 @@ export class AuthorBrowserComponent implements OnInit {
     );
   }
 
+  openMergeAuthorsDialog(): void {
+    const ids = this.selectionService.getSelectedIds();
+    if (ids.length < 2 || this.mergingAuthors()) {
+      return;
+    }
+
+    const authorsById = new Map((this.allAuthorsState() ?? []).map(author => [author.id, author]));
+    const selectedAuthors = ids
+      .map(id => authorsById.get(id))
+      .filter((author): author is AuthorSummary => author !== undefined);
+    if (selectedAuthors.length < 2) {
+      return;
+    }
+
+    this.mergeCandidates.set(selectedAuthors);
+    this.mergeTargetAuthorId.set(null);
+    this.mergeAuthorsDialogVisible.set(true);
+  }
+
+  confirmMergeAuthors(): void {
+    if (this.mergingAuthors()) {
+      return;
+    }
+    const selectedAuthors = this.mergeCandidates();
+    const target = selectedAuthors.find(author => author.id === this.mergeTargetAuthorId());
+    const sources = selectedAuthors.filter(author => author.id !== target?.id);
+    if (!target || sources.length === 0) {
+      return;
+    }
+
+    this.mergingAuthors.set(true);
+    this.bookMetadataManageService.consolidateMetadata(
+      'authors',
+      [target.name],
+      sources.map(author => author.name)
+    ).subscribe({
+      next: () => {
+        const mergedIds = new Set(sources.map(author => author.id));
+        this.allAuthorsState.update(current => (current ?? []).filter(author => !mergedIds.has(author.id)));
+        this.authorService.invalidateAuthors();
+        this.selectionService.deselectAll();
+        this.mergingAuthors.set(false);
+        this.mergeAuthorsDialogVisible.set(false);
+        this.mergeCandidates.set([]);
+        this.mergeTargetAuthorId.set(null);
+        this.messageService.add({
+          severity: 'success',
+          summary: this.t.translate('authorBrowser.mergeAuthors.successSummary'),
+          detail: this.t.translate('authorBrowser.mergeAuthors.successDetail', {
+            count: sources.length,
+            target: target.name,
+          })
+        });
+      },
+      error: error => {
+        this.mergingAuthors.set(false);
+        this.messageService.add({
+          severity: 'error',
+          summary: this.t.translate('authorBrowser.mergeAuthors.failureSummary'),
+          detail: error?.error?.message || this.t.translate('authorBrowser.mergeAuthors.failureDetail')
+        });
+      }
+    });
+  }
+
+  closeMergeAuthorsDialog(): void {
+    if (this.mergingAuthors()) {
+      return;
+    }
+    this.mergeAuthorsDialogVisible.set(false);
+    this.mergeCandidates.set([]);
+    this.mergeTargetAuthorId.set(null);
+  }
+
   autoMatchSelected(): void {
     const ids = this.selectionService.getSelectedIds();
     this.selectionService.deselectAll();
-    this.authorService.autoMatchAuthors(ids).subscribe({
-      next: (matched) => {
-        this.thumbnailCacheBusters.set(matched.id, Date.now());
-        this.allAuthorsState.update(current => (current ?? []).map(author => author.id === matched.id
-          ? {...author, asin: matched.asin, hasPhoto: matched.hasPhoto}
-          : author
-        ));
-      },
-      complete: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: this.t.translate('authorBrowser.toast.autoMatchSuccessSummary'),
-          detail: this.t.translate('authorBrowser.toast.autoMatchSuccessDetail')
-        });
+    if (this.autoMatchInProgress()) {
+      return;
+    }
+
+    const authorsById = new Map((this.allAuthorsState() ?? []).map(author => [author.id, author]));
+    this.autoMatchQueue = ids
+      .map(id => authorsById.get(id))
+      .filter((author): author is AuthorSummary => author !== undefined);
+    if (this.autoMatchQueue.length === 0) {
+      return;
+    }
+
+    this.autoMatchStats = {matched: 0, ambiguous: 0, noResults: 0, failed: 0};
+    this.autoMatchInProgress.set(true);
+    this.processNextAutoMatch();
+  }
+
+  selectPendingMatch(candidate: AuthorSearchResult): void {
+    const pending = this.pendingMatch();
+    if (!pending || this.applyingPendingMatch()) {
+      return;
+    }
+
+    this.applyingPendingMatch.set(true);
+    this.authorService.matchAuthor(pending.author.id, {
+      source: candidate.source,
+      asin: candidate.asin,
+    }).subscribe({
+      next: updated => {
+        this.recordAuthorMatch(pending.author, updated, candidate);
+        this.autoMatchStats.matched++;
+        this.applyingPendingMatch.set(false);
+        this.pendingMatch.set(null);
+        this.processNextAutoMatch();
       },
       error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: this.t.translate('authorBrowser.toast.autoMatchFailedSummary'),
-          detail: this.t.translate('authorBrowser.toast.autoMatchFailedDetail')
-        });
+        this.autoMatchStats.failed++;
+        this.applyingPendingMatch.set(false);
+        this.pendingMatch.set(null);
+        this.processNextAutoMatch();
       }
+    });
+  }
+
+  skipPendingMatch(): void {
+    if (!this.pendingMatch() || this.applyingPendingMatch()) {
+      return;
+    }
+    this.autoMatchStats.ambiguous++;
+    this.pendingMatch.set(null);
+    this.processNextAutoMatch();
+  }
+
+  private processNextAutoMatch(): void {
+    const author = this.autoMatchQueue.shift();
+    if (!author) {
+      this.finishAutoMatch();
+      return;
+    }
+
+    this.authorService.resolveAuthorMatch(author.id, author.name).subscribe({
+      next: resolution => {
+        if (resolution.status === 'matched') {
+          this.recordAuthorMatch(author, resolution.author, resolution.candidate);
+          this.autoMatchStats.matched++;
+          this.processNextAutoMatch();
+        } else if (resolution.status === 'ambiguous') {
+          this.pendingMatch.set({author, candidates: resolution.candidates});
+        } else {
+          this.autoMatchStats.noResults++;
+          this.processNextAutoMatch();
+        }
+      },
+      error: () => {
+        this.autoMatchStats.failed++;
+        this.processNextAutoMatch();
+      }
+    });
+  }
+
+  private recordAuthorMatch(author: AuthorSummary, updated: AuthorDetails, candidate: AuthorSearchResult): void {
+    this.thumbnailCacheBusters.set(author.id, Date.now());
+    this.allAuthorsState.update(current => (current ?? []).map(existing => existing.id === author.id
+      ? {
+          ...existing,
+          name: updated.name,
+          asin: updated.asin,
+          hasPhoto: existing.hasPhoto || !!candidate.imageUrl,
+        }
+      : existing
+    ));
+  }
+
+  private finishAutoMatch(): void {
+    this.autoMatchInProgress.set(false);
+    const {matched, ambiguous, noResults, failed} = this.autoMatchStats;
+    this.messageService.add({
+      severity: failed > 0 ? 'warn' : 'success',
+      summary: this.t.translate('authorBrowser.toast.autoMatchSuccessSummary'),
+      detail: this.t.translate('authorBrowser.toast.autoMatchResultsDetail', {
+        matched,
+        ambiguous,
+        noResults,
+        failed,
+      })
     });
   }
 
@@ -413,6 +594,48 @@ export class AuthorBrowserComponent implements OnInit {
           severity: 'error',
           summary: this.t.translate('authorBrowser.toast.deleteFailedSummary'),
           detail: this.t.translate('authorBrowser.toast.deleteFailedDetail')
+        });
+      }
+    });
+  }
+
+  cleanupAuthorsWithoutBooks(): void {
+    if (this.deletingAuthorsWithoutBooks()) {
+      return;
+    }
+
+    this.confirmationService.confirm({
+      header: this.t.translate('authorBrowser.cleanup.confirmTitle'),
+      message: this.t.translate('authorBrowser.cleanup.confirmMessage'),
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      acceptLabel: this.t.translate('authorBrowser.cleanup.confirmAccept'),
+      rejectLabel: this.t.translate('authorBrowser.cleanup.confirmReject'),
+      accept: () => {
+        this.deletingAuthorsWithoutBooks.set(true);
+        this.authorService.deleteAuthorsWithoutBooks().subscribe({
+          next: deletedCount => {
+            this.messageService.add(deletedCount > 0
+              ? {
+                  severity: 'success',
+                  summary: this.t.translate('authorBrowser.toast.cleanupSuccessSummary'),
+                  detail: this.t.translate('authorBrowser.toast.cleanupSuccessDetail', {count: deletedCount})
+                }
+              : {
+                  severity: 'info',
+                  summary: this.t.translate('authorBrowser.toast.cleanupEmptySummary'),
+                  detail: this.t.translate('authorBrowser.toast.cleanupEmptyDetail')
+                });
+          },
+          error: () => {
+            this.deletingAuthorsWithoutBooks.set(false);
+            this.messageService.add({
+              severity: 'error',
+              summary: this.t.translate('authorBrowser.toast.cleanupFailedSummary'),
+              detail: this.t.translate('authorBrowser.toast.cleanupFailedDetail')
+            });
+          },
+          complete: () => this.deletingAuthorsWithoutBooks.set(false)
         });
       }
     });

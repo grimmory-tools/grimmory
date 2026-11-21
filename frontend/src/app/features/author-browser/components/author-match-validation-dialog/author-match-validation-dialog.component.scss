@@ -1,0 +1,72 @@
+.validation-message {
+  margin: 0 0 1rem;
+}
+
+.candidate-list {
+  display: grid;
+  gap: 0.75rem;
+  max-height: 60vh;
+  overflow: auto;
+}
+
+.candidate-card {
+  display: grid;
+  grid-template-columns: 4rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.75rem;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius);
+}
+
+.candidate-image {
+  width: 4rem;
+  height: 4rem;
+  object-fit: cover;
+  border-radius: var(--border-radius);
+}
+
+.candidate-placeholder {
+  display: grid;
+  place-items: center;
+  background: var(--surface-ground);
+  color: var(--text-color-secondary);
+  font-size: 1.5rem;
+}
+
+.candidate-details {
+  min-width: 0;
+}
+
+.candidate-details h4 {
+  margin: 0 0 0.25rem;
+}
+
+.candidate-details span {
+  color: var(--text-color-secondary);
+  font-size: 0.85rem;
+}
+
+.candidate-details p {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 0.25rem 0 0;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+@media (max-width: 600px) {
+  .candidate-card {
+    grid-template-columns: 3rem minmax(0, 1fr);
+  }
+
+  .candidate-image {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .candidate-card p-button {
+    grid-column: 2;
+    justify-self: start;
+  }
+}

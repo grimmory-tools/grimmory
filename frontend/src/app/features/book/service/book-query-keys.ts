@@ -1,4 +1,5 @@
 export const BOOKS_QUERY_KEY = ['books'] as const;
+export const BOOKS_LIST_VIEW_QUERY_KEY = ['books', 'list-view'] as const;
 
 export const BOOK_DETAIL_QUERY_PREFIX = ['books', 'detail'] as const;
 

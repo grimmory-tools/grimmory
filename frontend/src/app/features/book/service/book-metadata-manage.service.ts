@@ -9,6 +9,7 @@ import {TranslocoService} from '@jsverse/transloco';
 import {QueryClient} from '@tanstack/angular-query-experimental';
 import {invalidateAllBookCaches, invalidateBooksById, patchBookMetadataInCache, patchBooksInCacheWith} from './legacy-book-cache';
 import {mitigateWebkitUploadBug} from '../../../shared/util/mitigate-webkit-upload-bug';
+import {TaskCreateResponse} from '../../settings/task-management/task.service';
 
 @Service()
 export class BookMetadataManageService {
@@ -30,13 +31,12 @@ export class BookMetadataManageService {
     );
   }
 
-  updateBooksMetadata(request: BulkMetadataUpdateRequest): Observable<void> {
-    return this.http.put(`${this.url}/bulk-edit-metadata`, request).pipe(
-      tap(() => {
-        invalidateAllBookCaches(this.queryClient);
-      }),
-      map(() => void 0)
-    );
+  updateBooksMetadata(request: BulkMetadataUpdateRequest): Observable<TaskCreateResponse> {
+    return this.http.put<TaskCreateResponse>(`${this.url}/bulk-edit-metadata`, request);
+  }
+
+  refreshAllBookCaches(): void {
+    invalidateAllBookCaches(this.queryClient);
   }
 
   toggleAllLock(bookIds: Set<number>, lock: 'LOCK' | 'UNLOCK'): Observable<void> {

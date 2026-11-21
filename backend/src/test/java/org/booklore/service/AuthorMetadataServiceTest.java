@@ -6,6 +6,8 @@ import org.booklore.model.dto.AuthorDetails;
 import org.booklore.model.dto.AuthorSearchResult;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.request.AuthorMatchRequest;
+import org.booklore.model.dto.settings.AppSettings;
+import org.booklore.model.dto.settings.MetadataProviderSettings;
 import org.booklore.model.entity.AuthorEntity;
 import org.booklore.model.enums.AuditAction;
 import org.booklore.model.enums.AuthorMetadataSource;
@@ -61,6 +63,7 @@ class AuthorMetadataServiceTest {
                 authenticationService,
                 appSettingService
         );
+        lenient().when(appSettingService.getAppSettings()).thenReturn(appSettingsWithAmazon(true, "com"));
 
         BookLoreUser.UserPermissions adminPermissions = new BookLoreUser.UserPermissions();
         adminPermissions.setAdmin(true);
@@ -92,6 +95,58 @@ class AuthorMetadataServiceTest {
         assertThat(results.get(0).getDescription()).isEqualTo("American author");
         assertThat(results.get(0).getImageUrl()).isEqualTo("https://example.com/king.jpg");
         assertThat(results.get(1).getAsin()).isEqualTo("B000AP1234");
+    }
+
+    @Test
+    void searchAuthorMetadata_rejectsSearchWhenAmazonProviderIsDisabled() {
+        when(appSettingService.getAppSettings()).thenReturn(appSettingsWithAmazon(false, "com"));
+
+        assertThatThrownBy(() -> service.searchAuthorMetadata("Stephen King", null))
+                .isInstanceOf(APIException.class)
+                .hasMessageContaining("Amazon metadata provider is disabled");
+
+        verifyNoInteractions(authorParser);
+    }
+
+    @Test
+    void quickMatchAuthorUsesConfiguredAmazonDomainWhenNoRegionIsProvided() {
+        AuthorEntity author = new AuthorEntity();
+        author.setId(1L);
+        author.setName("Stephen King");
+        when(authorRepository.findById(1L)).thenReturn(Optional.of(author));
+        when(authorParser.searchAuthors("Stephen King", "uk")).thenReturn(List.of(AuthorSearchResult.builder()
+                .source(AuthorMetadataSource.AUDNEXUS)
+                .asin("B000APZGGS")
+                .name("Stephen King")
+                .description("Author biography")
+                .build()));
+        when(authorRepository.save(any(AuthorEntity.class))).thenAnswer(i -> i.getArgument(0));
+        when(appSettingService.getAppSettings()).thenReturn(appSettingsWithAmazon(true, "co.uk"));
+
+        AuthorDetails details = service.quickMatchAuthor(1L, null);
+
+        assertThat(details.getAsin()).isEqualTo("B000APZGGS");
+        verify(authorParser).searchAuthors("Stephen King", "uk");
+    }
+
+    @Test
+    void quickMatchAuthorRejectsMultipleCandidatesWithoutUpdatingTheAuthor() {
+        AuthorEntity author = new AuthorEntity();
+        author.setId(1L);
+        author.setName("Stephen King");
+        when(authorRepository.findById(1L)).thenReturn(Optional.of(author));
+        when(authorParser.searchAuthors("Stephen King", "us")).thenReturn(List.of(
+                AuthorSearchResult.builder().source(AuthorMetadataSource.AUDNEXUS).asin("B0001").name("Stephen King").build(),
+                AuthorSearchResult.builder().source(AuthorMetadataSource.AUDNEXUS).asin("B0002").name("Stephen King Jr").build()
+        ));
+
+        assertThatThrownBy(() -> service.quickMatchAuthor(1L, null))
+                .isInstanceOf(APIException.class)
+                .hasMessageContaining("Multiple metadata matches")
+                .hasMessageContaining("manual validation required");
+
+        verify(authorRepository, never()).save(any(AuthorEntity.class));
+        verifyNoInteractions(fileService);
     }
 
     @Test
@@ -227,6 +282,31 @@ class AuthorMetadataServiceTest {
     }
 
     @Test
+    void deleteAuthorsWithoutBooks_deletesOnlyAuthorsReturnedByEmptyAssociationQuery() {
+        AuthorEntity author = new AuthorEntity();
+        author.setId(8L);
+        author.setName("Orphan Author");
+        when(authorRepository.findAuthorsWithoutBooks()).thenReturn(List.of(author));
+
+        int deletedCount = service.deleteAuthorsWithoutBooks();
+
+        assertThat(deletedCount).isEqualTo(1);
+        verify(authorRepository).delete(author);
+        verify(fileService).deleteAuthorImages(8L);
+        verify(auditService).log(AuditAction.AUTHOR_DELETED, "Author", 8L, "Deleted author 'Orphan Author'");
+    }
+
+    @Test
+    void deleteAuthorsWithoutBooks_returnsZeroWhenNoOrphansExist() {
+        when(authorRepository.findAuthorsWithoutBooks()).thenReturn(Collections.emptyList());
+
+        assertThat(service.deleteAuthorsWithoutBooks()).isZero();
+
+        verify(authorRepository, never()).delete(any(AuthorEntity.class));
+        verifyNoInteractions(fileService);
+    }
+
+    @Test
     void getAuthorPhoto_returnsNullWhenFileDoesNotExist() {
         when(fileService.getAuthorPhotoFile(1L)).thenReturn("/nonexistent/path/photo.jpg");
 
@@ -266,5 +346,16 @@ class AuthorMetadataServiceTest {
         service.matchAuthor(1L, request);
 
         verify(fileService, never()).createAuthorThumbnailFromUrl(anyLong(), anyString());
+    }
+
+    private AppSettings appSettingsWithAmazon(boolean enabled, String domain) {
+        MetadataProviderSettings.Amazon amazon = new MetadataProviderSettings.Amazon();
+        amazon.setEnabled(enabled);
+        amazon.setDomain(domain);
+        MetadataProviderSettings providers = new MetadataProviderSettings();
+        providers.setAmazon(amazon);
+        AppSettings settings = new AppSettings();
+        settings.setMetadataProviderSettings(providers);
+        return settings;
     }
 }

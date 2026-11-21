@@ -58,6 +58,22 @@ public enum TaskType {
             true,
             "Refresh Metadata",
             "Updates metadata information for your selected books."
+    ),
+    BULK_UPDATE_BOOK_METADATA(
+            false,
+            true,
+            false,
+            true,
+            "Bulk Update Book Metadata",
+            "Updates metadata for selected books in the background."
+    ),
+    REPAIR_EPUB_CONTAINERS(
+            false,
+            true,
+            false,
+            false,
+            "Repair EPUB Containers",
+            "Repairs EPUB ZIP container layout across all libraries. Creates a backup next to each changed file and leaves unreadable archives unchanged."
     );
 
     @Getter

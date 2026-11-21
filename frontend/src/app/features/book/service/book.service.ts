@@ -1,4 +1,4 @@
-import {computed, effect, inject, Service} from '@angular/core';
+import {computed, effect, inject, Service, signal} from '@angular/core';
 import {lastValueFrom, Observable, throwError} from 'rxjs';
 import {HttpClient, HttpErrorResponse, HttpParams} from '@angular/common/http';
 import {catchError, tap} from 'rxjs/operators';
@@ -15,6 +15,7 @@ import {TranslocoService} from '@jsverse/transloco';
 import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
 import {
   BOOKS_QUERY_KEY,
+  BOOKS_LIST_VIEW_QUERY_KEY,
   bookDetailQueryKey,
 } from './book-query-keys';
 import {invalidateAllBookQueries} from '../data/book-query-cache';
@@ -36,16 +37,23 @@ export class BookService {
 
   private readonly url = `${API_CONFIG.BASE_URL}/api/v1/books`;
   private readonly token = this.authService.token;
+  private readonly booksRequested = signal(false);
+  private readonly listViewBooksRequested = signal(false);
 
   private readonly booksQuery = injectQuery(() => ({
     ...this.getBooksQueryOptions(),
-    enabled: !!this.token(),
+    enabled: !!this.token() && this.booksRequested(),
+  }));
+  private readonly listViewBooksQuery = injectQuery(() => ({
+    ...this.getBooksQueryOptions(true),
+    enabled: !!this.token() && this.listViewBooksRequested(),
   }));
 
   readonly books = computed(() => this.booksQuery.data() ?? []);
+  readonly listViewBooks = computed(() => this.listViewBooksQuery.data() ?? []);
 
   readonly booksError = computed<string | null>(() => {
-    if (!this.token() || !this.booksQuery.isError()) {
+    if (!this.token() || !this.booksRequested() || !this.booksQuery.isError()) {
       return null;
     }
 
@@ -53,21 +61,36 @@ export class BookService {
     return error instanceof Error ? error.message : 'Failed to load books';
   });
 
-  readonly isBooksLoading = computed(() => !!this.token() && this.booksQuery.isPending());
+  readonly isBooksLoading = computed(() =>
+    !!this.token() && this.booksRequested() && this.booksQuery.isPending(),
+  );
+  readonly isListViewBooksLoading = computed(() =>
+    !!this.token() && this.listViewBooksRequested() && this.listViewBooksQuery.isPending(),
+  );
 
   constructor() {
     effect(() => {
       const token = this.token();
       if (token === null) {
+        this.booksRequested.set(false);
         this.queryClient.removeQueries({queryKey: BOOKS_QUERY_KEY});
+        this.listViewBooksRequested.set(false);
       }
     });
   }
 
-  private getBooksQueryOptions() {
+  loadBooks(): void {
+    this.booksRequested.set(true);
+  }
+
+  loadBooksForListView(): void {
+    this.listViewBooksRequested.set(true);
+  }
+
+  private getBooksQueryOptions(stripForListView = false) {
     return queryOptions({
-      queryKey: BOOKS_QUERY_KEY,
-      queryFn: () => lastValueFrom(this.http.get<Book[]>(this.url, {params: {stripForListView: false}})),
+      queryKey: stripForListView ? BOOKS_LIST_VIEW_QUERY_KEY : BOOKS_QUERY_KEY,
+      queryFn: () => lastValueFrom(this.http.get<Book[]>(this.url, {params: {stripForListView}})),
       staleTime: 5 * 60_000,
     });
   }

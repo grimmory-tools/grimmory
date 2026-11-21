@@ -59,8 +59,13 @@ export interface AuthorSearchResult {
 export interface AuthorMatchRequest {
   source: string;
   asin: string;
-  region: string;
+  region?: string;
 }
+
+export type AuthorMatchResolution =
+  | {status: 'matched'; author: AuthorDetails; candidate: AuthorSearchResult}
+  | {status: 'ambiguous'; candidates: AuthorSearchResult[]}
+  | {status: 'not-found'};
 
 export interface AuthorPhotoResult {
   url: string;

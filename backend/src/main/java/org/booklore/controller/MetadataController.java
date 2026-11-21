@@ -9,12 +9,14 @@ import org.booklore.config.security.annotation.CheckBookAccess;
 import org.booklore.model.MetadataUpdateWrapper;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.request.*;
+import org.booklore.model.dto.response.TaskCreateResponse;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.model.enums.MetadataReplaceMode;
 import org.booklore.service.metadata.BookMetadataService;
 import org.booklore.service.metadata.MetadataManagementService;
 import org.booklore.service.metadata.MetadataMatchService;
 import org.booklore.service.metadata.MetadataProviderService;
+import org.booklore.service.task.TaskService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,6 +36,7 @@ public class MetadataController {
     private final MetadataMatchService metadataMatchService;
     private final MetadataManagementService metadataManagementService;
     private final MetadataProviderService metadataProviderService;
+    private final TaskService taskService;
 
     @Operation(summary = "Get prospective metadata for a book", description = "Fetch prospective metadata for a book by its ID. Requires metadata edit permission or admin.")
     @ApiResponse(responseCode = "200", description = "Prospective metadata returned successfully")
@@ -61,15 +64,15 @@ public class MetadataController {
     }
 
     @Operation(summary = "Bulk edit book metadata", description = "Bulk update metadata for multiple books. Requires metadata edit permission or admin.")
-    @ApiResponse(responseCode = "204", description = "Bulk metadata updated successfully")
+    @ApiResponse(responseCode = "202", description = "Bulk metadata update accepted")
     @PutMapping("/bulk-edit-metadata")
     @PreAuthorize("@securityUtil.canBulkEditMetadata() or @securityUtil.isAdmin()")
-    public ResponseEntity<Void> bulkEditMetadata(@Parameter(description = "Bulk metadata update request") @Validated @RequestBody BulkMetadataUpdateRequest bulkMetadataUpdateRequest) {
-        boolean mergeCategories = bulkMetadataUpdateRequest.isMergeCategories();
-        boolean mergeMoods = bulkMetadataUpdateRequest.isMergeMoods();
-        boolean mergeTags = bulkMetadataUpdateRequest.isMergeTags();
-        bookMetadataService.bulkUpdateMetadata(bulkMetadataUpdateRequest, mergeCategories, mergeMoods, mergeTags);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<TaskCreateResponse> bulkEditMetadata(@Parameter(description = "Bulk metadata update request") @Validated @RequestBody BulkMetadataUpdateRequest bulkMetadataUpdateRequest) {
+        TaskCreateRequest taskRequest = TaskCreateRequest.builder()
+                .taskType(org.booklore.model.enums.TaskType.BULK_UPDATE_BOOK_METADATA)
+                .options(bulkMetadataUpdateRequest)
+                .build();
+        return ResponseEntity.accepted().body(taskService.runAsUser(taskRequest));
     }
 
     @Operation(summary = "Toggle all metadata locks", description = "Toggle all metadata locks for books. Requires metadata edit permission or admin.")

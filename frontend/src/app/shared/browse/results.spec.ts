@@ -79,4 +79,40 @@ describe('createBrowseResults', () => {
     TestBed.flushEffects();
     expect(ids()).toEqual([4]);
   });
+
+  it('preloads covers through the actual end of the rendered range', () => {
+    const data = signal<{pages: BrowsePage<Item>[]} | undefined>(pageData([1, 2, 3, 4, 5]));
+    const identity = signal('a');
+    const artworkUrls = vi.fn((items: readonly Item[], lastVisibleIndex: number) =>
+      items.slice(0, lastVisibleIndex + 1).map(item => `/cover/${item.id}`));
+    const query: BrowseResultsQuery<Item> = {
+      data,
+      isSuccess: () => true,
+      isError: () => false,
+      isFetchNextPageError: () => false,
+      hasNextPage: () => false,
+      isFetching: () => false,
+      fetchNextPage: () => Promise.resolve(),
+      refetch: () => Promise.resolve(),
+    };
+    const presentation = TestBed.runInInjectionContext(() => createBrowseResults<Item>({
+      query,
+      listKey: identity,
+      artworkUrls,
+      scrollToTop: vi.fn(),
+      coverWaitMs: 5,
+    }));
+
+    TestBed.flushEffects();
+    presentation.onRenderedRange({start: 2, end: 4});
+
+    identity.set('b');
+    data.set(pageData([6, 7, 8, 9, 10]));
+    TestBed.flushEffects();
+
+    expect(artworkUrls).toHaveBeenLastCalledWith(
+      expect.arrayContaining([{id: 6}, {id: 7}, {id: 8}, {id: 9}, {id: 10}]),
+      4,
+    );
+  });
 });

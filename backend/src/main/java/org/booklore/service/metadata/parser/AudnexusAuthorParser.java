@@ -83,44 +83,6 @@ public class AudnexusAuthorParser implements AuthorParser {
     }
 
     @Override
-    public AuthorSearchResult quickSearch(String name, String region) {
-        try {
-            waitForRateLimit();
-
-            URI uri = UriComponentsBuilder.fromUriString(BASE_URL)
-                    .path(PATH_AUTHORS)
-                    .queryParam("name", name)
-                    .queryParam("region", region)
-                    .build()
-                    .toUri();
-
-            log.info("Audnexus author quick search URL: {}", uri);
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(uri)
-                    .GET()
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 200) {
-                AudnexusAuthorResponse[] authors = objectMapper.readValue(response.body(), AudnexusAuthorResponse[].class);
-                if (authors.length == 0) return null;
-                return getAuthorByAsin(authors[0].getAsin(), region);
-            }
-
-            log.warn("Audnexus author quick search returned status {}", response.statusCode());
-            return null;
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return null;
-        } catch (Exception e) {
-            log.error("Audnexus author quick search failed for name: {}", name, e);
-            return null;
-        }
-    }
-
-    @Override
     public AuthorSearchResult getAuthorByAsin(String asin, String region) {
         try {
             waitForRateLimit();

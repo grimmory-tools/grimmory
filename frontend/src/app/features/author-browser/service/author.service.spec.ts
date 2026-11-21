@@ -103,7 +103,63 @@ describe('AuthorService', () => {
     );
   });
 
-  it('uses the default region for quick matches and preserves custom regions', () => {
+  it('updates automatically when author metadata search has one unique result', () => {
+    const candidate = {source: 'AUDNEXUS', asin: 'B00ADA', name: 'Ada Lovelace'};
+    const updatedAuthor = {id: 9, name: 'Ada Lovelace', asin: 'B00ADA'};
+    httpClient.get.mockReturnValueOnce(of([candidate]));
+    httpClient.post.mockReturnValueOnce(of(updatedAuthor));
+
+    let resolution: unknown;
+    service.resolveAuthorMatch(9, 'Ada Lovelace').subscribe(value => resolution = value);
+
+    expect(httpClient.get).toHaveBeenCalledWith(
+      `${API_CONFIG.BASE_URL}/api/v1/authors/9/search-metadata`,
+      {params: {q: 'Ada Lovelace'}},
+    );
+    expect(httpClient.post).toHaveBeenCalledWith(
+      `${API_CONFIG.BASE_URL}/api/v1/authors/9/match`,
+      {source: 'AUDNEXUS', asin: 'B00ADA', region: undefined},
+    );
+    expect(resolution).toEqual({status: 'matched', author: updatedAuthor, candidate});
+  });
+
+  it('requires manual validation and does not update when multiple unique candidates exist', () => {
+    const candidates = [
+      {source: 'AUDNEXUS', asin: 'B00ADA', name: 'Ada Lovelace'},
+      {source: 'AUDNEXUS', asin: 'B00OTHER', name: 'A. Lovelace'},
+    ];
+    httpClient.get.mockReturnValueOnce(of(candidates));
+
+    let resolution: unknown;
+    service.resolveAuthorMatch(9, 'Ada Lovelace').subscribe(value => resolution = value);
+
+    expect(resolution).toEqual({status: 'ambiguous', candidates});
+    expect(httpClient.post).not.toHaveBeenCalled();
+  });
+
+  it('deduplicates duplicate provider results by ASIN before deciding to apply automatically', () => {
+    const candidate = {source: 'AUDNEXUS', asin: 'B00ADA', name: 'Ada Lovelace'};
+    httpClient.get.mockReturnValueOnce(of([candidate, {...candidate, name: 'Augusta Ada King'}]));
+    httpClient.post.mockReturnValueOnce(of({id: 9, name: 'Ada Lovelace', asin: 'B00ADA'}));
+
+    let resolution: unknown;
+    service.resolveAuthorMatch(9, 'Ada Lovelace').subscribe(value => resolution = value);
+
+    expect(resolution).toMatchObject({status: 'matched', candidate});
+    expect(httpClient.post).toHaveBeenCalledOnce();
+  });
+
+  it('does not update metadata when no candidates are found', () => {
+    httpClient.get.mockReturnValueOnce(of([]));
+
+    let resolution: unknown;
+    service.resolveAuthorMatch(9, 'Unknown Author').subscribe(value => resolution = value);
+
+    expect(resolution).toEqual({status: 'not-found'});
+    expect(httpClient.post).not.toHaveBeenCalled();
+  });
+
+  it('uses the configured server region by default and preserves custom regions', () => {
     service.quickMatchAuthor(11);
     service.quickMatchAuthor(11, 'gb');
 
@@ -111,7 +167,7 @@ describe('AuthorService', () => {
       1,
       `${API_CONFIG.BASE_URL}/api/v1/authors/11/quick-match`,
       null,
-      {params: {region: 'us'}},
+      {params: {}},
     );
     expect(httpClient.post).toHaveBeenNthCalledWith(
       2,
@@ -204,6 +260,18 @@ describe('AuthorService', () => {
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: AUTHORS_QUERY_KEY, exact: true});
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: ['books'], exact: true});
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: bookQueryKeys.all()});
+  });
+
+  it('deletes authors without books and refreshes the author list', () => {
+    httpClient.delete.mockReturnValue(of(3));
+
+    let deletedCount: number | undefined;
+    service.deleteAuthorsWithoutBooks().subscribe(count => deletedCount = count);
+
+    expect(httpClient.delete).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/v1/authors/without-books`);
+    expect(deletedCount).toBe(3);
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith({queryKey: AUTHORS_QUERY_KEY, exact: true});
+    expect(queryClient.invalidateQueries).not.toHaveBeenCalledWith({queryKey: bookQueryKeys.all()});
   });
 
   it('builds tokenized author media urls with and without cache busters', () => {

@@ -10,7 +10,7 @@ import type {Shelf} from '../model/shelf.model';
 import {bookQueryKeys} from '../data/book-query-keys';
 import {AuthService} from '../../../shared/service/auth.service';
 import {BookPatchService} from './book-patch.service';
-import {BOOKS_QUERY_KEY} from './book-query-keys';
+import {BOOKS_LIST_VIEW_QUERY_KEY, BOOKS_QUERY_KEY} from './book-query-keys';
 import {BookSocketService} from './book-socket.service';
 import {BookService} from './book.service';
 
@@ -120,8 +120,15 @@ describe('BookService', () => {
     vi.restoreAllMocks();
   });
 
-  it('eagerly fetches books and hydrates query-backed state and loading state', async () => {
+  it('loads books only when requested and hydrates query-backed state and loading state', async () => {
     setup();
+
+    expect(service.books()).toEqual([]);
+    expect(service.isBooksLoading()).toBe(false);
+    httpTestingController.expectNone(req => req.url.endsWith('/api/v1/books'));
+
+    service.loadBooks();
+    flushSignalAndQueryEffects();
 
     const response = [
       buildBook(1, {
@@ -146,7 +153,6 @@ describe('BookService', () => {
       }),
     ];
 
-    expect(service.books()).toEqual([]);
     expect(service.isBooksLoading()).toBe(true);
     expect(service.booksError()).toBeNull();
 
@@ -160,12 +166,16 @@ describe('BookService', () => {
     expect(service.booksError()).toBeNull();
   });
 
-  it('gates loading on the auth token and starts the eager fetch once a token is available', async () => {
+  it('waits for both a token and an explicit request before fetching books', async () => {
     setup(null);
 
     expect(service.books()).toEqual([]);
     expect(service.isBooksLoading()).toBe(false);
     expect(service.booksError()).toBeNull();
+    httpTestingController.expectNone(req => req.url.endsWith('/api/v1/books'));
+
+    service.loadBooks();
+    flushSignalAndQueryEffects();
     httpTestingController.expectNone(req => req.url.endsWith('/api/v1/books'));
 
     authService.token.set('token-123');
@@ -181,9 +191,30 @@ describe('BookService', () => {
     expect(service.booksError()).toBeNull();
   });
 
+  it('loads list-view books into a separate lightweight cache', async () => {
+    setup();
+
+    service.loadBooksForListView();
+    flushSignalAndQueryEffects();
+
+    const request = httpTestingController.expectOne(req => req.url.endsWith('/api/v1/books'));
+    expect(request.request.params.get('stripForListView')).toBe('true');
+    expect(queryClientHarness.queryClient.getQueryData(BOOKS_QUERY_KEY)).toBeUndefined();
+
+    const response = [buildBook(42, {metadata: {seriesName: 'Series', authors: ['Author']}})];
+    request.flush(response);
+    await flushBooksQuery();
+
+    expect(service.listViewBooks()).toEqual(response);
+    expect(service.isListViewBooksLoading()).toBe(false);
+    expect(queryClientHarness.queryClient.getQueryData(BOOKS_LIST_VIEW_QUERY_KEY)).toEqual(response);
+  });
+
   it('surfaces query errors through booksError and clears the loading flag', async () => {
     setup();
 
+    service.loadBooks();
+    flushSignalAndQueryEffects();
     const request = httpTestingController.expectOne(req => req.url.endsWith('/api/v1/books'));
     request.flush({message: 'boom'}, {status: 500, statusText: 'Server Error'});
     await flushBooksQuery();
@@ -196,6 +227,8 @@ describe('BookService', () => {
   it('removes a shelf from the cached books query without disturbing other shelf assignments', async () => {
     setup();
 
+    service.loadBooks();
+    flushSignalAndQueryEffects();
     const targetShelf = buildShelf(10, {name: 'Favorites'});
     const untouchedShelf = buildShelf(11, {name: 'Archive'});
     const initialBooks = [
@@ -223,6 +256,8 @@ describe('BookService', () => {
   it('removes the books query cache when the auth token is cleared', async () => {
     setup();
 
+    service.loadBooks();
+    flushSignalAndQueryEffects();
     const removeQueriesSpy = vi.spyOn(queryClientHarness.queryClient, 'removeQueries');
 
     httpTestingController.expectOne(req => req.url.endsWith('/api/v1/books')).flush([

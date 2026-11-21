@@ -127,7 +127,9 @@ export class TaskManagementComponent implements OnInit {
 
   private updateTaskWithProgress(progress: TaskProgressPayload): void {
     const now = new Date().toISOString();
-    const isTerminalStatus = progress.taskStatus === TaskStatus.COMPLETED || progress.taskStatus === TaskStatus.FAILED;
+    const isTerminalStatus = progress.taskStatus === TaskStatus.COMPLETED
+      || progress.taskStatus === TaskStatus.FAILED
+      || progress.taskStatus === TaskStatus.CANCELLED;
 
     this.taskHistoriesByType.update(histories => {
       const existingHistory = histories.get(progress.taskType);
@@ -146,7 +148,7 @@ export class TaskManagementComponent implements OnInit {
       });
     });
 
-    if (progress.taskStatus === TaskStatus.COMPLETED || progress.taskStatus === TaskStatus.FAILED) {
+    if (isTerminalStatus) {
       setTimeout(() => this.loadTasks(), 1000);
     }
   }
@@ -471,7 +473,8 @@ export class TaskManagementComponent implements OnInit {
       [TaskType.CLEANUP_DELETED_BOOKS]: 'pi-trash',
       [TaskType.SYNC_LIBRARY_FILES]: 'pi-sync',
       [TaskType.BOOKDROP_PERIODIC_SCANNING]: 'pi-inbox',
-      [TaskType.CLEANUP_TEMP_METADATA]: 'pi-file'
+      [TaskType.CLEANUP_TEMP_METADATA]: 'pi-file',
+      [TaskType.REPAIR_EPUB_CONTAINERS]: 'pi-wrench'
     };
     return icons[taskType] || 'pi-cog';
   }

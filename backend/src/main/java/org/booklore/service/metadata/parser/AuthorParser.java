@@ -9,6 +9,4 @@ public interface AuthorParser {
     List<AuthorSearchResult> searchAuthors(String name, String region);
 
     AuthorSearchResult getAuthorByAsin(String asin, String region);
-
-    AuthorSearchResult quickSearch(String name, String region);
 }

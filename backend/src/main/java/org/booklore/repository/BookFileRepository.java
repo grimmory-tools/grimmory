@@ -1,9 +1,11 @@
 package org.booklore.repository;
 
 import org.booklore.model.entity.BookFileEntity;
+import org.booklore.model.enums.BookFileType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,4 +48,41 @@ public interface BookFileRepository extends JpaRepository<BookFileEntity, Long> 
             WHERE bf.id = :id
             """)
     Optional<BookFileEntity> findByIdWithBookAndLibraryPath(@Param("id") Long id);
+
+    @Query("""
+            SELECT COUNT(bf) FROM BookFileEntity bf
+            WHERE bf.bookType = :bookType
+            AND bf.isBookFormat = true
+            AND (bf.book.deleted IS NULL OR bf.book.deleted = false)
+            """)
+    long countActiveBookFilesByType(@Param("bookType") BookFileType bookType);
+
+    @Query("""
+            SELECT bf.id FROM BookFileEntity bf
+            WHERE bf.id > :afterId
+            AND bf.bookType = :bookType
+            AND bf.isBookFormat = true
+            AND (bf.book.deleted IS NULL OR bf.book.deleted = false)
+            ORDER BY bf.id
+            """)
+    List<Long> findActiveBookFileIdsByTypeAfter(
+            @Param("afterId") Long afterId,
+            @Param("bookType") BookFileType bookType,
+            Pageable pageable);
+
+    @Query("""
+            SELECT bf FROM BookFileEntity bf
+            JOIN FETCH bf.book b
+            LEFT JOIN FETCH b.libraryPath
+            WHERE bf.id IN :ids
+            """)
+    List<BookFileEntity> findAllForRepairByIdIn(@Param("ids") List<Long> ids);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE BookFileEntity bf SET bf.currentHash = :currentHash, bf.fileSizeKb = :fileSizeKb WHERE bf.id = :id")
+    int updateFingerprintAndFileSize(
+            @Param("id") Long id,
+            @Param("currentHash") String currentHash,
+            @Param("fileSizeKb") Long fileSizeKb);
 }

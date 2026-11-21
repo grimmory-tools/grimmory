@@ -4611,35 +4611,61 @@
     "footer": {
       "selected": "",
       "autoMatch": "",
+      "mergeAuthors": "Regrouper les auteurs",
       "deleteSelected": "",
       "selectAll": "Tout sélectionner",
       "deselectAll": "Tout désélectionner"
+    },
+    "cleanup": {
+      "button": "Supprimer les auteurs sans livres",
+      "confirmTitle": "Supprimer les auteurs sans livres ?",
+      "confirmMessage": "Cette action supprimera définitivement tous les auteurs qui ne sont associés à aucun livre, ainsi que leurs images.",
+      "confirmAccept": "Supprimer",
+      "confirmReject": "Annuler"
+    },
+    "mergeAuthors": {
+      "title": "Regrouper les auteurs",
+      "description": "{{count}} auteurs sont sélectionnés. Choisissez la fiche à conserver ; les livres des autres fiches y seront rattachés, puis les doublons et leurs photos seront supprimés. Les descriptions et ASIN des fiches supprimées ne seront pas fusionnés.",
+      "targetLabel": "Fiche auteur à conserver",
+      "targetPlaceholder": "Choisir l’auteur principal",
+      "confirm": "Regrouper",
+      "successSummary": "Auteurs regroupés",
+      "successDetail": "{{count}} fiche(s) ont été regroupées sous « {{target}} ».",
+      "failureSummary": "Échec du regroupement",
+      "failureDetail": "Impossible de regrouper les auteurs sélectionnés."
     },
     "toast": {
       "deleteSuccessSummary": "Auteur supprimé",
       "deleteSuccessDetail": "L'auteur a été supprimé avec succès.",
       "deleteFailedSummary": "Échec de la suppression",
       "deleteFailedDetail": "Échec de la suppression de l'auteur.",
-      "autoMatchSuccessSummary": "",
+      "autoMatchSuccessSummary": "Mise à jour des auteurs terminée",
       "autoMatchSuccessDetail": "",
+      "autoMatchResultsDetail": "{{matched}} mis à jour, {{ambiguous}} ambigus ignorés, {{noResults}} sans résultat, {{failed}} échecs.",
       "autoMatchFailedSummary": "",
       "autoMatchFailedDetail": "",
-      "quickMatchSuccessSummary": "",
-      "quickMatchSuccessDetail": "",
-      "quickMatchFailedSummary": "",
-      "quickMatchFailedDetail": "",
+      "quickMatchSuccessSummary": "Mise à jour terminée",
+      "quickMatchSuccessDetail": "Les métadonnées de l’auteur ont été mises à jour.",
+      "quickMatchFailedSummary": "Échec de la mise à jour",
+      "quickMatchFailedDetail": "Impossible de trouver ou de mettre à jour les métadonnées de l’auteur.",
       "deleteSelectedSuccessSummary": "",
-      "deleteSelectedSuccessDetail": ""
+      "deleteSelectedSuccessDetail": "",
+      "cleanupSuccessSummary": "Nettoyage terminé",
+      "cleanupSuccessDetail": "{{count}} auteur(s) sans livre supprimé(s).",
+      "cleanupEmptySummary": "Aucun nettoyage nécessaire",
+      "cleanupEmptyDetail": "Aucun auteur sans livre n’a été trouvé.",
+      "cleanupFailedSummary": "Échec du nettoyage",
+      "cleanupFailedDetail": "Impossible de supprimer les auteurs sans livres."
     },
     "card": {
       "matched": "",
-      "quickMatch": "",
+      "quickMatch": "Mettre à jour les métadonnées",
       "book": "livre",
       "books": "livres",
       "menu": {
         "viewAuthor": "",
         "editAuthor": "",
-        "quickMatch": "",
+        "quickMatch": "Mettre à jour les métadonnées",
         "deleteAuthor": ""
       }
     },
@@ -4667,7 +4693,7 @@
       }
     },
     "detail": {
-      "quickMatchTooltip": "",
+      "quickMatchTooltip": "Mettre à jour les métadonnées de l’auteur",
       "loading": "",
       "booksTab": "",
       "editTab": "",
@@ -4713,6 +4739,12 @@
         "matchFailedSummary": "",
         "matchFailedDetail": ""
       }
+    },
+    "matchValidation": {
+      "title": "Valider l’auteur",
+      "description": "Plusieurs correspondances ont été trouvées pour « {{author}} ». Choisissez la bonne avant de mettre à jour ses métadonnées.",
+      "select": "Choisir cette correspondance",
+      "skip": "Ignorer cet auteur"
     }
   },
   "browse": {
