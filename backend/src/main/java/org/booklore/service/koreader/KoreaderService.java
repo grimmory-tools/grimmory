@@ -85,7 +85,7 @@ public class KoreaderService {
         UserBookProgressEntity userProgress = getOrCreateUserProgress(user, book);
         Float previousProgressPercent = userProgress.getKoreaderProgressPercent();
         ReadStatus previousReadStatus = userProgress.getReadStatus();
-        updateProgressData(userProgress, koProgress, book);
+        updateProgressData(userProgress, koProgress, book, bookHash);
 
         progressRepository.save(userProgress);
 
@@ -127,8 +127,8 @@ public class KoreaderService {
                         progress.setKoreaderDeviceId(DEFAULT_DEVICE_ID);
 
                         BookFileEntity primaryFile = book.getPrimaryBookFile();
-                        if (primaryFile != null && primaryFile.getBookType() == BookFileType.EPUB
-                                && progress.getEpubProgress() != null) {
+                        BookFileType bookType = primaryFile != null ? primaryFile.getBookType() : null;
+                        if (bookType == BookFileType.EPUB && progress.getEpubProgress() != null) {
                             try {
                                 String xpointer = epubCfiService.convertCfiToProgressXPointer(
                                         primaryFile.getFullFilePath(), progress.getEpubProgress());
@@ -137,6 +137,11 @@ public class KoreaderService {
                                 progress.setKoreaderProgress(null);
                                 log.warn("Failed to convert CFI to XPointer for KOReader sync", e);
                             }
+                        } else if (bookType == BookFileType.PDF && progress.getPdfProgress() != null) {
+                            // KOReader positions paged documents by page number
+                            progress.setKoreaderProgress(String.valueOf(progress.getPdfProgress()));
+                        } else if (bookType == BookFileType.CBX && progress.getCbxProgress() != null) {
+                            progress.setKoreaderProgress(String.valueOf(progress.getCbxProgress()));
                         }
 
                         progressRepository.save(progress);
@@ -182,14 +187,23 @@ public class KoreaderService {
         }
     }
 
-    private void updateProgressData(UserBookProgressEntity userProgress, KoreaderProgress koProgress, BookEntity book) {
+    private void updateProgressData(UserBookProgressEntity userProgress, KoreaderProgress koProgress, BookEntity book, String bookHash) {
         userProgress.setKoreaderProgress(koProgress.getProgress());
         userProgress.setKoreaderProgressPercent(koProgress.getPercentage());
         userProgress.setKoreaderDevice(koProgress.getDevice());
         userProgress.setKoreaderDeviceId(koProgress.getDevice_id());
         userProgress.setKoreaderLastSyncTime(Instant.now());
         userProgress.setLastReadTime(Instant.now());
-        if (koProgress.getProgress() != null) {
+        BookFileEntity primaryFile = book.getPrimaryBookFile();
+        BookFileType bookType = primaryFile != null ? primaryFile.getBookType() : null;
+        if (koProgress.getProgress() != null && (bookType == BookFileType.PDF || bookType == BookFileType.CBX)) {
+            // The page belongs to the file KOReader has open; only the primary file's page is stored
+            if (bookHash.equalsIgnoreCase(primaryFile.getCurrentHash())) {
+                updatePageProgress(userProgress, bookType, koProgress);
+            } else {
+                log.info("Not applying KOReader page '{}': hash {} is not the book's primary file", koProgress.getProgress(), bookHash);
+            }
+        } else if (koProgress.getProgress() != null) {
             try {
                 String cfi = epubCfiService.convertXPointerToCfi(book.getFullFilePath(), koProgress.getProgress());
 
@@ -209,6 +223,47 @@ public class KoreaderService {
         }
 
         updateReadStatus(userProgress, koProgress.getPercentage());
+    }
+
+    /**
+     * KOReader reports the position in paged documents (PDF, comics) as a page number, so it is
+     * applied to the page-based progress the web reader opens at.
+     */
+    private void updatePageProgress(UserBookProgressEntity userProgress, BookFileType bookType, KoreaderProgress koProgress) {
+        Integer page = parsePageNumber(koProgress.getProgress());
+        if (page == null) {
+            log.warn("Ignoring KOReader progress '{}': not a page number", koProgress.getProgress());
+            return;
+        }
+
+        Float percentage = koProgress.getPercentage();
+        if (bookType == BookFileType.PDF) {
+            userProgress.setPdfProgress(page);
+            if (percentage != null) {
+                userProgress.setPdfProgressPercent(toRoundedPercent(percentage));
+            }
+        } else {
+            userProgress.setCbxProgress(page);
+            if (percentage != null) {
+                userProgress.setCbxProgressPercent(toRoundedPercent(percentage));
+            }
+        }
+    }
+
+    private Integer parsePageNumber(String progress) {
+        try {
+            int page = Integer.parseInt(progress.trim());
+            return page > 0 ? page : null;
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private float toRoundedPercent(Float progressFraction) {
+        return new BigDecimal(Float.toString(progressFraction))
+                .multiply(BigDecimal.valueOf(100))
+                .setScale(1, RoundingMode.HALF_UP)
+                .floatValue();
     }
 
     private void updateReadStatus(UserBookProgressEntity userProgress, Float progressFraction) {
