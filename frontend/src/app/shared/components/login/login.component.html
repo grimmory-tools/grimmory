@@ -79,7 +79,7 @@
                 type="submit"
                 [label]="t('signIn')"
                 icon="pi pi-sign-in"
-                [disabled]="!loginForm.valid || !username || !password"
+                [disabled]="!loginForm.valid || !username || !password || isLoginInProgress()"
                 class="login-button" />
 
               @if (oidcEnabled) {
