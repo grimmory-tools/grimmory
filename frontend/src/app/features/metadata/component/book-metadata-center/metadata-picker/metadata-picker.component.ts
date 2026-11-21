@@ -601,7 +601,7 @@ export class MetadataPickerComponent {
         this.messageService.add({
           severity: 'warn',
           summary: this.t.translate('metadata.picker.toast.actionBlockedSummary'),
-          detail: this.t.translate('metadata.picker.toast.fieldLockedDetail', {field: comicConfig.label})
+          detail: this.t.translate('metadata.picker.toast.fieldLockedDetail', {field: this.t.translate(comicConfig.labelKey ?? comicConfig.controlName)})
         });
         return;
       }

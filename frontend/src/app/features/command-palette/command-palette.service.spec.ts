@@ -80,6 +80,7 @@ describe('CommandPaletteService', () => {
           useValue: {
             openLibraryCreateDialog: vi.fn(() => Promise.resolve(null)),
             openMagicShelfCreateDialog: vi.fn(() => Promise.resolve(null)),
+            openGenreShelfCreateDialog: vi.fn(() => Promise.resolve(null)),
             openFileUploadDialog: vi.fn(() => Promise.resolve(null)),
           },
         },

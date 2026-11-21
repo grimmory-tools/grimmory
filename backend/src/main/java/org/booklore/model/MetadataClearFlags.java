@@ -45,6 +45,7 @@ public class MetadataClearFlags {
     private boolean doubanId;
     private boolean doubanRating;
     private boolean doubanReviewCount;
+    private boolean babelioUrl;
     private boolean authors;
     private boolean categories;
     private boolean moods;

@@ -7,6 +7,7 @@ import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {DatePicker} from '@openng/optimus-ui/datepicker';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {MessageService} from '@openng/optimus-ui/api';
+import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {FacetSuggestionsDirective} from '../../../book/components/facet-suggestions.directive';
 import {BookMetadataManageService} from '../../../book/service/book-metadata-manage.service';
 import {BulkMetadataUpdateRequest} from '../../../book/model/book.model';
@@ -33,6 +34,7 @@ import {Subscription} from 'rxjs';
     Checkbox,
     AutoComplete,
     Select,
+    TranslocoPipe,
     FacetSuggestionsDirective,
   ],
   providers: [MessageService],
@@ -47,6 +49,7 @@ export class BulkMetadataUpdateComponent implements OnInit {
   private readonly bookMetadataManageService = inject(BookMetadataManageService);
   private readonly taskService = inject(TaskService);
   private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
   metadataForm!: FormGroup;
   bookIds: number[] = [];
   mergeCategories = true;
@@ -203,7 +206,7 @@ export class BulkMetadataUpdateComponent implements OnInit {
 
     this.loading = true;
     this.taskProgress = 0;
-    this.progressMessage = 'Submitting metadata update...';
+    this.progressMessage = this.t.translate('bulkMetadata.progress.submitting');
     this.processedCount = 0;
     this.succeededCount = 0;
     this.failedCount = 0;
@@ -226,7 +229,7 @@ export class BulkMetadataUpdateComponent implements OnInit {
     this.bookMetadataManageService.updateBooksMetadata(payload).subscribe({
       next: response => {
         this.activeTaskId = response.taskId;
-        this.progressMessage = 'Metadata update queued...';
+        this.progressMessage = this.t.translate('bulkMetadata.progress.queued');
         const earlyProgress = this.pendingTaskProgress;
         this.pendingTaskProgress = [];
         for (const progress of earlyProgress) {
@@ -243,8 +246,8 @@ export class BulkMetadataUpdateComponent implements OnInit {
         this.progressMessage = '';
         this.messageService.add({
           severity: 'error',
-          summary: 'Update Failed',
-          detail: 'An error occurred while updating book metadata'
+          summary: this.t.translate('bulkMetadata.toast.updateFailedSummary'),
+          detail: this.t.translate('bulkMetadata.toast.updateFailedDetail')
         });
       }
     });
@@ -290,7 +293,7 @@ export class BulkMetadataUpdateComponent implements OnInit {
     const coverFile = this.selectedCoverFile;
     if (!coverFile) return;
 
-    this.progressMessage = 'Uploading cover image...';
+    this.progressMessage = this.t.translate('bulkMetadata.progress.uploadingCover');
     this.bookMetadataManageService.bulkUploadCover(this.bookIds, coverFile).subscribe({
       next: () => this.finishUpdate(TaskStatus.COMPLETED),
       error: error => {
@@ -298,8 +301,8 @@ export class BulkMetadataUpdateComponent implements OnInit {
         this.coverUploadFailed = true;
         this.messageService.add({
           severity: 'warn',
-          summary: 'Cover Upload Failed',
-          detail: 'Metadata processing finished, but the cover upload failed.'
+          summary: this.t.translate('bulkMetadata.toast.coverUploadFailedSummary'),
+          detail: this.t.translate('bulkMetadata.toast.coverUploadFailedDetail')
         });
         this.finishUpdate(TaskStatus.COMPLETED);
       }
@@ -311,24 +314,24 @@ export class BulkMetadataUpdateComponent implements OnInit {
     if (status === TaskStatus.COMPLETED && this.failedCount === 0 && !this.coverUploadFailed) {
       this.messageService.add({
         severity: 'success',
-        summary: this.selectedCoverFile ? 'Metadata & Cover Updated' : 'Metadata Updated',
+        summary: this.t.translate(this.selectedCoverFile ? 'bulkMetadata.toast.metadataAndCoverUpdated' : 'bulkMetadata.toast.metadataUpdated'),
         detail: this.selectedCoverFile
-          ? 'Books updated and cover upload started. Refresh the page when complete.'
-          : 'Books updated successfully.'
+            ? this.t.translate('bulkMetadata.toast.metadataAndCoverUpdateDetail')
+            : this.t.translate('bulkMetadata.toast.metadataUpdateDetail')
       });
       this.ref.close(true);
       return;
     }
 
     const detail = this.coverUploadFailed
-      ? 'Metadata processing finished, but the cover upload failed.'
+      ? this.t.translate('bulkMetadata.toast.coverUploadFailedDetail')
       : status === TaskStatus.COMPLETED
-        ? `${this.failedCount} of ${this.bookIds.length} books failed. Review the list below.`
-        : `Processing stopped after ${this.processedCount} of ${this.bookIds.length} books.`;
-    this.progressMessage = status === TaskStatus.COMPLETED ? 'Metadata update completed with errors.' : 'Metadata update did not complete.';
+        ? this.t.translate('bulkMetadata.toast.booksFailedDetail', {failed: this.failedCount, total: this.bookIds.length})
+        : this.t.translate('bulkMetadata.toast.processingStoppedDetail', {processed: this.processedCount, total: this.bookIds.length});
+    this.progressMessage = this.t.translate(status === TaskStatus.COMPLETED ? 'bulkMetadata.progress.completedWithErrors' : 'bulkMetadata.progress.incomplete');
     this.messageService.add({
       severity: status === TaskStatus.COMPLETED ? 'warn' : 'error',
-      summary: status === TaskStatus.COMPLETED ? 'Partial Success' : 'Update Incomplete',
+      summary: this.t.translate(status === TaskStatus.COMPLETED ? 'bulkMetadata.toast.partialSuccess' : 'bulkMetadata.toast.updateIncomplete'),
       detail
     });
   }
@@ -336,7 +339,7 @@ export class BulkMetadataUpdateComponent implements OnInit {
   downloadFailedBooks(): void {
     if (this.failedBooks.length === 0) return;
     const csvRows = [
-      'Book ID,Title,Reason',
+      [this.t.translate('bulkMetadata.csv.bookId'), this.t.translate('bulkMetadata.csv.title'), this.t.translate('bulkMetadata.csv.reason')].join(','),
       ...this.failedBooks.map(failure =>
         [failure.bookId, failure.title ?? '', failure.reason].map(value => this.toCsvCell(value)).join(','))
     ];

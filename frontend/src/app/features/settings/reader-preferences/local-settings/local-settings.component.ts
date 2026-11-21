@@ -4,7 +4,7 @@ import {DecimalPipe} from "@angular/common";
 import {Checkbox} from "@openng/optimus-ui/checkbox";
 import {Button} from "@openng/optimus-ui/button";
 import {ConfirmationService, MessageService} from "@openng/optimus-ui/api";
-import {TranslocoDirective} from "@jsverse/transloco";
+import {TranslocoDirective, TranslocoService} from "@jsverse/transloco";
 import {LocalSettingsService, LocalSettings} from "../../../../shared/service/local-settings.service";
 import {CacheStorageService} from "../../../../shared/service/cache-storage.service";
 
@@ -25,6 +25,7 @@ export class LocalSettingsComponent implements OnInit {
   private readonly cacheStorageService = inject(CacheStorageService);
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly t = inject(TranslocoService);
 
   protected settings: LocalSettings = this.localSettingsService.get();
 
@@ -43,17 +44,17 @@ export class LocalSettingsComponent implements OnInit {
   clearCacheStorage(): void {
     this.confirmationService.confirm({
       message:
-        "Are you sure you want to clear all Cache Storage data? This action cannot be undone.",
-      header: "Clear Cache Storage",
+        this.t.translate("settingsNaming.localSettings.confirm.clearMessage"),
+      header: this.t.translate("settingsNaming.localSettings.confirm.clearHeader"),
       icon: "pi pi-exclamation-triangle",
-      acceptLabel: "Clear",
-      rejectLabel: "Cancel",
+      acceptLabel: this.t.translate("settingsNaming.localSettings.clear"),
+      rejectLabel: this.t.translate("common.cancel"),
       acceptButtonProps: {
-        label: "Clear",
+        label: this.t.translate("settingsNaming.localSettings.clear"),
         severity: "danger",
       },
       rejectButtonProps: {
-        label: "Cancel",
+        label: this.t.translate("common.cancel"),
         severity: "secondary",
       },
       accept: async () => {
@@ -63,14 +64,14 @@ export class LocalSettingsComponent implements OnInit {
           await this.loadCacheStorageUsage();
           this.messageService.add({
             severity: "success",
-            summary: "Storage Cache cleared",
-            detail: "All Cache Storage data has been cleared successfully.",
+            summary: this.t.translate("settingsNaming.localSettings.toast.clearSuccessSummary"),
+            detail: this.t.translate("settingsNaming.localSettings.toast.clearSuccessDetail"),
           });
         } catch {
           this.messageService.add({
             severity: "error",
-            summary: "Clear cache failed",
-            detail: "Unable to clear Cache Storage. Please try again.",
+            summary: this.t.translate("settingsNaming.localSettings.toast.clearFailedSummary"),
+            detail: this.t.translate("settingsNaming.localSettings.toast.clearFailedDetail"),
           });
         } finally {
           this.isClearingCacheStorage.set(false);

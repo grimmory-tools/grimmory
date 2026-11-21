@@ -20,13 +20,17 @@ import org.booklore.util.FileService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -40,6 +44,7 @@ class AuthorMetadataServiceTest {
 
     @Mock private AuthorRepository authorRepository;
     @Mock private AuthorParser authorParser;
+    @Mock private AuthorParser bnfAuthorParser;
     @Mock private AuditService auditService;
     @Mock private FileService fileService;
     @Mock private DuckDuckGoCoverService duckDuckGoCoverService;
@@ -51,7 +56,8 @@ class AuthorMetadataServiceTest {
     @BeforeEach
     void setUp() {
         Map<AuthorMetadataSource, AuthorParser> authorParserMap = Map.of(
-                AuthorMetadataSource.AUDNEXUS, authorParser
+                AuthorMetadataSource.AUDNEXUS, authorParser,
+                AuthorMetadataSource.BNF, bnfAuthorParser
         );
 
         service = new AuthorMetadataService(
@@ -64,6 +70,7 @@ class AuthorMetadataServiceTest {
                 appSettingService
         );
         lenient().when(appSettingService.getAppSettings()).thenReturn(appSettingsWithAmazon(true, "com"));
+        lenient().when(fileService.getAuthorThumbnailFile(anyLong())).thenReturn("/nonexistent/path/thumbnail.jpg");
 
         BookLoreUser.UserPermissions adminPermissions = new BookLoreUser.UserPermissions();
         adminPermissions.setAdmin(true);
@@ -98,12 +105,17 @@ class AuthorMetadataServiceTest {
     }
 
     @Test
-    void searchAuthorMetadata_rejectsSearchWhenAmazonProviderIsDisabled() {
+    void searchAuthorMetadataUsesBnfWhenAmazonProviderIsDisabled() {
         when(appSettingService.getAppSettings()).thenReturn(appSettingsWithAmazon(false, "com"));
+        AuthorSearchResult result = AuthorSearchResult.builder()
+                .source(AuthorMetadataSource.BNF)
+                .providerId("http://data.bnf.fr/ark:/12148/cb123#about")
+                .name("Stephen King")
+                .isni("000000012146438X")
+                .build();
+        when(bnfAuthorParser.searchAuthors("Stephen King", "us")).thenReturn(List.of(result));
 
-        assertThatThrownBy(() -> service.searchAuthorMetadata("Stephen King", null))
-                .isInstanceOf(APIException.class)
-                .hasMessageContaining("Amazon metadata provider is disabled");
+        assertThat(service.searchAuthorMetadata("Stephen King", null)).containsExactly(result);
 
         verifyNoInteractions(authorParser);
     }
@@ -112,9 +124,9 @@ class AuthorMetadataServiceTest {
     void quickMatchAuthorUsesConfiguredAmazonDomainWhenNoRegionIsProvided() {
         AuthorEntity author = new AuthorEntity();
         author.setId(1L);
-        author.setName("Stephen King");
+        author.setName("S. King");
         when(authorRepository.findById(1L)).thenReturn(Optional.of(author));
-        when(authorParser.searchAuthors("Stephen King", "uk")).thenReturn(List.of(AuthorSearchResult.builder()
+        when(authorParser.searchAuthors("S. King", "uk")).thenReturn(List.of(AuthorSearchResult.builder()
                 .source(AuthorMetadataSource.AUDNEXUS)
                 .asin("B000APZGGS")
                 .name("Stephen King")
@@ -125,8 +137,54 @@ class AuthorMetadataServiceTest {
 
         AuthorDetails details = service.quickMatchAuthor(1L, null);
 
+        assertThat(details.getName()).isEqualTo("Stephen King");
         assertThat(details.getAsin()).isEqualTo("B000APZGGS");
-        verify(authorParser).searchAuthors("Stephen King", "uk");
+        verify(authorParser).searchAuthors("S. King", "uk");
+    }
+
+    @Test
+    void quickMatchAuthorLooksUpExistingAsinBeforeSearchingByName() {
+        AuthorEntity author = new AuthorEntity();
+        author.setId(1L);
+        author.setName("S. King");
+        author.setAsin("B000APZGGS");
+        when(authorRepository.findById(1L)).thenReturn(Optional.of(author));
+        when(authorParser.getAuthorById("B000APZGGS", "us")).thenReturn(AuthorSearchResult.builder()
+                .source(AuthorMetadataSource.AUDNEXUS)
+                .asin("B000APZGGS")
+                .name("Stephen King")
+                .description("Author biography")
+                .build());
+        when(authorRepository.save(any(AuthorEntity.class))).thenAnswer(i -> i.getArgument(0));
+
+        AuthorDetails details = service.quickMatchAuthor(1L, null);
+
+        assertThat(details.getName()).isEqualTo("Stephen King");
+        assertThat(details.getAsin()).isEqualTo("B000APZGGS");
+        assertThat(details.getDescription()).isEqualTo("Author biography");
+        verify(authorParser).getAuthorById("B000APZGGS", "us");
+        verify(authorParser, never()).searchAuthors(anyString(), anyString());
+    }
+
+    @Test
+    void quickMatchAuthorFallsBackToNameSearchWhenExistingAsinIsNotFound() {
+        AuthorEntity author = new AuthorEntity();
+        author.setId(1L);
+        author.setName("Stephen King");
+        author.setAsin("B000APZGGS");
+        when(authorRepository.findById(1L)).thenReturn(Optional.of(author));
+        when(authorParser.getAuthorById("B000APZGGS", "us")).thenReturn(null);
+        when(authorParser.searchAuthors("Stephen King", "us")).thenReturn(List.of(AuthorSearchResult.builder()
+                .source(AuthorMetadataSource.AUDNEXUS)
+                .asin("B000APZGGS")
+                .name("Stephen King")
+                .build()));
+        when(authorRepository.save(any(AuthorEntity.class))).thenAnswer(i -> i.getArgument(0));
+
+        AuthorDetails details = service.quickMatchAuthor(1L, null);
+
+        assertThat(details.getAsin()).isEqualTo("B000APZGGS");
+        verify(authorParser).searchAuthors("Stephen King", "us");
     }
 
     @Test
@@ -171,7 +229,7 @@ class AuthorMetadataServiceTest {
     void matchAuthor_updatesEntityAndReturnsDetails() {
         AuthorEntity author = new AuthorEntity();
         author.setId(1L);
-        author.setName("Stephen King");
+        author.setName("S. King");
 
         when(authorRepository.findById(1L)).thenReturn(Optional.of(author));
 
@@ -181,7 +239,7 @@ class AuthorMetadataServiceTest {
                 .name("Stephen King")
                 .build();
 
-        when(authorParser.getAuthorByAsin("B000APZGGS", "us")).thenReturn(result);
+        when(authorParser.getAuthorById("B000APZGGS", "us")).thenReturn(result);
         when(authorRepository.save(any(AuthorEntity.class))).thenAnswer(i -> i.getArgument(0));
 
         AuthorMatchRequest request = new AuthorMatchRequest();
@@ -197,11 +255,172 @@ class AuthorMetadataServiceTest {
         assertThat(details.getAsin()).isEqualTo("B000APZGGS");
 
         assertThat(author.getDescription()).isEqualTo("Master of horror");
+        assertThat(author.getName()).isEqualTo("Stephen King");
         assertThat(author.getAsin()).isEqualTo("B000APZGGS");
 
         verify(authorRepository).save(author);
         verify(fileService).createAuthorThumbnailFromUrl(eq(1L), eq("https://example.com/king.jpg"));
         verify(auditService).log(eq(AuditAction.AUTHOR_METADATA_UPDATED), eq("Author"), eq(1L), anyString());
+    }
+
+    @Test
+    void matchAuthorReportsPhotoActuallySavedAfterMetadataUpdate(@TempDir Path tempDir) throws Exception {
+        AuthorEntity author = new AuthorEntity();
+        author.setId(1L);
+        author.setName("Test Author");
+        Path thumbnail = tempDir.resolve("thumbnail.jpg");
+        when(fileService.getAuthorThumbnailFile(1L)).thenReturn(thumbnail.toString());
+        when(authorRepository.findById(1L)).thenReturn(Optional.of(author));
+        when(authorParser.getAuthorById("B000APZGGS", "us")).thenReturn(AuthorSearchResult.builder()
+                .source(AuthorMetadataSource.AUDNEXUS)
+                .asin("B000APZGGS")
+                .name("Test Author")
+                .imageUrl("https://example.com/photo.jpg")
+                .build());
+        doAnswer(invocation -> {
+            Files.writeString(thumbnail, "saved");
+            return null;
+        }).when(fileService).createAuthorThumbnailFromUrl(1L, "https://example.com/photo.jpg");
+        AuthorMatchRequest request = new AuthorMatchRequest();
+        request.setSource(AuthorMetadataSource.AUDNEXUS);
+        request.setAsin("B000APZGGS");
+
+        AuthorDetails details = service.matchAuthor(1L, request);
+        assertThat(details.isHasPhoto()).isTrue();
+        assertThat(JsonMapper.builder().build().writeValueAsString(details)).contains("\"hasPhoto\":true");
+        assertThat(Files.readString(thumbnail)).isEqualTo("saved");
+    }
+
+    @Test
+    void deleteAuthorPhotoDeletesOnlyThePhotoAndThumbnail(@TempDir Path tempDir) throws Exception {
+        AuthorEntity author = new AuthorEntity();
+        author.setId(1L);
+        author.setName("Test Author");
+        Path photo = Files.writeString(tempDir.resolve("photo.jpg"), "photo");
+        Path thumbnail = Files.writeString(tempDir.resolve("thumbnail.jpg"), "thumbnail");
+        Path other = Files.writeString(tempDir.resolve("other.txt"), "preserve");
+        when(authorRepository.findById(1L)).thenReturn(Optional.of(author));
+        when(fileService.getAuthorPhotoFile(1L)).thenReturn(photo.toString());
+        when(fileService.getAuthorThumbnailFile(1L)).thenReturn(thumbnail.toString());
+
+        AuthorDetails result = service.deleteAuthorPhoto(1L);
+
+        assertThat(Files.exists(photo)).isFalse();
+        assertThat(Files.exists(thumbnail)).isFalse();
+        assertThat(Files.readString(other)).isEqualTo("preserve");
+        assertThat(result.isHasPhoto()).isFalse();
+        verify(auditService).log(eq(AuditAction.AUTHOR_METADATA_UPDATED), eq("Author"), eq(1L), contains("Deleted photo"));
+    }
+
+    @Test
+    void deleteAuthorPhotoRejectsLockedPhotos(@TempDir Path tempDir) throws Exception {
+        AuthorEntity author = new AuthorEntity();
+        author.setId(1L);
+        author.setPhotoLocked(true);
+        Path photo = Files.writeString(tempDir.resolve("photo.jpg"), "photo");
+        when(authorRepository.findById(1L)).thenReturn(Optional.of(author));
+
+        assertThatThrownBy(() -> service.deleteAuthorPhoto(1L))
+                .isInstanceOf(APIException.class)
+                .hasMessageContaining("locked");
+        assertThat(Files.exists(photo)).isTrue();
+        verifyNoInteractions(fileService);
+    }
+
+    @Test
+    void deleteAuthorPhotoReportsFileErrors(@TempDir Path tempDir) throws Exception {
+        AuthorEntity author = new AuthorEntity();
+        author.setId(1L);
+        Path nonEmptyDirectory = Files.createDirectory(tempDir.resolve("photo"));
+        Files.writeString(nonEmptyDirectory.resolve("keep.txt"), "keep");
+        when(authorRepository.findById(1L)).thenReturn(Optional.of(author));
+        when(fileService.getAuthorPhotoFile(1L)).thenReturn(nonEmptyDirectory.toString());
+
+        assertThatThrownBy(() -> service.deleteAuthorPhoto(1L))
+                .isInstanceOf(APIException.class)
+                .hasMessageContaining("Failed to delete author photo");
+        verifyNoInteractions(auditService);
+    }
+
+    @Test
+    void matchAuthorFromBnfUpdatesNameAndIsniWithoutClearingAmazonMetadata() {
+        AuthorEntity author = new AuthorEntity();
+        author.setId(1L);
+        author.setName("S. King");
+        author.setDescription("Existing description");
+        author.setAsin("B000APZGGS");
+        when(authorRepository.findById(1L)).thenReturn(Optional.of(author));
+        when(bnfAuthorParser.getAuthorById("http://data.bnf.fr/ark:/12148/cb123#about", "us"))
+                .thenReturn(AuthorSearchResult.builder()
+                        .source(AuthorMetadataSource.BNF)
+                        .providerId("http://data.bnf.fr/ark:/12148/cb123#about")
+                        .name("Stephen King")
+                        .isni("000000012146438X")
+                        .build());
+        when(authorRepository.save(any(AuthorEntity.class))).thenAnswer(i -> i.getArgument(0));
+
+        AuthorMatchRequest request = new AuthorMatchRequest();
+        request.setSource(AuthorMetadataSource.BNF);
+        request.setProviderId("http://data.bnf.fr/ark:/12148/cb123#about");
+
+        AuthorDetails details = service.matchAuthor(1L, request);
+
+        assertThat(details.getName()).isEqualTo("Stephen King");
+        assertThat(details.getIsni()).isEqualTo("000000012146438X");
+        assertThat(details.getAsin()).isEqualTo("B000APZGGS");
+        assertThat(details.getDescription()).isEqualTo("Existing description");
+        verify(bnfAuthorParser).getAuthorById("http://data.bnf.fr/ark:/12148/cb123#about", "us");
+    }
+
+    @Test
+    void matchAuthorDoesNotOverwriteLockedIsni() {
+        AuthorEntity author = new AuthorEntity();
+        author.setId(1L);
+        author.setName("Ada Lovelace");
+        author.setIsni("manual-isni");
+        author.setIsniLocked(true);
+        when(authorRepository.findById(1L)).thenReturn(Optional.of(author));
+        when(bnfAuthorParser.getAuthorById("http://data.bnf.fr/ark:/12148/cb123#about", "us"))
+                .thenReturn(AuthorSearchResult.builder()
+                        .source(AuthorMetadataSource.BNF)
+                        .providerId("http://data.bnf.fr/ark:/12148/cb123#about")
+                        .name("Ada Lovelace")
+                        .isni("000000012146438X")
+                        .build());
+        when(authorRepository.save(any(AuthorEntity.class))).thenAnswer(i -> i.getArgument(0));
+
+        AuthorMatchRequest request = new AuthorMatchRequest();
+        request.setSource(AuthorMetadataSource.BNF);
+        request.setProviderId("http://data.bnf.fr/ark:/12148/cb123#about");
+
+        AuthorDetails details = service.matchAuthor(1L, request);
+
+        assertThat(details.getIsni()).isEqualTo("manual-isni");
+        assertThat(details.isIsniLocked()).isTrue();
+    }
+
+    @Test
+    void matchAuthor_preservesNameWhenNameIsLocked() {
+        AuthorEntity author = new AuthorEntity();
+        author.setId(1L);
+        author.setName("Stephen King (custom)");
+        author.setNameLocked(true);
+        when(authorRepository.findById(1L)).thenReturn(Optional.of(author));
+        when(authorParser.getAuthorById("B000APZGGS", "us")).thenReturn(AuthorSearchResult.builder()
+                .source(AuthorMetadataSource.AUDNEXUS)
+                .asin("B000APZGGS")
+                .name("Stephen King")
+                .build());
+        when(authorRepository.save(any(AuthorEntity.class))).thenAnswer(i -> i.getArgument(0));
+
+        AuthorMatchRequest request = new AuthorMatchRequest();
+        request.setAsin("B000APZGGS");
+        request.setSource(AuthorMetadataSource.AUDNEXUS);
+
+        AuthorDetails details = service.matchAuthor(1L, request);
+
+        assertThat(details.getName()).isEqualTo("Stephen King (custom)");
+        assertThat(author.getName()).isEqualTo("Stephen King (custom)");
     }
 
     @Test
@@ -224,7 +443,7 @@ class AuthorMetadataServiceTest {
         author.setName("Test Author");
 
         when(authorRepository.findById(1L)).thenReturn(Optional.of(author));
-        when(authorParser.getAuthorByAsin("INVALID", "us")).thenReturn(null);
+        when(authorParser.getAuthorById("INVALID", "us")).thenReturn(null);
 
         AuthorMatchRequest request = new AuthorMatchRequest();
         request.setAsin("INVALID");
@@ -335,7 +554,7 @@ class AuthorMetadataServiceTest {
                 .name("Test Author")
                 .build();
 
-        when(authorParser.getAuthorByAsin("B000APZGGS", "us")).thenReturn(result);
+        when(authorParser.getAuthorById("B000APZGGS", "us")).thenReturn(result);
         when(authorRepository.save(any(AuthorEntity.class))).thenAnswer(i -> i.getArgument(0));
 
         AuthorMatchRequest request = new AuthorMatchRequest();
@@ -343,9 +562,10 @@ class AuthorMetadataServiceTest {
         request.setSource(AuthorMetadataSource.AUDNEXUS);
         request.setRegion("us");
 
-        service.matchAuthor(1L, request);
+        AuthorDetails details = service.matchAuthor(1L, request);
 
         verify(fileService, never()).createAuthorThumbnailFromUrl(anyLong(), anyString());
+        assertThat(details.isHasPhoto()).isFalse();
     }
 
     private AppSettings appSettingsWithAmazon(boolean enabled, String domain) {

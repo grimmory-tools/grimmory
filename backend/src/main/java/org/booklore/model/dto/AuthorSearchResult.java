@@ -8,7 +8,9 @@ import org.booklore.model.enums.AuthorMetadataSource;
 @Builder
 public class AuthorSearchResult {
     private AuthorMetadataSource source;
+    private String providerId;
     private String asin;
+    private String isni;
     private String name;
     private String description;
     private String imageUrl;

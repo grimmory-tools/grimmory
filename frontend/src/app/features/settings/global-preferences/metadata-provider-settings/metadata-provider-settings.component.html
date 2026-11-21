@@ -56,7 +56,7 @@
                         <div class="config-field">
                           <span class="config-label">{{ t('languageRestriction') }}</span>
                           <p-select
-                            [options]="googleLanguages"
+                            [options]="googleLanguages()"
                             [(ngModel)]="selectedGoogleLanguage"
                             [showClear]="!!selectedGoogleLanguage"
                             [placeholder]="t('selectLanguage')"

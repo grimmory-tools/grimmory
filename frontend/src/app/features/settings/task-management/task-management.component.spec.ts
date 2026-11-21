@@ -88,6 +88,18 @@ describe('TaskManagementComponent', () => {
     updatedAt: '2026-03-27T02:55:00Z',
   };
 
+  it('uses localized task names and descriptions and falls back for unknown tasks', () => {
+    translate.mockImplementation((key: TranslateParams) => {
+      if (key === 'settingsTasks.taskTypes.REFRESH_LIBRARY_METADATA.name') return 'Actualiser les métadonnées';
+      if (key === 'settingsTasks.taskTypes.REFRESH_LIBRARY_METADATA.description') return 'Actualise les livres.';
+      return key;
+    });
+
+    expect(component.getTaskDisplayName(TaskType.REFRESH_LIBRARY_METADATA)).toBe('Actualiser les métadonnées');
+    expect(component.getTaskDescription(TaskType.REFRESH_LIBRARY_METADATA)).toBe('Actualise les livres.');
+    expect(component.getTaskDisplayName('NEW_TASK')).toBe('New Task');
+  });
+
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-03-27T03:06:00Z'));

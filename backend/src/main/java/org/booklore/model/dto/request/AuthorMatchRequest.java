@@ -6,6 +6,7 @@ import org.booklore.model.enums.AuthorMetadataSource;
 @Data
 public class AuthorMatchRequest {
     private AuthorMetadataSource source;
+    private String providerId;
     private String asin;
     private String region = "us";
 }

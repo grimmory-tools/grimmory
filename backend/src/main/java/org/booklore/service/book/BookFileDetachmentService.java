@@ -157,6 +157,7 @@ public class BookFileDetachmentService {
         copy.setOpenlibraryId(source.getOpenlibraryId());
         copy.setAsin(source.getAsin());
         copy.setGoodreadsId(source.getGoodreadsId());
+        copy.setBabelioUrl(source.getBabelioUrl());
         copy.setHardcoverId(source.getHardcoverId());
         copy.setHardcoverBookId(source.getHardcoverBookId());
         copy.setGoogleId(source.getGoogleId());

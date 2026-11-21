@@ -83,7 +83,7 @@ public class AudnexusAuthorParser implements AuthorParser {
     }
 
     @Override
-    public AuthorSearchResult getAuthorByAsin(String asin, String region) {
+    public AuthorSearchResult getAuthorById(String asin, String region) {
         try {
             waitForRateLimit();
 
@@ -118,9 +118,14 @@ public class AudnexusAuthorParser implements AuthorParser {
         }
     }
 
+    public AuthorSearchResult getAuthorByAsin(String asin, String region) {
+        return getAuthorById(asin, region);
+    }
+
     private AuthorSearchResult toSearchResult(AudnexusAuthorResponse response) {
         return AuthorSearchResult.builder()
                 .source(AuthorMetadataSource.AUDNEXUS)
+                .providerId(response.getAsin())
                 .asin(response.getAsin())
                 .name(response.getName())
                 .description(response.getDescription())

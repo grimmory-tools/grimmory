@@ -9,7 +9,7 @@ import {Image} from '@openng/optimus-ui/image';
 import {FileUpload} from '@openng/optimus-ui/fileupload';
 import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
 import {Divider} from '@openng/optimus-ui/divider';
-import {MessageService} from '@openng/optimus-ui/api';
+import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
 import {DialogService} from '@openng/optimus-ui/dynamicdialog';
 import {AuthorService} from '../../service/author.service';
 import {AuthorDetails} from '../../model/author.model';
@@ -37,6 +37,7 @@ import {AuthorPhotoSearchComponent} from '../author-photo-search/author-photo-se
 export class AuthorEditorComponent implements OnInit, OnChanges {
   private readonly authorService = inject(AuthorService);
   private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
   private readonly dialogService = inject(DialogService);
   private readonly t = inject(TranslocoService);
 
@@ -47,11 +48,12 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
   form!: FormGroup;
   readonly isSaving = signal(false);
   readonly isUploading = signal(false);
+  readonly isDeletingPhoto = signal(false);
   hasPhoto = true;
   photoTimestamp = Date.now();
 
   get photoUrl(): string {
-    return this.authorService.getAuthorPhotoUrl(this.authorId) + '&t=' + this.photoTimestamp;
+    return this.authorService.getAuthorPhotoUrl(this.authorId, this.photoTimestamp);
   }
 
   get uploadUrl(): string {
@@ -60,12 +62,13 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['author'] && !changes['author'].firstChange) {
-      this.hasPhoto = true;
+      this.hasPhoto = (changes['author'].currentValue as AuthorDetails).hasPhoto ?? true;
       this.photoTimestamp = Date.now();
     }
   }
 
   ngOnInit(): void {
+    this.hasPhoto = this.author.hasPhoto ?? true;
     this.form = new FormGroup({
       name: new FormControl(this.author.name || ''),
       nameLocked: new FormControl(this.author.nameLocked || false),
@@ -73,6 +76,8 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
       descriptionLocked: new FormControl(this.author.descriptionLocked || false),
       asin: new FormControl(this.author.asin || ''),
       asinLocked: new FormControl(this.author.asinLocked || false),
+      isni: new FormControl(this.author.isni || ''),
+      isniLocked: new FormControl(this.author.isniLocked || false),
       photoLocked: new FormControl(this.author.photoLocked || false)
     });
 
@@ -109,7 +114,7 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
   }
 
   lockAll(): void {
-    for (const field of ['name', 'description', 'asin']) {
+    for (const field of ['name', 'description', 'asin', 'isni']) {
       this.form.get(field + 'Locked')?.setValue(true);
       this.form.get(field)?.disable();
     }
@@ -141,7 +146,43 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
       if (result) {
         this.photoTimestamp = Date.now();
         this.hasPhoto = true;
-        this.authorUpdated.emit(this.author);
+        this.authorUpdated.emit({...this.author, hasPhoto: true});
+      }
+    });
+  }
+
+  deletePhoto(): void {
+    if (!this.hasPhoto || this.form.get('photoLocked')?.value || this.isUploading() || this.isDeletingPhoto()) return;
+    this.confirmationService.confirm({
+      header: this.t.translate('authorBrowser.editor.deletePhotoTitle'),
+      message: this.t.translate('authorBrowser.editor.deletePhotoConfirm'),
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: this.t.translate('common.delete'),
+      rejectLabel: this.t.translate('common.cancel'),
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        if (!this.hasPhoto || this.form.get('photoLocked')?.value || this.isUploading() || this.isDeletingPhoto()) return;
+        this.isDeletingPhoto.set(true);
+        this.authorService.deleteAuthorPhoto(this.authorId).subscribe({
+          next: updated => {
+            this.isDeletingPhoto.set(false);
+            this.hasPhoto = false;
+            this.authorUpdated.emit(updated);
+            this.messageService.add({
+              severity: 'success',
+              summary: this.t.translate('authorBrowser.editor.toast.photoDeletedSummary'),
+              detail: this.t.translate('authorBrowser.editor.toast.photoDeletedDetail')
+            });
+          },
+          error: () => {
+            this.isDeletingPhoto.set(false);
+            this.messageService.add({
+              severity: 'error',
+              summary: this.t.translate('authorBrowser.editor.toast.errorSummary'),
+              detail: this.t.translate('authorBrowser.editor.toast.photoDeleteErrorDetail')
+            });
+          }
+        });
       }
     });
   }
@@ -158,7 +199,7 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
     this.isUploading.set(false);
     this.photoTimestamp = Date.now();
     this.hasPhoto = true;
-    this.authorUpdated.emit(this.author);
+    this.authorUpdated.emit({...this.author, hasPhoto: true});
     this.messageService.add({
       severity: 'success',
       summary: this.t.translate('authorBrowser.editor.toast.photoUploadedSummary'),
@@ -184,9 +225,11 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
       name: formValue.name?.trim() || undefined,
       description: formValue.description?.trim(),
       asin: formValue.asin?.trim(),
+      isni: formValue.isni?.trim(),
       nameLocked: formValue.nameLocked,
       descriptionLocked: formValue.descriptionLocked,
       asinLocked: formValue.asinLocked,
+      isniLocked: formValue.isniLocked,
       photoLocked: formValue.photoLocked
     };
 
@@ -212,7 +255,7 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
   }
 
   private applyLockStates(): void {
-    for (const field of ['name', 'description', 'asin']) {
+    for (const field of ['name', 'description', 'asin', 'isni']) {
       const lockedControl = this.form.get(field + 'Locked');
       const fieldControl = this.form.get(field);
       if (lockedControl?.value && fieldControl) {

@@ -103,6 +103,7 @@ interface BookMetadataFields {
   seriesNumber?: number;
   isbn13?: string;
   isbn10?: string;
+  babelioUrl?: string;
   pageCount?: number;
   language?: string;
   narrator?: string;
@@ -282,6 +283,7 @@ export interface BookDetailMetadata extends BookMetadataFields {
   applebooksRatingLocked?: boolean;
   applebooksReviewCountLocked?: boolean;
   externalUrlLocked?: boolean;
+  babelioUrlLocked?: boolean;
   coverLocked?: boolean;
   audiobookCoverLocked?: boolean;
   authorsLocked?: boolean;

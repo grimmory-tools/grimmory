@@ -64,7 +64,7 @@
         <span>{{ t('resultsFound', {count: results().length}) }}</span>
       </div>
       <div class="results-list">
-        @for (result of results(); track result.asin) {
+        @for (result of results(); track result.providerId ?? result.asin ?? result.name) {
           <div class="result-card">
             <div class="result-image">
               @if (result.imageUrl) {
@@ -77,7 +77,15 @@
             </div>
             <div class="result-info">
               <h4 class="result-name">{{ result.name }}</h4>
-              <span class="result-asin">ASIN: {{ result.asin }}</span>
+              @if (result.asin) {
+                <span class="result-asin">ASIN: {{ result.asin }}</span>
+              }
+              @if (result.isni) {
+                <span class="result-asin">ISNI: {{ result.isni }}</span>
+              }
+              @if (result.source === 'BNF' && result.providerId) {
+                <span class="result-asin">{{ t('bnfSource') }}: {{ result.providerId }}</span>
+              }
               @if (result.description) {
                 <p class="result-description">{{ result.description }}</p>
               }

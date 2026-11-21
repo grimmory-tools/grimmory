@@ -1,4 +1,4 @@
-import { AfterViewChecked, Component, computed, effect, ElementRef, inject, OnInit, signal, untracked, viewChild } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, computed, effect, ElementRef, inject, OnInit, signal, untracked, viewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@openng/optimus-ui/tabs';
 import { ProgressSpinner } from '@openng/optimus-ui/progressspinner';
@@ -61,6 +61,7 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
   protected userService = inject(UserService);
   private readonly pageTitle = inject(PageTitleService);
   private readonly t = inject(TranslocoService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   readonly descriptionContentRef = viewChild<ElementRef<HTMLElement>>('descriptionContent');
   private readonly tabPanels = viewChild<TabPanels, ElementRef<HTMLElement>>(TabPanels, {read: ElementRef});
@@ -137,7 +138,7 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
   get photoUrl(): string {
     const author = this.author();
     if (!author) return '';
-    return this.authorService.getAuthorPhotoUrl(author.id) + '&t=' + this.photoTimestamp;
+    return this.authorService.getAuthorPhotoUrl(author.id, this.photoTimestamp);
   }
 
   get canEditMetadata(): boolean {
@@ -175,12 +176,13 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
 
   onAuthorUpdated(updatedAuthor: AuthorDetails): void {
     this.authorState.set(updatedAuthor);
-    this.hasPhoto = true;
+    this.hasPhoto = updatedAuthor.hasPhoto ?? true;
     this.photoTimestamp = Date.now();
     this.authorService.patchAuthorInCache(updatedAuthor.id, {
       name: updatedAuthor.name,
       asin: updatedAuthor.asin,
-      hasPhoto: true,
+      isni: updatedAuthor.isni,
+      hasPhoto: this.hasPhoto,
     });
   }
 
@@ -188,7 +190,7 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
     const author = this.author();
     if (!author || this.quickMatching || this.showMatchValidation) return;
     this.quickMatching = true;
-    this.authorService.resolveAuthorMatch(author.id, author.name).subscribe({
+    this.authorService.resolveAuthorMatch(author.id, author.name, undefined, author.asin).subscribe({
       next: resolution => {
         this.quickMatching = false;
         if (resolution.status === 'matched') {
@@ -199,10 +201,12 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
         } else {
           this.showQuickMatchError();
         }
+        this.cdr.markForCheck();
       },
       error: () => {
         this.quickMatching = false;
         this.showQuickMatchError();
+        this.cdr.markForCheck();
       }
     });
   }
@@ -214,15 +218,18 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
     this.showMatchValidation = false;
     this.authorService.matchAuthor(author.id, {
       source: candidate.source,
+      providerId: candidate.providerId ?? candidate.asin,
       asin: candidate.asin,
     }).subscribe({
       next: updated => {
         this.quickMatching = false;
         this.finishQuickMatch(updated);
+        this.cdr.markForCheck();
       },
       error: () => {
         this.quickMatching = false;
         this.showQuickMatchError();
+        this.cdr.markForCheck();
       }
     });
   }
@@ -254,6 +261,7 @@ export class AuthorDetailComponent implements OnInit, AfterViewChecked {
     this.authorService.getAuthorDetails(authorId).subscribe({
       next: (author) => {
         this.authorState.set(author);
+        this.hasPhoto = author.hasPhoto ?? true;
         this.loading.set(false);
         this.pageTitle.setPageTitle(author.name);
       },

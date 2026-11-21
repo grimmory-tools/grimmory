@@ -4,6 +4,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {of} from 'rxjs';
 
 import {MessageService} from '@openng/optimus-ui/api';
+import {TranslocoService} from '@jsverse/transloco';
 
 import {getTranslocoModule} from '../../../../core/testing/transloco-testing';
 import {type AppSettings, AppSettingKey} from '../../../../shared/model/app-settings.model';
@@ -65,6 +66,15 @@ describe('MetadataProviderSettingsComponent', () => {
       language: '',
       apiKey: 'configured-key',
     });
+  });
+
+  it('updates Google Books language labels when the interface language changes', () => {
+    const transloco = TestBed.inject(TranslocoService);
+    expect(component.googleLanguages().find(language => language.value === 'en')?.label).toBe('English');
+
+    transloco.setActiveLang('fr');
+    expect(component.googleLanguages().find(language => language.value === 'en')?.label).toBe('Anglais');
+    expect(component.googleLanguages().find(language => language.value === 'fr')?.label).toBe('Français');
   });
 
   it('switches a provider off when its required key is cleared', () => {

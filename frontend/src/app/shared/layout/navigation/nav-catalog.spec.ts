@@ -63,12 +63,14 @@ describe('nav-catalog', () => {
       createLibrary: vi.fn(),
       createShelf: vi.fn(),
       createMagicShelf: vi.fn(),
+      createGenreShelf: vi.fn(),
       uploadBook: vi.fn(),
     };
 
     expect(buildQuickActionNavItems(translate, {}, handlers).map((item) => item.id)).toEqual([
       'createShelf',
       'createMagicShelf',
+      'createGenreShelf',
     ]);
 
     expect(buildQuickActionNavItems(translate, {
@@ -78,6 +80,7 @@ describe('nav-catalog', () => {
       'createLibrary',
       'createShelf',
       'createMagicShelf',
+      'createGenreShelf',
       'uploadBook',
     ]);
   });

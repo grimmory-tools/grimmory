@@ -2,6 +2,7 @@ export interface AuthorSummary {
   id: number;
   name: string;
   asin?: string;
+  isni?: string;
   bookCount: number;
   hasPhoto: boolean;
 }
@@ -42,15 +43,20 @@ export interface AuthorDetails {
   name: string;
   description?: string;
   asin?: string;
+  isni?: string;
   nameLocked: boolean;
   descriptionLocked: boolean;
   asinLocked: boolean;
+  isniLocked?: boolean;
   photoLocked: boolean;
+  hasPhoto?: boolean;
 }
 
 export interface AuthorSearchResult {
   source: string;
-  asin: string;
+  providerId?: string;
+  asin?: string;
+  isni?: string;
   name: string;
   description?: string;
   imageUrl?: string;
@@ -58,7 +64,8 @@ export interface AuthorSearchResult {
 
 export interface AuthorMatchRequest {
   source: string;
-  asin: string;
+  providerId?: string;
+  asin?: string;
   region?: string;
 }
 
@@ -78,8 +85,10 @@ export interface AuthorUpdateRequest {
   name?: string;
   description?: string;
   asin?: string;
+  isni?: string;
   nameLocked?: boolean;
   descriptionLocked?: boolean;
   asinLocked?: boolean;
+  isniLocked?: boolean;
   photoLocked?: boolean;
 }

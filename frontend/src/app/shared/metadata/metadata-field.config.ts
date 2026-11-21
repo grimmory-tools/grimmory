@@ -14,22 +14,22 @@ export interface MetadataFieldConfig {
 }
 
 export const GENERIC_METADATA_FIELDS: MetadataFieldConfig[] = [
-  { label: 'Title', controlName: 'title', lockedKey: 'titleLocked', fetchedKey: 'title', type: 'string' },
-  { label: 'Subtitle', controlName: 'subtitle', lockedKey: 'subtitleLocked', fetchedKey: 'subtitle', type: 'string' },
-  { label: 'Publisher', controlName: 'publisher', lockedKey: 'publisherLocked', fetchedKey: 'publisher', type: 'string' },
-  { label: 'Published', controlName: 'publishedDate', lockedKey: 'publishedDateLocked', fetchedKey: 'publishedDate', type: 'string' },
-  { label: 'Authors', controlName: 'authors', lockedKey: 'authorsLocked', fetchedKey: 'authors', type: 'array' },
-  { label: 'Genres', controlName: 'categories', lockedKey: 'categoriesLocked', fetchedKey: 'categories', type: 'array' },
-  { label: 'Moods', controlName: 'moods', lockedKey: 'moodsLocked', fetchedKey: 'moods', type: 'array' },
-  { label: 'Tags', controlName: 'tags', lockedKey: 'tagsLocked', fetchedKey: 'tags', type: 'array' },
-  { label: 'Description', controlName: 'description', lockedKey: 'descriptionLocked', fetchedKey: 'description', type: 'textarea' },
-  { label: 'Series', controlName: 'seriesName', lockedKey: 'seriesNameLocked', fetchedKey: 'seriesName', type: 'string' },
-  { label: 'Book #', controlName: 'seriesNumber', lockedKey: 'seriesNumberLocked', fetchedKey: 'seriesNumber', type: 'number' },
-  { label: 'Total Books', controlName: 'seriesTotal', lockedKey: 'seriesTotalLocked', fetchedKey: 'seriesTotal', type: 'number' },
-  { label: 'Language', controlName: 'language', lockedKey: 'languageLocked', fetchedKey: 'language', type: 'string' },
-  { label: 'ISBN-10', controlName: 'isbn10', lockedKey: 'isbn10Locked', fetchedKey: 'isbn10', type: 'string' },
-  { label: 'ISBN-13', controlName: 'isbn13', lockedKey: 'isbn13Locked', fetchedKey: 'isbn13', type: 'string' },
-  { label: 'Pages', controlName: 'pageCount', lockedKey: 'pageCountLocked', fetchedKey: 'pageCount', type: 'number' },
+  { labelKey: 'book.fields.title', controlName: 'title', lockedKey: 'titleLocked', fetchedKey: 'title', type: 'string' },
+  { labelKey: 'book.fields.subtitle', controlName: 'subtitle', lockedKey: 'subtitleLocked', fetchedKey: 'subtitle', type: 'string' },
+  { labelKey: 'book.fields.publisher', controlName: 'publisher', lockedKey: 'publisherLocked', fetchedKey: 'publisher', type: 'string' },
+  { labelKey: 'book.fields.publishedDate', controlName: 'publishedDate', lockedKey: 'publishedDateLocked', fetchedKey: 'publishedDate', type: 'string' },
+  { labelKey: 'book.fields.author', controlName: 'authors', lockedKey: 'authorsLocked', fetchedKey: 'authors', type: 'array' },
+  { labelKey: 'book.fields.genre', controlName: 'categories', lockedKey: 'categoriesLocked', fetchedKey: 'categories', type: 'array' },
+  { labelKey: 'book.fields.mood', controlName: 'moods', lockedKey: 'moodsLocked', fetchedKey: 'moods', type: 'array' },
+  { labelKey: 'book.fields.tag', controlName: 'tags', lockedKey: 'tagsLocked', fetchedKey: 'tags', type: 'array' },
+  { labelKey: 'book.fields.description', controlName: 'description', lockedKey: 'descriptionLocked', fetchedKey: 'description', type: 'textarea' },
+  { labelKey: 'book.fields.series', controlName: 'seriesName', lockedKey: 'seriesNameLocked', fetchedKey: 'seriesName', type: 'string' },
+  { labelKey: 'book.fields.seriesNumber', controlName: 'seriesNumber', lockedKey: 'seriesNumberLocked', fetchedKey: 'seriesNumber', type: 'number' },
+  { labelKey: 'book.fields.seriesTotal', controlName: 'seriesTotal', lockedKey: 'seriesTotalLocked', fetchedKey: 'seriesTotal', type: 'number' },
+  { labelKey: 'book.fields.language', controlName: 'language', lockedKey: 'languageLocked', fetchedKey: 'language', type: 'string' },
+  { labelKey: 'book.fields.isbn10', controlName: 'isbn10', lockedKey: 'isbn10Locked', fetchedKey: 'isbn10', type: 'string' },
+  { labelKey: 'book.fields.isbn13', controlName: 'isbn13', lockedKey: 'isbn13Locked', fetchedKey: 'isbn13', type: 'string' },
+  { labelKey: 'book.fields.pageCount', controlName: 'pageCount', lockedKey: 'pageCountLocked', fetchedKey: 'pageCount', type: 'number' },
 ];
 
 export const ALL_METADATA_FIELDS: MetadataFieldConfig[] = [
@@ -46,41 +46,41 @@ export const ALL_METADATA_FIELDS: MetadataFieldConfig[] = [
 
 // Audiobook content metadata fields (narrator/abridged) - now stored at top level of BookMetadata
 export const AUDIOBOOK_METADATA_FIELDS: MetadataFieldConfig[] = [
-  { label: 'Narrator', controlName: 'narrator', lockedKey: 'narratorLocked', fetchedKey: 'narrator', type: 'string' },
-  { label: 'Abridged', controlName: 'abridged', lockedKey: 'abridgedLocked', fetchedKey: 'abridged', type: 'boolean' }
+  { labelKey: 'book.fields.narrator', controlName: 'narrator', lockedKey: 'narratorLocked', fetchedKey: 'narrator', type: 'string' },
+  { labelKey: 'book.fields.abridged', controlName: 'abridged', lockedKey: 'abridgedLocked', fetchedKey: 'abridged', type: 'boolean' }
 ];
 
 // Comic book metadata fields - stored nested under BookMetadata.comicMetadata
 export const COMIC_TEXT_METADATA_FIELDS: MetadataFieldConfig[] = [
-  { label: 'Issue #', controlName: 'comicIssueNumber', lockedKey: 'comicIssueNumberLocked', fetchedKey: 'issueNumber', type: 'string' },
-  { label: 'Volume', controlName: 'comicVolumeName', lockedKey: 'comicVolumeNameLocked', fetchedKey: 'volumeName', type: 'string' },
-  { label: 'Volume #', controlName: 'comicVolumeNumber', lockedKey: 'comicVolumeNumberLocked', fetchedKey: 'volumeNumber', type: 'number' },
-  { label: 'Story Arc', controlName: 'comicStoryArc', lockedKey: 'comicStoryArcLocked', fetchedKey: 'storyArc', type: 'string' },
-  { label: 'Arc #', controlName: 'comicStoryArcNumber', lockedKey: 'comicStoryArcNumberLocked', fetchedKey: 'storyArcNumber', type: 'number' },
-  { label: 'Alt. Series', controlName: 'comicAlternateSeries', lockedKey: 'comicAlternateSeriesLocked', fetchedKey: 'alternateSeries', type: 'string' },
-  { label: 'Alt. Issue', controlName: 'comicAlternateIssue', lockedKey: 'comicAlternateIssueLocked', fetchedKey: 'alternateIssue', type: 'string' },
-  { label: 'Imprint', controlName: 'comicImprint', lockedKey: 'comicImprintLocked', fetchedKey: 'imprint', type: 'string' },
-  { label: 'Format', controlName: 'comicFormat', lockedKey: 'comicFormatLocked', fetchedKey: 'format', type: 'string' },
-  { label: 'Reading Dir.', controlName: 'comicReadingDirection', lockedKey: 'comicReadingDirectionLocked', fetchedKey: 'readingDirection', type: 'string' },
-  { label: 'Web Link', controlName: 'comicWebLink', lockedKey: 'comicWebLinkLocked', fetchedKey: 'webLink', type: 'string' },
-  { label: 'B&W', controlName: 'comicBlackAndWhite', lockedKey: 'comicBlackAndWhiteLocked', fetchedKey: 'blackAndWhite', type: 'boolean' },
-  { label: 'Manga', controlName: 'comicManga', lockedKey: 'comicMangaLocked', fetchedKey: 'manga', type: 'boolean' },
+  { labelKey: 'book.fields.comicIssueNumber', controlName: 'comicIssueNumber', lockedKey: 'comicIssueNumberLocked', fetchedKey: 'issueNumber', type: 'string' },
+  { labelKey: 'book.fields.comicVolume', controlName: 'comicVolumeName', lockedKey: 'comicVolumeNameLocked', fetchedKey: 'volumeName', type: 'string' },
+  { labelKey: 'book.fields.comicVolumeNumber', controlName: 'comicVolumeNumber', lockedKey: 'comicVolumeNumberLocked', fetchedKey: 'volumeNumber', type: 'number' },
+  { labelKey: 'book.fields.comicStoryArc', controlName: 'comicStoryArc', lockedKey: 'comicStoryArcLocked', fetchedKey: 'storyArc', type: 'string' },
+  { labelKey: 'book.fields.comicStoryArcNumber', controlName: 'comicStoryArcNumber', lockedKey: 'comicStoryArcNumberLocked', fetchedKey: 'storyArcNumber', type: 'number' },
+  { labelKey: 'book.fields.comicAlternateSeries', controlName: 'comicAlternateSeries', lockedKey: 'comicAlternateSeriesLocked', fetchedKey: 'alternateSeries', type: 'string' },
+  { labelKey: 'book.fields.comicAlternateIssue', controlName: 'comicAlternateIssue', lockedKey: 'comicAlternateIssueLocked', fetchedKey: 'alternateIssue', type: 'string' },
+  { labelKey: 'book.fields.comicImprint', controlName: 'comicImprint', lockedKey: 'comicImprintLocked', fetchedKey: 'imprint', type: 'string' },
+  { labelKey: 'book.fields.comicFormat', controlName: 'comicFormat', lockedKey: 'comicFormatLocked', fetchedKey: 'format', type: 'string' },
+  { labelKey: 'book.fields.comicReadingDirection', controlName: 'comicReadingDirection', lockedKey: 'comicReadingDirectionLocked', fetchedKey: 'readingDirection', type: 'string' },
+  { labelKey: 'book.fields.comicWebLink', controlName: 'comicWebLink', lockedKey: 'comicWebLinkLocked', fetchedKey: 'webLink', type: 'string' },
+  { labelKey: 'book.fields.comicBlackAndWhite', controlName: 'comicBlackAndWhite', lockedKey: 'comicBlackAndWhiteLocked', fetchedKey: 'blackAndWhite', type: 'boolean' },
+  { labelKey: 'book.fields.comicManga', controlName: 'comicManga', lockedKey: 'comicMangaLocked', fetchedKey: 'manga', type: 'boolean' },
 ];
 
 export const COMIC_ARRAY_METADATA_FIELDS: MetadataFieldConfig[] = [
-  { label: 'Pencillers', controlName: 'comicPencillers', lockedKey: 'comicPencillersLocked', fetchedKey: 'pencillers', type: 'array' },
-  { label: 'Inkers', controlName: 'comicInkers', lockedKey: 'comicInkersLocked', fetchedKey: 'inkers', type: 'array' },
-  { label: 'Colorists', controlName: 'comicColorists', lockedKey: 'comicColoristsLocked', fetchedKey: 'colorists', type: 'array' },
-  { label: 'Letterers', controlName: 'comicLetterers', lockedKey: 'comicLetterersLocked', fetchedKey: 'letterers', type: 'array' },
-  { label: 'Cover Artists', controlName: 'comicCoverArtists', lockedKey: 'comicCoverArtistsLocked', fetchedKey: 'coverArtists', type: 'array' },
-  { label: 'Editors', controlName: 'comicEditors', lockedKey: 'comicEditorsLocked', fetchedKey: 'editors', type: 'array' },
-  { label: 'Characters', controlName: 'comicCharacters', lockedKey: 'comicCharactersLocked', fetchedKey: 'characters', type: 'array' },
-  { label: 'Teams', controlName: 'comicTeams', lockedKey: 'comicTeamsLocked', fetchedKey: 'teams', type: 'array' },
-  { label: 'Locations', controlName: 'comicLocations', lockedKey: 'comicLocationsLocked', fetchedKey: 'locations', type: 'array' },
+  { labelKey: 'book.fields.comicPenciller', controlName: 'comicPencillers', lockedKey: 'comicPencillersLocked', fetchedKey: 'pencillers', type: 'array' },
+  { labelKey: 'book.fields.comicInker', controlName: 'comicInkers', lockedKey: 'comicInkersLocked', fetchedKey: 'inkers', type: 'array' },
+  { labelKey: 'book.fields.comicColorist', controlName: 'comicColorists', lockedKey: 'comicColoristsLocked', fetchedKey: 'colorists', type: 'array' },
+  { labelKey: 'book.fields.comicLetterer', controlName: 'comicLetterers', lockedKey: 'comicLetterersLocked', fetchedKey: 'letterers', type: 'array' },
+  { labelKey: 'book.fields.comicCoverArtist', controlName: 'comicCoverArtists', lockedKey: 'comicCoverArtistsLocked', fetchedKey: 'coverArtists', type: 'array' },
+  { labelKey: 'book.fields.comicEditor', controlName: 'comicEditors', lockedKey: 'comicEditorsLocked', fetchedKey: 'editors', type: 'array' },
+  { labelKey: 'book.fields.comicCharacter', controlName: 'comicCharacters', lockedKey: 'comicCharactersLocked', fetchedKey: 'characters', type: 'array' },
+  { labelKey: 'book.fields.comicTeam', controlName: 'comicTeams', lockedKey: 'comicTeamsLocked', fetchedKey: 'teams', type: 'array' },
+  { labelKey: 'book.fields.comicLocation', controlName: 'comicLocations', lockedKey: 'comicLocationsLocked', fetchedKey: 'locations', type: 'array' },
 ];
 
 export const COMIC_TEXTAREA_METADATA_FIELDS: MetadataFieldConfig[] = [
-  { label: 'Notes', controlName: 'comicNotes', lockedKey: 'comicNotesLocked', fetchedKey: 'notes', type: 'textarea' },
+  { labelKey: 'book.fields.comicNotes', controlName: 'comicNotes', lockedKey: 'comicNotesLocked', fetchedKey: 'notes', type: 'textarea' },
 ];
 
 export const ALL_COMIC_METADATA_FIELDS: MetadataFieldConfig[] = [

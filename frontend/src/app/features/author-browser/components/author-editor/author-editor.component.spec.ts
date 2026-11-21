@@ -1,7 +1,7 @@
 import {SimpleChange} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {TranslocoService} from '@jsverse/transloco';
-import {MessageService} from '@openng/optimus-ui/api';
+import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
 import {DialogService} from '@openng/optimus-ui/dynamicdialog';
 import {Subject, throwError} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
@@ -13,6 +13,8 @@ import {AuthorEditorComponent} from './author-editor.component';
 
 describe('AuthorEditorComponent', () => {
   let updateAuthor: ReturnType<typeof vi.fn>;
+  let deleteAuthorPhoto: ReturnType<typeof vi.fn>;
+  let confirm: ReturnType<typeof vi.fn<(options: {accept: () => void}) => void>>;
   let dialogOpen: ReturnType<typeof vi.fn>;
   let dialogClose$: Subject<boolean>;
   let messageService: Pick<MessageService, 'add'>;
@@ -23,9 +25,11 @@ describe('AuthorEditorComponent', () => {
     name: 'Ada Lovelace',
     description: 'Analytical engine pioneer',
     asin: 'B00ADA',
+    isni: '000000012146438X',
     nameLocked: false,
     descriptionLocked: false,
     asinLocked: false,
+    isniLocked: false,
     photoLocked: false,
   };
 
@@ -41,6 +45,8 @@ describe('AuthorEditorComponent', () => {
 
   beforeEach(() => {
     updateAuthor = vi.fn();
+    deleteAuthorPhoto = vi.fn();
+    confirm = vi.fn();
     dialogClose$ = new Subject<boolean>();
     dialogOpen = vi.fn(() => ({onClose: dialogClose$}));
     messageService = {
@@ -54,6 +60,7 @@ describe('AuthorEditorComponent', () => {
           provide: AuthorService,
           useValue: {
             updateAuthor,
+            deleteAuthorPhoto,
             getAuthorPhotoUrl: vi.fn((authorId: number) => `/api/authors/${authorId}/photo`),
             getUploadAuthorPhotoUrl: vi.fn((authorId: number) => `/api/authors/${authorId}/photo/upload`),
           },
@@ -62,6 +69,7 @@ describe('AuthorEditorComponent', () => {
           provide: MessageService,
           useValue: messageService,
         },
+        {provide: ConfirmationService, useValue: {confirm}},
         {
           provide: DialogService,
           useValue: {
@@ -88,6 +96,7 @@ describe('AuthorEditorComponent', () => {
       author: {
         nameLocked: true,
         asinLocked: true,
+        isniLocked: true,
       },
     });
 
@@ -96,9 +105,11 @@ describe('AuthorEditorComponent', () => {
     expect(component.form.get('name')?.value).toBe('Ada Lovelace');
     expect(component.form.get('description')?.value).toBe('Analytical engine pioneer');
     expect(component.form.get('asin')?.value).toBe('B00ADA');
+    expect(component.form.get('isni')?.value).toBe('000000012146438X');
     expect(component.form.get('name')?.disabled).toBe(true);
     expect(component.form.get('description')?.disabled).toBe(false);
     expect(component.form.get('asin')?.disabled).toBe(true);
+    expect(component.form.get('isni')?.disabled).toBe(true);
     expect(component.form.get('photoLocked')?.value).toBe(false);
   });
 
@@ -122,8 +133,10 @@ describe('AuthorEditorComponent', () => {
       ...baseAuthor,
       description: 'Updated description',
       asin: 'B00NEW',
+      isni: '000000012146438X',
       nameLocked: true,
       asinLocked: true,
+      isniLocked: true,
       photoLocked: true,
     };
     const save$ = new Subject<AuthorDetails>();
@@ -137,9 +150,11 @@ describe('AuthorEditorComponent', () => {
       name: '   ',
       description: '  Updated description  ',
       asin: '  B00NEW  ',
+      isni: '  000000012146438X  ',
       nameLocked: true,
       descriptionLocked: false,
       asinLocked: true,
+      isniLocked: true,
       photoLocked: true,
     });
 
@@ -150,9 +165,11 @@ describe('AuthorEditorComponent', () => {
       name: undefined,
       description: 'Updated description',
       asin: 'B00NEW',
+      isni: '000000012146438X',
       nameLocked: true,
       descriptionLocked: false,
       asinLocked: true,
+      isniLocked: true,
       photoLocked: true,
     });
 
@@ -226,7 +243,7 @@ describe('AuthorEditorComponent', () => {
 
     expect(component.hasPhoto).toBe(true);
     expect(component.photoTimestamp).toBe(888);
-    expect(emitSpy).toHaveBeenCalledWith(component.author);
+    expect(emitSpy).toHaveBeenCalledWith({...component.author, hasPhoto: true});
     expect(nowSpy).toHaveBeenCalled();
   });
 
@@ -243,7 +260,7 @@ describe('AuthorEditorComponent', () => {
     expect(component.isUploading()).toBe(false);
     expect(component.hasPhoto).toBe(true);
     expect(component.photoTimestamp).toBe(999);
-    expect(emitSpy).toHaveBeenCalledWith(component.author);
+    expect(emitSpy).toHaveBeenCalledWith({...component.author, hasPhoto: true});
     expect(messageService.add).toHaveBeenCalledWith({
       severity: 'success',
       summary: 'authorBrowser.editor.toast.photoUploadedSummary',
@@ -264,5 +281,43 @@ describe('AuthorEditorComponent', () => {
       summary: 'authorBrowser.editor.toast.errorSummary',
       detail: 'authorBrowser.editor.toast.photoUploadErrorDetail',
     });
+  });
+
+  it('deletes the photo after confirmation and updates the author', () => {
+    const response = new Subject<AuthorDetails>();
+    deleteAuthorPhoto.mockReturnValue(response);
+    const component = createComponent({author: {hasPhoto: true}});
+    const emitSpy = vi.spyOn(component.authorUpdated, 'emit');
+    component.ngOnInit();
+
+    component.deletePhoto();
+    expect(deleteAuthorPhoto).not.toHaveBeenCalled();
+    confirm.mock.calls[0][0].accept();
+    expect(deleteAuthorPhoto).toHaveBeenCalledWith(9);
+    expect(component.isDeletingPhoto()).toBe(true);
+
+    const updated = {...baseAuthor, hasPhoto: false};
+    response.next(updated);
+    expect(component.isDeletingPhoto()).toBe(false);
+    expect(component.hasPhoto).toBe(false);
+    expect(emitSpy).toHaveBeenCalledWith(updated);
+    expect(messageService.add).toHaveBeenCalledWith(expect.objectContaining({severity: 'success'}));
+  });
+
+  it('keeps the photo on deletion failure and refuses to delete a locked photo', () => {
+    deleteAuthorPhoto.mockReturnValue(throwError(() => new Error('delete failed')));
+    const component = createComponent({author: {hasPhoto: true}});
+    component.ngOnInit();
+    component.deletePhoto();
+    confirm.mock.calls[0][0].accept();
+
+    expect(component.hasPhoto).toBe(true);
+    expect(component.isDeletingPhoto()).toBe(false);
+    expect(messageService.add).toHaveBeenCalledWith(expect.objectContaining({severity: 'error'}));
+
+    confirm.mockClear();
+    component.form.get('photoLocked')?.setValue(true);
+    component.deletePhoto();
+    expect(confirm).not.toHaveBeenCalled();
   });
 });

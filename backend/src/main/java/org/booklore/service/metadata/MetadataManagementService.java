@@ -1,6 +1,7 @@
 package org.booklore.service.metadata;
 
 import org.booklore.config.AppProperties;
+import org.booklore.exception.ApiError;
 import org.booklore.model.dto.FileMoveResult;
 import org.booklore.model.dto.settings.MetadataPersistenceSettings;
 import org.booklore.model.entity.*;
@@ -124,6 +125,29 @@ public class MetadataManagementService {
                 .filter(author -> !targetAuthors.contains(author))
                 .toList();
 
+        mergeAuthorEntities(targetAuthors, authorsToMerge, moveFile);
+        log.info("Consolidated {} authors into {}: {}", authorsToMerge.size(), targetValues, valuesToMerge);
+    }
+
+    @Transactional
+    public void mergeAuthorsById(Long targetId, List<Long> sourceIds) {
+        if (targetId == null || sourceIds == null || sourceIds.isEmpty()
+                || sourceIds.stream().anyMatch(id -> id == null || id.equals(targetId))
+                || sourceIds.stream().distinct().count() != sourceIds.size()) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("A target and distinct source authors are required.");
+        }
+        AuthorEntity target = authorRepository.findById(targetId)
+                .orElseThrow(() -> ApiError.RESOURCE_NOT_FOUND.createException("Author", targetId));
+        List<AuthorEntity> sources = sourceIds.stream()
+                .map(id -> authorRepository.findById(id)
+                        .orElseThrow(() -> ApiError.RESOURCE_NOT_FOUND.createException("Author", id)))
+                .toList();
+        boolean moveFile = appSettingService.getAppSettings().getMetadataPersistenceSettings().isMoveFilesToLibraryPattern();
+        mergeAuthorEntities(List.of(target), sources, moveFile);
+        log.info("Merged {} authors into author {}", sources.size(), targetId);
+    }
+
+    private void mergeAuthorEntities(List<AuthorEntity> targetAuthors, List<AuthorEntity> authorsToMerge, boolean moveFile) {
         Map<Long, BookMetadataEntity> affectedBooksById = new LinkedHashMap<>();
         for (AuthorEntity oldAuthor : authorsToMerge) {
             for (BookMetadataEntity metadata : bookMetadataRepository.findAllByAuthorsContaining(oldAuthor)) {
@@ -153,7 +177,6 @@ public class MetadataManagementService {
             authorRepository.delete(oldAuthor);
         }
 
-        log.info("Consolidated {} authors into {}: {}", authorsToMerge.size(), targetValues, valuesToMerge);
     }
 
     private void consolidateCategories(List<String> targetValues, List<String> valuesToMerge, boolean moveFile) {

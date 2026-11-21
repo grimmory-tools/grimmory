@@ -4,11 +4,11 @@
       <i class="pi pi-sync header-icon"></i>
     </div>
     <div class="header-text">
-      <h2 class="panel-title">Metadata Refresh Options</h2>
+      <h2 class="panel-title">{{ 'metadataFetch.title' | transloco }}</h2>
       @if (isLibraryRefresh) {
-        <p class="panel-description">Library-level custom metadata fetch</p>
+        <p class="panel-description">{{ 'metadataFetch.libraryDescription' | transloco }}</p>
       } @else {
-        <p class="panel-description">{{ bookIds.length }} books selected</p>
+        <p class="panel-description">{{ (bookIds.length === 1 ? 'fileMover.selectedBook' : 'fileMover.selectedBooks') | transloco: {count: bookIds.length} }}</p>
       }
     </div>
     <p-button

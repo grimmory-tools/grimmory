@@ -228,6 +228,7 @@ export class CommandPaletteService {
       createLibrary: () => void this.dialogLauncherService.openLibraryCreateDialog().catch(() => undefined),
       createShelf: () => void this.bookDialogHelperService.openShelfCreatorDialog().catch(() => undefined),
       createMagicShelf: () => void this.dialogLauncherService.openMagicShelfCreateDialog().catch(() => undefined),
+      createGenreShelf: () => void this.dialogLauncherService.openGenreShelfCreateDialog().catch(() => undefined),
       uploadBook: () => void this.dialogLauncherService.openFileUploadDialog().catch(() => undefined),
     }).map((item) => this.toPaletteNavItem(item, 'action'));
   });

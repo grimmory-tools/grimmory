@@ -153,7 +153,7 @@ export class AuthorCardComponent implements OnChanges {
     if (this.quickMatching || this.showMatchValidation) return;
 
     this.quickMatching = true;
-    this.authorService.resolveAuthorMatch(this.author.id, this.author.name).subscribe({
+    this.authorService.resolveAuthorMatch(this.author.id, this.author.name, undefined, this.author.asin).subscribe({
       next: (resolution) => {
         this.quickMatching = false;
         if (resolution.status === 'matched') {
@@ -164,10 +164,12 @@ export class AuthorCardComponent implements OnChanges {
         } else {
           this.showQuickMatchError();
         }
+        this.cdr.markForCheck();
       },
       error: () => {
         this.quickMatching = false;
         this.showQuickMatchError();
+        this.cdr.markForCheck();
       }
     });
   }
@@ -178,15 +180,18 @@ export class AuthorCardComponent implements OnChanges {
     this.showMatchValidation = false;
     this.authorService.matchAuthor(this.author.id, {
       source: candidate.source,
+      providerId: candidate.providerId ?? candidate.asin,
       asin: candidate.asin,
     }).subscribe({
       next: updated => {
         this.quickMatching = false;
         this.finishQuickMatch(updated, candidate);
+        this.cdr.markForCheck();
       },
       error: () => {
         this.quickMatching = false;
         this.showQuickMatchError();
+        this.cdr.markForCheck();
       }
     });
   }
@@ -201,7 +206,7 @@ export class AuthorCardComponent implements OnChanges {
       ...this.author,
       name: updated.name,
       asin: updated.asin,
-      hasPhoto: this.author.hasPhoto || !!candidate.imageUrl,
+      hasPhoto: updated.hasPhoto ?? (this.author.hasPhoto || !!candidate.imageUrl),
     };
     this.hasPhoto = this.author.hasPhoto;
     this.matchCandidates = [];

@@ -190,7 +190,7 @@
         <div class="section-content">
           @for (field of metadataFieldsTop; track field) {
             <div class="field-row">
-              <span class="field-label">{{ field.label }}</span>
+              <span class="field-label">{{ t(field.labelKey ?? field.controlName) }}</span>
               <div class="field-content">
                 <div class="field-side current">
                   <button
@@ -240,7 +240,7 @@
         <div class="section-content">
           @for (field of metadataChips; track field) {
             <div class="field-row">
-              <span class="field-label">{{ field.label }}</span>
+              <span class="field-label">{{ t(field.labelKey ?? field.controlName) }}</span>
               <div class="field-content">
                 <div class="field-side current">
                   <button
@@ -280,7 +280,7 @@
                           [dropdown]="false"
                           (onKeyUp)="onAuthorInputKeyUp($event)"
                           (onSelect)="onAuthorInputSelect($event)"
-                          placeholder="Add author..."
+                          [placeholder]="t('authorPlaceholder')"
                         />
                       }
                     </div>
@@ -340,7 +340,7 @@
         <div class="section-content">
           @for (field of metadataDescription; track field) {
             <div class="field-row textarea-row">
-              <span class="field-label">{{ field.label }}</span>
+              <span class="field-label">{{ t(field.labelKey ?? field.controlName) }}</span>
               <div class="field-content">
                 <div class="field-side current">
                   <button
@@ -386,7 +386,7 @@
         <div class="section-content">
           @for (field of metadataSeriesFields; track field) {
             <div class="field-row">
-              <span class="field-label">{{ field.label }}</span>
+              <span class="field-label">{{ t(field.labelKey ?? field.controlName) }}</span>
               <div class="field-content">
                 <div class="field-side current">
                   <button
@@ -432,7 +432,7 @@
         <div class="section-content">
           @for (field of metadataBookDetailsFields; track field) {
             <div class="field-row">
-              <span class="field-label">{{ field.label }}</span>
+              <span class="field-label">{{ t(field.labelKey ?? field.controlName) }}</span>
               <div class="field-content">
                 <div class="field-side current">
                   <button
@@ -490,7 +490,7 @@
               <!-- Comic text/number/boolean fields -->
               @for (field of comicTextFields; track field) {
                 <div class="field-row">
-                  <span class="field-label">{{ field.label }}</span>
+                  <span class="field-label">{{ t(field.labelKey ?? field.controlName) }}</span>
                   <div class="field-content">
                     <div class="field-side current">
                       <button
@@ -545,7 +545,7 @@
               <!-- Comic array fields (creators, characters, teams, locations) -->
               @for (field of comicArrayFields; track field) {
                 <div class="field-row">
-                  <span class="field-label">{{ field.label }}</span>
+                  <span class="field-label">{{ t(field.labelKey ?? field.controlName) }}</span>
                   <div class="field-content">
                     <div class="field-side current">
                       <button
@@ -601,7 +601,7 @@
               <!-- Comic textarea fields (notes) -->
               @for (field of comicTextareaFields; track field) {
                 <div class="field-row textarea-row">
-                  <span class="field-label">{{ field.label }}</span>
+                  <span class="field-label">{{ t(field.labelKey ?? field.controlName) }}</span>
                   <div class="field-content">
                     <div class="field-side current">
                       <button
@@ -650,7 +650,7 @@
           <div class="section-content">
             @for (field of audiobookMetadataFields; track field) {
               <div class="field-row">
-                <span class="field-label">{{ field.label }}</span>
+                <span class="field-label">{{ t(field.labelKey ?? field.controlName) }}</span>
                 <div class="field-content">
                   <div class="field-side current">
                     <button

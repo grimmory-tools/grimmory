@@ -449,11 +449,21 @@ export class TaskManagementComponent implements OnInit {
 
   getTaskDisplayName(type: string): string {
     const taskInfo = this.taskInfos.find(t => t.taskType === type);
+    if (Object.values(TaskType).some(taskType => taskType === type)) {
+      const key = `settingsTasks.taskTypes.${type}.name`;
+      const translated = this.t.translate(key);
+      if (translated !== key) return translated;
+    }
     return taskInfo?.name || type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
   }
 
   getTaskDescription(type: string): string {
     const taskInfo = this.taskInfos.find(t => t.taskType === type);
+    if (Object.values(TaskType).some(taskType => taskType === type)) {
+      const key = `settingsTasks.taskTypes.${type}.description`;
+      const translated = this.t.translate(key);
+      if (translated !== key) return translated;
+    }
     return taskInfo?.description || 'System maintenance task.';
   }
 

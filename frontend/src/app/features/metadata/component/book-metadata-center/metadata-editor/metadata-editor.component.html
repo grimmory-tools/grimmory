@@ -229,7 +229,7 @@
                       [dropdown]="false"
                       (onKeyUp)="onAuthorInputKeyUp($event)"
                       (onSelect)="onAuthorInputSelect($event)"
-                      placeholder="Add author..."
+                      [placeholder]="t('authorPlaceholder')"
                     />
                   }
                 </div>
@@ -517,7 +517,7 @@
               <div class="field-row metadata-ids-row">
                 @for (field of audiobookMetadataFields; track field) {
                   <div class="field-group metadata-id-field">
-                    <span>{{ field.label }} @if (isEmbeddable(field.controlName, book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</span>
+                    <span>{{ t(field.labelKey ?? field.controlName) }} @if (isEmbeddable(field.controlName, book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</span>
                     <div class="field-with-lock">
                       @if (field.type === 'boolean') {
                         <p-select [formControlName]="field.controlName" [options]="booleanOptions" optionLabel="label" optionValue="value" appendTo="body" />
@@ -558,7 +558,7 @@
               <div class="comic-text-grid">
                 @for (field of comicTextFields; track field) {
                   <div class="field-group">
-                    <span>{{ field.label }} @if (isEmbeddable(field.controlName, book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</span>
+                    <span>{{ t(field.labelKey ?? field.controlName) }} @if (isEmbeddable(field.controlName, book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</span>
                     <div class="field-with-lock">
                       @if (field.type === 'boolean') {
                         <p-select [formControlName]="field.controlName" [options]="booleanOptions" optionLabel="label" optionValue="value" size="small" appendTo="body" />
@@ -580,7 +580,7 @@
               <div class="comic-array-grid">
                 @for (field of comicArrayFields; track field) {
                   <div class="field-group">
-                    <span>{{ field.label }} @if (isEmbeddable(field.controlName, book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</span>
+                    <span>{{ t(field.labelKey ?? field.controlName) }} @if (isEmbeddable(field.controlName, book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</span>
                     <div class="field-with-lock">
                       <div class="autocomplete-wrapper">
                         <p-autoComplete
@@ -608,7 +608,7 @@
               @for (field of comicTextareaFields; track field) {
                 <div class="field-row comic-array-row">
                   <div class="field-group full-width">
-                    <span>{{ field.label }} @if (isEmbeddable(field.controlName, book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</span>
+                    <span>{{ t(field.labelKey ?? field.controlName) }} @if (isEmbeddable(field.controlName, book)) { <i class="pi pi-file-export embeddable-indicator" [pTooltip]="t('writtenToFileTooltip')" tooltipPosition="top"></i> }</span>
                     <div class="field-with-lock description-with-lock">
                       <textarea pTextarea [formControlName]="field.controlName" rows="4"></textarea>
                       @if (!metadataForm.get(field.lockedKey)?.value) {
@@ -657,6 +657,25 @@
                   </div>
                 }
               }
+              <div class="field-group metadata-id-field">
+                <label for="babelioUrl">{{ t('babelioUrl') }}</label>
+                <div class="field-with-lock">
+                  <input
+                    pSize="small"
+                    pInputText
+                    id="babelioUrl"
+                    type="url"
+                    maxlength="2048"
+                    formControlName="babelioUrl"
+                    [placeholder]="t('babelioUrlPlaceholder')" />
+                  @if (!book.metadata!['babelioUrlLocked']) {
+                    <p-button size="small" icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('babelioUrl')" severity="success" />
+                  }
+                  @else {
+                    <p-button size="small" icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('babelioUrl')" severity="warn" />
+                  }
+                </div>
+              </div>
             </div>
           </div>
         }

@@ -54,7 +54,7 @@ export class MetadataAdvancedFetchOptionsComponent implements OnChanges {
     label: this.t.translate(provider.labelKey, {}, this.activeLang()),
   })));
   readonly providerOptionsWithClear = computed(() => [
-    {value: 'Clear All', label: 'Clear All'},
+    {value: 'Clear All', label: this.t.translate('metadata.advancedFetchOptions.clearAll', {}, this.activeLang())},
     ...this.providerOptions(),
   ]);
 

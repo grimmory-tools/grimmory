@@ -163,6 +163,16 @@ export class DialogLauncherService {
     });
   }
 
+  async openGenreShelfCreateDialog(): Promise<DynamicDialogRef | null> {
+    return this.launchLazyDialog(async () => {
+      const {GenreShelfDialogComponent} = await import('../../features/magic-shelf/component/genre-shelf-dialog/genre-shelf-dialog.component');
+      return this.openDialog(GenreShelfDialogComponent, {
+        showHeader: false,
+        styleClass: `${DialogSize.SM} ${DialogStyle.MINIMAL}`,
+      });
+    });
+  }
+
   async openMagicShelfEditDialog(shelfId: number): Promise<DynamicDialogRef | null> {
     return this.launchLazyDialog(async () => {
       const {MagicShelfComponent} = await import('../../features/magic-shelf/component/magic-shelf-component');

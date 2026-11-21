@@ -6,6 +6,7 @@ import {UserService} from '../../../settings/user-management/user.service';
 import {MetadataEditorComponent} from '../book-metadata-center/metadata-editor/metadata-editor.component';
 import {MetadataSearcherComponent} from '../book-metadata-center/metadata-searcher/metadata-searcher.component';
 import {Button} from '@openng/optimus-ui/button';
+import {TranslocoPipe} from '@jsverse/transloco';
 import {injectQuery} from '@tanstack/angular-query-experimental';
 
 @Component({
@@ -18,7 +19,8 @@ import {injectQuery} from '@tanstack/angular-query-experimental';
     TabPanel,
     TabPanels,
     Tabs,
-    Button
+    Button,
+    TranslocoPipe
   ],
   templateUrl: './multi-book-metadata-editor-component.html',
   standalone: true,

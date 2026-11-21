@@ -156,6 +156,9 @@ public class BookMetadataEntity {
     @Column(name = "douban_review_count")
     private Integer doubanReviewCount;
 
+    @Column(name = "babelio_url", length = 2048)
+    private String babelioUrl;
+
     @Column(name = "title_locked")
     @Builder.Default
     private Boolean titleLocked = Boolean.FALSE;
@@ -332,6 +335,10 @@ public class BookMetadataEntity {
     @Builder.Default
     private Boolean doubanReviewCountLocked = Boolean.FALSE;
 
+    @Column(name = "babelio_url_locked")
+    @Builder.Default
+    private Boolean babelioUrlLocked = Boolean.FALSE;
+
     @Column(name = "narrator", length = 500)
     private String narrator;
 
@@ -404,6 +411,7 @@ public class BookMetadataEntity {
         this.audibleId = trimOrNull(this.audibleId);
         this.applebooksId = trimOrNull(this.applebooksId);
         this.doubanId = trimOrNull(this.doubanId);
+        this.babelioUrl = trimOrNull(this.babelioUrl);
         this.contentRating = trimOrNull(this.contentRating);
         this.narrator = trimOrNull(this.narrator);
     }
@@ -514,6 +522,7 @@ public class BookMetadataEntity {
         this.doubanIdLocked = lock;
         this.doubanRatingLocked = lock;
         this.doubanReviewCountLocked = lock;
+        this.babelioUrlLocked = lock;
         this.reviewsLocked = lock;
         this.narratorLocked = lock;
         this.abridgedLocked = lock;
@@ -569,6 +578,7 @@ public class BookMetadataEntity {
                 && Boolean.TRUE.equals(this.doubanIdLocked)
                 && Boolean.TRUE.equals(this.doubanRatingLocked)
                 && Boolean.TRUE.equals(this.doubanReviewCountLocked)
+                && Boolean.TRUE.equals(this.babelioUrlLocked)
                 && Boolean.TRUE.equals(this.reviewsLocked)
                 && Boolean.TRUE.equals(this.narratorLocked)
                 && Boolean.TRUE.equals(this.abridgedLocked)

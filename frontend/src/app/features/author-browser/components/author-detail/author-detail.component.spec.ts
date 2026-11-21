@@ -1,4 +1,4 @@
-import {signal} from '@angular/core';
+import {ChangeDetectorRef, signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {HttpTestingController} from '@angular/common/http/testing';
 import {TranslocoService} from '@jsverse/transloco';
@@ -30,6 +30,7 @@ describe('AuthorDetailComponent', () => {
   let messageService: Pick<MessageService, 'add'>;
   let dialogServiceOpen: ReturnType<typeof vi.fn>;
   let queryClientHarness: ReturnType<typeof createQueryClientHarness>;
+  let markForCheck: ReturnType<typeof vi.fn>;
 
   let route: {
     snapshot: {
@@ -58,7 +59,7 @@ describe('AuthorDetailComponent', () => {
 
   beforeEach(() => {
     getAuthorDetails = vi.fn();
-    getAuthorPhotoUrl = vi.fn((authorId: number) => `/api/authors/${authorId}/photo`);
+    getAuthorPhotoUrl = vi.fn((authorId: number, cacheBuster?: number) => `/api/authors/${authorId}/photo?t=${cacheBuster}`);
     patchAuthorInCache = vi.fn();
     resolveAuthorMatch = vi.fn();
     matchAuthor = vi.fn();
@@ -66,6 +67,7 @@ describe('AuthorDetailComponent', () => {
     setPageTitle = vi.fn();
     translate = vi.fn((key: string) => key);
     dialogServiceOpen = vi.fn();
+    markForCheck = vi.fn();
     messageService = {
       add: vi.fn(),
     };
@@ -137,6 +139,7 @@ describe('AuthorDetailComponent', () => {
             open: dialogServiceOpen,
           }
         },
+        {provide: ChangeDetectorRef, useValue: {markForCheck}},
         ...queryClientHarness.providers,
       ],
     });
@@ -205,7 +208,7 @@ describe('AuthorDetailComponent', () => {
     component.onAuthorUpdated(baseAuthor);
 
     expect(nowSpy).toHaveBeenCalled();
-    expect(component.photoUrl).toBe('/api/authors/9/photo&t=321');
+    expect(component.photoUrl).toBe('/api/authors/9/photo?t=321');
 
     getCurrentUser.mockReturnValue({permissions: {admin: false, canEditMetadata: true}});
     expect(component.canEditMetadata).toBe(true);
@@ -259,6 +262,18 @@ describe('AuthorDetailComponent', () => {
     expect(nowSpy).toHaveBeenCalled();
   });
 
+  it('uses the saved photo state rather than assuming a photo was imported', () => {
+    const component = createComponent();
+    component.onAuthorUpdated({...baseAuthor, hasPhoto: false});
+
+    expect(component.hasPhoto).toBe(false);
+    expect(patchAuthorInCache).toHaveBeenCalledWith(9, expect.objectContaining({hasPhoto: false}));
+
+    component.onAuthorUpdated({...baseAuthor, hasPhoto: true});
+    expect(component.hasPhoto).toBe(true);
+    expect(patchAuthorInCache).toHaveBeenLastCalledWith(9, expect.objectContaining({hasPhoto: true}));
+  });
+
   it('guards quickMatch when there is no author loaded or a match is already in flight', () => {
     const component = createComponent();
 
@@ -288,7 +303,7 @@ describe('AuthorDetailComponent', () => {
 
     component.quickMatch();
 
-    expect(resolveAuthorMatch).toHaveBeenCalledWith(9, 'Ada Lovelace');
+    expect(resolveAuthorMatch).toHaveBeenCalledWith(9, 'Ada Lovelace', undefined, 'B00ADA');
     expect(component.quickMatching).toBe(true);
 
     resolveMatch$.next({
@@ -332,13 +347,49 @@ describe('AuthorDetailComponent', () => {
 
     expect(component.showMatchValidation).toBe(true);
     expect(component.matchCandidates).toEqual([candidate]);
+    expect(markForCheck).toHaveBeenCalled();
     expect(matchAuthor).not.toHaveBeenCalled();
 
     component.selectMatchCandidate(candidate);
 
-    expect(matchAuthor).toHaveBeenCalledWith(9, {source: 'AUDNEXUS', asin: 'B00MATCH'});
+    expect(matchAuthor).toHaveBeenCalledWith(9, {
+      source: 'AUDNEXUS',
+      providerId: 'B00MATCH',
+      asin: 'B00MATCH',
+    });
     expect(component.showMatchValidation).toBe(false);
     expect(component.author()?.asin).toBe('B00MATCH');
+  });
+
+  it('updates the loading button and candidate dialog after an asynchronous search in zoneless mode', async () => {
+    const resolveMatch$ = new Subject<AuthorMatchResolution>();
+    resolveAuthorMatch.mockReturnValue(resolveMatch$);
+    getAuthorDetails.mockReturnValue(of(baseAuthor));
+    TestBed.overrideComponent(AuthorDetailComponent, {
+      set: {
+        imports: [],
+        template: `
+          <button [disabled]="quickMatching" (click)="quickMatch()">Update</button>
+          @if (showMatchValidation) { <div class="candidates">{{ matchCandidates.length }}</div> }
+        `,
+      },
+    });
+    const fixture = TestBed.createComponent(AuthorDetailComponent);
+    fixture.detectChanges();
+
+    const button: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    button.click();
+    await fixture.whenStable();
+    expect(button.disabled).toBe(true);
+
+    resolveMatch$.next({
+      status: 'ambiguous',
+      candidates: [{source: 'AUDNEXUS', asin: 'B00OTHER', name: 'Another author'}],
+    });
+    await fixture.whenStable();
+    expect(button.disabled).toBe(false);
+    expect(fixture.nativeElement.querySelector('.candidates')?.textContent.trim()).toBe('1');
+    fixture.destroy();
   });
 
   it('clears the in-flight quick-match flag and reports a translated error toast on failure', () => {
@@ -351,6 +402,7 @@ describe('AuthorDetailComponent', () => {
     component.quickMatch();
 
     expect(component.quickMatching).toBe(false);
+    expect(markForCheck).toHaveBeenCalled();
     expect(translate).toHaveBeenCalledWith('authorBrowser.toast.quickMatchFailedSummary');
     expect(translate).toHaveBeenCalledWith('authorBrowser.toast.quickMatchFailedDetail');
     expect(messageService.add).toHaveBeenCalledWith({

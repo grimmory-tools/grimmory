@@ -12,8 +12,11 @@ public class AuthorDetails {
     private String name;
     private String description;
     private String asin;
+    private String isni;
     private boolean nameLocked;
     private boolean descriptionLocked;
     private boolean asinLocked;
+    private boolean isniLocked;
     private boolean photoLocked;
+    private boolean hasPhoto;
 }

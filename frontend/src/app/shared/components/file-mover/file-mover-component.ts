@@ -5,6 +5,7 @@ import {TableModule} from '@openng/optimus-ui/table';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {MessageService} from '@openng/optimus-ui/api';
 import {Select} from '@openng/optimus-ui/select';
+import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {injectMutation, injectQuery} from '@tanstack/angular-query-experimental';
 
 import {BookCommandService} from '../../../features/book/data/book-command.service';
@@ -36,7 +37,7 @@ interface FilePreview {
 
 @Component({
   selector: 'app-file-mover-component',
-  imports: [Button, FormsModule, TableModule, Select],
+  imports: [Button, FormsModule, TableModule, Select, TranslocoPipe],
   templateUrl: './file-mover-component.html',
   styleUrl: './file-mover-component.scss'
 })
@@ -48,6 +49,7 @@ export class FileMoverComponent {
   private readonly libraryService = inject(LibraryService);
   private readonly appSettingsService = inject(AppSettingsService);
   private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
 
   protected readonly bookIds = this.config.data?.bookIds ?? [];
   protected readonly pageCount = Math.ceil(this.bookIds.length / PAGE_SIZE);
@@ -92,9 +94,9 @@ export class FileMoverComponent {
       const library = this.getLibrary(libraryId);
       return {
         libraryId,
-        libraryName: library?.name ?? 'Unknown Library',
+        libraryName: library?.name ?? this.t.translate('fileMover.unknownLibrary'),
         pattern: library?.fileNamingPattern || this.defaultMovePattern(),
-        source: library?.fileNamingPattern ? 'Library Setting' : 'App Default',
+        source: this.t.translate(library?.fileNamingPattern ? 'fileMover.librarySetting' : 'fileMover.appDefault'),
         bookCount
       };
     });
@@ -121,16 +123,19 @@ export class FileMoverComponent {
       onSuccess: () => {
         this.messageService.add({
           severity: 'success',
-          summary: 'Files Organized!',
-          detail: `Successfully organized ${this.bookIds.length} file${this.bookIds.length === 1 ? '' : 's'}.`,
+          summary: this.t.translate('fileMover.toast.successSummary'),
+          detail: this.t.translate(
+            this.bookIds.length === 1 ? 'fileMover.toast.oneFileSuccess' : 'fileMover.toast.manyFilesSuccess',
+            {count: this.bookIds.length}
+          ),
           life: 3000
         });
       },
       onError: () => {
         this.messageService.add({
           severity: 'error',
-          summary: 'Oops! Something went wrong',
-          detail: 'We had trouble organizing your files. Please try again.',
+          summary: this.t.translate('fileMover.toast.failureSummary'),
+          detail: this.t.translate('fileMover.toast.failureDetail'),
           life: 3000
         });
       }
@@ -185,8 +190,8 @@ export class FileMoverComponent {
     }
 
     const newPath = replacePlaceholders(pattern, {
-      authors: this.sanitize(meta?.authors?.join(', ') || 'Unknown Author'),
-      title: this.sanitize(meta?.title || 'Untitled'),
+      authors: this.sanitize(meta?.authors?.join(', ') || this.t.translate('fileMover.unknownAuthor')),
+      title: this.sanitize(meta?.title || this.t.translate('fileMover.untitled')),
       subtitle: this.sanitize(meta?.subtitle || ''),
       year: this.formatYear(meta?.publishedDate),
       series: this.sanitize(meta?.seriesName || ''),
@@ -205,7 +210,7 @@ export class FileMoverComponent {
   }
 
   private getLibraryName(libraryId: number): string {
-    return this.getLibrary(libraryId)?.name ?? 'Unknown Library';
+    return this.getLibrary(libraryId)?.name ?? this.t.translate('fileMover.unknownLibrary');
   }
 
   private getLibraryPaths(libraryId: number): LibraryPath[] {

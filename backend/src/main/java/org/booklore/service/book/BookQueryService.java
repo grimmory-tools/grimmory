@@ -222,6 +222,7 @@ public class BookQueryService {
             m.setOpenlibraryIdLocked(null);
             m.setAsinLocked(null);
             m.setGoodreadsIdLocked(null);
+            m.setBabelioUrlLocked(null);
             m.setComicvineIdLocked(null);
             m.setHardcoverIdLocked(null);
             m.setHardcoverBookIdLocked(null);

@@ -9,6 +9,7 @@ import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {
   AGE_RATING_OPTIONS,
   CONTENT_RATINGS,
+  ContentRating,
   ContentRestriction,
   ContentRestrictionMode,
   ContentRestrictionType
@@ -72,8 +73,13 @@ export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
     {label: 'Allow Only (Show only matching)', value: ContentRestrictionMode.ALLOW_ONLY, translationKey: 'settingsUsers.contentRestrictions.modes.allowOnly'}
   ];
 
-  ageRatingOptions = AGE_RATING_OPTIONS;
-  contentRatingOptions = CONTENT_RATINGS.map(r => ({label: r, value: r}));
+  private readonly contentRatingKeys: Record<ContentRating, string> = {
+    [ContentRating.EVERYONE]: 'metadata.editor.contentRatingEveryone',
+    [ContentRating.TEEN]: 'metadata.editor.contentRatingTeen',
+    [ContentRating.MATURE]: 'metadata.editor.contentRatingMature',
+    [ContentRating.ADULT]: 'metadata.editor.contentRatingAdult',
+    [ContentRating.EXPLICIT]: 'metadata.editor.contentRatingExplicit',
+  };
 
   ngOnInit() {
     this.loadRestrictions();
@@ -118,12 +124,27 @@ export class ContentRestrictionsEditorComponent implements OnInit, OnChanges {
   getValueOptions(): {label: string, value: string}[] {
     switch (this.newRestriction.restrictionType) {
       case ContentRestrictionType.AGE_RATING:
-        return this.ageRatingOptions.map(o => ({label: o.label, value: o.value}));
+        return AGE_RATING_OPTIONS.map(o => ({
+          label: o.value === '0' ? this.t.translate('metadata.editor.ageRatingAllAges') : o.label,
+          value: o.value,
+        }));
       case ContentRestrictionType.CONTENT_RATING:
-        return this.contentRatingOptions;
+        return CONTENT_RATINGS.map(value => ({label: this.t.translate(this.contentRatingKeys[value]), value}));
       default:
         return [];
     }
+  }
+
+  getRestrictionValueLabel(restriction: ContentRestriction): string {
+    if (restriction.restrictionType === ContentRestrictionType.AGE_RATING) {
+      const option = AGE_RATING_OPTIONS.find(o => o.value === restriction.value);
+      return option?.value === '0' ? this.t.translate('metadata.editor.ageRatingAllAges') : option?.label ?? restriction.value;
+    }
+    if (restriction.restrictionType === ContentRestrictionType.CONTENT_RATING) {
+      const rating = CONTENT_RATINGS.find(value => value === restriction.value);
+      return rating ? this.t.translate(this.contentRatingKeys[rating]) : restriction.value;
+    }
+    return restriction.value;
   }
 
   addRestriction() {

@@ -5,8 +5,8 @@
         <svg lucidePalette aria-hidden="true"></svg>
       </div>
       <div class="header-text">
-        <h1>Choose an Icon</h1>
-        <p>Select from library or add custom SVGs</p>
+        <h1>{{ 'iconPicker.title' | transloco }}</h1>
+        <p>{{ 'iconPicker.description' | transloco }}</p>
       </div>
     </div>
     <p-button
@@ -23,16 +23,16 @@
       <p-tablist>
         <p-tab value="0">
           <svg lucideSparkles aria-hidden="true"></svg>
-          <span>Default</span>
+          <span>{{ 'iconPicker.tabs.default' | transloco }}</span>
         </p-tab>
         <p-tab value="1">
           <svg lucideImages aria-hidden="true"></svg>
-          <span>SVG Library</span>
+          <span>{{ 'iconPicker.tabs.library' | transloco }}</span>
         </p-tab>
         @if (canManageIcons) {
           <p-tab value="2">
             <svg lucideCirclePlus aria-hidden="true"></svg>
-            <span>Add Custom</span>
+            <span>{{ 'iconPicker.tabs.addCustom' | transloco }}</span>
           </p-tab>
         }
       </p-tablist>
@@ -45,7 +45,7 @@
               <input
                 type="text"
                 pInputText
-                placeholder="Search icons"
+                [placeholder]="'iconPicker.searchIcons' | transloco"
                 [(ngModel)]="searchText"
                 class="search-input"
               />
@@ -77,7 +77,7 @@
             @if (isLoadingSvgIcons()) {
               <div class="loading-state">
                 <i class="pi pi-spin pi-spinner"></i>
-                <span>Loading icons...</span>
+                <span>{{ 'iconPicker.loading' | transloco }}</span>
               </div>
             } @else if (svgIconsError()) {
               <div class="error-state">
@@ -90,7 +90,7 @@
                 <input
                   type="text"
                   pInputText
-                  placeholder="Search SVG icons..."
+                  [placeholder]="'iconPicker.searchSvgIcons' | transloco"
                   [(ngModel)]="svgSearchText"
                   class="search-input"
                 />
@@ -125,7 +125,7 @@
                     (drop)="onTrashDrop($event)"
                   >
                     <i class="pi pi-trash"></i>
-                    <span>Drop here to delete</span>
+                    <span>{{ 'iconPicker.dropToDelete' | transloco }}</span>
                   </div>
                 </div>
               }
@@ -140,30 +140,30 @@
               <section class="form-section">
                 <div class="section-header">
                   <i class="pi pi-code"></i>
-                  <span>SVG Input</span>
+                  <span>{{ 'iconPicker.svgInput' | transloco }}</span>
                 </div>
 
                 <div class="form-fields">
                   <div class="form-field">
-                    <label for="icon-picker-svg-name">Icon Name</label>
+                    <label for="icon-picker-svg-name">{{ 'iconPicker.iconName' | transloco }}</label>
                     <input
                       id="icon-picker-svg-name"
                       type="text"
                       pInputText
                       [(ngModel)]="svgName"
-                      placeholder="e.g., my-custom-icon"
+                      [placeholder]="'iconPicker.iconNamePlaceholder' | transloco"
                       class="input-full"
                     />
                   </div>
 
                   <div class="form-field">
-                    <label for="icon-picker-svg-code">SVG Code</label>
+                    <label for="icon-picker-svg-code">{{ 'iconPicker.svgCode' | transloco }}</label>
                     <textarea
                       id="icon-picker-svg-code"
                       pInputTextarea
                       [(ngModel)]="svgContent"
                       (ngModelChange)="onSvgContentChange()"
-                      placeholder="<svg>...</svg>"
+                      [placeholder]="'iconPicker.svgCodePlaceholder' | transloco"
                       [rows]="6"
                       class="code-textarea"
                     ></textarea>
@@ -171,7 +171,7 @@
 
                   @if (svgContent && svgPreview) {
                     <div class="preview-card">
-                      <div class="preview-label">Preview</div>
+                      <div class="preview-label">{{ 'iconPicker.preview' | transloco }}</div>
                       <div class="preview-content" [appSvgContent]="svgPreview"></div>
                     </div>
                   }
@@ -186,7 +186,7 @@
 
                 <div class="form-actions">
                   <p-button
-                    label="Add to Queue"
+                    [label]="'iconPicker.addToQueue' | transloco"
                     icon="pi pi-plus"
                     [outlined]="true"
                     [disabled]="!svgContent || !svgName"
@@ -199,11 +199,11 @@
                 <section class="form-section queue-section">
                   <div class="section-header">
                     <i class="pi pi-list"></i>
-                    <span>Queue</span>
+                    <span>{{ 'iconPicker.queue' | transloco }}</span>
                     <span class="section-badge">{{ svgEntries().length }}</span>
                     <div class="section-actions">
                       <p-button
-                        label="Clear All"
+                        [label]="'iconPicker.clearAll' | transloco"
                         icon="pi pi-times"
                         severity="danger"
                         [text]="true"
@@ -239,7 +239,7 @@
 
                   <div class="form-actions">
                     <p-button
-                      label="Save All Icons"
+                      [label]="'iconPicker.saveAll' | transloco"
                       icon="pi pi-save"
                       severity="success"
                       [loading]="isSavingBatch()"

@@ -103,6 +103,17 @@ describe('BookMetadataManageService', () => {
     expect(queryClient.invalidateQueries).toHaveBeenCalled();
   });
 
+  it('merges author records by ID and invalidates book caches after success', () => {
+    service.mergeAuthors(12, [13, 14]).subscribe();
+
+    const request = httpTestingController.expectOne(req => req.url.endsWith('/api/v1/books/metadata/manage/merge-authors'));
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({targetId: 12, sourceIds: [13, 14]});
+    expect(queryClient.invalidateQueries).not.toHaveBeenCalled();
+    request.flush(null);
+    expect(queryClient.invalidateQueries).toHaveBeenCalled();
+  });
+
   it('toggles cached metadata lock fields for successful bulk lock updates', () => {
     queryClient.setQueryData<Book[]>(BOOKS_QUERY_KEY, [
       makeBook(1, {titleLocked: false, authorsLocked: false}),

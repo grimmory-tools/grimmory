@@ -4,8 +4,8 @@
       <i class="pi pi-folder-open header-icon"></i>
     </div>
     <div class="header-text">
-      <h2 class="panel-title">Move & Organize Files</h2>
-      <p class="panel-description">{{ bookIds.length }} book{{ bookIds.length !== 1 ? 's' : '' }} selected</p>
+      <h2 class="panel-title">{{ 'fileMover.title' | transloco }}</h2>
+      <p class="panel-description">{{ (bookIds.length === 1 ? 'fileMover.selectedBook' : 'fileMover.selectedBooks') | transloco: {count: bookIds.length} }}</p>
     </div>
     <p-button
       icon="pi pi-times"
@@ -25,16 +25,15 @@
         </div>
         <div class="banner-content">
           <span class="banner-text">
-            Preview and organize <strong>{{ bookIds.length }} file{{ bookIds.length !== 1 ? 's' : '' }}</strong>.
-            Files will be renamed based on metadata and naming patterns.
+            {{ 'fileMover.previewDescription' | transloco: {count: bookIds.length} }}
           </span>
           <span class="banner-warning">
             <i class="pi pi-exclamation-triangle"></i>
-            Requires good metadata quality.
+            {{ 'fileMover.metadataWarning' | transloco }}
           </span>
         </div>
         <button type="button" class="banner-toggle" (click)="infoCollapsed.update(collapsed => !collapsed)">
-          <span>{{ infoCollapsed() ? 'Learn more' : 'Hide' }}</span>
+          <span>{{ (infoCollapsed() ? 'fileMover.learnMore' : 'fileMover.hide') | transloco }}</span>
           <i [class]="infoCollapsed() ? 'pi pi-chevron-down' : 'pi pi-chevron-up'"></i>
         </button>
       </div>
@@ -43,19 +42,19 @@
         <div class="banner-details">
           <div class="detail-item">
             <i class="pi pi-check-circle"></i>
-            <span>Your files will be automatically renamed, organized, and can be moved between libraries based on your preferences. Check the preview below to see how your files will look.</span>
+            <span>{{ 'fileMover.details.organize' | transloco }}</span>
           </div>
           <div class="detail-item">
             <i class="pi pi-cog"></i>
-            <span>Want to change how files are named? Go to <strong>Settings → File Naming Pattern</strong>. Each library can have its own naming pattern!</span>
+            <span>{{ 'fileMover.details.namingSettings' | transloco }}</span>
           </div>
           <div class="detail-item warning">
             <i class="pi pi-exclamation-triangle"></i>
-            <span>This will actually move and rename files on your computer across different library folders. Make sure you're happy with the preview first!</span>
+            <span>{{ 'fileMover.details.moveWarning' | transloco }}</span>
           </div>
           <div class="detail-item danger">
             <i class="pi pi-shield"></i>
-            <span>This feature relies entirely on your books' metadata. If your metadata is missing or inconsistent, the resulting file names will be incorrect. Only recommended for well-curated libraries.</span>
+            <span>{{ 'fileMover.details.metadataWarning' | transloco }}</span>
           </div>
         </div>
       }
@@ -66,7 +65,7 @@
       <button type="button" class="patterns-toggle" (click)="patternsCollapsed.update(collapsed => !collapsed)">
         <div class="toggle-content">
           <i class="pi pi-code"></i>
-          <span>Naming Rules</span>
+          <span>{{ 'fileMover.namingRules' | transloco }}</span>
           <span class="patterns-count">{{ libraryPatterns().length }}</span>
         </div>
         <i [class]="patternsCollapsed() ? 'pi pi-chevron-down' : 'pi pi-chevron-up'"></i>
@@ -78,9 +77,9 @@
             <div class="pattern-card">
               <div class="pattern-header">
                 <span class="pattern-library">{{ pattern.libraryName }}</span>
-                <span class="pattern-badge">{{ pattern.bookCount }} book{{ pattern.bookCount > 1 ? 's' : '' }}</span>
+                <span class="pattern-badge">{{ (pattern.bookCount === 1 ? 'fileMover.patternOneBook' : 'fileMover.patternManyBooks') | transloco: {count: pattern.bookCount} }}</span>
               </div>
-              <code class="pattern-code">{{ pattern.pattern || 'No pattern configured' }}</code>
+              <code class="pattern-code">{{ pattern.pattern || ('fileMover.noPattern' | transloco) }}</code>
               <span class="pattern-source">{{ pattern.source }}</span>
             </div>
           }
@@ -92,17 +91,17 @@
     <section class="bulk-section">
       <div class="bulk-header">
         <i class="pi pi-list"></i>
-        <span>Bulk Assignment</span>
+        <span>{{ 'fileMover.bulkAssignment' | transloco }}</span>
       </div>
       <div class="bulk-controls">
-        <span class="bulk-label">Set all files to:</span>
+        <span class="bulk-label">{{ 'fileMover.setAllFilesTo' | transloco }}</span>
         <p-select
           [options]="libraries()"
           [(ngModel)]="defaultTargetLibraryId"
           [disabled]="destinationsLocked()"
           optionLabel="name"
           optionValue="id"
-          placeholder="Select library"
+          [placeholder]="'fileMover.selectLibrary' | transloco"
           class="select-library"
           size="small"
           appendTo="body" />
@@ -113,7 +112,7 @@
             [disabled]="destinationsLocked()"
             optionLabel="path"
             optionValue="id"
-            placeholder="Select path"
+            [placeholder]="'fileMover.selectPath' | transloco"
             class="select-path"
             size="small"
             appendTo="body" />
@@ -125,7 +124,7 @@
     <section class="table-section">
       <div class="table-header">
         <i class="pi pi-table"></i>
-        <span>File Preview</span>
+        <span>{{ 'fileMover.filePreview' | transloco }}</span>
       </div>
       <div class="table-container">
         <p-table
@@ -140,12 +139,12 @@
           <ng-template pTemplate="header">
             <tr>
               <th style="width: 50px;"></th>
-              <th style="width: 60px;">ID</th>
-              <th>Current Path</th>
-              <th style="width: 160px;">Target Library</th>
-              <th style="width: 160px;">Library Path</th>
+              <th style="width: 60px;">{{ 'fileMover.columns.id' | transloco }}</th>
+              <th>{{ 'fileMover.columns.currentPath' | transloco }}</th>
+              <th style="width: 160px;">{{ 'fileMover.columns.targetLibrary' | transloco }}</th>
+              <th style="width: 160px;">{{ 'fileMover.columns.libraryPath' | transloco }}</th>
               <th style="width: 40px;"></th>
-              <th>New Path</th>
+              <th>{{ 'fileMover.columns.newPath' | transloco }}</th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-preview>
@@ -171,7 +170,7 @@
                   (ngModelChange)="onLibraryChange(preview.bookId, $event)"
                   optionLabel="name"
                   optionValue="id"
-                  placeholder="Select"
+                  [placeholder]="'fileMover.select' | transloco"
                   [disabled]="destinationsLocked()"
                   class="select-full-width"
                   appendTo="body"
@@ -185,13 +184,13 @@
                     (ngModelChange)="onLibraryPathChange(preview, $event)"
                     optionLabel="path"
                     optionValue="id"
-                    placeholder="Select"
+                    [placeholder]="'fileMover.select' | transloco"
                     [disabled]="destinationsLocked()"
                     class="select-full-width"
                     appendTo="body"
                     size="small" />
                 } @else {
-                  <span class="no-paths">No paths</span>
+                  <span class="no-paths">{{ 'fileMover.noPaths' | transloco }}</span>
                 }
               </td>
               <td class="arrow-cell">
@@ -210,7 +209,7 @@
       @if (pageCount > 1) {
         <div class="preview-pager">
           <p-button
-            label="Previous"
+            [label]="'fileMover.previous' | transloco"
             icon="pi pi-chevron-left"
             severity="secondary"
             [outlined]="true"
@@ -218,7 +217,7 @@
             (click)="pageIndex.set(pageIndex() - 1)" />
           <span class="preview-pager-label">Page {{ pageIndex() + 1 }} of {{ pageCount }}</span>
           <p-button
-            label="Next"
+            [label]="'fileMover.next' | transloco"
             icon="pi pi-chevron-right"
             iconPos="right"
             severity="secondary"
@@ -234,26 +233,26 @@
     @if (moveFilesMutation.isSuccess()) {
       <div class="success-indicator">
         <i class="pi pi-check-circle"></i>
-        <span>{{ bookIds.length }} file{{ bookIds.length > 1 ? 's' : '' }} successfully moved</span>
+        <span>{{ (bookIds.length === 1 ? 'fileMover.movedOneFile' : 'fileMover.movedManyFiles') | transloco: {count: bookIds.length} }}</span>
       </div>
     }
     <div class="footer-actions">
       @if (!moveFilesMutation.isSuccess()) {
         <p-button
-          label="Cancel"
+          [label]="'common.cancel' | transloco"
           icon="pi pi-times"
           severity="secondary"
           [outlined]="true"
           (click)="cancel()" />
         <p-button
-          [label]="moveFilesMutation.isPending() ? 'Moving...' : 'Move Files'"
+          [label]="(moveFilesMutation.isPending() ? 'fileMover.moving' : 'fileMover.moveFiles') | transloco"
           [icon]="moveFilesMutation.isPending() ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
           severity="success"
           (click)="saveChanges()"
           [disabled]="moveFilesMutation.isPending() || !booksQuery.isSuccess() || bookIds.length === 0" />
       } @else {
         <p-button
-          label="Close"
+          [label]="'common.close' | transloco"
           icon="pi pi-check"
           severity="primary"
           (click)="cancel()" />

@@ -237,7 +237,7 @@
                     (onChange)="onFormatCheckboxChange(format.type, $event.checked)"
                   />
                   <label [for]="'format-' + format.type" class="format-checkbox-label">
-                    {{ format.label }}
+                    {{ formatLabel(format) }}
                   </label>
                   @if (getFormatWarning(format.type); as warning) {
                     <i

@@ -193,6 +193,12 @@
                   <span class="rating-value">{{ getRatingPercent(provider.rating) }}%</span>
                 </span>
               }
+              @if (getBabelioUrl(book?.metadata?.babelioUrl); as babelioUrl) {
+                <a class="rating-badge babelio-link" [href]="babelioUrl" target="_blank" rel="noopener noreferrer">
+                  <span class="rating-provider">{{ t('openBabelio') }}</span>
+                  <i class="pi pi-external-link"></i>
+                </a>
+              }
             </div>
           </div>
 
@@ -559,9 +565,9 @@
               <div class="action-group secondary-actions">
                 @if ((currentUser.permissions.canDownload || currentUser.permissions.admin) && hasAnyFiles(book)) {
                   @if ((book!.alternativeFormats && book!.alternativeFormats.length > 0) || (book!.supplementaryFiles && book!.supplementaryFiles.length > 0)) {
-                    <p-splitbutton [label]="(getDisplayFormat(book.primaryFile) ?? 'File') + ' · ' + formatFileSize(book.primaryFile)" icon="pi pi-download" [model]="downloadMenuItems()" (onClick)="download(book)" severity="success" outlined class="mobile-icon-only"/>
+                    <p-splitbutton [label]="(getDisplayFormat(book.primaryFile) ?? t('fileName')) + ' · ' + formatFileSize(book.primaryFile)" icon="pi pi-download" [model]="downloadMenuItems()" (onClick)="download(book)" severity="success" outlined class="mobile-icon-only"/>
                   } @else {
-                    <p-button [label]="(getDisplayFormat(book.primaryFile) ?? 'File') + ' · ' + formatFileSize(book.primaryFile)" icon="pi pi-download" severity="success" outlined (onClick)="download(book)" class="mobile-icon-only" />
+                    <p-button [label]="(getDisplayFormat(book.primaryFile) ?? t('fileName')) + ' · ' + formatFileSize(book.primaryFile)" icon="pi pi-download" severity="success" outlined (onClick)="download(book)" class="mobile-icon-only" />
                   }
                 }
                 @if (currentUser.permissions.canEditMetadata || currentUser.permissions.admin) {

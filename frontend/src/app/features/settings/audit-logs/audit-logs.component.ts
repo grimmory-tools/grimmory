@@ -1,15 +1,14 @@
-import {ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router} from '@angular/router';
 import {TableLazyLoadEvent, TableModule} from '@openng/optimus-ui/table';
 import {Select} from '@openng/optimus-ui/select';
 import {DatePicker} from '@openng/optimus-ui/datepicker';
 import {FormsModule} from '@angular/forms';
-import {TranslocoDirective} from '@jsverse/transloco';
+import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
 import {Subscription, interval} from 'rxjs';
 import {AuditLog, AuditLogService} from './audit-log.service';
 import {TagColor, TagComponent} from '../../../shared/components/tag/tag.component';
-import {DatePipe} from '@angular/common';
 
 const ACTION_COLOR_GROUPS: [TagColor, string[]][] = [
   ['red', ['USER_DELETED', 'LIBRARY_DELETED', 'BOOK_DELETED', 'SHELF_DELETED', 'MAGIC_SHELF_DELETED', 'EMAIL_PROVIDER_DELETED', 'OPDS_USER_DELETED', 'AUTHOR_DELETED']],
@@ -31,6 +30,7 @@ const ACTION_COLOR_MAP = new Map<string, TagColor>(
 interface ActionOption {
   label: string;
   value: string;
+  translationKey: string;
 }
 
 interface UsernameOption {
@@ -43,7 +43,7 @@ interface UsernameOption {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe,TableModule, Select, DatePicker, FormsModule, TranslocoDirective, TagComponent],
+    TableModule, Select, DatePicker, FormsModule, TranslocoDirective, TagComponent],
   templateUrl: './audit-logs.component.html',
   styleUrl: './audit-logs.component.scss'
 })
@@ -52,9 +52,12 @@ export class AuditLogsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly t = inject(TranslocoService);
+  private readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
 
   readonly logs = signal<AuditLog[]>([]);
   readonly totalRecords = signal(0);
+  private readonly usernames = signal<string[]>([]);
   rows = 25;
   readonly loading = signal(false);
   selectedAction: string | null = null;
@@ -64,48 +67,32 @@ export class AuditLogsComponent implements OnInit {
   autoRefresh = false;
   private autoRefreshSub?: Subscription;
 
-  readonly usernameOptions = signal<UsernameOption[]>([{label: 'All Users', value: ''}]);
+  readonly usernameOptions = computed<UsernameOption[]>(() => {
+    this.activeLang();
+    return [
+      {label: this.t.translate('settingsAuditLogs.allUsers'), value: ''},
+      ...this.usernames().map(username => ({label: username, value: username}))
+    ];
+  });
 
-  actionOptions: ActionOption[] = [
-    {label: 'All Actions', value: ''},
-    {label: 'Login Success', value: 'LOGIN_SUCCESS'},
-    {label: 'Login Failed', value: 'LOGIN_FAILED'},
-    {label: 'User Created', value: 'USER_CREATED'},
-    {label: 'User Updated', value: 'USER_UPDATED'},
-    {label: 'User Deleted', value: 'USER_DELETED'},
-    {label: 'Password Changed', value: 'PASSWORD_CHANGED'},
-    {label: 'Library Created', value: 'LIBRARY_CREATED'},
-    {label: 'Library Updated', value: 'LIBRARY_UPDATED'},
-    {label: 'Library Deleted', value: 'LIBRARY_DELETED'},
-    {label: 'Library Scanned', value: 'LIBRARY_SCANNED'},
-    {label: 'Book Uploaded', value: 'BOOK_UPLOADED'},
-    {label: 'Book Deleted', value: 'BOOK_DELETED'},
-    {label: 'Permissions Changed', value: 'PERMISSIONS_CHANGED'},
-    {label: 'Metadata Updated', value: 'METADATA_UPDATED'},
-    {label: 'Settings Updated', value: 'SETTINGS_UPDATED'},
-    {label: 'OIDC Config Changed', value: 'OIDC_CONFIG_CHANGED'},
-    {label: 'Task Executed', value: 'TASK_EXECUTED'},
-    {label: 'Book Sent', value: 'BOOK_SENT'},
-    {label: 'Shelf Created', value: 'SHELF_CREATED'},
-    {label: 'Shelf Updated', value: 'SHELF_UPDATED'},
-    {label: 'Shelf Deleted', value: 'SHELF_DELETED'},
-    {label: 'Magic Shelf Created', value: 'MAGIC_SHELF_CREATED'},
-    {label: 'Magic Shelf Updated', value: 'MAGIC_SHELF_UPDATED'},
-    {label: 'Magic Shelf Deleted', value: 'MAGIC_SHELF_DELETED'},
-    {label: 'Email Provider Created', value: 'EMAIL_PROVIDER_CREATED'},
-    {label: 'Email Provider Updated', value: 'EMAIL_PROVIDER_UPDATED'},
-    {label: 'Email Provider Deleted', value: 'EMAIL_PROVIDER_DELETED'},
-    {label: 'OPDS User Created', value: 'OPDS_USER_CREATED'},
-    {label: 'OPDS User Deleted', value: 'OPDS_USER_DELETED'},
-    {label: 'OPDS User Updated', value: 'OPDS_USER_UPDATED'},
-    {label: 'Naming Pattern Changed', value: 'NAMING_PATTERN_CHANGED'},
-    {label: 'Login Rate Limited', value: 'LOGIN_RATE_LIMITED'},
-    {label: 'Refresh Rate Limited', value: 'REFRESH_RATE_LIMITED'},
-    {label: 'Duplicate Books Merged', value: 'DUPLICATE_BOOKS_MERGED'},
-    {label: 'Book File Detached', value: 'BOOK_FILE_DETACHED'},
-    {label: 'Author Metadata Updated', value: 'AUTHOR_METADATA_UPDATED'},
-    {label: 'Author Deleted', value: 'AUTHOR_DELETED'},
-  ];
+  readonly actionOptions = computed<ActionOption[]>(() => {
+    this.activeLang();
+    return [
+      {translationKey: 'settingsAuditLogs.allActions', value: ''},
+      ...[
+        'LOGIN_SUCCESS', 'LOGIN_FAILED', 'USER_CREATED', 'USER_UPDATED', 'USER_DELETED',
+        'PASSWORD_CHANGED', 'LIBRARY_CREATED', 'LIBRARY_UPDATED', 'LIBRARY_DELETED',
+        'LIBRARY_SCANNED', 'BOOK_UPLOADED', 'BOOK_DELETED', 'PERMISSIONS_CHANGED',
+        'METADATA_UPDATED', 'SETTINGS_UPDATED', 'OIDC_CONFIG_CHANGED', 'TASK_EXECUTED',
+        'BOOK_SENT', 'SHELF_CREATED', 'SHELF_UPDATED', 'SHELF_DELETED',
+        'MAGIC_SHELF_CREATED', 'MAGIC_SHELF_UPDATED', 'MAGIC_SHELF_DELETED',
+        'EMAIL_PROVIDER_CREATED', 'EMAIL_PROVIDER_UPDATED', 'EMAIL_PROVIDER_DELETED',
+        'OPDS_USER_CREATED', 'OPDS_USER_DELETED', 'OPDS_USER_UPDATED',
+        'NAMING_PATTERN_CHANGED', 'LOGIN_RATE_LIMITED', 'REFRESH_RATE_LIMITED',
+        'DUPLICATE_BOOKS_MERGED', 'BOOK_FILE_DETACHED', 'AUTHOR_METADATA_UPDATED', 'AUTHOR_DELETED',
+      ].map(value => ({translationKey: `settingsAuditLogs.actions.${value}`, value}))
+    ].map(option => ({...option, label: this.t.translate(option.translationKey)}));
+  });
 
   currentPage = 0;
 
@@ -118,10 +105,7 @@ export class AuditLogsComponent implements OnInit {
   loadUsernames(): void {
     this.auditLogService.getDistinctUsernames().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (usernames) => {
-        this.usernameOptions.set([
-          {label: 'All Users', value: ''},
-          ...usernames.map(u => ({label: u, value: u}))
-        ]);
+        this.usernames.set(usernames);
       }
     });
   }
@@ -212,20 +196,28 @@ export class AuditLogsComponent implements OnInit {
     const now = new Date();
     const date = new Date(dateStr);
     const diffMs = now.getTime() - date.getTime();
-    const diffSec = Math.floor(diffMs / 1000);
-    const diffMin = Math.floor(diffSec / 60);
+    const diffMin = Math.floor(diffMs / 60000);
     const diffHour = Math.floor(diffMin / 60);
     const diffDay = Math.floor(diffHour / 24);
+    const formatter = new Intl.RelativeTimeFormat(this.activeLang(), {numeric: 'auto', style: 'short'});
 
-    if (diffSec < 60) return 'Just now';
-    if (diffMin < 60) return `${diffMin}m ago`;
-    if (diffHour < 24) return `${diffHour}h ago`;
-    if (diffDay < 30) return `${diffDay}d ago`;
-    return new Intl.DateTimeFormat(undefined, {dateStyle: 'medium'}).format(date);
+    if (diffMs < 60000) return this.t.translate('settingsAuditLogs.justNow');
+    if (diffMin < 60) return formatter.format(-diffMin, 'minute');
+    if (diffHour < 24) return formatter.format(-diffHour, 'hour');
+    if (diffDay < 30) return formatter.format(-diffDay, 'day');
+    return new Intl.DateTimeFormat(this.activeLang(), {dateStyle: 'medium'}).format(date);
+  }
+
+  formatAbsoluteTime(dateStr: string): string {
+    return new Intl.DateTimeFormat(this.activeLang(), {dateStyle: 'medium', timeStyle: 'medium'}).format(new Date(dateStr));
   }
 
   formatAction(action: string): string {
-    return action.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()).replace(/\B\w+/g, c => c.toLowerCase());
+    const translationKey = `settingsAuditLogs.actions.${action}`;
+    const translated = this.t.translate(translationKey);
+    return translated === translationKey
+      ? action.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()).replace(/\B\w+/g, c => c.toLowerCase())
+      : translated;
   }
 
   getActionColor(action: string): TagColor {

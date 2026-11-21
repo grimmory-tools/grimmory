@@ -409,6 +409,7 @@ public class BookMetadataService {
         flags.setOpenlibraryId(true);
         flags.setAsin(true);
         flags.setGoodreadsId(true);
+        flags.setBabelioUrl(true);
         flags.setComicvineId(true);
         flags.setHardcoverId(true);
         flags.setHardcoverBookId(true);

@@ -73,6 +73,7 @@ public class AuthorPageFetcher implements PageFetcher<AuthorEntity, AuthorSummar
                         .id(author.getId())
                         .name(author.getName())
                         .asin(author.getAsin())
+                        .isni(author.getIsni())
                         .bookCount(counts.getOrDefault(author.getId(), 0L).intValue())
                         .hasPhoto(withPhoto.contains(author.getId()))
                         .build())

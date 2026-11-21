@@ -525,7 +525,11 @@
               inputId="groupSyncMode"
               [ngModel]="groupSyncMode()"
               (ngModelChange)="groupSyncMode.set($event)"
-              [options]="groupSyncModeOptions"
+              [options]="[
+                {label: t('groupMapping.syncModeDisabled'), value: 'DISABLED'},
+                {label: t('groupMapping.syncModeReplace'), value: 'ON_LOGIN'},
+                {label: t('groupMapping.syncModeAdditive'), value: 'ON_LOGIN_ADDITIVE'}
+              ]"
               optionLabel="label"
               optionValue="value"
               appendTo="body" />
@@ -559,7 +563,7 @@
                 <td>{{ mapping.oidcGroupClaim }}</td>
                 <td>
                   @if (mapping.isAdmin) {
-                    <app-tag [rounded]="true" color="warning" size="2xs">Admin</app-tag>
+                    <app-tag [rounded]="true" color="warning" size="2xs">{{ t('groupMapping.colAdmin') }}</app-tag>
                   }
                 </td>
                 <td>

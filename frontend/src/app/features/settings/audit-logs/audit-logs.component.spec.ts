@@ -80,6 +80,7 @@ describe('AuditLogsComponent', () => {
     expect(getDistinctUsernames).toHaveBeenCalled();
     expect(fixture.nativeElement.querySelector('.username-option').textContent.trim()).toBe('alice');
   });
+
 });
 
 function createResponse(description: string): PageableResponse<AuditLog> {

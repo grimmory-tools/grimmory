@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.booklore.config.AppProperties;
+import org.booklore.exception.ApiError;
 import org.booklore.model.MetadataClearFlags;
 import org.booklore.model.MetadataUpdateContext;
 import org.booklore.model.MetadataUpdateWrapper;
@@ -198,6 +199,7 @@ public class BookMetadataUpdater {
         handleFieldUpdate(e.getOpenlibraryIdLocked(), clear.isOpenlibraryId(), m.getOpenlibraryId(), v -> e.setOpenlibraryId(nullIfBlank(v)), e::getOpenlibraryId, replaceMode);
         handleFieldUpdate(e.getAsinLocked(), clear.isAsin(), m.getAsin(), v -> e.setAsin(nullIfBlank(v)), e::getAsin, replaceMode);
         handleFieldUpdate(e.getGoodreadsIdLocked(), clear.isGoodreadsId(), m.getGoodreadsId(), v -> e.setGoodreadsId(nullIfBlank(v)), e::getGoodreadsId, replaceMode);
+        handleFieldUpdate(e.getBabelioUrlLocked(), clear.isBabelioUrl(), m.getBabelioUrl(), v -> e.setBabelioUrl(normalizeBabelioUrl(v)), e::getBabelioUrl, replaceMode);
         handleFieldUpdate(e.getComicvineIdLocked(), clear.isComicvineId(), m.getComicvineId(), v -> e.setComicvineId(nullIfBlank(v)), e::getComicvineId, replaceMode);
         handleFieldUpdate(e.getHardcoverIdLocked(), clear.isHardcoverId(), m.getHardcoverId(), v -> e.setHardcoverId(nullIfBlank(v)), e::getHardcoverId, replaceMode);
         handleFieldUpdate(e.getHardcoverBookIdLocked(), clear.isHardcoverBookId(), m.getHardcoverBookId(), e::setHardcoverBookId, e::getHardcoverBookId, replaceMode);
@@ -749,6 +751,7 @@ public class BookMetadataUpdater {
                 Pair.of(m.getDoubanIdLocked(), e::setDoubanIdLocked),
                 Pair.of(m.getDoubanRatingLocked(), e::setDoubanRatingLocked),
                 Pair.of(m.getDoubanReviewCountLocked(), e::setDoubanReviewCountLocked),
+                Pair.of(m.getBabelioUrlLocked(), e::setBabelioUrlLocked),
                 Pair.of(m.getCoverLocked(), e::setCoverLocked),
                 Pair.of(m.getAudiobookCoverLocked(), e::setAudiobookCoverLocked),
                 Pair.of(m.getAuthorsLocked(), e::setAuthorsLocked),
@@ -768,6 +771,32 @@ public class BookMetadataUpdater {
 
     private String nullIfBlank(String value) {
         return StringUtils.hasText(value) ? value : null;
+    }
+
+    private String normalizeBabelioUrl(String value) {
+        if (!StringUtils.hasText(value)) {
+            return null;
+        }
+
+        String normalized = value.trim();
+        URI uri;
+        try {
+            uri = URI.create(normalized);
+        } catch (IllegalArgumentException e) {
+            throw ApiError.INVALID_INPUT.createException("Babelio URL is invalid");
+        }
+        String host = uri.getHost();
+        if (!"https".equalsIgnoreCase(uri.getScheme())
+                || host == null
+                || !(host.equalsIgnoreCase("babelio.com") || host.toLowerCase(Locale.ROOT).endsWith(".babelio.com"))
+                || uri.getUserInfo() != null
+                || uri.getPort() != -1
+                || uri.getPath() == null
+                || !uri.getPath().startsWith("/livres/")
+                || uri.getPath().length() <= "/livres/".length()) {
+            throw ApiError.INVALID_INPUT.createException("Babelio URL must point to a book page on babelio.com");
+        }
+        return uri.toASCIIString();
     }
 
     void updateFileNameIfConverted(BookFileEntity bookFile, Path originalPath) {

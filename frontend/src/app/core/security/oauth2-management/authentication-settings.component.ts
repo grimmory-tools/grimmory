@@ -110,11 +110,6 @@ export class AuthenticationSettingsComponent {
 
   // Group mapping
   readonly groupSyncMode = signal('DISABLED');
-  groupSyncModeOptions = [
-    {label: 'Disabled', value: 'DISABLED'},
-    {label: 'On Login (Replace)', value: 'ON_LOGIN'},
-    {label: 'On Login (Additive)', value: 'ON_LOGIN_ADDITIVE'}
-  ];
   readonly groupMappings = signal<OidcGroupMapping[]>([]);
   readonly groupMappingDraft = signal<OidcGroupMapping | null>(null);
 

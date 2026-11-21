@@ -27,6 +27,16 @@
             class="search-input"/>
         </div>
 
+        @if (canBulkEditMetadata) {
+          <p-button
+            [label]="t('duplicates.button')"
+            icon="pi pi-users"
+            [outlined]="true"
+            [loading]="findingDuplicates()"
+            [disabled]="findingDuplicates()"
+            (onClick)="openDuplicateAuthors()" />
+        }
+
         @if (canDeleteBook) {
           <p-button
             [label]="t('cleanup.button')"
@@ -225,13 +235,23 @@
     }
 
     @if (currentUser(); as user) {
-      <div class="author-browser-footer" [class.footer-hidden]="selectedCount() === 0">
+      <div class="author-browser-footer" [class.footer-hidden]="selectedCount() === 0 && !autoMatchInProgress()">
         <div class="footer-content">
-          <div class="selected-count-badge">
-            <i class="pi pi-check-circle"></i>
-            <span class="selected-count">{{ selectedCount() }}</span>
-            <span class="selected-label">{{ t('footer.selected') }}</span>
-          </div>
+          @if (autoMatchInProgress()) {
+            <div class="auto-match-progress" role="status" aria-live="polite">
+              <span>{{ t('footer.autoMatchProgress', {completed: autoMatchProgress().processed, total: autoMatchProgress().total}) }}</span>
+              <progress
+                [value]="autoMatchProgress().processed"
+                [max]="autoMatchProgress().total"
+                [attr.aria-label]="t('footer.autoMatchProgress', {completed: autoMatchProgress().processed, total: autoMatchProgress().total})"></progress>
+            </div>
+          } @else {
+            <div class="selected-count-badge">
+              <i class="pi pi-check-circle"></i>
+              <span class="selected-count">{{ selectedCount() }}</span>
+              <span class="selected-label">{{ t('footer.selected') }}</span>
+            </div>
+          }
           @if (canEditMetadata || canBulkEditMetadata || canDeleteBook) {
             <p-divider layout="vertical" />
             <div class="action-buttons-group">
@@ -296,6 +316,34 @@
     (candidateSelected)="selectPendingMatch($event)"
     (dismissed)="skipPendingMatch()" />
   <p-dialog
+    [header]="t('duplicates.title')"
+    [visible]="duplicateDialogVisible()"
+    (onHide)="duplicateDialogVisible.set(false)"
+    [modal]="true"
+    [style]="{width: 'min(48rem, 95vw)'}">
+    <p>{{ t('duplicates.description') }}</p>
+    @if (duplicateGroups().length === 0) {
+      <p>{{ t('duplicates.empty') }}</p>
+    } @else {
+      <p>{{ t('duplicates.count', {count: duplicateGroups().length}) }}</p>
+      <div class="duplicate-groups">
+        @for (group of duplicateGroups().slice(0, duplicateLimit()); track group[0].id) {
+          <div class="duplicate-group">
+            <ul>
+              @for (author of group; track author.id) {
+                <li>{{ author.name }} — #{{ author.id }} ({{ author.bookCount }} {{ t('card.books') }})</li>
+              }
+            </ul>
+            <p-button [label]="t('duplicates.review')" [outlined]="true" (onClick)="reviewDuplicateGroup(group)" />
+          </div>
+        }
+      </div>
+      @if (duplicateLimit() < duplicateGroups().length) {
+        <p-button [label]="t('duplicates.showMore')" [outlined]="true" (onClick)="showMoreDuplicates()" />
+      }
+    }
+  </p-dialog>
+  <p-dialog
     [header]="t('mergeAuthors.title')"
     [visible]="mergeAuthorsDialogVisible()"
     (onHide)="closeMergeAuthorsDialog()"
@@ -309,19 +357,25 @@
       <label for="merge-author-target">{{ t('mergeAuthors.targetLabel') }}</label>
       <p-select
         inputId="merge-author-target"
-        [options]="mergeCandidates()"
+        [options]="includedMergeCandidates()"
         [ngModel]="mergeTargetAuthorId()"
         (ngModelChange)="mergeTargetAuthorId.set($event)"
         [filter]="true"
         filterBy="name"
-        optionLabel="name"
+        optionLabel="label"
         optionValue="id"
         [placeholder]="t('mergeAuthors.targetPlaceholder')"
         class="merge-target-select" />
     </div>
     <ul class="merge-author-list">
       @for (author of mergeCandidates(); track author.id) {
-        <li>{{ author.name }} <span>({{ author.bookCount }} {{ t('card.books') }})</span></li>
+        <li>
+          <label>
+            <input type="checkbox" [ngModel]="includedMergeIds().has(author.id)"
+              (ngModelChange)="toggleMergeCandidate(author.id, $event)" />
+            {{ author.name }} <span>#{{ author.id }} ({{ author.bookCount }} {{ t('card.books') }})</span>
+          </label>
+        </li>
       }
     </ul>
     <ng-template #footer>
@@ -334,7 +388,7 @@
         [label]="t('mergeAuthors.confirm')"
         icon="pi pi-users"
         [loading]="mergingAuthors()"
-        [disabled]="mergingAuthors() || mergeTargetAuthorId() === null"
+        [disabled]="mergingAuthors() || mergeTargetAuthorId() === null || includedMergeIds().size < 2"
         (onClick)="confirmMergeAuthors()" />
     </ng-template>
   </p-dialog>

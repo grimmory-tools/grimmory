@@ -105,6 +105,7 @@ public class AuthorMetadataService {
                     .id(author.getId())
                     .name(author.getName())
                     .asin(author.getAsin())
+                    .isni(author.getIsni())
                     .bookCount((int) bookCount)
                     .hasPhoto(Files.exists(Paths.get(fileService.getAuthorThumbnailFile(author.getId()))))
                     .build());
@@ -114,7 +115,6 @@ public class AuthorMetadataService {
 
     public List<AuthorSearchResult> searchAuthorMetadata(String name, String region) {
         MetadataProviderSettings.Amazon amazonSettings = getAmazonSettings();
-        ensureAmazonProviderEnabled(amazonSettings);
         String resolvedRegion = resolveRegion(region, amazonSettings);
         return searchAuthorCandidates(name, resolvedRegion);
     }
@@ -123,10 +123,9 @@ public class AuthorMetadataService {
         MetadataProviderSettings.Amazon amazonSettings = getAmazonSettings();
         ensureAmazonProviderEnabled(amazonSettings);
         String resolvedRegion = resolveRegion(region, amazonSettings);
-        return authorParserMap.values().stream()
-                .map(provider -> provider.getAuthorByAsin(asin, resolvedRegion))
-                .filter(Objects::nonNull)
-                .toList();
+        AuthorParser provider = authorParserMap.get(AuthorMetadataSource.AUDNEXUS);
+        AuthorSearchResult result = provider == null ? null : provider.getAuthorById(asin, resolvedRegion);
+        return result == null ? List.of() : List.of(result);
     }
 
     @Transactional
@@ -140,9 +139,12 @@ public class AuthorMetadataService {
         }
 
         MetadataProviderSettings.Amazon amazonSettings = getAmazonSettings();
-        ensureAmazonProviderEnabled(amazonSettings);
+        ensureAuthorProviderEnabled(request.getSource(), amazonSettings);
         String region = resolveRegion(request.getRegion(), amazonSettings);
-        AuthorSearchResult result = provider.getAuthorByAsin(request.getAsin(), region);
+        String providerId = request.getProviderId() == null || request.getProviderId().isBlank()
+                ? request.getAsin()
+                : request.getProviderId();
+        AuthorSearchResult result = provider.getAuthorById(providerId, region);
         if (result == null) {
             throw ApiError.GENERIC_BAD_REQUEST.createException("Failed to fetch author metadata");
         }
@@ -155,7 +157,8 @@ public class AuthorMetadataService {
         }
 
         auditService.log(AuditAction.AUTHOR_METADATA_UPDATED, "Author", authorId,
-                "Matched author '" + author.getName() + "' via " + result.getSource() + " (ASIN: " + result.getAsin() + ")");
+                "Matched author '" + author.getName() + "' via " + result.getSource()
+                        + " (ID: " + result.getProviderId() + ")");
 
         return toAuthorDetails(author);
     }
@@ -163,7 +166,6 @@ public class AuthorMetadataService {
     @Transactional
     public AuthorDetails quickMatchAuthor(Long authorId, String region) {
         MetadataProviderSettings.Amazon amazonSettings = getAmazonSettings();
-        ensureAmazonProviderEnabled(amazonSettings);
         return quickMatchAuthor(authorId, resolveRegion(region, amazonSettings), amazonSettings);
     }
 
@@ -174,7 +176,13 @@ public class AuthorMetadataService {
         AuthorEntity author = authorRepository.findById(authorId)
                 .orElseThrow(() -> ApiError.AUTHOR_NOT_FOUND.createException(authorId));
 
-        List<AuthorSearchResult> candidates = searchAuthorCandidates(author.getName(), region);
+        List<AuthorSearchResult> candidates = author.getAsin() == null || author.getAsin().isBlank()
+                || !isAmazonProviderEnabled(amazonSettings)
+                ? List.of()
+                : lookupAuthorByAsin(author.getAsin(), region);
+        if (candidates.isEmpty()) {
+            candidates = searchAuthorCandidates(author.getName(), region);
+        }
         if (candidates.isEmpty()) {
             throw ApiError.GENERIC_BAD_REQUEST.createException("No metadata found for author: " + author.getName());
         }
@@ -192,32 +200,35 @@ public class AuthorMetadataService {
         }
 
         auditService.log(AuditAction.AUTHOR_METADATA_UPDATED, "Author", authorId,
-                "Quick-matched author '" + author.getName() + "' via " + result.getSource() + " (ASIN: " + result.getAsin() + ")");
+                "Quick-matched author '" + author.getName() + "' via " + result.getSource()
+                        + " (ID: " + result.getProviderId() + ")");
 
         return toAuthorDetails(author);
     }
 
     private List<AuthorSearchResult> searchAuthorCandidates(String name, String region) {
-        Map<String, AuthorSearchResult> candidatesByAsin = new LinkedHashMap<>();
-        for (AuthorParser provider : authorParserMap.values()) {
-            List<AuthorSearchResult> candidates = provider.searchAuthors(name, region);
+        MetadataProviderSettings.Amazon amazonSettings = getAmazonSettings();
+        Map<String, AuthorSearchResult> candidatesById = new LinkedHashMap<>();
+        for (Map.Entry<AuthorMetadataSource, AuthorParser> entry : authorParserMap.entrySet()) {
+            if (!isAuthorProviderEnabled(entry.getKey(), amazonSettings)) {
+                continue;
+            }
+            List<AuthorSearchResult> candidates = entry.getValue().searchAuthors(name, region);
             if (candidates == null) {
                 continue;
             }
             for (AuthorSearchResult candidate : candidates) {
-                if (candidate != null && candidate.getAsin() != null && !candidate.getAsin().isBlank()) {
-                    candidatesByAsin.putIfAbsent(candidate.getAsin(), candidate);
+                String providerId = getProviderId(candidate);
+                if (providerId != null) {
+                    candidatesById.putIfAbsent(entry.getKey() + ":" + providerId, candidate);
                 }
             }
         }
-        return new ArrayList<>(candidatesByAsin.values());
+        return new ArrayList<>(candidatesById.values());
     }
 
     public Flux<AuthorSummary> autoMatchAuthors(List<Long> authorIds) {
         MetadataProviderSettings.Amazon amazonSettings = getAmazonSettings();
-        if (!isAmazonProviderEnabled(amazonSettings)) {
-            return Flux.error(ApiError.GENERIC_BAD_REQUEST.createException("Amazon metadata provider is disabled"));
-        }
         String region = resolveRegion(null, amazonSettings);
         return Flux.fromIterable(authorIds)
                 .concatMap(authorId ->
@@ -229,6 +240,7 @@ public class AuthorMetadataService {
                                     .id(details.getId())
                                     .name(details.getName())
                                     .asin(details.getAsin())
+                                    .isni(details.getIsni())
                                     .hasPhoto(Files.exists(Paths.get(fileService.getAuthorThumbnailFile(authorId))))
                                     .build();
                         })
@@ -260,6 +272,34 @@ public class AuthorMetadataService {
         }
     }
 
+    private void ensureAuthorProviderEnabled(
+            AuthorMetadataSource source,
+            MetadataProviderSettings.Amazon amazonSettings) {
+        if (!isAuthorProviderEnabled(source, amazonSettings)) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException(source + " metadata provider is disabled");
+        }
+    }
+
+    private boolean isAuthorProviderEnabled(
+            AuthorMetadataSource source,
+            MetadataProviderSettings.Amazon amazonSettings) {
+        return switch (source) {
+            case AUDNEXUS -> isAmazonProviderEnabled(amazonSettings);
+            case BNF -> true;
+        };
+    }
+
+    private String getProviderId(AuthorSearchResult result) {
+        if (result == null) {
+            return null;
+        }
+        String providerId = result.getProviderId();
+        if (providerId == null || providerId.isBlank()) {
+            providerId = result.getAsin();
+        }
+        return providerId == null || providerId.isBlank() ? null : providerId;
+    }
+
     private String resolveRegion(String requestedRegion, MetadataProviderSettings.Amazon amazonSettings) {
         if (requestedRegion != null && !requestedRegion.isBlank()) {
             return requestedRegion.trim();
@@ -276,6 +316,7 @@ public class AuthorMetadataService {
 
             author.setDescription(null);
             author.setAsin(null);
+            author.setIsni(null);
             authorRepository.save(author);
             fileService.deleteAuthorImages(authorId);
 
@@ -362,6 +403,27 @@ public class AuthorMetadataService {
     }
 
     @Transactional
+    public AuthorDetails deleteAuthorPhoto(Long authorId) {
+        AuthorEntity author = authorRepository.findById(authorId)
+                .orElseThrow(() -> ApiError.AUTHOR_NOT_FOUND.createException(authorId));
+        if (author.isPhotoLocked()) {
+            throw ApiError.METADATA_LOCKED.createException();
+        }
+
+        try {
+            Files.deleteIfExists(Paths.get(fileService.getAuthorPhotoFile(authorId)));
+            Files.deleteIfExists(Paths.get(fileService.getAuthorThumbnailFile(authorId)));
+        } catch (IOException e) {
+            log.error("Failed to delete photo for author {}", authorId, e);
+            throw ApiError.FILE_READ_ERROR.createException("Failed to delete author photo");
+        }
+
+        auditService.log(AuditAction.AUTHOR_METADATA_UPDATED, "Author", authorId,
+                "Deleted photo for author '" + author.getName() + "'");
+        return toAuthorDetails(author);
+    }
+
+    @Transactional
     public AuthorDetails updateAuthor(Long authorId, AuthorUpdateRequest request) {
         AuthorEntity author = authorRepository.findById(authorId)
                 .orElseThrow(() -> ApiError.AUTHOR_NOT_FOUND.createException(authorId));
@@ -375,6 +437,9 @@ public class AuthorMetadataService {
         if (request.getAsin() != null) {
             author.setAsin(request.getAsin().isBlank() ? null : request.getAsin());
         }
+        if (request.getIsni() != null) {
+            author.setIsni(request.getIsni().isBlank() ? null : request.getIsni().trim());
+        }
         if (request.getNameLocked() != null) {
             author.setNameLocked(request.getNameLocked());
         }
@@ -383,6 +448,9 @@ public class AuthorMetadataService {
         }
         if (request.getAsinLocked() != null) {
             author.setAsinLocked(request.getAsinLocked());
+        }
+        if (request.getIsniLocked() != null) {
+            author.setIsniLocked(request.getIsniLocked());
         }
         if (request.getPhotoLocked() != null) {
             author.setPhotoLocked(request.getPhotoLocked());
@@ -462,11 +530,17 @@ public class AuthorMetadataService {
     }
 
     private void applyMetadataResult(AuthorEntity author, AuthorSearchResult result) {
-        if (!author.isDescriptionLocked()) {
+        if (!author.isNameLocked() && result.getName() != null && !result.getName().isBlank()) {
+            author.setName(result.getName());
+        }
+        if (!author.isDescriptionLocked() && result.getDescription() != null) {
             author.setDescription(result.getDescription());
         }
-        if (!author.isAsinLocked()) {
+        if (!author.isAsinLocked() && result.getAsin() != null && !result.getAsin().isBlank()) {
             author.setAsin(result.getAsin());
+        }
+        if (!author.isIsniLocked() && result.getIsni() != null && !result.getIsni().isBlank()) {
+            author.setIsni(result.getIsni());
         }
     }
 
@@ -476,10 +550,13 @@ public class AuthorMetadataService {
                 .name(author.getName())
                 .description(author.getDescription())
                 .asin(author.getAsin())
+                .isni(author.getIsni())
                 .nameLocked(author.isNameLocked())
                 .descriptionLocked(author.isDescriptionLocked())
                 .asinLocked(author.isAsinLocked())
+                .isniLocked(author.isIsniLocked())
                 .photoLocked(author.isPhotoLocked())
+                .hasPhoto(Files.exists(Paths.get(fileService.getAuthorThumbnailFile(author.getId()))))
                 .build();
     }
 }

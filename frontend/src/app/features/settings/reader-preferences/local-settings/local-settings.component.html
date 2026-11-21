@@ -1,13 +1,12 @@
-<ng-container *transloco="let t; prefix: 'settingsNaming'">
+<ng-container *transloco="let t; prefix: 'settingsNaming.localSettings'">
   <div class="local-settings-container">
     <div class="settings-header">
       <h2 class="settings-title">
         <i class="pi pi-home"></i>
-        Local Settings
+        {{ t('title') }}
       </h2>
       <p class="settings-description">
-        Browser level settings that only affect the current device. These settings are stored in the browser's local
-        storage and will not be synced across devices.
+        {{ t('description') }}
       </p>
     </div>
 
@@ -15,18 +14,18 @@
       <div class="section-header">
         <h3 class="section-title">
           <i class="pi pi-database"></i>
-          Cache Storage Settings
+          {{ t('cacheTitle') }}
         </h3>
         <p class="section-description">
-          Configure Cache Storage to improve performance and reduce server requests.
+          {{ t('cacheDescription') }}
         </p>
       </div>
 
       <div class="settings-content">
         <div class="setting-item">
           <div class="setting-info">
-            <span class="setting-label">Enable Cache Storage</span>
-            <span class="setting-description">Store data locally in your browser for faster access</span>
+            <span class="setting-label">{{ t('enableCache') }}</span>
+            <span class="setting-description">{{ t('enableCacheDescription') }}</span>
           </div>
           <div class="setting-control">
             <p-checkbox [(ngModel)]="settings.cacheStorageEnabled" [binary]="true" (onChange)="onSettingChange()" />
@@ -35,23 +34,23 @@
 
         <div class="setting-item">
           <div class="setting-info">
-            <span class="setting-label">Cache Storage Usage (MB)</span>
-            <span class="setting-description">Current size occupied by Cache Storage</span>
+            <span class="setting-label">{{ t('usageTitle') }}</span>
+            <span class="setting-description">{{ t('usageDescription') }}</span>
           </div>
           <div class="setting-control action-buttons">
             <span class="setting-value">{{ cacheStorageUsageMb() | number: '1.2-2' }} MB</span>
-            <p-button type="button" label="Refresh" icon="pi pi-refresh" severity="secondary" [outlined]="true"
+            <p-button type="button" [label]="t('refresh')" icon="pi pi-refresh" severity="secondary" [outlined]="true"
               [disabled]="isLoadingCacheStorageUsage()" [loading]="isLoadingCacheStorageUsage()" (onClick)="loadCacheStorageUsage()" />
           </div>
         </div>
 
         <div class="setting-item action-item">
           <div class="setting-info">
-            <span class="setting-label">Clear Cache</span>
-            <span class="setting-description">Remove all data stored in Cache Storage</span>
+            <span class="setting-label">{{ t('clearTitle') }}</span>
+            <span class="setting-description">{{ t('clearDescription') }}</span>
           </div>
           <div class="setting-control">
-            <p-button type="button" label="Clear Cache" icon="pi pi-trash" severity="danger" [outlined]="true"
+            <p-button type="button" [label]="t('clear')" icon="pi pi-trash" severity="danger" [outlined]="true"
               [disabled]="isClearingCacheStorage()" [loading]="isClearingCacheStorage()" (onClick)="clearCacheStorage()" />
           </div>
         </div>

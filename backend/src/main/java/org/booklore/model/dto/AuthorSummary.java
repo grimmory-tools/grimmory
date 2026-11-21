@@ -15,6 +15,7 @@ public class AuthorSummary {
     private Long id;
     private String name;
     private String asin;
+    private String isni;
     private int bookCount;
     private boolean hasPhoto;
 }

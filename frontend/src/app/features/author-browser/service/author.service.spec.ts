@@ -103,6 +103,11 @@ describe('AuthorService', () => {
     );
   });
 
+  it('deletes an author photo through its dedicated endpoint', () => {
+    service.deleteAuthorPhoto(9);
+    expect(httpClient.delete).toHaveBeenCalledWith(`${API_CONFIG.BASE_URL}/api/v1/authors/9/photo`);
+  });
+
   it('updates automatically when author metadata search has one unique result', () => {
     const candidate = {source: 'AUDNEXUS', asin: 'B00ADA', name: 'Ada Lovelace'};
     const updatedAuthor = {id: 9, name: 'Ada Lovelace', asin: 'B00ADA'};
@@ -118,9 +123,73 @@ describe('AuthorService', () => {
     );
     expect(httpClient.post).toHaveBeenCalledWith(
       `${API_CONFIG.BASE_URL}/api/v1/authors/9/match`,
-      {source: 'AUDNEXUS', asin: 'B00ADA', region: undefined},
+      {source: 'AUDNEXUS', providerId: 'B00ADA', asin: 'B00ADA', region: undefined},
     );
     expect(resolution).toEqual({status: 'matched', author: updatedAuthor, candidate});
+  });
+
+  it('uses the provider ID to automatically match a BnF result without an ASIN', () => {
+    const candidate = {
+      source: 'BNF',
+      providerId: 'http://data.bnf.fr/ark:/12148/cb123#about',
+      isni: '000000012146438X',
+      name: 'Ada Lovelace',
+    };
+    const updatedAuthor = {id: 9, name: 'Ada Lovelace', isni: '000000012146438X'};
+    httpClient.get.mockReturnValueOnce(of([candidate]));
+    httpClient.post.mockReturnValueOnce(of(updatedAuthor));
+
+    let resolution: unknown;
+    service.resolveAuthorMatch(9, 'Ada Lovelace').subscribe(value => resolution = value);
+
+    expect(httpClient.post).toHaveBeenCalledWith(
+      `${API_CONFIG.BASE_URL}/api/v1/authors/9/match`,
+      {
+        source: 'BNF',
+        providerId: 'http://data.bnf.fr/ark:/12148/cb123#about',
+        asin: undefined,
+        region: undefined,
+      },
+    );
+    expect(resolution).toEqual({status: 'matched', author: updatedAuthor, candidate});
+  });
+
+  it('uses an existing ASIN for direct lookup before falling back to name search', () => {
+    const candidate = {source: 'AUDNEXUS', asin: 'B00ADA', name: 'Ada Lovelace'};
+    const updatedAuthor = {id: 9, name: 'Ada Lovelace', asin: 'B00ADA'};
+    httpClient.get.mockReturnValueOnce(of([candidate]));
+    httpClient.post.mockReturnValueOnce(of(updatedAuthor));
+
+    let resolution: unknown;
+    service.resolveAuthorMatch(9, 'Ada Lovelace', undefined, 'B00ADA').subscribe(value => resolution = value);
+
+    expect(httpClient.get).toHaveBeenCalledWith(
+      `${API_CONFIG.BASE_URL}/api/v1/authors/9/search-metadata`,
+      {params: {asin: 'B00ADA'}},
+    );
+    expect(httpClient.get).toHaveBeenCalledTimes(1);
+    expect(resolution).toMatchObject({status: 'matched', candidate});
+  });
+
+  it('falls back to author-name search when an existing ASIN lookup returns no results', () => {
+    const candidate = {source: 'AUDNEXUS', asin: 'B00ADA', name: 'Ada Lovelace'};
+    httpClient.get.mockReturnValueOnce(of([])).mockReturnValueOnce(of([candidate]));
+    httpClient.post.mockReturnValueOnce(of({id: 9, name: 'Ada Lovelace', asin: 'B00ADA'}));
+
+    let resolution: unknown;
+    service.resolveAuthorMatch(9, 'Ada Lovelace', undefined, 'B00MISSING').subscribe(value => resolution = value);
+
+    expect(httpClient.get).toHaveBeenNthCalledWith(
+      1,
+      `${API_CONFIG.BASE_URL}/api/v1/authors/9/search-metadata`,
+      {params: {asin: 'B00MISSING'}},
+    );
+    expect(httpClient.get).toHaveBeenNthCalledWith(
+      2,
+      `${API_CONFIG.BASE_URL}/api/v1/authors/9/search-metadata`,
+      {params: {q: 'Ada Lovelace'}},
+    );
+    expect(resolution).toMatchObject({status: 'matched', candidate});
   });
 
   it('requires manual validation and does not update when multiple unique candidates exist', () => {
@@ -276,11 +345,13 @@ describe('AuthorService', () => {
 
   it('builds tokenized author media urls with and without cache busters', () => {
     expect(service.getAuthorPhotoUrl(5)).toBe(`${API_CONFIG.BASE_URL}/api/v1/media/author/5/photo?token=token-123`);
+    expect(service.getAuthorPhotoUrl(5, 99)).toBe(`${API_CONFIG.BASE_URL}/api/v1/media/author/5/photo?token=token-123&t=99`);
     expect(service.getAuthorThumbnailUrl(5)).toBe(`${API_CONFIG.BASE_URL}/api/v1/media/author/5/thumbnail?token=token-123`);
     expect(service.getAuthorThumbnailUrl(5, 99)).toBe(`${API_CONFIG.BASE_URL}/api/v1/media/author/5/thumbnail?token=token-123&t=99`);
 
     authService.getInternalAccessToken.mockReturnValue(null);
     expect(service.getAuthorPhotoUrl(5)).toBe(`${API_CONFIG.BASE_URL}/api/v1/media/author/5/photo`);
+    expect(service.getAuthorPhotoUrl(5, 99)).toBe(`${API_CONFIG.BASE_URL}/api/v1/media/author/5/photo?t=99`);
     expect(service.getAuthorThumbnailUrl(5, 99)).toBe(`${API_CONFIG.BASE_URL}/api/v1/media/author/5/thumbnail?t=99`);
   });
 });

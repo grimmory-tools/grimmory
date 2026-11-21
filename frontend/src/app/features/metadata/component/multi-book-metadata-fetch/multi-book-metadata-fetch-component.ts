@@ -8,13 +8,14 @@ import {AppSettingsService} from '../../../../shared/service/app-settings.servic
 import {FormsModule} from '@angular/forms';
 import {MetadataFetchOptionsComponent} from '../metadata-options-dialog/metadata-fetch-options/metadata-fetch-options.component';
 import {Button} from '@openng/optimus-ui/button';
+import {TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
   selector: 'app-multi-book-metadata-fetch-component',
   standalone: true,
   templateUrl: './multi-book-metadata-fetch-component.html',
   styleUrl: './multi-book-metadata-fetch-component.scss',
-  imports: [MetadataFetchOptionsComponent, FormsModule, Button],
+  imports: [MetadataFetchOptionsComponent, FormsModule, Button, TranslocoPipe],
 })
 export class MultiBookMetadataFetchComponent implements OnInit, OnChanges {
   private readonly dynamicDialogConfig = inject(DynamicDialogConfig);

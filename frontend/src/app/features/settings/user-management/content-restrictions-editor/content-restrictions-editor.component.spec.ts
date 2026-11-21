@@ -1,13 +1,16 @@
 import {provideZonelessChangeDetection} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {MessageService} from '@openng/optimus-ui/api';
+import {TranslocoService} from '@jsverse/transloco';
 import {Subject} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {getTranslocoModule} from '../../../../core/testing/transloco-testing';
+import {EN_TRANSLATIONS} from '../../../../core/config/transloco-loader';
 import {ContentRestriction, ContentRestrictionMode, ContentRestrictionType} from '../content-restriction.model';
 import {ContentRestrictionService} from '../content-restriction.service';
 import {ContentRestrictionsEditorComponent} from './content-restrictions-editor.component';
+import fr from '../../../../../i18n/fr.json';
 
 describe('ContentRestrictionsEditorComponent', () => {
   let fixture: ComponentFixture<ContentRestrictionsEditorComponent>;
@@ -35,7 +38,11 @@ describe('ContentRestrictionsEditorComponent', () => {
     messageAdd.mockReset();
 
     await TestBed.configureTestingModule({
-      imports: [ContentRestrictionsEditorComponent, getTranslocoModule()],
+      imports: [ContentRestrictionsEditorComponent, getTranslocoModule({
+        langs: {en: EN_TRANSLATIONS, fr},
+        translocoConfig: {availableLangs: ['en', 'fr'], defaultLang: 'en', reRenderOnLangChange: true},
+        preloadLangs: true,
+      })],
       providers: [
         provideZonelessChangeDetection(),
         {
@@ -82,6 +89,30 @@ describe('ContentRestrictionsEditorComponent', () => {
 
     expect(getUserRestrictions).toHaveBeenCalledWith(42);
     expect(fixture.nativeElement.querySelector('.chip-value').textContent.trim()).toBe('Loaded tag');
+  });
+
+  it('localizes rating options and saved ratings without changing their values', async () => {
+    const transloco = TestBed.inject(TranslocoService);
+    transloco.setActiveLang('fr');
+    fixture.componentInstance.newRestriction.restrictionType = ContentRestrictionType.AGE_RATING;
+    expect(fixture.componentInstance.getValueOptions()).toContainEqual({label: 'Tous âges', value: '0'});
+    fixture.componentInstance.newRestriction.restrictionType = ContentRestrictionType.CONTENT_RATING;
+    expect(fixture.componentInstance.getValueOptions()).toContainEqual({label: 'Tout public', value: 'EVERYONE'});
+
+    restrictionResponseFor(42).next([
+      {...createRestriction('0'), id: 1, restrictionType: ContentRestrictionType.AGE_RATING},
+      {...createRestriction('EVERYONE'), id: 2, restrictionType: ContentRestrictionType.CONTENT_RATING},
+    ]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(Array.from(fixture.nativeElement.querySelectorAll('.chip-value'), (el: Element) => el.textContent?.trim()))
+      .toEqual(['Tous âges', 'Tout public']);
+
+    transloco.setActiveLang('en');
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(Array.from(fixture.nativeElement.querySelectorAll('.chip-value'), (el: Element) => el.textContent?.trim()))
+      .toEqual(['All Ages', 'Everyone']);
   });
 
   it('ignores stale restriction responses after the user changes', async () => {

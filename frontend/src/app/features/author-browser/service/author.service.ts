@@ -106,13 +106,21 @@ export class AuthorService {
     return this.http.get<AuthorSearchResult[]>(`${this.baseUrl}/${authorId}/search-metadata`, {params});
   }
 
-  resolveAuthorMatch(authorId: number, authorName: string, region?: string): Observable<AuthorMatchResolution> {
-    return this.searchAuthorMetadata(authorId, authorName, region).pipe(
+  resolveAuthorMatch(authorId: number, authorName: string, region?: string, asin?: string): Observable<AuthorMatchResolution> {
+    const searchByName = () => this.searchAuthorMetadata(authorId, authorName, region);
+    const search$ = asin
+      ? this.searchAuthorMetadata(authorId, authorName, region, asin).pipe(
+        switchMap(results => results.length > 0 ? of(results) : searchByName())
+      )
+      : searchByName();
+
+    return search$.pipe(
       map(results => {
         const uniqueCandidates = new Map<string, AuthorSearchResult>();
         for (const result of results) {
-          if (!uniqueCandidates.has(result.asin)) {
-            uniqueCandidates.set(result.asin, result);
+          const candidateId = result.providerId ?? result.asin ?? result.name;
+          if (!uniqueCandidates.has(candidateId)) {
+            uniqueCandidates.set(candidateId, result);
           }
         }
         return [...uniqueCandidates.values()];
@@ -127,6 +135,7 @@ export class AuthorService {
         const candidate = candidates[0];
         return this.matchAuthor(authorId, {
           source: candidate.source,
+          providerId: candidate.providerId ?? candidate.asin,
           asin: candidate.asin,
           region,
         }).pipe(map(author => ({status: 'matched', author, candidate} as const)));
@@ -169,6 +178,10 @@ export class AuthorService {
     return this.http.put<AuthorDetails>(`${this.baseUrl}/${authorId}`, request).pipe(
       tap(() => invalidateAllBookCaches(this.queryClient))
     );
+  }
+
+  deleteAuthorPhoto(authorId: number): Observable<AuthorDetails> {
+    return this.http.delete<AuthorDetails>(`${this.baseUrl}/${authorId}/photo`);
   }
 
   unmatchAuthors(authorIds: number[]): Observable<void> {
@@ -221,11 +234,14 @@ export class AuthorService {
     return `${this.baseUrl}/${authorId}/photo/upload`;
   }
 
-  getAuthorPhotoUrl(authorId: number): string {
+  getAuthorPhotoUrl(authorId: number, cacheBuster?: number): string {
     const token = this.authService.getInternalAccessToken();
     let url = `${this.mediaBaseUrl}/author/${authorId}/photo`;
     if (token) {
       url += `?token=${token}`;
+    }
+    if (cacheBuster) {
+      url += (token ? '&' : '?') + 't=' + cacheBuster;
     }
     return url;
   }

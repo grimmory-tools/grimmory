@@ -14,6 +14,7 @@ export interface ShellActionHandlers {
   createLibrary: () => void;
   createShelf: () => void;
   createMagicShelf: () => void;
+  createGenreShelf: () => void;
   uploadBook: () => void;
 }
 
@@ -152,6 +153,12 @@ const CREATE_ACTION_DEFINITIONS: readonly ActionDefinition[] = [
     labelKey: 'layout.menu.createMagicShelf',
     icon: 'sparkles',
     run: (handlers) => handlers.createMagicShelf,
+  },
+  {
+    id: 'createGenreShelf',
+    labelKey: 'layout.menu.createGenreShelf',
+    icon: 'tags',
+    run: (handlers) => handlers.createGenreShelf,
   },
 ] as const;
 

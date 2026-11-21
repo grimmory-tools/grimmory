@@ -232,7 +232,7 @@ describe('AuthorCardComponent', () => {
 
     quickMatchItem?.command?.({originalEvent: new Event('click'), item: quickMatchItem});
 
-    expect(resolveAuthorMatch).toHaveBeenCalledWith(9, 'Ada Lovelace');
+    expect(resolveAuthorMatch).toHaveBeenCalledWith(9, 'Ada Lovelace', undefined, 'B00ADA');
     expect(component.quickMatching).toBe(true);
 
     resolveMatch$.next({
@@ -270,7 +270,7 @@ describe('AuthorCardComponent', () => {
     });
 
     component.onMenuToggle(new Event('click'), {toggle: vi.fn()} as never);
-    expect(markForCheck).toHaveBeenCalledTimes(2);
+    expect(markForCheck).toHaveBeenCalledTimes(3);
   });
 
   it('shows multiple candidates and only updates after the user selects one', () => {
@@ -299,13 +299,40 @@ describe('AuthorCardComponent', () => {
 
     expect(component.showMatchValidation).toBe(true);
     expect(component.matchCandidates).toEqual([candidate]);
+    expect(markForCheck).toHaveBeenCalledTimes(2);
     expect(matchAuthor).not.toHaveBeenCalled();
 
     component.selectMatchCandidate(candidate);
 
-    expect(matchAuthor).toHaveBeenCalledWith(9, {source: 'AUDNEXUS', asin: 'B00MATCH'});
+    expect(matchAuthor).toHaveBeenCalledWith(9, {
+      source: 'AUDNEXUS',
+      providerId: 'B00MATCH',
+      asin: 'B00MATCH',
+    });
     expect(component.showMatchValidation).toBe(false);
     expect(emitSpy).toHaveBeenCalledOnce();
+  });
+
+  it('uses the saved photo state instead of the search candidate image', () => {
+    const candidate: AuthorSearchResult = {
+      source: 'AUDNEXUS',
+      asin: 'B00MATCH',
+      name: 'Ada Lovelace',
+      imageUrl: 'https://example.com/photo.jpg',
+    };
+    const component = createComponent({canQuickMatch: true, author: {hasPhoto: false}});
+    resolveAuthorMatch.mockReturnValue(of({
+      status: 'matched',
+      candidate,
+      author: {id: 9, name: 'Ada Lovelace', hasPhoto: false},
+    }));
+
+    component.onMenuToggle(new Event('click'), {toggle: vi.fn()} as never);
+    const item = component.items.find(menuItem => menuItem.label === 'authorBrowser.card.menu.quickMatch');
+    item?.command?.({originalEvent: new Event('click'), item});
+
+    expect(component.author.hasPhoto).toBe(false);
+    expect(component.hasPhoto).toBe(false);
   });
 
   it('clears quickMatching and reports an error toast when quick match fails', () => {

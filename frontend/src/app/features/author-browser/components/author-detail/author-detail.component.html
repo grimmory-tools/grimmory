@@ -58,6 +58,14 @@
                       <p-tag value="Audible" severity="warn" />
                     </a>
                   }
+                  @if (author.isni) {
+                    <a [href]="'https://isni.org/isni/' + author.isni"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="asin-link">
+                      <p-tag [value]="'ISNI: ' + author.isni" severity="info" />
+                    </a>
+                  }
                   @if (canEditMetadata) {
                     <p-button
                       [icon]="quickMatching ? 'pi pi-spin pi-spinner' : 'pi pi-bolt'"

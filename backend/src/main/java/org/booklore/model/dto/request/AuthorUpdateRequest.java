@@ -7,8 +7,10 @@ public class AuthorUpdateRequest {
     private String name;
     private String description;
     private String asin;
+    private String isni;
     private Boolean nameLocked;
     private Boolean descriptionLocked;
     private Boolean asinLocked;
+    private Boolean isniLocked;
     private Boolean photoLocked;
 }

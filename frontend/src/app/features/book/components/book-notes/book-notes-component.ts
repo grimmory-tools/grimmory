@@ -9,7 +9,7 @@ import {ConfirmDialog} from '@openng/optimus-ui/confirmdialog';
 import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
-import {TranslocoService} from '@jsverse/transloco';
+import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {BookNote, BookNoteService, CreateBookNoteRequest} from '../../../../shared/service/book-note.service';
 
 @Component({
@@ -23,7 +23,8 @@ import {BookNote, BookNoteService, CreateBookNoteRequest} from '../../../../shar
     Textarea,
     ConfirmDialog,
     ProgressSpinner,
-    Tooltip
+    Tooltip,
+    TranslocoPipe
   ],
   templateUrl: './book-notes-component.html',
   styleUrl: './book-notes-component.scss'
@@ -241,7 +242,7 @@ export class BookNotesComponent implements OnInit, OnChanges {
   }
 
   formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString(this.t.getActiveLang(), {
       year: 'numeric',
       month: 'short',
       day: 'numeric',

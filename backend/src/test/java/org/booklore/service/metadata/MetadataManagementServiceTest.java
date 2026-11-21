@@ -170,6 +170,36 @@ class MetadataManagementServiceTest {
     }
 
     @Test
+    void mergeAuthorsByIdKeepsTheChosenRecordWhenNamesAreIdentical() {
+        AuthorEntity target = AuthorEntity.builder().id(1L).name("Jean Dupont").build();
+        AuthorEntity source = AuthorEntity.builder().id(2L).name("Jean Dupont").build();
+        BookMetadataEntity metadata = BookMetadataEntity.builder()
+                .bookId(10L).authors(new ArrayList<>(List.of(source, target))).build();
+        when(authorRepository.findById(1L)).thenReturn(Optional.of(target));
+        when(authorRepository.findById(2L)).thenReturn(Optional.of(source));
+        when(bookMetadataRepository.findAllByAuthorsContaining(source)).thenReturn(List.of(metadata));
+
+        service.mergeAuthorsById(1L, List.of(2L));
+
+        assertThat(metadata.getAuthors()).containsExactly(target);
+        verify(authorRepository).delete(source);
+        verify(authorRepository, never()).delete(target);
+        verify(fileService).deleteAuthorImages(2L);
+    }
+
+    @Test
+    void mergeAuthorsByIdRejectsMissingOrInvalidRecordsBeforeChangingAnything() {
+        AuthorEntity target = AuthorEntity.builder().id(1L).name("Target").build();
+        when(authorRepository.findById(1L)).thenReturn(Optional.of(target));
+        when(authorRepository.findById(2L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.mergeAuthorsById(1L, List.of(2L))).isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(() -> service.mergeAuthorsById(1L, List.of(1L))).isInstanceOf(RuntimeException.class);
+        verify(authorRepository, never()).delete(any());
+        verify(bookMetadataRepository, never()).flush();
+    }
+
+    @Test
     void consolidateCategories_mergesAndDeletesOld() {
         CategoryEntity oldCat = CategoryEntity.builder().id(1L).name("Old Cat").build();
         CategoryEntity targetCat = CategoryEntity.builder().id(2L).name("Target Cat").build();

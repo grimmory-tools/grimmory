@@ -4,8 +4,8 @@
       <i class="pi pi-pencil header-icon"></i>
     </div>
     <div class="header-text">
-      <h2 class="panel-title">Bulk Edit Metadata</h2>
-      <p class="panel-description">{{ bookIds.length }} book{{ bookIds.length !== 1 ? 's' : '' }} selected</p>
+      <h2 class="panel-title">{{ 'bulkMetadata.title' | transloco }}</h2>
+      <p class="panel-description">{{ (bookIds.length === 1 ? 'fileMover.selectedBook' : 'fileMover.selectedBooks') | transloco: {count: bookIds.length} }}</p>
     </div>
     <p-button
       icon="pi pi-times"
@@ -23,14 +23,14 @@
         <div class="task-progress-heading">
           <strong>{{ progressMessage }}</strong>
           @if (activeTaskId) {
-            <span>{{ processedCount }} / {{ bookIds.length }} books</span>
+            <span>{{ 'bulkMetadata.progress.count' | transloco: {processed: processedCount, total: bookIds.length} }}</span>
           }
         </div>
         @if (loading) {
           <progress class="task-progress-bar" max="100" [value]="taskProgress"></progress>
         }
         @if (activeTaskId) {
-          <small>{{ succeededCount }} updated · {{ failedCount }} failed</small>
+          <small>{{ 'bulkMetadata.progress.results' | transloco: {updated: succeededCount, failed: failedCount} }}</small>
         }
       </div>
     }
@@ -39,10 +39,10 @@
       <section class="failed-books" aria-labelledby="failed-books-title">
         <div class="failed-books-heading">
           <div>
-            <h3 id="failed-books-title">Books that could not be updated ({{ failedCount }})</h3>
-            <p>Book IDs and error details are listed below. Export the complete list for large batches.</p>
+            <h3 id="failed-books-title">{{ 'bulkMetadata.failures.title' | transloco: {count: failedCount} }}</h3>
+            <p>{{ 'bulkMetadata.failures.description' | transloco }}</p>
           </div>
-          <p-button label="Export CSV" icon="pi pi-download" size="small" (onClick)="downloadFailedBooks()" />
+          <p-button [label]="'bulkMetadata.failures.exportCsv' | transloco" icon="pi pi-download" size="small" (onClick)="downloadFailedBooks()" />
         </div>
         <ul class="failed-books-list">
           @for (failure of visibleFailedBooks; track failure.bookId) {
@@ -54,14 +54,14 @@
           }
         </ul>
         @if (failedBooks.length > visibleFailedBooks.length) {
-          <small>Showing {{ visibleFailedBooks.length }} of {{ failedBooks.length }} failed books.</small>
+          <small>{{ 'bulkMetadata.failures.showing' | transloco: {visible: visibleFailedBooks.length, total: failedBooks.length} }}</small>
         }
       </section>
     }
 
     <div class="warning-text">
       <i class="pi pi-exclamation-triangle warning-icon"></i>
-      Checking <strong>Clear</strong> will remove that field's metadata from <strong>all selected books</strong>.
+      {{ 'bulkMetadata.clearWarning' | transloco }}
     </div>
 
     <form [formGroup]="metadataForm" (ngSubmit)="onSubmit()" (keydown)="onFormKeydown($event)" class="bulk-form">
@@ -73,13 +73,12 @@
           binary="true"
           [disabled]="loading" />
         <label for="replaceAllMetadata" class="replace-all-label">
-          Replace all metadata for the selected books
+          {{ 'bulkMetadata.replaceAll' | transloco }}
         </label>
       </div>
       @if (replaceAll) {
         <p class="replace-all-warning">
-          Empty and unlisted metadata fields will be erased, including provider IDs, ratings, reviews, and audiobook/comic details.
-          Locked fields and the required book title are preserved. Cover images are not changed.
+          {{ 'bulkMetadata.replaceAllWarning' | transloco }}
         </p>
       }
 
@@ -88,15 +87,15 @@
         <div class="field-group field-group--wide">
           <label for="authors" class="field-label-row">
             <span class="field-label-text">
-              Author(s)
+              {{ 'bulkMetadata.fields.authors' | transloco }}
               <i class="pi pi-info-circle info-icon"
-                pTooltip="Enter multiple authors. Press Enter after typing each name."
+                [pTooltip]="'bulkMetadata.tooltips.authors' | transloco"
                 tooltipPosition="right"
                 style="cursor: pointer"></i>
             </span>
             <div class="clear-checkbox">
               <p-checkbox [(ngModel)]="clearFields.authors" [ngModelOptions]="{standalone: true}" (onChange)="onFieldClearToggle('authors')" binary="true" inputId="clearAuthors"/>
-              <label for="clearAuthors" class="clear-label">Clear</label>
+              <label for="clearAuthors" class="clear-label">{{ 'common.clear' | transloco }}</label>
             </div>
           </label>
           <p-autoComplete
@@ -115,11 +114,11 @@
         <!-- Language -->
         <div class="field-group field-group--narrow">
           <label for="language" class="field-label-row">
-            <span>Language</span>
+            <span>{{ 'bulkMetadata.fields.language' | transloco }}</span>
             <div class="clear-checkbox">
               <p-checkbox [(ngModel)]="clearFields.language" [ngModelOptions]="{standalone: true}"
                           (onChange)="onFieldClearToggle('language')" binary="true" inputId="clearLanguage"/>
-              <label for="clearLanguage" class="clear-label">Clear</label>
+              <label for="clearLanguage" class="clear-label">{{ 'common.clear' | transloco }}</label>
             </div>
           </label>
           <input pInputText id="language" formControlName="language" [disabled]="clearFields.language" class="full-width"/>
@@ -130,11 +129,11 @@
         <!-- Publisher -->
         <div class="field-group field-group--wide">
           <label for="publisher" class="field-label-row">
-            <span>Publisher</span>
+            <span>{{ 'bulkMetadata.fields.publisher' | transloco }}</span>
             <div class="clear-checkbox">
               <p-checkbox [(ngModel)]="clearFields.publisher" [ngModelOptions]="{standalone: true}"
                           (onChange)="onFieldClearToggle('publisher')" binary="true" inputId="clearPublisher"/>
-              <label for="clearPublisher" class="clear-label">Clear</label>
+              <label for="clearPublisher" class="clear-label">{{ 'common.clear' | transloco }}</label>
             </div>
           </label>
           <p-autoComplete
@@ -153,11 +152,11 @@
         <!-- Published Date -->
         <div class="field-group field-group--narrow">
           <label for="publishedDate" class="field-label-row">
-            <span>Published Date</span>
+            <span>{{ 'bulkMetadata.fields.publishedDate' | transloco }}</span>
             <div class="clear-checkbox">
               <p-checkbox [(ngModel)]="clearFields.publishedDate" [ngModelOptions]="{standalone: true}"
                           (onChange)="onFieldClearToggle('publishedDate')" binary="true" inputId="clearPublishedDate"/>
-              <label for="clearPublishedDate" class="clear-label">Clear</label>
+              <label for="clearPublishedDate" class="clear-label">{{ 'common.clear' | transloco }}</label>
             </div>
           </label>
           <p-datepicker
@@ -179,11 +178,11 @@
         <!-- Series Name -->
         <div class="field-group field-group--wide">
           <label for="seriesName" class="field-label-row">
-            <span>Series Name</span>
+            <span>{{ 'bulkMetadata.fields.seriesName' | transloco }}</span>
             <div class="clear-checkbox">
               <p-checkbox [(ngModel)]="clearFields.seriesName" [ngModelOptions]="{standalone: true}"
                           (onChange)="onFieldClearToggle('seriesName')" binary="true" inputId="clearSeriesName"/>
-              <label for="clearSeriesName" class="clear-label">Clear</label>
+              <label for="clearSeriesName" class="clear-label">{{ 'common.clear' | transloco }}</label>
             </div>
           </label>
           <p-autoComplete
@@ -203,16 +202,16 @@
         <div class="field-group field-group--narrow">
           <label for="seriesTotal" class="field-label-row">
             <span class="field-label-text">
-              Total Books
+              {{ 'bulkMetadata.fields.totalBooks' | transloco }}
               <i class="pi pi-info-circle info-icon"
-                pTooltip="Total number of books in the series."
+                [pTooltip]="'bulkMetadata.tooltips.totalBooks' | transloco"
                 tooltipPosition="right"
                 style="cursor: pointer"></i>
             </span>
             <div class="clear-checkbox">
               <p-checkbox [(ngModel)]="clearFields.seriesTotal" [ngModelOptions]="{standalone: true}"
                           (onChange)="onFieldClearToggle('seriesTotal')" binary="true" inputId="clearSeriesTotal"/>
-              <label for="clearSeriesTotal" class="clear-label">Clear</label>
+              <label for="clearSeriesTotal" class="clear-label">{{ 'common.clear' | transloco }}</label>
             </div>
           </label>
           <input pInputText id="seriesTotal" type="number" min="1" formControlName="seriesTotal"
@@ -224,11 +223,11 @@
         <!-- Age Rating -->
         <div class="field-group field-group--half">
           <label for="ageRating" class="field-label-row">
-            <span>Age Rating</span>
+            <span>{{ 'bulkMetadata.fields.ageRating' | transloco }}</span>
             <div class="clear-checkbox">
               <p-checkbox [(ngModel)]="clearFields.ageRating" [ngModelOptions]="{standalone: true}"
                           (onChange)="onFieldClearToggle('ageRating')" binary="true" inputId="clearAgeRating"/>
-              <label for="clearAgeRating" class="clear-label">Clear</label>
+              <label for="clearAgeRating" class="clear-label">{{ 'common.clear' | transloco }}</label>
             </div>
           </label>
           <p-select
@@ -238,7 +237,7 @@
             [options]="ageRatingOptions"
             optionLabel="label"
             optionValue="value"
-            placeholder="Leave unchanged"
+            [placeholder]="'bulkMetadata.leaveUnchanged' | transloco"
             [showClear]="true"
             [disabled]="clearFields.ageRating"
             appendTo="body"/>
@@ -247,11 +246,11 @@
         <!-- Content Rating -->
         <div class="field-group field-group--half">
           <label for="contentRating" class="field-label-row">
-            <span>Content Rating</span>
+            <span>{{ 'bulkMetadata.fields.contentRating' | transloco }}</span>
             <div class="clear-checkbox">
               <p-checkbox [(ngModel)]="clearFields.contentRating" [ngModelOptions]="{standalone: true}"
                           (onChange)="onFieldClearToggle('contentRating')" binary="true" inputId="clearContentRating"/>
-              <label for="clearContentRating" class="clear-label">Clear</label>
+              <label for="clearContentRating" class="clear-label">{{ 'common.clear' | transloco }}</label>
             </div>
           </label>
           <p-select
@@ -261,7 +260,7 @@
             [options]="contentRatingOptions"
             optionLabel="label"
             optionValue="value"
-            placeholder="Leave unchanged"
+            [placeholder]="'bulkMetadata.leaveUnchanged' | transloco"
             [showClear]="true"
             [disabled]="clearFields.contentRating"
             appendTo="body"/>
@@ -272,16 +271,16 @@
       <div class="field-group">
         <label for="genres" class="field-label-row">
           <span class="field-label-text">
-            Genre(s)
+            {{ 'bulkMetadata.fields.genres' | transloco }}
             <i class="pi pi-info-circle info-icon"
-               pTooltip="Enter multiple genres. Press Enter after typing each genre."
+               [pTooltip]="'bulkMetadata.tooltips.genres' | transloco"
                tooltipPosition="right"
                style="cursor: pointer"></i>
           </span>
           <div class="clear-checkbox">
             <p-checkbox [(ngModel)]="clearFields.genres" [ngModelOptions]="{standalone: true}"
                         (onChange)="onFieldClearToggle('genres')" binary="true" inputId="clearGenres"/>
-            <label for="clearGenres" class="clear-label">Clear</label>
+            <label for="clearGenres" class="clear-label">{{ 'common.clear' | transloco }}</label>
           </div>
         </label>
         <p-autoComplete
@@ -306,7 +305,7 @@
             [disabled]="replaceAll || loading"
           />
           <label for="mergeCategories" class="clear-label">
-            Keep existing genres and add new ones (uncheck to remove all existing genres)
+            {{ 'bulkMetadata.merge.genres' | transloco }}
           </label>
         </div>
       </div>
@@ -315,16 +314,16 @@
       <div class="field-group">
         <label for="moods" class="field-label-row">
           <span class="field-label-text">
-            Mood(s)
+            {{ 'bulkMetadata.fields.moods' | transloco }}
             <i class="pi pi-info-circle info-icon"
-               pTooltip="Enter multiple moods. Press Enter after typing each mood."
+               [pTooltip]="'bulkMetadata.tooltips.moods' | transloco"
                tooltipPosition="right"
                style="cursor: pointer"></i>
           </span>
           <div class="clear-checkbox">
             <p-checkbox [(ngModel)]="clearFields.moods" [ngModelOptions]="{standalone: true}"
                         (onChange)="onFieldClearToggle('moods')" binary="true" inputId="clearMoods"/>
-            <label for="clearMoods" class="clear-label">Clear</label>
+            <label for="clearMoods" class="clear-label">{{ 'common.clear' | transloco }}</label>
           </div>
         </label>
         <p-autoComplete
@@ -349,7 +348,7 @@
             [disabled]="replaceAll || loading"
           />
           <label for="mergeMoods" class="clear-label">
-            Keep existing moods and add new ones (uncheck to remove all existing moods)
+            {{ 'bulkMetadata.merge.moods' | transloco }}
           </label>
         </div>
       </div>
@@ -358,16 +357,16 @@
       <div class="field-group">
         <label for="tags" class="field-label-row">
           <span class="field-label-text">
-            Tag(s)
+            {{ 'bulkMetadata.fields.tags' | transloco }}
             <i class="pi pi-info-circle info-icon"
-               pTooltip="Enter multiple tags. Press Enter after typing each tag."
+               [pTooltip]="'bulkMetadata.tooltips.tags' | transloco"
                tooltipPosition="right"
                style="cursor: pointer"></i>
           </span>
           <div class="clear-checkbox">
             <p-checkbox [(ngModel)]="clearFields.tags" [ngModelOptions]="{standalone: true}"
                         (onChange)="onFieldClearToggle('tags')" binary="true" inputId="clearTags"/>
-            <label for="clearTags" class="clear-label">Clear</label>
+            <label for="clearTags" class="clear-label">{{ 'common.clear' | transloco }}</label>
           </div>
         </label>
         <p-autoComplete
@@ -392,7 +391,7 @@
             [disabled]="replaceAll || loading"
           />
           <label for="mergeTags" class="clear-label">
-            Keep existing tags and add new ones (uncheck to remove all existing tags)
+            {{ 'bulkMetadata.merge.tags' | transloco }}
           </label>
         </div>
       </div>
@@ -401,10 +400,10 @@
       <div class="cover-section">
         <span class="cover-label">
           <i class="pi pi-image"></i>
-          Cover Image
+          {{ 'bulkMetadata.fields.coverImage' | transloco }}
         </span>
         <p class="cover-description">
-          Upload an image to set as the cover for all selected books.
+          {{ 'bulkMetadata.coverDescription' | transloco }}
         </p>
         <div class="cover-actions">
           @if (selectedCoverFile) {
@@ -417,7 +416,7 @@
                 size="small"
                 severity="danger"
                 (onClick)="clearCoverFile()"
-                pTooltip="Remove file"
+                [pTooltip]="'bulkMetadata.removeFile' | transloco"
                 tooltipPosition="top" />
             </div>
           } @else {
@@ -429,7 +428,7 @@
               class="file-input-hidden">
             <p-button
               icon="pi pi-upload"
-              label="Select Image"
+              [label]="'bulkMetadata.selectImage' | transloco"
               [outlined]="true"
               size="small"
               severity="info"
@@ -439,7 +438,7 @@
       </div>
 
       <div class="form-submit">
-        <p-button type="submit" label="Apply to Selected" [disabled]="loading"/>
+        <p-button type="submit" [label]="'bulkMetadata.apply' | transloco" [disabled]="loading"/>
       </div>
     </form>
   </div>

@@ -38,6 +38,9 @@ public class AuthorEntity {
     @Column(name = "asin", length = 20)
     private String asin;
 
+    @Column(name = "isni", length = 16)
+    private String isni;
+
     @Column(name = "name_locked", nullable = false)
     private boolean nameLocked;
 
@@ -46,6 +49,9 @@ public class AuthorEntity {
 
     @Column(name = "asin_locked", nullable = false)
     private boolean asinLocked;
+
+    @Column(name = "isni_locked", nullable = false)
+    private boolean isniLocked;
 
     @Column(name = "photo_locked", nullable = false)
     private boolean photoLocked;

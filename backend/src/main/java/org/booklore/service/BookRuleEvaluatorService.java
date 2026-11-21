@@ -268,7 +268,7 @@ public class BookRuleEvaluatorService {
             // String fields on BookMetadataEntity
             case "title", "subtitle", "description", "publisher", "language", "seriesName",
                  "isbn13", "isbn10", "asin", "contentRating", "narrator",
-                 "goodreadsId", "hardcoverId", "googleId", "audibleId", "applebooksId", "doubanId",
+                 "goodreadsId", "hardcoverId", "googleId", "audibleId", "applebooksId", "doubanId", "babelioUrl",
                  "lubimyczytacId", "ranobedbId", "comicvineId", "openlibraryId" ->
                     stringPresence(cb, root.get("metadata").get(metadataField));
 

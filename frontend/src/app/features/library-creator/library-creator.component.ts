@@ -102,6 +102,13 @@ export class LibraryCreatorComponent {
   readonly isLibraryDetailsValid = computed(() => !!this.chosenLibraryName().trim());
   readonly isDirectorySelectionValid = computed(() => this.folders().length > 0);
 
+  formatLabel(format: FormatEntry): string {
+    this.activeLang();
+    return format.type === 'AUDIOBOOK'
+      ? this.t.translate('libraryCreator.creator.audiobookFormat')
+      : format.label;
+  }
+
   constructor() {
     /**
      * Runs once after construction. `untracked` prevents the body from being

@@ -154,6 +154,9 @@ export const METADATA_FIELD_GROUPS = [
     {name: 'applebooksRating', lockName: 'applebooksRatingLocked', kind: 'number', labelKey: 'book.fields.applebooksRating', facet: 'applebooks_rating', provider: 'AppleBooks', providerRole: 'rating'},
     {name: 'applebooksReviewCount', lockName: 'applebooksReviewCountLocked', kind: 'number', labelKey: 'book.fields.applebooksReviewCount', provider: 'AppleBooks', providerRole: 'reviewCount'},
   ]}),
+  fieldGroup({key: 'externalLinks', labelKey: 'book.fieldGroups.externalLinks', model: 'book', fields: [
+    {name: 'babelioUrl', lockName: 'babelioUrlLocked', kind: 'string', labelKey: 'book.fields.babelioUrl'},
+  ]}),
   fieldGroup({key: 'reviews', labelKey: 'book.fieldGroups.reviews', model: 'book', fields: [
     {name: 'reviews', lockName: 'reviewsLocked', kind: 'reviews', labelKey: 'book.fields.reviews'},
   ]}),

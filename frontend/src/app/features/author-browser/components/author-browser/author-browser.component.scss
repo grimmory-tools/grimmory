@@ -246,6 +246,21 @@
   margin-left: 0.2188rem;
 }
 
+.auto-match-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 180px;
+  padding: 0 0.875rem;
+  color: var(--color-text);
+  font-size: 0.7875rem;
+
+  progress {
+    width: 100%;
+    accent-color: var(--color-primary);
+  }
+}
+
 .action-buttons-group {
   display: flex;
   gap: 1.3125rem;
@@ -309,4 +324,26 @@
 
 .merge-author-list span {
   color: var(--color-text-secondary);
+}
+
+.duplicate-groups {
+  display: grid;
+  gap: 0.75rem;
+  max-height: 55vh;
+  overflow: auto;
+  margin-bottom: 1rem;
+}
+
+.duplicate-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.75rem;
+}
+
+.duplicate-group ul {
+  margin: 0;
+  padding-left: 1.25rem;
 }

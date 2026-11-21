@@ -91,6 +91,12 @@ export class BookMetadataManageService {
     );
   }
 
+  mergeAuthors(targetId: number, sourceIds: number[]): Observable<void> {
+    return this.http.post<void>(`${this.url}/metadata/manage/merge-authors`, {targetId, sourceIds}).pipe(
+      tap(() => invalidateAllBookCaches(this.queryClient))
+    );
+  }
+
   deleteMetadata(metadataType: 'authors' | 'categories' | 'moods' | 'tags' | 'series' | 'publishers' | 'languages', valuesToDelete: string[]): Observable<unknown> {
     return this.http.post(`${this.url}/metadata/manage/delete`, {metadataType, valuesToDelete}).pipe(
       tap(() => {

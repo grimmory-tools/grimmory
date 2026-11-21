@@ -1,0 +1,35 @@
+<ng-container *transloco="let t; prefix: 'genreShelf'">
+  <div class="genre-shelf-dialog">
+    <div>
+      <h2>{{ t('title') }}</h2>
+      <p>{{ t('description') }}</p>
+    </div>
+
+    <div class="genre-field">
+      <label for="genre-shelf-genre">{{ t('genreLabel') }}</label>
+      <p-autoComplete
+        inputId="genre-shelf-genre"
+        [(ngModel)]="genre"
+        appFacetSuggestions="genre"
+        [forceSelection]="true"
+        [dropdown]="false"
+        appendTo="body"
+        [placeholder]="t('genrePlaceholder')" />
+    </div>
+
+    <div class="dialog-actions">
+      <p-button
+        [label]="t('cancel')"
+        severity="secondary"
+        [outlined]="true"
+        [disabled]="saving()"
+        (onClick)="cancel()" />
+      <p-button
+        [label]="t('create')"
+        icon="pi pi-bookmark"
+        [loading]="saving()"
+        [disabled]="saving() || !genre?.trim()"
+        (onClick)="createShelf()" />
+    </div>
+  </div>
+</ng-container>

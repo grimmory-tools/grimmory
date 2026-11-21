@@ -4,8 +4,8 @@
       <i class="pi pi-pencil header-icon"></i>
     </div>
     <div class="header-text">
-      <h2 class="panel-title">Review Metadata Proposal</h2>
-      <p class="panel-description">Review and accept fetched metadata</p>
+      <h2 class="panel-title">{{ 'metadataReview.title' | transloco }}</h2>
+      <p class="panel-description">{{ 'metadataReview.description' | transloco }}</p>
     </div>
     <p-button
       icon="pi pi-times"
@@ -29,20 +29,20 @@
 
     <div class="dialog-footer">
       <div class="footer-info">
-        <div class="progress-group" pTooltip="{{ currentIndex() + 1 }} of {{ proposals().length }} processed ({{ ((currentIndex() + 1) / proposals().length * 100) | number: '1.0-0' }}%)" tooltipPosition="top">
+        <div class="progress-group" [pTooltip]="'metadataReview.progressTooltip' | transloco: {current: currentIndex() + 1, total: proposals().length, percent: ((currentIndex() + 1) / proposals().length * 100) | number: '1.0-0'}" tooltipPosition="top">
           <p-progressBar
             [value]="((currentIndex() + 1) / proposals().length) * 100"
             class="progress-bar"
             showValue="false" />
           <span class="progress-text">
-            Book {{ currentIndex() + 1 }} / {{ proposals().length }}
+            {{ 'metadataReview.bookProgress' | transloco: {current: currentIndex() + 1, total: proposals().length} }}
           </span>
         </div>
       </div>
 
       <div class="footer-actions">
         <p-button
-          label="Close"
+          [label]="'common.close' | transloco"
           icon="pi pi-times-circle"
           severity="secondary"
           [outlined]="true"
@@ -51,14 +51,14 @@
         <p-divider layout="vertical"/>
 
         <p-button
-          label="Lock All"
+          [label]="'metadataReview.lockAll' | transloco"
           icon="pi pi-lock"
           severity="warn"
           [outlined]="true"
           (click)="lockAllMetadata()" />
 
         <p-button
-          label="Unlock All"
+          [label]="'metadataReview.unlockAll' | transloco"
           icon="pi pi-lock-open"
           severity="success"
           [outlined]="true"
@@ -67,7 +67,7 @@
         <p-divider layout="vertical"/>
 
         <p-button
-          label="Accept & Save"
+          [label]="'metadataReview.acceptSave' | transloco"
           icon="pi pi-check-circle"
           iconPos="right"
           severity="success"
@@ -77,7 +77,7 @@
         <p-divider layout="vertical"/>
 
         <p-button
-          [label]="isLast ? 'Finish & Close' : 'Next'"
+          [label]="(isLast ? 'metadataReview.finishClose' : 'common.next') | transloco"
           [icon]="isLast ? 'pi pi-check-circle' : 'pi pi-angle-right'"
           iconPos="right"
           severity="info"

@@ -329,6 +329,15 @@
   color: var(--color-text-secondary);
 }
 
+.babelio-link {
+  text-decoration: none;
+
+  &:hover .rating-provider {
+    color: var(--color-primary);
+    text-decoration: underline;
+  }
+}
+
 .rating-value {
   font-weight: 600;
   font-size: var(--app-text-sm);

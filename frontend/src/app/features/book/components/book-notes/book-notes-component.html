@@ -3,7 +3,7 @@
     @if (loading()) {
       <div class="loading-state">
         <p-progressSpinner/>
-        <span class="loading-text">Loading notes...</span>
+        <span class="loading-text">{{ 'book.notes.ui.loading' | transloco }}</span>
       </div>
     } @else if (notes.length === 0) {
       <div class="empty-state">
@@ -14,13 +14,13 @@
             icon="pi pi-plus"
             severity="primary"
             (click)="openCreateDialog()"
-            pTooltip="Add New Note"
+            [pTooltip]="'book.notes.ui.add' | transloco"
             tooltipPosition="top"
             class="action-btn floating-btn" />
         </div>
-        <p class="empty-state-title">No notes yet for this book</p>
+        <p class="empty-state-title">{{ 'book.notes.ui.emptyTitle' | transloco }}</p>
         <p class="empty-state-subtitle">
-          Click "Add Note" to create your first note and start capturing your thoughts
+          {{ 'book.notes.ui.emptyDescription' | transloco }}
         </p>
         <div class="empty-state-decoration"></div>
       </div>
@@ -37,9 +37,9 @@
                       <i class="pi pi-clock note-meta-icon"></i>
                       <span class="note-meta-text">
                         @if (note.createdAt !== note.updatedAt) {
-                          Updated {{ formatDate(note.updatedAt) }}
+                          {{ 'book.notes.ui.updated' | transloco }} {{ formatDate(note.updatedAt) }}
                         } @else {
-                          Created {{ formatDate(note.createdAt) }}
+                          {{ 'book.notes.ui.created' | transloco }} {{ formatDate(note.createdAt) }}
                         }
                       </span>
                     </div>
@@ -52,7 +52,7 @@
                       severity="secondary"
                       text
                       (onClick)="openEditDialog(note)"
-                      pTooltip="Edit note"
+                      [pTooltip]="'book.notes.ui.edit' | transloco"
                       tooltipPosition="top"
                       class="action-btn-hover" />
                     <p-button
@@ -61,7 +61,7 @@
                       severity="danger"
                       text
                       (onClick)="deleteNote(note)"
-                      pTooltip="Delete note"
+                      [pTooltip]="'book.notes.ui.delete' | transloco"
                       tooltipPosition="top"
                       class="action-btn-hover" />
                   </div>
@@ -87,13 +87,13 @@
         icon="pi pi-plus"
         severity="success"
         (click)="openCreateDialog()"
-        pTooltip="Add New Note"
+        [pTooltip]="'book.notes.ui.add' | transloco"
         tooltipPosition="left" />
     </div>
   }
 
   <p-dialog
-    header="Add New Note"
+    [header]="'book.notes.ui.addHeader' | transloco"
     [(visible)]="showCreateDialog"
     [modal]="true"
     [style]="{width: '500px'}"
@@ -102,23 +102,23 @@
 
     <div class="dialog-form">
       <div class="field">
-        <label for="create-title" class="field-label">Title</label>
+        <label for="create-title" class="field-label">{{ 'book.notes.ui.title' | transloco }}</label>
         <input
           id="create-title"
           pInputText
           [(ngModel)]="newNote.title"
-          placeholder="Enter note title"
+          [placeholder]="'book.notes.ui.titlePlaceholder' | transloco"
           class="field-input"
           maxlength="255"/>
       </div>
 
       <div class="field">
-        <label for="create-content" class="field-label">Content</label>
+        <label for="create-content" class="field-label">{{ 'book.notes.ui.content' | transloco }}</label>
         <textarea
           id="create-content"
           pTextarea
           [(ngModel)]="newNote.content"
-          placeholder="Enter your note content..."
+          [placeholder]="'book.notes.ui.contentPlaceholder' | transloco"
           [rows]="8"
           class="field-input"
           [autoResize]="true">
@@ -129,14 +129,14 @@
     <ng-template #footer>
       <div class="dialog-actions">
         <p-button
-          label="Cancel"
+          [label]="'common.cancel' | transloco"
           severity="secondary"
           outlined
           (onClick)="cancelCreate()" />
         <p-button
           outlined
           severity="success"
-          label="Save Note"
+          [label]="'book.notes.ui.save' | transloco"
           icon="pi pi-save"
           (onClick)="createNote()" />
       </div>
@@ -144,7 +144,7 @@
   </p-dialog>
 
   <p-dialog
-    header="Edit Note"
+    [header]="'book.notes.ui.editHeader' | transloco"
     [(visible)]="showEditDialog"
     [modal]="true"
     [style]="{width: '500px'}"
@@ -153,23 +153,23 @@
 
     <div class="dialog-form">
       <div class="field">
-        <label for="edit-title" class="field-label">Title</label>
+        <label for="edit-title" class="field-label">{{ 'book.notes.ui.title' | transloco }}</label>
         <input
           id="edit-title"
           pInputText
           [(ngModel)]="editNote.title"
-          placeholder="Enter note title"
+          [placeholder]="'book.notes.ui.titlePlaceholder' | transloco"
           class="field-input"
           maxlength="255"/>
       </div>
 
       <div class="field">
-        <label for="edit-content" class="field-label">Content</label>
+        <label for="edit-content" class="field-label">{{ 'book.notes.ui.content' | transloco }}</label>
         <textarea
           id="edit-content"
           pTextarea
           [(ngModel)]="editNote.content"
-          placeholder="Enter your note content..."
+          [placeholder]="'book.notes.ui.contentPlaceholder' | transloco"
           [rows]="8"
           class="field-input"
           [autoResize]="true">
@@ -180,14 +180,14 @@
     <ng-template #footer>
       <div class="dialog-actions">
         <p-button
-          label="Cancel"
+          [label]="'common.cancel' | transloco"
           severity="secondary"
           outlined
           (onClick)="cancelEdit()" />
         <p-button
           outlined
           severity="success"
-          label="Update Note"
+          [label]="'book.notes.ui.update' | transloco"
           icon="pi pi-save"
           (onClick)="updateNote()" />
       </div>

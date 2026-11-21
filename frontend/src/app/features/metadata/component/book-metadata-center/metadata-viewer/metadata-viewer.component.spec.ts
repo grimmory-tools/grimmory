@@ -258,6 +258,16 @@ describe('MetadataViewerComponent', () => {
     });
   });
 
+  it('accepts only HTTPS Babelio book URLs', () => {
+    const component = createComponent();
+
+    expect(component.getBabelioUrl('https://www.babelio.com/livres/example/123')).toBe('https://www.babelio.com/livres/example/123');
+    expect(component.getBabelioUrl('http://www.babelio.com/livres/example/123')).toBeNull();
+    expect(component.getBabelioUrl('https://babelio.com.evil.test/livres/example/123')).toBeNull();
+    expect(component.getBabelioUrl('https://babelio.com/livres/')).toBeNull();
+    expect(component.getBabelioUrl('https://user@babelio.com/livres/example/123')).toBeNull();
+  });
+
   it('builds the read, download, and other menus from the current book', () => {
     const component = createComponent();
     const richBook = createBook(

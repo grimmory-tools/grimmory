@@ -797,6 +797,7 @@ public class MetadataRefreshService {
             metadata.setHardcoverIdLocked(existingMetadata.getHardcoverIdLocked());
             metadata.setHardcoverBookIdLocked(existingMetadata.getHardcoverBookIdLocked());
             metadata.setDoubanIdLocked(existingMetadata.getDoubanIdLocked());
+            metadata.setBabelioUrlLocked(existingMetadata.getBabelioUrlLocked());
             metadata.setGoogleIdLocked(existingMetadata.getGoogleIdLocked());
             metadata.setLubimyczytacIdLocked(existingMetadata.getLubimyczytacIdLocked());
             metadata.setLubimyczytacRatingLocked(existingMetadata.getLubimyczytacRatingLocked());
@@ -840,6 +841,7 @@ public class MetadataRefreshService {
             if (metadata.getIsbn10() == null) metadata.setIsbn10(existingMetadata.getIsbn10());
             if (metadata.getLanguage() == null) metadata.setLanguage(existingMetadata.getLanguage());
             if (metadata.getPageCount() == null) metadata.setPageCount(existingMetadata.getPageCount());
+            metadata.setBabelioUrl(existingMetadata.getBabelioUrl());
             if (metadata.getThumbnailUrl() == null) metadata.setThumbnailUrl(existingMetadata.getThumbnailUrl());
             if (metadata.getCategories() == null) metadata.setCategories(existingMetadata.getCategories());
             if (metadata.getMoods() == null) metadata.setMoods(existingMetadata.getMoods());

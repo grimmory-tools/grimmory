@@ -186,6 +186,7 @@ export interface BookMetadata {
   hardcoverReviewCount?: number | null;
   doubanRating?: number | null;
   doubanReviewCount?: number | null;
+  babelioUrl?: string;
   lubimyczytacId?: string;
   lubimyczytacRating?: number | null;
   ranobedbId?: string;
@@ -242,6 +243,7 @@ export interface BookMetadata {
   hardcoverReviewCountLocked?: boolean;
   doubanRatingLocked?: boolean;
   doubanReviewCountLocked?: boolean;
+  babelioUrlLocked?: boolean;
   lubimyczytacIdLocked?: boolean;
   lubimyczytacRatingLocked?: boolean;
   ranobedbIdLocked?: boolean;
@@ -308,6 +310,7 @@ export interface MetadataClearFlags {
   doubanId?: boolean;
   doubanRating?: boolean;
   doubanReviewCount?: boolean;
+  babelioUrl?: boolean;
   narrator?: boolean;
   abridged?: boolean;
   authors?: boolean;

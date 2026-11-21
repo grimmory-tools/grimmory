@@ -8,5 +8,5 @@ public interface AuthorParser {
 
     List<AuthorSearchResult> searchAuthors(String name, String region);
 
-    AuthorSearchResult getAuthorByAsin(String asin, String region);
+    AuthorSearchResult getAuthorById(String providerId, String region);
 }

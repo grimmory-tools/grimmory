@@ -110,6 +110,16 @@ public class MetadataController {
         return ResponseEntity.noContent().build();
     }
 
+    public record MergeAuthorsRequest(Long targetId, List<Long> sourceIds) {}
+
+    @Operation(summary = "Merge authors by ID", description = "Merge selected authors into an existing author.")
+    @PostMapping("/metadata/manage/merge-authors")
+    @PreAuthorize("@securityUtil.canBulkEditMetadata() or @securityUtil.isAdmin()")
+    public ResponseEntity<Void> mergeAuthors(@RequestBody MergeAuthorsRequest request) {
+        metadataManagementService.mergeAuthorsById(request.targetId(), request.sourceIds());
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "Delete metadata values", description = "Delete metadata values. Requires metadata edit permission or admin.")
     @ApiResponse(responseCode = "204", description = "Metadata deleted successfully")
     @PostMapping("/metadata/manage/delete")

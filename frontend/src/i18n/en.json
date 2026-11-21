@@ -935,6 +935,30 @@
       "title": "Metadata Quality Notice:",
       "text": "File naming relies entirely on metadata stored in Grimmory. This feature is recommended only for high-quality, curated libraries with complete metadata."
     },
+    "localSettings": {
+      "title": "Local settings",
+      "description": "Browser settings that affect only this device. They are stored in your browser's local storage and are not synced across devices.",
+      "cacheTitle": "Cache storage settings",
+      "cacheDescription": "Configure cache storage to improve performance and reduce server requests.",
+      "enableCache": "Enable cache storage",
+      "enableCacheDescription": "Store data in your browser for faster access.",
+      "usageTitle": "Cache storage usage (MB)",
+      "usageDescription": "Space currently used by cache storage.",
+      "refresh": "Refresh",
+      "clearTitle": "Clear cache",
+      "clearDescription": "Remove all data stored in cache storage.",
+      "clear": "Clear cache",
+      "confirm": {
+        "clearHeader": "Clear cache storage",
+        "clearMessage": "Are you sure you want to clear all cache storage data? This action cannot be undone."
+      },
+      "toast": {
+        "clearSuccessSummary": "Cache cleared",
+        "clearSuccessDetail": "All cache storage data has been cleared successfully.",
+        "clearFailedSummary": "Cache clearing failed",
+        "clearFailedDetail": "Unable to clear cache storage. Please try again."
+      }
+    },
     "defaultPattern": {
       "sectionTitle": "Default Pattern",
       "sectionDesc": "Fallback pattern when no library-specific override is configured.",
@@ -1018,6 +1042,196 @@
       "modLower": "Lowercase",
       "letterFolder": "Letter folder",
       "combinedMods": "Combined mods"
+    }
+  },
+  "fileMover": {
+    "title": "Move and organize files",
+    "selectedBook": "1 book selected",
+    "selectedBooks": "{{count}} books selected",
+    "previewDescription": "Preview and organize {{count}} selected files. They will be renamed using metadata and naming patterns.",
+    "metadataWarning": "Good metadata is required.",
+    "learnMore": "Learn more",
+    "hide": "Hide",
+    "details": {
+      "organize": "Your files will be automatically renamed and organized, and can be moved between libraries based on your preferences. Check the preview below to see how they will look.",
+      "namingSettings": "To change file names, go to Settings → File Naming Pattern. Each library can have its own naming pattern.",
+      "moveWarning": "This will move and rename files on your computer across library folders. Make sure you are happy with the preview first.",
+      "metadataWarning": "This feature relies on your books' metadata. Missing or inconsistent metadata can produce incorrect file names. It is recommended only for well-curated libraries."
+    },
+    "namingRules": "Naming rules",
+    "patternOneBook": "1 book",
+    "patternManyBooks": "{{count}} books",
+    "noPattern": "No pattern configured",
+    "librarySetting": "Library setting",
+    "appDefault": "App default",
+    "unknownLibrary": "Unknown library",
+    "unknownAuthor": "Unknown author",
+    "untitled": "Untitled",
+    "bulkAssignment": "Bulk assignment",
+    "setAllFilesTo": "Set all files to:",
+    "selectLibrary": "Select library",
+    "selectPath": "Select path",
+    "filePreview": "File preview",
+    "columns": {
+      "id": "ID",
+      "currentPath": "Current path",
+      "targetLibrary": "Target library",
+      "libraryPath": "Library path",
+      "newPath": "New path"
+    },
+    "select": "Select",
+    "noPaths": "No paths",
+    "previous": "Previous",
+    "next": "Next",
+    "movedOneFile": "1 file successfully moved",
+    "movedManyFiles": "{{count}} files successfully moved",
+    "moving": "Moving…",
+    "moveFiles": "Move files",
+    "toast": {
+      "successSummary": "Files organized",
+      "oneFileSuccess": "Successfully organized 1 file.",
+      "manyFilesSuccess": "Successfully organized {{count}} files.",
+      "failureSummary": "Unable to organize files",
+      "failureDetail": "There was a problem organizing your files. Please try again."
+    }
+  },
+  "bulkMetadata": {
+    "title": "Bulk edit metadata",
+    "progress": {
+      "submitting": "Submitting metadata update…",
+      "queued": "Metadata update queued…",
+      "uploadingCover": "Uploading cover image…",
+      "count": "{{processed}} / {{total}} books",
+      "results": "{{updated}} updated · {{failed}} failed",
+      "completedWithErrors": "Metadata update completed with errors.",
+      "incomplete": "Metadata update did not complete."
+    },
+    "failures": {
+      "title": "Books that could not be updated ({{count}})",
+      "description": "Book IDs and error details are listed below. Export the complete list for large batches.",
+      "exportCsv": "Export CSV",
+      "showing": "Showing {{visible}} of {{total}} failed books."
+    },
+    "clearWarning": "Checking Clear will remove that field's metadata from all selected books.",
+    "replaceAll": "Replace all metadata for the selected books",
+    "replaceAllWarning": "Empty and unlisted metadata fields will be erased, including provider IDs, ratings, reviews, and audiobook/comic details. Locked fields and the required book title are preserved. Cover images are not changed.",
+    "fields": {
+      "authors": "Author(s)",
+      "language": "Language",
+      "publisher": "Publisher",
+      "publishedDate": "Published date",
+      "seriesName": "Series name",
+      "totalBooks": "Total books",
+      "ageRating": "Age rating",
+      "contentRating": "Content rating",
+      "genres": "Genre(s)",
+      "moods": "Mood(s)",
+      "tags": "Tag(s)",
+      "coverImage": "Cover image"
+    },
+    "tooltips": {
+      "authors": "Enter multiple authors. Press Enter after typing each name.",
+      "totalBooks": "Total number of books in the series.",
+      "genres": "Enter multiple genres. Press Enter after typing each genre.",
+      "moods": "Enter multiple moods. Press Enter after typing each mood.",
+      "tags": "Enter multiple tags. Press Enter after typing each tag."
+    },
+    "leaveUnchanged": "Leave unchanged",
+    "merge": {
+      "genres": "Keep existing genres and add new ones (uncheck to remove all existing genres)",
+      "moods": "Keep existing moods and add new ones (uncheck to remove all existing moods)",
+      "tags": "Keep existing tags and add new ones (uncheck to remove all existing tags)"
+    },
+    "coverDescription": "Upload an image to set as the cover for all selected books.",
+    "removeFile": "Remove file",
+    "selectImage": "Select image",
+    "apply": "Apply to selected",
+    "csv": {
+      "bookId": "Book ID",
+      "title": "Title",
+      "reason": "Reason"
+    },
+    "toast": {
+      "updateFailedSummary": "Update failed",
+      "updateFailedDetail": "An error occurred while updating book metadata.",
+      "coverUploadFailedSummary": "Cover upload failed",
+      "coverUploadFailedDetail": "Metadata processing finished, but the cover upload failed.",
+      "metadataAndCoverUpdated": "Metadata and cover updated",
+      "metadataUpdated": "Metadata updated",
+      "metadataAndCoverUpdateDetail": "Books updated and cover upload started. Refresh the page when complete.",
+      "metadataUpdateDetail": "Books updated successfully.",
+      "booksFailedDetail": "{{failed}} of {{total}} books failed. Review the list below.",
+      "processingStoppedDetail": "Processing stopped after {{processed}} of {{total}} books.",
+      "partialSuccess": "Partial success",
+      "updateIncomplete": "Update incomplete"
+    }
+  },
+  "metadataFetch": {
+    "title": "Metadata refresh options",
+    "libraryDescription": "Custom metadata fetch for this library"
+  },
+  "metadataReview": {
+    "title": "Review metadata proposal",
+    "description": "Review and accept the fetched metadata.",
+    "progressTooltip": "{{current}} of {{total}} processed ({{percent}}%).",
+    "bookProgress": "Book {{current}} / {{total}}",
+    "lockAll": "Lock all",
+    "unlockAll": "Unlock all",
+    "acceptSave": "Accept and save",
+    "finishClose": "Finish and close"
+  },
+  "multiBookMetadata": {
+    "title": "Edit metadata",
+    "editTab": "Edit metadata",
+    "searchTab": "Search metadata"
+  },
+  "iconPicker": {
+    "title": "Choose an icon",
+    "description": "Choose an icon from the library or add custom SVGs.",
+    "tabs": {
+      "default": "Default",
+      "library": "SVG library",
+      "addCustom": "Add custom"
+    },
+    "searchIcons": "Search icons",
+    "searchSvgIcons": "Search SVG icons...",
+    "loading": "Loading icons...",
+    "dropToDelete": "Drop here to delete",
+    "svgInput": "SVG input",
+    "iconName": "Icon name",
+    "iconNamePlaceholder": "e.g., my-custom-icon",
+    "svgCode": "SVG code",
+    "svgCodePlaceholder": "<svg>...</svg>",
+    "preview": "Preview",
+    "addToQueue": "Add to queue",
+    "queue": "Queue",
+    "clearAll": "Clear all",
+    "saveAll": "Save all icons",
+    "errors": {
+      "noContent": "Please paste SVG content.",
+      "noName": "Please provide a name for the icon.",
+      "invalidName": "Icon names can contain only letters, numbers, underscores, and hyphens.",
+      "nameTooLong": "Icon names must not exceed {{max}} characters.",
+      "invalidSvg": "Invalid SVG content. Please paste valid SVG code.",
+      "missingSvgTag": "The content must include an <svg> tag.",
+      "svgTooLarge": "SVG content must not exceed 1 MB.",
+      "parseError": "Failed to parse the SVG content.",
+      "loadIcons": "Failed to load SVG icons. Please try again.",
+      "deleteIcon": "Failed to delete the icon. Please try again.",
+      "noIconsToSave": "There are no SVG icons to save.",
+      "saveIcons": "Failed to save SVG icons. Please try again."
+    },
+    "toast": {
+      "savedSummary": "Icons saved",
+      "savedOne": "1 SVG icon saved successfully.",
+      "savedMany": "{{count}} SVG icons saved successfully.",
+      "partialSummary": "Partially completed",
+      "partialDetail": "{{saved}} SVG icons saved; {{failed}} failed.",
+      "saveFailedSummary": "Save failed",
+      "saveFailedDetail": "Failed to save {{count}} SVG icons.",
+      "deletedSummary": "Icon deleted",
+      "deletedDetail": "The SVG icon was deleted successfully.",
+      "deleteFailedSummary": "Delete failed"
     }
   },
   "settingsOpds": {
@@ -1108,6 +1322,18 @@
       "sectionTitle": "System Tasks",
       "sectionDesc": "Execute tasks manually, monitor progress in real-time, and configure scheduled automation."
     },
+    "taskTypes": {
+      "REFRESH_LIBRARY_METADATA": {"name": "Refresh Metadata", "description": "Re-reads book information (title, author, cover, etc.) from your files and updates the Booklore database."},
+      "UPDATE_BOOK_RECOMMENDATIONS": {"name": "Update Book Recommendations", "description": "Analyzes your library to generate personalized book recommendations based on the books you own."},
+      "CLEANUP_DELETED_BOOKS": {"name": "Cleanup Deleted Books", "description": "Permanently removes database entries for books you previously deleted from your libraries."},
+      "SYNC_LIBRARY_FILES": {"name": "Sync Library Files", "description": "Scans your library folders to detect new books and removes entries for files that no longer exist."},
+      "BOOKDROP_PERIODIC_SCANNING": {"name": "Bookdrop Periodic Scanning", "description": "Scans the bookdrop ingest folder for newly added files and queues them for bookdrop processing."},
+      "CLEANUP_TEMP_METADATA": {"name": "Cleanup Temporary Metadata", "description": "Removes temporary metadata files created during the bookdrop and manual metadata review processes."},
+      "REFRESH_METADATA_MANUAL": {"name": "Refresh Metadata", "description": "Updates metadata information for your selected books."},
+      "BULK_UPDATE_BOOK_METADATA": {"name": "Bulk Update Book Metadata", "description": "Updates metadata for selected books in the background."},
+      "REPAIR_EPUB_CONTAINERS": {"name": "Repair EPUB Containers", "description": "Repairs EPUB ZIP container layout across all libraries. Creates a backup next to each changed file and leaves unreadable archives unchanged."},
+      "CLEAR_PDF_CACHE": {"name": "Clear PDF Cache", "description": "Clear cached PDF files."}
+    },
     "loading": "Loading tasks...",
     "emptyTitle": "No tasks available",
     "status": {
@@ -1179,8 +1405,50 @@
     "dateRangePlaceholder": "Filter by date range",
     "clearFilters": "Clear all filters",
     "autoRefresh": "Auto-refresh (10s)",
+    "allActions": "All Actions",
+    "allUsers": "All Users",
+    "justNow": "Just now",
     "pageReport": "Showing {first} to {last} of {totalRecords} entries",
     "empty": "No audit logs found",
+    "actions": {
+      "LOGIN_SUCCESS": "Login Success",
+      "LOGIN_FAILED": "Login Failed",
+      "USER_CREATED": "User Created",
+      "USER_UPDATED": "User Updated",
+      "USER_DELETED": "User Deleted",
+      "PASSWORD_CHANGED": "Password Changed",
+      "LIBRARY_CREATED": "Library Created",
+      "LIBRARY_UPDATED": "Library Updated",
+      "LIBRARY_DELETED": "Library Deleted",
+      "LIBRARY_SCANNED": "Library Scanned",
+      "BOOK_UPLOADED": "Book Uploaded",
+      "BOOK_DELETED": "Book Deleted",
+      "PERMISSIONS_CHANGED": "Permissions Changed",
+      "METADATA_UPDATED": "Metadata Updated",
+      "SETTINGS_UPDATED": "Settings Updated",
+      "OIDC_CONFIG_CHANGED": "OIDC Config Changed",
+      "TASK_EXECUTED": "Task Executed",
+      "BOOK_SENT": "Book Sent",
+      "SHELF_CREATED": "Shelf Created",
+      "SHELF_UPDATED": "Shelf Updated",
+      "SHELF_DELETED": "Shelf Deleted",
+      "MAGIC_SHELF_CREATED": "Magic Shelf Created",
+      "MAGIC_SHELF_UPDATED": "Magic Shelf Updated",
+      "MAGIC_SHELF_DELETED": "Magic Shelf Deleted",
+      "EMAIL_PROVIDER_CREATED": "Email Provider Created",
+      "EMAIL_PROVIDER_UPDATED": "Email Provider Updated",
+      "EMAIL_PROVIDER_DELETED": "Email Provider Deleted",
+      "OPDS_USER_CREATED": "OPDS User Created",
+      "OPDS_USER_DELETED": "OPDS User Deleted",
+      "OPDS_USER_UPDATED": "OPDS User Updated",
+      "NAMING_PATTERN_CHANGED": "Naming Pattern Changed",
+      "LOGIN_RATE_LIMITED": "Login Rate Limited",
+      "REFRESH_RATE_LIMITED": "Refresh Rate Limited",
+      "DUPLICATE_BOOKS_MERGED": "Duplicate Books Merged",
+      "BOOK_FILE_DETACHED": "Book File Detached",
+      "AUTHOR_METADATA_UPDATED": "Author Metadata Updated",
+      "AUTHOR_DELETED": "Author Deleted"
+    },
     "columns": {
       "timestamp": "When",
       "user": "User",
@@ -1267,6 +1535,9 @@
       "sectionDesc": "Map OIDC provider groups to Grimmory permissions and library access. Users' permissions are synced based on their group memberships.",
       "syncModeLabel": "Group Sync Mode",
       "syncModeHint": "Controls how OIDC groups are synced to user permissions on login.",
+      "syncModeDisabled": "Disabled",
+      "syncModeReplace": "On Login (Replace)",
+      "syncModeAdditive": "On Login (Additive)",
       "addMapping": "Add Mapping",
       "colGroupClaim": "Group Claim",
       "colAdmin": "Admin",
@@ -1760,6 +2031,7 @@
       "search": "Search",
       "add": "Create",
       "createMagicShelf": "Create Magic Shelf",
+      "createGenreShelf": "Create Shelf by Genre",
       "editSidebar": "Edit sidebar",
       "doneEditing": "Done editing",
       "more": "More",
@@ -1843,6 +2115,7 @@
       "metadataSourcePreferSidecar": "Prefer Sidecar",
       "metadataSourcePreferEmbedded": "Prefer Embedded",
       "metadataSourceNone": "None",
+      "audiobookFormat": "Audiobook",
       "organizationMode": "Organization mode",
       "organizationModeTooltip": "How files are grouped into books during scanning",
       "organizationModeLockedTooltip": "Organization mode cannot be changed after library creation. To use a different mode, create a new library.",
@@ -2136,6 +2409,8 @@
       "audiobookDetails": "Audiobook Details",
       "comicBookDetails": "Comic Book Details",
       "providerMetadata": "Provider Metadata",
+      "babelioUrl": "Babelio book page",
+      "babelioUrlPlaceholder": "https://www.babelio.com/livres/...",
       "closeBtn": "Close",
       "previousBookBtn": "Previous Book",
       "nextBookBtn": "Next Book",
@@ -2296,6 +2571,8 @@
       "fileName": "File"
     },
     "viewer": {
+      "primaryFileLabel": "Primary",
+      "fileLabel": "File",
       "metadataLocked": "This book metadata is locked.",
       "metadataUnlocked": "This book metadata is unlocked.",
       "genresLabel": "Genres:",
@@ -2374,6 +2651,7 @@
       "personalRating": "Personal Rating",
       "ratingTooltip": "★ {{rating}} | {{reviews}} reviews",
       "ratingTooltipNoReviews": "★ {{rating}}",
+      "openBabelio": "View on Babelio",
       "loadingBookDetails": "Loading book details...",
       "readStatusUnread": "Unread",
       "readStatusPaused": "Paused",
@@ -2641,6 +2919,7 @@
       "setAllP4": "Set all P4",
       "enableFieldTooltip": "Enable this field during metadata fetch",
       "unset": "Unset",
+      "clearAll": "Clear All",
       "providerSpecificFields": "Provider-Specific Fields",
       "providerSpecificDescription": "These fields are unique to specific providers and cannot have custom priority settings. Use the checkboxes to enable/disable fetching these fields.",
       "replaceModeLabel": "Replace Mode:",
@@ -2791,6 +3070,24 @@
       "table": "Table"
     },
     "notes": {
+      "ui": {
+        "loading": "Loading notes...",
+        "add": "Add new note",
+        "edit": "Edit note",
+        "delete": "Delete note",
+        "emptyTitle": "No notes yet for this book",
+        "emptyDescription": "Click \"Add Note\" to create your first note and start capturing your thoughts.",
+        "title": "Title",
+        "content": "Content",
+        "titlePlaceholder": "Enter note title",
+        "contentPlaceholder": "Enter your note content...",
+        "addHeader": "Add new note",
+        "editHeader": "Edit note",
+        "save": "Save note",
+        "update": "Update note",
+        "updated": "Updated",
+        "created": "Created"
+      },
       "confirm": {
         "deleteMessage": "Are you sure you want to delete the note \"{{ title }}\"?",
         "deleteHeader": "Confirm Deletion"
@@ -2957,6 +3254,7 @@
       "title": "Add Physical Book",
       "description": "Catalog a physical book without a digital file",
       "closeTooltip": "Close",
+      "coverAlt": "Book cover",
       "libraryLabel": "Library",
       "libraryPlaceholder": "Select a library",
       "titleLabel": "Title",
@@ -3403,6 +3701,7 @@
       "doubanId": "Douban ID",
       "doubanRating": "Douban Rating",
       "doubanReviewCount": "Douban Rating Count",
+      "babelioUrl": "Babelio Book Page",
       "lubimyczytacId": "Lubimyczytać ID",
       "ranobedbId": "RanobeDB ID",
       "audibleId": "Audible ID",
@@ -3446,6 +3745,7 @@
       "comicCreators": "Comic Creators",
       "comicUniverse": "Comic Universe",
       "providers": "Metadata Providers",
+      "externalLinks": "External Links",
       "reviews": "Public Reviews"
     }
   },
@@ -4411,6 +4711,22 @@
       "booksCount": "{{ count }} books"
     }
   },
+  "genreShelf": {
+    "title": "Create Shelf by Genre",
+    "description": "This magic shelf will automatically show books associated with the selected genre.",
+    "genreLabel": "Genre",
+    "genrePlaceholder": "Search for a genre",
+    "cancel": "Cancel",
+    "create": "Create Shelf",
+    "toast": {
+      "validationSummary": "Genre required",
+      "validationDetail": "Select a genre from the list.",
+      "successSummary": "Shelf created",
+      "successDetail": "The “{{name}}” shelf will automatically follow this genre.",
+      "errorSummary": "Could not create shelf",
+      "errorDetail": "Could not create the shelf. Please try again."
+    }
+  },
   "magicShelf": {
     "header": {
       "titleEdit": "Edit Magic Shelf",
@@ -4421,6 +4737,7 @@
       "shelfName": "Magic Shelf Name",
       "namePlaceholder": "E.g. Rom-Zom-Coms, Fast & Furious, Missing Metadata",
       "shelfIcon": "Shelf Icon",
+      "selectedIconAlt": "Selected shelf icon",
       "clickToChange": "Click to change",
       "removeIcon": "Remove icon",
       "selectIcon": "Select Icon",
@@ -4710,9 +5027,9 @@
     },
     "filters": {
       "all": "All",
-      "matchStatus": "Match Status",
-      "matched": "Matched",
-      "unmatched": "Unmatched",
+      "matchStatus": "ASIN",
+      "matched": "With ASIN",
+      "unmatched": "Without ASIN",
       "photoStatus": "Photo Status",
       "hasPhoto": "Has Photo",
       "noPhoto": "No Photo",
@@ -4729,6 +5046,7 @@
     "footer": {
       "selected": "selected",
       "autoMatch": "Auto-match selected",
+      "autoMatchProgress": "Updating author metadata: {{completed}}/{{total}}",
       "mergeAuthors": "Merge authors",
       "deleteSelected": "Delete selected",
       "selectAll": "Select all",
@@ -4741,9 +5059,18 @@
       "confirmAccept": "Delete",
       "confirmReject": "Cancel"
     },
+    "duplicates": {
+      "button": "Find duplicate authors",
+      "title": "Possible duplicate authors",
+      "description": "Names are compared without case, accents or punctuation, including commas and reversed word order. Similar spellings are also suggested. Suggestions can be different people: review each record before merging.",
+      "empty": "No possible duplicates found.",
+      "count": "{{count}} possible duplicate groups found.",
+      "review": "Review",
+      "showMore": "Show more"
+    },
     "mergeAuthors": {
       "title": "Merge authors",
-      "description": "{{count}} authors are selected. Choose the author record to keep; books from the other records will be reassigned to it, then the duplicate records and their photos will be removed. Descriptions and ASINs from removed records are not combined.",
+      "description": "{{count}} authors are proposed. Uncheck any unrelated records and choose the author to keep. Books from the other selected records will be reassigned; those records and their photos will be deleted. Their descriptions and identifiers will not be combined.",
       "targetLabel": "Author record to keep",
       "targetPlaceholder": "Choose the primary author",
       "confirm": "Merge authors",
@@ -4790,16 +5117,21 @@
     "editor": {
       "nameLabel": "Name",
       "asinLabel": "ASIN",
+      "isniLabel": "ISNI number",
       "descriptionLabel": "Description",
       "saveBtn": "Save",
       "saving": "Saving...",
       "uploadPhotoTooltip": "Upload photo",
+      "photoAlt": "Author photo",
       "lockField": "Lock field",
       "unlockField": "Unlock field",
       "lockAllBtn": "Lock All",
       "unlockAllBtn": "Unlock All",
       "searchPhotoTooltip": "Search photo",
       "searchPhotoTitle": "Search Author Photo",
+      "deletePhotoTooltip": "Delete author photo",
+      "deletePhotoTitle": "Delete author photo",
+      "deletePhotoConfirm": "Delete this author's photo?",
       "toast": {
         "successSummary": "Author Updated",
         "successDetail": "Author details have been updated successfully.",
@@ -4807,7 +5139,10 @@
         "errorDetail": "Failed to update author details.",
         "photoUploadedSummary": "Photo Uploaded",
         "photoUploadedDetail": "Author photo has been uploaded successfully.",
-        "photoUploadErrorDetail": "Failed to upload author photo."
+        "photoUploadErrorDetail": "Failed to upload author photo.",
+        "photoDeletedSummary": "Photo Deleted",
+        "photoDeletedDetail": "The author photo has been deleted.",
+        "photoDeleteErrorDetail": "Failed to delete the author photo."
       }
     },
     "detail": {
@@ -4840,6 +5175,7 @@
       "authorNamePlaceholder": "Enter author name to search",
       "asinLabel": "ASIN",
       "asinPlaceholder": "Enter ASIN to look up directly",
+      "bnfSource": "BnF",
       "regionLabel": "Region",
       "searchBtn": "Search",
       "searching": "Searching...",

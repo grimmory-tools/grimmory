@@ -33,6 +33,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import java.nio.file.Files;
@@ -764,6 +765,35 @@ class BookMetadataUpdaterTest {
                 mockSettingsAndChangeDetector(mcd, true, true);
                 updater.setBookMetadata(context);
                 assertThat(metadataEntity.getPageCount()).isEqualTo(350);
+            }
+        }
+
+        @Test
+        void updatesBabelioUrlAndRejectsUrlsOutsideBabelioBookPages() {
+            BookMetadata newMeta = BookMetadata.builder()
+                    .babelioUrl("  https://www.babelio.com/livres/example/123  ")
+                    .build();
+            MetadataUpdateContext context = buildContext(newMeta, MetadataReplaceMode.REPLACE_ALL);
+
+            try (MockedStatic<MetadataChangeDetector> mcd = mockStatic(MetadataChangeDetector.class)) {
+                mockSettingsAndChangeDetector(mcd, true, true);
+                updater.setBookMetadata(context);
+                assertThat(metadataEntity.getBabelioUrl()).isEqualTo("https://www.babelio.com/livres/example/123");
+            }
+
+            for (String invalidUrl : List.of(
+                    "http://www.babelio.com/livres/example/123",
+                    "https://babelio.com.evil.test/livres/example/123",
+                    "https://babelio.com/livres/")) {
+                BookMetadata invalidMetadata = BookMetadata.builder().babelioUrl(invalidUrl).build();
+                MetadataUpdateContext invalidContext = buildContext(invalidMetadata, MetadataReplaceMode.REPLACE_ALL);
+
+                try (MockedStatic<MetadataChangeDetector> mcd = mockStatic(MetadataChangeDetector.class)) {
+                    mcd.when(() -> MetadataChangeDetector.isDifferent(any(), any(), any())).thenReturn(true);
+                    mcd.when(() -> MetadataChangeDetector.hasValueChanges(any(), any(), any())).thenReturn(true);
+                    assertThatThrownBy(() -> updater.setBookMetadata(invalidContext))
+                            .hasMessageContaining("Babelio URL");
+                }
             }
         }
 

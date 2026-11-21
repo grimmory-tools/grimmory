@@ -164,12 +164,14 @@ describe('AuthorMatchComponent', () => {
     component.matchAuthor({
       source: 'amazon',
       asin: 'B00MATCH',
+      providerId: 'B00MATCH',
       name: 'Ada Lovelace',
       description: 'Pioneer',
     });
 
     expect(matchAuthor).toHaveBeenCalledWith(9, {
       source: 'amazon',
+      providerId: 'B00MATCH',
       asin: 'B00MATCH',
       region: 'de',
     });
@@ -188,6 +190,25 @@ describe('AuthorMatchComponent', () => {
       life: 3000,
     });
     expect(emitSpy).toHaveBeenCalledWith(updatedAuthor);
+  });
+
+  it('matches a BnF result by provider ID without sending an ASIN', () => {
+    matchAuthor.mockReturnValue(new Subject<AuthorDetails>());
+
+    const component = createComponent();
+    component.matchAuthor({
+      source: 'BNF',
+      providerId: 'http://data.bnf.fr/ark:/12148/cb123#about',
+      isni: '000000012146438X',
+      name: 'Ada Lovelace',
+    });
+
+    expect(matchAuthor).toHaveBeenCalledWith(9, {
+      source: 'BNF',
+      providerId: 'http://data.bnf.fr/ark:/12148/cb123#about',
+      asin: undefined,
+      region: 'us',
+    });
   });
 
   it('reports a translated failure toast when matchAuthor errors', () => {

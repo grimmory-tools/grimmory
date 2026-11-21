@@ -14,6 +14,7 @@ import {Select} from '@openng/optimus-ui/select';
 import {ExternalDocLinkComponent} from '../../../../shared/components/external-doc-link/external-doc-link.component';
 import { ToggleSwitch } from '@openng/optimus-ui/toggleswitch';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
+import {LanguageResolverService} from '../../../../shared/service/language-resolver.service';
 
 @Component({
   selector: 'app-metadata-provider-settings',
@@ -39,6 +40,7 @@ export class MetadataProviderSettingsComponent {
   private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly languageResolver = inject(LanguageResolverService);
   readonly configurableProviders = computed(() => this.catalog.providers().filter(provider => provider.hasOptions));
   readonly simpleProviders = computed(() => this.catalog.providers().filter(provider => !provider.hasOptions));
   readonly enabled: Partial<Record<MetadataProviderId, boolean>> = {};
@@ -67,18 +69,10 @@ export class MetadataProviderSettingsComponent {
 
   selectedAmazonDomain = 'com';
 
-  googleLanguages = [
-    {label: 'Dutch', value: 'nl'},
-    {label: 'English', value: 'en'},
-    {label: 'French', value: 'fr'},
-    {label: 'German', value: 'de'},
-    {label: 'Italian', value: 'it'},
-    {label: 'Japanese', value: 'ja'},
-    {label: 'Polish', value: 'pl'},
-    {label: 'Portuguese', value: 'pt'},
-    {label: 'Spanish', value: 'es'},
-    {label: 'Swedish', value: 'sv'}
-  ];
+  readonly googleLanguages = computed(() =>
+    ['nl', 'en', 'fr', 'de', 'it', 'ja', 'pl', 'pt', 'es', 'sv']
+      .map(value => ({label: this.languageResolver.displayName(value), value}))
+  );
 
   selectedGoogleLanguage = '';
 

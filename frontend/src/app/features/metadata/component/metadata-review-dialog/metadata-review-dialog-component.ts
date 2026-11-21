@@ -7,6 +7,7 @@ import {Button} from '@openng/optimus-ui/button';
 import {Divider} from '@openng/optimus-ui/divider';
 import {ProgressBar} from '@openng/optimus-ui/progressbar';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
+import {TranslocoPipe} from '@jsverse/transloco';
 import {MetadataProgressService} from '../../../../shared/service/metadata-progress.service';
 import {MetadataPickerComponent} from '../book-metadata-center/metadata-picker/metadata-picker.component';
 import {DecimalPipe} from '@angular/common';
@@ -19,7 +20,7 @@ import {retryTransientQueryError} from '../../../../core/data/query-transport';
   templateUrl: './metadata-review-dialog-component.html',
   styleUrls: ['./metadata-review-dialog-component.scss'],
   imports: [
-    DecimalPipe,MetadataPickerComponent, ProgressSpinner, Button, Divider, ProgressBar, Tooltip],
+    DecimalPipe, MetadataPickerComponent, ProgressSpinner, Button, Divider, ProgressBar, Tooltip, TranslocoPipe],
 })
 export class MetadataReviewDialogComponent implements OnInit {
   private readonly config = inject(DynamicDialogConfig);

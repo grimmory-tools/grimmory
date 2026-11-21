@@ -135,6 +135,25 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
       : this.t.translate('metadata.viewer.ratingTooltip', {rating, reviews: reviewCount.toLocaleString()}, this.activeLang());
   }
 
+  getBabelioUrl(value: string | null | undefined): string | null {
+    if (!value) return null;
+    try {
+      const url = new URL(value);
+      const host = url.hostname.toLowerCase();
+      return url.protocol === 'https:'
+        && !url.username
+        && !url.password
+        && !url.port
+        && (host === 'babelio.com' || host.endsWith('.babelio.com'))
+        && url.pathname.startsWith('/livres/')
+        && url.pathname.length > '/livres/'.length
+        ? url.href
+        : null;
+    } catch {
+      return null;
+    }
+  }
+
   private navigateAfterDialogClose(navigate: () => void): void {
     if (this.metadataCenterViewMode !== 'dialog') {
       navigate();
@@ -219,7 +238,7 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
     if (book.alternativeFormats?.length) {
       book.alternativeFormats.forEach(format => {
         items.push({
-          label: `${format.bookType ?? 'File'} · ${this.formatFileSize(format)}`,
+          label: `${format.bookType ?? this.t.translate('metadata.viewer.fileLabel', {}, this.activeLang())} · ${this.formatFileSize(format)}`,
           icon: this.getFileIcon(format.bookType ?? null),
           command: () => this.downloadAdditionalFile(book, format.id)
         });
@@ -341,7 +360,7 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
         const isPrimaryOnly = !hasMultipleFormats;
         const truncatedName = this.truncateFileName(book.primaryFile.fileName, 25);
         deleteFormatItems.push({
-          label: `${truncatedName} (${this.formatFileSize(book.primaryFile)}) [Primary]`,
+          label: `${truncatedName} (${this.formatFileSize(book.primaryFile)}) [${this.t.translate('metadata.viewer.primaryFileLabel', {}, this.activeLang())}]`,
           icon: this.getFileIcon(extension),
           tooltipOptions: {tooltipLabel: book.primaryFile.fileName, tooltipPosition: 'left'},
           command: () => this.deleteBookFile(book, book.primaryFile!.id, book.primaryFile!.fileName || 'file', true, isPrimaryOnly)

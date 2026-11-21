@@ -28,6 +28,7 @@ import {LocalStorageService} from '../../../../shared/service/local-storage.serv
 import {ScalePreference} from '../../../../shared/util/scale-preference.util';
 import {LayoutService} from '../../../../shared/layout/layout.service';
 import {createGridDensity} from '../../../../shared/util/grid-density.util';
+import {findAuthorDuplicates} from '../../author-duplicates';
 
 type SortDirection = 'asc' | 'desc';
 
@@ -137,10 +138,21 @@ export class AuthorBrowserComponent implements OnInit {
   readonly pendingMatch = signal<{author: AuthorSummary; candidates: AuthorSearchResult[]} | null>(null);
   readonly applyingPendingMatch = signal(false);
   readonly autoMatchInProgress = signal(false);
+  readonly autoMatchProgress = signal({processed: 0, total: 0});
   readonly mergeCandidates = signal<AuthorSummary[]>([]);
   readonly mergeAuthorsDialogVisible = signal(false);
   readonly mergeTargetAuthorId = signal<number | null>(null);
   readonly mergingAuthors = signal(false);
+  readonly duplicateGroups = signal<AuthorSummary[][]>([]);
+  readonly duplicateDialogVisible = signal(false);
+  readonly findingDuplicates = signal(false);
+  readonly duplicateLimit = signal(50);
+  readonly includedMergeIds = signal<Set<number>>(new Set());
+  readonly includedMergeCandidates = computed(() =>
+    this.mergeCandidates()
+      .filter(author => this.includedMergeIds().has(author.id))
+      .map(author => ({...author, label: `${author.name} (#${author.id})`}))
+  );
   private autoMatchQueue: AuthorSummary[] = [];
   private autoMatchStats = {matched: 0, ambiguous: 0, noResults: 0, failed: 0};
 
@@ -406,16 +418,57 @@ export class AuthorBrowserComponent implements OnInit {
       return;
     }
 
-    this.mergeCandidates.set(selectedAuthors);
+    this.openMergeCandidates(selectedAuthors);
+  }
+
+  openDuplicateAuthors(): void {
+    if (this.findingDuplicates()) return;
+    this.findingDuplicates.set(true);
+    setTimeout(() => {
+      if (this.destroyRef.destroyed) return;
+      try {
+        this.duplicateGroups.set(findAuthorDuplicates(this.allAuthorsState() ?? []));
+        this.duplicateLimit.set(50);
+        this.duplicateDialogVisible.set(true);
+      } finally {
+        this.findingDuplicates.set(false);
+      }
+    });
+  }
+
+  reviewDuplicateGroup(authors: AuthorSummary[]): void {
+    this.duplicateDialogVisible.set(false);
+    this.openMergeCandidates(authors);
+  }
+
+  showMoreDuplicates(): void {
+    this.duplicateLimit.update(limit => limit + 50);
+  }
+
+  private openMergeCandidates(authors: AuthorSummary[]): void {
+    this.mergeCandidates.set(authors);
+    this.includedMergeIds.set(new Set(authors.map(author => author.id)));
     this.mergeTargetAuthorId.set(null);
     this.mergeAuthorsDialogVisible.set(true);
+  }
+
+  toggleMergeCandidate(authorId: number, included: boolean): void {
+    this.includedMergeIds.update(current => {
+      const next = new Set(current);
+      if (included) next.add(authorId);
+      else next.delete(authorId);
+      return next;
+    });
+    if (!included && this.mergeTargetAuthorId() === authorId) {
+      this.mergeTargetAuthorId.set(null);
+    }
   }
 
   confirmMergeAuthors(): void {
     if (this.mergingAuthors()) {
       return;
     }
-    const selectedAuthors = this.mergeCandidates();
+    const selectedAuthors = this.mergeCandidates().filter(author => this.includedMergeIds().has(author.id));
     const target = selectedAuthors.find(author => author.id === this.mergeTargetAuthorId());
     const sources = selectedAuthors.filter(author => author.id !== target?.id);
     if (!target || sources.length === 0) {
@@ -423,11 +476,7 @@ export class AuthorBrowserComponent implements OnInit {
     }
 
     this.mergingAuthors.set(true);
-    this.bookMetadataManageService.consolidateMetadata(
-      'authors',
-      [target.name],
-      sources.map(author => author.name)
-    ).subscribe({
+    this.bookMetadataManageService.mergeAuthors(target.id, sources.map(author => author.id)).subscribe({
       next: () => {
         const mergedIds = new Set(sources.map(author => author.id));
         this.allAuthorsState.update(current => (current ?? []).filter(author => !mergedIds.has(author.id)));
@@ -482,6 +531,7 @@ export class AuthorBrowserComponent implements OnInit {
     }
 
     this.autoMatchStats = {matched: 0, ambiguous: 0, noResults: 0, failed: 0};
+    this.autoMatchProgress.set({processed: 0, total: this.autoMatchQueue.length});
     this.autoMatchInProgress.set(true);
     this.processNextAutoMatch();
   }
@@ -495,6 +545,7 @@ export class AuthorBrowserComponent implements OnInit {
     this.applyingPendingMatch.set(true);
     this.authorService.matchAuthor(pending.author.id, {
       source: candidate.source,
+      providerId: candidate.providerId ?? candidate.asin,
       asin: candidate.asin,
     }).subscribe({
       next: updated => {
@@ -502,12 +553,14 @@ export class AuthorBrowserComponent implements OnInit {
         this.autoMatchStats.matched++;
         this.applyingPendingMatch.set(false);
         this.pendingMatch.set(null);
+        this.completeAutoMatchItem();
         this.processNextAutoMatch();
       },
       error: () => {
         this.autoMatchStats.failed++;
         this.applyingPendingMatch.set(false);
         this.pendingMatch.set(null);
+        this.completeAutoMatchItem();
         this.processNextAutoMatch();
       }
     });
@@ -519,6 +572,7 @@ export class AuthorBrowserComponent implements OnInit {
     }
     this.autoMatchStats.ambiguous++;
     this.pendingMatch.set(null);
+    this.completeAutoMatchItem();
     this.processNextAutoMatch();
   }
 
@@ -529,24 +583,34 @@ export class AuthorBrowserComponent implements OnInit {
       return;
     }
 
-    this.authorService.resolveAuthorMatch(author.id, author.name).subscribe({
+    this.authorService.resolveAuthorMatch(author.id, author.name, undefined, author.asin).subscribe({
       next: resolution => {
         if (resolution.status === 'matched') {
           this.recordAuthorMatch(author, resolution.author, resolution.candidate);
           this.autoMatchStats.matched++;
+          this.completeAutoMatchItem();
           this.processNextAutoMatch();
         } else if (resolution.status === 'ambiguous') {
           this.pendingMatch.set({author, candidates: resolution.candidates});
         } else {
           this.autoMatchStats.noResults++;
+          this.completeAutoMatchItem();
           this.processNextAutoMatch();
         }
       },
       error: () => {
         this.autoMatchStats.failed++;
+        this.completeAutoMatchItem();
         this.processNextAutoMatch();
       }
     });
+  }
+
+  private completeAutoMatchItem(): void {
+    this.autoMatchProgress.update(progress => ({
+      ...progress,
+      processed: Math.min(progress.total, progress.processed + 1),
+    }));
   }
 
   private recordAuthorMatch(author: AuthorSummary, updated: AuthorDetails, candidate: AuthorSearchResult): void {
@@ -556,7 +620,7 @@ export class AuthorBrowserComponent implements OnInit {
           ...existing,
           name: updated.name,
           asin: updated.asin,
-          hasPhoto: existing.hasPhoto || !!candidate.imageUrl,
+          hasPhoto: updated.hasPhoto ?? (existing.hasPhoto || !!candidate.imageUrl),
         }
       : existing
     ));

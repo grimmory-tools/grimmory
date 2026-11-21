@@ -93,7 +93,7 @@
             @for (restriction of getExcludeRestrictions(); track restriction.id) {
               <div class="restriction-chip mode-exclude">
                 <span class="chip-type">{{ getRestrictionTypeLabel(restriction.restrictionType) }}</span>
-                <span class="chip-value">{{ restriction.value }}</span>
+                <span class="chip-value">{{ getRestrictionValueLabel(restriction) }}</span>
                 @if (isEditing) {
                   <button type="button" class="chip-remove" (click)="removeRestriction(restriction)">
                     <i class="pi pi-times"></i>
@@ -116,7 +116,7 @@
             @for (restriction of getAllowOnlyRestrictions(); track restriction.id) {
               <div class="restriction-chip mode-allow">
                 <span class="chip-type">{{ getRestrictionTypeLabel(restriction.restrictionType) }}</span>
-                <span class="chip-value">{{ restriction.value }}</span>
+                <span class="chip-value">{{ getRestrictionValueLabel(restriction) }}</span>
                 @if (isEditing) {
                   <button type="button" class="chip-remove" (click)="removeRestriction(restriction)">
                     <i class="pi pi-times"></i>

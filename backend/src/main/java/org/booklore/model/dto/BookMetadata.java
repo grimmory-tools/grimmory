@@ -50,6 +50,7 @@ public class BookMetadata {
     private String doubanId;
     private Double doubanRating;
     private Integer doubanReviewCount;
+    private String babelioUrl;
     private Double lubimyczytacRating;
     private String googleId;
     private String lubimyczytacId;
@@ -105,6 +106,7 @@ public class BookMetadata {
     private Boolean hardcoverReviewCountLocked;
     private Boolean doubanRatingLocked;
     private Boolean doubanReviewCountLocked;
+    private Boolean babelioUrlLocked;
     private Boolean lubimyczytacIdLocked;
     private Boolean lubimyczytacRatingLocked;
     private Boolean ranobedbIdLocked;

@@ -4,7 +4,7 @@
       @if (hasPhoto) {
         <p-image
           [src]="photoUrl"
-          alt="Author Photo"
+          [alt]="t('photoAlt')"
           width="200"
           appendTo="body"
           [preview]="true"
@@ -24,7 +24,7 @@
           [chooseStyleClass]="'p-button-sm p-button-outlined p-button-danger'"
           [pTooltip]="t('uploadPhotoTooltip')"
           tooltipPosition="top"
-          [disabled]="form.get('photoLocked')?.value"
+          [disabled]="form.get('photoLocked')?.value || isDeletingPhoto()"
           name="file"
           [url]="uploadUrl"
           mode="basic"
@@ -41,9 +41,21 @@
           size="small"
           icon="pi pi-search"
           [outlined]="true"
-          [disabled]="form.get('photoLocked')?.value"
+          [disabled]="form.get('photoLocked')?.value || isDeletingPhoto()"
           (onClick)="openPhotoSearch()"
           severity="info" />
+
+        <p-button
+          [pTooltip]="t('deletePhotoTooltip')"
+          [ariaLabel]="t('deletePhotoTooltip')"
+          tooltipPosition="top"
+          size="small"
+          icon="pi pi-trash"
+          [outlined]="true"
+          [disabled]="!hasPhoto || form.get('photoLocked')?.value || isUploading() || isDeletingPhoto()"
+          [loading]="isDeletingPhoto()"
+          (onClick)="deletePhoto()"
+          severity="danger" />
 
         @if (!form.get('photoLocked')?.value) {
           <p-button
@@ -91,6 +103,19 @@
           }
           @else {
             <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('asin')" severity="warn" />
+          }
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label for="authorIsni">{{ t('isniLabel') }}</label>
+        <div class="field-with-lock">
+          <input pInputText id="authorIsni" formControlName="isni"/>
+          @if (!form.get('isniLocked')?.value) {
+            <p-button icon="pi pi-lock-open" [outlined]="true" (onClick)="toggleLock('isni')" severity="success" />
+          }
+          @else {
+            <p-button icon="pi pi-lock" [outlined]="true" (onClick)="toggleLock('isni')" severity="warn" />
           }
         </div>
       </div>

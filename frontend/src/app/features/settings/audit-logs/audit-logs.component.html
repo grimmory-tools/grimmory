@@ -16,7 +16,7 @@
         </h3>
         <div class="filter-controls">
           <p-select
-            [options]="actionOptions"
+            [options]="actionOptions()"
             [(ngModel)]="selectedAction"
             optionLabel="label"
             optionValue="value"
@@ -84,7 +84,7 @@
 
           <ng-template pTemplate="body" let-log>
             <tr>
-              <td class="timestamp-cell" [title]="log.createdAt | date:'medium'">
+              <td class="timestamp-cell" [title]="formatAbsoluteTime(log.createdAt)">
                 {{ getRelativeTime(log.createdAt) }}
               </td>
               <td>{{ log.username }}</td>

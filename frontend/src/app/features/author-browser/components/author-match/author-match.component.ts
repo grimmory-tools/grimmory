@@ -108,6 +108,7 @@ export class AuthorMatchComponent implements OnInit {
     this.matching.set(true);
     const request: AuthorMatchRequest = {
       source: result.source,
+      providerId: result.providerId ?? result.asin,
       asin: result.asin,
       region: this.selectedRegion()
     };
