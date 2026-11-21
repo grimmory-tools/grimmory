@@ -54,10 +54,10 @@ public class BrowsePager {
     }
 
     public <T> BrowsePage<T> assemble(String pagePath, String facetPath, String preserved,
-                                      Window window, long total, List<T> content) {
+                                      Window window, long total, List<T> content, Long totalMembers) {
         CursorState baseState = new CursorState(window.offset(), window.limit(), window.sort(), window.paramsHash(), window.randomSeed());
         List<Link> links = linksBuilder.build(new LinksBuilder.Context(
                 pagePath, facetPath, preserved, window.offset(), window.limit(), total, baseState));
-        return BrowsePage.of(content, window.offset(), window.limit(), total, codec.encode(baseState), links);
+        return BrowsePage.of(content, window.offset(), window.limit(), total, codec.encode(baseState), links, totalMembers);
     }
 }

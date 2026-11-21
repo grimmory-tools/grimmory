@@ -18,6 +18,10 @@ public final class ParamsHash {
     }
 
     public static String compute(String query, Map<String, List<String>> facets, FacetLogic logic) {
+        return compute(query, facets, logic, null);
+    }
+
+    public static String compute(String query, Map<String, List<String>> facets, FacetLogic logic, String pageParam) {
         StringBuilder canonical = new StringBuilder();
         appendField(canonical, query == null ? "" : query.trim());
         appendField(canonical, (logic == null ? FacetLogic.OR : logic).name());
@@ -33,6 +37,10 @@ public final class ParamsHash {
                     appendField(canonical, value);
                 }
             }
+        }
+        if (pageParam != null && !pageParam.isBlank()) {
+            appendField(canonical, "page");
+            appendField(canonical, pageParam);
         }
         return hash(canonical.toString());
     }

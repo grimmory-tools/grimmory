@@ -160,7 +160,9 @@ interface BookRecord<TMetadata extends BookMetadataFields> {
   isPhysical?: boolean;
 }
 
-export type BookSummary = BookRecord<BookSummaryMetadata>;
+export type BookSummary = BookRecord<BookSummaryMetadata> & {
+  seriesBookIds?: readonly number[];
+};
 
 export interface BookDetailAudiobookChapter {
   index?: number;

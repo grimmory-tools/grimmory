@@ -36,4 +36,5 @@ public class Book {
     private List<BookFile> alternativeFormats;
     private List<BookFile> supplementaryFiles;
     private Boolean isPhysical;
+    private List<Long> seriesBookIds;
 }
