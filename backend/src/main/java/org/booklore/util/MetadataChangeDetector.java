@@ -292,95 +292,81 @@ public class MetadataChangeDetector {
                     MetadataClearFlags::isTags, true)
     );
 
-    public static boolean isDifferent(BookMetadata newMeta, BookMetadataEntity existingMeta, MetadataClearFlags clear) {
+    public static boolean isDifferent(BookMetadata newMeta, BookMetadataEntity existingMeta, MetadataClearFlags clear, boolean userEdit) {
         if (clear == null) return true;
         for (FieldDescriptor<?> field : SIMPLE_FIELDS) {
-            if (hasFieldDifference(field, newMeta, existingMeta, clear)) {
+            if (hasFieldDifference(field, newMeta, existingMeta, clear, userEdit)) {
                 return true;
             }
         }
         for (CollectionFieldDescriptor field : COLLECTION_FIELDS) {
-            if (hasCollectionFieldDifference(field, newMeta, existingMeta, clear)) {
+            if (hasCollectionFieldDifference(field, newMeta, existingMeta, clear, userEdit)) {
                 return true;
             }
         }
         if (hasComicMetadataChanges(newMeta, existingMeta)) {
             return true;
         }
-        if (hasComicLockChanges(newMeta, existingMeta)) {
-            return true;
-        }
-        return differsLock(newMeta.getCoverLocked(), existingMeta.getCoverLocked()) || differsLock(newMeta.getAudiobookCoverLocked(), existingMeta.getAudiobookCoverLocked());
-    }
-
-    public static boolean hasValueChanges(BookMetadata newMeta, BookMetadataEntity existingMeta, MetadataClearFlags clear) {
-        for (FieldDescriptor<?> field : SIMPLE_FIELDS) {
-            if (hasValueDifference(field, newMeta, existingMeta, clear)) {
+        if (userEdit) {
+            if (hasComicLockChanges(newMeta, existingMeta)) {
                 return true;
             }
-        }
-        for (CollectionFieldDescriptor field : COLLECTION_FIELDS) {
-            if (hasCollectionValueDifference(field, newMeta, existingMeta, clear)) {
-                return true;
-            }
-        }
-        if (hasComicMetadataChanges(newMeta, existingMeta)) {
-            return true;
+            return differsLock(newMeta.getCoverLocked(), existingMeta.getCoverLocked()) || differsLock(newMeta.getAudiobookCoverLocked(), existingMeta.getAudiobookCoverLocked());
         }
         return false;
     }
 
-    public static boolean hasValueChangesForFileWrite(BookMetadata newMeta, BookMetadataEntity existingMeta, MetadataClearFlags clear) {
+    public static boolean hasValueChangesForFileWrite(BookMetadata newMeta, BookMetadataEntity existingMeta, MetadataClearFlags clear, boolean userEdit) {
         for (FieldDescriptor<?> field : SIMPLE_FIELDS) {
-            if (field.includedInFileWrite() && hasValueDifference(field, newMeta, existingMeta, clear)) {
+            if (field.includedInFileWrite() && hasValueDifference(field, newMeta, existingMeta, clear, userEdit)) {
                 return true;
             }
         }
         for (CollectionFieldDescriptor field : COLLECTION_FIELDS) {
-            if (field.includedInFileWrite() && hasCollectionValueDifference(field, newMeta, existingMeta, clear)) {
+            if (field.includedInFileWrite() && hasCollectionValueDifference(field, newMeta, existingMeta, clear, userEdit)) {
                 return true;
             }
         }
         return false;
     }
 
-    private static <T> boolean hasFieldDifference(FieldDescriptor<T> field, BookMetadata newMeta, BookMetadataEntity existingMeta, MetadataClearFlags clear) {
+    private static <T> boolean hasFieldDifference(FieldDescriptor<T> field, BookMetadata newMeta, BookMetadataEntity existingMeta, MetadataClearFlags clear, boolean userEdit) {
         boolean valueChanged = differs(
                 field.shouldClear(clear),
                 field.getNewValue(newMeta),
                 field.getOldValue(existingMeta),
-                field.isUnlocked(existingMeta)
+                userEdit || field.isUnlocked(existingMeta)
         );
-        boolean lockChanged = differsLock(field.getNewLock(newMeta), field.getOldLock(existingMeta));
+        boolean lockChanged = userEdit && differsLock(field.getNewLock(newMeta), field.getOldLock(existingMeta));
         return valueChanged || lockChanged;
     }
 
-    private static boolean hasCollectionFieldDifference(CollectionFieldDescriptor field, BookMetadata newMeta, BookMetadataEntity existingMeta, MetadataClearFlags clear) {
+    private static boolean hasCollectionFieldDifference(CollectionFieldDescriptor field, BookMetadata newMeta, BookMetadataEntity existingMeta, MetadataClearFlags clear, boolean userEdit) {
         boolean valueChanged = differs(
                 field.shouldClear(clear),
                 field.getNewValue(newMeta),
                 field.getOldValue(existingMeta),
-                field.isUnlocked(existingMeta)
+                userEdit || field.isUnlocked(existingMeta)
         );
-        boolean lockChanged = differsLock(field.getNewLock(newMeta), field.getOldLock(existingMeta));
+        boolean lockChanged = userEdit && differsLock(field.getNewLock(newMeta), field.getOldLock(existingMeta));
         return valueChanged || lockChanged;
     }
 
-    private static <T> boolean hasValueDifference(FieldDescriptor<T> field, BookMetadata newMeta, BookMetadataEntity existingMeta, MetadataClearFlags clear) {
+    private static <T> boolean hasValueDifference(FieldDescriptor<T> field, BookMetadata newMeta, BookMetadataEntity existingMeta, MetadataClearFlags clear, boolean userEdit) {
         return differs(
                 field.shouldClear(clear),
                 field.getNewValue(newMeta),
                 field.getOldValue(existingMeta),
-                field.isUnlocked(existingMeta)
+                userEdit || field.isUnlocked(existingMeta)
         );
     }
 
-    private static boolean hasCollectionValueDifference(CollectionFieldDescriptor field, BookMetadata newMeta, BookMetadataEntity existingMeta, MetadataClearFlags clear) {
+    private static boolean hasCollectionValueDifference(CollectionFieldDescriptor field, BookMetadata newMeta, BookMetadataEntity existingMeta, MetadataClearFlags clear, boolean userEdit) {
         return differs(
                 field.shouldClear(clear),
                 field.getNewValue(newMeta),
                 field.getOldValue(existingMeta),
-                field.isUnlocked(existingMeta)
+                userEdit || field.isUnlocked(existingMeta)
         );
     }
 
@@ -517,23 +503,6 @@ public class MetadataChangeDetector {
                 || differsLock(comicDto.getCharactersLocked(), comicEntity.getCharactersLocked())
                 || differsLock(comicDto.getTeamsLocked(), comicEntity.getTeamsLocked())
                 || differsLock(comicDto.getLocationsLocked(), comicEntity.getLocationsLocked());
-    }
-
-    public static boolean hasLockChanges(BookMetadata newMeta, BookMetadataEntity existingMeta) {
-        for (FieldDescriptor<?> field : SIMPLE_FIELDS) {
-            if (differsLock(field.getNewLock(newMeta), field.getOldLock(existingMeta))) {
-                return true;
-            }
-        }
-        for (CollectionFieldDescriptor field : COLLECTION_FIELDS) {
-            if (differsLock(field.getNewLock(newMeta), field.getOldLock(existingMeta))) {
-                return true;
-            }
-        }
-        if (differsLock(newMeta.getCoverLocked(), existingMeta.getCoverLocked())) return true;
-        if (differsLock(newMeta.getAudiobookCoverLocked(), existingMeta.getAudiobookCoverLocked())) return true;
-        if (differsLock(newMeta.getReviewsLocked(), existingMeta.getReviewsLocked())) return true;
-        return hasComicLockChanges(newMeta, existingMeta);
     }
 
     private static boolean hasNonEmptyComicValue(ComicMetadata dto) {

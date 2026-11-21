@@ -24,7 +24,7 @@ class MetadataCopyHelperTest {
     @Nested
     class MoodsTests {
         @Test
-        void copyMoods_whenNotLocked_callsConsumer() {
+        void copyMoods_callsConsumer() {
             MoodEntity mood1 = new MoodEntity();
             mood1.setName("Dark");
             MoodEntity mood2 = new MoodEntity();
@@ -41,21 +41,6 @@ class MetadataCopyHelperTest {
             assertEquals(2, result.get().size());
             assertTrue(result.get().contains("Dark"));
             assertTrue(result.get().contains("Atmospheric"));
-        }
-
-        @Test
-        void copyMoods_whenLocked_doesNotCallConsumer() {
-            MoodEntity mood = new MoodEntity();
-            mood.setName("Dark");
-            metadata.setMoods(Set.of(mood));
-            metadata.setMoodsLocked(true);
-
-            MetadataCopyHelper helper = new MetadataCopyHelper(metadata);
-            AtomicReference<Set<String>> result = new AtomicReference<>();
-
-            helper.copyMoods(false, result::set);
-
-            assertNull(result.get());
         }
 
         @Test
@@ -98,7 +83,7 @@ class MetadataCopyHelperTest {
     @Nested
     class TagsTests {
         @Test
-        void copyTags_whenNotLocked_callsConsumer() {
+        void copyTags_callsConsumer() {
             TagEntity tag1 = new TagEntity();
             tag1.setName("Fantasy");
             TagEntity tag2 = new TagEntity();
@@ -115,21 +100,6 @@ class MetadataCopyHelperTest {
             assertEquals(2, result.get().size());
             assertTrue(result.get().contains("Fantasy"));
             assertTrue(result.get().contains("Epic"));
-        }
-
-        @Test
-        void copyTags_whenLocked_doesNotCallConsumer() {
-            TagEntity tag = new TagEntity();
-            tag.setName("Fantasy");
-            metadata.setTags(Set.of(tag));
-            metadata.setTagsLocked(true);
-
-            MetadataCopyHelper helper = new MetadataCopyHelper(metadata);
-            AtomicReference<Set<String>> result = new AtomicReference<>();
-
-            helper.copyTags(false, result::set);
-
-            assertNull(result.get());
         }
     }
 
@@ -160,7 +130,7 @@ class MetadataCopyHelperTest {
         }
 
         @Test
-        void copyAmazonRating_whenNotLocked_callsConsumer() {
+        void copyAmazonRating_callsConsumer() {
             metadata.setAmazonRating(4.5);
             metadata.setAmazonRatingLocked(false);
 
@@ -173,20 +143,7 @@ class MetadataCopyHelperTest {
         }
 
         @Test
-        void copyAmazonRating_whenLocked_doesNotCallConsumer() {
-            metadata.setAmazonRating(4.5);
-            metadata.setAmazonRatingLocked(true);
-
-            MetadataCopyHelper helper = new MetadataCopyHelper(metadata);
-            AtomicReference<Double> result = new AtomicReference<>();
-
-            helper.copyAmazonRating(false, result::set);
-
-            assertNull(result.get());
-        }
-
-        @Test
-        void copyGoodreadsRating_whenNotLocked_callsConsumer() {
+        void copyGoodreadsRating_callsConsumer() {
             metadata.setGoodreadsRating(4.2);
             metadata.setGoodreadsRatingLocked(false);
 
@@ -199,7 +156,7 @@ class MetadataCopyHelperTest {
         }
 
         @Test
-        void copyHardcoverRating_whenNotLocked_callsConsumer() {
+        void copyHardcoverRating_callsConsumer() {
             metadata.setHardcoverRating(3.8);
             metadata.setHardcoverRatingLocked(false);
 
@@ -212,7 +169,7 @@ class MetadataCopyHelperTest {
         }
 
         @Test
-        void copyLubimyczytacRating_whenNotLocked_callsConsumer() {
+        void copyLubimyczytacRating_callsConsumer() {
             metadata.setLubimyczytacRating(7.5);
             metadata.setLubimyczytacRatingLocked(false);
 
@@ -225,7 +182,7 @@ class MetadataCopyHelperTest {
         }
 
         @Test
-        void copyRanobedbRating_whenNotLocked_callsConsumer() {
+        void copyRanobedbRating_callsConsumer() {
             metadata.setRanobedbRating(8.0);
             metadata.setRanobedbRatingLocked(false);
 
@@ -241,7 +198,7 @@ class MetadataCopyHelperTest {
     @Nested
     class IdentifierTests {
         @Test
-        void copyLubimyczytacId_whenNotLocked_callsConsumer() {
+        void copyLubimyczytacId_callsConsumer() {
             metadata.setLubimyczytacId("12345");
             metadata.setLubimyczytacIdLocked(false);
 
@@ -254,20 +211,7 @@ class MetadataCopyHelperTest {
         }
 
         @Test
-        void copyLubimyczytacId_whenLocked_doesNotCallConsumer() {
-            metadata.setLubimyczytacId("12345");
-            metadata.setLubimyczytacIdLocked(true);
-
-            MetadataCopyHelper helper = new MetadataCopyHelper(metadata);
-            AtomicReference<String> result = new AtomicReference<>();
-
-            helper.copyLubimyczytacId(false, result::set);
-
-            assertNull(result.get());
-        }
-
-        @Test
-        void copyHardcoverBookId_whenNotLocked_callsConsumer() {
+        void copyHardcoverBookId_callsConsumer() {
             metadata.setHardcoverBookId("98765");
             metadata.setHardcoverBookIdLocked(false);
 
@@ -277,19 +221,6 @@ class MetadataCopyHelperTest {
             helper.copyHardcoverBookId(false, result::set);
 
             assertEquals("98765", result.get());
-        }
-
-        @Test
-        void copyHardcoverBookId_whenLocked_doesNotCallConsumer() {
-            metadata.setHardcoverBookId("98765");
-            metadata.setHardcoverBookIdLocked(true);
-
-            MetadataCopyHelper helper = new MetadataCopyHelper(metadata);
-            AtomicReference<String> result = new AtomicReference<>();
-
-            helper.copyHardcoverBookId(false, result::set);
-
-            assertNull(result.get());
         }
     }
 }

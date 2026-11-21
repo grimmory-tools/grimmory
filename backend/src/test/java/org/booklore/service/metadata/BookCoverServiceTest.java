@@ -187,27 +187,6 @@ class BookCoverServiceTest {
         }
 
         @Test
-        void updateCoverFromFileThrowsWhenCoverLocked() {
-            BookEntity book = buildBook(1L, true);
-            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
-            MultipartFile file = mock(MultipartFile.class);
-
-            assertThatThrownBy(() -> service.updateCoverFromFile(1L, file))
-                    .isInstanceOf(APIException.class)
-                    .hasMessageContaining("locked");
-        }
-
-        @Test
-        void updateCoverFromUrlThrowsWhenCoverLocked() {
-            BookEntity book = buildBook(1L, true);
-            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
-
-            assertThatThrownBy(() -> service.updateCoverFromUrl(1L, "http://example.com"))
-                    .isInstanceOf(APIException.class)
-                    .hasMessageContaining("locked");
-        }
-
-        @Test
         void regenerateCoverThrowsWhenCoverLocked() {
             BookEntity book = buildBook(1L, true);
             when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
@@ -220,27 +199,6 @@ class BookCoverServiceTest {
 
     @Nested
     class AudiobookCoverLockChecks {
-
-        @Test
-        void updateAudiobookCoverFromFileThrowsWhenLocked() {
-            BookEntity book = buildBookWithAudiobookLock(1L, true);
-            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
-            MultipartFile file = mock(MultipartFile.class);
-
-            assertThatThrownBy(() -> service.updateAudiobookCoverFromFile(1L, file))
-                    .isInstanceOf(APIException.class)
-                    .hasMessageContaining("locked");
-        }
-
-        @Test
-        void updateAudiobookCoverFromUrlThrowsWhenLocked() {
-            BookEntity book = buildBookWithAudiobookLock(1L, true);
-            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
-
-            assertThatThrownBy(() -> service.updateAudiobookCoverFromUrl(1L, "http://example.com"))
-                    .isInstanceOf(APIException.class)
-                    .hasMessageContaining("locked");
-        }
 
         @Test
         void regenerateAudiobookCoverThrowsWhenLocked() {
@@ -438,29 +396,25 @@ class BookCoverServiceTest {
     class BulkCoverFromFile {
 
         @Test
-        void filtersOutLockedBooksForBulkOperations() {
+        void bulkUploadReplacesLockedCover() throws Exception {
             when(appSettingService.getAppSettings()).thenReturn(appSettings);
             when(appSettings.getMaxFileUploadSizeInMb()).thenReturn(5);
 
-            BookEntity unlocked = buildBook(1L, false);
-            BookEntity locked = buildBook(2L, true);
+            BookEntity locked = buildBook(1L, true);
 
-            when(bookQueryService.findAllWithMetadataByIds(Set.of(1L, 2L)))
-                    .thenReturn(List.of(unlocked, locked));
+            when(bookQueryService.findAllWithMetadataByIds(Set.of(1L))).thenReturn(List.of(locked));
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(locked));
+            when(bookRepository.findCoverUpdateInfoByIds(any())).thenReturn(List.of());
+            MultipartFile file = validPngFile();
+            runAsyncInline();
+            runTransactionsInline();
 
-            MultipartFile file = mock(MultipartFile.class);
-            when(file.isEmpty()).thenReturn(false);
-            when(file.getSize()).thenReturn(1024L);
-            try {
-                when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0})); // JPEG
-                when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
-            } catch (Exception _) {}
+            mimeDetectorMock.when(() -> MimeDetector.detect(any(InputStream.class))).thenReturn("image/png");
 
-            mimeDetectorMock.when(() -> MimeDetector.detect(any(InputStream.class))).thenReturn("image/jpeg");
+            service.updateCoverFromFileForBooks(Set.of(1L), file);
 
-            service.updateCoverFromFileForBooks(Set.of(1L, 2L), file);
-
-            verify(bookQueryService).findAllWithMetadataByIds(Set.of(1L, 2L));
+            verify(fileService).createThumbnailFromBytes(eq(1L), any());
+            verify(bookRepository).save(locked);
         }
     }
 

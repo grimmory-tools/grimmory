@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.dto.settings.LibraryFile;
 import org.booklore.model.entity.BookEntity;
+import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.metadata.extractor.AudiobookMetadataExtractor;
@@ -38,6 +39,11 @@ public class BookCoverGenerator {
     public void generateCoverFromAdditionalFile(BookEntity bookEntity, LibraryFile additionalFile) {
         BookFileType additionalType = additionalFile.getBookFileType();
         boolean additionalIsAudiobook = additionalType == BookFileType.AUDIOBOOK;
+
+        BookMetadataEntity metadata = bookEntity.getMetadata();
+        if (metadata != null && Boolean.TRUE.equals(additionalIsAudiobook ? metadata.getAudiobookCoverLocked() : metadata.getCoverLocked())) {
+            return;
+        }
 
         if (!bookEntity.hasFiles()) {
             try {
