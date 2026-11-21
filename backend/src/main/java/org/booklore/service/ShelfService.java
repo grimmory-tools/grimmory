@@ -10,6 +10,7 @@ import org.booklore.model.dto.Shelf;
 import org.booklore.model.dto.request.ShelfCreateRequest;
 import org.booklore.model.entity.BookLoreUserEntity;
 import org.booklore.model.entity.ShelfEntity;
+import org.booklore.model.enums.IconType;
 import org.booklore.model.enums.ShelfType;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.ShelfRepository;
@@ -65,10 +66,12 @@ public class ShelfService {
         if (request.isPublicShelf() && !authenticationService.getAuthenticatedUser().getPermissions().isAdmin()) {
             throw new AccessDeniedException("Only admins can update shelves to be public");
         }
-        String koboShelfName = ShelfType.KOBO.getName();
-        if (koboShelfName.equals(shelfEntity.getName()) && !koboShelfName.equals(request.getName())) {
-            throw ApiError.SHELF_CANNOT_BE_RENAMED.createException(koboShelfName);
+
+        boolean isRename = !shelfEntity.getName().equals(request.getName());
+        if (isRename && isKoboShelf(shelfEntity)) {
+            throw ApiError.SHELF_CANNOT_BE_RENAMED.createException(shelfEntity.getName());
         }
+
         shelfEntity.setName(request.getName());
         shelfEntity.setIcon(request.getIcon());
         shelfEntity.setIconType(request.getIconType());
@@ -89,16 +92,61 @@ public class ShelfService {
         return shelfMapper.toShelf(findShelfByIdOrThrow(shelfId));
     }
 
+    private boolean isKoboShelf(ShelfEntity shelfEntity) {
+        String koboShelfName = ShelfType.KOBO.getName();
+        return shelfEntity != null && koboShelfName.equalsIgnoreCase(shelfEntity.getName());
+    }
+
     @Transactional
     public void deleteShelf(Long shelfId) {
+        ShelfEntity shelfEntity = shelfRepository.findById(shelfId).orElse(null);
+        if (shelfEntity == null) {
+            return;
+        }
+
+        if (isKoboShelf(shelfEntity)) {
+            throw ApiError.SHELF_CANNOT_BE_DELETED.createException(shelfEntity.getName());
+        }
+
         shelfRepository.deleteById(shelfId);
         auditService.log(AuditAction.SHELF_DELETED, "Shelf", shelfId, "Deleted shelf: " + shelfId);
+    }
+
+    public boolean hasUserKoboShelf() {
+        Long userId = getAuthenticatedUserId();
+        Optional<ShelfEntity> koboShelf = shelfRepository.findByUserIdAndName(userId, ShelfType.KOBO.getName());
+        return koboShelf.isPresent();
     }
 
     public Shelf getUserKoboShelf() {
         Long userId = getAuthenticatedUserId();
         Optional<ShelfEntity> koboShelf = shelfRepository.findByUserIdAndName(userId, ShelfType.KOBO.getName());
         return koboShelf.map(shelfMapper::toShelf).orElse(null);
+    }
+
+    @Transactional
+    public void deleteUserKoboShelf() {
+        Long userId = getAuthenticatedUserId();
+        ShelfEntity koboShelf = shelfRepository.findByUserIdAndName(userId, ShelfType.KOBO.getName())
+                .orElse(null);
+
+        if (koboShelf == null) {
+            return;
+        }
+
+        shelfRepository.delete(koboShelf);
+        auditService.log(AuditAction.SHELF_DELETED, "Shelf", koboShelf.getId(), "Deleted shelf: " + koboShelf.getId());
+    }
+
+    @Transactional
+    public Shelf createUserKoboShelf() {
+        return createShelf(
+                ShelfCreateRequest.builder()
+                        .name(ShelfType.KOBO.getName())
+                        .icon(ShelfType.KOBO.getIcon())
+                        .iconType(IconType.LUCIDE)
+                        .build()
+        );
     }
 
     public List<Book> getShelfBooks(Long shelfId) {
