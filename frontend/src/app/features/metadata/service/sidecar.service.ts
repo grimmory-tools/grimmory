@@ -37,7 +37,7 @@ export class SidecarService {
       `${this.apiUrl}/libraries/${libraryId}/sidecar/import-all`, {}
     ).pipe(
       tap(() => {
-        invalidateAllBookCaches(this.queryClient);
+        void invalidateAllBookCaches(this.queryClient);
         invalidateAuthorsQuery(this.queryClient);
       })
     );

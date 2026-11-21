@@ -33,7 +33,7 @@ export class BookMetadataManageService {
   updateBooksMetadata(request: BulkMetadataUpdateRequest): Observable<void> {
     return this.http.put(`${this.url}/bulk-edit-metadata`, request).pipe(
       tap(() => {
-        invalidateAllBookCaches(this.queryClient);
+        void invalidateAllBookCaches(this.queryClient);
       }),
       map(() => void 0)
     );
@@ -86,7 +86,7 @@ export class BookMetadataManageService {
   consolidateMetadata(metadataType: 'authors' | 'categories' | 'moods' | 'tags' | 'series' | 'publishers' | 'languages', targetValues: string[], valuesToMerge: string[]): Observable<unknown> {
     return this.http.post(`${this.url}/metadata/manage/consolidate`, {metadataType, targetValues, valuesToMerge}).pipe(
       tap(() => {
-        invalidateAllBookCaches(this.queryClient);
+        void invalidateAllBookCaches(this.queryClient);
       })
     );
   }
@@ -94,7 +94,7 @@ export class BookMetadataManageService {
   deleteMetadata(metadataType: 'authors' | 'categories' | 'moods' | 'tags' | 'series' | 'publishers' | 'languages', valuesToDelete: string[]): Observable<unknown> {
     return this.http.post(`${this.url}/metadata/manage/delete`, {metadataType, valuesToDelete}).pipe(
       tap(() => {
-        invalidateAllBookCaches(this.queryClient);
+        void invalidateAllBookCaches(this.queryClient);
       })
     );
   }
@@ -114,7 +114,7 @@ export class BookMetadataManageService {
   regenerateCovers(missingOnly = false): Observable<void> {
     return this.http.post<void>(`${this.url}/regenerate-covers?missingOnly=${missingOnly}`, {}).pipe(
       tap(() => {
-        invalidateAllBookCaches(this.queryClient);
+        void invalidateAllBookCaches(this.queryClient);
       })
     );
   }

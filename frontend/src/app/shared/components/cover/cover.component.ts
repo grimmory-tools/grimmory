@@ -4,6 +4,11 @@ import {Image} from '@openng/optimus-ui/image';
 import {ArtworkRevealGroupDirective} from './artwork-reveal-group.directive';
 
 const COVER_HUES = [20, 155, 185, 205, 235, 265, 290, 320, 350];
+const GRAPHEMES = new Intl.Segmenter();
+
+function firstGrapheme(text: string): string {
+  return GRAPHEMES.segment(text)[Symbol.iterator]().next().value?.segment ?? '';
+}
 
 function hashString(str: string): number {
   let hash = 0;
@@ -21,6 +26,7 @@ function coverHueFor(title: string, author: string): number {
 type CoverSize = 'sm' | 'md' | 'lg';
 type CoverFit = 'cover' | 'contain';
 type CoverAuthors = string | string[];
+type CoverPlaceholder = 'book' | 'initials';
 
 @Component({
   selector: 'app-cover',
@@ -47,6 +53,7 @@ export class CoverComponent {
   readonly alt = input('');
   readonly natural = input(false);
   readonly preview = input(false);
+  readonly placeholder = input<CoverPlaceholder>('book');
   protected readonly markReady = this.revealGroup?.register() ?? (() => undefined);
   private readonly previewImage = viewChild(Image);
   private readonly failedSrc = signal<string | null | undefined>(null);
@@ -56,6 +63,12 @@ export class CoverComponent {
     return Array.isArray(authors) ? authors.join(', ') : authors ?? '';
   });
   protected readonly hue = computed(() => coverHueFor(this.title() ?? '', this.authorsLabel()));
+  protected readonly initials = computed(() => {
+    const words = (this.title() ?? '').trim().split(/\s+/).filter(Boolean);
+    const first = words.at(0);
+    const last = words.length > 1 ? words.at(-1) : undefined;
+    return [first, last].map(word => word ? firstGrapheme(word) : '').join('').toUpperCase();
+  });
   protected readonly titleOnly = computed(
     () => !this.authorsLabel() || (hashString((this.title() ?? '') + this.authorsLabel()) & 1) === 0,
   );

@@ -136,7 +136,7 @@ export class AuthorService {
 
   updateAuthor(authorId: number, request: AuthorUpdateRequest): Observable<AuthorDetails> {
     return this.http.put<AuthorDetails>(`${this.baseUrl}/${authorId}`, request).pipe(
-      tap(() => invalidateAllBookCaches(this.queryClient))
+      tap(() => void invalidateAllBookCaches(this.queryClient))
     );
   }
 
@@ -147,7 +147,7 @@ export class AuthorService {
   deleteAuthors(authorIds: number[]): Observable<void> {
     return this.http.delete<void>(this.baseUrl, {body: authorIds}).pipe(
       tap(() => {
-        invalidateAllBookCaches(this.queryClient);
+        void invalidateAllBookCaches(this.queryClient);
         invalidateAuthorsQuery(this.queryClient);
       })
     );

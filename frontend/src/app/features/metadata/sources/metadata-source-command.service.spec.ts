@@ -7,6 +7,7 @@ import {
   MetadataBatchProgressNotification,
   MetadataBatchStatus,
 } from '../../../shared/model/metadata-batch-progress.model';
+import {authorQueryKeys} from '../../author/data/author-query-keys';
 import {AUTHORS_QUERY_KEY} from '../../author-browser/service/author-query-keys';
 import {bookQueryKeys} from '../../book/data/book-query-keys';
 import {metadataSourceQueryKeys} from './metadata-source-query-keys';
@@ -50,6 +51,7 @@ describe('MetadataSourceCommandService batch reconciliation', () => {
     expect(invalidate).toHaveBeenCalledWith({queryKey: metadataSourceQueryKeys.sidecars()});
     expect(invalidate).toHaveBeenCalledWith({queryKey: metadataSourceQueryKeys.reviewTaskQueries()});
     expect(invalidate).toHaveBeenCalledWith({queryKey: AUTHORS_QUERY_KEY, exact: true});
+    expect(invalidate).toHaveBeenCalledWith({queryKey: authorQueryKeys.collections()});
   });
 
   it('treats an error followed by silence as the end of the batch', () => {
@@ -72,6 +74,6 @@ describe('MetadataSourceCommandService batch reconciliation', () => {
     expect(invalidate).not.toHaveBeenCalled();
 
     service.handleBatchProgress(batchProgress(MetadataBatchStatus.COMPLETED));
-    expect(invalidate).toHaveBeenCalledTimes(6);
+    expect(invalidate).toHaveBeenCalledTimes(7);
   });
 });

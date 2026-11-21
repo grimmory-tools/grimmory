@@ -84,7 +84,7 @@ export class LibraryService {
       tap(() => {
         void this.queryClient.invalidateQueries({queryKey: LIBRARIES_QUERY_KEY, exact: true});
         void this.queryClient.invalidateQueries({queryKey: libraryQueryKeys.all()});
-        invalidateAllBookCaches(this.queryClient);
+        void invalidateAllBookCaches(this.queryClient);
       })
     );
   }
@@ -94,7 +94,7 @@ export class LibraryService {
       tap(() => {
         void this.queryClient.invalidateQueries({queryKey: LIBRARIES_QUERY_KEY, exact: true});
         void this.queryClient.invalidateQueries({queryKey: libraryQueryKeys.all()});
-        invalidateAllBookCaches(this.queryClient);
+        void invalidateAllBookCaches(this.queryClient);
         void this.queryClient.invalidateQueries({queryKey: shelfQueryKeys.all()});
         void this.queryClient.invalidateQueries({queryKey: SHELVES_QUERY_KEY, exact: true});
         void this.queryClient.invalidateQueries({queryKey: AUTHORS_QUERY_KEY, exact: true});
