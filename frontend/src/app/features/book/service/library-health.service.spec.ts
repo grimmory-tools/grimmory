@@ -3,7 +3,7 @@ import {TestBed} from '@angular/core/testing';
 import {HttpClient} from '@angular/common/http';
 import {of, Subject} from 'rxjs';
 import {IMessage} from '@stomp/rx-stomp';
-import {provideTanStackQuery, QueryClient} from '@tanstack/angular-query-experimental';
+import {provideTanStackQuery, QueryClient} from '@tanstack/angular-query';
 
 import {LibraryHealthService} from './library-health.service';
 import {RxStompService} from '../../../shared/websocket/rx-stomp.service';
@@ -21,7 +21,7 @@ describe('LibraryHealthService', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        provideTanStackQuery(queryClient),
+        provideTanStackQuery(() => queryClient),
         LibraryHealthService,
         {provide: HttpClient, useValue: {get: httpGetSpy}},
         {provide: RxStompService, useValue: {watch: vi.fn(() => wsSubject.asObservable())}},

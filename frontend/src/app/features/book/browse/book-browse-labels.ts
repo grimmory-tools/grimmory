@@ -1,7 +1,7 @@
 import {computed, inject, type Signal} from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {TranslocoService} from '@jsverse/transloco';
-import {injectQuery} from '@tanstack/angular-query-experimental';
+import {injectQuery} from '@tanstack/angular-query';
 
 import {browseFacetEntityLookup} from '../../../shared/browse/entity-facets';
 import {type BrowseFacetDefinitions} from '../../../shared/browse/facets';

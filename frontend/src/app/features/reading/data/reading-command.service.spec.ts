@@ -1,7 +1,7 @@
 import {HttpTestingController} from '@angular/common/http/testing';
 import {inject, Injectable} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
-import {injectMutation, QueryClient} from '@tanstack/angular-query-experimental';
+import {injectMutation, QueryClient} from '@tanstack/angular-query';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {API_CONFIG} from '../../../core/config/api-config';

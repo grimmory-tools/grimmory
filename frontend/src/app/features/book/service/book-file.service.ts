@@ -9,7 +9,7 @@ import {FileDownloadService} from '../../../shared/service/file-download.service
 import {CacheStorageService} from '../../../shared/service/cache-storage.service';
 import {LocalSettingsService} from '../../../shared/service/local-settings.service';
 import {TranslocoService} from '@jsverse/transloco';
-import {QueryClient} from '@tanstack/angular-query-experimental';
+import {QueryClient} from '@tanstack/angular-query';
 import {patchBookInCacheWith, upsertBooksInCache} from './legacy-book-cache';
 import {mitigateWebkitUploadBug} from '../../../shared/util/mitigate-webkit-upload-bug';
 

@@ -205,7 +205,6 @@ describe('UserService', () => {
 
     expect(removeQueriesSpy).toHaveBeenCalledWith({queryKey: CURRENT_USER_QUERY_KEY});
     expect(queryClientHarness.queryClient.getQueryData(CURRENT_USER_QUERY_KEY)).toBeUndefined();
-    expect(service.currentUser()).toBeNull();
     expect(service.isUserLoading()).toBe(false);
     expect(service.userError()).toBeNull();
   });

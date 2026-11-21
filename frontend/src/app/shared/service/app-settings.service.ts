@@ -5,7 +5,7 @@ import {map, switchMap} from 'rxjs/operators';
 import {API_CONFIG} from '../../core/config/api-config';
 import {AppSettings, OidcProviderDetails, OidcTestResult} from '../model/app-settings.model';
 import {AuthService} from './auth.service';
-import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
+import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query';
 import {APP_SETTINGS_QUERY_KEY, PUBLIC_SETTINGS_QUERY_KEY} from './app-settings-query-keys';
 
 export interface PublicAppSettings {

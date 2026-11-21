@@ -6,7 +6,7 @@ import {TestBed} from '@angular/core/testing';
 import {MessageService} from '@openng/optimus-ui/api';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {TranslocoService} from '@jsverse/transloco';
-import {provideTanStackQuery, QueryClient} from '@tanstack/angular-query-experimental';
+import {provideTanStackQuery, QueryClient} from '@tanstack/angular-query';
 import {Observable, Subject, throwError} from 'rxjs';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 
@@ -61,7 +61,7 @@ describe('AddPhysicalBookDialogComponent', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        provideTanStackQuery(new QueryClient()),
+        provideTanStackQuery(() => new QueryClient()),
         {provide: DynamicDialogConfig, useValue: {data: options.dialogData ?? {}}},
         {provide: DynamicDialogRef, useValue: dialogRef},
         {provide: AppSettingsService, useValue: {appSettings: signal(null)}},

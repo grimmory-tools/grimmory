@@ -1,7 +1,7 @@
 import {inject, Service} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable, tap} from 'rxjs';
-import {QueryClient} from '@tanstack/angular-query-experimental';
+import {QueryClient} from '@tanstack/angular-query';
 
 import {API_CONFIG} from '../../../core/config/api-config';
 import {invalidateAllBookCaches, invalidateBooksById} from '../../book/service/legacy-book-cache';

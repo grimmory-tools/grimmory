@@ -2,7 +2,7 @@ import {inject} from '@angular/core';
 import {AuthService, websocketInitializer} from '../../shared/service/auth.service';
 import {AppSettingsService} from '../../shared/service/app-settings.service';
 import {AuthInitializationService} from './auth-initialization-service';
-import {QueryClient} from '@tanstack/angular-query-experimental';
+import {QueryClient} from '@tanstack/angular-query';
 
 const SETTINGS_TIMEOUT_MS = 10000;
 

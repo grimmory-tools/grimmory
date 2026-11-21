@@ -2,7 +2,7 @@ import {TestBed} from '@angular/core/testing';
 import {of, throwError} from 'rxjs';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
-import {queryOptions} from '@tanstack/angular-query-experimental';
+import {queryOptions} from '@tanstack/angular-query';
 
 import {BookService} from '../../../book/service/book.service';
 import {FetchedMetadataProposalStatus, FetchedProposal, MetadataTaskService} from '../../../book/service/metadata-task';

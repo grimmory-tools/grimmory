@@ -15,7 +15,7 @@ import {MetadataViewerComponent} from './metadata-viewer/metadata-viewer.compone
 import {MetadataEditorComponent} from './metadata-editor/metadata-editor.component';
 import {MetadataSearcherComponent} from './metadata-searcher/metadata-searcher.component';
 import {SidecarViewerComponent} from './sidecar-viewer/sidecar-viewer.component';
-import {injectQuery} from '@tanstack/angular-query-experimental';
+import {injectQuery} from '@tanstack/angular-query';
 import {PageTitleService} from '../../../../shared/service/page-title.service';
 
 enum BookMetadataTab {

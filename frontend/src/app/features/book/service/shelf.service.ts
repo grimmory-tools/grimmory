@@ -2,7 +2,7 @@ import {computed, effect, inject, Service} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {lastValueFrom, Observable} from 'rxjs';
 import {tap} from 'rxjs/operators';
-import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
+import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query';
 
 import {Shelf} from '../model/shelf.model';
 import {shelfQueryKeys} from '../../shelf/data/shelf-query-keys';

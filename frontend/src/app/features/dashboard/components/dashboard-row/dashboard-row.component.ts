@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, computed, inject, input} from '@angular/core';
 import {RouterLink} from '@angular/router';
 import {LucideChevronRight} from '@lucide/angular';
-import {injectQuery} from '@tanstack/angular-query-experimental';
+import {injectQuery} from '@tanstack/angular-query';
 
 import {type BookMenuComponent} from '../../../book/components/book-menu/book-menu.component';
 import {BookRowComponent} from '../../../book/components/book-row/book-row.component';

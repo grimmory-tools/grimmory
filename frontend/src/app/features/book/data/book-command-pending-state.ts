@@ -1,5 +1,5 @@
 import {computed, Signal} from '@angular/core';
-import {injectMutationState, MutationKey} from '@tanstack/angular-query-experimental';
+import {injectMutationState, MutationKey} from '@tanstack/angular-query';
 
 import {bookCommandKeys} from './book-command-keys';
 import {

@@ -1,5 +1,5 @@
 import {computed, effect, signal, untracked, type EffectCleanupRegisterFn, type Signal} from '@angular/core';
-import {type CreateInfiniteQueryResult, type InfiniteData} from '@tanstack/angular-query-experimental';
+import {type CreateInfiniteQueryResult, type InfiniteData} from '@tanstack/angular-query';
 
 import {findBrowsePageLink, flattenBrowsePages, type BrowsePage} from '../../core/data/browse.models';
 

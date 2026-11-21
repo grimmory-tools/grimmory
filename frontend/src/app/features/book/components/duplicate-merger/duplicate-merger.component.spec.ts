@@ -2,7 +2,7 @@ import {TestBed} from '@angular/core/testing';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
-import {provideTanStackQuery, QueryClient} from '@tanstack/angular-query-experimental';
+import {provideTanStackQuery, QueryClient} from '@tanstack/angular-query';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';
@@ -32,7 +32,7 @@ describe('DuplicateMergerComponent', () => {
     vi.resetAllMocks();
     TestBed.configureTestingModule({
       providers: [
-        provideTanStackQuery(new QueryClient()),
+        provideTanStackQuery(() => new QueryClient()),
         {provide: DynamicDialogConfig, useValue: {data: {libraryId: 1}}},
         {provide: DynamicDialogRef, useValue: {close: vi.fn()}},
         {provide: BookQueryService, useValue: {}},

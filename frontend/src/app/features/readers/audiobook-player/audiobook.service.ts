@@ -6,7 +6,7 @@ import { API_CONFIG } from '../../../core/config/api-config';
 import { AudiobookInfo, AudiobookProgress } from './audiobook.model';
 import { AuthService } from '../../../shared/service/auth.service';
 import { BookFileProgress } from '../../book/model/book.model';
-import { QueryClient } from '@tanstack/angular-query-experimental';
+import { QueryClient } from '@tanstack/angular-query';
 import { patchBookFieldsInCache } from '../../book/service/legacy-book-cache';
 
 @Service()

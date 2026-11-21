@@ -5,7 +5,7 @@ import {TableModule} from '@openng/optimus-ui/table';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {MessageService} from '@openng/optimus-ui/api';
 import {Select} from '@openng/optimus-ui/select';
-import {injectMutation, injectQuery} from '@tanstack/angular-query-experimental';
+import {injectMutation, injectQuery} from '@tanstack/angular-query';
 
 import {BookCommandService} from '../../../features/book/data/book-command.service';
 import {BookQueryService} from '../../../features/book/data/book-query.service';

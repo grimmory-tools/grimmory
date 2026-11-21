@@ -7,7 +7,7 @@ import {
   type QueryKey,
   queryOptions,
   QueryClient,
-} from '@tanstack/angular-query-experimental';
+} from '@tanstack/angular-query';
 
 import {API_CONFIG} from '../config/api-config';
 import {browseFacetValues, withBrowseFacetValues} from '../../shared/browse/facets';

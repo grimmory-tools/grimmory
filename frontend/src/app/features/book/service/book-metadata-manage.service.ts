@@ -6,7 +6,7 @@ import {Book, BookMetadata, BulkMetadataUpdateRequest, MetadataUpdateWrapper} fr
 import {API_CONFIG} from '../../../core/config/api-config';
 import {MessageService} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
-import {QueryClient} from '@tanstack/angular-query-experimental';
+import {QueryClient} from '@tanstack/angular-query';
 import {invalidateAllBookCaches, invalidateBooksById, patchBookMetadataInCache, patchBooksInCacheWith} from './legacy-book-cache';
 import {mitigateWebkitUploadBug} from '../../../shared/util/mitigate-webkit-upload-bug';
 

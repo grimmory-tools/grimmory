@@ -6,7 +6,7 @@ import {Checkbox} from '@openng/optimus-ui/checkbox';
 import {InputText} from '@openng/optimus-ui/inputtext';
 import {Dialog} from '@openng/optimus-ui/dialog';
 import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
-import {injectQuery} from '@tanstack/angular-query-experimental';
+import {injectQuery} from '@tanstack/angular-query';
 import {PageTitleService} from "../../../../shared/service/page-title.service";
 import {BookMetadataManageService, MetadataValuesSelectAll} from '../../../book/service/book-metadata-manage.service';
 import {BookMetadataValueType} from '../../../book/data/book-command.models';
