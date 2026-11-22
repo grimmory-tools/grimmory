@@ -3,7 +3,7 @@ import {TestBed} from '@angular/core/testing';
 import {ActivatedRoute, Router} from '@angular/router';
 import {TranslocoService} from '@jsverse/transloco';
 import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
-import {Subject} from 'rxjs';
+import {of, Subject, throwError} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {createQueryClientHarness} from '../../../../core/testing/query-testing';
@@ -28,6 +28,7 @@ describe('AuthorBrowserComponent duplicate review', () => {
     {id: 4, name: 'Smith, John', bookCount: 2, hasPhoto: false},
   ];
   let merge$: Subject<void>;
+  let mergeAuthors: ReturnType<typeof vi.fn>;
   let refreshAuthors: ReturnType<typeof vi.fn>;
   let invalidateAuthors: ReturnType<typeof vi.fn>;
   let addMessage: ReturnType<typeof vi.fn>;
@@ -38,7 +39,8 @@ describe('AuthorBrowserComponent duplicate review', () => {
 
   beforeEach(() => {
     merge$ = new Subject<void>();
-    refreshAuthors = vi.fn();
+    refreshAuthors = vi.fn().mockResolvedValue(authors);
+    mergeAuthors = vi.fn(() => merge$);
     invalidateAuthors = vi.fn();
     addMessage = vi.fn();
     authorsState = signal(authors);
@@ -50,7 +52,7 @@ describe('AuthorBrowserComponent duplicate review', () => {
       providers: [
         ...harness.providers,
         {provide: AuthorService, useValue: {allAuthors: authorsState, refreshAuthors, invalidateAuthors}},
-        {provide: BookMetadataManageService, useValue: {mergeAuthors: vi.fn(() => merge$)}},
+        {provide: BookMetadataManageService, useValue: {mergeAuthors}},
         {provide: BookService, useValue: {booksQueryOptions: () => ({queryKey: ['test-books'], queryFn: getBooks})}},
         {provide: ConfirmationService, useValue: {}},
         {provide: MessageService, useValue: {add: addMessage}},
@@ -240,6 +242,127 @@ describe('AuthorBrowserComponent duplicate review', () => {
     expect(component.duplicateDialogVisible()).toBe(false);
     expect(component.mergingAuthors()).toBe(false);
     expect(refreshAuthors).not.toHaveBeenCalled();
+  });
+
+  it('only queues groups after an explicit target and allows reviewing the choice', () => {
+    component.duplicateGroups.set([authors.slice(0, 2)]);
+    component.reviewDuplicateGroup(authors.slice(0, 2));
+    component.planMergeAuthors();
+    expect(component.plannedMerges()).toHaveLength(0);
+
+    component.mergeTargetAuthorId.set(1);
+    component.planMergeAuthors();
+    expect(component.plannedMerges()).toHaveLength(1);
+    expect(component.isGroupPlanned(authors.slice(0, 2))).toBe(true);
+    expect(mergeAuthors).not.toHaveBeenCalled();
+    expect(component.duplicateDialogVisible()).toBe(true);
+
+    component.reviewDuplicateGroup(authors.slice(0, 2));
+    expect(component.mergeTargetAuthorId()).toBe(1);
+    component.mergeTargetAuthorId.set(2);
+    component.planMergeAuthors();
+    expect(component.plannedMerges()[0].target.id).toBe(2);
+    expect(component.plannedMerges()[0].sources.map(author => author.id)).toEqual([1]);
+    component.removePlannedMerge(component.plannedMerges()[0].groupKey);
+    expect(component.isGroupPlanned(authors.slice(0, 2))).toBe(false);
+  });
+
+  it('does not queue unchecked authors from a suggested group', () => {
+    const group = authors.slice(0, 3);
+    component.reviewDuplicateGroup(group);
+    component.toggleMergeCandidate(3, false);
+    component.mergeTargetAuthorId.set(1);
+    component.planMergeAuthors();
+
+    expect(component.plannedMerges()[0].sources.map(author => author.id)).toEqual([2]);
+    component.reviewDuplicateGroup(group);
+    expect(component.includedMergeIds()).toEqual(new Set([1, 2]));
+  });
+
+  it('confirms and processes only reviewed groups sequentially', async () => {
+    component.duplicateGroups.set([authors.slice(0, 2), authors.slice(2)]);
+    for (const [group, target] of [[authors.slice(0, 2), 1], [authors.slice(2), 4]] as const) {
+      component.reviewDuplicateGroup(group);
+      component.mergeTargetAuthorId.set(target);
+      component.planMergeAuthors();
+    }
+    component.confirmPlannedMerges();
+    expect(component.batchConfirmVisible()).toBe(true);
+    expect(mergeAuthors).not.toHaveBeenCalled();
+    mergeAuthors.mockReturnValue(of(undefined));
+    refreshAuthors.mockResolvedValueOnce(authors).mockResolvedValueOnce([authors[0], authors[3]]);
+
+    await component.mergePlannedAuthors();
+
+    expect(mergeAuthors.mock.calls).toEqual([[1, [2]], [4, [3]]]);
+    expect(component.plannedMerges()).toEqual([]);
+    expect(component.duplicateGroups()).toEqual([]);
+    expect(component.batchProgress()).toBeNull();
+    expect(refreshAuthors).toHaveBeenCalledTimes(2);
+  });
+
+  it('stops after a failure and preserves only the unprocessed groups', async () => {
+    const additional: AuthorSummary[] = [
+      {id: 5, name: 'Robert Brown', bookCount: 1, hasPhoto: false},
+      {id: 6, name: 'Brown, Robert', bookCount: 1, hasPhoto: false},
+    ];
+    const allAuthors = [...authors, ...additional];
+    authorsState.set(allAuthors);
+    TestBed.tick();
+    component.duplicateGroups.set([authors.slice(0, 2), authors.slice(2), additional]);
+    for (const [group, target] of [[authors.slice(0, 2), 1], [authors.slice(2), 4], [additional, 5]] as const) {
+      component.reviewDuplicateGroup(group);
+      component.mergeTargetAuthorId.set(target);
+      component.planMergeAuthors();
+    }
+    refreshAuthors.mockResolvedValueOnce(allAuthors).mockResolvedValueOnce([authors[0], ...authors.slice(2), ...additional]);
+    mergeAuthors.mockReturnValueOnce(of(undefined)).mockReturnValueOnce(throwError(() => new Error('failed')));
+    component.confirmPlannedMerges();
+
+    await component.mergePlannedAuthors();
+
+    expect(mergeAuthors.mock.calls).toEqual([[1, [2]], [4, [3]]]);
+    expect(component.plannedMerges().map(plan => plan.target.id)).toEqual([5]);
+    expect(addMessage).toHaveBeenCalledWith(expect.objectContaining({
+      severity: 'error', summary: 'authorBrowser.duplicates.batchFailureSummary',
+    }));
+    expect(refreshAuthors).toHaveBeenCalledTimes(2);
+  });
+
+  it('refuses to merge if the server data changed after review', async () => {
+    component.duplicateGroups.set([authors.slice(0, 2)]);
+    component.reviewDuplicateGroup(authors.slice(0, 2));
+    component.mergeTargetAuthorId.set(1);
+    component.planMergeAuthors();
+    component.confirmPlannedMerges();
+    refreshAuthors.mockResolvedValueOnce([{...authors[0], name: 'Another Person'}, ...authors.slice(1)]);
+
+    await component.mergePlannedAuthors();
+
+    expect(mergeAuthors).not.toHaveBeenCalled();
+    expect(component.plannedMerges()).toHaveLength(1);
+    expect(component.batchProgress()).toBeNull();
+    expect(addMessage).toHaveBeenCalledWith(expect.objectContaining({
+      severity: 'error', summary: 'authorBrowser.duplicates.staleSummary',
+    }));
+  });
+
+  it('does not start merges if the preflight refresh fails', async () => {
+    component.duplicateGroups.set([authors.slice(0, 2)]);
+    component.reviewDuplicateGroup(authors.slice(0, 2));
+    component.mergeTargetAuthorId.set(1);
+    component.planMergeAuthors();
+    component.confirmPlannedMerges();
+    refreshAuthors.mockRejectedValueOnce(new Error('network error'));
+
+    await component.mergePlannedAuthors();
+
+    expect(mergeAuthors).not.toHaveBeenCalled();
+    expect(component.plannedMerges()).toHaveLength(1);
+    expect(component.batchProgress()).toBeNull();
+    expect(addMessage).toHaveBeenCalledWith(expect.objectContaining({
+      severity: 'error', detail: 'authorBrowser.duplicates.preflightFailedDetail',
+    }));
   });
 });
 

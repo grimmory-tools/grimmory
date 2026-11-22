@@ -351,10 +351,40 @@
   justify-content: space-between;
   gap: 1rem;
   border-bottom: 1px solid var(--color-border);
-  padding-bottom: 0.75rem;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.duplicate-group-planned {
+  background: color-mix(in srgb, var(--p-green-500) 16%, transparent);
+  border-bottom-color: color-mix(in srgb, var(--p-green-500) 45%, transparent);
 }
 
 .duplicate-group ul {
   margin: 0;
   padding-left: 1.25rem;
+}
+
+.planned-merges {
+  max-height: 30vh;
+  overflow: auto;
+  margin-bottom: 1rem;
+}
+
+.planned-merge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.planned-merge ul {
+  margin: 0.25rem 0;
+  padding-left: 1.25rem;
+}
+
+.batch-confirm-list {
+  max-height: 45vh;
+  overflow: auto;
 }

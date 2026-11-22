@@ -340,8 +340,41 @@
     [visible]="duplicateDialogVisible()"
     (onHide)="duplicateDialogVisible.set(false)"
     [modal]="true"
+    [closable]="!batchProgress()"
+    [closeOnEscape]="!batchProgress()"
+    [dismissableMask]="!batchProgress()"
     [style]="{width: 'min(48rem, 95vw)'}">
     <p>{{ t('duplicates.description') }}</p>
+    @if (batchProgress(); as progress) {
+      <p role="status">{{ t('duplicates.batchProgress', {completed: progress.completed, total: progress.total}) }}</p>
+    }
+    @if (plannedMerges().length > 0) {
+      <div class="planned-merges">
+        <h3>{{ t('duplicates.plannedTitle', {count: plannedMerges().length}) }}</h3>
+        @for (plan of plannedMerges(); track plan.groupKey) {
+          <div class="planned-merge">
+            <div>
+              <strong>{{ t('duplicates.plannedTarget', {name: plan.target.name, id: plan.target.id}) }}</strong>
+              <ul>
+                @for (source of plan.sources; track source.id) {
+                  <li>{{ source.name }} — #{{ source.id }}</li>
+                }
+              </ul>
+            </div>
+            <p-button
+              [label]="t('duplicates.removePlan')"
+              [outlined]="true"
+              [disabled]="!!batchProgress()"
+              (onClick)="removePlannedMerge(plan.groupKey)" />
+          </div>
+        }
+        <p-button
+          [label]="t('duplicates.mergePlanned', {count: plannedMerges().length})"
+          icon="pi pi-users"
+          [disabled]="!!batchProgress() || findingDuplicates()"
+          (onClick)="confirmPlannedMerges()" />
+      </div>
+    }
     @if (findingDuplicates()) {
       <p role="status">{{ 'common.loading' | transloco }}</p>
     } @else if (duplicateGroups().length === 0) {
@@ -350,18 +383,22 @@
       <p>{{ t('duplicates.count', {count: duplicateGroups().length}) }}</p>
       <div class="duplicate-groups">
         @for (group of duplicateGroups().slice(0, duplicateLimit()); track group[0].id) {
-          <div class="duplicate-group">
+          <div class="duplicate-group" [class.duplicate-group-planned]="isGroupPlanned(group)">
             <ul>
               @for (author of group; track author.id) {
                 <li>{{ author.name }} — #{{ author.id }} ({{ author.bookCount }} {{ t('card.books') }})</li>
               }
             </ul>
-            <p-button [label]="t('duplicates.review')" [outlined]="true" (onClick)="reviewDuplicateGroup(group)" />
+            <p-button
+              [label]="isGroupPlanned(group) ? t('duplicates.editPlan') : t('duplicates.review')"
+              [outlined]="true"
+              [disabled]="!!batchProgress()"
+              (onClick)="reviewDuplicateGroup(group)" />
           </div>
         }
       </div>
       @if (duplicateLimit() < duplicateGroups().length) {
-        <p-button [label]="t('duplicates.showMore')" [outlined]="true" (onClick)="showMoreDuplicates()" />
+        <p-button [label]="t('duplicates.showMore')" [outlined]="true" [disabled]="!!batchProgress()" (onClick)="showMoreDuplicates()" />
       }
     }
   </p-dialog>
@@ -406,12 +443,43 @@
         severity="secondary"
         [disabled]="mergingAuthors()"
         (onClick)="closeMergeAuthorsDialog()" />
+      @if (canPlanMerge) {
+        <p-button
+          [label]="t('duplicates.planGroup')"
+          [outlined]="true"
+          [disabled]="mergingAuthors() || mergeTargetAuthorId() === null || includedMergeIds().size < 2"
+          (onClick)="planMergeAuthors()" />
+      }
       <p-button
         [label]="t('mergeAuthors.confirm')"
         icon="pi pi-users"
         [loading]="mergingAuthors()"
         [disabled]="mergingAuthors() || mergeTargetAuthorId() === null || includedMergeIds().size < 2"
         (onClick)="confirmMergeAuthors()" />
+    </ng-template>
+  </p-dialog>
+  <p-dialog
+    [header]="t('duplicates.batchConfirmTitle')"
+    [visible]="batchConfirmVisible()"
+    (onHide)="cancelPlannedMerges()"
+    [modal]="true"
+    [style]="{width: 'min(48rem, 95vw)'}">
+    <p>{{ t('duplicates.batchConfirmMessage', {count: plannedMerges().length}) }}</p>
+    <ul class="batch-confirm-list">
+      @for (plan of plannedMerges(); track plan.groupKey) {
+        <li>
+          <strong>{{ t('duplicates.plannedTarget', {name: plan.target.name, id: plan.target.id}) }}</strong>
+          <ul>
+            @for (source of plan.sources; track source.id) {
+              <li>{{ source.name }} — #{{ source.id }}</li>
+            }
+          </ul>
+        </li>
+      }
+    </ul>
+    <ng-template #footer>
+      <p-button [label]="'common.cancel' | transloco" severity="secondary" (onClick)="cancelPlannedMerges()" />
+      <p-button [label]="t('duplicates.batchConfirmAccept')" severity="danger" (onClick)="mergePlannedAuthors()" />
     </ng-template>
   </p-dialog>
 </div>

@@ -1,4 +1,5 @@
 import {Component, computed, DestroyRef, effect, ElementRef, HostListener, inject, OnInit, signal, untracked, viewChild} from '@angular/core';
+import {HttpErrorResponse} from '@angular/common/http';
 import {FormsModule} from '@angular/forms';
 import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
 import {InputText} from '@openng/optimus-ui/inputtext';
@@ -30,6 +31,7 @@ import {ScalePreference} from '../../../../shared/util/scale-preference.util';
 import {LayoutService} from '../../../../shared/layout/layout.service';
 import {createGridDensity} from '../../../../shared/util/grid-density.util';
 import {findAuthorDuplicates} from '../../author-duplicates';
+import {firstValueFrom} from 'rxjs';
 
 type SortDirection = 'asc' | 'desc';
 
@@ -41,6 +43,12 @@ interface SortOption {
 interface FilterOption {
   label: string;
   value: string;
+}
+
+interface PlannedAuthorMerge {
+  groupKey: string;
+  target: AuthorSummary;
+  sources: AuthorSummary[];
 }
 
 const DEFAULT_SORT_DIRECTIONS: Record<string, SortDirection> = {
@@ -155,6 +163,9 @@ export class AuthorBrowserComponent implements OnInit {
   readonly duplicateDialogVisible = signal(false);
   readonly findingDuplicates = signal(false);
   readonly duplicateLimit = signal(50);
+  readonly plannedMerges = signal<PlannedAuthorMerge[]>([]);
+  readonly batchConfirmVisible = signal(false);
+  readonly batchProgress = signal<{completed: number; total: number} | null>(null);
   readonly includedMergeIds = signal<Set<number>>(new Set());
   readonly includedMergeCandidates = computed(() =>
     this.mergeCandidates()
@@ -164,6 +175,10 @@ export class AuthorBrowserComponent implements OnInit {
   private autoMatchQueue: AuthorSummary[] = [];
   private autoMatchStats = {matched: 0, ambiguous: 0, noResults: 0, failed: 0};
   private returnToDuplicates = false;
+
+  get canPlanMerge(): boolean {
+    return this.returnToDuplicates;
+  }
 
   private readonly bookDetailsRequested = signal(false);
   private readonly booksQuery = injectQuery(() => ({
@@ -469,7 +484,7 @@ export class AuthorBrowserComponent implements OnInit {
   }
 
   openDuplicateAuthors(): void {
-    if (this.findingDuplicates()) return;
+    if (this.findingDuplicates() || this.batchProgress()) return;
     this.findingDuplicates.set(true);
     setTimeout(() => {
       if (this.destroyRef.destroyed) return;
@@ -484,9 +499,23 @@ export class AuthorBrowserComponent implements OnInit {
   }
 
   reviewDuplicateGroup(authors: AuthorSummary[]): void {
+    if (this.batchProgress()) return;
     this.duplicateDialogVisible.set(false);
     this.returnToDuplicates = true;
     this.openMergeCandidates(authors);
+    const planned = this.plannedMerges().find(merge => merge.groupKey === this.duplicateGroupKey(authors));
+    if (planned) {
+      this.includedMergeIds.set(new Set([planned.target.id, ...planned.sources.map(author => author.id)]));
+      this.mergeTargetAuthorId.set(planned.target.id);
+    }
+  }
+
+  isGroupPlanned(authors: AuthorSummary[]): boolean {
+    return this.plannedMerges().some(merge => merge.groupKey === this.duplicateGroupKey(authors));
+  }
+
+  private duplicateGroupKey(authors: AuthorSummary[]): string {
+    return authors.map(author => author.id).sort((a, b) => a - b).join(',');
   }
 
   showMoreDuplicates(): void {
@@ -512,8 +541,123 @@ export class AuthorBrowserComponent implements OnInit {
     }
   }
 
+  planMergeAuthors(): void {
+    if (!this.returnToDuplicates || this.mergingAuthors() || this.batchProgress()) return;
+    const selected = this.mergeCandidates().filter(author => this.includedMergeIds().has(author.id));
+    const target = selected.find(author => author.id === this.mergeTargetAuthorId());
+    const sources = selected.filter(author => author.id !== target?.id);
+    if (!target || sources.length === 0) return;
+    const groupKey = this.duplicateGroupKey(this.mergeCandidates());
+    this.plannedMerges.update(plans => [...plans.filter(plan => plan.groupKey !== groupKey), {groupKey, target, sources}]);
+    this.closeMergeAuthorsDialog();
+  }
+
+  removePlannedMerge(groupKey: string): void {
+    if (!this.batchProgress()) {
+      this.plannedMerges.update(plans => plans.filter(plan => plan.groupKey !== groupKey));
+    }
+  }
+
+  confirmPlannedMerges(): void {
+    if (this.batchProgress() || this.findingDuplicates() || !this.plannedMerges().length) return;
+    if (!this.plansAreCurrent()) {
+      this.messageService.add({
+        severity: 'error',
+        summary: this.t.translate('authorBrowser.duplicates.staleSummary'),
+        detail: this.t.translate('authorBrowser.duplicates.staleDetail'),
+      });
+      return;
+    }
+    this.duplicateDialogVisible.set(false);
+    this.batchConfirmVisible.set(true);
+  }
+
+  cancelPlannedMerges(): void {
+    this.batchConfirmVisible.set(false);
+    this.duplicateDialogVisible.set(true);
+  }
+
+  private plansAreCurrent(): boolean {
+    const groups = new Set(this.duplicateGroups().map(group => this.duplicateGroupKey(group)));
+    const authors = new Map((this.allAuthorsState() ?? []).map(author => [author.id, author]));
+    return this.plannedMerges().every(plan =>
+      groups.has(plan.groupKey) && [plan.target, ...plan.sources].every(author => authors.get(author.id)?.name === author.name));
+  }
+
+  async mergePlannedAuthors(): Promise<void> {
+    if (this.batchProgress() || !this.batchConfirmVisible() || !this.plannedMerges().length) return;
+    if (!this.plansAreCurrent()) {
+      this.cancelPlannedMerges();
+      this.confirmPlannedMerges();
+      return;
+    }
+    const plans = [...this.plannedMerges()];
+    const mergedIds = new Set<number>();
+    let completed = 0;
+    this.batchConfirmVisible.set(false);
+    this.duplicateDialogVisible.set(true);
+    this.batchProgress.set({completed, total: plans.length});
+    try {
+      const authors = await this.authorService.refreshAuthors();
+      if (this.destroyRef.destroyed) return;
+      this.allAuthorsState.set(authors);
+      this.duplicateGroups.set(findAuthorDuplicates(authors));
+    } catch {
+      if (this.destroyRef.destroyed) return;
+      this.batchProgress.set(null);
+      this.messageService.add({
+        severity: 'error',
+        summary: this.t.translate('authorBrowser.duplicates.refreshFailedSummary'),
+        detail: this.t.translate('authorBrowser.duplicates.preflightFailedDetail'),
+      });
+      return;
+    }
+    if (!this.plansAreCurrent()) {
+      this.batchProgress.set(null);
+      this.messageService.add({
+        severity: 'error',
+        summary: this.t.translate('authorBrowser.duplicates.staleSummary'),
+        detail: this.t.translate('authorBrowser.duplicates.staleDetail'),
+      });
+      return;
+    }
+    for (const plan of plans) {
+      if (this.destroyRef.destroyed) return;
+      try {
+        await firstValueFrom(this.bookMetadataManageService.mergeAuthors(plan.target.id, plan.sources.map(author => author.id)));
+      } catch (error) {
+        if (this.destroyRef.destroyed) return;
+        this.plannedMerges.update(current => current.filter(item => item.groupKey !== plan.groupKey));
+        const reason = error instanceof HttpErrorResponse && typeof error.error?.message === 'string'
+          ? error.error.message : this.t.translate('authorBrowser.mergeAuthors.failureDetail');
+        this.messageService.add({
+          severity: 'error',
+          summary: this.t.translate('authorBrowser.duplicates.batchFailureSummary'),
+          detail: this.t.translate('authorBrowser.duplicates.batchFailureDetail', {completed, target: plan.target.name, reason}),
+        });
+        break;
+      }
+      if (this.destroyRef.destroyed) return;
+      plan.sources.forEach(author => mergedIds.add(author.id));
+      this.plannedMerges.update(current => current.filter(item => item.groupKey !== plan.groupKey));
+      completed++;
+      this.batchProgress.set({completed, total: plans.length});
+    }
+    if (completed) {
+      this.allAuthorsState.update(current => (current ?? []).filter(author => !mergedIds.has(author.id)));
+      this.selectionService.deselectAll();
+      this.messageService.add({
+        severity: 'success',
+        summary: this.t.translate('authorBrowser.duplicates.batchSuccessSummary'),
+        detail: this.t.translate('authorBrowser.duplicates.batchSuccessDetail', {count: completed}),
+      });
+    }
+    await this.refreshDuplicateResults(mergedIds);
+    if (!this.destroyRef.destroyed) this.batchProgress.set(null);
+  }
+
   confirmMergeAuthors(): void {
-    if (this.mergingAuthors()) {
+    if (this.mergingAuthors() || this.batchProgress()) {
       return;
     }
     const selectedAuthors = this.mergeCandidates().filter(author => this.includedMergeIds().has(author.id));
@@ -527,6 +671,8 @@ export class AuthorBrowserComponent implements OnInit {
     this.bookMetadataManageService.mergeAuthors(target.id, sources.map(author => author.id)).subscribe({
       next: () => {
         const mergedIds = new Set(sources.map(author => author.id));
+        const groupKey = this.duplicateGroupKey(this.mergeCandidates());
+        this.plannedMerges.update(plans => plans.filter(plan => plan.groupKey !== groupKey));
         this.allAuthorsState.update(current => (current ?? []).filter(author => !mergedIds.has(author.id)));
         this.selectionService.deselectAll();
         this.mergingAuthors.set(false);

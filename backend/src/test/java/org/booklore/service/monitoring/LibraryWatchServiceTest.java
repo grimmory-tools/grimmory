@@ -12,6 +12,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardWatchEventKinds;
 import java.util.List;
 import java.util.Set;
 
@@ -60,6 +61,50 @@ class LibraryWatchServiceTest {
         assertThat(service.isPathMonitored(root)).isTrue();
         assertThat(service.isPathMonitored(a)).isTrue();
         assertThat(service.isPathMonitored(b)).isTrue();
+    }
+
+    @Test
+    void restoredLibraryWatchReceivesEventsInNestedDirectories() throws Exception {
+        Path root = tmp.resolve("restore");
+        Path nested = root.resolve("nested");
+        Files.createDirectories(nested);
+        Library lib = mock(Library.class);
+        LibraryPath lp = mock(LibraryPath.class);
+        when(lp.getPath()).thenReturn(root.toString());
+        when(lib.getPaths()).thenReturn(List.of(lp));
+        when(lib.getId()).thenReturn(7L);
+        when(lib.isWatch()).thenReturn(true);
+
+        service.registerLibrary(lib);
+        service.unregisterLibrary(7L);
+        service.registerLibrary(lib);
+        Path book = nested.resolve("new.epub");
+        Files.writeString(book, "test");
+
+        verify(processor, timeout(5000)).processEvent(
+                StandardWatchEventKinds.ENTRY_CREATE, 7L, book, false);
+    }
+
+    @Test
+    void registerLibraryRegistersEveryBranchInLargeDirectory() throws Exception {
+        Path root = tmp.resolve("branches");
+        for (int i = 0; i < 24; i++) {
+            Files.createDirectories(root.resolve("author-" + i).resolve("series"));
+        }
+        Files.writeString(root.resolve("unrelated.txt"), "test");
+        Library lib = mock(Library.class);
+        LibraryPath lp = mock(LibraryPath.class);
+        when(lp.getPath()).thenReturn(root.toString());
+        when(lib.getPaths()).thenReturn(List.of(lp));
+        when(lib.getId()).thenReturn(7L);
+        when(lib.isWatch()).thenReturn(true);
+
+        service.registerLibrary(lib);
+
+        assertThat(service.getPathsForLibraries(Set.of(7L))).hasSize(49);
+        for (int i = 0; i < 24; i++) {
+            assertThat(service.isPathMonitored(root.resolve("author-" + i).resolve("series"))).isTrue();
+        }
     }
 
     @Test
