@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,13 +18,13 @@ import java.util.concurrent.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
 public class LibraryWatchService implements SmartLifecycle {
 
     private static final int LIFECYCLE_PHASE = 20;
+    private static final int REGISTRATION_PARALLELISM = 4;
 
     private final LibraryFileEventProcessor eventProcessor;
     private WatchService watchService;
@@ -164,12 +166,8 @@ public class LibraryWatchService implements SmartLifecycle {
         library.getPaths().forEach(libraryPath -> {
             Path rootPath = Paths.get(libraryPath.getPath());
             if (Files.isDirectory(rootPath)) {
-                try (Stream<Path> pathStream = Files.walk(rootPath)) {
-                    pathStream.filter(Files::isDirectory).forEach(path -> {
-                        if (registerPath(path, library.getId())) {
-                            count[0]++;
-                        }
-                    });
+                try {
+                    count[0] += registerDirectoryTree(rootPath, library.getId());
                 } catch (IOException e) {
                     log.error("Failed to register paths for library '{}': {}", library.getName(), e.getMessage(), e);
                 }
@@ -202,6 +200,10 @@ public class LibraryWatchService implements SmartLifecycle {
             log.warn("Cannot register path that is not a directory: {}", path);
             return false;
         }
+        return registerDirectory(path, libraryId);
+    }
+
+    private boolean registerDirectory(Path path, long libraryId) {
         watchLock.lock();
         try {
             if (!watches.containsKey(path)) {
@@ -233,12 +235,72 @@ public class LibraryWatchService implements SmartLifecycle {
     }
 
     private void registerRecursive(Path root, long libraryId) {
-        try (Stream<Path> stream = Files.walk(root)) {
-            stream.filter(Files::isDirectory)
-                    .forEach(p -> registerPath(p, libraryId));
+        try {
+            registerDirectoryTree(root, libraryId);
         } catch (IOException e) {
             log.warn("Failed to register paths under: {}", root, e);
         }
+    }
+
+    private int registerDirectoryTree(Path root, long libraryId) throws IOException {
+        BasicFileAttributes attributes = Files.readAttributes(root, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+        if (!attributes.isDirectory()) {
+            return attributes.isSymbolicLink() && Files.isDirectory(root) && registerDirectory(root, libraryId) ? 1 : 0;
+        }
+
+        int count = registerDirectory(root, libraryId) ? 1 : 0;
+        ArrayDeque<Future<Integer>> pending = new ArrayDeque<>();
+        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+             DirectoryStream<Path> children = Files.newDirectoryStream(root)) {
+            for (Path child : children) {
+                pending.addLast(executor.submit(() -> registerSubtree(child, libraryId)));
+                if (pending.size() >= REGISTRATION_PARALLELISM) {
+                    count += awaitRegistration(pending.removeFirst());
+                }
+            }
+            while (!pending.isEmpty()) {
+                count += awaitRegistration(pending.removeFirst());
+            }
+        } catch (DirectoryIteratorException e) {
+            throw e.getCause();
+        }
+        return count;
+    }
+
+    private int awaitRegistration(Future<Integer> future) throws IOException {
+        try {
+            return future.get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IOException("Interrupted while registering library paths", e);
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof IOException ioException) {
+                throw ioException;
+            }
+            throw new IOException("Failed to register library paths", e.getCause());
+        }
+    }
+
+    private int registerSubtree(Path root, long libraryId) throws IOException {
+        int[] count = {0};
+        Files.walkFileTree(root, new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult preVisitDirectory(Path directory, BasicFileAttributes attributes) {
+                if (registerDirectory(directory, libraryId)) {
+                    count[0]++;
+                }
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) {
+                if (attributes.isSymbolicLink() && Files.isDirectory(file) && registerDirectory(file, libraryId)) {
+                    count[0]++;
+                }
+                return FileVisitResult.CONTINUE;
+            }
+        });
+        return count[0];
     }
 
     private void unregisterRecursive(Path root) {
@@ -257,12 +319,7 @@ public class LibraryWatchService implements SmartLifecycle {
         }
         try {
             log.debug("Registering library paths for libraryId {} at {}", libraryId, libraryRoot);
-            registerPath(libraryRoot, libraryId);
-            try (var stream = Files.walk(libraryRoot)) {
-                stream.filter(Files::isDirectory)
-                        .filter(path -> !path.equals(libraryRoot))
-                        .forEach(path -> registerPath(path, libraryId));
-            }
+            registerDirectoryTree(libraryRoot, libraryId);
         } catch (Exception e) {
             log.error("Failed to register library paths for libraryId {} at {}", libraryId, libraryRoot, e);
         }
