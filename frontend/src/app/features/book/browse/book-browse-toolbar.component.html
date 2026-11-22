@@ -62,6 +62,7 @@
     </app-menu-radio-group>
   </div>
   <app-menu-separator class="sm:hidden" />
+  <app-menu-checkbox value="collapse-series" [checked]="collapseSeries()" (selected)="collapseSeries.set($event)">{{ 'book.browser.labels.collapseSeries' | transloco }}</app-menu-checkbox>
   @if (viewMode() === 'grid') {
     <app-menu-item value="card-detail" [submenu]="cardDetailMenu">
       {{ 'book.cardDetail.label' | transloco }}

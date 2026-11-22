@@ -578,6 +578,19 @@ class BookFacetsTest {
     }
 
     @Test
+    void allValuesReturnsEveryMatchingValuePastTheCap() {
+        for (int i = 0; i < 120; i++) {
+            book("T" + i, "Zebra " + i, "Author");
+        }
+        book("Other", "Horse", "Author");
+        em.flush();
+
+        assertThat(bookBrowse.allValues("genre", "zebra"))
+                .hasSize(120)
+                .allMatch(value -> value.startsWith("Zebra "));
+    }
+
+    @Test
     void individualFacetSearchIsLimitedToNameFacets() {
         assertThatThrownBy(() -> bookBrowse.getFacet("page_count", null, null, null, "12", PageRequest.of(0, 20)))
                 .hasMessage("Facet cannot be searched: page_count");

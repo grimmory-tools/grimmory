@@ -24,6 +24,7 @@ import org.booklore.service.book.BookService;
 import org.booklore.service.book.BookUpdateService;
 import org.booklore.service.book.DuplicateDetectionService;
 import org.booklore.service.book.PhysicalBookService;
+import org.booklore.service.browse.BookSeriesCollapsePageFetcher;
 import org.booklore.service.browse.BrowseService;
 import org.booklore.model.dto.browse.FacetGroupsResponse;
 import org.booklore.service.metadata.BookMetadataService;
@@ -62,6 +63,7 @@ public class BookController {
 
     private final BookService bookService;
     private final BrowseService<BookEntity, Book> bookBrowse;
+    private final BookSeriesCollapsePageFetcher bookSeriesCollapsePageFetcher;
     private final BookUpdateService bookUpdateService;
     private final BookRecommendationService bookRecommendationService;
     private final BookFileAttachmentService bookFileAttachmentService;
@@ -95,10 +97,14 @@ public class BookController {
             @Parameter(description = "Free-text search across title, series, author, genre, tag, ISBN, and ASIN")
             @RequestParam(required = false) String query,
             @Parameter(description = "Opaque pagination cursor from a prior response's links")
-            @RequestParam(required = false) String cursor) {
-        boolean browseMode = sort != null || facet != null || facetLogic != null || query != null || cursor != null;
+            @RequestParam(required = false) String cursor,
+            @Parameter(description = "Collapse books in the same series into one item per series")
+            @RequestParam(name = "collapse_series", defaultValue = "false") boolean collapseSeries) {
+        boolean browseMode = sort != null || facet != null || facetLogic != null || query != null || cursor != null || collapseSeries;
         if (browseMode) {
-            return ResponseEntity.ok(bookBrowse.browse(sort, facet, facetLogic, query, cursor, pageable));
+            return ResponseEntity.ok(collapseSeries
+                    ? bookBrowse.browse(sort, facet, facetLogic, query, cursor, pageable, bookSeriesCollapsePageFetcher, "collapse_series=true")
+                    : bookBrowse.browse(sort, facet, facetLogic, query, cursor, pageable));
         }
         return ResponseEntity.ok(bookBrowse.wrapLegacy(bookService.getBookDTOsPaged(pageable), pageable));
     }

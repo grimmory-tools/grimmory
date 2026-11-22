@@ -125,13 +125,20 @@
                           size="sm"
                           loading="lazy" />
                       </span>
-                      <a
-                        class="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-medium text-text no-underline hover:text-primary-text hover:underline hover:underline-offset-[0.15em] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                        [attr.href]="detailHref(book)"
-                        (click)="onDetailClick(book, $event)">
-                        {{ bookTitle(book) }}
-                      </a>
-                      @if (!selectionActive()) {
+                      <div class="min-w-0">
+                        <a
+                          class="block min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-medium text-text no-underline hover:text-primary-text hover:underline hover:underline-offset-[0.15em] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                          [attr.href]="detailHref(book)"
+                          (click)="onDetailClick(book, $event)">
+                          {{ bookTitle(book) }}
+                        </a>
+                        @if (seriesBookCount(book); as count) {
+                          <div class="truncate text-xs text-text-muted">
+                            {{ 'book.fields.series' | transloco }} · {{ (count === 1 ? 'book.card.book.seriesBookCount' : 'book.card.book.seriesBooksCount') | transloco: {count} }}
+                          </div>
+                        }
+                      </div>
+                      @if (seriesBookCount(book) === null && !selectionActive()) {
                         <span class="ml-auto hidden flex-none group-hover/row:block group-has-[:focus-visible]/row:block group-data-[menu-open=true]/row:block pointer-coarse:block">
                           <app-button
                             variant="ghost"

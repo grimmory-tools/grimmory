@@ -1,5 +1,5 @@
 import {computed, linkedSignal, signal, type Signal} from '@angular/core';
-import {injectQuery, keepPreviousData} from '@tanstack/angular-query-experimental';
+import {injectQuery, keepPreviousData} from '@tanstack/angular-query';
 
 import {type BrowseCollectionFilterParams} from '../../core/data/browse-query-params';
 import {type BrowseQueryService} from '../../core/data/browse-query.service';

@@ -13,6 +13,10 @@ public interface PageFetcher<E, T> {
     FetchedPage<T> fetch(BrowseScope scope, Specification<E> filter, SortRegistry<E> sorts,
                          List<SortTerm> sortTerms, BrowsePager.Window window);
 
-    record FetchedPage<T>(List<T> items, long total) {
+    record FetchedPage<T>(List<T> items, long total, Long totalMembers) {
+
+        public FetchedPage(List<T> items, long total) {
+            this(items, total, null);
+        }
     }
 }

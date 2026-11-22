@@ -1,6 +1,6 @@
 import {Component, computed, inject, input, viewChild} from '@angular/core';
 import {TranslocoPipe} from '@jsverse/transloco';
-import {injectQuery} from '@tanstack/angular-query-experimental';
+import {injectQuery} from '@tanstack/angular-query';
 import {LucideBookmark, LucideCheck, LucideDatabase, LucidePenLine} from '@lucide/angular';
 
 import {

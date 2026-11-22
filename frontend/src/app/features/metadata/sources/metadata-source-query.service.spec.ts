@@ -3,7 +3,7 @@ import {AppSettingsService} from '../../../shared/service/app-settings.service';
 import {HttpTestingController} from '@angular/common/http/testing';
 import {inject, Injectable, signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
-import {injectQuery, QueryClient} from '@tanstack/angular-query-experimental';
+import {injectQuery, QueryClient} from '@tanstack/angular-query';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {API_CONFIG} from '../../../core/config/api-config';

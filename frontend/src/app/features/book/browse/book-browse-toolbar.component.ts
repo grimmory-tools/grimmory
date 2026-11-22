@@ -67,6 +67,7 @@ export class BookBrowseToolbarComponent {
   readonly sortOptions = input.required<readonly BookSortOption[]>();
   readonly sortTerms = model.required<readonly BookSortTerm[]>();
   readonly viewMode = model.required<BrowseViewMode>();
+  readonly collapseSeries = model.required<boolean>();
   readonly columnOptions = input.required<readonly BookColumnOption[]>();
   readonly cardDetail = model.required<BookDetailLineSortKey | null>();
   readonly cardDetailOptions = input.required<readonly BookCardDetailOption[]>();

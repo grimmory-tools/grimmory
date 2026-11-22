@@ -1,4 +1,4 @@
-import {hashKey} from '@tanstack/angular-query-experimental';
+import {hashKey} from '@tanstack/angular-query';
 
 import {
   BrowseCollectionFilterParams,
@@ -7,6 +7,13 @@ import {
   normalizeBrowseCollectionFilterParams,
   normalizeBrowseQueryParams,
 } from './browse-query-params';
+
+export const DEFAULT_FACET_PAGE_SIZE = 100;
+
+export interface BrowseFacetPageOptions {
+  readonly page?: number;
+  readonly size?: number;
+}
 
 export function browseQueryKeys<FacetKey extends string, SortKey extends string>(root: string) {
   const all = () => [root, 'query'] as const;
@@ -22,8 +29,12 @@ export function browseQueryKeys<FacetKey extends string, SortKey extends string>
     boundedPage: (params: BrowsePageParams<FacetKey, SortKey>) => [...boundedPages(), params] as const,
     infinitePage: (params: BrowsePageParams<FacetKey, SortKey>) => [...infinitePages(), params] as const,
     facetIndex: (params: BrowseCollectionFilterParams<FacetKey>) => [...facetQueries(), 'index', params] as const,
-    facet: (key: FacetKey, params: BrowseCollectionFilterParams<FacetKey>, search: string) =>
-      [...facetQueries(), 'facet', key, params, search] as const,
+    facet: (
+      key: FacetKey,
+      params: BrowseCollectionFilterParams<FacetKey>,
+      search: string,
+      {page = 0, size = DEFAULT_FACET_PAGE_SIZE}: BrowseFacetPageOptions = {},
+    ) => [...facetQueries(), 'facet', key, params, search, {page, size}] as const,
     ids: (params: BrowseQueryParams<FacetKey, SortKey>) => [...idQueries(), params] as const,
   };
 }

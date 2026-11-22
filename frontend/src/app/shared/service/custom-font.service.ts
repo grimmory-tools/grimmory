@@ -4,7 +4,7 @@ import {lastValueFrom, Observable, tap} from 'rxjs';
 import {CustomFont} from '../model/custom-font.model';
 import {API_CONFIG} from '../../core/config/api-config';
 import {AuthService} from './auth.service';
-import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
+import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query';
 import {mitigateWebkitUploadBug} from '../util/mitigate-webkit-upload-bug';
 import {filter, map} from 'rxjs/operators';
 

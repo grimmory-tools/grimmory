@@ -2,7 +2,7 @@ import {HttpErrorResponse} from '@angular/common/http';
 import {HttpTestingController} from '@angular/common/http/testing';
 import {Injectable, inject} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
-import {injectInfiniteQuery, QueryClient} from '@tanstack/angular-query-experimental';
+import {injectInfiniteQuery, QueryClient} from '@tanstack/angular-query';
 import {afterEach, beforeEach, describe, expect, expectTypeOf, it, vi} from 'vitest';
 
 import {API_CONFIG} from '../../../core/config/api-config';
@@ -161,6 +161,26 @@ describe('BookQueryService', () => {
     });
   });
 
+  it('sends page and size parameters for paged facet queries', async () => {
+    const resultPromise = queryClient.query(service.facet('author', PARAMS, '', {page: 2, size: 50}));
+    const request = http.expectOne(
+      `${API_CONFIG.BASE_URL}/api/v1/books/facets/author?query=dune&facet=genre:Science%20Fiction&size=50&page=2`,
+    );
+    request.flush({
+      links: [{rel: 'self', href: '/api/v1/books/facets/author?page=2&size=50', type: 'application/json'}],
+      facets: [{
+        metadata: {rel: 'facet', key: 'author', title: 'Authors'},
+        links: [{rel: 'facet', href: '', type: '', title: 'Frank Herbert', value: 'Frank Herbert', properties: {numberOfItems: 2}}],
+      }],
+    });
+
+    await expect(resultPromise).resolves.toEqual({
+      key: 'author',
+      values: [{value: 'Frank Herbert', title: 'Frank Herbert', count: 2}],
+      complete: true,
+    });
+  });
+
   it('reads a number facet\'s bounds from its templated range link, keeping bands as values', async () => {
     const resultPromise = queryClient.query(service.facet('goodreads_rating', PARAMS));
     http.expectOne(request => request.url === `${API_CONFIG.BASE_URL}/api/v1/books/facets/goodreads_rating`).flush({
@@ -237,6 +257,17 @@ describe('BookQueryService', () => {
 
   it('keys an infinite query by its normalized parameters alone so the cache is shared', () => {
     expect(service.infinitePage(PARAMS).queryKey).toEqual(service.infinitePage(PARAMS).queryKey);
+  });
+
+  it('keys and requests infinitePage with optional pageParams', async () => {
+    const collapsed = service.infinitePage(PARAMS, {collapse_series: 'true'});
+    expect(collapsed.queryKey).not.toEqual(service.infinitePage(PARAMS).queryKey);
+
+    const resultPromise = queryClient.fetchInfiniteQuery(collapsed);
+    http.expectOne(
+      `${API_CONFIG.BASE_URL}/api/v1/books/page?query=dune&facet=genre:Science%20Fiction&sort=title&size=20&collapse_series=true`,
+    ).flush(page([1]));
+    await resultPromise;
   });
 
   it('fetches full book detail with the description flag', async () => {

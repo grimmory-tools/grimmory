@@ -1,7 +1,7 @@
 import {signal, type WritableSignal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {ActivatedRoute, convertToParamMap, Router} from '@angular/router';
-import {queryOptions} from '@tanstack/angular-query-experimental';
+import {queryOptions} from '@tanstack/angular-query';
 import {BehaviorSubject, Subject} from 'rxjs';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 

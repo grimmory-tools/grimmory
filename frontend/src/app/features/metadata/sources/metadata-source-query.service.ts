@@ -5,7 +5,7 @@ import {
   injectQuery,
   queryOptions,
   QueryClient,
-} from '@tanstack/angular-query-experimental';
+} from '@tanstack/angular-query';
 
 import {API_CONFIG} from '../../../core/config/api-config';
 import {httpGet, postSseJson, QUERY_DEFAULTS, toAbortablePromise} from '../../../core/data/query-transport';

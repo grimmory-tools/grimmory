@@ -1,5 +1,5 @@
 import {Component, computed, DestroyRef, effect, inject, Injector, OnInit} from '@angular/core';
-import {injectQuery} from '@tanstack/angular-query-experimental';
+import {injectQuery} from '@tanstack/angular-query';
 import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {Button} from '@openng/optimus-ui/button';
 

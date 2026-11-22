@@ -1,7 +1,7 @@
 import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {QueryClient, queryOptions} from '@tanstack/angular-query-experimental';
+import {QueryClient, queryOptions} from '@tanstack/angular-query';
 import {of} from 'rxjs';
 
 import {AuthService} from './auth.service';

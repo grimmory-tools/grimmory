@@ -10,6 +10,7 @@ import {
 import {
   entityViewCardDetail,
   entityViewMode,
+  entityViewSeriesCollapsed,
   entityViewSortCriteria,
   entityViewSortPatch,
   findEntityViewPreferenceOverride,
@@ -47,6 +48,7 @@ export function createBookBrowsePreferences({context, urlState}: BookBrowsePrefe
   const viewMode = computed<BrowseViewMode>(() =>
     urlState.view() ?? (entityViewMode(entityViewPreferences(), context()) === 'TABLE' ? 'table' : 'grid'));
   const formatPill = computed(() => entityViewPreferences()?.global.overlayBookType ?? true);
+  const seriesCollapsed = linkedSignal(() => entityViewSeriesCollapsed(entityViewPreferences(), context()));
   const hiddenProviderFields = injectHiddenProviderFieldKeys();
   const cardDetailOptions = computed(() => bookCardDetailOptions(hiddenProviderFields()));
   const cardDetail = linkedSignal(() => {
@@ -115,6 +117,7 @@ export function createBookBrowsePreferences({context, urlState}: BookBrowsePrefe
     formatPill,
     cardDetail,
     cardDetailOptions,
+    seriesCollapsed: seriesCollapsed.asReadonly(),
     defaultSortTerms,
     columnOptions,
     visibleColumns,
@@ -140,6 +143,11 @@ export function createBookBrowsePreferences({context, urlState}: BookBrowsePrefe
     setCardDetail(value: BookDetailLineSortKey | null): void {
       cardDetail.set(value);
       updateViewPreference({cardDetail: value});
+    },
+
+    setSeriesCollapsed(collapsed: boolean): void {
+      seriesCollapsed.set(collapsed);
+      updateViewPreference({seriesCollapsed: collapsed});
     },
 
     saveSortDefault(terms: readonly BookSortTerm[]): void {

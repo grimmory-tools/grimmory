@@ -1,7 +1,7 @@
 import {Component, computed, input, signal} from '@angular/core';
 import {HttpTestingController} from '@angular/common/http/testing';
 import {type ComponentFixture, TestBed} from '@angular/core/testing';
-import {QueryClient} from '@tanstack/angular-query-experimental';
+import {QueryClient} from '@tanstack/angular-query';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {API_CONFIG} from '../../../core/config/api-config';

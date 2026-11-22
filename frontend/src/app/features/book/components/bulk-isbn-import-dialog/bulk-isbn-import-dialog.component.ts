@@ -8,7 +8,7 @@ import {Textarea} from '@openng/optimus-ui/textarea';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {ProgressBar} from '@openng/optimus-ui/progressbar';
 import {FileUpload, FileSelectEvent} from '@openng/optimus-ui/fileupload';
-import {QueryClient} from '@tanstack/angular-query-experimental';
+import {QueryClient} from '@tanstack/angular-query';
 import {BookService} from '../../service/book.service';
 import {LibraryService} from '../../service/library.service';
 import {Library} from '../../model/library.model';

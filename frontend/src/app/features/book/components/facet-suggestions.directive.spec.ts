@@ -1,7 +1,7 @@
 import {Component, EventEmitter, provideZonelessChangeDetection} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {AutoComplete, type AutoCompleteCompleteEvent} from '@openng/optimus-ui/autocomplete';
-import {provideTanStackQuery, QueryClient} from '@tanstack/angular-query-experimental';
+import {provideTanStackQuery, QueryClient} from '@tanstack/angular-query';
 import {expect, it, vi} from 'vitest';
 
 import {BookQueryService} from '../data/book-query.service';
@@ -30,7 +30,7 @@ it('answers every search, including the same query typed again', async () => {
   TestBed.configureTestingModule({
     providers: [
       provideZonelessChangeDetection(),
-      provideTanStackQuery(new QueryClient()),
+      provideTanStackQuery(() => new QueryClient()),
       {
         provide: BookQueryService,
         useValue: {

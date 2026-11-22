@@ -65,18 +65,28 @@ public class BrowseService<E, T> {
     }
 
     public BrowsePage<T> browse(String sort, List<String> facet, String facetLogicParam, String query, String cursor, Pageable pageable) {
+        return browse(sort, facet, facetLogicParam, query, cursor, pageable, entity.pages(), null);
+    }
+
+    public BrowsePage<T> browse(String sort, List<String> facet, String facetLogicParam, String query, String cursor, Pageable pageable,
+                                PageFetcher<E, T> pageFetcher, String pageParam) {
         BrowseScope scope = scopeFactory.current();
         Map<String, List<String>> facets = BrowseParams.parseFacets(facet);
         FacetLogic facetLogic = FacetLogic.from(facetLogicParam);
-        BrowsePager.Window window = pager.resolve(sort, cursor, pageable, ParamsHash.compute(query, facets, facetLogic));
+        String normalizedPageParam = pageParam != null && !pageParam.isBlank() ? pageParam : null;
+        BrowsePager.Window window = pager.resolve(sort, cursor, pageable, ParamsHash.compute(query, facets, facetLogic, normalizedPageParam));
 
         SortRegistry<E> sorts = entity.sorts().apply(scope);
         List<SortTerm> sortTerms = SortParser.parse(window.sort(), sorts.keys());
         Specification<E> filter = entity.filter(query, facets, facetLogic, scope, null);
 
-        PageFetcher.FetchedPage<T> fetched = entity.pages().fetch(scope, filter, sorts, sortTerms, window);
-        return pager.assemble(entity.pagePath(), entity.facetPath(), BrowseParams.preserved(facet, facetLogicParam, query),
-                window, fetched.total(), fetched.items());
+        PageFetcher.FetchedPage<T> fetched = pageFetcher.fetch(scope, filter, sorts, sortTerms, window);
+        String preserved = BrowseParams.preserved(facet, facetLogicParam, query);
+        if (normalizedPageParam != null) {
+            preserved = preserved.isEmpty() ? normalizedPageParam : preserved + "&" + normalizedPageParam;
+        }
+        return pager.assemble(entity.pagePath(), entity.facetPath(), preserved,
+                window, fetched.total(), fetched.items(), fetched.totalMembers());
     }
 
     public Specification<E> filter(List<String> facet, String facetLogicParam, String query) {
@@ -124,7 +134,7 @@ public class BrowseService<E, T> {
         // Pass a null random seed for the legacy case - we don't actually store a seed value and
         // this is good enough for most use cases.
         BrowsePager.Window window = new BrowsePager.Window(pageable.getOffset(), pageable.getPageSize(), null, paramsHash, null);
-        return pager.assemble(entity.pagePath(), entity.facetPath(), "", window, page.getTotalElements(), page.getContent());
+        return pager.assemble(entity.pagePath(), entity.facetPath(), "", window, page.getTotalElements(), page.getContent(), null);
     }
 
     public FacetGroupsResponse getFacets(List<String> facet, String facetLogicParam, String query) {
@@ -174,6 +184,16 @@ public class BrowseService<E, T> {
         boolean hasNext = counts.size() > limit;
         FacetGroup group = builder.group(def.key(), def.title(), hasNext ? counts.subList(0, limit) : counts);
         return new FacetGroupsResponse(builder.pagedLinks(term, page, limit, hasNext), List.of(group));
+    }
+
+    public List<String> allValues(String facetName, String search) {
+        BrowseScope scope = scopeFactory.current();
+        FacetDef<E> def = entity.facets().find(facetName);
+        Specification<E> base = entity.filter(null, Map.of(), FacetLogic.OR, scope, def.key());
+        String term = search == null || search.isBlank() ? null : search.trim();
+        return count(def.groupBy().getFirst(), base, scope, term, 0, Integer.MAX_VALUE).stream()
+                .map(FacetResponseBuilder.FacetCount::value)
+                .toList();
     }
 
     // Package-private: lets tests reset the shared singleton cache between runs.

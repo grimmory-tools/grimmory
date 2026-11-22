@@ -1,7 +1,7 @@
 import {provideHttpClient} from '@angular/common/http';
 import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
 import {TestBed} from '@angular/core/testing';
-import {QueryClient} from '@tanstack/angular-query-experimental';
+import {QueryClient} from '@tanstack/angular-query';
 import {afterEach, beforeEach, describe, expect, it} from 'vitest';
 
 import {ResetProgressTypes} from '../../../shared/constants/reset-progress-type';

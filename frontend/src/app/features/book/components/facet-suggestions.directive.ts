@@ -1,7 +1,7 @@
 import {Directive, inject, input} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {AutoComplete} from '@openng/optimus-ui/autocomplete';
-import {QueryClient} from '@tanstack/angular-query-experimental';
+import {QueryClient} from '@tanstack/angular-query';
 import {catchError, from, map, of, switchMap} from 'rxjs';
 
 import {SEARCH_DEBOUNCE_MS} from '../../../shared/util/search-terms';

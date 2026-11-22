@@ -16,7 +16,7 @@ import {ProgressBar} from '@openng/optimus-ui/progressbar';
 import {RadioButton} from '@openng/optimus-ui/radiobutton';
 import {SelectButton} from '@openng/optimus-ui/selectbutton';
 import {Tag} from '@openng/optimus-ui/tag';
-import {injectMutation, QueryClient} from '@tanstack/angular-query-experimental';
+import {injectMutation, QueryClient} from '@tanstack/angular-query';
 
 import {CoverComponent} from '../../../../shared/components/cover/cover.component';
 import {AppSettingsService} from '../../../../shared/service/app-settings.service';

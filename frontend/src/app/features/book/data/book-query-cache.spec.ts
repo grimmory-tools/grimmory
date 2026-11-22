@@ -1,4 +1,4 @@
-import {QueryClient} from '@tanstack/angular-query-experimental';
+import {QueryClient} from '@tanstack/angular-query';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {observeActiveQuery} from '../../../core/testing/query-testing';

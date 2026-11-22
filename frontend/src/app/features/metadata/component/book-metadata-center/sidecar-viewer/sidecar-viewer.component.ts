@@ -2,7 +2,7 @@ import {Component, computed, inject, input, OnDestroy, signal} from '@angular/co
 import {toSignal} from '@angular/core/rxjs-interop';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
-import {injectQuery, QueryClient} from '@tanstack/angular-query-experimental';
+import {injectQuery, QueryClient} from '@tanstack/angular-query';
 import {Book} from '../../../../book/model/book.model';
 import {SidecarService} from '../../../service/sidecar.service';
 import {SidecarMetadata, SidecarSyncStatus} from '../../../sources/sidecar.models';

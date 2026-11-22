@@ -4,7 +4,7 @@ import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {By} from '@angular/platform-browser';
 import {Router, provideRouter} from '@angular/router';
 import {RouterTestingHarness} from '@angular/router/testing';
-import {QueryClient} from '@tanstack/angular-query-experimental';
+import {QueryClient} from '@tanstack/angular-query';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {API_CONFIG} from '../../../core/config/api-config';
@@ -352,15 +352,14 @@ describe('BookBrowsePageComponent', () => {
     http.expectNone(candidate => candidate.url === PAGE_URL);
 
     await TestBed.inject(Router).navigate([], {queryParams: {sort: '-title,pageCount'}});
-    await fixture.whenStable();
+    await flushQueryAsync(1);
     http.expectOne(request =>
       request.url === PAGE_URL && request.params.get('sort') === '-title,pageCount',
     ).flush(bookPage([1], 1));
     await flushQueryAsync();
 
     (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('button[aria-label="Sort Ascending"]')!.click();
-    await fixture.whenStable();
-    await flushQueryAsync(1);
+    await flushQueryAsync();
     http.expectOne(request =>
       request.url === PAGE_URL && request.params.get('sort') === 'title,pageCount',
     ).flush(bookPage([1], 1));

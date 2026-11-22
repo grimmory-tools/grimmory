@@ -4,7 +4,7 @@ import {HttpClient} from '@angular/common/http';
 import {lastValueFrom} from 'rxjs';
 import {RxStompService} from '../../../shared/websocket/rx-stomp.service';
 import {API_CONFIG} from '../../../core/config/api-config';
-import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
+import {injectQuery, queryOptions, QueryClient} from '@tanstack/angular-query';
 
 const LIBRARY_HEALTH_QUERY_KEY = ['libraryHealth'] as const;
 

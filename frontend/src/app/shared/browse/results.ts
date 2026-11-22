@@ -1,5 +1,5 @@
 import {computed, effect, signal, untracked, type EffectCleanupRegisterFn, type Signal} from '@angular/core';
-import {type CreateInfiniteQueryResult, type InfiniteData} from '@tanstack/angular-query-experimental';
+import {type CreateInfiniteQueryResult, type InfiniteData} from '@tanstack/angular-query';
 
 import {findBrowsePageLink, flattenBrowsePages, type BrowsePage} from '../../core/data/browse.models';
 
@@ -69,7 +69,8 @@ export function createBrowseResults<T extends {id: number}>(
   const showingPreviousResults = computed(() => shown() !== undefined && shown() !== deps.query.data());
 
   const items = computed<readonly T[]>(() => flattenBrowsePages(shown()));
-  const total = computed<number | null>(() => shown()?.pages[0]?.page.totalElements ?? null);
+  const total = computed<number | null>(() =>
+    shown()?.pages[0]?.page.totalMembers ?? shown()?.pages[0]?.page.totalElements ?? null);
   const status = computed<BrowseStatus>(() => {
     if (items().length > 0 || (shown() !== undefined && deps.query.isSuccess())) {
       return 'success';

@@ -1,4 +1,4 @@
-import {QueryClient} from '@tanstack/angular-query-experimental';
+import {QueryClient} from '@tanstack/angular-query';
 
 import {metadataSourceQueryKeys} from '../../metadata/sources/metadata-source-query-keys';
 import {readingQueryKeys} from '../../reading/data/reading-query-keys';

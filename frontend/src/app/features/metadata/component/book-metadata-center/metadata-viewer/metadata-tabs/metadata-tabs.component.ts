@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, computed, Component, DestroyRef, effect, inject, input, linkedSignal, output, untracked} from '@angular/core';
 import {UpperCasePipe} from '@angular/common';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {injectInfiniteQuery, injectQuery} from '@tanstack/angular-query-experimental';
+import {injectInfiniteQuery, injectQuery} from '@tanstack/angular-query';
 import {Book, FileInfo} from '../../../../../book/model/book.model';
 import {BookNavigationService, type ReadOptions} from '../../../../../book/service/book-navigation.service';
 import {BookMenuComponent} from '../../../../../book/components/book-menu/book-menu.component';

@@ -1,7 +1,7 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {MessageService} from '@openng/optimus-ui/api';
 import {TranslocoService} from '@jsverse/transloco';
-import {provideTanStackQuery, queryOptions, QueryClient} from '@tanstack/angular-query-experimental';
+import {provideTanStackQuery, queryOptions, QueryClient} from '@tanstack/angular-query';
 import {BehaviorSubject, of, throwError} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
@@ -68,7 +68,7 @@ describe('SidecarViewerComponent', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        provideTanStackQuery(queryClient),
+        provideTanStackQuery(() => queryClient),
         {provide: MessageService, useValue: {add: messageAdd}},
         {provide: SidecarService, useValue: {exportToSidecar, importFromSidecar}},
         {provide: MetadataSourceQueryService, useValue: {sidecarStatus, sidecar}},

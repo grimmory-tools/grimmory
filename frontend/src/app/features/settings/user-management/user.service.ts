@@ -6,7 +6,7 @@ import { Library } from '../../book/model/library.model';
 import { catchError, map, tap } from 'rxjs/operators';
 import { AuthService } from '../../../shared/service/auth.service';
 import { DashboardConfig } from '../../dashboard/models/dashboard-config.model';
-import { injectQuery, queryOptions, QueryClient } from '@tanstack/angular-query-experimental';
+import { injectQuery, queryOptions, QueryClient } from '@tanstack/angular-query';
 import { CURRENT_USER_QUERY_KEY } from './user-query-keys';
 import { AppTheme, CustomPrimary } from '../../../shared/model/app-state.model';
 import {DEFAULT_UI_FONT, normalizeUiFont, type UiFontPreference} from '../../../shared/model/ui-font.model';

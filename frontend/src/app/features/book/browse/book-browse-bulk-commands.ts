@@ -2,7 +2,7 @@ import {inject, type Signal} from '@angular/core';
 import {TranslocoService} from '@jsverse/transloco';
 import {ConfirmationService} from '@openng/optimus-ui/api';
 import {type DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
-import {injectMutation} from '@tanstack/angular-query-experimental';
+import {injectMutation} from '@tanstack/angular-query';
 import {take} from 'rxjs/operators';
 
 import {

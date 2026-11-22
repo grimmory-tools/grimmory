@@ -1,6 +1,6 @@
 import {HttpClient} from '@angular/common/http';
 import {inject, Service} from '@angular/core';
-import {mutationOptions} from '@tanstack/angular-query-experimental';
+import {mutationOptions} from '@tanstack/angular-query';
 import {lastValueFrom} from 'rxjs';
 
 import {API_CONFIG} from '../../../core/config/api-config';
