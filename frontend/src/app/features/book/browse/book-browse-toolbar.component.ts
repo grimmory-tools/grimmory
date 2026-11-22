@@ -32,8 +32,8 @@ import {
   type BookColumnOption,
   type BookColumnSection,
 } from './book-browse-columns';
-import {BOOK_FIELDS} from './book-browse-fields';
-import {type BookSortOption} from './book-browse-sort';
+import {BOOK_FIELDS, type BookDetailLineSortKey} from './book-browse-fields';
+import {type BookCardDetailOption, type BookSortOption} from './book-browse-sort';
 import {BrowseSortControlComponent} from '../../../shared/browse/sort-control.component';
 import {type BrowseViewMode} from '../../../shared/browse/url-state';
 import {BrowseCardSizeMenuItemsComponent} from '../../../shared/browse/card-size-menu-items.component';
@@ -69,6 +69,8 @@ export class BookBrowseToolbarComponent {
   readonly viewMode = model.required<BrowseViewMode>();
   readonly collapseSeries = model.required<boolean>();
   readonly columnOptions = input.required<readonly BookColumnOption[]>();
+  readonly cardDetail = model.required<BookDetailLineSortKey | null>();
+  readonly cardDetailOptions = input.required<readonly BookCardDetailOption[]>();
   readonly densitySmallerDisabled = input.required<boolean>();
   readonly densityLargerDisabled = input.required<boolean>();
   readonly filtersOpen = input.required<boolean>();

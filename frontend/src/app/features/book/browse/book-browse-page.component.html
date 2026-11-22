@@ -12,6 +12,8 @@
       [viewMode]="preferences.viewMode()"
       [collapseSeries]="preferences.seriesCollapsed()"
       [columnOptions]="preferences.columnOptions()"
+      [cardDetail]="preferences.cardDetail()"
+      [cardDetailOptions]="preferences.cardDetailOptions()"
       [densitySmallerDisabled]="page.density.smallerDisabled()"
       [densityLargerDisabled]="page.density.largerDisabled()"
       [filtersOpen]="page.rail.visible()"
@@ -24,6 +26,7 @@
       (collapseSeriesChange)="preferences.setSeriesCollapsed($event)"
       (columnVisibilityChange)="preferences.setColumnVisibility($event)"
       (columnsReset)="preferences.resetColumns()"
+      (cardDetailChange)="preferences.setCardDetail($event)"
       (densityChange)="page.density.adjust($event)"
       (filtersToggle)="page.rail.toggle()"
       (mobileSelectToggle)="page.toggleMobileSelect()" />

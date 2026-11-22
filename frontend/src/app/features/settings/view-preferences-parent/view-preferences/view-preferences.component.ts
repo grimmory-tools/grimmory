@@ -1,6 +1,6 @@
 import {Component, computed, DestroyRef, effect, inject, Injector, OnInit} from '@angular/core';
 import {injectQuery} from '@tanstack/angular-query';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {Button} from '@openng/optimus-ui/button';
 
 import {MessageService} from '@openng/optimus-ui/api';
@@ -14,7 +14,7 @@ import {FormsModule} from '@angular/forms';
 
 import {Tooltip} from '@openng/optimus-ui/tooltip';
 import {ToggleSwitch} from '@openng/optimus-ui/toggleswitch';
-import {TranslocoDirective, TranslocoService} from '@jsverse/transloco';
+import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {take} from 'rxjs/operators';
 
 import {DialogLauncherService} from '../../../../shared/services/dialog-launcher.service';
@@ -26,11 +26,11 @@ import {
   type BookSortTerm,
 } from '../../../book/data/book-query-params';
 import {BookQueryService} from '../../../book/data/book-query.service';
-import {bookSortOptions, bookSortTermsFromCriteria} from '../../../book/browse/book-browse-sort';
+import {bookCardDetailOptions, bookSortOptions, bookSortTermsFromCriteria} from '../../../book/browse/book-browse-sort';
 import {entityViewSortCriteria, entityViewSortPatch} from '../../user-management/entity-view-preferences';
 import {type BrowseMultiSortDialogResult} from '../../../../shared/browse/multi-sort-dialog.component';
 import {BrowseMultiSortEditorComponent} from '../../../../shared/browse/multi-sort-editor.component';
-import {BOOK_FIELDS, injectHiddenProviderFieldKeys} from '../../../book/browse/book-browse-fields';
+import {BOOK_FIELDS, injectHiddenProviderFieldKeys, type BookDetailLineSortKey} from '../../../book/browse/book-browse-fields';
 
 @Component({
   selector: 'app-view-preferences',
@@ -43,6 +43,7 @@ import {BOOK_FIELDS, injectHiddenProviderFieldKeys} from '../../../book/browse/b
     Tooltip,
     ToggleSwitch,
     TranslocoDirective,
+    TranslocoPipe,
     BrowseMultiSortEditorComponent
   ],
   templateUrl: './view-preferences.component.html',
@@ -82,6 +83,7 @@ export class ViewPreferencesComponent implements OnInit {
   }
 
   selectedView: 'GRID' | 'TABLE' = 'GRID';
+  selectedCardDetail: BookDetailLineSortKey | null = null;
   overlayBookType: boolean = true;
   autoSaveMetadata: boolean = false;
   globalSortTerms: readonly BookSortTerm[] = [];
@@ -92,12 +94,21 @@ export class ViewPreferencesComponent implements OnInit {
     this.sortTokensQuery.data()?.sortTokens ?? [],
     this.hiddenProviderFields(),
   ));
+  private readonly activeLang = toSignal(this.t.langChanges$, {initialValue: this.t.getActiveLang()});
+  readonly cardDetailOptions = computed(() => {
+    const activeLang = this.activeLang();
+    return bookCardDetailOptions(this.hiddenProviderFields()).map(option => ({
+      label: this.t.translate(option.labelKey, {}, activeLang),
+      value: option.id,
+    }));
+  });
 
   overrides: {
     entityType: 'LIBRARY' | 'SHELF' | 'MAGIC_SHELF';
     library: number;
     sortTerms: readonly BookSortTerm[];
     view: 'GRID' | 'TABLE';
+    cardDetail: BookDetailLineSortKey | null;
   }[] = [];
 
   private user: User | null = null;
@@ -121,6 +132,7 @@ export class ViewPreferencesComponent implements OnInit {
       const prefs = user.userSettings?.entityViewPreferences;
       const global = prefs?.global;
       this.selectedView = global?.view ?? 'GRID';
+      this.selectedCardDetail = global.cardDetail ?? null;
       this.overlayBookType = global?.overlayBookType ?? true;
       this.autoSaveMetadata = user.userSettings?.autoSaveMetadata ?? false;
 
@@ -131,7 +143,8 @@ export class ViewPreferencesComponent implements OnInit {
         entityType: override.entityType,
         library: override.entityId,
         sortTerms: bookSortTermsFromCriteria(entityViewSortCriteria(override.preferences)),
-        view: override.preferences.view
+        view: override.preferences.view,
+        cardDetail: override.preferences.cardDetail ?? null
       }));
     }, {injector: this.injector});
   }
@@ -185,8 +198,9 @@ export class ViewPreferencesComponent implements OnInit {
       this.overrides.push({
         entityType: next.entityType,
         library: next.value,
-        sortTerms: DEFAULT_BOOK_SORT_TERMS,
-        view: 'GRID'
+        sortTerms: this.globalSortTerms,
+        view: this.selectedView,
+        cardDetail: this.selectedCardDetail
       });
     }
   }
@@ -225,6 +239,7 @@ export class ViewPreferencesComponent implements OnInit {
       ...prefs.global,
       ...sortPatch(this.globalSortTerms),
       view: this.selectedView,
+      cardDetail: this.selectedCardDetail,
       overlayBookType: this.overlayBookType
     };
 
@@ -239,7 +254,8 @@ export class ViewPreferencesComponent implements OnInit {
         preferences: {
           ...(existing ?? prefs.global),
           ...sortPatch(o.sortTerms),
-          view: o.view
+          view: o.view,
+          cardDetail: o.cardDetail
         }
       };
     });
