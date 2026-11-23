@@ -15,10 +15,6 @@ on:
         description: "The head ref for comparison"
         required: true
         type: string
-    outputs:
-      has_migrations:
-        description: "Boolean indicating if migration files were changed"
-        value: ${{ jobs.check-for-migrations.outputs.has_migrations }}
 
 permissions:
   contents: read
@@ -27,10 +23,6 @@ jobs:
   check-for-migrations:
     name: Check for DB Migrations
     runs-on: ubuntu-latest
-    outputs:
-      base_ref: ${{ steps.normalize_refs.outputs.base_ref }}
-      head_ref: ${{ steps.normalize_refs.outputs.head_ref }}
-      has_migrations: ${{ steps.check_migrations.outputs.has_migrations }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -38,94 +30,51 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.checkout_ref }}
 
-      - name: Normalize Diff Refs
-        id: normalize_refs
+      - name: Check Migration Immutability and Ordering
         env:
           BASE_REF: ${{ inputs.base_ref }}
           HEAD_REF: ${{ inputs.head_ref }}
+          MIGRATION_DIR: backend/src/main/resources/db/migration
         run: |
+          set -euo pipefail
+
           if [ "$BASE_REF" = "0000000000000000000000000000000000000000" ]; then
-            echo "base_ref is the all-zero sentinel; callers must supply a real comparison base for migration checks." >&2
+            echo "Invalid base_ref (all zeroes)." >&2
             exit 1
           fi
 
-          echo "base_ref=$BASE_REF" >> "$GITHUB_OUTPUT"
-          echo "head_ref=$HEAD_REF" >> "$GITHUB_OUTPUT"
-
-      - name: Detect Flyway Migration Changes
-        id: check_migrations
-        env:
-          BASE_REF: ${{ steps.normalize_refs.outputs.base_ref }}
-          HEAD_REF: ${{ steps.normalize_refs.outputs.head_ref }}
-        run: |
-          echo "Comparing ${BASE_REF}...${HEAD_REF}"
-          if git diff --name-only "${BASE_REF}...${HEAD_REF}" | grep -Eq "^backend/src/main/resources/db/migration/V.*\\.sql$"; then
-            echo "Migration file changes detected. Proceeding with migration preview."
-            echo "has_migrations=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "No migration file changes detected. Skipping migration preview."
-            echo "has_migrations=false" >> "$GITHUB_OUTPUT"
+          # 1. Existing versioned migrations cannot be modified, deleted, or renamed
+          changed=$(git diff --name-status --diff-filter=MDR "${BASE_REF}...${HEAD_REF}" -- "${MIGRATION_DIR}/V*.sql")
+          if [ -n "$changed" ]; then
+            echo "❌ Existing migrations cannot be modified, deleted, or renamed:"
+            echo "$changed"
+            exit 1
           fi
 
-  flyway-migration-preview:
-    name: Flyway DB Migration Preview
-    needs: [check-for-migrations]
-    if: needs.check-for-migrations.outputs.has_migrations == 'true'
-    runs-on: ubuntu-latest
-    services:
-      mariadb:
-        image: mariadb:10.6
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: booklore_test
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping --silent"
-          --health-interval=5s
-          --health-timeout=5s
-          --health-retries=10
+          # 2. Newly added migrations must have unique versions higher than base
+          added=$(git diff --name-only --diff-filter=A "${BASE_REF}...${HEAD_REF}" -- "${MIGRATION_DIR}/V*.sql")
+          if [ -z "$added" ]; then
+            echo "No new migrations."
+            exit 0
+          fi
 
-    steps:
-      - name: Checkout Base Branch
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ needs.check-for-migrations.outputs.base_ref }}
-          fetch-depth: 0
+          max_base=$(git ls-tree --name-only "${BASE_REF}" "${MIGRATION_DIR}/" \
+            | sed -n 's|^.*/V\([0-9]\+\)__.*\.sql$|\1|p' | sort -n | tail -1)
+          max_base=${max_base:-0}
 
-      - name: Apply Migrations from Base Branch
-        env:
-          GITHUB_WORKSPACE: ${{ github.workspace }}
-          BASE_REF: ${{ needs.check-for-migrations.outputs.base_ref }}
-        run: |
-          echo "Applying migrations from base ref (${BASE_REF})..."
-          docker run --network host \
-            -v ${GITHUB_WORKSPACE}:/flyway/sql \
-            flyway/flyway:12.1.0 \
-            -url=jdbc:mariadb://127.0.0.1:3306/booklore_test \
-            -user=root -password=root \
-            -locations=filesystem:/flyway/sql/backend/src/main/resources/db/migration \
-            migrate
+          versions=$(printf '%s\n' "$added" | sed -n 's|^.*/V\([0-9]\+\)__.*\.sql$|\1|p')
+          dups=$(printf '%s\n' "$versions" | sort -n | uniq -d)
+          if [ -n "$dups" ]; then
+            echo "❌ Duplicate migration version(s): $dups"
+            exit 1
+          fi
 
-      - name: Checkout Head Branch
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ needs.check-for-migrations.outputs.head_ref }}
-          fetch-depth: 0
+          for file in $added; do
+            version=$(basename "$file" | sed -n 's|^V\([0-9]\+\)__.*\.sql$|\1|p')
+            if [ -z "$version" ] || [ "$version" -le "$max_base" ]; then
+              echo "❌ $file must have a version higher than V${max_base}."
+              exit 1
+            fi
+          done
 
-      - name: Apply Migrations from Head Branch
-        env:
-          GITHUB_WORKSPACE: ${{ github.workspace }}
-          HEAD_REF: ${{ needs.check-for-migrations.outputs.head_ref }}
-        run: |
-          echo "Applying new migrations from head ref (${HEAD_REF})..."
-          docker run --network host \
-            -v ${GITHUB_WORKSPACE}:/flyway/sql \
-            flyway/flyway:12.1.0 \
-            -url=jdbc:mariadb://127.0.0.1:3306/booklore_test \
-            -user=root -password=root \
-            -locations=filesystem:/flyway/sql/backend/src/main/resources/db/migration \
-            migrate
-
-      - name: Confirm Flyway Dry Run Success
-        run: echo "✅ Flyway migration preview successful. Migrations can be applied cleanly."
+          echo "✅ Flyway migration check passed."

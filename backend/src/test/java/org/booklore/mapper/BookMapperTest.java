@@ -8,15 +8,23 @@ import org.booklore.model.entity.LibraryPathEntity;
 import org.booklore.model.enums.BookFileType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
-@ActiveProfiles("test")
+@SpringJUnitConfig({
+        BookMapperImpl.class,
+        BookMetadataMapperImpl.class,
+        ShelfMapperImpl.class,
+        AdditionalFileMapperImpl.class,
+        ComicMetadataMapperImpl.class,
+        AuthorMapperImpl.class,
+        CategoryMapperImpl.class,
+        MoodMapperImpl.class,
+        TagMapperImpl.class
+})
 class BookMapperTest {
 
     @Autowired

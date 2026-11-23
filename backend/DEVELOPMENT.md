@@ -19,7 +19,7 @@ container.
 - Spring Boot 4
 - Gradle Wrapper
 - Spring Data JPA + Flyway
-- MariaDB in production, H2 for selected tests
+- MariaDB in production, MariaDB Testcontainers for database tests
 - JUnit 5, Mockito, AssertJ, JaCoCo
 
 ## Preferred Command Surface
@@ -29,7 +29,8 @@ Use [`Justfile`](Justfile) when possible:
 ```bash
 just                 # List backend recipes
 just run             # Start the backend with the dev profile
-just test            # Run backend tests
+just test            # Run backend unit tests
+just test-database   # Run backend database tests (requires Docker)
 just coverage        # Generate JaCoCo coverage output
 just check           # Run the Gradle check lifecycle
 just build           # Build the backend jar
@@ -41,6 +42,8 @@ From the repository root, the same recipes are available through the `api` names
 ```bash
 just api run
 just api test
+just api test-database
+just api test-database-class org.booklore.service.HibernateRegressionTest
 just api coverage
 just api check
 ```

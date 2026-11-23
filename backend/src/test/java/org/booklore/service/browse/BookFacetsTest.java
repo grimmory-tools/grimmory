@@ -26,7 +26,7 @@ import org.booklore.model.enums.ContentRestrictionMode;
 import org.booklore.model.enums.ContentRestrictionType;
 import org.booklore.service.opds.MagicShelfBookService;
 import org.booklore.service.task.TaskCronService;
-import org.flywaydb.core.Flyway;
+import org.booklore.test.DatabaseTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +48,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,17 +56,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@DatabaseTest
 @SpringBootTest(classes = BookloreApplication.class)
 @Transactional
 @TestPropertySource(properties = {
-        "spring.flyway.enabled=false",
-        "spring.jpa.hibernate.ddl-auto=create-drop",
-        "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect",
-        "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect",
-        "spring.datasource.url=jdbc:h2:mem:facettest;DB_CLOSE_DELAY=-1;NON_KEYWORDS=VALUE",
-        "spring.datasource.driver-class-name=org.h2.Driver",
-        "spring.datasource.username=sa",
-        "spring.datasource.password=",
         "app.path-config=build/tmp/test-config",
         "app.bookdrop-folder=build/tmp/test-bookdrop",
         "spring.main.allow-bean-definition-overriding=true",
@@ -97,12 +91,6 @@ class BookFacetsTest {
 
     @TestConfiguration
     public static class TestConfig {
-        @Bean("flyway")
-        @Primary
-        public Flyway flyway() {
-            return mock(Flyway.class);
-        }
-
         @Bean
         @Primary
         public TaskCronService taskCronService() {
@@ -303,7 +291,7 @@ class BookFacetsTest {
     }
 
     private ShelfEntity shelf(BookLoreUserEntity owner, boolean isPublic) {
-        ShelfEntity shelf = ShelfEntity.builder().user(owner).name("Shelf").isPublic(isPublic).build();
+        ShelfEntity shelf = ShelfEntity.builder().user(owner).name("Shelf " + UUID.randomUUID()).isPublic(isPublic).build();
         em.persist(shelf);
         return shelf;
     }
