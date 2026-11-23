@@ -5,6 +5,7 @@ import org.booklore.mapper.BookMapper;
 import org.booklore.model.dto.*;
 import org.booklore.model.dto.request.MetadataRefreshOptions;
 import org.booklore.model.dto.request.MetadataRefreshRequest;
+import org.booklore.model.dto.request.TaskCreateRequest;
 import org.booklore.model.dto.settings.AppSettings;
 import org.booklore.model.MetadataUpdateContext;
 import org.booklore.model.MetadataUpdateWrapper;
@@ -14,6 +15,8 @@ import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.enums.MetadataFetchTaskStatus;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.model.enums.MetadataReplaceMode;
+import org.booklore.model.enums.TaskType;
+import org.booklore.model.websocket.Topic;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.LibraryRepository;
 import org.booklore.repository.MetadataFetchJobRepository;
@@ -21,7 +24,12 @@ import org.booklore.service.NotificationService;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.metadata.parser.BookParser;
+import org.booklore.service.task.TaskCronService;
+import org.booklore.service.task.TaskHistoryService;
+import org.booklore.service.task.TaskService;
 import org.booklore.task.TaskCancellationManager;
+import org.booklore.task.TaskStatus;
+import org.booklore.task.tasks.RefreshMetadataTask;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,10 +37,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.transaction.support.SimpleTransactionStatus;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -84,6 +95,18 @@ class MetadataRefreshServiceTest {
     }
 
     @Test
+    void refreshMetadata_rejectsAnExistingTransaction() {
+        TransactionSynchronizationManager.setActualTransactionActive(true);
+        try {
+            assertThatThrownBy(() -> service.refreshMetadata(null, "job-1"))
+                    .isInstanceOf(IllegalStateException.class).hasMessageContaining("outside a transaction");
+            verifyNoInteractions(metadataFetchJobRepository, bookRepository);
+        } finally {
+            TransactionSynchronizationManager.setActualTransactionActive(false);
+        }
+    }
+
+    @Test
     void refreshMetadata_retainsProgressWhenLaterReservationIsRejected() {
         MetadataRefreshRequest request = MetadataRefreshRequest.builder()
                 .refreshType(MetadataRefreshRequest.RefreshType.BOOKS)
@@ -109,6 +132,183 @@ class MetadataRefreshServiceTest {
         ordered.verify(bookFileMutationGuard).beforeMutation();
         verify(bookRepository, never()).findAllWithMetadataByIds(Set.of(2L));
         verify(metadataFetchJobRepository).updateFailure(eq("job-1"), eq(MetadataFetchTaskStatus.ERROR), eq("Reservation unavailable"), any(), eq(1));
+    }
+
+    @Test
+    void refreshMetadata_preservesCancellationAndCompletedCountForTaskService() {
+        MetadataRefreshRequest request = refreshRequest(1L, 2L);
+        when(cancellationManager.isTaskCancelled("job-1")).thenReturn(false, true);
+        when(transactionManager.getTransaction(any())).thenReturn(new SimpleTransactionStatus());
+        BookEntity book = mock(BookEntity.class);
+        BookMetadataEntity metadata = mock(BookMetadataEntity.class);
+        when(book.getMetadata()).thenReturn(metadata);
+        when(metadata.areAllFieldsLocked()).thenReturn(true);
+        when(bookRepository.findAllWithMetadataByIds(Set.of(1L))).thenReturn(List.of(book));
+
+        assertThat(service.refreshMetadata(request, "job-1")).isEqualTo(MetadataFetchTaskStatus.CANCELLED);
+
+        verify(metadataFetchJobRepository, atLeastOnce()).save(argThat(job ->
+                job.getStatus() == MetadataFetchTaskStatus.CANCELLED && job.getCompletedBooks() == 1));
+        verify(bookRepository, never()).findAllWithMetadataByIds(Set.of(2L));
+        verify(cancellationManager, never()).clearCancellation("job-1");
+    }
+
+    @Test
+    void cancelledRefreshIsRecordedAsCancelledByTaskService() {
+        MetadataRefreshRequest refreshRequest = refreshRequest(1L, 2L);
+        TaskCancellationManager actualCancellationManager = new TaskCancellationManager();
+        MetadataRefreshService actualService = new MetadataRefreshService(libraryRepository, metadataFetchJobRepository,
+                bookMapper, bookMetadataUpdater, notificationService, appSettingService, parserMap, objectMapper,
+                bookRepository, transactionManager, authenticationService, actualCancellationManager, bookFileMutationGuard);
+        TaskHistoryService history = mock(TaskHistoryService.class);
+        TaskService taskService = new TaskService(authenticationService, history, mock(TaskCronService.class),
+                List.of(new RefreshMetadataTask(actualService)), actualCancellationManager, Runnable::run,
+                objectMapper, mock(TaskScheduler.class));
+        BookLoreUser.UserPermissions permissions = new BookLoreUser.UserPermissions();
+        permissions.setCanBulkAutoFetchMetadata(true);
+        BookLoreUser user = BookLoreUser.builder().id(1L).permissions(permissions).build();
+        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
+        when(objectMapper.convertValue(any(), eq(Map.class))).thenReturn(Map.of());
+        when(transactionManager.getTransaction(any())).thenReturn(new SimpleTransactionStatus());
+        BookEntity book = mock(BookEntity.class);
+        BookMetadataEntity metadata = mock(BookMetadataEntity.class);
+        when(book.getMetadata()).thenReturn(metadata);
+        when(metadata.areAllFieldsLocked()).thenReturn(true);
+        when(bookRepository.findAllWithMetadataByIds(Set.of(1L))).thenReturn(List.of(book));
+        AtomicReference<String> taskId = new AtomicReference<>();
+        doAnswer(invocation -> {
+            taskId.set(invocation.getArgument(0));
+            return null;
+        }).when(history).createTask(anyString(), eq(TaskType.REFRESH_METADATA_MANUAL), eq(1L), anyMap());
+        doAnswer(invocation -> {
+            actualCancellationManager.cancelTask(taskId.get());
+            return null;
+        }).when(bookFileMutationGuard).beforeMutation();
+
+        var response = taskService.runAsUser(TaskCreateRequest.builder()
+                .taskType(TaskType.REFRESH_METADATA_MANUAL).options(refreshRequest).build());
+
+        verify(history).updateTaskStatus(response.getTaskId(), TaskStatus.CANCELLED, "Task was cancelled");
+        verify(history, never()).updateTaskStatus(eq(response.getTaskId()), eq(TaskStatus.COMPLETED), anyString());
+        verify(bookRepository, never()).findAllWithMetadataByIds(Set.of(2L));
+        assertThat(actualCancellationManager.isTaskCancelled(response.getTaskId())).isFalse();
+    }
+
+    @Test
+    void refreshMetadata_rollsBackAndStopsWhenBookUpdateFails() {
+        MetadataRefreshRequest request = refreshRequest(1L, 2L);
+        SimpleTransactionStatus transaction = new SimpleTransactionStatus();
+        when(transactionManager.getTransaction(any())).thenReturn(transaction);
+        prepareUnlockedBook(1L);
+        doThrow(new IllegalStateException("Update failed")).when(bookMetadataUpdater).setBookMetadata(any());
+        when(metadataFetchJobRepository.updateFailure(eq("job-1"), eq(MetadataFetchTaskStatus.ERROR),
+                eq("Update failed"), any(), eq(0))).thenReturn(1);
+
+        assertThatThrownBy(() -> service.refreshMetadata(request, "job-1"))
+                .isInstanceOf(IllegalStateException.class).hasMessage("Update failed");
+
+        verify(transactionManager).rollback(transaction);
+        verify(bookRepository, never()).findAllWithMetadataByIds(Set.of(2L));
+        verify(bookRepository, never()).saveAndFlush(any());
+        verify(notificationService, never()).sendMessage(eq(Topic.BOOK_METADATA_UPDATE), any());
+        verify(notificationService, never()).sendMessage(eq(Topic.BOOK_METADATA_BATCH_PROGRESS),
+                argThat(message -> message instanceof MetadataBatchProgressNotification progress
+                        && ("COMPLETED".equals(progress.getStatus()) || progress.getMessage().startsWith("Processed:"))));
+        verify(metadataFetchJobRepository).updateFailure(eq("job-1"), eq(MetadataFetchTaskStatus.ERROR),
+                eq("Update failed"), any(), eq(0));
+    }
+
+    @Test
+    void refreshMetadata_doesNotAnnounceSuccessWhenCommitFails() {
+        MetadataRefreshRequest request = refreshRequest(1L);
+        SimpleTransactionStatus transaction = new SimpleTransactionStatus();
+        when(transactionManager.getTransaction(any())).thenReturn(transaction);
+        prepareUnlockedBook(1L);
+        when(bookMapper.toBookWithDescription(any(), eq(true))).thenReturn(Book.builder().build());
+        doThrow(new IllegalStateException("Commit failed")).when(transactionManager).commit(transaction);
+        when(metadataFetchJobRepository.updateFailure(eq("job-1"), eq(MetadataFetchTaskStatus.ERROR),
+                eq("Commit failed"), any(), eq(0))).thenReturn(1);
+
+        assertThatThrownBy(() -> service.refreshMetadata(request, "job-1"))
+                .isInstanceOf(IllegalStateException.class).hasMessage("Commit failed");
+
+        verify(notificationService, never()).sendMessage(eq(Topic.BOOK_METADATA_UPDATE), any());
+        verify(notificationService, never()).sendMessage(eq(Topic.BOOK_METADATA_BATCH_PROGRESS),
+                argThat(message -> message instanceof MetadataBatchProgressNotification progress
+                        && ("COMPLETED".equals(progress.getStatus()) || progress.getMessage().startsWith("Processed:"))));
+    }
+
+    @Test
+    void refreshMetadata_interruptRollsBackAndStopsTheJob() {
+        MetadataRefreshRequest request = refreshRequest(1L, 2L);
+        request.getRefreshOptions().setFieldOptions(MetadataRefreshOptions.FieldOptions.builder()
+                .title(MetadataRefreshOptions.FieldProvider.builder().p1(MetadataProvider.GoodReads).build())
+                .build());
+        var parser = mock(BookParser.class);
+        when(parserMap.get(MetadataProvider.GoodReads)).thenReturn(parser);
+        when(parser.isEnabled()).thenReturn(true);
+        when(parser.fetchTopMetadata(any(), any())).thenAnswer(invocation -> {
+            Thread.currentThread().interrupt();
+            return null;
+        });
+        SimpleTransactionStatus transaction = new SimpleTransactionStatus();
+        when(transactionManager.getTransaction(any())).thenReturn(transaction);
+        prepareUnlockedBook(1L);
+        when(metadataFetchJobRepository.updateFailure(eq("job-1"), eq(MetadataFetchTaskStatus.ERROR),
+                eq("Metadata refresh interrupted"), any(), eq(0))).thenReturn(1);
+
+        try {
+            assertThatThrownBy(() -> service.refreshMetadata(request, "job-1"))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("Metadata refresh interrupted")
+                    .hasCauseInstanceOf(InterruptedException.class);
+            assertThat(Thread.currentThread().isInterrupted()).isTrue();
+        } finally {
+            Thread.interrupted();
+        }
+
+        verify(transactionManager).rollback(transaction);
+        verify(bookRepository, never()).findAllWithMetadataByIds(Set.of(2L));
+        verifyNoInteractions(bookMetadataUpdater);
+        verify(metadataFetchJobRepository).updateFailure(eq("job-1"), eq(MetadataFetchTaskStatus.ERROR),
+                eq("Metadata refresh interrupted"), any(), eq(0));
+    }
+
+    @Test
+    void refreshMetadata_announcesUpdatedBookOnlyAfterCommit() {
+        MetadataRefreshRequest request = refreshRequest(1L);
+        SimpleTransactionStatus transaction = new SimpleTransactionStatus();
+        when(transactionManager.getTransaction(any())).thenReturn(transaction);
+        prepareUnlockedBook(1L);
+        Book updated = Book.builder().build();
+        when(bookMapper.toBookWithDescription(any(), eq(true))).thenReturn(updated);
+
+        service.refreshMetadata(request, "job-1");
+
+        var ordered = inOrder(transactionManager, notificationService);
+        ordered.verify(transactionManager).commit(transaction);
+        ordered.verify(notificationService).sendMessage(Topic.BOOK_METADATA_UPDATE, updated);
+        ordered.verify(notificationService).sendMessage(eq(Topic.BOOK_METADATA_BATCH_PROGRESS),
+                argThat(message -> message instanceof MetadataBatchProgressNotification progress
+                        && progress.getMessage().startsWith("Processed:")));
+    }
+
+    private MetadataRefreshRequest refreshRequest(Long... ids) {
+        when(appSettingService.getAppSettings()).thenReturn(AppSettings.builder().build());
+        return MetadataRefreshRequest.builder()
+                .refreshType(MetadataRefreshRequest.RefreshType.BOOKS)
+                .bookIds(new LinkedHashSet<>(List.of(ids)))
+                .refreshOptions(MetadataRefreshOptions.builder().build())
+                .build();
+    }
+
+    private void prepareUnlockedBook(long id) {
+        BookEntity book = mock(BookEntity.class);
+        BookMetadataEntity metadata = mock(BookMetadataEntity.class);
+        when(book.getMetadata()).thenReturn(metadata);
+        when(book.getId()).thenReturn(id);
+        when(bookRepository.findAllWithMetadataByIds(Set.of(id))).thenReturn(List.of(book));
+        when(bookMapper.toBook(book)).thenReturn(Book.builder().metadata(BookMetadata.builder().build()).build());
     }
 
     @Test
@@ -243,6 +443,54 @@ class MetadataRefreshServiceTest {
         assertThat(result).hasSize(2);
         assertThat(result.get(MetadataProvider.Amazon).getTitle()).isEqualTo("Amazon Title");
         assertThat(result.get(MetadataProvider.Google).getTitle()).isEqualTo("Google Title");
+    }
+
+    @Test
+    void prepareFetchedMetadataCombinesProvidersWithoutApplyingChanges() {
+        BookEntity entity = BookEntity.builder().id(1L).build();
+        Book existing = Book.builder().id(1L)
+                .metadata(BookMetadata.builder().title("Existing title").build()).build();
+        BookParser amazon = mock(BookParser.class);
+        BookParser google = mock(BookParser.class);
+        when(bookMapper.toBook(entity)).thenReturn(existing);
+        when(parserMap.get(MetadataProvider.Amazon)).thenReturn(amazon);
+        when(parserMap.get(MetadataProvider.Google)).thenReturn(google);
+        when(amazon.isEnabled()).thenReturn(true);
+        when(google.isEnabled()).thenReturn(true);
+        when(amazon.fetchTopMetadata(any(), any()))
+                .thenReturn(BookMetadata.builder().provider(MetadataProvider.Amazon).build());
+        when(google.fetchTopMetadata(any(), any()))
+                .thenReturn(BookMetadata.builder().provider(MetadataProvider.Google).title("Fetched title").build());
+        MetadataRefreshOptions options = MetadataRefreshOptions.builder()
+                .fieldOptions(MetadataRefreshOptions.FieldOptions.builder()
+                        .title(MetadataRefreshOptions.FieldProvider.builder()
+                                .p1(MetadataProvider.Amazon).p2(MetadataProvider.Google).build())
+                        .build())
+                .build();
+
+        BookMetadata prepared = service.prepareFetchedMetadata(entity, options,
+                List.of(MetadataProvider.Amazon, MetadataProvider.Google));
+
+        assertThat(prepared.getBookId()).isEqualTo(1L);
+        assertThat(prepared.getTitle()).isEqualTo("Fetched title");
+        assertThat(existing.getMetadata().getTitle()).isEqualTo("Existing title");
+        verifyNoInteractions(bookMetadataUpdater, bookRepository, notificationService);
+    }
+
+    @Test
+    void prepareFetchedMetadataPropagatesProviderFailureWithoutApplyingChanges() {
+        BookEntity entity = BookEntity.builder().id(1L).build();
+        Book existing = Book.builder().id(1L).metadata(BookMetadata.builder().build()).build();
+        BookParser parser = mock(BookParser.class);
+        when(bookMapper.toBook(entity)).thenReturn(existing);
+        when(parserMap.get(MetadataProvider.Google)).thenReturn(parser);
+        when(parser.isEnabled()).thenReturn(true);
+        when(parser.fetchTopMetadata(any(), any())).thenThrow(new IllegalStateException("Provider unavailable"));
+
+        assertThatThrownBy(() -> service.prepareFetchedMetadata(entity, MetadataRefreshOptions.builder().build(),
+                List.of(MetadataProvider.Google)))
+                .isInstanceOf(IllegalStateException.class).hasMessage("Provider unavailable");
+        verifyNoInteractions(bookMetadataUpdater, bookRepository, notificationService);
     }
 
     @Test

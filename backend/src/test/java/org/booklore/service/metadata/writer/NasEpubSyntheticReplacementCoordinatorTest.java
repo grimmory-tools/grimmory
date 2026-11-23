@@ -1,20 +1,26 @@
 package org.booklore.service.metadata.writer;
 
+import org.booklore.service.file.BookFileMutationGuard;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.ConnectionHolder;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -109,6 +115,94 @@ class NasEpubSyntheticReplacementCoordinatorTest {
     }
 
     @Test
+    void nestedIndependentTransactionFailsBeforeWaitingForItsOwnWriteGate() {
+        var gate = new NasEpubSyntheticWriteGate(jdbc);
+        var outer = new TransactionTemplate(manager);
+        var inner = new TransactionTemplate(manager);
+        inner.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+
+        outer.executeWithoutResult(status -> {
+            gate.requireAvailable();
+            gate.requireAvailable();
+            assertThatThrownBy(() -> inner.executeWithoutResult(innerStatus -> gate.requireAvailable()))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("nested independent transaction");
+            gate.requireAvailable();
+        });
+        inner.executeWithoutResult(status -> gate.requireAvailable());
+    }
+
+    @Test
+    void writeGateTransactionTrackingIsReleasedAfterRollback() {
+        var gate = new NasEpubSyntheticWriteGate(jdbc);
+        var transactions = new TransactionTemplate(manager);
+        assertThatThrownBy(() -> transactions.executeWithoutResult(status -> {
+            gate.requireAvailable();
+            throw new IllegalStateException("rollback");
+        })).hasMessage("rollback");
+        transactions.executeWithoutResult(status -> gate.requireAvailable());
+    }
+
+    @Test
+    void coordinatedChangesMayUseGuardOnlyInOwningTransaction() {
+        var request = request();
+        coordinator.prepareAndEnqueue(request);
+        var gate = new NasEpubSyntheticWriteGate(jdbc);
+        var guard = new BookFileMutationGuard(List.of(gate::requireAvailable));
+        var independent = new TransactionTemplate(manager);
+        independent.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+
+        assertThat(coordinator.process(request.operationId(), () -> {
+            guard.beforeMutation();
+            jdbc.update("INSERT INTO synthetic_metadata VALUES ('owned')");
+            assertThatThrownBy(() -> independent.executeWithoutResult(status -> guard.beforeMutation()))
+                    .isInstanceOf(IllegalStateException.class).hasMessageContaining("nested independent transaction");
+            guard.beforeMutation();
+        })).isEqualTo(NasEpubSyntheticReplacementCoordinator.Status.COMMITTED);
+
+        assertThat(metadataCount()).isEqualTo(1);
+        assertThat(agent.state).isEqualTo(NasEpubSyntheticReplacement.State.COMMITTED);
+    }
+
+    @Test
+    void differentOperationCannotAssumeReservationOwnership() {
+        var request = request();
+        coordinator.prepareAndEnqueue(request);
+        var gate = new NasEpubSyntheticWriteGate(jdbc);
+        var transactions = new TransactionTemplate(manager);
+        var called = new AtomicInteger();
+
+        assertThatThrownBy(() -> transactions.executeWithoutResult(status ->
+                gate.runAsOwner(UUID.randomUUID(), called::incrementAndGet)))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("does not match");
+        assertThat(called).hasValue(0);
+        assertThat(coordinator.abort(request.operationId()))
+                .isEqualTo(NasEpubSyntheticReplacementCoordinator.Status.ABORTED);
+    }
+
+    @Test
+    void failedCoordinatedChangesDoNotLeaveOwnerAuthorizationBehind() {
+        var request = request();
+        coordinator.prepareAndEnqueue(request);
+        var gate = new NasEpubSyntheticWriteGate(jdbc);
+        var guard = new BookFileMutationGuard(List.of(gate::requireAvailable));
+        agent.rollbackUnavailable = true;
+
+        assertThatThrownBy(() -> coordinator.process(request.operationId(), () -> {
+            guard.beforeMutation();
+            throw new IllegalStateException("Database update failed");
+        })).isInstanceOf(IllegalStateException.class).hasMessage("Database update failed");
+
+        var transactions = new TransactionTemplate(manager);
+        assertThatThrownBy(() -> transactions.executeWithoutResult(status -> guard.beforeMutation()))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("reserved");
+        agent.rollbackUnavailable = false;
+        assertThat(coordinator.abort(request.operationId()))
+                .isEqualTo(NasEpubSyntheticReplacementCoordinator.Status.ABORTED);
+        transactions.executeWithoutResult(status -> guard.beforeMutation());
+    }
+
+    @Test
     void missingOrUnexpectedReservationFailsBeforeAgentMutation() {
         jdbc.update("DELETE FROM nas_synthetic_write_gate WHERE gate_id = 1");
         assertThatThrownBy(() -> coordinator.prepareAndEnqueue(request()))
@@ -156,6 +250,8 @@ class NasEpubSyntheticReplacementCoordinatorTest {
         assertThat(metadataCount()).isEqualTo(1);
         assertThat(coordinator.recoverCommitted(1)).isZero();
         assertThat(coordinator.status(first.operationId())).isEqualTo(NasEpubSyntheticReplacementCoordinator.Status.COMMITTED);
+        assertThat(coordinator.abort(next.operationId())).isEqualTo(NasEpubSyntheticReplacementCoordinator.Status.ABORTED);
+        new TransactionTemplate(manager).executeWithoutResult(status -> new NasEpubSyntheticWriteGate(jdbc).requireAvailable());
     }
 
     @Test
@@ -454,6 +550,274 @@ class NasEpubSyntheticReplacementCoordinatorTest {
                 agent.releaseApply.countDown();
             }
         }
+    }
+
+    @Test
+    void maintenanceStopsWhenRollbackCannotBeConfirmed() {
+        var runner = new NasEpubSyntheticMaintenanceRunner(coordinator);
+        var results = new ArrayList<NasEpubSyntheticMaintenanceRunner.Result>();
+        var subsequentChanges = new AtomicInteger();
+        agent.rollbackUnavailable = true;
+        var file = request().batch().requests().getFirst();
+        UUID runId = UUID.randomUUID();
+
+        assertThatThrownBy(() -> runner.run(runId, List.of(
+                new NasEpubSyntheticMaintenanceRunner.Work(1, file, () -> {
+                    jdbc.update("INSERT INTO synthetic_metadata VALUES ('failed')");
+                    throw new IllegalStateException("Database failure");
+                }),
+                new NasEpubSyntheticMaintenanceRunner.Work(2, file, subsequentChanges::incrementAndGet)),
+                results::add)).isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Database failure")
+                .satisfies(e -> assertThat(e.getSuppressed()).isNotEmpty());
+
+        assertThat(results).isEmpty();
+        assertThat(subsequentChanges).hasValue(0);
+        assertThat(metadataCount()).isZero();
+        assertThat(jdbc.queryForList("SELECT status FROM nas_synthetic_replacement_decision", String.class))
+                .containsExactly("ABORTING");
+        assertThat(runner.reports(runId, 0, 10).getFirst().status())
+                .isEqualTo(NasEpubSyntheticMaintenanceRunner.ReportStatus.STARTED);
+        assertThatThrownBy(() -> runner.recoverInterrupted(runId, 1))
+                .isInstanceOf(IllegalStateException.class);
+        assertThat(runner.reports(runId, 0, 10).getFirst().status())
+                .isEqualTo(NasEpubSyntheticMaintenanceRunner.ReportStatus.STARTED);
+        agent.rollbackUnavailable = false;
+        assertThat(runner.recoverInterrupted(runId, 1)).isEqualTo(1);
+        assertThat(runner.reports(runId, 0, 10).getFirst().status())
+                .isEqualTo(NasEpubSyntheticMaintenanceRunner.ReportStatus.FAILED);
+    }
+
+    @Test
+    void maintenanceRecoversCommittedDecisionWithoutReplayingDatabaseChanges() {
+        var runner = new NasEpubSyntheticMaintenanceRunner(coordinator);
+        var results = new ArrayList<NasEpubSyntheticMaintenanceRunner.Result>();
+        var calls = new AtomicInteger();
+        runner.run(UUID.randomUUID(), List.of(new NasEpubSyntheticMaintenanceRunner.Work(1,
+                request().batch().requests().getFirst(), () -> {
+                    calls.incrementAndGet();
+                    jdbc.update("INSERT INTO synthetic_metadata VALUES ('committed')");
+                    TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                        @Override
+                        public void afterCommit() {
+                            throw new IllegalStateException("Lost commit acknowledgement");
+                        }
+                    });
+                })), results::add);
+
+        assertThat(calls).hasValue(1);
+        assertThat(metadataCount()).isEqualTo(1);
+        assertThat(results).hasSize(1);
+        assertThat(results.getFirst().succeeded()).isTrue();
+        assertThat(coordinator.status(results.getFirst().operationId()))
+                .isEqualTo(NasEpubSyntheticReplacementCoordinator.Status.COMMITTED);
+        assertThat(agent.state).isEqualTo(NasEpubSyntheticReplacement.State.COMMITTED);
+    }
+
+    @Test
+    void maintenanceRecoversLostFinalizationResponseWithoutReplayingDatabaseChanges() {
+        var runner = new NasEpubSyntheticMaintenanceRunner(coordinator);
+        var results = new ArrayList<NasEpubSyntheticMaintenanceRunner.Result>();
+        var calls = new AtomicInteger();
+        agent.loseFinishResponse = true;
+        runner.run(UUID.randomUUID(), List.of(new NasEpubSyntheticMaintenanceRunner.Work(1,
+                request().batch().requests().getFirst(), () -> {
+                    calls.incrementAndGet();
+                    jdbc.update("INSERT INTO synthetic_metadata VALUES ('committed')");
+                })), results::add);
+
+        assertThat(calls).hasValue(1);
+        assertThat(metadataCount()).isEqualTo(1);
+        assertThat(results).hasSize(1);
+        assertThat(results.getFirst().succeeded()).isTrue();
+        assertThat(coordinator.recoverCommitted(1)).isZero();
+    }
+
+    @Test
+    void maintenanceStopsOnInterruptWithoutStartingAnotherBook() {
+        var runner = new NasEpubSyntheticMaintenanceRunner(coordinator);
+        var results = new ArrayList<NasEpubSyntheticMaintenanceRunner.Result>();
+        var subsequentChanges = new AtomicInteger();
+        agent.onPrepare = () -> {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted");
+        };
+        var file = request().batch().requests().getFirst();
+        UUID runId = UUID.randomUUID();
+        try {
+            assertThatThrownBy(() -> runner.run(runId, List.of(
+                    new NasEpubSyntheticMaintenanceRunner.Work(1, file, () -> {}),
+                    new NasEpubSyntheticMaintenanceRunner.Work(2, file, subsequentChanges::incrementAndGet)),
+                    results::add)).isInstanceOf(IllegalStateException.class).hasMessageContaining("Interrupted");
+            assertThat(Thread.currentThread().isInterrupted()).isTrue();
+            assertThat(results).isEmpty();
+            assertThat(subsequentChanges).hasValue(0);
+            assertThat(agent.rollbackCalls).isZero();
+        } finally {
+            Thread.interrupted();
+        }
+        agent.onPrepare = null;
+        assertThat(runner.recoverInterrupted(runId, 1)).isEqualTo(1);
+        assertThat(runner.reports(runId, 0, 10).getFirst().error()).contains("restored");
+    }
+
+    @Test
+    void maintenanceRecoversReportAfterCommitAndBeforePreparation() {
+        var runner = new NasEpubSyntheticMaintenanceRunner(coordinator);
+        UUID runId = UUID.randomUUID();
+        var committed = request();
+        jdbc.update("INSERT INTO nas_synthetic_maintenance_report "
+                        + "(run_id, book_id, operation_id, status) VALUES (?, 1, ?, 'STARTED')",
+                runId.toString(), committed.operationId().toString());
+        coordinator.prepareAndEnqueue(committed);
+        assertThatThrownBy(() -> coordinator.process(committed.operationId(), () -> {
+            jdbc.update("INSERT INTO synthetic_metadata VALUES ('committed')");
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    throw new IllegalStateException("Lost commit acknowledgement");
+                }
+            });
+        })).isInstanceOf(IllegalStateException.class);
+        jdbc.update("INSERT INTO nas_synthetic_maintenance_report "
+                        + "(run_id, book_id, operation_id, status) VALUES (?, 2, ?, 'STARTED')",
+                runId.toString(), UUID.randomUUID().toString());
+
+        assertThat(runner.recoverInterrupted(runId, 10)).isEqualTo(2);
+        assertThat(runner.recoverInterrupted(runId, 10)).isZero();
+        var reports = runner.reports(runId, 0, 10);
+        assertThat(reports).extracting(NasEpubSyntheticMaintenanceRunner.Report::status)
+                .containsExactly(NasEpubSyntheticMaintenanceRunner.ReportStatus.SUCCEEDED,
+                        NasEpubSyntheticMaintenanceRunner.ReportStatus.FAILED);
+        assertThat(reports.get(1).error()).contains("before preparation");
+        assertThat(metadataCount()).isEqualTo(1);
+        assertThat(agent.state).isEqualTo(NasEpubSyntheticReplacement.State.COMMITTED);
+    }
+
+    @Test
+    void maintenanceRejectsAnExistingTransactionBeforeRecordingWork() {
+        var runner = new NasEpubSyntheticMaintenanceRunner(coordinator);
+        var transactions = new TransactionTemplate(manager);
+        var file = request().batch().requests().getFirst();
+        UUID runId = UUID.randomUUID();
+
+        assertThatThrownBy(() -> transactions.executeWithoutResult(status -> runner.run(runId,
+                List.of(new NasEpubSyntheticMaintenanceRunner.Work(1, file, () -> {})), result -> {})))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("outside a transaction");
+        assertThat(runner.reports(runId, 0, 10)).isEmpty();
+    }
+
+    @Test
+    void maintenanceKeepsCommittedReportWhenProgressConsumerFails() {
+        var runner = new NasEpubSyntheticMaintenanceRunner(coordinator);
+        UUID runId = UUID.randomUUID();
+        var file = request().batch().requests().getFirst();
+        var later = new AtomicInteger();
+
+        assertThatThrownBy(() -> runner.run(runId, List.of(
+                new NasEpubSyntheticMaintenanceRunner.Work(1, file,
+                        () -> jdbc.update("INSERT INTO synthetic_metadata VALUES ('committed')")),
+                new NasEpubSyntheticMaintenanceRunner.Work(2, file, later::incrementAndGet)),
+                result -> { throw new IllegalStateException("Progress delivery failed"); }))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("Progress delivery failed");
+
+        var restarted = new NasEpubSyntheticMaintenanceRunner(coordinator);
+        assertThat(restarted.recoverInterrupted(runId, 10)).isZero();
+        assertThat(restarted.reports(runId, 0, 10)).singleElement()
+                .satisfies(report -> assertThat(report.status())
+                        .isEqualTo(NasEpubSyntheticMaintenanceRunner.ReportStatus.SUCCEEDED));
+        assertThat(metadataCount()).isEqualTo(1);
+        assertThat(later).hasValue(0);
+    }
+
+    @Test
+    void maintenanceDoesNotPrepareWhenStartingReportCannotBeSaved() {
+        var failingJdbc = failReportUpdate("INSERT INTO nas_synthetic_maintenance_report");
+        var runner = new NasEpubSyntheticMaintenanceRunner(
+                new NasEpubSyntheticReplacementCoordinator(failingJdbc, manager, agent));
+        UUID runId = UUID.randomUUID();
+        var file = request().batch().requests().getFirst();
+        var later = new AtomicInteger();
+
+        assertThatThrownBy(() -> runner.run(runId, List.of(
+                new NasEpubSyntheticMaintenanceRunner.Work(1, file, () -> {}),
+                new NasEpubSyntheticMaintenanceRunner.Work(2, file, later::incrementAndGet)),
+                result -> {})).isInstanceOf(IllegalStateException.class).hasMessage("Report storage unavailable");
+
+        assertThat(agent.state).isNull();
+        assertThat(later).hasValue(0);
+        assertThat(new NasEpubSyntheticMaintenanceRunner(coordinator).reports(runId, 0, 10)).isEmpty();
+    }
+
+    @Test
+    void maintenanceStopsAndRecoversCommittedWorkWhenFinishingReportFails() {
+        var failingJdbc = failReportUpdate("UPDATE nas_synthetic_maintenance_report");
+        var runner = new NasEpubSyntheticMaintenanceRunner(
+                new NasEpubSyntheticReplacementCoordinator(failingJdbc, manager, agent));
+        UUID runId = UUID.randomUUID();
+        var file = request().batch().requests().getFirst();
+        var results = new ArrayList<NasEpubSyntheticMaintenanceRunner.Result>();
+        var later = new AtomicInteger();
+
+        assertThatThrownBy(() -> runner.run(runId, List.of(
+                new NasEpubSyntheticMaintenanceRunner.Work(1, file,
+                        () -> jdbc.update("INSERT INTO synthetic_metadata VALUES ('committed')")),
+                new NasEpubSyntheticMaintenanceRunner.Work(2, file, later::incrementAndGet)),
+                results::add)).isInstanceOf(IllegalStateException.class).hasMessage("Report storage unavailable");
+
+        var restarted = new NasEpubSyntheticMaintenanceRunner(coordinator);
+        assertThat(results).isEmpty();
+        assertThat(later).hasValue(0);
+        assertThat(metadataCount()).isEqualTo(1);
+        assertThat(restarted.reports(runId, 0, 10)).singleElement()
+                .satisfies(report -> assertThat(report.status())
+                        .isEqualTo(NasEpubSyntheticMaintenanceRunner.ReportStatus.STARTED));
+        assertThat(restarted.recoverInterrupted(runId, 10)).isEqualTo(1);
+        assertThat(restarted.reports(runId, 0, 10)).singleElement()
+                .satisfies(report -> assertThat(report.status())
+                        .isEqualTo(NasEpubSyntheticMaintenanceRunner.ReportStatus.SUCCEEDED));
+        assertThat(metadataCount()).isEqualTo(1);
+    }
+
+    private JdbcTemplate failReportUpdate(String sqlPrefix) {
+        return new JdbcTemplate(jdbc.getDataSource()) {
+            @Override
+            public int update(String sql, Object... args) {
+                if (sql.startsWith(sqlPrefix)) {
+                    throw new IllegalStateException("Report storage unavailable");
+                }
+                return super.update(sql, args);
+            }
+        };
+    }
+
+    @Test
+    void maintenanceReportsSurviveDatabaseReopen(@TempDir Path directory) {
+        String url = "jdbc:h2:file:" + directory.resolve("maintenance").toAbsolutePath()
+                + ";MODE=MariaDB;DB_CLOSE_ON_EXIT=FALSE";
+        var source = new DriverManagerDataSource(url, "sa", "");
+        source.setDriverClassName("org.h2.Driver");
+        new ResourceDatabasePopulator(new ClassPathResource("db/nas-synthetic-job.sql")).execute(source);
+        var persistentJdbc = new JdbcTemplate(source);
+        var persistentCoordinator = new NasEpubSyntheticReplacementCoordinator(
+                persistentJdbc, new DataSourceTransactionManager(source), new FakeAgent());
+        var runner = new NasEpubSyntheticMaintenanceRunner(persistentCoordinator);
+        UUID runId = UUID.randomUUID();
+        var file = request().batch().requests().getFirst();
+        runner.run(runId, List.of(
+                new NasEpubSyntheticMaintenanceRunner.Work(1, file, () -> {}),
+                new NasEpubSyntheticMaintenanceRunner.Work(2, file,
+                        () -> { throw new IllegalStateException("Book failed"); })), result -> {});
+
+        var reopenedSource = new DriverManagerDataSource(url, "sa", "");
+        reopenedSource.setDriverClassName("org.h2.Driver");
+        var reopenedCoordinator = new NasEpubSyntheticReplacementCoordinator(new JdbcTemplate(reopenedSource),
+                new DataSourceTransactionManager(reopenedSource), new FakeAgent());
+        var reports = new NasEpubSyntheticMaintenanceRunner(reopenedCoordinator).reports(runId, 0, 10);
+        assertThat(reports).extracting(NasEpubSyntheticMaintenanceRunner.Report::status)
+                .containsExactly(NasEpubSyntheticMaintenanceRunner.ReportStatus.SUCCEEDED,
+                        NasEpubSyntheticMaintenanceRunner.ReportStatus.FAILED);
+        assertThat(reports.get(1).error()).contains("Book failed");
     }
 
     private int metadataCount() {

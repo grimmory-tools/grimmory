@@ -1749,10 +1749,10 @@
       }
     },
     "message": {
-      "issueCount": "{{ count }} num?ros",
+      "issueCount": "{{ count }} numéros",
       "issuePosition": "{{ current }} sur {{ count }} numéros",
-      "previousIssue": "Num?ro pr?c?dent",
-      "nextIssue": "Num?ro suivant"
+      "previousIssue": "Numéro précédent",
+      "nextIssue": "Numéro suivant"
     },
     "ui": {
       "autocomplete": {
@@ -1760,7 +1760,7 @@
         "loadFailed": "Impossible de charger les résultats"
       },
       "datePicker": {
-        "previousMonth": "Mois pr?c?dent",
+        "previousMonth": "Mois précédent",
         "nextMonth": "Mois suivant"
       },
       "input": {
@@ -1769,10 +1769,10 @@
         "trailingAction": "Action du champ"
       },
       "message": {
-        "issueCount": "{{ count }} num?ros",
+        "issueCount": "{{ count }} numéros",
         "issuePosition": "{{ current }} sur {{ count }} numéros",
-        "previousIssue": "Num?ro pr?c?dent",
-        "nextIssue": "Num?ro suivant"
+        "previousIssue": "Numéro précédent",
+        "nextIssue": "Numéro suivant"
       },
       "rating": {
         "valueText": "{{ rating }} étoiles sur {{ max }}",
@@ -1782,18 +1782,18 @@
         "clearSelection": "Effacer selection",
         "noResults": "Aucun résultat",
         "search": "Rechercher",
-        "selectedCount": "{{ count }} s?lectionn?s"
+        "selectedCount": "{{ count }} sélectionnés"
       },
       "shelfMenu": {
-        "addToShelf": "Ajouter ? l??tag?re",
-        "newShelf": "Nouvelle ?tag?re",
+        "addToShelf": "Ajouter à l'étagère",
+        "newShelf": "Nouvelle étagère",
         "removeFromAllShelves": "Retirer de vos étagères"
       },
       "spinner": {
         "loading": "Chargement"
       },
       "tag": {
-        "removeTag": "Supprimer l??tiquette",
+        "removeTag": "Supprimer l'étiquette",
         "removeLabel": "Supprimer {{ label }}"
       },
       "validation": {
@@ -1876,7 +1876,7 @@
     },
     "closeNavigation": "Fermer la navigation",
     "pageHeader": {
-      "backTo": "Retour ? {{label}}",
+      "backTo": "Retour à {{label}}",
       "breadcrumbAriaLabel": "Breadcrumb",
       "moreBreadcrumbs": "Plus breadcrumbs",
       "tabsAriaLabel": "Sections de la page"
@@ -2774,7 +2774,16 @@
       "clearAll": "Tout effacer"
     },
     "fetchOptions": {
-      "startRefresh": "Lancer l'actualisation"
+      "startRefresh": "Lancer l'actualisation",
+      "previewTitle": "Aperçu du score de métadonnées",
+      "previewThreshold": "Seuil (%)",
+      "previewButton": "Afficher l'aperçu",
+      "previewError": "Impossible de charger l'aperçu. Réessayez.",
+      "previewTotal": "Livres actifs",
+      "previewBelow": "Sous le seuil",
+      "previewAbove": "Au seuil ou au-dessus",
+      "previewUnknown": "Score absent ou invalide",
+      "previewNotice": "Aperçu en lecture seule fondé sur les scores de complétude enregistrés : un champ verrouillé peut compter même vide. Il ne filtre pas l'actualisation ci-dessous et ne vérifie ni la justesse des données ni la synchronisation des EPUB."
     },
     "providers": {
       "openLibrary": "Open Library",
@@ -2924,13 +2933,13 @@
       }
     },
     "row": {
-      "previous": "Faire d?filer vers l?arri?re",
-      "next": "Faire d?filer vers l?avant"
+      "previous": "Faire défiler vers l'arrière",
+      "next": "Faire défiler vers l'avant"
     },
     "menu": {
       "label": "Actions du livre",
       "openInNewTab": "Open Détails à New Tab",
-      "addToShelf": "Ajouter ? l??tag?re",
+      "addToShelf": "Ajouter à l'étagère",
       "markAs": "Marquer comme",
       "send": "Send",
       "quickSend": "Envoi rapide",
@@ -3284,7 +3293,7 @@
       "errorNoIsbns": "Aucun ISBN trouvé dans la saisie.",
       "errorTooMany": "Seuls les {{ max }} premiers ISBN seront importés. Répartissez les autres dans un autre fichier.",
       "validCount": "{{ count }} ISBN valide(s)",
-      "skippedCount": "{{ count }} ignor?s",
+      "skippedCount": "{{ count }} ignorés",
       "duplicatesRemoved": "{{ count }} doublon(s) supprimé(s)",
       "reason": {
         "invalid": "Invalide ISBN format",
@@ -3302,12 +3311,12 @@
       "createdNoMetadata": "Créé (aucune métadonnée trouvée)",
       "unknownError": "Erreur inconnue",
       "processingHint": "Les livres déjà créés seront conservés si vous annulez.",
-      "cancelImportButton": "Arr?ter l?importation",
+      "cancelImportButton": "Arrêter l'importation",
       "summaryTitle": "Importation terminée",
-      "summaryCreated": "Cr?? avec des m?tadonn?es",
+      "summaryCreated": "Créé avec des métadonnées",
       "summaryNoMetadata": "Created (ISBN uniquement)",
       "summaryFailed": "Échec",
-      "summaryCancelled": "Ignor? (annul?)",
+      "summaryCancelled": "Ignoré (annulé)",
       "failedIsbnsLabel": "ISBN en échec",
       "doneButton": "Terminé"
     },
@@ -3421,7 +3430,7 @@
       "chooseIcon": "Choisir une icône",
       "chooseIconSubtitle": "Sélectionner parmi les icônes disponibles",
       "selectedIcon": "Icône sélectionnée",
-      "customSvg": "SVG personnalis?",
+      "customSvg": "SVG personnalisé",
       "removeIconTooltip": "Retirer l'icône",
       "visibilityLabel": "Visibilité",
       "makePublicLabel": "Rendre cette étagère publique (lecture seule pour les autres)",
@@ -4113,7 +4122,7 @@
       "notesShortcut": "Notes",
       "display": "Affichage",
       "toggleFullscreen": "Basculer en plein écran",
-      "toggleImmersive": "Activer/d?sactiver le mode immersif",
+      "toggleImmersive": "Activer/désactiver le mode immersif",
       "exitFullscreenCloseDialogs": "Quitter le plein écran / Fermer les fenêtres",
       "other": "Autre",
       "showHelpDialog": "Afficher cette fenêtre d'aide",
@@ -4164,15 +4173,15 @@
       "sidebar": "Sommaire",
       "search": "Rechercher",
       "searchPlaceholder": "Rechercher à document...",
-      "searchNext": "R?sultat suivant",
-      "searchPrevious": "R?sultat pr?c?dent",
+      "searchNext": "Résultat suivant",
+      "searchPrevious": "Résultat précédent",
       "zoomIn": "Zoom avant",
-      "zoomOut": "Zoom arri?re",
+      "zoomOut": "Zoom arrière",
       "zoomPreset": "Niveau de zoom",
       "spreadMode": "Page Disposition",
       "scrollLayout": "Scroll Disposition",
-      "scrollLayoutVertical": "D?filement vertical",
-      "scrollLayoutHorizontal": "D?filement horizontal",
+      "scrollLayoutVertical": "Défilement vertical",
+      "scrollLayoutHorizontal": "Défilement horizontal",
       "rotatePage": "Faire pivoter la page",
       "bookmarkAdd": "Ajouter un signet",
       "bookmarkRemove": "Supprimer le signet",
@@ -4183,9 +4192,9 @@
       "textNote": "Note textuelle",
       "ink": "Dessin libre",
       "draw": "Dessin libre",
-      "annotationColor": "Couleur de l?annotation",
-      "deselectTool": "D?s?lectionner l?outil",
-      "pan": "Mode d?placement",
+      "annotationColor": "Couleur de l'annotation",
+      "deselectTool": "Désélectionner l'outil",
+      "pan": "Mode déplacement",
       "moreOptions": "Plus d'options",
       "closeSearch": "Fermer la recherche"
     },
@@ -4203,7 +4212,7 @@
     },
     "sidebar": {
       "title": "Sidebar",
-      "close": "Fermer la barre lat?rale",
+      "close": "Fermer la barre latérale",
       "contentsTab": "Sommaire",
       "bookmarksTab": "Signets",
       "annotationsTab": "Annotations",
@@ -4218,10 +4227,10 @@
     },
     "toast": {
       "failedToLoadBook": "Échec du chargement du livre",
-      "bookmarkAdded": "Signet ajout?",
-      "bookmarkRemoved": "Signet supprim?",
+      "bookmarkAdded": "Signet ajouté",
+      "bookmarkRemoved": "Signet supprimé",
       "bookmarkExists": "Un signet existe déjà sur cette page",
-      "annotationSaved": "Annotations enregistr?es",
+      "annotationSaved": "Annotations enregistrées",
       "annotationFailed": "Échec de l’enregistrement des annotations"
     },
     "docViewer": {
@@ -4244,7 +4253,7 @@
       "metadataScore": "Score de métadonnées",
       "publicationTimeline": "Chronologie des publications",
       "pageCount": "Nombre de pages",
-      "topItems": "Meilleurs ?l?ments"
+      "topItems": "Meilleurs éléments"
     },
     "bookFormats": {
       "title": "Formats de livres",
@@ -4276,7 +4285,7 @@
       "bookCount": "{{ count }} livre",
       "insightNoYear": "No Année",
       "insightNoYearDetail": "livres pas shown",
-      "decadeLabel": "Ann?es {{ decade }}",
+      "decadeLabel": "Années {{ decade }}",
       "decadePre1900": "Pre-1900",
       "axisDecade": "Décennie"
     },
@@ -4495,7 +4504,7 @@
       "sortLabel": "Trier par",
       "chartLabel": "Livres de chaque série par statut, avec le nombre de livres lus",
       "averageProgress": "Moyenne Série Progression",
-      "acrossSeries": "sur {{ count }} s?ries",
+      "acrossSeries": "sur {{ count }} séries",
       "axisNumberOfBooks": "Numéro of livres",
       "axisSeries": "Série",
       "readOfBooks": "{{ read }} sur {{ books }} lus",
@@ -4635,7 +4644,7 @@
       "averageRating": "Moyenne note",
       "highestAverage": "Highest Moyenne, {{ count }}+ livres",
       "bestDecadeDetail": "moyenne de {{ rating }} sur {{ count }} livres",
-      "decadeLabel": "Ann?es {{ decade }}",
+      "decadeLabel": "Années {{ decade }}",
       "bookCount": "{{ count }} livre",
       "booksCount": "{{ count }} livres"
     },
@@ -4644,7 +4653,7 @@
       "chartLabel": "Livres terminés en {{ year }} selon leur durée de lecture",
       "axisTimeToFinish": "Durée entre la première session et la fin",
       "axisNumberOfBooks": "Numéro of livres",
-      "underAWeek": "Moins d?une semaine",
+      "underAWeek": "Moins d'une semaine",
       "oneToTwoWeeks": "1–2 weeks",
       "twoToFourWeeks": "2–4 weeks",
       "oneToTwoMonths": "1–2 months",
@@ -4756,7 +4765,7 @@
       "audiobookDuration": "Durée du livre audio (s)",
       "audiobookCodec": "Codec",
       "audiobookChapterCount": "Chapter Nombre",
-      "audiobookBitrate": "D?bit (kbit/s)",
+      "audiobookBitrate": "Débit (kbit/s)",
       "isPhysical": "Livre physique",
       "seriesStatus": "Statut de la série",
       "seriesGaps": "Lacunes de la série",
@@ -4979,11 +4988,11 @@
       "bookCount": "Book Nombre",
       "library": "Library",
       "genre": "Genre",
-      "reset": "R?initialiser les filtres"
+      "reset": "Réinitialiser les filtres"
     },
     "footer": {
       "selected": "selected",
-      "autoMatch": "Associer automatiquement la s?lection",
+      "autoMatch": "Associer automatiquement la sélection",
       "mergeAuthors": "Regrouper les auteurs",
       "deleteSelected": "Supprimer selected",
       "selectAll": "Tout sélectionner",
@@ -5065,7 +5074,7 @@
       "book": "livre",
       "books": "livres",
       "menu": {
-        "viewAuthor": "Voir l?auteur",
+        "viewAuthor": "Voir l'auteur",
         "editAuthor": "Modifier l’auteur",
         "quickMatch": "Mettre à jour les métadonnées",
         "deleteAuthor": "Supprimer l’auteur"
@@ -5079,7 +5088,7 @@
       "saving": "Enregistrement...",
       "uploadPhotoTooltip": "Importer une photo",
       "lockField": "Verrouiller le champ",
-      "unlockField": "D?verrouiller le champ",
+      "unlockField": "Déverrouiller le champ",
       "lockAllBtn": "Tout verrouiller",
       "unlockAllBtn": "Tout déverrouiller",
       "searchPhotoTooltip": "Rechercher photo",
@@ -5088,11 +5097,11 @@
       "deletePhotoTitle": "Supprimer la photo de l’auteur",
       "deletePhotoConfirm": "Supprimer la photo de cet auteur ?",
       "toast": {
-        "successSummary": "Auteur mis ? jour",
+        "successSummary": "Auteur mis à jour",
         "successDetail": "Les informations de l’auteur ont été mises à jour.",
         "errorSummary": "Update Échec",
         "errorDetail": "Échec de la mise à jour des informations de l’auteur.",
-        "photoUploadedSummary": "Photo import?e",
+        "photoUploadedSummary": "Photo importée",
         "photoUploadedDetail": "La photo de l’auteur a été importée.",
         "photoUploadErrorDetail": "Échec to upload author photo.",
         "photoDeletedSummary": "Photo supprimée",
@@ -5117,15 +5126,15 @@
       "queryLabel": "Nom de l’auteur",
       "queryPlaceholder": "Saisissez le nom de l’auteur pour rechercher des photos",
       "searchBtn": "Rechercher",
-      "resetTooltip": "R?initialiser la recherche",
+      "resetTooltip": "Réinitialiser la recherche",
       "readyTitle": "Rechercher pour Photos",
       "readyHint": "Saisissez le nom de l’auteur et cliquez sur Rechercher pour trouver des photos",
       "searching": "Searching pour photos...",
       "noResults": "Aucune photo trouvée",
       "noResultsHint": "Essayez de modifier votre recherche",
-      "resultsFound": "{{ count }} photos trouv?es",
+      "resultsFound": "{{ count }} photos trouvées",
       "selectBtn": "Sélectionner",
-      "photoAlt": "Photo de l?auteur {{ index }}"
+      "photoAlt": "Photo de l'auteur {{ index }}"
     },
     "match": {
       "authorNameLabel": "Nom de l’auteur",
@@ -5273,7 +5282,7 @@
       },
       "allDays": "Tous Jours",
       "selectDay": "Sélectionner Jour",
-      "kindSelectorLabel": "Type d??l?ment",
+      "kindSelectorLabel": "Type d'élément",
       "measureSelectorLabel": "Classer par",
       "measures": {
         "books": "Book Nombre",
@@ -5283,7 +5292,7 @@
     },
     "card": {
       "loading": "Chargement chart",
-      "noData": "Aucune donn?e disponible",
+      "noData": "Aucune donnée disponible",
       "loadError": "Impossible de charger le graphique"
     },
     "sizeKey": "livres per bubble",

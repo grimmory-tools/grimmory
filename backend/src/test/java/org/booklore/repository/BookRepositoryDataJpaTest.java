@@ -3,6 +3,10 @@ package org.booklore.repository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.booklore.BookloreApplication;
+import org.booklore.controller.MetadataController;
+import org.booklore.exception.APIException;
+import org.booklore.model.dto.BookLoreUser;
+import org.booklore.model.dto.Library;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.MetadataFetchTaskStatus;
@@ -17,6 +21,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +38,8 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import org.springframework.boot.test.context.TestConfiguration;
 
@@ -72,6 +82,9 @@ class BookRepositoryDataJpaTest {
     @Autowired
     private MetadataFetchJobRepository metadataFetchJobRepository;
 
+    @Autowired
+    private MetadataController metadataController;
+
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -93,6 +106,69 @@ class BookRepositoryDataJpaTest {
     @Test
     void contextLoads() {
         assertThat(bookRepository).isNotNull();
+    }
+
+    @Test
+    void metadataScorePreviewCountsOnlyActiveBooksInTheSelectedLibrary() {
+        LibraryEntity library = LibraryEntity.builder().name("Preview").icon("book").watch(false).build();
+        LibraryEntity other = LibraryEntity.builder().name("Other").icon("book").watch(false).build();
+        entityManager.persist(library);
+        entityManager.persist(other);
+        for (Float score : new Float[]{0f, 89.99f, 90f, 100f, null, -1f, 101f}) {
+            entityManager.persist(BookEntity.builder().library(library).metadataMatchScore(score)
+                    .addedOn(Instant.now()).deleted(false).build());
+        }
+        entityManager.persist(BookEntity.builder().library(library).metadataMatchScore(1f)
+                .addedOn(Instant.now()).deleted(true).build());
+        entityManager.persist(BookEntity.builder().library(other).metadataMatchScore(1f)
+                .addedOn(Instant.now()).deleted(false).build());
+        entityManager.flush();
+
+        var result = bookRepository.previewMetadataScores(library.getId(), 90f);
+        assertThat(result.getTotal()).isEqualTo(7);
+        assertThat(result.getBelowThreshold()).isEqualTo(2);
+        assertThat(result.getAtOrAboveThreshold()).isEqualTo(2);
+        assertThat(result.getUnknown()).isEqualTo(3);
+
+        var empty = bookRepository.previewMetadataScores(-1L, 90f);
+        assertThat(empty.getTotal()).isZero();
+        assertThat(empty.getBelowThreshold()).isZero();
+        assertThat(empty.getAtOrAboveThreshold()).isZero();
+        assertThat(empty.getUnknown()).isZero();
+    }
+
+    @Test
+    void metadataScorePreviewRequiresPermissionAndLibraryAccessAndValidatesInput() {
+        LibraryEntity library = LibraryEntity.builder().name("Access test").icon("book").watch(false).build();
+        entityManager.persist(library);
+        BookLoreUser.UserPermissions permissions = new BookLoreUser.UserPermissions();
+        BookLoreUser user = BookLoreUser.builder().id(-1L).permissions(permissions)
+                .assignedLibraries(List.of(Library.builder().id(library.getId()).build())).build();
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(user, null, List.of()));
+        try {
+            assertThatThrownBy(() -> metadataController.previewRefresh(library.getId(), 90f))
+                    .isInstanceOf(AccessDeniedException.class);
+            permissions.setCanBulkAutoFetchMetadata(true);
+            assertThat(metadataController.previewRefresh(library.getId(), 90f).getBody().total()).isZero();
+            user.setAssignedLibraries(List.of());
+            assertThatExceptionOfType(APIException.class)
+                    .isThrownBy(() -> metadataController.previewRefresh(library.getId(), 90f))
+                    .satisfies(e -> assertThat(e.getStatus()).isEqualTo(HttpStatus.FORBIDDEN));
+            permissions.setAdmin(true);
+            for (float threshold : new float[]{-1f, 101f, Float.NaN, Float.POSITIVE_INFINITY}) {
+                assertThatExceptionOfType(APIException.class)
+                        .isThrownBy(() -> metadataController.previewRefresh(library.getId(), threshold))
+                        .satisfies(e -> assertThat(e.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST));
+            }
+            assertThat(metadataController.previewRefresh(library.getId(), 0f).getBody().total()).isZero();
+            assertThat(metadataController.previewRefresh(library.getId(), 100f).getBody().total()).isZero();
+            assertThatExceptionOfType(APIException.class)
+                    .isThrownBy(() -> metadataController.previewRefresh(-1L, 90f))
+                    .satisfies(e -> assertThat(e.getStatus()).isEqualTo(HttpStatus.NOT_FOUND));
+        } finally {
+            SecurityContextHolder.clearContext();
+        }
     }
 
     @Test

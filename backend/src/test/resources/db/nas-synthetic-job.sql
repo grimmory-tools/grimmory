@@ -29,3 +29,13 @@ CREATE TABLE IF NOT EXISTS nas_synthetic_write_gate
 
 INSERT INTO nas_synthetic_write_gate (gate_id, operation_id)
 SELECT 1, NULL WHERE NOT EXISTS (SELECT 1 FROM nas_synthetic_write_gate WHERE gate_id = 1);
+
+CREATE TABLE IF NOT EXISTS nas_synthetic_maintenance_report
+(
+    run_id CHAR(36) NOT NULL,
+    book_id BIGINT NOT NULL,
+    operation_id CHAR(36) NOT NULL UNIQUE,
+    status VARCHAR(16) NOT NULL,
+    error_message VARCHAR(1024) NULL,
+    PRIMARY KEY (run_id, book_id)
+);

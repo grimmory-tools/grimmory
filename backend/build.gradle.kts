@@ -50,6 +50,7 @@ tasks.register<Zip>("nasMariaDbTestBundle") {
             include("org/booklore/service/metadata/writer/NasEpubMariaDbCoordinatorTest*.class")
             include("org/booklore/service/metadata/writer/NasEpubMariaDbTestRunner.class")
             include("org/booklore/service/metadata/writer/NasEpubAgentTest*.class")
+            include("org/booklore/service/metadata/writer/NasEpubRealCopyTest*.class")
             include("db/nas-synthetic-job.sql")
         }
     }

@@ -1,6 +1,7 @@
 package org.booklore.repository;
 
 import org.booklore.repository.projection.BookEmbeddingProjection;
+import org.booklore.repository.projection.MetadataScorePreview;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,6 +69,20 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
 
     @Query("SELECT b.id FROM BookEntity b WHERE b.library.id = :libraryId AND (b.deleted IS NULL OR b.deleted = false)")
     Set<Long> findBookIdsByLibraryId(@Param("libraryId") long libraryId);
+
+    @Query("""
+            SELECT COUNT(b.id) AS total,
+                   COUNT(CASE WHEN b.metadataMatchScore >= 0 AND b.metadataMatchScore < :threshold
+                              THEN b.id END) AS belowThreshold,
+                   COUNT(CASE WHEN b.metadataMatchScore >= :threshold AND b.metadataMatchScore <= 100
+                              THEN b.id END) AS atOrAboveThreshold,
+                   COUNT(CASE WHEN b.metadataMatchScore IS NULL OR b.metadataMatchScore < 0
+                                   OR b.metadataMatchScore > 100 THEN b.id END) AS unknown
+            FROM BookEntity b
+            WHERE b.library.id = :libraryId AND (b.deleted IS NULL OR b.deleted = false)
+            """)
+    MetadataScorePreview previewMetadataScores(@Param("libraryId") long libraryId,
+                                               @Param("threshold") float threshold);
 
     @Query("SELECT DISTINCT b FROM BookEntity b JOIN b.bookFiles bf WHERE b.libraryPath.id = :libraryPathId AND (bf.fileSubPath = :fileSubPathPrefix OR bf.fileSubPath LIKE CONCAT(:fileSubPathPrefix, '/%')) AND bf.isBookFormat = true AND (b.deleted IS NULL OR b.deleted = false)")
     List<BookEntity> findAllByLibraryPathIdAndFileSubPathStartingWith(@Param("libraryPathId") Long libraryPathId, @Param("fileSubPathPrefix") String fileSubPathPrefix);

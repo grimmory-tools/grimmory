@@ -1,4 +1,7 @@
 import {TestBed} from '@angular/core/testing';
+import {provideHttpClient} from '@angular/common/http';
+import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
+import {Component, input, output, provideZonelessChangeDetection, SimpleChange} from '@angular/core';
 import {of} from 'rxjs';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
@@ -9,6 +12,15 @@ import {MetadataRefreshOptions} from '../../../model/request/metadata-refresh-op
 import {TaskHelperService} from '../../../../settings/task-management/task-helper.service';
 import {MetadataRefreshType} from '../../../model/request/metadata-refresh-type.enum';
 import {MetadataFetchOptionsComponent} from './metadata-fetch-options.component';
+import {MetadataAdvancedFetchOptionsComponent} from '../metadata-advanced-fetch-options/metadata-advanced-fetch-options.component';
+import {getTranslocoModule} from '../../../../../core/testing/transloco-testing';
+
+@Component({selector: 'app-metadata-advanced-fetch-options', standalone: true, template: ''})
+class AdvancedFetchOptionsStub {
+  currentMetadataOptions = input<MetadataRefreshOptions>();
+  submitButtonLabel = input<string>();
+  metadataOptionsSubmitted = output<MetadataRefreshOptions>();
+}
 
 describe('MetadataFetchOptionsComponent', () => {
   const close = vi.fn();
@@ -23,6 +35,7 @@ describe('MetadataFetchOptionsComponent', () => {
   beforeEach(() => {
     close.mockClear();
     refreshMetadataTask.mockClear();
+    TestBed.configureTestingModule({providers: [provideHttpClient(), provideHttpClientTesting()]});
   });
 
   it('reads dialog data and current default metadata options on construction', () => {
@@ -129,5 +142,95 @@ describe('MetadataFetchOptionsComponent', () => {
       libraryId: 7,
     });
     expect(close).toHaveBeenCalledOnce();
+  });
+
+  it('ignores responses for outdated thresholds and library contexts', () => {
+    TestBed.configureTestingModule({
+      providers: [
+        {provide: DynamicDialogConfig, useValue: {data: {libraryId: 7, metadataRefreshType: MetadataRefreshType.LIBRARY}}},
+        {provide: DynamicDialogRef, useValue: {close}},
+        {provide: TaskHelperService, useValue: {refreshMetadataTask}},
+        {provide: AppSettingsService, useValue: {appSettings: () => null}},
+      ]
+    });
+    const component = TestBed.runInInjectionContext(() => new MetadataFetchOptionsComponent());
+    const http = TestBed.inject(HttpTestingController);
+    component.ngOnInit();
+    component.loadPreview();
+    const oldRequest = http.expectOne(req => req.url.endsWith('/refresh-preview/7') && req.params.get('threshold') === '90');
+    component.onPreviewThresholdChange(80);
+    component.loadPreview();
+    const currentRequest = http.expectOne(req => req.url.endsWith('/refresh-preview/7') && req.params.get('threshold') === '80');
+    currentRequest.flush({total: 4, belowThreshold: 1, atOrAboveThreshold: 2, unknown: 1});
+    oldRequest.flush({total: 100, belowThreshold: 100, atOrAboveThreshold: 0, unknown: 0});
+    expect(component.preview()).toEqual({total: 4, belowThreshold: 1, atOrAboveThreshold: 2, unknown: 1});
+
+    component.loadPreview();
+    const previousLibraryRequest = http.expectOne(req => req.url.endsWith('/refresh-preview/7'));
+    component.ngOnChanges({dialogData: new SimpleChange(null, {libraryId: 8, metadataRefreshType: MetadataRefreshType.LIBRARY}, false)});
+    previousLibraryRequest.flush({total: 4, belowThreshold: 1, atOrAboveThreshold: 2, unknown: 1});
+    expect(component.preview()).toBeNull();
+    http.verify();
+  });
+
+  it('reports preview errors and rejects invalid thresholds', () => {
+    TestBed.configureTestingModule({
+      providers: [
+        {provide: DynamicDialogConfig, useValue: {data: {libraryId: 7, metadataRefreshType: MetadataRefreshType.LIBRARY}}},
+        {provide: DynamicDialogRef, useValue: {close}},
+        {provide: TaskHelperService, useValue: {refreshMetadataTask}},
+        {provide: AppSettingsService, useValue: {appSettings: () => null}},
+      ]
+    });
+    const component = TestBed.runInInjectionContext(() => new MetadataFetchOptionsComponent());
+    const http = TestBed.inject(HttpTestingController);
+    component.ngOnInit();
+    component.onPreviewThresholdChange(101);
+    component.loadPreview();
+    http.expectNone(req => req.url.includes('/refresh-preview/'));
+    component.onPreviewThresholdChange(90);
+    component.loadPreview();
+    http.expectOne(req => req.url.endsWith('/refresh-preview/7')).flush('error', {status: 500, statusText: 'Error'});
+    expect(component.previewError()).toBe(true);
+    expect(component.previewLoading()).toBe(false);
+    expect(component.preview()).toBeNull();
+    http.verify();
+  });
+
+  it('renders preview results and errors after HTTP responses without another interaction', async () => {
+    TestBed.configureTestingModule({
+      imports: [MetadataFetchOptionsComponent, getTranslocoModule()],
+      providers: [
+        provideZonelessChangeDetection(),
+        {provide: DynamicDialogConfig, useValue: {data: {libraryId: 7, metadataRefreshType: MetadataRefreshType.LIBRARY}}},
+        {provide: DynamicDialogRef, useValue: {close}},
+        {provide: TaskHelperService, useValue: {refreshMetadataTask}},
+        {provide: AppSettingsService, useValue: {appSettings: () => null}},
+      ],
+    }).overrideComponent(MetadataFetchOptionsComponent, {
+      remove: {imports: [MetadataAdvancedFetchOptionsComponent]},
+      add: {imports: [AdvancedFetchOptionsStub]},
+    });
+
+    const fixture = TestBed.createComponent(MetadataFetchOptionsComponent);
+    const http = TestBed.inject(HttpTestingController);
+    await fixture.whenStable();
+    const button: HTMLButtonElement = fixture.nativeElement.querySelector('.score-preview button');
+    button.click();
+    await fixture.whenStable();
+    http.expectOne(req => req.url.endsWith('/refresh-preview/7'))
+      .flush({total: 4, belowThreshold: 1, atOrAboveThreshold: 2, unknown: 1});
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('.score-preview ul')?.textContent).toContain('4');
+    expect(button.disabled).toBe(false);
+
+    button.click();
+    await fixture.whenStable();
+    http.expectOne(req => req.url.endsWith('/refresh-preview/7'))
+      .flush('error', {status: 500, statusText: 'Error'});
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('.score-preview [role="alert"]')).not.toBeNull();
+    expect(button.disabled).toBe(false);
+    http.verify();
   });
 });

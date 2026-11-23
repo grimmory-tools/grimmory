@@ -6,6 +6,7 @@ import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.request.MetadataRefreshRequest;
 import org.booklore.model.dto.request.TaskCreateRequest;
 import org.booklore.model.dto.response.TaskCreateResponse;
+import org.booklore.model.enums.MetadataFetchTaskStatus;
 import org.booklore.model.enums.TaskType;
 import org.booklore.service.metadata.MetadataRefreshService;
 import org.booklore.task.TaskStatus;
@@ -46,16 +47,21 @@ public class RefreshMetadataTask implements Task {
         long startTime = System.currentTimeMillis();
         log.info("{}: Task started. TaskId: {}, Options: {}", getTaskType(), taskId, refreshRequest);
 
-        metadataRefreshService.refreshMetadata(refreshRequest, taskId);
+        MetadataFetchTaskStatus result = metadataRefreshService.refreshMetadata(refreshRequest, taskId);
 
         long endTime = System.currentTimeMillis();
-        log.info("{}: Task completed. Duration: {} ms", getTaskType(), endTime - startTime);
+        TaskStatus status = switch (result) {
+            case COMPLETED -> TaskStatus.COMPLETED;
+            case CANCELLED -> TaskStatus.CANCELLED;
+            default -> throw new IllegalStateException("Unexpected metadata refresh status: " + result);
+        };
+        log.info("{}: Task {}. Duration: {} ms", getTaskType(), status, endTime - startTime);
 
         return TaskCreateResponse
                 .builder()
                 .taskType(TaskType.REFRESH_METADATA_MANUAL)
                 .taskId(taskId)
-                .status(TaskStatus.COMPLETED)
+                .status(status)
                 .build();
     }
 

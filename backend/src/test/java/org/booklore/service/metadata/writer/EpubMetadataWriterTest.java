@@ -19,8 +19,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
@@ -33,6 +36,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
@@ -42,10 +46,13 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import java.net.URLDecoder;
 
 @ExtendWith(MockitoExtension.class)
@@ -90,6 +97,187 @@ class EpubMetadataWriterTest {
     @Nested
     @DisplayName("Metadata writing Tests")
     class MetadataWritingTests {
+        @Test
+        @MockitoSettings(strictness = Strictness.LENIENT)
+        void existingBackupIsNotOverwritten() throws Exception {
+            File epub = createEpubWithOpf("""
+                    <package xmlns="http://www.idpf.org/2007/opf">
+                      <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        <dc:title>Original</dc:title>
+                      </metadata>
+                    </package>""", "backup-collision.epub");
+            byte[] original = Files.readAllBytes(epub.toPath());
+            Path backup = epub.toPath().resolveSibling(epub.getName() + ".bak");
+            Files.writeString(backup, "existing backup");
+
+            assertThatThrownBy(() -> writer.writeMetadataToFile(epub, metadata, new MetadataClearFlags()))
+                    .isInstanceOf(java.nio.file.FileAlreadyExistsException.class);
+            assertThat(Files.readAllBytes(epub.toPath())).isEqualTo(original);
+            assertThat(Files.readString(backup)).isEqualTo("existing backup");
+        }
+
+        @Test
+        @MockitoSettings(strictness = Strictness.LENIENT)
+        void existingTemporaryFileIsNotOverwrittenDuringMetadataUpdate() throws Exception {
+            File epub = createEpubWithOpf("""
+                    <package xmlns="http://www.idpf.org/2007/opf">
+                      <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        <dc:title>Original</dc:title>
+                      </metadata>
+                    </package>""", "metadata-collision.epub");
+            byte[] original = Files.readAllBytes(epub.toPath());
+            Path temporary = epub.toPath().resolveSibling(epub.getName() + ".tmp");
+            Files.writeString(temporary, "existing temporary file");
+
+            assertThatThrownBy(() -> writer.writeMetadataToFile(epub, metadata, new MetadataClearFlags()))
+                    .isInstanceOf(IOException.class)
+                    .hasCauseInstanceOf(java.nio.file.FileAlreadyExistsException.class);
+            assertThat(Files.readAllBytes(epub.toPath())).isEqualTo(original);
+            assertThat(Files.readString(temporary)).isEqualTo("existing temporary file");
+            assertThat(epub.toPath().resolveSibling(epub.getName() + ".bak")).doesNotExist();
+        }
+
+        @Test
+        @MockitoSettings(strictness = Strictness.LENIENT)
+        void metadataUpdateRestoresBackupAfterUncertainReplacement() throws Exception {
+            File epub = createEpubWithOpf("""
+                    <package xmlns="http://www.idpf.org/2007/opf">
+                      <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        <dc:title>Original</dc:title>
+                      </metadata>
+                    </package>""", "uncertain-replacement.epub");
+            byte[] original = Files.readAllBytes(epub.toPath());
+            Path temporary = epub.toPath().resolveSibling(epub.getName() + ".tmp");
+            try (var files = Mockito.mockStatic(Files.class, Mockito.CALLS_REAL_METHODS)) {
+                files.when(() -> Files.move(temporary, epub.toPath(),
+                                StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING))
+                        .thenAnswer(invocation -> {
+                            invocation.callRealMethod();
+                            throw new IOException("Replacement acknowledgement lost");
+                        });
+                assertThatThrownBy(() -> writer.writeMetadataToFile(epub, metadata, new MetadataClearFlags()))
+                        .isInstanceOf(IOException.class).hasMessage("Failed to write EPUB metadata")
+                        .hasCauseInstanceOf(IOException.class);
+            }
+            assertThat(Files.readAllBytes(epub.toPath())).isEqualTo(original);
+            assertThat(epub.toPath().resolveSibling(epub.getName() + ".bak")).doesNotExist();
+        }
+
+        @Test
+        @MockitoSettings(strictness = Strictness.LENIENT)
+        void metadataUpdateKeepsBackupWhenRestorationFails() throws Exception {
+            File epub = createEpubWithOpf("""
+                    <package xmlns="http://www.idpf.org/2007/opf">
+                      <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        <dc:title>Original</dc:title>
+                      </metadata>
+                    </package>""", "failed-restoration.epub");
+            byte[] original = Files.readAllBytes(epub.toPath());
+            Path temporary = epub.toPath().resolveSibling(epub.getName() + ".tmp");
+            try (var files = Mockito.mockStatic(Files.class, Mockito.CALLS_REAL_METHODS)) {
+                files.when(() -> Files.move(temporary, epub.toPath(),
+                                StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING))
+                        .thenAnswer(invocation -> {
+                            invocation.callRealMethod();
+                            throw new IOException("Replacement acknowledgement lost");
+                        });
+                files.when(() -> Files.move(argThat(path -> path != null
+                                        && path.getFileName().toString().startsWith(".grimmory-restore-")),
+                                eq(epub.toPath()), eq(StandardCopyOption.ATOMIC_MOVE), eq(StandardCopyOption.REPLACE_EXISTING)))
+                        .thenThrow(new IOException("Restoration unavailable"));
+                assertThatThrownBy(() -> writer.writeMetadataToFile(epub, metadata, new MetadataClearFlags()))
+                        .isInstanceOf(IOException.class)
+                        .satisfies(error -> assertThat(error.getCause().getSuppressed())
+                                .anySatisfy(suppressed -> assertThat(suppressed).hasMessage("Restoration unavailable")));
+            }
+            assertThat(Files.readAllBytes(epub.toPath().resolveSibling(epub.getName() + ".bak")))
+                    .isEqualTo(original);
+        }
+
+        @Test
+        void fullMetadataUpdatePreservesUnknownBookloreFields() throws Exception {
+            String opf = """
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0"
+                             prefix="booklore: http://booklore.org/metadata/1.0/">
+                      <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        <dc:title>Old title</dc:title>
+                        <meta property="booklore:page_count">123</meta>
+                        <meta id="future" property="booklore:future_field">Keep this</meta>
+                        <meta refines="#future" property="display-seq">1</meta>
+                      </metadata>
+                    </package>""";
+            File epub = createEpubWithOpf(opf, "unknown-booklore.epub");
+            metadata.setPageCount(456);
+
+            writer.saveMetadataToFile(epub, metadata, new MetadataClearFlags());
+
+            String content = readOpfContent(epub);
+            assertThat(content).contains("booklore:future_field", "Keep this", "refines=\"#future\"",
+                    "booklore:page_count", ">456<").doesNotContain(">123<");
+        }
+
+        @Test
+        void unknownBookloreFieldAloneDoesNotTriggerRewrite() throws Exception {
+            String opf = """
+                    <package xmlns="http://www.idpf.org/2007/opf" version="2.0">
+                      <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        <dc:title>Book</dc:title>
+                        <meta name="booklore:future_field" content="Keep this"/>
+                      </metadata>
+                    </package>""";
+            File epub = createEpubWithOpf(opf, "unknown-only.epub");
+            byte[] original = Files.readAllBytes(epub.toPath());
+            BookMetadataEntity unchanged = new BookMetadataEntity();
+            unchanged.setAuthors(null);
+            unchanged.setCategories(null);
+            unchanged.setMoods(null);
+            unchanged.setTags(null);
+
+            writer.saveMetadataToFile(epub, unchanged, new MetadataClearFlags());
+
+            assertThat(Files.readAllBytes(epub.toPath())).isEqualTo(original);
+        }
+
+        @Test
+        void titleUpdatePreservesTitleIdentifiersAndOtherTitles() throws Exception {
+            String opfContent = """
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                      <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        <dc:title id="subtitle">Existing subtitle</dc:title>
+                        <dc:title id="main" xml:lang="fr">Old main title</dc:title>
+                        <dc:title id="alternate">Alternate title</dc:title>
+                        <meta refines="#subtitle" property="title-type">subtitle</meta>
+                        <meta refines="#main" property="title-type">main</meta>
+                        <meta refines="#main" property="file-as">Sort title</meta>
+                      </metadata>
+                    </package>
+                    """;
+            File epubFile = createEpubWithOpf(opfContent, "preserve-titles.epub");
+            BookMetadataEntity titleOnly = new BookMetadataEntity();
+            titleOnly.setTitle("Updated main title");
+            titleOnly.setAuthors(null);
+            titleOnly.setCategories(null);
+            titleOnly.setMoods(null);
+            titleOnly.setTags(null);
+
+            writer.saveMetadataToFile(epubFile, titleOnly, new MetadataClearFlags());
+
+            Document doc = parseOpf(epubFile);
+            NodeList titles = doc.getElementsByTagNameNS("http://purl.org/dc/elements/1.1/", "title");
+            assertThat(titles.getLength()).isEqualTo(3);
+            Element subtitle = (Element) titles.item(0);
+            Element main = (Element) titles.item(1);
+            Element alternate = (Element) titles.item(2);
+            assertThat(subtitle.getAttribute("id")).isEqualTo("subtitle");
+            assertThat(subtitle.getTextContent()).isEqualTo("Existing subtitle");
+            assertThat(main.getAttribute("id")).isEqualTo("main");
+            assertThat(main.getAttributeNS("http://www.w3.org/XML/1998/namespace", "lang")).isEqualTo("fr");
+            assertThat(main.getTextContent()).isEqualTo("Updated main title");
+            assertThat(alternate.getTextContent()).isEqualTo("Alternate title");
+            assertThat(readOpfContent(epubFile)).contains("refines=\"#main\"", "Sort title",
+                    "refines=\"#subtitle\"", ">subtitle<");
+        }
+
         @Test
         void titleUpdatePreservesUnrelatedMetadata() throws Exception {
             for (String version : List.of("2.0", "3.0")) {
@@ -599,6 +787,92 @@ class EpubMetadataWriterTest {
     @DisplayName("EPUB3 Series Metadata Tests")
     class Epub3SeriesTests {
 
+        private final String collectionsOpf = """
+                <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                    <dc:title>Book</dc:title>
+                    <meta id="old-series" property="belongs-to-collection">Old series</meta>
+                    <meta id="old-type" refines="#old-series" property="collection-type">series</meta>
+                    <meta refines="#old-type" property="custom">Old type refinement</meta>
+                    <meta refines="#old-series" property="group-position">4</meta>
+                    <meta id="set" property="belongs-to-collection">Unrelated set</meta>
+                    <meta refines="#set" property="collection-type">set</meta>
+                    <meta refines="#set" property="group-position">9</meta>
+                    <meta id="untyped" property="belongs-to-collection">Untyped collection</meta>
+                    <meta id="second-series" property="belongs-to-collection">Other series</meta>
+                    <meta refines="#second-series" property="collection-type">series</meta>
+                  </metadata>
+                </package>""";
+
+        @Test
+        void replacingSeriesPreservesOtherCollections() throws Exception {
+            File epub = createEpubWithOpf(collectionsOpf, "collections.epub");
+            metadata.setSeriesName("New series");
+            metadata.setSeriesNumber(2f);
+
+            writer.saveMetadataToFile(epub, metadata, new MetadataClearFlags());
+
+            String content = readOpfContent(epub);
+            assertThat(content).contains("New series", "Unrelated set", "Untyped collection", "Other series",
+                    "refines=\"#set\"", "refines=\"#second-series\"", ">9<", "Old type refinement",
+                    "refines=\"#old-type\"").doesNotContain("Old series");
+
+            metadata.setSeriesName("Updated series again");
+            writer.saveMetadataToFile(epub, metadata, new MetadataClearFlags());
+            content = readOpfContent(epub);
+            assertThat(content).contains("Updated series again", "Other series", "refines=\"#second-series\"")
+                    .doesNotContain("New series");
+        }
+
+        @Test
+        void clearingSeriesPreservesOtherCollectionsEvenIfMetadataContainsSeries() throws Exception {
+            File epub = createEpubWithOpf(collectionsOpf, "clear-series.epub");
+            metadata.setTitle(null);
+            metadata.setAuthors(null);
+            metadata.setCategories(null);
+            metadata.setSeriesName("Old series");
+            metadata.setSeriesNumber(4f);
+            MetadataClearFlags clear = new MetadataClearFlags();
+            clear.setSeriesName(true);
+            clear.setSeriesNumber(true);
+
+            writer.saveMetadataToFile(epub, metadata, clear);
+
+            String content = readOpfContent(epub);
+            assertThat(content).contains("Unrelated set", "Untyped collection", "refines=\"#set\"")
+                    .doesNotContain("Old series", "refines=\"#old-series\"");
+        }
+
+        @Test
+        void updatingSeriesNumberKeepsExistingSeriesName() throws Exception {
+            File epub = createEpubWithOpf(collectionsOpf, "number-only.epub");
+            metadata.setTitle(null);
+            metadata.setAuthors(null);
+            metadata.setCategories(null);
+            metadata.setSeriesNumber(7f);
+
+            writer.saveMetadataToFile(epub, metadata, new MetadataClearFlags());
+
+            String content = readOpfContent(epub);
+            assertThat(content).contains("Old series", ">7<", "Unrelated set", "Untyped collection");
+            assertThat(content).contains("refines=\"#old-series\"");
+        }
+
+        @Test
+        void updatingSeriesNameKeepsExistingSeriesNumber() throws Exception {
+            File epub = createEpubWithOpf(collectionsOpf, "name-only.epub");
+            metadata.setTitle(null);
+            metadata.setAuthors(null);
+            metadata.setCategories(null);
+            metadata.setSeriesName("New series");
+
+            writer.saveMetadataToFile(epub, metadata, new MetadataClearFlags());
+
+            String content = readOpfContent(epub);
+            assertThat(content).contains("New series", ">4<", "Unrelated set", "Untyped collection");
+            assertThat(content).doesNotContain("Old series");
+        }
+
         @Test
         @DisplayName("Should use belongs-to-collection for series in EPUB3")
         void epub3_shouldUseBelongsToCollection() throws Exception {
@@ -629,6 +903,30 @@ class EpubMetadataWriterTest {
     @Nested
     @DisplayName("EPUB2 Series Metadata Tests")
     class Epub2SeriesTests {
+
+        @Test
+        void clearingSeriesNumberKeepsExistingSeriesName() throws Exception {
+            String opf = """
+                    <package xmlns="http://www.idpf.org/2007/opf" version="2.0">
+                      <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        <dc:title>Book</dc:title>
+                        <meta name="calibre:series" content="Existing series"/>
+                        <meta name="calibre:series_index" content="4"/>
+                      </metadata>
+                    </package>""";
+            File epub = createEpubWithOpf(opf, "clear-number.epub");
+            metadata.setTitle(null);
+            metadata.setAuthors(null);
+            metadata.setCategories(null);
+            MetadataClearFlags clear = new MetadataClearFlags();
+            clear.setSeriesNumber(true);
+
+            writer.saveMetadataToFile(epub, metadata, clear);
+
+            String content = readOpfContent(epub);
+            assertThat(content).contains("Existing series", "calibre:series")
+                    .doesNotContain("calibre:series_index");
+        }
 
         @Test
         @DisplayName("Should use calibre:series convention for series in EPUB2")
@@ -821,6 +1119,26 @@ class EpubMetadataWriterTest {
     @Nested
     @DisplayName("Cover Tests")
     class CoverTests {
+        @Test
+        @MockitoSettings(strictness = Strictness.LENIENT)
+        void existingTemporaryFileIsNotOverwrittenDuringCoverUpdate() throws Exception {
+            File epub = createEpubWithOpf("""
+                    <package xmlns="http://www.idpf.org/2007/opf">
+                      <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        <dc:title>Original</dc:title>
+                      </metadata>
+                    </package>""", "cover-collision.epub");
+            byte[] original = Files.readAllBytes(epub.toPath());
+            Path temporary = epub.toPath().resolveSibling(epub.getName() + ".tmp");
+            Files.writeString(temporary, "existing temporary file");
+
+            assertThatThrownBy(() -> writer.writeCoverToFile(epub, new byte[]{1, 2, 3}))
+                    .isInstanceOf(IOException.class)
+                    .hasCauseInstanceOf(java.nio.file.FileAlreadyExistsException.class);
+            assertThat(Files.readAllBytes(epub.toPath())).isEqualTo(original);
+            assertThat(Files.readString(temporary)).isEqualTo("existing temporary file");
+        }
+
         @Test
         void shouldCreateManifestItemIfNoneExist() throws Exception {
             var thumbnailData = new byte[]{0x01, 0x02, 0x03};

@@ -82,6 +82,11 @@ public class SecurityUtil {
         return user != null && user.getPermissions().isCanBulkEditMetadata();
     }
 
+    public boolean canBulkAutoFetchMetadata() {
+        var user = getCurrentUser();
+        return user != null && user.getPermissions().isCanBulkAutoFetchMetadata();
+    }
+
     public boolean canBulkLockUnlockMetadata() {
         var user = getCurrentUser();
         return user != null && user.getPermissions().isCanBulkLockUnlockMetadata();

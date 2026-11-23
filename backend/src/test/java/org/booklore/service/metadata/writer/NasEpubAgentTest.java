@@ -2,6 +2,23 @@ package org.booklore.service.metadata.writer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpsServer;
+import org.booklore.config.security.service.AuthenticationService;
+import org.booklore.mapper.BookMapper;
+import org.booklore.model.dto.Book;
+import org.booklore.model.dto.BookMetadata;
+import org.booklore.model.dto.request.MetadataRefreshOptions;
+import org.booklore.model.entity.BookEntity;
+import org.booklore.model.enums.MetadataProvider;
+import org.booklore.repository.BookRepository;
+import org.booklore.repository.LibraryRepository;
+import org.booklore.repository.MetadataFetchJobRepository;
+import org.booklore.service.NotificationService;
+import org.booklore.service.appsettings.AppSettingService;
+import org.booklore.service.file.BookFileMutationGuard;
+import org.booklore.service.metadata.BookMetadataUpdater;
+import org.booklore.service.metadata.MetadataRefreshService;
+import org.booklore.service.metadata.parser.BookParser;
+import org.booklore.task.TaskCancellationManager;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -27,13 +44,19 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.time.Duration;
 import java.util.HexFormat;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class NasEpubAgentTest {
     private static final char[] PASSWORD = "test-password".toCharArray();
@@ -270,6 +293,145 @@ class NasEpubAgentTest {
             assertThatThrownBy(() -> client(server).rollbackReplacement(committed))
                     .isInstanceOf(IOException.class).hasMessageContaining("HTTP 422");
             assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM synthetic_metadata", Integer.class)).isEqualTo(1);
+        } finally {
+            server.stop(0);
+        }
+    }
+
+    @Test
+    void maintenanceProcessesBooksIndependentlyThroughAuthenticatedAgent() throws Exception {
+        Path first = createSynthetic("first.epub");
+        Path second = createSynthetic("second.epub");
+        Path third = createSynthetic("third.epub");
+        Path fourth = createSynthetic("fourth.epub");
+        String firstHash = NasEpubPrototype.sha256(first);
+        String secondHash = NasEpubPrototype.sha256(second);
+        String thirdHash = NasEpubPrototype.sha256(third);
+        String fourthHash = NasEpubPrototype.sha256(fourth);
+        var source = new DriverManagerDataSource(
+                "jdbc:h2:mem:" + UUID.randomUUID() + ";MODE=MariaDB;DB_CLOSE_DELAY=-1", "sa", "");
+        source.setDriverClassName("org.h2.Driver");
+        new ResourceDatabasePopulator(new ClassPathResource("db/nas-synthetic-job.sql")).execute(source);
+        var jdbc = new JdbcTemplate(source);
+        jdbc.execute("CREATE TABLE synthetic_metadata (book_id BIGINT NOT NULL PRIMARY KEY)");
+        HttpsServer server = NasEpubAgent.start(new InetSocketAddress("127.0.0.1", 0), serverTls, sandbox, true);
+        try {
+            var coordinator = new NasEpubSyntheticReplacementCoordinator(
+                    jdbc, new DataSourceTransactionManager(source), client(server));
+            var runner = new NasEpubSyntheticMaintenanceRunner(coordinator);
+            var results = new ArrayList<NasEpubSyntheticMaintenanceRunner.Result>();
+            UUID runId = UUID.randomUUID();
+            runner.run(runId, List.of(
+                    new NasEpubSyntheticMaintenanceRunner.Work(1,
+                            new NasEpubPrototype.Request("first.epub", "first-output.epub", firstHash, "New", null),
+                            () -> jdbc.update("INSERT INTO synthetic_metadata VALUES (1)")),
+                    new NasEpubSyntheticMaintenanceRunner.Work(2,
+                            new NasEpubPrototype.Request("second.epub", "second-output.epub", "0".repeat(64), "New", null),
+                            () -> jdbc.update("INSERT INTO synthetic_metadata VALUES (2)")),
+                    new NasEpubSyntheticMaintenanceRunner.Work(3,
+                            new NasEpubPrototype.Request("third.epub", "third-output.epub", thirdHash, "New", null),
+                            () -> {
+                                jdbc.update("INSERT INTO synthetic_metadata VALUES (3)");
+                                throw new IllegalStateException("Simulated database failure");
+                            }),
+                    new NasEpubSyntheticMaintenanceRunner.Work(5,
+                            new NasEpubPrototype.Request("../invalid.epub", "invalid-output.epub", thirdHash, "New", null),
+                            () -> jdbc.update("INSERT INTO synthetic_metadata VALUES (5)")),
+                    new NasEpubSyntheticMaintenanceRunner.Work(4,
+                            new NasEpubPrototype.Request("fourth.epub", "fourth-output.epub", fourthHash, "New", null),
+                            () -> jdbc.update("INSERT INTO synthetic_metadata VALUES (4)"))),
+                    results::add);
+
+            assertThat(results).extracting(NasEpubSyntheticMaintenanceRunner.Result::succeeded)
+                    .containsExactly(true, false, false, false, true);
+            assertThat(results.get(1).failure()).isNotNull();
+            assertThat(results.get(2).failure()).hasMessageContaining("database failure");
+            assertThat(results.get(3).failure()).isInstanceOf(IllegalArgumentException.class);
+            assertThat(NasEpubPrototype.sha256(first)).isNotEqualTo(firstHash);
+            assertThat(NasEpubPrototype.sha256(second)).isEqualTo(secondHash);
+            assertThat(NasEpubPrototype.sha256(third)).isEqualTo(thirdHash);
+            assertThat(NasEpubPrototype.sha256(fourth)).isNotEqualTo(fourthHash);
+            assertThat(jdbc.queryForList("SELECT book_id FROM synthetic_metadata ORDER BY book_id", Long.class))
+                    .containsExactly(1L, 4L);
+            assertThat(runner.reports(runId, 0, 10)).extracting(NasEpubSyntheticMaintenanceRunner.Report::status)
+                    .containsExactly(NasEpubSyntheticMaintenanceRunner.ReportStatus.SUCCEEDED,
+                            NasEpubSyntheticMaintenanceRunner.ReportStatus.FAILED,
+                            NasEpubSyntheticMaintenanceRunner.ReportStatus.FAILED,
+                            NasEpubSyntheticMaintenanceRunner.ReportStatus.SUCCEEDED,
+                            NasEpubSyntheticMaintenanceRunner.ReportStatus.FAILED);
+            assertThat(runner.reports(runId, 2, 2)).extracting(NasEpubSyntheticMaintenanceRunner.Report::bookId)
+                    .containsExactly(3L, 4L);
+        } finally {
+            server.stop(0);
+        }
+    }
+
+    @Test
+    void preparedProviderTitleIsCoordinatedWithSyntheticFileAndDatabase() throws Exception {
+        BookEntity entity = BookEntity.builder().id(1L).build();
+        BookMapper bookMapper = mock(BookMapper.class);
+        BookParser parser = mock(BookParser.class);
+        when(bookMapper.toBook(entity)).thenReturn(Book.builder().id(1L)
+                .metadata(BookMetadata.builder().title("Old").build()).build());
+        when(parser.isEnabled()).thenReturn(true);
+        when(parser.fetchTopMetadata(any(), any())).thenReturn(BookMetadata.builder()
+                .provider(MetadataProvider.Google).title("Provider title").build());
+        var refresh = new MetadataRefreshService(mock(LibraryRepository.class), mock(MetadataFetchJobRepository.class),
+                bookMapper, mock(BookMetadataUpdater.class), mock(NotificationService.class),
+                mock(AppSettingService.class), Map.of(MetadataProvider.Google, parser),
+                mock(tools.jackson.databind.ObjectMapper.class), mock(BookRepository.class),
+                mock(org.springframework.transaction.PlatformTransactionManager.class),
+                mock(AuthenticationService.class), mock(TaskCancellationManager.class),
+                mock(BookFileMutationGuard.class));
+        var options = MetadataRefreshOptions.builder().fieldOptions(MetadataRefreshOptions.FieldOptions.builder()
+                .title(MetadataRefreshOptions.FieldProvider.builder().p1(MetadataProvider.Google).build())
+                .build()).build();
+        BookMetadata prepared = refresh.prepareFetchedMetadata(entity, options,
+                refresh.prepareProviders(options));
+        assertThat(prepared.getTitle()).isEqualTo("Provider title");
+
+        Path failedInput = createSynthetic("failed.epub");
+        Path successfulInput = createSynthetic("successful.epub");
+        String failedHash = NasEpubPrototype.sha256(failedInput);
+        String successfulHash = NasEpubPrototype.sha256(successfulInput);
+        var source = new DriverManagerDataSource(
+                "jdbc:h2:mem:" + UUID.randomUUID() + ";MODE=MariaDB;DB_CLOSE_DELAY=-1", "sa", "");
+        source.setDriverClassName("org.h2.Driver");
+        new ResourceDatabasePopulator(new ClassPathResource("db/nas-synthetic-job.sql")).execute(source);
+        var jdbc = new JdbcTemplate(source);
+        jdbc.execute("CREATE TABLE synthetic_metadata (book_id BIGINT PRIMARY KEY, title VARCHAR(255) NOT NULL)");
+        HttpsServer server = NasEpubAgent.start(new InetSocketAddress("127.0.0.1", 0), serverTls, sandbox, true);
+        try {
+            var coordinator = new NasEpubSyntheticReplacementCoordinator(
+                    jdbc, new DataSourceTransactionManager(source), client(server));
+            var runner = new NasEpubSyntheticMaintenanceRunner(coordinator);
+            var results = new ArrayList<NasEpubSyntheticMaintenanceRunner.Result>();
+            runner.run(UUID.randomUUID(), List.of(
+                    new NasEpubSyntheticMaintenanceRunner.Work(1,
+                            new NasEpubPrototype.Request("failed.epub", "failed-result.epub",
+                                    failedHash, prepared.getTitle(), null),
+                            () -> {
+                                jdbc.update("INSERT INTO synthetic_metadata VALUES (?, ?)", 1, prepared.getTitle());
+                                throw new IllegalStateException("Simulated database failure");
+                            }),
+                    new NasEpubSyntheticMaintenanceRunner.Work(2,
+                            new NasEpubPrototype.Request("successful.epub", "successful-result.epub",
+                                    successfulHash, prepared.getTitle(), null),
+                            () -> jdbc.update("INSERT INTO synthetic_metadata VALUES (?, ?)", 2, prepared.getTitle()))),
+                    results::add);
+
+            assertThat(results).extracting(NasEpubSyntheticMaintenanceRunner.Result::succeeded)
+                    .containsExactly(false, true);
+            assertThat(NasEpubPrototype.sha256(failedInput)).isEqualTo(failedHash);
+            assertThat(NasEpubPrototype.sha256(successfulInput)).isNotEqualTo(successfulHash);
+            assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM synthetic_metadata", Integer.class)).isEqualTo(1);
+            assertThat(jdbc.queryForObject("SELECT title FROM synthetic_metadata WHERE book_id = 2", String.class))
+                    .isEqualTo(prepared.getTitle());
+            try (ZipFile zip = new ZipFile(successfulInput.toFile())) {
+                String opf = new String(zip.getInputStream(zip.getEntry("OPS/book.opf")).readAllBytes(),
+                        StandardCharsets.UTF_8);
+                assertThat(opf).contains("Provider title");
+            }
         } finally {
             server.stop(0);
         }

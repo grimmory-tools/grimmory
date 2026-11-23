@@ -197,7 +197,11 @@ public class NasEpubPrototype {
             if (request.cover() != null) {
                 writer.writeCoverToFile(temporary.toFile(), request.cover());
             }
-            writer.writeMetadataToFile(temporary.toFile(), metadata, request.clearFlags());
+            if (request.metadata() == null) {
+                writer.writeTitleAndAuthorsToFile(temporary.toFile(), metadata);
+            } else {
+                writer.writeMetadataToFile(temporary.toFile(), metadata, request.clearFlags());
+            }
             validateArchive(temporary);
             String outputHash = sha256(temporary);
             try (OutputStream stream = Files.newOutputStream(output, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {

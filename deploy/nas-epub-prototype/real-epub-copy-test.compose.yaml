@@ -1,0 +1,30 @@
+services:
+  real-epub-copy-test:
+    image: eclipse-temurin:25-jre@sha256:4ba7de2d5d53f8e2faad1f04e08b96719bd085c4b65fad0182b9f1a2cf94d259
+    user: "1031:100"
+    environment:
+      NAS_REAL_EPUB_INPUT_DIR: /real-epub-input
+      NAS_REAL_EPUB_WORK_DIR: /real-epub-work
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 1g
+    pids_limit: 128
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=256m,mode=1777
+    volumes:
+      - ./test-bundle:/test-bundle:ro
+      - ./inputs:/real-epub-input:ro
+      - ./work:/real-epub-work:rw
+    network_mode: none
+    command:
+      - java
+      - --enable-preview
+      - -Xmx640m
+      - -Djava.io.tmpdir=/real-epub-work/tmp
+      - -cp
+      - /test-bundle/classes:/test-bundle/lib/*
+      - org.booklore.service.metadata.writer.NasEpubRealCopyTestRunner
+    restart: "no"

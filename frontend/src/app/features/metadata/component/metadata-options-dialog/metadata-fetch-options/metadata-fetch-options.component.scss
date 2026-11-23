@@ -5,6 +5,15 @@
   flex-direction: column;
 }
 
+.score-preview {
+  margin-bottom: 1rem;
+}
+
+.score-preview input {
+  width: 5rem;
+  margin: 0 0.5rem;
+}
+
 .panel-header {
   @include panel.panel-header;
 }

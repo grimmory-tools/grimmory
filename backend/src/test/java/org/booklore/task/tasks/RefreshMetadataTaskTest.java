@@ -5,6 +5,7 @@ import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.request.MetadataRefreshRequest;
 import org.booklore.model.dto.request.TaskCreateRequest;
 import org.booklore.model.dto.response.TaskCreateResponse;
+import org.booklore.model.enums.MetadataFetchTaskStatus;
 import org.booklore.service.metadata.MetadataRefreshService;
 import org.booklore.task.TaskStatus;
 import org.junit.jupiter.api.BeforeEach;
@@ -114,6 +115,7 @@ class RefreshMetadataTaskTest {
     @Test
     void execute_shouldHandleMissingOptions() {
         taskCreateRequest.setOptions(null);
+        when(metadataRefreshService.refreshMetadata(null, "task-1")).thenReturn(MetadataFetchTaskStatus.COMPLETED);
 
         refreshMetadataTask.execute(taskCreateRequest);
 
@@ -125,6 +127,8 @@ class RefreshMetadataTaskTest {
 
     @Test
     void execute_shouldCallServiceAndReturnCompleted() {
+        when(metadataRefreshService.refreshMetadata(metadataRefreshRequest, "task-1"))
+                .thenReturn(MetadataFetchTaskStatus.COMPLETED);
         TaskCreateResponse response = refreshMetadataTask.execute(taskCreateRequest);
 
         assertEquals(TaskStatus.COMPLETED, response.getStatus());
@@ -150,5 +154,13 @@ class RefreshMetadataTaskTest {
         doThrow(new CancellationException("Task cancelled")).when(metadataRefreshService).refreshMetadata(metadataRefreshRequest, "task-1");
 
         assertThrows(CancellationException.class, () -> refreshMetadataTask.execute(taskCreateRequest));
+    }
+
+    @Test
+    void execute_shouldReturnCancelledWhenRefreshStops() {
+        when(metadataRefreshService.refreshMetadata(metadataRefreshRequest, "task-1"))
+                .thenReturn(MetadataFetchTaskStatus.CANCELLED);
+
+        assertEquals(TaskStatus.CANCELLED, refreshMetadataTask.execute(taskCreateRequest).getStatus());
     }
 }

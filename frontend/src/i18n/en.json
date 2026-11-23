@@ -2948,7 +2948,16 @@
       "inactiveProvider": "{{provider}} (disabled)"
     },
     "fetchOptions": {
-      "startRefresh": "Start Refresh"
+      "startRefresh": "Start Refresh",
+      "previewTitle": "Metadata score preview",
+      "previewThreshold": "Threshold (%)",
+      "previewButton": "Preview",
+      "previewError": "Unable to load the preview. Please try again.",
+      "previewTotal": "Active books",
+      "previewBelow": "Below threshold",
+      "previewAbove": "At or above threshold",
+      "previewUnknown": "Missing or invalid score",
+      "previewNotice": "Read-only preview based on saved completeness scores; locked fields can count even if empty. It does not filter the refresh below, verify correctness, or check EPUB synchronization."
     },
     "providers": {
       "openLibrary": "Open Library",

@@ -4,6 +4,7 @@ import org.booklore.config.AppProperties;
 import org.booklore.model.MetadataClearFlags;
 import org.booklore.model.MetadataUpdateContext;
 import org.booklore.model.MetadataUpdateWrapper;
+import org.booklore.model.MetadataClearFlags;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.ComicMetadata;
 import org.booklore.model.dto.FileMoveResult;
@@ -19,12 +20,14 @@ import org.booklore.service.file.FileMoveService;
 import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.metadata.sidecar.SidecarMetadataWriter;
 import org.booklore.service.metadata.writer.MetadataWriterFactory;
+import org.booklore.service.metadata.writer.MetadataWriter;
 import org.booklore.util.FileService;
 import org.booklore.util.MetadataChangeDetector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
@@ -36,12 +39,15 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 @ExtendWith(MockitoExtension.class)
 class BookMetadataUpdaterTest {
+    @TempDir
+    Path tempDir;
 
     @Mock private AppProperties appProperties;
     @Mock private AuthorRepository authorRepository;
@@ -105,6 +111,51 @@ class BookMetadataUpdaterTest {
                 .isInstanceOf(IllegalStateException.class).hasMessageContaining("reserved");
         assertThat(metadataEntity.getTitle()).isEqualTo("Original Title");
         verifyNoInteractions(bookRepository, metadataWriterFactory, fileMoveService);
+    }
+
+    @Test
+    void strictEpubUpdatePropagatesWriterFailure() throws Exception {
+        Path library = Files.createDirectory(tempDir.resolve("library"));
+        Path epub = Files.createFile(library.resolve("book.epub"));
+        bookEntity.setLibraryPath(LibraryPathEntity.builder().path(library.toString()).build());
+        BookFileEntity primaryFile = BookFileEntity.builder()
+                .id(1L).book(bookEntity).fileName(epub.getFileName().toString()).fileSubPath("")
+                .isBookFormat(true).bookType(BookFileType.EPUB).build();
+        bookEntity.setBookFiles(Set.of(primaryFile));
+
+        MetadataPersistenceSettings persistence = MetadataPersistenceSettings.builder()
+                .saveToOriginalFile(MetadataPersistenceSettings.SaveToOriginalFile.builder()
+                        .epub(MetadataPersistenceSettings.FormatSettings.builder().enabled(true).maxFileSizeInMb(100).build())
+                        .build())
+                .build();
+        when(appSettingService.getAppSettings()).thenReturn(AppSettings.builder()
+                .metadataPersistenceSettings(persistence).build());
+        when(sidecarMetadataWriter.isWriteOnUpdateEnabled()).thenReturn(false);
+        MetadataWriter writer = mock(MetadataWriter.class);
+        when(writer.shouldSaveMetadataToFile(epub.toFile())).thenReturn(true);
+        when(metadataWriterFactory.getWriter(BookFileType.EPUB)).thenReturn(Optional.of(writer));
+        doThrow(new java.io.IOException("EPUB write failed"))
+                .when(writer).saveMetadataToFileStrict(eq(epub.toFile()), eq(metadataEntity), any());
+
+        MetadataUpdateContext context = buildContext(BookMetadata.builder().title("Changed").build(),
+                MetadataReplaceMode.REPLACE_ALL);
+        context.setFailOnFileWriteError(true);
+        context.setMetadataUpdateWrapper(MetadataUpdateWrapper.builder()
+                .metadata(BookMetadata.builder().title("Changed").build())
+                .clearFlags(new MetadataClearFlags())
+                .build());
+
+        try (MockedStatic<MetadataChangeDetector> mcd = mockStatic(MetadataChangeDetector.class)) {
+            mcd.when(() -> MetadataChangeDetector.isDifferent(any(), any(), any())).thenReturn(true);
+            mcd.when(() -> MetadataChangeDetector.hasValueChanges(any(), any(), any())).thenReturn(true);
+            mcd.when(() -> MetadataChangeDetector.hasLockChanges(any(), any())).thenReturn(false);
+            mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any())).thenReturn(true);
+
+            assertThatThrownBy(() -> updater.setBookMetadata(context))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("Failed to persist EPUB metadata")
+                    .hasCauseInstanceOf(java.io.IOException.class);
+        }
     }
 
     private void mockSettingsAndChangeDetector(MockedStatic<MetadataChangeDetector> mcd, boolean hasDiff, boolean hasValueChanges) {

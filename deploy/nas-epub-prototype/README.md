@@ -15,6 +15,18 @@ le fichier `META-INF/grimmory-nas-prototype.txt` contenant exactement
 Le protocole de test accepte aussi un instantané complet des métadonnées et
 les indicateurs d'effacement et une couverture en base64, afin de comparer le
 résultat avec le moteur local. Les livres réels restent interdits.
+Pour une requête limitée au titre et aux auteurs, les métadonnées
+`booklore:*` existantes sont conservées. Les champs `booklore:*` inconnus
+restent aussi présents lors d'une mise à jour complète. Pour les séries
+EPUB3 identifiées comme telles, la mise à jour conserve les autres
+collections et les raffinements non ciblés.
+
+Un éventuel dossier de travail distinct doit rester hors des chemins surveillés
+par Grimmory. Un remplacement atomique exige aussi que les fichiers déplacés
+soient sur le même système de fichiers ; un partage ou montage distinct peut
+empêcher ce remplacement. Ce dossier ne remplace ni la coordination avec les
+scans ni la reprise après interruption. Aucune configuration de production
+n'est fournie par ce prototype.
 
 ## Préparation
 
@@ -180,7 +192,11 @@ Une réservation en base est créée dans la même transaction que la décision
 `PREPARING` et reste détenue jusqu'à la fin de la restauration ou de la
 finalisation. Un participant expérimental peut vérifier cette réservation sous
 verrou dans sa propre transaction d'écriture. Cette protection est globale à
-la base de test et ne concerne que les participants qui l'utilisent.
+la base de test et ne concerne que les participants qui l'utilisent. Pendant
+les modifications de base coordonnées, le propriétaire de la réservation peut
+franchir ce garde uniquement dans la transaction courante ; cette autorisation
+est retirée à la sortie du traitement, y compris en cas d'erreur. Une transaction
+indépendante imbriquée reste refusée.
 Les services de rattachement, de détachement, de remplacement de contenu, de
 suppression, de déplacement et de gestion des métadonnées appellent un point
 de coordination. Les mises à jour individuelles et par lot de
@@ -197,7 +213,13 @@ empreinte échoue après remplacement du fichier, la sauvegarde de réparation
 reste disponible, mais la cohérence nécessite une intervention : la réparation
 existante ne restaure pas automatiquement ce fichier.
 Le rafraîchissement des métadonnées prend aussi le verrou avant de charger
-chaque livre ; un refus échoue la tâche. Le rescan le prend avant de charger la
+chaque livre ; un refus échoue la tâche. Il démarre hors transaction existante,
+annule la transaction du livre si une exception remonte et arrête la tâche ;
+les notifications de réussite du livre sont envoyées après validation de la
+transaction. Les erreurs d'écriture encore interceptées par le service de
+mise à jour ne remontent pas toutes, et une annulation de base ne restaure pas
+un fichier déjà modifié : ce parcours ne fournit donc pas encore les garanties
+nécessaires pour la bêta sur les livres réels. Le rescan prend le verrou avant de charger la
 bibliothèque et signale un refus. Ces deux parcours conservent leurs transactions
 existantes : le verrou global pourrait être retenu pendant des appels réseau ou
 pendant tout le rescan. Il faut réduire ces durées avant d'activer un participant,
@@ -207,6 +229,16 @@ les éléments à importer et de suspendre la surveillance ; un refus interrompt
 l'opération avant toute copie. La transaction existante couvre tout le lot et
 peut donc conserver ce verrou longtemps. Les autres imports et les scans et
 événements de surveillance ne sont pas encore tous coordonnés.
+Chaque groupe de nouveaux livres vérifie le verrou dans sa transaction
+indépendante avant de lire la bibliothèque ; un refus remonte au lieu d'être
+ignoré. Le scan peut toutefois avoir déjà effectué d'autres opérations et
+les événements de surveillance ne sont pas automatiquement rejoués après
+un refus : cela ne coordonne pas le scan entier.
+Si le même fil reprend ce verrou dans une transaction indépendante imbriquée
+sur la même source de données, le verrou expérimental refuse immédiatement
+l'opération au lieu d'attendre sa propre transaction parente. Ce refus ne
+coordonne pas les parcours manquants et ne remplace pas leur découpage en
+transactions sûres ; il ne rend pas le participant activable en production.
 L'actualisation des métadonnées et le déplacement individuel peuvent toutefois
 recevoir un livre déjà chargé par d'autres appelants : ceux-ci doivent encore
 être coordonnés avant cette lecture pour éviter les données périmées. D'autres
@@ -223,6 +255,14 @@ finalisées en base ; une erreur interrompt le lot et reste à reprendre
 explicitement. La finalisation est idempotente et ne restaure jamais une
 décision validée. Ce coordinateur utilise un schéma réservé aux tests et n'est
 pas intégré à Grimmory ; aucune reprise automatique n'est encore configurée.
+La préparation des métadonnées issues des fournisseurs est désormais séparée
+de leur application dans le service Grimmory. Un test local raccorde un titre
+fourni par un fournisseur simulé à l'agent mTLS et à une base H2 de test ; il
+vérifie la restauration après échec et la poursuite sur un autre EPUB
+synthétique. Ce raccordement existe uniquement dans le test : le coordinateur
+ne l'utilise pas en production, et le véritable service de mise à jour des
+livres n'est pas appelé. Cela ne coordonne pas les écritures réelles et ne
+rend pas le mode maintenance déployable.
 
 ### Tests MariaDB isolés
 
@@ -240,12 +280,12 @@ Extraire `build/nas-mariadb-test/nas-mariadb-test-bundle.zip` dans le dossier
 `test-bundle` du projet NAS, puis démarrer ce projet dans Container Manager.
 La base et le conteneur de test communiquent sur un réseau Docker interne,
 sans port publié. La base est en mémoire et ses données disparaissent à
-l'arrêt du conteneur. Le journal de `coordinator-test` doit indiquer dix
+l'arrêt du conteneur. Le journal de `coordinator-test` doit indiquer douze
 tests réussis, aucun échec et aucune désactivation.
 
 Les tests refusent une autre base ou l'absence du marqueur de test avant de
 créer leurs tables. Ils vérifient les transactions InnoDB, la reprise d'un
-commit et le verrouillage concurrent. Huit scénarios utilisent un agent simulé ;
+commit et le verrouillage concurrent. Dix scénarios utilisent un agent simulé ;
 les deux autres utilisent le véritable agent HTTPS mTLS sur l'interface locale du
 conteneur et des EPUB synthétiques temporaires, puis vérifie la restauration
 après échec et la reprise après une réponse de commit perdue et un redémarrage
@@ -280,6 +320,40 @@ avec les autres écritures, la conservation des permissions et la reprise
 après panne restent indispensables.
 La résistance à une coupure électrique n'a pas été vérifiée sur le NAS. Sous
 Windows, la synchronisation durable des répertoires n'est pas garantie.
+
+### Test d'écriture sur des copies réelles d'EPUB
+
+`real-epub-copy-test.compose.yaml` vérifie le moteur d'écriture sur exactement
+trois copies d'EPUB réels. Copier les fichiers depuis le partage de bibliothèque
+dans `inputs` sans les déplacer ; ne jamais monter le partage de bibliothèque
+dans le projet ou dans le conteneur. Conserver les originaux en lecture seule et
+vérifier leurs empreintes SHA-256 avant et après la copie. Le conteneur monte
+`inputs` en lecture seule et écrit uniquement dans `work`.
+
+Construire `nasMariaDbTestBundle` pour inclure le runner, extraire le paquet dans
+`test-bundle`, et créer `work/tmp`. Le dossier `work` doit appartenir à l'UID
+1031/GID 100 utilisé par le projet ; ne pas modifier les ACL ou permissions des
+livres sources. La campagne refuse les fichiers de plus de 200 Mio, les archives
+qui dépassent 512 Mio décompressées, les dossiers d'entrée/écriture qui se
+chevauchent et un dossier `work` non vide.
+
+Dans Container Manager, démarrer le projet depuis le dossier isolé. Le
+conteneur n'a pas de réseau, n'accède à aucune base ou fournisseur de
+métadonnées et remplace uniquement le titre de chaque copie dans `work` par un
+marqueur de test. Il vérifie les tailles et CRC des entrées ZIP, la présence du nouveau titre,
+l'absence de changement dans les autres entrées ZIP, l'empreinte inchangée des
+copies d'entrée, les éléments de métadonnées OPF non ciblés et l'absence de
+fichiers temporaires. La comparaison ignore leur ordre et les espaces de
+formatage. Le journal doit indiquer
+`REAL_EPUB_COPY_TEST=PASSED`, trois copies écrites et trois entrées inchangées.
+Arrêter le projet après la campagne.
+
+Ce test valide le moteur EPUB sur des fichiers réels et sur le système de
+fichiers du NAS uniquement. Il ne valide ni les fournisseurs en ligne,
+l'ensemble de la structure et des attributs hors métadonnées du fichier OPF,
+l'intégration à la base Grimmory, les ACL des livres de production, ni le
+coordinateur de maintenance ; il ne rend pas sûre une écriture dans la
+bibliothèque réelle.
 
 ## Vérification isolée de CAP_CHOWN
 
@@ -341,6 +415,38 @@ ni la préservation des attributs non vérifiés.
 L'agent et son coordinateur ne sont pas intégrés aux écritures Grimmory et
 ne doivent pas être activés sur les livres réels. Avant leur intégration :
 
+- Le moteur EPUB refuse désormais d'écraser un fichier `.bak` ou `.tmp`
+  existant et exige un remplacement atomique sur le système de fichiers.
+  Une restauration échouée conserve la sauvegarde et signale l'erreur.
+  Ces précautions ne vérifient pas les ACL ni ne coordonnent la base de données.
+- Un chemin strict interne peut maintenant refuser les mises à jour non EPUB,
+  les couvertures, les sidecars, les déplacements automatiques et toute
+  erreur d'écriture EPUB masquée. Il n'est pas raccordé à une tâche et ne
+  protège pas encore une écriture EPUB réussie suivie d'un échec du commit SQL.
+- Pour une actualisation exceptionnelle de toute la bibliothèque, le mode
+  envisagé met Grimmory en maintenance pendant le traitement. Les métadonnées
+  proviennent des fournisseurs en ligne ; chaque livre doit être traité
+  indépendamment, restauré en cas d'échec et ajouté au rapport des erreurs.
+  Les EPUB invalides doivent être ignorés sans modifier leur fichier ni leur
+  fiche et figurer dans le rapport. Les déplacements automatiques doivent être
+  coordonnés avec les écritures et la base, et repris ou restaurés après une
+  interruption ; ces garanties ne sont pas encore implémentées.
+  La première bêta visée doit ignorer les formats autres qu'EPUB et les
+  signaler dans le rapport ; ce filtrage n'est pas encore implémenté.
+  Ce mode n'est pas encore implémenté. La mise en maintenance doit aussi
+  arrêter et vérifier l'arrêt des tâches déjà actives, des scans et de la
+  surveillance ; bloquer seulement les nouvelles requêtes ne suffit pas.
+- Un orchestrateur séquentiel **synthétique** traite désormais une requête
+  par livre. Il ne continue après une erreur que si l'annulation est confirmée,
+  finalise une décision déjà validée sans rejouer la base et s'arrête si la
+  décision ou la restauration reste incertaine. Les résultats sont enregistrés
+  dans la base de test et peuvent être consultés par pages. Les entrées
+  interrompues peuvent être réconciliées explicitement après arrêt de tous
+  les producteurs ; cette reprise n'est ni automatique ni validée après
+  redémarrage de la base. Le stockage de test n'est pas une migration de
+  production. L'orchestrateur n'est pas raccordé aux fournisseurs ni à
+  Grimmory ; il exige un producteur exclusif et des modifications de base
+  dans la transaction du coordinateur.
 - Intégrer et tester sur les parcours réels le remplacement et la
   restauration de lots, avec un journal durable, la reprise après interruption
   et une décision de base de données non ambiguë. Le coordinateur actuel ne

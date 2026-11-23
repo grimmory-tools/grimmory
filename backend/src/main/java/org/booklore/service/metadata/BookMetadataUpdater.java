@@ -33,6 +33,7 @@ import org.springframework.util.StringUtils;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.URI;
+import java.nio.file.LinkOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -108,6 +109,10 @@ public class BookMetadataUpdater {
         BookFileType bookType = primaryFile != null ? primaryFile.getBookType() : null;
 
         boolean hasValueChangesForFileWrite = MetadataChangeDetector.hasValueChangesForFileWrite(newMetadata, metadata, clearFlags);
+        if (context.isFailOnFileWriteError()) {
+            validateStrictFileWrite(context, bookEntity, primaryFile, bookType, writeToFile, settings,
+                    hasValueChangesForFileWrite);
+        }
 
         updateBasicFields(newMetadata, metadata, clearFlags, replaceMode);
         updateAuthorsIfNeeded(newMetadata, metadata, clearFlags, mergeCategories, replaceMode);
@@ -145,7 +150,15 @@ public class BookMetadataUpdater {
                         writer.replaceCoverImageFromBytes(file, coverContents);
                     }
 
-                    writer.saveMetadataToFile(file, metadata, clearFlags);
+                    if (context.isFailOnFileWriteError()) {
+                        try {
+                            writer.saveMetadataToFileStrict(file, metadata, clearFlags);
+                        } catch (Exception e) {
+                            throw new StrictMetadataWriteException("Failed to persist EPUB metadata for book ID " + bookId, e);
+                        }
+                    } else {
+                        writer.saveMetadataToFile(file, metadata, clearFlags);
+                    }
                     updateFileNameIfConverted(primaryFile, file.toPath());
                     String newHash = file.isDirectory()
                             ? FileFingerprint.generateFolderHash(bookEntity.getFullFilePath())
@@ -154,9 +167,21 @@ public class BookMetadataUpdater {
                     primaryFile.setCurrentHash(newHash);
                     bookRepository.save(bookEntity);
                 } catch (Exception e) {
+                    if (context.isFailOnFileWriteError()) {
+                        if (e instanceof RuntimeException runtimeException) {
+                            throw runtimeException;
+                        }
+                        throw new StrictMetadataWriteException("Failed to persist EPUB metadata for book ID " + bookId, e);
+                    }
                     log.warn("Failed to write metadata for book ID {}: {}", bookId, e.getMessage());
                 }
             });
+        } else if (context.isFailOnFileWriteError() && hasValueChangesForFileWrite) {
+            throw new StrictMetadataWriteException("EPUB metadata persistence was not attempted for book ID " + bookId);
+        }
+
+        if (context.isFailOnFileWriteError()) {
+            return;
         }
 
         if (sidecarMetadataWriter.isWriteOnUpdateEnabled()) {
@@ -182,6 +207,44 @@ public class BookMetadataUpdater {
             } catch (Exception e) {
                 log.warn("Failed to move files for book ID {} after metadata update: {}", bookId, e.getMessage());
             }
+        }
+    }
+
+    private void validateStrictFileWrite(MetadataUpdateContext context, BookEntity bookEntity,
+                                         BookFileEntity primaryFile, BookFileType bookType,
+                                         MetadataPersistenceSettings.SaveToOriginalFile writeToFile,
+                                         MetadataPersistenceSettings settings, boolean hasFileChanges) {
+        if (!appProperties.isLocalStorage() || primaryFile == null || bookType != BookFileType.EPUB
+                || context.isUpdateThumbnail()) {
+            throw new StrictMetadataWriteException("Strict file updates require a local EPUB and no cover update");
+        }
+        if (settings.isMoveFilesToLibraryPattern() || sidecarMetadataWriter.isWriteOnUpdateEnabled()) {
+            throw new StrictMetadataWriteException("Strict file updates do not support automatic moves or sidecar writes");
+        }
+        if (writeToFile == null || writeToFile.getEpub() == null || !writeToFile.getEpub().isEnabled()) {
+            throw new StrictMetadataWriteException("EPUB metadata persistence is disabled");
+        }
+        if (!hasFileChanges) {
+            throw new StrictMetadataWriteException("The update contains no EPUB-persistable metadata changes");
+        }
+        Path file = bookEntity.getFullFilePath();
+        if (file == null || !Files.isRegularFile(file, LinkOption.NOFOLLOW_LINKS)) {
+            throw new StrictMetadataWriteException("The primary EPUB is missing or is not a regular file");
+        }
+        var writer = metadataWriterFactory.getWriter(BookFileType.EPUB)
+                .orElseThrow(() -> new StrictMetadataWriteException("No EPUB metadata writer is available"));
+        if (!writer.shouldSaveMetadataToFile(file.toFile())) {
+            throw new StrictMetadataWriteException("The EPUB is not eligible for metadata persistence");
+        }
+    }
+
+    private static final class StrictMetadataWriteException extends IllegalStateException {
+        private StrictMetadataWriteException(String message) {
+            super(message);
+        }
+
+        private StrictMetadataWriteException(String message, Throwable cause) {
+            super(message, cause);
         }
     }
 

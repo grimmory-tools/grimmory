@@ -31,6 +31,9 @@ public class FileAsBookProcessor {
         for (Map.Entry<String, List<LibraryFile>> entry : groups.entrySet()) {
             try {
                 bookGroupProcessor.process(entry.getValue(), libraryId);
+            } catch (BookFileMutationGuardException e) {
+                log.error("Cannot process library group in library {}: {}", libraryId, e.getMessage(), e);
+                throw e;
             } catch (Exception e) {
                 String fileNames = entry.getValue().stream()
                         .map(LibraryFile::getFileName).toList().toString();

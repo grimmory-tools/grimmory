@@ -1,6 +1,28 @@
 <ng-container *transloco="let t; prefix: 'metadata.fetchOptions'">
 <div class="metadata-fetch-options-container">
   <div class="dialog-content">
+    @if (isLibraryPreviewAvailable) {
+      <section class="score-preview" aria-labelledby="score-preview-title">
+        <h3 id="score-preview-title">{{ t('previewTitle') }}</h3>
+        <label for="metadata-score-threshold">{{ t('previewThreshold') }}</label>
+        <input pInputText id="metadata-score-threshold" type="number" min="0" max="100" step="any"
+               [ngModel]="previewThreshold" (ngModelChange)="onPreviewThresholdChange($event)">
+        <p-button [label]="t('previewButton')" [loading]="previewLoading()" (onClick)="loadPreview()"
+                  [disabled]="!isPreviewThresholdValid || previewLoading()" />
+        @if (previewError()) {
+          <p role="alert">{{ t('previewError') }}</p>
+        }
+        @if (preview(); as result) {
+          <ul aria-live="polite">
+            <li>{{ t('previewTotal') }}: {{ result.total }}</li>
+            <li>{{ t('previewBelow') }}: {{ result.belowThreshold }}</li>
+            <li>{{ t('previewAbove') }}: {{ result.atOrAboveThreshold }}</li>
+            <li>{{ t('previewUnknown') }}: {{ result.unknown }}</li>
+          </ul>
+        }
+        <p>{{ t('previewNotice') }}</p>
+      </section>
+    }
     <app-metadata-advanced-fetch-options
       (metadataOptionsSubmitted)="onMetadataSubmit($event)"
       [currentMetadataOptions]="currentMetadataOptions"

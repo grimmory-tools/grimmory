@@ -24,7 +24,7 @@ public final class NasEpubMariaDbTestRunner {
         var summary = listener.getSummary();
         summary.printTo(new PrintWriter(System.out, true));
         summary.printFailuresTo(new PrintWriter(System.err, true));
-        if (summary.getTestsFoundCount() != 10 || summary.getTestsSucceededCount() != 10
+        if (summary.getTestsFoundCount() != 12 || summary.getTestsSucceededCount() != 12
                 || summary.getTestsFailedCount() != 0 || summary.getTestsSkippedCount() != 0) {
             throw new IllegalStateException("MariaDB coordinator tests did not all succeed");
         }

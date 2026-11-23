@@ -6,12 +6,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.booklore.config.security.annotation.CheckBookAccess;
+import org.booklore.config.security.annotation.CheckLibraryAccess;
+import org.booklore.exception.ApiError;
 import org.booklore.model.MetadataUpdateWrapper;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.request.*;
 import org.booklore.model.dto.response.TaskCreateResponse;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.model.enums.MetadataReplaceMode;
+import org.booklore.repository.BookRepository;
+import org.booklore.repository.LibraryRepository;
 import org.booklore.service.metadata.BookMetadataService;
 import org.booklore.service.metadata.MetadataManagementService;
 import org.booklore.service.metadata.MetadataMatchService;
@@ -37,6 +41,27 @@ public class MetadataController {
     private final MetadataManagementService metadataManagementService;
     private final MetadataProviderService metadataProviderService;
     private final TaskService taskService;
+    private final BookRepository bookRepository;
+    private final LibraryRepository libraryRepository;
+
+    public record RefreshPreview(long total, long belowThreshold, long atOrAboveThreshold, long unknown) {}
+
+    @Operation(summary = "Preview library metadata scores without updating books")
+    @GetMapping("/metadata/refresh-preview/{libraryId}")
+    @PreAuthorize("@securityUtil.canBulkAutoFetchMetadata() or @securityUtil.isAdmin()")
+    @CheckLibraryAccess(libraryIdParam = "libraryId")
+    public ResponseEntity<RefreshPreview> previewRefresh(@PathVariable Long libraryId,
+                                                         @RequestParam float threshold) {
+        if (!Float.isFinite(threshold) || threshold < 0 || threshold > 100) {
+            throw ApiError.GENERIC_BAD_REQUEST.createException("Threshold must be between 0 and 100");
+        }
+        if (!libraryRepository.existsById(libraryId)) {
+            throw ApiError.LIBRARY_NOT_FOUND.createException(libraryId);
+        }
+        var preview = bookRepository.previewMetadataScores(libraryId, threshold);
+        return ResponseEntity.ok(new RefreshPreview(preview.getTotal(), preview.getBelowThreshold(),
+                preview.getAtOrAboveThreshold(), preview.getUnknown()));
+    }
 
     @Operation(summary = "Get prospective metadata for a book", description = "Fetch prospective metadata for a book by its ID. Requires metadata edit permission or admin.")
     @ApiResponse(responseCode = "200", description = "Prospective metadata returned successfully")

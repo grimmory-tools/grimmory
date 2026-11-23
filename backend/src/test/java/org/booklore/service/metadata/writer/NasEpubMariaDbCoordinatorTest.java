@@ -1,5 +1,6 @@
 package org.booklore.service.metadata.writer;
 
+import org.booklore.service.file.BookFileMutationGuard;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -8,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -101,6 +103,42 @@ class NasEpubMariaDbCoordinatorTest {
                 .isInstanceOf(IllegalStateException.class).hasMessageContaining("reserved");
         assertThat(coordinator.abort(request.operationId())).isEqualTo(NasEpubSyntheticReplacementCoordinator.Status.ABORTED);
         transactions.executeWithoutResult(status -> gate.requireAvailable());
+    }
+
+    @Test
+    void coordinatedChangesCanUseGuardInOwningTransaction() {
+        var request = request();
+        coordinator.prepareAndEnqueue(request);
+        var gate = new NasEpubSyntheticWriteGate(jdbc);
+        var guard = new BookFileMutationGuard(List.of(gate::requireAvailable));
+        var independent = new TransactionTemplate(manager);
+        independent.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+
+        assertThat(coordinator.process(request.operationId(), () -> {
+            guard.beforeMutation();
+            insertMetadata(request.operationId());
+            assertThatThrownBy(() -> independent.executeWithoutResult(status -> guard.beforeMutation()))
+                    .isInstanceOf(IllegalStateException.class).hasMessageContaining("nested independent transaction");
+            guard.beforeMutation();
+        })).isEqualTo(NasEpubSyntheticReplacementCoordinator.Status.COMMITTED);
+        assertThat(metadataCount(request.operationId())).isEqualTo(1);
+        assertThat(agent.state).isEqualTo(NasEpubSyntheticReplacement.State.COMMITTED);
+    }
+
+    @Test
+    void nestedIndependentWriterIsRejectedWithoutWaitingForParent() {
+        var gate = new NasEpubSyntheticWriteGate(jdbc);
+        var outer = new TransactionTemplate(manager);
+        var inner = new TransactionTemplate(manager);
+        inner.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        outer.executeWithoutResult(status -> {
+            gate.requireAvailable();
+            assertThatThrownBy(() -> inner.executeWithoutResult(innerStatus -> gate.requireAvailable()))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("nested independent transaction");
+            gate.requireAvailable();
+        });
+        inner.executeWithoutResult(status -> gate.requireAvailable());
     }
 
     @Test
@@ -214,6 +252,9 @@ class NasEpubMariaDbCoordinatorTest {
         assertThat(metadataCount(first.operationId())).isEqualTo(1);
         assertThat(coordinator.status(first.operationId())).isEqualTo(NasEpubSyntheticReplacementCoordinator.Status.COMMITTED);
         assertThat(agent.rollbackCalls).isZero();
+        assertThat(coordinator.abort(next.operationId())).isEqualTo(NasEpubSyntheticReplacementCoordinator.Status.ABORTED);
+        assertThat(jdbc.queryForObject("SELECT operation_id FROM nas_synthetic_write_gate WHERE gate_id = 1",
+                String.class)).isNull();
     }
 
     @Test

@@ -67,6 +67,25 @@ class NasEpubPrototypeTest {
     }
 
     @Test
+    void titleAndAuthorsKeepExistingBookloreMetadata() throws Exception {
+        Path input = createEpub("input.epub", """
+                <meta property="booklore:subtitle">Existing subtitle</meta>
+                <meta property="booklore:page_count">321</meta>
+                <meta property="booklore:future_field">Future value</meta>
+                """);
+        String originalHash = hash(input);
+        NasEpubPrototype.process(sandbox, new NasEpubPrototype.Request(
+                "input.epub", "output.epub", originalHash, "New title", List.of("New author")));
+
+        assertThat(hash(input)).isEqualTo(originalHash);
+        try (ZipFile zip = new ZipFile(sandbox.resolve("output.epub").toFile())) {
+            String opf = new String(zip.getInputStream(zip.getEntry("OPS/book.opf")).readAllBytes(), StandardCharsets.UTF_8);
+            assertThat(opf).contains("New title", "New author", "booklore:subtitle", "Existing subtitle",
+                    "booklore:page_count", "321", "booklore:future_field", "Future value");
+        }
+    }
+
+    @Test
     void fullMetadataMatchesLocalWriterIncludingLocksAndClearFlags() throws Exception {
         Path input = createEpub("input.epub");
         Path local = sandbox.resolve("local.epub");
@@ -687,6 +706,10 @@ class NasEpubPrototypeTest {
     }
 
     private Path createEpub(String name) throws IOException {
+        return createEpub(name, "");
+    }
+
+    private Path createEpub(String name, String extraMetadata) throws IOException {
         Path path = sandbox.resolve(name);
         try (OutputStream out = Files.newOutputStream(path); ZipOutputStream zip = new ZipOutputStream(out)) {
             entry(zip, "mimetype", "application/epub+zip");
@@ -699,13 +722,15 @@ class NasEpubPrototypeTest {
                     </container>""");
             entry(zip, "OPS/book.opf", """
                     <?xml version="1.0"?>
-                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
+                    <package xmlns="http://www.idpf.org/2007/opf" version="3.0"
+                             prefix="booklore: http://booklore.org/metadata/1.0/">
                       <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
                         <dc:title>Old title</dc:title>
                         <dc:creator>Old author</dc:creator>
                         <dc:description>Keep this description</dc:description>
+                        %s
                       </metadata><manifest/><spine/>
-                    </package>""");
+                    </package>""".formatted(extraMetadata));
         }
         return path;
     }

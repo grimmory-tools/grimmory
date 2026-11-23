@@ -14,6 +14,7 @@ import org.booklore.repository.BookAdditionalFileRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.LibraryRepository;
 import org.booklore.service.event.BookAddedEvent;
+import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.file.FileFingerprint;
 import org.booklore.service.fileprocessor.BookFileProcessor;
 import org.booklore.service.fileprocessor.BookFileProcessorRegistry;
@@ -43,9 +44,15 @@ public class BookGroupProcessor {
     private final BookFileProcessorRegistry processorRegistry;
     private final BookCoverGenerator bookCoverGenerator;
     private final ApplicationEventPublisher eventPublisher;
+    private final BookFileMutationGuard bookFileMutationGuard;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void process(List<LibraryFile> group, long libraryId) {
+        try {
+            bookFileMutationGuard.beforeMutation();
+        } catch (RuntimeException e) {
+            throw new BookFileMutationGuardException(e);
+        }
         LibraryEntity library = libraryRepository.findById(libraryId)
                 .orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
         group.forEach(lf -> lf.setLibraryEntity(library));

@@ -11,11 +11,14 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -141,6 +144,34 @@ class FileAsBookProcessorTest {
         );
 
         fileAsBookProcessor.processLibraryFilesGrouped(groups, libraryEntity);
+
+        verify(bookGroupProcessor, times(2)).process(any(), anyLong());
+    }
+
+    @Test
+    void processLibraryFilesGrouped_propagatesMutationGuardFailure() {
+        LibraryEntity library = new LibraryEntity();
+        library.setId(1L);
+        var cause = new IllegalStateException("reserved");
+        doThrow(new BookFileMutationGuardException(cause)).when(bookGroupProcessor).process(any(), anyLong());
+
+        assertThatThrownBy(() -> fileAsBookProcessor.processLibraryFilesGrouped(
+                Map.of("group", List.of()), library))
+                .isInstanceOf(BookFileMutationGuardException.class)
+                .hasCause(cause);
+    }
+
+    @Test
+    void processLibraryFilesGrouped_continuesAfterOrdinaryGroupFailure() {
+        LibraryEntity library = new LibraryEntity();
+        library.setId(1L);
+        Map<String, List<LibraryFile>> groups = new LinkedHashMap<>();
+        groups.put("first", List.of());
+        groups.put("second", List.of());
+        doThrow(new IllegalArgumentException("invalid file")).doNothing()
+                .when(bookGroupProcessor).process(any(), anyLong());
+
+        fileAsBookProcessor.processLibraryFilesGrouped(groups, library);
 
         verify(bookGroupProcessor, times(2)).process(any(), anyLong());
     }

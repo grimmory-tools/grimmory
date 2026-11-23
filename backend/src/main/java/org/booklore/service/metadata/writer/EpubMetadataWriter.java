@@ -48,6 +48,14 @@ import java.util.function.Supplier;
 public class EpubMetadataWriter implements MetadataWriter {
 
     private static final String OPF_NS = "http://www.idpf.org/2007/opf";
+    private static final Set<String> MANAGED_BOOKLORE_METADATA = Set.of(
+            "booklore:subtitle", "booklore:page_count", "booklore:series_total",
+            "booklore:amazon_rating", "booklore:amazon_review_count",
+            "booklore:goodreads_rating", "booklore:goodreads_review_count",
+            "booklore:hardcover_rating", "booklore:hardcover_review_count",
+            "booklore:lubimyczytac_rating", "booklore:ranobedb_rating",
+            "booklore:applebooks_rating", "booklore:applebooks_review_count",
+            "booklore:moods", "booklore:tags", "booklore:age_rating", "booklore:content_rating");
     private final Supplier<MetadataPersistenceSettings> metadataSettings;
     private final ArchiveService archiveService;
 
@@ -74,11 +82,31 @@ public class EpubMetadataWriter implements MetadataWriter {
         }
     }
 
+    @Override
+    public void saveMetadataToFileStrict(File epubFile, BookMetadataEntity metadata, MetadataClearFlags clear)
+            throws IOException {
+        if (!shouldSaveMetadataToFile(epubFile)) {
+            throw new IOException("EPUB metadata persistence is disabled or the file exceeds its configured size limit");
+        }
+        writeMetadataToFile(epubFile, metadata, clear);
+    }
+
     void writeMetadataToFile(File epubFile, BookMetadataEntity metadata, MetadataClearFlags clear) throws IOException {
+        writeMetadataToFile(epubFile, metadata, clear, false);
+    }
+
+    void writeTitleAndAuthorsToFile(File epubFile, BookMetadataEntity metadata) throws IOException {
+        writeMetadataToFile(epubFile, metadata, null, true);
+    }
+
+    private void writeMetadataToFile(File epubFile, BookMetadataEntity metadata, MetadataClearFlags clear,
+                                     boolean preserveBookloreMetadata) throws IOException {
         File backupFile = new File(epubFile.getParentFile(), epubFile.getName() + ".bak");
-        Files.copy(epubFile.toPath(), backupFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(epubFile.toPath(), backupFile.toPath());
         Path tempDir = null;
+        Path tempEpub = null;
         boolean keepBackup = false;
+        boolean replacementStarted = false;
         try {
             tempDir = Files.createTempDirectory("epub_edit_" + UUID.randomUUID());
             archiveService.extractToDirectory(epubFile.toPath(), tempDir);
@@ -95,7 +123,7 @@ public class EpubMetadataWriter implements MetadataWriter {
             MetadataCopyHelper helper = new MetadataCopyHelper(metadata);
 
             helper.copyTitle(clear != null && clear.isTitle(), val -> {
-                replaceAndTrackChange(opfDoc, metadataElement, "title", DC_NS, val, hasChanges);
+                replaceTitleAndTrackChange(opfDoc, metadataElement, val, hasChanges);
                 if (StringUtils.isNotBlank(metadata.getSubtitle())) {
                     addSubtitleToTitle(metadataElement, opfDoc, metadata.getSubtitle());
                 }
@@ -130,13 +158,26 @@ public class EpubMetadataWriter implements MetadataWriter {
                 hasChanges[0] = true;
             });
 
+            String[] seriesName = {null};
+            String[] seriesNumber = {null};
+            boolean[] seriesFieldsChanged = {false, false};
             helper.copySeriesName(clear != null && clear.isSeriesName(), val -> {
-                replaceBelongsToCollection(metadataElement, opfDoc, metadata.getSeriesName(), metadata.getSeriesNumber(), hasChanges);
+                seriesName[0] = val;
+                seriesFieldsChanged[0] = true;
             });
-
             helper.copySeriesNumber(clear != null && clear.isSeriesNumber(), val -> {
-                replaceBelongsToCollection(metadataElement, opfDoc, metadata.getSeriesName(), metadata.getSeriesNumber(), hasChanges);
+                if (val != null && val > 0) {
+                    seriesNumber[0] = val % 1.0f == 0 ? String.format("%.0f", val) : String.valueOf(val);
+                }
+                seriesFieldsChanged[1] = true;
             });
+            if (seriesFieldsChanged[0] || seriesFieldsChanged[1]) {
+                ExistingSeries existingSeries = readExistingSeries(metadataElement);
+                replaceBelongsToCollection(metadataElement, opfDoc,
+                        seriesFieldsChanged[0] ? seriesName[0] : existingSeries.name(),
+                        seriesFieldsChanged[1] ? seriesNumber[0] : existingSeries.number(),
+                        existingSeries.id(), hasChanges);
+            }
 
             helper.copyIsbn13(clear != null && clear.isIsbn13(), val -> {
                 removeIdentifierByUrn(metadataElement, "isbn");
@@ -222,12 +263,14 @@ public class EpubMetadataWriter implements MetadataWriter {
                 hasChanges[0] = true;
             });
 
-            if (!hasChanges[0] && hasBookloreMetadataChanges(metadataElement, metadata)) {
+            if (!preserveBookloreMetadata && !hasChanges[0] && hasBookloreMetadataChanges(metadataElement, metadata)) {
                 hasChanges[0] = true;
             }
 
             if (hasChanges[0]) {
-                addBookloreMetadata(metadataElement, opfDoc, metadata);
+                if (!preserveBookloreMetadata) {
+                    addBookloreMetadata(metadataElement, opfDoc, metadata);
+                }
                 organizeMetadataElements(metadataElement);
                 removeInvalidMetaRefines(metadataElement, opfDoc);
                 removeEmptyTextNodes(opfDoc);
@@ -237,21 +280,25 @@ public class EpubMetadataWriter implements MetadataWriter {
                 transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
                 transformer.transform(new DOMSource(opfDoc), new StreamResult(opfPath.toFile()));
 
-                File tempEpub = new File(epubFile.getParentFile(), epubFile.getName() + ".tmp");
-                EpubContentWriter.createEpubFromDirectory(tempDir, tempEpub.toPath());
+                tempEpub = Files.createFile(epubFile.toPath().resolveSibling(epubFile.getName() + ".tmp"));
+                EpubContentWriter.createEpubFromDirectory(tempDir, tempEpub);
 
-                if (!epubFile.delete()) throw new IOException("Could not delete original EPUB");
-                if (!tempEpub.renameTo(epubFile)) throw new IOException("Could not rename temp EPUB");
+                replacementStarted = true;
+                Files.move(tempEpub, epubFile.toPath(), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+                tempEpub = null;
 
                 log.info("Metadata updated in EPUB: {}", epubFile.getName());
             } else {
                 log.info("No changes detected. Skipping EPUB write for: {}", epubFile.getName());
             }
         } catch (Exception e) {
-            if (backupFile.exists()) {
+            if (replacementStarted && backupFile.exists()) {
                 try {
-                    Files.copy(backupFile.toPath(), epubFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                    log.info("Restored EPUB from backup: {}", epubFile.getName());
+                    if (!Files.isRegularFile(epubFile.toPath(), java.nio.file.LinkOption.NOFOLLOW_LINKS)
+                            || Files.mismatch(backupFile.toPath(), epubFile.toPath()) != -1) {
+                        restoreBackup(backupFile.toPath(), epubFile.toPath());
+                        log.info("Restored EPUB from backup: {}", epubFile.getName());
+                    }
                 } catch (IOException io) {
                     keepBackup = true;
                     e.addSuppressed(io);
@@ -263,6 +310,13 @@ public class EpubMetadataWriter implements MetadataWriter {
             if (tempDir != null) {
                 deleteDirectoryRecursively(tempDir);
             }
+            if (tempEpub != null) {
+                try {
+                    Files.deleteIfExists(tempEpub);
+                } catch (IOException ex) {
+                    log.warn("Failed to delete temporary EPUB for {}: {}", epubFile.getName(), ex.getMessage());
+                }
+            }
             if (!keepBackup && backupFile.exists()) {
                 try {
                     Files.delete(backupFile.toPath());
@@ -270,6 +324,21 @@ public class EpubMetadataWriter implements MetadataWriter {
                     log.warn("Failed to delete backup for {}: {}", epubFile.getName(), ex.getMessage());
                 }
             }
+        }
+    }
+
+    private static void restoreBackup(Path backup, Path target) throws IOException {
+        Path temporary = Files.createTempFile(target.toAbsolutePath().getParent(), ".grimmory-restore-", ".tmp");
+        try {
+            Files.copy(backup, temporary, StandardCopyOption.REPLACE_EXISTING);
+            Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            try {
+                Files.deleteIfExists(temporary);
+            } catch (IOException cleanupError) {
+                e.addSuppressed(cleanupError);
+            }
+            throw e;
         }
     }
 
@@ -283,6 +352,41 @@ public class EpubMetadataWriter implements MetadataWriter {
 
     private void replaceAndTrackChange(Document doc, Element parent, String tag, String ns, String val, boolean[] flag) {
         if (replaceElementText(doc, parent, tag, ns, val, false)) flag[0] = true;
+    }
+
+    private void replaceTitleAndTrackChange(Document doc, Element metadata, String value, boolean[] changed) {
+        String dc = "http://purl.org/dc/elements/1.1/";
+        if (value == null) {
+            replaceAndTrackChange(doc, metadata, "title", dc, null, changed);
+            return;
+        }
+
+        List<Element> titles = getChildren(metadata, dc, "title");
+        if (titles.isEmpty()) {
+            replaceAndTrackChange(doc, metadata, "title", dc, value, changed);
+            return;
+        }
+
+        Element selected = titles.getFirst();
+        for (Element meta : getChildren(metadata, OPF_NS, "meta")) {
+            if (!"title-type".equals(meta.getAttribute("property"))
+                    || !"main".equalsIgnoreCase(meta.getTextContent().trim())) {
+                continue;
+            }
+            String refines = meta.getAttribute("refines");
+            Optional<Element> mainTitle = titles.stream()
+                    .filter(title -> !title.getAttribute("id").isEmpty()
+                            && refines.equals("#" + title.getAttribute("id")))
+                    .findFirst();
+            if (mainTitle.isPresent()) {
+                selected = mainTitle.get();
+                break;
+            }
+        }
+        if (!Objects.equals(selected.getTextContent(), value)) {
+            selected.setTextContent(value);
+            changed[0] = true;
+        }
     }
 
     private Optional<Element> getChild(Element parent, String namespaceUri, String tagName) {
@@ -401,6 +505,7 @@ public class EpubMetadataWriter implements MetadataWriter {
 
     void writeCoverToFile(File epubFile, byte[] contents) throws IOException {
         Path tempDir = null;
+        Path tempEpub = null;
         try {
             tempDir = Files.createTempDirectory("epub_cover_" + UUID.randomUUID());
 
@@ -420,11 +525,11 @@ public class EpubMetadataWriter implements MetadataWriter {
             transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
             transformer.transform(new DOMSource(opfDoc), new StreamResult(opfPath.toFile()));
 
-            File tempEpub = new File(epubFile.getParentFile(), epubFile.getName() + ".tmp");
-            EpubContentWriter.createEpubFromDirectory(tempDir, tempEpub.toPath());
+            tempEpub = Files.createFile(epubFile.toPath().resolveSibling(epubFile.getName() + ".tmp"));
+            EpubContentWriter.createEpubFromDirectory(tempDir, tempEpub);
 
-            if (!epubFile.delete()) throw new IOException("Could not delete original EPUB");
-            if (!tempEpub.renameTo(epubFile)) throw new IOException("Could not rename temp EPUB");
+            Files.move(tempEpub, epubFile.toPath(), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            tempEpub = null;
 
             log.info("Cover image updated in EPUB: {}", epubFile.getName());
 
@@ -433,6 +538,13 @@ public class EpubMetadataWriter implements MetadataWriter {
         } finally {
             if (tempDir != null) {
                 deleteDirectoryRecursively(tempDir);
+            }
+            if (tempEpub != null) {
+                try {
+                    Files.deleteIfExists(tempEpub);
+                } catch (IOException ex) {
+                    log.warn("Failed to delete temporary EPUB for {}: {}", epubFile.getName(), ex.getMessage());
+                }
             }
         }
     }
@@ -867,7 +979,8 @@ public class EpubMetadataWriter implements MetadataWriter {
             Element meta = (Element) metas.item(i);
             String property = meta.getAttribute("property");
             String name = meta.getAttribute("name");
-            String key = property.startsWith("booklore:") ? property : (name.startsWith("booklore:") ? name : null);
+            String key = MANAGED_BOOKLORE_METADATA.contains(property) ? property
+                    : (MANAGED_BOOKLORE_METADATA.contains(name) ? name : null);
             if (key != null) {
                 String value = meta.getAttribute("content").isEmpty() ? meta.getTextContent() : meta.getAttribute("content");
                 if (!isEffectivelyZeroOrBlank(value)) {
@@ -949,40 +1062,96 @@ public class EpubMetadataWriter implements MetadataWriter {
         }
     }
 
-    private void removeAllBookloreMetadata(Element metadataElement) {
+    private void removeManagedBookloreMetadata(Element metadataElement) {
         NodeList metas = metadataElement.getElementsByTagNameNS("*", "meta");
         for (int i = metas.getLength() - 1; i >= 0; i--) {
             Element meta = (Element) metas.item(i);
             String property = meta.getAttribute("property");
             String name = meta.getAttribute("name");
-            if (property.startsWith("booklore:") || name.startsWith("booklore:")) {
+            if (MANAGED_BOOKLORE_METADATA.contains(property) || MANAGED_BOOKLORE_METADATA.contains(name)) {
                 metadataElement.removeChild(meta);
             }
         }
     }
 
-    private void replaceBelongsToCollection(Element metadataElement, Document doc, String seriesName, Float seriesNumber, boolean[] hasChanges) {
-        boolean epub3 = isEpub3(doc);
+    private record ExistingSeries(String name, String number, String id) {}
 
-        // Remove existing EPUB3 collection metas
+    private Set<String> seriesCollectionIds(Element metadataElement) {
+        Set<String> references = new HashSet<>();
         NodeList metas = metadataElement.getElementsByTagNameNS("*", "meta");
-        for (int i = metas.getLength() - 1; i >= 0; i--) {
+        for (int i = 0; i < metas.getLength(); i++) {
             Element meta = (Element) metas.item(i);
-            String property = meta.getAttribute("property");
-            String name = meta.getAttribute("name");
-            if ("belongs-to-collection".equals(property) || "collection-type".equals(property) || "group-position".equals(property)) {
-                String id = meta.getAttribute("id");
-                metadataElement.removeChild(meta);
-                if (StringUtils.isNotBlank(id)) {
-                    removeMetaByRefines(metadataElement, "#" + id);
-                }
-            }
-            // Also remove EPUB2-style series metas
-            if ("calibre:series".equals(name) || "calibre:series_index".equals(name)) {
-                metadataElement.removeChild(meta);
+            String refines = meta.getAttribute("refines");
+            if ("collection-type".equals(meta.getAttribute("property"))
+                    && "series".equals(meta.getTextContent().trim())
+                    && refines.startsWith("#") && refines.length() > 1) {
+                references.add(refines.substring(1));
             }
         }
-        
+        Set<String> ids = new HashSet<>();
+        for (int i = 0; i < metas.getLength(); i++) {
+            Element meta = (Element) metas.item(i);
+            if ("belongs-to-collection".equals(meta.getAttribute("property"))
+                    && references.contains(meta.getAttribute("id"))) {
+                ids.add(meta.getAttribute("id"));
+            }
+        }
+        return ids;
+    }
+
+    private ExistingSeries readExistingSeries(Element metadataElement) {
+        Set<String> seriesIds = seriesCollectionIds(metadataElement);
+        NodeList metas = metadataElement.getElementsByTagNameNS("*", "meta");
+        String id = null;
+        String name = null;
+        String number = null;
+        for (int i = 0; i < metas.getLength(); i++) {
+            Element meta = (Element) metas.item(i);
+            if ("belongs-to-collection".equals(meta.getAttribute("property"))
+                    && seriesIds.contains(meta.getAttribute("id"))) {
+                id = meta.getAttribute("id");
+                name = meta.getTextContent();
+                break;
+            }
+        }
+        for (int i = 0; i < metas.getLength(); i++) {
+            Element meta = (Element) metas.item(i);
+            if (id != null && ("#" + id).equals(meta.getAttribute("refines"))
+                    && "group-position".equals(meta.getAttribute("property"))) {
+                number = meta.getTextContent();
+            } else if (id == null && "calibre:series".equals(meta.getAttribute("name"))) {
+                name = meta.getAttribute("content");
+            } else if (id == null && "calibre:series_index".equals(meta.getAttribute("name"))) {
+                number = meta.getAttribute("content");
+            }
+        }
+        return new ExistingSeries(name, number, id);
+    }
+
+    private void replaceBelongsToCollection(Element metadataElement, Document doc, String seriesName,
+                                            String seriesNumber, String previousSeriesId, boolean[] hasChanges) {
+        boolean epub3 = isEpub3(doc);
+        if (epub3 && previousSeriesId != null && StringUtils.isNotBlank(seriesName)) {
+            updateExistingSeries(metadataElement, doc, previousSeriesId, seriesName, seriesNumber);
+            hasChanges[0] = true;
+            return;
+        }
+        NodeList metas = metadataElement.getElementsByTagNameNS("*", "meta");
+        List<Element> remove = new ArrayList<>();
+        for (int i = 0; i < metas.getLength(); i++) {
+            Element meta = (Element) metas.item(i);
+            String name = meta.getAttribute("name");
+            if (("belongs-to-collection".equals(meta.getAttribute("property"))
+                    && previousSeriesId != null && previousSeriesId.equals(meta.getAttribute("id")))
+                    || "calibre:series".equals(name) || "calibre:series_index".equals(name)) {
+                remove.add(meta);
+            }
+        }
+        if (!remove.isEmpty()) {
+            removeMetasAndRefinements(metadataElement, remove);
+            hasChanges[0] = true;
+        }
+
         if (StringUtils.isNotBlank(seriesName)) {
             if (epub3) {
                 // EPUB3: use belongs-to-collection with refines
@@ -1002,16 +1171,12 @@ public class EpubMetadataWriter implements MetadataWriter {
                 typeMeta.setTextContent("series");
                 metadataElement.appendChild(typeMeta);
 
-                if (seriesNumber != null && seriesNumber > 0) {
+                if (StringUtils.isNotBlank(seriesNumber)) {
                     Element positionMeta = doc.createElementNS(OPF_NS, "meta");
                     positionMeta.setPrefix("opf");
                     positionMeta.setAttribute("property", "group-position");
                     positionMeta.setAttribute("refines", "#" + collectionId);
-                    if (seriesNumber % 1.0f == 0) {
-                        positionMeta.setTextContent(String.format("%.0f", seriesNumber));
-                    } else {
-                        positionMeta.setTextContent(String.valueOf(seriesNumber));
-                    }
+                    positionMeta.setTextContent(seriesNumber);
                     metadataElement.appendChild(positionMeta);
                 }
             } else {
@@ -1021,20 +1186,70 @@ public class EpubMetadataWriter implements MetadataWriter {
                 seriesMeta.setAttribute("content", seriesName);
                 metadataElement.appendChild(seriesMeta);
 
-                if (seriesNumber != null && seriesNumber > 0) {
+                if (StringUtils.isNotBlank(seriesNumber)) {
                     Element indexMeta = doc.createElementNS(doc.getDocumentElement().getNamespaceURI(), "meta");
                     indexMeta.setAttribute("name", "calibre:series_index");
-                    if (seriesNumber % 1.0f == 0) {
-                        indexMeta.setAttribute("content", String.format("%.0f", seriesNumber));
-                    } else {
-                        indexMeta.setAttribute("content", String.valueOf(seriesNumber));
-                    }
+                    indexMeta.setAttribute("content", seriesNumber);
                     metadataElement.appendChild(indexMeta);
                 }
             }
             
             hasChanges[0] = true;
         }
+    }
+
+    private void updateExistingSeries(Element metadataElement, Document doc, String id, String name, String number) {
+        NodeList metas = metadataElement.getElementsByTagNameNS("*", "meta");
+        List<Element> remove = new ArrayList<>();
+        boolean foundPosition = false;
+        for (int i = 0; i < metas.getLength(); i++) {
+            Element meta = (Element) metas.item(i);
+            if ("belongs-to-collection".equals(meta.getAttribute("property")) && id.equals(meta.getAttribute("id"))) {
+                meta.setTextContent(name);
+            } else if (("#" + id).equals(meta.getAttribute("refines"))
+                    && "group-position".equals(meta.getAttribute("property"))) {
+                if (StringUtils.isNotBlank(number)) {
+                    meta.setTextContent(number);
+                    foundPosition = true;
+                } else {
+                    remove.add(meta);
+                }
+            } else if ("calibre:series".equals(meta.getAttribute("name"))
+                    || "calibre:series_index".equals(meta.getAttribute("name"))) {
+                remove.add(meta);
+            }
+        }
+        removeMetasAndRefinements(metadataElement, remove);
+        if (!foundPosition && StringUtils.isNotBlank(number)) {
+            Element position = doc.createElementNS(OPF_NS, "meta");
+            position.setPrefix("opf");
+            position.setAttribute("property", "group-position");
+            position.setAttribute("refines", "#" + id);
+            position.setTextContent(number);
+            metadataElement.appendChild(position);
+        }
+    }
+
+    private void removeMetasAndRefinements(Element metadataElement, List<Element> remove) {
+        Set<String> removedIds = remove.stream().map(meta -> meta.getAttribute("id"))
+                .filter(StringUtils::isNotBlank).collect(Collectors.toSet());
+        NodeList metas = metadataElement.getElementsByTagNameNS("*", "meta");
+        boolean found;
+        do {
+            found = false;
+            for (int i = 0; i < metas.getLength(); i++) {
+                Element meta = (Element) metas.item(i);
+                String refines = meta.getAttribute("refines");
+                if (refines.startsWith("#") && removedIds.contains(refines.substring(1)) && !remove.contains(meta)) {
+                    remove.add(meta);
+                    if (StringUtils.isNotBlank(meta.getAttribute("id"))) {
+                        removedIds.add(meta.getAttribute("id"));
+                    }
+                    found = true;
+                }
+            }
+        } while (found);
+        remove.forEach(metadataElement::removeChild);
     }
 
     private void addSubtitleToTitle(Element metadataElement, Document doc, String subtitle) {
@@ -1099,7 +1314,7 @@ public class EpubMetadataWriter implements MetadataWriter {
             }
         }
         
-        removeAllBookloreMetadata(metadataElement);
+        removeManagedBookloreMetadata(metadataElement);
         
         if (StringUtils.isNotBlank(metadata.getSubtitle())) {
             metadataElement.appendChild(createBookloreMetaElement(doc, "subtitle", metadata.getSubtitle(), epub3));

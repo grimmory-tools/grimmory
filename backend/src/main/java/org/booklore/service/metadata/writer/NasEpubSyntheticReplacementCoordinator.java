@@ -10,6 +10,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 public final class NasEpubSyntheticReplacementCoordinator {
@@ -103,7 +104,7 @@ public final class NasEpubSyntheticReplacementCoordinator {
                 }
                 if (row.status() == Status.PENDING) {
                     expect(call(() -> agent.applyReplacement(request)), operationId, NasEpubSyntheticReplacement.State.APPLIED);
-                    databaseChanges.run();
+                    gate.runAsOwner(operationId, databaseChanges);
                     update(operationId, Status.PENDING, Status.COMMITTED);
                 }
             });
@@ -170,6 +171,15 @@ public final class NasEpubSyntheticReplacementCoordinator {
     public Status status(UUID operationId) {
         Objects.requireNonNull(operationId);
         return required(operationId, false).status();
+    }
+
+    Optional<Status> statusIfExists(UUID operationId) {
+        Row row = find(Objects.requireNonNull(operationId), false);
+        return row == null ? Optional.empty() : Optional.of(row.status());
+    }
+
+    JdbcTemplate decisionJdbc() {
+        return jdbc;
     }
 
     public int recoverAbandoned(int limit) {

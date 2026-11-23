@@ -52,6 +52,8 @@ import org.booklore.service.metadata.MetadataRefreshService;
 import org.booklore.service.metadata.extractor.CbxMetadataExtractor;
 import org.booklore.service.metadata.extractor.MetadataExtractorFactory;
 import org.booklore.service.fileprocessor.BookFileProcessorRegistry;
+import org.booklore.service.library.BookCoverGenerator;
+import org.booklore.service.library.BookGroupProcessor;
 import org.booklore.service.metadata.sidecar.SidecarMetadataMapper;
 import org.booklore.service.metadata.sidecar.SidecarMetadataReader;
 import org.booklore.service.metadata.sidecar.SidecarMetadataWriter;
@@ -103,6 +105,10 @@ class NasEpubSyntheticAttachmentCoordinationTest {
     private BookdropMonitoringService bookdropMonitoring;
     private NasEpubSyntheticReplacementCoordinator coordinator;
     private TransactionTemplate transactions;
+    private BookGroupProcessor bookGroups;
+    private LibraryRepository groupLibraries;
+    private BookFileMutationGuard guard;
+    private DataSourceTransactionManager transactionManager;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -112,6 +118,7 @@ class NasEpubSyntheticAttachmentCoordinationTest {
         new ResourceDatabasePopulator(new ClassPathResource("db/nas-synthetic-job.sql")).execute(source);
         var jdbc = new JdbcTemplate(source);
         var manager = new DataSourceTransactionManager(source);
+        transactionManager = manager;
         transactions = new TransactionTemplate(manager);
         var agent = mock(NasEpubSyntheticReplacementCoordinator.Agent.class);
         when(agent.prepareReplacement(any())).thenAnswer(invocation -> {
@@ -124,8 +131,12 @@ class NasEpubSyntheticAttachmentCoordinationTest {
         });
         coordinator = new NasEpubSyntheticReplacementCoordinator(jdbc, manager, agent);
         var gate = new NasEpubSyntheticWriteGate(jdbc);
-        var guard = new BookFileMutationGuard(List.of(gate::requireAvailable));
+        guard = new BookFileMutationGuard(List.of(gate::requireAvailable));
         books = mock(BookRepository.class);
+        groupLibraries = mock(LibraryRepository.class);
+        bookGroups = new BookGroupProcessor(groupLibraries, books, mock(BookAdditionalFileRepository.class),
+                mock(BookFileProcessorRegistry.class), mock(BookCoverGenerator.class),
+                mock(ApplicationEventPublisher.class), guard);
         attachment = attachment(guard);
         detachment = new BookFileDetachmentService(books, mock(BookFileRepository.class),
                 mock(UserBookProgressRepository.class), mock(AuthenticationService.class),
@@ -158,6 +169,72 @@ class NasEpubSyntheticAttachmentCoordinationTest {
                 mock(BookFileProcessorRegistry.class), mock(AppProperties.class), mock(BookdropFileMapper.class),
                 mock(tools.jackson.databind.ObjectMapper.class), mock(FileMovingHelper.class),
                 mock(MonitoringRegistrationService.class), mock(ApplicationEventPublisher.class), guard);
+    }
+
+    @Test
+    void reservedWorkRejectsBookGroupsBeforeReadingLibrary() {
+        var request = request();
+        coordinator.prepareAndEnqueue(request);
+
+        assertThatThrownBy(() -> transactions.executeWithoutResult(status -> bookGroups.process(List.of(), 1L)))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("reserved");
+        verifyNoInteractions(groupLibraries, books);
+
+        coordinator.abort(request.operationId());
+        assertThatThrownBy(() -> transactions.executeWithoutResult(status -> bookGroups.process(List.of(), 1L)))
+                .isInstanceOf(APIException.class);
+        verify(groupLibraries).findById(1L);
+    }
+
+    @Test
+    void bookGroupsRejectNestedIndependentGateWithoutDeadlock() {
+        var nested = new TransactionTemplate(transactionManager);
+        nested.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+
+        assertThatThrownBy(() -> transactions.executeWithoutResult(status -> {
+            guard.beforeMutation();
+            nested.executeWithoutResult(inner -> bookGroups.process(List.of(), 1L));
+        })).isInstanceOf(IllegalStateException.class).hasMessageContaining("nested independent");
+        verifyNoInteractions(groupLibraries, books);
+
+        assertThatThrownBy(() -> transactions.executeWithoutResult(status -> bookGroups.process(List.of(), 1L)))
+                .isInstanceOf(APIException.class);
+        verify(groupLibraries).findById(1L);
+    }
+
+    @Test
+    void bookGroupTransactionBlocksNewReservationUntilItEnds() throws Exception {
+        var entered = new CountDownLatch(1);
+        var release = new CountDownLatch(1);
+        var prepareStarted = new CountDownLatch(1);
+        var job = request();
+        when(groupLibraries.findById(anyLong())).thenAnswer(invocation -> {
+            entered.countDown();
+            if (!release.await(10, TimeUnit.SECONDS)) {
+                throw new IllegalStateException("Timed out waiting for test release");
+            }
+            return Optional.empty();
+        });
+        try (var pool = Executors.newFixedThreadPool(2)) {
+            try {
+                var processing = pool.submit(() -> assertThatThrownBy(() -> transactions.executeWithoutResult(
+                        status -> bookGroups.process(List.of(), 1L))).isInstanceOf(APIException.class));
+                assertThat(entered.await(5, TimeUnit.SECONDS)).isTrue();
+                var preparing = pool.submit(() -> {
+                    prepareStarted.countDown();
+                    return coordinator.prepareAndEnqueue(job);
+                });
+                assertThat(prepareStarted.await(5, TimeUnit.SECONDS)).isTrue();
+                assertThatThrownBy(() -> preparing.get(300, TimeUnit.MILLISECONDS)).isInstanceOf(TimeoutException.class);
+                release.countDown();
+                processing.get(10, TimeUnit.SECONDS);
+                assertThat(preparing.get(10, TimeUnit.SECONDS))
+                        .isEqualTo(NasEpubSyntheticReplacementCoordinator.Status.PENDING);
+                coordinator.abort(job.operationId());
+            } finally {
+                release.countDown();
+            }
+        }
     }
 
     @Test
