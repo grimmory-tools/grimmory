@@ -179,7 +179,7 @@ class LibraryRescanHelperTest {
         verify(bookMetadataUpdater, times(1)).setBookMetadata(any(MetadataUpdateContext.class));
         verify(bookCoverService).regenerateCoversFromBookFiles(book1, MetadataReplaceMode.REPLACE_ALL);
         verify(bookCoverService).regenerateCoversFromBookFiles(book2, MetadataReplaceMode.REPLACE_ALL);
-        verify(bookCoverService).saveRegeneratedCovers(List.of(book1));
+        verify(bookCoverService).saveUpdatedCovers(List.of(book1));
     }
 
     @Test
