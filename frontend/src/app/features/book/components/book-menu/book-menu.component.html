@@ -19,12 +19,10 @@
       <app-menu-item value="download" (selected)="onDownload()">{{ 'book.menu.download' | transloco }}</app-menu-item>
     }
   }
-  @if (actionPermissions().canEditMetadata) {
+  @if (hasMetadataActions()) {
     <app-menu-item value="metadata" [submenu]="metadataMenu">{{ 'book.menu.metadata' | transloco }}</app-menu-item>
   }
-  @if (hasMoreActions()) {
-    <app-menu-item value="more" [submenu]="moreMenu">{{ 'book.menu.more' | transloco }}</app-menu-item>
-  }
+  <app-menu-item value="more" [submenu]="moreMenu">{{ 'book.menu.more' | transloco }}</app-menu-item>
   @if (actionPermissions().canDeleteBook) {
     <app-menu-separator />
     @if (additionalFiles().length > 0) {
@@ -58,12 +56,8 @@
   @if (canOrganizeFile()) {
     <app-menu-item value="organize-file" (selected)="onOrganizeFile()">{{ 'book.menu.organizeFile' | transloco }}</app-menu-item>
   }
-  @if (actionPermissions().canResetGrimmoryProgress) {
-    <app-menu-item value="reset-grimmory-progress" (selected)="onResetProgress('GRIMMORY')">{{ 'book.menu.resetGrimmoryProgress' | transloco }}</app-menu-item>
-  }
-  @if (actionPermissions().canResetKoreaderProgress) {
-    <app-menu-item value="reset-koreader-progress" (selected)="onResetProgress('KOREADER')">{{ 'book.menu.resetKoreaderProgress' | transloco }}</app-menu-item>
-  }
+  <app-menu-item value="reset-grimmory-progress" (selected)="onResetProgress('GRIMMORY')">{{ 'book.menu.resetGrimmoryProgress' | transloco }}</app-menu-item>
+  <app-menu-item value="reset-koreader-progress" (selected)="onResetProgress('KOREADER')">{{ 'book.menu.resetKoreaderProgress' | transloco }}</app-menu-item>
 </app-menu>
 
 <ng-template #fileLabel let-file>
@@ -106,20 +100,28 @@
 </app-menu>
 
 <app-menu #metadataMenu="ngMenu" [ariaLabel]="'book.menu.metadata' | transloco">
-  <app-menu-item value="edit-metadata" (selected)="onEditMetadata()">{{ 'book.menu.editMetadata' | transloco }}</app-menu-item>
-  <app-menu-separator />
-  <app-menu-item value="refresh-metadata" (selected)="onFetchMetadata()">{{ 'book.menu.fetchMetadata' | transloco }}</app-menu-item>
-  <app-menu-item value="refresh-metadata-with-options" (selected)="onFetchMetadataWithOptions()">{{ 'book.menu.fetchMetadataWithOptions' | transloco }}</app-menu-item>
-  <app-menu-item value="search-providers" (selected)="onSearchMetadata()">{{ 'book.menu.searchProviders' | transloco }}</app-menu-item>
-  <app-menu-separator />
-  <app-menu-item value="restore-cover" (selected)="onChangeCovers('regenerate')">{{ 'book.menu.restoreCover' | transloco }}</app-menu-item>
-  <app-menu-item value="generate-cover" (selected)="onChangeCovers('generate')">{{ 'book.menu.generateCover' | transloco }}</app-menu-item>
-  <app-menu-separator />
-  <app-menu-checkbox
-    value="lock-metadata"
-    [(checked)]="metadataLocked"
-    [disabled]="metadataLockPending()"
-    (selected)="onMetadataLockChange($event)">
-    {{ 'book.menu.lockMetadata' | transloco }}
-  </app-menu-checkbox>
+  @if (actionPermissions().canEditMetadata) {
+    <app-menu-item value="edit-metadata" (selected)="onEditMetadata()">{{ 'book.menu.editMetadata' | transloco }}</app-menu-item>
+    <app-menu-separator />
+    <app-menu-item value="refresh-metadata" (selected)="onFetchMetadata()">{{ 'book.menu.fetchMetadata' | transloco }}</app-menu-item>
+    <app-menu-item value="refresh-metadata-with-options" (selected)="onFetchMetadataWithOptions()">{{ 'book.menu.fetchMetadataWithOptions' | transloco }}</app-menu-item>
+    <app-menu-item value="search-providers" (selected)="onSearchMetadata()">{{ 'book.menu.searchProviders' | transloco }}</app-menu-item>
+    <app-menu-separator />
+    @if (digital()) {
+      <app-menu-item value="restore-cover" (selected)="onChangeCovers('regenerate')">{{ 'book.menu.restoreCover' | transloco }}</app-menu-item>
+    }
+    <app-menu-item value="generate-cover" (selected)="onChangeCovers('generate')">{{ 'book.menu.generateCover' | transloco }}</app-menu-item>
+  }
+  @if (actionPermissions().canEditMetadata && actionPermissions().canLockUnlockMetadata) {
+    <app-menu-separator />
+  }
+  @if (actionPermissions().canLockUnlockMetadata) {
+    <app-menu-checkbox
+      value="lock-metadata"
+      [(checked)]="metadataLocked"
+      [disabled]="metadataLockPending()"
+      (selected)="onMetadataLockChange($event)">
+      {{ 'book.menu.lockMetadata' | transloco }}
+    </app-menu-checkbox>
+  }
 </app-menu>

@@ -25,9 +25,8 @@ const ALL_PERMISSIONS: Permissions = {
   canDownload: true,
   canEmailBook: true,
   canEditMetadata: true,
+  canBulkLockUnlockMetadata: true,
   canDeleteBook: true,
-  canBulkResetGrimmoryReadProgress: true,
-  canBulkResetKoReaderReadProgress: true,
   canMoveOrganizeFiles: true,
 };
 
@@ -47,10 +46,14 @@ describe('BookMenuComponent row gating', () => {
   let element: HTMLElement;
   let permissions: WritableSignal<Permissions>;
   let diskType: WritableSignal<string>;
+  let regenerateCover: ReturnType<typeof vi.fn>;
+  let generateCover: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     permissions = signal(NO_PERMISSIONS);
     diskType = signal('LOCAL');
+    regenerateCover = vi.fn(() => Promise.resolve());
+    generateCover = vi.fn(() => Promise.resolve());
     const harness = createQueryClientHarness();
 
     TestBed.configureTestingModule({
@@ -67,8 +70,8 @@ describe('BookMenuComponent row gating', () => {
           deleteAdditionalFile: () => ({mutationFn: () => Promise.resolve({bookId: 1, fileId: 10})}),
           setAllMetadataLocks: () => ({mutationFn: () => Promise.reject(new Error('failed'))}),
           resetProgress: () => ({mutationFn: () => Promise.resolve([])}),
-          bulkRegenerateCovers: () => ({mutationFn: () => Promise.resolve()}),
-          bulkGenerateCovers: () => ({mutationFn: () => Promise.resolve()}),
+          regenerateCover: () => ({mutationFn: regenerateCover}),
+          generateCover: () => ({mutationFn: generateCover}),
           quickSend: () => ({mutationFn: () => Promise.resolve()}),
         }},
         {provide: ShelfCommandService, useValue: {
@@ -122,7 +125,7 @@ describe('BookMenuComponent row gating', () => {
   }
 
   it('gates each row on permissions', () => {
-    expect(rowLabels()).toEqual(['Read Book', 'Open Details in New Tab', 'Add to Shelf', 'Mark as']);
+    expect(rowLabels()).toEqual(['Read Book', 'Open Details in New Tab', 'Add to Shelf', 'Mark as', 'More']);
 
     permissions.set(ALL_PERMISSIONS);
     expect(rowLabels()).toEqual([
@@ -137,9 +140,35 @@ describe('BookMenuComponent row gating', () => {
       'Delete',
     ]);
 
-    permissions.set({...ALL_PERMISSIONS, canBulkResetGrimmoryReadProgress: false, canBulkResetKoReaderReadProgress: false, canMoveOrganizeFiles: false});
+    permissions.set({...ALL_PERMISSIONS, canMoveOrganizeFiles: false});
     fixture.componentRef.setInput('openInNewTab', false);
-    expect(rowLabels()).toEqual(['Read Book', 'Add to Shelf', 'Mark as', 'Send', 'Download', 'Metadata', 'Delete']);
+    expect(rowLabels()).toEqual(['Read Book', 'Add to Shelf', 'Mark as', 'Send', 'Download', 'Metadata', 'More', 'Delete']);
+  });
+
+  it('uses single-book cover commands matching the book formats', async () => {
+    permissions.set({canEditMetadata: true});
+
+    fixture.componentInstance['onChangeCovers']('regenerate');
+    await vi.waitFor(() => expect(regenerateCover).toHaveBeenCalledWith({bookId: 1, target: 'ebook'}, expect.anything()));
+
+    regenerateCover.mockClear();
+    showBook(makeBook({
+      primaryFile: {id: 10, bookId: 1, book: true, folderBased: false, bookType: 'EPUB'},
+      alternativeFormats: [{id: 11, bookId: 1, book: true, folderBased: false, bookType: 'AUDIOBOOK'}],
+    }));
+    fixture.componentInstance['onChangeCovers']('generate');
+    await vi.waitFor(() => expect(generateCover).toHaveBeenCalledTimes(2));
+    expect(generateCover.mock.calls.map(call => call[0])).toEqual([
+      {bookId: 1, target: 'ebook'},
+      {bookId: 1, target: 'audiobook'},
+    ]);
+
+    generateCover.mockClear();
+    showBook(makeBook({primaryFile: undefined, alternativeFormats: []}));
+    expect(submenuLabels('Metadata')).not.toContain('Restore Cover from File');
+    expect(submenuLabels('Metadata')).toContain('Generate Cover from Title');
+    fixture.componentInstance['onChangeCovers']('generate');
+    await vi.waitFor(() => expect(generateCover).toHaveBeenCalledWith({bookId: 1, target: 'ebook'}, expect.anything()));
   });
 
   it('drops Send and Download without a digital file, keeping them for any format', () => {
