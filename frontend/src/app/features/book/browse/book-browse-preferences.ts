@@ -15,7 +15,6 @@ import {
   entityViewSortPatch,
   findEntityViewPreferenceOverride,
   upsertEntityViewPreference,
-  type EntityViewPreferenceContext,
 } from '../../settings/user-management/entity-view-preferences';
 import {browseSortCriteria} from '../../../shared/browse/sort';
 import {
@@ -31,15 +30,21 @@ import {
   type BookBrowseColumnVisibilityChange,
 } from './book-browse-columns';
 import {injectHiddenProviderFieldKeys, type BookDetailLineSortKey} from './book-browse-fields';
+import {type BookBrowsePreferenceContext} from './book-browse-scope';
 import {bookCardDetailOptions, bookSortTermsFromCriteria} from './book-browse-sort';
 import {type BrowseUrlState, type BrowseViewMode} from '../../../shared/browse/url-state';
 
 export interface BookBrowsePreferencesOptions {
-  readonly context: Signal<EntityViewPreferenceContext | null>;
+  readonly context: Signal<BookBrowsePreferenceContext>;
   readonly urlState: BrowseUrlState<BookQueryFacetKey, BookQuerySortKey>;
 }
 
-export function createBookBrowsePreferences({context, urlState}: BookBrowsePreferencesOptions) {
+export function createBookBrowsePreferences({context: pageContext, urlState}: BookBrowsePreferencesOptions) {
+  const context = computed(() => {
+    const current = pageContext();
+    return typeof current === 'string' ? null : current;
+  });
+  const savesPreferences = computed(() => pageContext() !== 'none');
   const userService = inject(UserService);
   const messages = inject(MessageService);
   const transloco = inject(TranslocoService);
@@ -101,7 +106,7 @@ export function createBookBrowsePreferences({context, urlState}: BookBrowsePrefe
 
   function updateViewPreference(patch: Partial<EntityViewPreference>): void {
     const user = userService.currentUser();
-    if (!user) {
+    if (!user || !savesPreferences()) {
       return;
     }
     const preferences = upsertEntityViewPreference(
@@ -113,6 +118,7 @@ export function createBookBrowsePreferences({context, urlState}: BookBrowsePrefe
   }
 
   return {
+    savesPreferences,
     viewMode,
     formatPill,
     cardDetail,

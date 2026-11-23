@@ -18,7 +18,7 @@
       [densityLargerDisabled]="page.density.largerDisabled()"
       [filtersOpen]="page.rail.visible()"
       [actionTarget]="labels.actionTarget()"
-      [saveDefaultFor]="labels.title()"
+      [saveDefaultFor]="preferences.savesPreferences() ? labels.title() : undefined"
       (sortTermsChange)="page.setSortTerms($event)"
       (shuffleRequested)="page.shuffle()"
       (sortDefaultSaved)="preferences.saveSortDefault($event)"

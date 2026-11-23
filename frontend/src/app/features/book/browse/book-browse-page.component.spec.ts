@@ -336,6 +336,23 @@ describe('BookBrowsePageComponent', () => {
     expect(libraryPage.detailLineFor(dated)).toBeNull();
   });
 
+  it('applies card detail and series collapse on unshelved books without saving them', async () => {
+    currentUser.set(userFixture({}, 5));
+    const routerHarness = await routeTo('/unshelved-books');
+    flushFacetRegistry();
+    http.expectOne(candidate => candidate.url === PAGE_URL).flush(bookPage([1], 1));
+    await flushQueryAsync();
+    const pageElement = routerHarness.routeDebugElement!;
+    const unshelvedPage = pageElement.componentInstance as PageHarness;
+    const toolbar = pageElement.query(By.css('app-book-browse-toolbar')).componentInstance;
+
+    toolbar.cardDetail.set('addedOn');
+    expect(unshelvedPage.detailLineFor({...book(1), addedOn: '2026-02-14T10:00:00Z'})).toContain('2026');
+    toolbar.collapseSeries.set(true);
+
+    expect(updateUserSetting).not.toHaveBeenCalled();
+  });
+
   it('ignores reselecting the active sort and flips only the primary term on a direction toggle', async () => {
     fixture = TestBed.createComponent(BookBrowsePageComponent);
     await TestBed.inject(Router).navigate([], {queryParams: {sort: 'pageCount'}});

@@ -75,7 +75,7 @@ export class BookBrowseToolbarComponent {
   readonly densityLargerDisabled = input.required<boolean>();
   readonly filtersOpen = input.required<boolean>();
   readonly actionTarget = input.required<LibraryShelfMenuTarget | null>();
-  readonly saveDefaultFor = input.required<string>();
+  readonly saveDefaultFor = input<string>();
 
   readonly shuffleRequested = output();
   readonly sortDefaultSaved = output<readonly BookSortTerm[]>();
