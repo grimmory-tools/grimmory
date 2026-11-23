@@ -95,17 +95,18 @@ class BookMetadataUpdaterTest {
     }
 
     private void mockSettingsAndChangeDetector(MockedStatic<MetadataChangeDetector> mcd, boolean hasDiff, boolean hasValueChanges) {
+        stubPersistenceSettings();
+        mcd.when(() -> MetadataChangeDetector.isDifferent(any(), any(), any(), anyBoolean())).thenReturn(hasDiff);
+        mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any(), anyBoolean())).thenReturn(false);
+    }
+
+    private void stubPersistenceSettings() {
         MetadataPersistenceSettings settings = MetadataPersistenceSettings.builder()
                 .saveToOriginalFile(MetadataPersistenceSettings.SaveToOriginalFile.builder().build())
                 .build();
         when(appSettingService.getAppSettings()).thenReturn(
                 AppSettings.builder().metadataPersistenceSettings(settings).build());
         when(sidecarMetadataWriter.isWriteOnUpdateEnabled()).thenReturn(false);
-
-        mcd.when(() -> MetadataChangeDetector.isDifferent(any(), any(), any())).thenReturn(hasDiff);
-        mcd.when(() -> MetadataChangeDetector.hasValueChanges(any(), any(), any())).thenReturn(hasValueChanges);
-        mcd.when(() -> MetadataChangeDetector.hasLockChanges(any(), any())).thenReturn(false);
-        mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any())).thenReturn(false);
     }
 
     @Test
@@ -126,8 +127,7 @@ class BookMetadataUpdaterTest {
         MetadataUpdateContext context = buildContext(newMeta, MetadataReplaceMode.REPLACE_ALL);
 
         try (MockedStatic<MetadataChangeDetector> mcd = mockStatic(MetadataChangeDetector.class)) {
-            mcd.when(() -> MetadataChangeDetector.isDifferent(any(), any(), any())).thenReturn(false);
-            mcd.when(() -> MetadataChangeDetector.hasValueChanges(any(), any(), any())).thenReturn(false);
+            mcd.when(() -> MetadataChangeDetector.isDifferent(any(), any(), any(), anyBoolean())).thenReturn(false);
 
             updater.setBookMetadata(context);
 
@@ -136,36 +136,31 @@ class BookMetadataUpdaterTest {
     }
 
     @Test
-    void setBookMetadata_skipsWhenAllFieldsLockedAndHasValueChanges() {
-        metadataEntity.applyLockToAllFields(true);
-        BookMetadata newMeta = BookMetadata.builder().title("New Title").build();
-        MetadataUpdateContext context = buildContext(newMeta, MetadataReplaceMode.REPLACE_ALL);
-
-        try (MockedStatic<MetadataChangeDetector> mcd = mockStatic(MetadataChangeDetector.class)) {
-            mcd.when(() -> MetadataChangeDetector.isDifferent(any(), any(), any())).thenReturn(true);
-            mcd.when(() -> MetadataChangeDetector.hasValueChanges(any(), any(), any())).thenReturn(true);
-            mcd.when(() -> MetadataChangeDetector.hasLockChanges(any(), any())).thenReturn(false);
-
-            updater.setBookMetadata(context);
-
-            verify(bookRepository, never()).save(any());
-        }
-    }
-
-    @Test
-    void setBookMetadata_proceedsWhenAllLockedButHasLockChanges() {
+    void setBookMetadata_skipsWhenAllFieldsLockedOnAutomatedUpdate() {
         metadataEntity.applyLockToAllFields(true);
         BookMetadata newMeta = BookMetadata.builder().title("New Title").titleLocked(false).build();
         MetadataUpdateContext context = buildContext(newMeta, MetadataReplaceMode.REPLACE_ALL);
 
-        try (MockedStatic<MetadataChangeDetector> mcd = mockStatic(MetadataChangeDetector.class)) {
-            mockSettingsAndChangeDetector(mcd, true, true);
-            mcd.when(() -> MetadataChangeDetector.hasLockChanges(any(), any())).thenReturn(true);
+        updater.setBookMetadata(context);
 
-            updater.setBookMetadata(context);
+        verify(bookRepository, never()).save(any());
+        assertThat(metadataEntity.getTitle()).isEqualTo("Original Title");
+        assertThat(metadataEntity.getTitleLocked()).isTrue();
+    }
 
-            verify(bookRepository).save(bookEntity);
-        }
+    @Test
+    void setBookMetadata_proceedsWhenAllLockedOnUserEdit() {
+        stubPersistenceSettings();
+        metadataEntity.applyLockToAllFields(true);
+        BookMetadata newMeta = BookMetadata.builder().title("New Title").titleLocked(false).build();
+        MetadataUpdateContext context = buildContext(newMeta, MetadataReplaceMode.REPLACE_ALL);
+        context.setUserEdit(true);
+
+        updater.setBookMetadata(context);
+
+        verify(bookRepository).save(bookEntity);
+        assertThat(metadataEntity.getTitle()).isEqualTo("New Title");
+        assertThat(metadataEntity.getTitleLocked()).isFalse();
     }
 
     @Test
@@ -570,6 +565,7 @@ class BookMetadataUpdaterTest {
     void setBookMetadata_updatesLocks() {
         BookMetadata newMeta = BookMetadata.builder().title("T").titleLocked(true).publisherLocked(false).build();
         MetadataUpdateContext context = buildContext(newMeta, MetadataReplaceMode.REPLACE_ALL);
+        context.setUserEdit(true);
 
         try (MockedStatic<MetadataChangeDetector> mcd = mockStatic(MetadataChangeDetector.class)) {
             mockSettingsAndChangeDetector(mcd, true, true);
@@ -579,6 +575,74 @@ class BookMetadataUpdaterTest {
             assertThat(metadataEntity.getTitleLocked()).isTrue();
             assertThat(metadataEntity.getPublisherLocked()).isFalse();
         }
+    }
+
+    @Test
+    void setBookMetadata_userEditUpdatesLockedFieldAndKeepsItsLock() {
+        stubPersistenceSettings();
+        metadataEntity.setTitleLocked(true);
+        BookMetadata newMeta = BookMetadata.builder().title("Edited Title")
+                .authors(List.of()).categories(Set.of()).moods(Set.of()).tags(Set.of()).build();
+        MetadataUpdateContext context = buildContext(newMeta, MetadataReplaceMode.REPLACE_ALL);
+        context.setUserEdit(true);
+
+        updater.setBookMetadata(context);
+
+        assertThat(metadataEntity.getTitle()).isEqualTo("Edited Title");
+        assertThat(metadataEntity.getTitleLocked()).isTrue();
+    }
+
+    @Test
+    void setBookMetadata_importSkipsLockedField() {
+        stubPersistenceSettings();
+        metadataEntity.setTitleLocked(true);
+        BookMetadata newMeta = BookMetadata.builder().title("Imported Title").publisher("Imported Publisher").build();
+
+        updater.setBookMetadata(buildContext(newMeta, MetadataReplaceMode.REPLACE_ALL));
+
+        assertThat(metadataEntity.getTitle()).isEqualTo("Original Title");
+        assertThat(metadataEntity.getPublisher()).isEqualTo("Imported Publisher");
+    }
+
+    @Test
+    void setBookMetadata_importDoesNotChangeLocks() {
+        stubPersistenceSettings();
+        metadataEntity.setTitleLocked(true);
+        metadataEntity.setPublisherLocked(false);
+        BookMetadata newMeta = BookMetadata.builder().publisher("Imported Publisher").titleLocked(false).publisherLocked(true).build();
+
+        updater.setBookMetadata(buildContext(newMeta, MetadataReplaceMode.REPLACE_ALL));
+
+        assertThat(metadataEntity.getPublisher()).isEqualTo("Imported Publisher");
+        assertThat(metadataEntity.getTitleLocked()).isTrue();
+        assertThat(metadataEntity.getPublisherLocked()).isFalse();
+    }
+
+    @Test
+    void setBookMetadata_importWithOnlyLockedFieldsAndLockedCoverDoesNotSave() {
+        metadataEntity.setTitleLocked(true);
+        metadataEntity.setCoverLocked(true);
+        BookMetadata newMeta = BookMetadata.builder()
+                .title("Imported Title")
+                .thumbnailUrl("https://example.com/cover.jpg")
+                .authors(List.of()).categories(Set.of()).moods(Set.of()).tags(Set.of())
+                .build();
+        MetadataUpdateContext context = MetadataUpdateContext.builder()
+                .bookEntity(bookEntity)
+                .metadataUpdateWrapper(MetadataUpdateWrapper.builder()
+                        .metadata(newMeta)
+                        .clearFlags(new MetadataClearFlags())
+                        .build())
+                .updateThumbnail(true)
+                .replaceMode(MetadataReplaceMode.REPLACE_ALL)
+                .build();
+
+        updater.setBookMetadata(context);
+
+        verify(bookRepository, never()).save(any());
+        verify(metadataWriterFactory, never()).getWriter(any());
+        assertThat(metadataEntity.getTitle()).isEqualTo("Original Title");
+        assertThat(metadataEntity.getTitleLocked()).isTrue();
     }
 
     @Test
@@ -1013,6 +1077,7 @@ class BookMetadataUpdaterTest {
             ComicMetadata comicDto = ComicMetadata.builder().issueNumberLocked(true).build();
             BookMetadata newMeta = BookMetadata.builder().title("T").comicMetadata(comicDto).build();
             MetadataUpdateContext context = buildContext(newMeta, MetadataReplaceMode.REPLACE_ALL);
+            context.setUserEdit(true);
 
             ComicMetadataEntity saved = ComicMetadataEntity.builder().bookId(1L).build();
             when(comicMetadataRepository.save(any(ComicMetadataEntity.class))).thenReturn(saved);
@@ -1075,6 +1140,7 @@ class BookMetadataUpdaterTest {
                     .build();
             BookMetadata newMeta = BookMetadata.builder().title("T").comicMetadata(comicDto).build();
             MetadataUpdateContext context = buildContext(newMeta, MetadataReplaceMode.REPLACE_ALL);
+            context.setUserEdit(true);
 
             when(comicMetadataRepository.save(any(ComicMetadataEntity.class))).thenReturn(existing);
 
@@ -1086,6 +1152,26 @@ class BookMetadataUpdaterTest {
                 assertThat(existing.getVolumeNameLocked()).isTrue();
                 assertThat(existing.getCharactersLocked()).isTrue();
                 assertThat(existing.getPencillersLocked()).isTrue();
+            }
+        }
+
+        @Test
+        void importDoesNotChangeComicLocks() {
+            ComicMetadataEntity existing = ComicMetadataEntity.builder().bookId(1L).issueNumber("1").issueNumberLocked(true).build();
+            metadataEntity.setComicMetadata(existing);
+
+            ComicMetadata comicDto = ComicMetadata.builder().issueNumber("7").issueNumberLocked(false).build();
+            BookMetadata newMeta = BookMetadata.builder().title("T").comicMetadata(comicDto).build();
+            MetadataUpdateContext context = buildContext(newMeta, MetadataReplaceMode.REPLACE_ALL);
+
+            when(comicMetadataRepository.save(any(ComicMetadataEntity.class))).thenReturn(existing);
+
+            try (MockedStatic<MetadataChangeDetector> mcd = mockStatic(MetadataChangeDetector.class)) {
+                mockSettingsAndChangeDetector(mcd, true, true);
+                updater.setBookMetadata(context);
+
+                assertThat(existing.getIssueNumber()).isEqualTo("1");
+                assertThat(existing.getIssueNumberLocked()).isTrue();
             }
         }
 
@@ -1704,7 +1790,7 @@ class BookMetadataUpdaterTest {
             try (MockedStatic<MetadataChangeDetector> mcd = mockStatic(MetadataChangeDetector.class)) {
                 mockSettingsAndChangeDetector(mcd, true, true);
                 updater.setBookMetadata(context);
-                verify(bookReviewUpdateService).updateBookReviews(any(), any(), any(), anyBoolean());
+                verify(bookReviewUpdateService).updateBookReviews(any(), any(), any(), anyBoolean(), anyBoolean());
             }
         }
 
@@ -1721,10 +1807,8 @@ class BookMetadataUpdaterTest {
                         AppSettings.builder().metadataPersistenceSettings(settings).build());
                 when(sidecarMetadataWriter.isWriteOnUpdateEnabled()).thenReturn(true);
 
-                mcd.when(() -> MetadataChangeDetector.isDifferent(any(), any(), any())).thenReturn(true);
-                mcd.when(() -> MetadataChangeDetector.hasValueChanges(any(), any(), any())).thenReturn(true);
-                mcd.when(() -> MetadataChangeDetector.hasLockChanges(any(), any())).thenReturn(false);
-                mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any())).thenReturn(false);
+                mcd.when(() -> MetadataChangeDetector.isDifferent(any(), any(), any(), anyBoolean())).thenReturn(true);
+                mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any(), anyBoolean())).thenReturn(false);
 
                 updater.setBookMetadata(context);
 
@@ -1746,10 +1830,8 @@ class BookMetadataUpdaterTest {
                 when(sidecarMetadataWriter.isWriteOnUpdateEnabled()).thenReturn(true);
                 doThrow(new RuntimeException("sidecar error")).when(sidecarMetadataWriter).writeSidecarMetadata(any());
 
-                mcd.when(() -> MetadataChangeDetector.isDifferent(any(), any(), any())).thenReturn(true);
-                mcd.when(() -> MetadataChangeDetector.hasValueChanges(any(), any(), any())).thenReturn(true);
-                mcd.when(() -> MetadataChangeDetector.hasLockChanges(any(), any())).thenReturn(false);
-                mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any())).thenReturn(false);
+                mcd.when(() -> MetadataChangeDetector.isDifferent(any(), any(), any(), anyBoolean())).thenReturn(true);
+                mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any(), anyBoolean())).thenReturn(false);
 
                 updater.setBookMetadata(context);
 
@@ -1783,10 +1865,8 @@ class BookMetadataUpdaterTest {
                 when(sidecarMetadataWriter.isWriteOnUpdateEnabled()).thenReturn(false);
                 when(fileMoveService.moveSingleFile(any())).thenReturn(moveResult);
 
-                mcd.when(() -> MetadataChangeDetector.isDifferent(any(), any(), any())).thenReturn(true);
-                mcd.when(() -> MetadataChangeDetector.hasValueChanges(any(), any(), any())).thenReturn(true);
-                mcd.when(() -> MetadataChangeDetector.hasLockChanges(any(), any())).thenReturn(false);
-                mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any())).thenReturn(false);
+                mcd.when(() -> MetadataChangeDetector.isDifferent(any(), any(), any(), anyBoolean())).thenReturn(true);
+                mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any(), anyBoolean())).thenReturn(false);
 
                 updater.setBookMetadata(context);
 
@@ -1813,10 +1893,8 @@ class BookMetadataUpdaterTest {
                 when(sidecarMetadataWriter.isWriteOnUpdateEnabled()).thenReturn(false);
                 when(fileMoveService.moveSingleFile(any())).thenThrow(new RuntimeException("move error"));
 
-                mcd.when(() -> MetadataChangeDetector.isDifferent(any(), any(), any())).thenReturn(true);
-                mcd.when(() -> MetadataChangeDetector.hasValueChanges(any(), any(), any())).thenReturn(true);
-                mcd.when(() -> MetadataChangeDetector.hasLockChanges(any(), any())).thenReturn(false);
-                mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any())).thenReturn(false);
+                mcd.when(() -> MetadataChangeDetector.isDifferent(any(), any(), any(), anyBoolean())).thenReturn(true);
+                mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any(), anyBoolean())).thenReturn(false);
 
                 updater.setBookMetadata(context);
 
@@ -1882,7 +1960,7 @@ class BookMetadataUpdaterTest {
 
             try (MockedStatic<MetadataChangeDetector> mcd = mockStatic(MetadataChangeDetector.class)) {
                 mockSettingsAndChangeDetector(mcd, true, true);
-                mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any())).thenReturn(true);
+                mcd.when(() -> MetadataChangeDetector.hasValueChangesForFileWrite(any(), any(), any(), anyBoolean())).thenReturn(true);
 
                 updater.setBookMetadata(context);
 

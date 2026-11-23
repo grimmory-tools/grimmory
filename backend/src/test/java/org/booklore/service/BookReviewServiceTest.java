@@ -366,4 +366,49 @@ class BookReviewServiceTest {
         assertEquals("Review not found with ID: " + reviewId, exception.getMessage());
         verify(bookReviewRepository, never()).deleteById(reviewId);
     }
+
+    @Test
+    void getByBookId_returnsEmptyList_whenReviewsLocked() {
+        Long bookId = 1L;
+        BookEntity bookEntity = new BookEntity();
+        BookMetadataEntity metadata = new BookMetadataEntity();
+        metadata.setReviewsLocked(true);
+        bookEntity.setMetadata(metadata);
+        AppSettings appSettings = new AppSettings();
+        appSettings.setMetadataPublicReviewsSettings(createReviewSettings(true, MetadataProvider.Amazon));
+
+        when(bookRepository.findByIdWithMetadata(bookId)).thenReturn(Optional.of(bookEntity));
+        when(bookReviewRepository.findByBookMetadataBookId(bookId)).thenReturn(Collections.emptyList());
+        when(appSettingService.getAppSettings()).thenReturn(appSettings);
+
+        List<BookReview> result = service.getByBookId(bookId);
+
+        assertTrue(result.isEmpty());
+        verify(metadataRefreshService, never()).fetchMetadataForBook(anyList(), any(BookEntity.class));
+        verify(bookRepository, never()).save(any());
+    }
+
+    @Test
+    void refreshReviews_skipsRefreshAndKeepsExistingReviews_whenReviewsLocked() {
+        Long bookId = 1L;
+        BookReviewEntity existing = createBookReviewEntity(MetadataProvider.Amazon);
+        BookReview dto = createBookReview(MetadataProvider.Amazon);
+        BookMetadataEntity metadata = new BookMetadataEntity();
+        metadata.setReviewsLocked(true);
+        metadata.setReviews(new HashSet<>(List.of(existing)));
+        BookEntity bookEntity = new BookEntity();
+        bookEntity.setMetadata(metadata);
+
+        when(bookRepository.findByIdWithMetadata(bookId)).thenReturn(Optional.of(bookEntity));
+        when(bookReviewRepository.findByBookMetadataBookId(bookId)).thenReturn(List.of(existing));
+        when(mapper.toDto(existing)).thenReturn(dto);
+
+        List<BookReview> result = service.refreshReviews(bookId);
+
+        assertEquals(List.of(dto), result);
+        assertEquals(1, metadata.getReviews().size());
+        verify(bookReviewRepository, never()).deleteByBookMetadataBookId(anyLong());
+        verify(metadataRefreshService, never()).fetchMetadataForBook(anyList(), any(BookEntity.class));
+        verify(bookRepository, never()).save(any());
+    }
 }

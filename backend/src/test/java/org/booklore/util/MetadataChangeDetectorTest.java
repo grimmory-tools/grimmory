@@ -169,7 +169,7 @@ public class MetadataChangeDetectorTest {
 
     @Test
     void testIsDifferent_whenNoChanges_returnsFalse() {
-        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, false);
         assertFalse(result, "Should return false when no changes exist");
     }
 
@@ -178,7 +178,7 @@ public class MetadataChangeDetectorTest {
     @DisplayName("isDifferent() detects changes in all metadata fields")
     void testIsDifferent_whenFieldChanges_returnsTrue(String fieldName, Consumer<BookMetadata> modifier) {
         modifier.accept(newMeta);
-        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, false);
         assertTrue(result, "Should detect change in " + fieldName);
     }
 
@@ -215,78 +215,50 @@ public class MetadataChangeDetectorTest {
 
     @Test
     void testIsDifferent_whenNullClearFlags_returnsTrue() {
-        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, null);
+        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, null, false);
         assertTrue(result, "Should return true when clear flags is null");
     }
 
     @Test
     void testIsDifferent_whenTitleLocked_changes_returnsTrue() {
         newMeta.setTitleLocked(true);
-        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags);
-        assertTrue(result, "Should return true when title lock changes");
+        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, true);
+        assertTrue(result, "Should return true when title lock changes on a user edit");
     }
 
     @Test
     void testIsDifferent_whenCoverLocked_changes_returnsTrue() {
         newMeta.setCoverLocked(true);
-        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags);
-        assertTrue(result, "Should return true when cover lock changes");
+        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, true);
+        assertTrue(result, "Should return true when cover lock changes on a user edit");
     }
 
     @Test
     void testIsDifferent_whenFieldLocked_changes_returnsTrue() {
         existingMeta.setTitleLocked(true);
         newMeta.setTitleLocked(false);
-        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags);
-        assertTrue(result, "Should return true when field lock changes");
+        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, true);
+        assertTrue(result, "Should return true when field lock changes on a user edit");
     }
 
     @Test
     void testIsDifferent_whenFieldLocked_noChange_returnsFalse() {
         existingMeta.setTitleLocked(true);
         newMeta.setTitleLocked(true);
-        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, true);
         assertFalse(result, "Should return false when field locks match");
     }
 
     @Test
-    void testHasValueChanges_whenNoChanges_returnsFalse() {
-        boolean result = MetadataChangeDetector.hasValueChanges(newMeta, existingMeta, clearFlags);
-        assertFalse(result, "Should return false when no value changes exist");
-    }
-
-    @Test
-    void testHasValueChanges_whenTitleChanged_returnsTrue() {
-        newMeta.setTitle("New Title");
-        boolean result = MetadataChangeDetector.hasValueChanges(newMeta, existingMeta, clearFlags);
-        assertTrue(result, "Should return true when title value changes");
-    }
-
-    @Test
-    void testHasValueChanges_whenLockedFieldChanged_returnsFalse() {
-        existingMeta.setTitleLocked(true);
-        newMeta.setTitle("New Title");
-        boolean result = MetadataChangeDetector.hasValueChanges(newMeta, existingMeta, clearFlags);
-        assertFalse(result, "Should return false when locked field changes");
-    }
-
-    @Test
-    void testHasValueChanges_whenClearFlagSet_returnsTrue() {
-        clearFlags.setTitle(true);
-        boolean result = MetadataChangeDetector.hasValueChanges(newMeta, existingMeta, clearFlags);
-        assertTrue(result, "Should return true when clear flag is set (even if values match)");
-    }
-
-    @Test
     void testHasValueChangesForFileWrite_whenNoChanges_returnsFalse() {
-        boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags, false);
         assertFalse(result, "Should return false when no value changes exist for file write");
     }
 
     @Test
     void testHasValueChangesForFileWrite_whenTitleChanged_returnsTrue() {
         newMeta.setTitle("New Title");
-        boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags, false);
         assertTrue(result, "Should return true when title value changes for file write");
     }
 
@@ -295,7 +267,7 @@ public class MetadataChangeDetectorTest {
         newMeta.setAmazonRating(4.8);
         newMeta.setGoodreadsRating(4.4);
         newMeta.setHardcoverRating(4.3);
-        boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags, false);
         assertTrue(result, "Should return true when rating fields change for file write");
     }
 
@@ -303,7 +275,7 @@ public class MetadataChangeDetectorTest {
     void testEdgeCase_nullToEmptyString_returnsFalse() {
         existingMeta.setTitle(null);
         newMeta.setTitle("");
-        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, false);
         assertFalse(result, "Should return false for null to empty string transition");
     }
 
@@ -345,7 +317,7 @@ public class MetadataChangeDetectorTest {
                 .publisherLocked(false)
                 .build();
 
-        boolean result = MetadataChangeDetector.isDifferent(testNew, testExisting, clearFlags);
+        boolean result = MetadataChangeDetector.isDifferent(testNew, testExisting, clearFlags, false);
         assertFalse(result, "Should return false because toNameSet converts null to empty set, so null → empty collection is no change");
     }
 
@@ -353,7 +325,7 @@ public class MetadataChangeDetectorTest {
     void testEdgeCase_emptyStringToNull_returnsTrue() {
         existingMeta.setTitle("");
         newMeta.setTitle(null);
-        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, false);
         assertTrue(result, "Should return true for empty string to null transition");
     }
 
@@ -436,22 +408,21 @@ public class MetadataChangeDetectorTest {
                 .coverLocked(false)
                 .reviewsLocked(false)
                 .build();
-        boolean result = MetadataChangeDetector.isDifferent(testNew, testExisting, clearFlags);
+        boolean result = MetadataChangeDetector.isDifferent(testNew, testExisting, clearFlags, false);
         assertTrue(result, "Should return true for empty collection to null transition");
     }
 
     @Test
-    @DisplayName("Locked field blocks value changes but still detects lock state changes")
+    @DisplayName("Automated updates ignore both value and lock changes on locked fields; manual edits detect them")
     void testIsDifferent_whenFieldLockedAndValueDifferent_stillDetectsLockChange() {
         existingMeta.setTitleLocked(true);
-        newMeta.setTitle("New Title"); // value change (should be ignored due to lock)
-        newMeta.setTitleLocked(false); // lock change (should be detected)
+        newMeta.setTitle("New Title");
+        newMeta.setTitleLocked(false);
 
-        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags);
-        assertTrue(result, "Should detect lock change even if value change is blocked by lock");
-
-        boolean valueResult = MetadataChangeDetector.hasValueChanges(newMeta, existingMeta, clearFlags);
-        assertFalse(valueResult, "Should not detect value change when field is locked");
+        assertFalse(MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, false),
+                "Automated update should ignore both value and lock changes on a locked field");
+        assertTrue(MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, true),
+                "User edit should detect value and lock changes on a locked field");
     }
 
     @Test
@@ -460,7 +431,7 @@ public class MetadataChangeDetectorTest {
         newMeta.setTitle("New Title");
         newMeta.setTitleLocked(true); // lock unchanged
 
-        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, false);
         assertFalse(result, "Should not detect value change when field is locked and lock is unchanged");
     }
 
@@ -479,19 +450,19 @@ public class MetadataChangeDetectorTest {
         MetadataClearFlags testClearFlags = new MetadataClearFlags();
         testClearFlags.setTitle(true); // clear flag forces change detection
 
-        boolean result = MetadataChangeDetector.hasValueChanges(testNew, testExisting, testClearFlags);
+        boolean result = MetadataChangeDetector.isDifferent(testNew, testExisting, testClearFlags, false);
         assertTrue(result, "Clear flag should trigger change when field is unlocked, even with identical values");
     }
 
     @Test
-    @DisplayName("Lock takes precedence over clear flag")
-    void testHasValueChanges_whenClearFlagTrue_lockStillTakesPrecedence() {
+    @DisplayName("Lock takes precedence over clear flag on automated updates")
+    void testIsDifferent_whenClearFlagTrue_lockStillTakesPrecedence() {
         existingMeta.setTitleLocked(true);
         newMeta.setTitle("New Title");
         clearFlags.setTitle(true);
 
-        boolean result = MetadataChangeDetector.hasValueChanges(newMeta, existingMeta, clearFlags);
-        assertFalse(result, "Lock should take precedence over clear flag");
+        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, false);
+        assertFalse(result, "Lock should take precedence over clear flag on automated updates");
     }
 
     @Test
@@ -501,7 +472,7 @@ public class MetadataChangeDetectorTest {
         newMeta.setTitle("New Title");
         clearFlags.setTitle(true);
 
-        boolean result = MetadataChangeDetector.hasValueChanges(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, false);
         assertFalse(result, "Clear flag with null existing value means nothing to clear");
     }
 
@@ -509,7 +480,7 @@ public class MetadataChangeDetectorTest {
     void testAuthorsComparison_isOrderSensitive() {
         newMeta.setAuthors(List.of("Author Two", "Author One"));
 
-        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, false);
         assertTrue(result, "Authors comparison should be order sensitive");
     }
 
@@ -518,7 +489,7 @@ public class MetadataChangeDetectorTest {
         // newMeta and existingMeta have identical title values
         clearFlags.setTitle(true); // but clear flag forces change detection
 
-        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, false);
         assertTrue(result, "isDifferent should return true when clear flag is set, even if values are identical");
     }
 
@@ -526,21 +497,21 @@ public class MetadataChangeDetectorTest {
     @DisplayName("hasValueChangesForFileWrite() includes booklore-namespace fields that are written to files")
     void testHasValueChangesForFileWrite_includesPageCount() {
         newMeta.setPageCount(999);
-        boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags, false);
         assertTrue(result, "PageCount should trigger file write");
     }
 
     @Test
     void testHasValueChangesForFileWrite_includesMoods() {
         newMeta.setMoods(Set.of("New Mood"));
-        boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags, false);
         assertTrue(result, "Moods should trigger file write");
     }
 
     @Test
     void testHasValueChangesForFileWrite_includesTags() {
         newMeta.setTags(Set.of("New Tag"));
-        boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags, false);
         assertTrue(result, "Tags should trigger file write");
     }
 
@@ -552,7 +523,7 @@ public class MetadataChangeDetectorTest {
         newMeta.setAmazonReviewCount(2000);
         newMeta.setGoodreadsReviewCount(35000);
         newMeta.setHardcoverReviewCount(800);
-        boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags, false);
         assertTrue(result, "Rating and review count fields should trigger file write");
     }
 
@@ -560,21 +531,21 @@ public class MetadataChangeDetectorTest {
     void testHasValueChangesForFileWrite_excludesAudiobookFields() {
         newMeta.setAudibleRating(4.6);
         newMeta.setAudibleReviewCount(3000);
-        boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags, false);
         assertFalse(result, "Audiobook-only fields should not trigger file write");
     }
 
     @Test
     void testHasValueChangesForFileWrite_includesAuthors() {
         newMeta.setAuthors(List.of("New Author"));
-        boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags, false);
         assertTrue(result, "Authors change should trigger file write");
     }
 
     @Test
     void testHasValueChangesForFileWrite_includesCategories() {
         newMeta.setCategories(Set.of("New Category"));
-        boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags, false);
         assertTrue(result, "Categories change should trigger file write");
     }
 
@@ -583,7 +554,7 @@ public class MetadataChangeDetectorTest {
         existingMeta.setSubtitle(null);
         newMeta.setSubtitle(null);
 
-        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, false);
         assertFalse(result, "Should return false when both values are null");
     }
 
@@ -594,7 +565,7 @@ public class MetadataChangeDetectorTest {
         newMeta.setPublisher("New Publisher");
         newMeta.setPageCount(999);
 
-        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, false);
         assertTrue(result, "Should return true when multiple fields change simultaneously");
     }
 
@@ -602,163 +573,50 @@ public class MetadataChangeDetectorTest {
     void testEdgeCase_whitespaceNormalization() {
         existingMeta.setTitle("  Original Title  ");
         newMeta.setTitle("Original Title");
-        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, false);
         assertFalse(result, "Should return false when strings are equal after whitespace normalization");
     }
 
     @Test
     void testIsDifferent_whenAuthorsOrderChanges_returnsTrue() {
         newMeta.setAuthors(List.of("Author Two", "Author One"));
-        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, false);
         assertTrue(result, "Should return true when author order changes");
     }
 
     @Test
     void testIsDifferent_whenAuthorsSetContentChanges_returnsTrue() {
         newMeta.setAuthors(List.of("Author One", "Author Three")); // Different author
-        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, false);
         assertTrue(result, "Should return true when author set content changes");
     }
 
     @Test
     void testIsDifferent_whenCategoriesSetChanges_returnsTrue() {
         newMeta.setCategories(Set.of("Fiction", "New Category"));
-        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, false);
         assertTrue(result, "Should return true when categories change");
     }
 
     @Test
     void testIsDifferent_whenMoodsSetChanges_returnsTrue() {
         newMeta.setMoods(Set.of("Dark", "New Mood"));
-        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, false);
         assertTrue(result, "Should return true when moods change");
     }
 
     @Test
     void testIsDifferent_whenTagsSetChanges_returnsTrue() {
         newMeta.setTags(Set.of("Thriller", "New Tag"));
-        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, false);
         assertTrue(result, "Should return true when tags change");
-    }
-
-    @Test
-    void testHasValueChanges_whenAuthorsOrderChanges_returnsTrue() {
-        newMeta.setAuthors(List.of("Author Two", "Author One"));
-        boolean result = MetadataChangeDetector.hasValueChanges(newMeta, existingMeta, clearFlags);
-        assertTrue(result, "Should return true when author order changes");
-    }
-
-    @Test
-    void testHasValueChanges_whenMultipleCollectionsChange_returnsTrue() {
-        newMeta.setAuthors(List.of("New Author"));
-        newMeta.setCategories(Set.of("New Category"));
-        boolean result = MetadataChangeDetector.hasValueChanges(newMeta, existingMeta, clearFlags);
-        assertTrue(result, "Should return true when multiple collections change");
-    }
-
-    @Test
-    void testHasValueChanges_whenEmptyStringToNull_returnsTrue() {
-        existingMeta.setTitle("");
-        newMeta.setTitle(null);
-        boolean result = MetadataChangeDetector.hasValueChanges(newMeta, existingMeta, clearFlags);
-        assertTrue(result, "Should return true for empty string to null transition");
-    }
-
-    @Test
-    void testHasValueChanges_whenNullToEmptyString_returnsFalse() {
-        existingMeta.setTitle(null);
-        newMeta.setTitle("");
-        boolean result = MetadataChangeDetector.hasValueChanges(newMeta, existingMeta, clearFlags);
-        assertFalse(result, "Should return false for null to empty string transition");
-    }
-
-    @Test
-    void testHasValueChanges_whenEmptySetToNull_returnsTrue() {
-        BookMetadataEntity testExisting = BookMetadataEntity.builder()
-                .bookId(1L)
-                .title("Test")
-                .authors(List.of())
-                .authorsLocked(false)
-                .categories(Set.of())
-                .categoriesLocked(false)
-                .moods(Set.of())
-                .moodsLocked(false)
-                .tags(Set.of())
-                .tagsLocked(false)
-                .titleLocked(false)
-                .subtitleLocked(false)
-                .publisherLocked(false)
-                .publishedDateLocked(false)
-                .descriptionLocked(false)
-                .seriesNameLocked(false)
-                .seriesNumberLocked(false)
-                .seriesTotalLocked(false)
-                .isbn13Locked(false)
-                .isbn10Locked(false)
-                .asinLocked(false)
-                .goodreadsIdLocked(false)
-                .comicvineIdLocked(false)
-                .hardcoverIdLocked(false)
-                .hardcoverBookIdLocked(false)
-                .googleIdLocked(false)
-                .pageCountLocked(false)
-                .languageLocked(false)
-                .amazonRatingLocked(false)
-                .amazonReviewCountLocked(false)
-                .goodreadsRatingLocked(false)
-                .goodreadsReviewCountLocked(false)
-                .hardcoverRatingLocked(false)
-                .hardcoverReviewCountLocked(false)
-                .coverLocked(false)
-                .reviewsLocked(false)
-                .build();
-        BookMetadata testNew = BookMetadata.builder()
-                .bookId(1L)
-                .title("Test")
-                .authors(null)
-                .authorsLocked(false)
-                .categories(Set.of())
-                .categoriesLocked(false)
-                .moods(Set.of())
-                .moodsLocked(false)
-                .tags(Set.of())
-                .tagsLocked(false)
-                .titleLocked(false)
-                .subtitleLocked(false)
-                .publisherLocked(false)
-                .publishedDateLocked(false)
-                .descriptionLocked(false)
-                .seriesNameLocked(false)
-                .seriesNumberLocked(false)
-                .seriesTotalLocked(false)
-                .isbn13Locked(false)
-                .isbn10Locked(false)
-                .asinLocked(false)
-                .goodreadsIdLocked(false)
-                .comicvineIdLocked(false)
-                .hardcoverIdLocked(false)
-                .hardcoverBookIdLocked(false)
-                .googleIdLocked(false)
-                .pageCountLocked(false)
-                .languageLocked(false)
-                .amazonRatingLocked(false)
-                .amazonReviewCountLocked(false)
-                .goodreadsRatingLocked(false)
-                .goodreadsReviewCountLocked(false)
-                .hardcoverRatingLocked(false)
-                .hardcoverReviewCountLocked(false)
-                .coverLocked(false)
-                .reviewsLocked(false)
-                .build();
-        boolean result = MetadataChangeDetector.hasValueChanges(testNew, testExisting, clearFlags);
-        assertTrue(result, "Should return true for empty set to null transition");
     }
 
     @Test
     void testHasValueChangesForFileWrite_whenTitleAndPageCountChange_onlyTitleTriggers() {
         newMeta.setTitle("New Title");
         newMeta.setPageCount(999);
-        boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.hasValueChangesForFileWrite(newMeta, existingMeta, clearFlags, false);
         assertTrue(result, "Should return true when title changes, even if pageCount also changes");
     }
 
@@ -766,51 +624,26 @@ public class MetadataChangeDetectorTest {
     void testIsDifferent_whenOnlyLockChanges_noValueChange_returnsTrue() {
         newMeta.setTitleLocked(true);
         // Title value is same, only lock changes
-        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags);
-        assertTrue(result, "Should return true when only lock changes, even if value is same");
+        assertTrue(MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, true),
+                "Should return true when only lock changes on a user edit");
+        assertFalse(MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, false),
+                "Should return false when only lock changes on an automated update");
     }
 
     @Test
     void testIsDifferent_whenCoverLockChanges_returnsTrue() {
         newMeta.setCoverLocked(true);
-        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags);
-        assertTrue(result, "Should return true when cover lock changes");
+        assertTrue(MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, true),
+                "Should return true when cover lock changes on a user edit");
+        assertFalse(MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, false),
+                "Should return false when cover lock changes on an automated update");
     }
 
     @Test
     void testIsDifferent_whenCoverLockUnchanged_returnsFalse() {
         existingMeta.setCoverLocked(true);
         newMeta.setCoverLocked(true);
-        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags);
+        boolean result = MetadataChangeDetector.isDifferent(newMeta, existingMeta, clearFlags, true);
         assertFalse(result, "Should return false when cover lock unchanged");
-    }
-
-    @Test
-    void testHasValueChanges_whenStringWithWhitespaceChanges_returnsTrue() {
-        existingMeta.setTitle("Original Title");
-        newMeta.setTitle("  New Title  ");
-        boolean result = MetadataChangeDetector.hasValueChanges(newMeta, existingMeta, clearFlags);
-        assertTrue(result, "Should return true when normalized strings differ");
-    }
-
-    @Test
-    void testHasValueChanges_whenStringWhitespaceOnly_returnsFalse() {
-        existingMeta.setTitle("Original Title");
-        newMeta.setTitle("  Original Title  "); // Same after normalization
-        boolean result = MetadataChangeDetector.hasValueChanges(newMeta, existingMeta, clearFlags);
-        assertFalse(result, "Should return false when strings are same after normalization");
-    }
-
-    @Test
-    void testHasValueChanges_whenFloatSeriesNumberChanges_returnsTrue() {
-        newMeta.setSeriesNumber(2.5f);
-        boolean result = MetadataChangeDetector.hasValueChanges(newMeta, existingMeta, clearFlags);
-        assertTrue(result, "Should return true when series number changes");
-    }
-
-    @Test
-    void testHasValueChanges_whenFloatSeriesNumberUnchanged_returnsFalse() {
-        boolean result = MetadataChangeDetector.hasValueChanges(newMeta, existingMeta, clearFlags);
-        assertFalse(result, "Should return false when series number unchanged");
     }
 }
