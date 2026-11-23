@@ -59,6 +59,7 @@ class FileMoveServiceTest {
     @Mock private EntityManager entityManager;
     @Mock private TransactionTemplate transactionTemplate;
     @Mock private SidecarMetadataWriter sidecarMetadataWriter;
+    @Mock private BookFileMutationGuard bookFileMutationGuard;
 
     private FileMoveService service;
     private LibraryEntity library;
@@ -70,9 +71,9 @@ class FileMoveServiceTest {
                                 MonitoringRegistrationService monitoringRegistrationService, LibraryMapper libraryMapper,
                                 BookMapper bookMapper, NotificationService notificationService, EntityManager entityManager,
                                 TransactionTemplate transactionTemplate,
-                                SidecarMetadataWriter sidecarMetadataWriter) {
+                                SidecarMetadataWriter sidecarMetadataWriter, BookFileMutationGuard bookFileMutationGuard) {
             super(appProperties, bookRepository, bookFileRepository, libraryRepository, fileMoveHelper,
-                    monitoringRegistrationService, libraryMapper, bookMapper, notificationService, entityManager, transactionTemplate, sidecarMetadataWriter);
+                    monitoringRegistrationService, libraryMapper, bookMapper, notificationService, entityManager, transactionTemplate, sidecarMetadataWriter, bookFileMutationGuard);
         }
 
         @Override
@@ -93,7 +94,7 @@ class FileMoveServiceTest {
         }).when(transactionTemplate).executeWithoutResult(any());
 
         service = spy(new TestableFileMoveService(appProperties, bookRepository, bookFileRepository, libraryRepository,
-                fileMoveHelper, monitoringRegistrationService, libraryMapper, bookMapper, notificationService, entityManager, transactionTemplate, sidecarMetadataWriter));
+                fileMoveHelper, monitoringRegistrationService, libraryMapper, bookMapper, notificationService, entityManager, transactionTemplate, sidecarMetadataWriter, bookFileMutationGuard));
 
         library = new LibraryEntity();
         library.setId(1L);
@@ -113,6 +114,16 @@ class FileMoveServiceTest {
         files.forEach(f -> f.setBook(book));
         book.setBookFiles(Set.copyOf(files));
         return book;
+    }
+
+    @Test
+    void reservedMutationRejectsMovesBeforeFilesystemOperations() {
+        doThrow(new IllegalStateException("reserved")).when(bookFileMutationGuard).beforeMutation();
+        Assertions.assertThatThrownBy(() -> service.moveSingleFile(createBook(List.of())))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("reserved");
+        Assertions.assertThatThrownBy(() -> service.bulkMoveFiles(new FileMoveRequest()))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("reserved");
+        verifyNoInteractions(fileMoveHelper, bookRepository, monitoringRegistrationService);
     }
 
     private BookFileEntity createBookFile(Long id, String name, String subPath, boolean isBook, boolean folderBased) {

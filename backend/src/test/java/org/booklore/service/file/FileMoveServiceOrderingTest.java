@@ -60,6 +60,7 @@ class FileMoveServiceOrderingTest {
     @Mock private EntityManager entityManager;
     @Mock private TransactionTemplate transactionTemplate;
     @Mock private SidecarMetadataWriter sidecarMetadataWriter;
+    @Mock private BookFileMutationGuard bookFileMutationGuard;
 
     private FileMoveService service;
     private LibraryEntity library;
@@ -70,9 +71,10 @@ class FileMoveServiceOrderingTest {
                                 LibraryRepository libraryRepository, FileMoveHelper fileMoveHelper,
                                 MonitoringRegistrationService monitoringRegistrationService, LibraryMapper libraryMapper,
                                 BookMapper bookMapper, NotificationService notificationService, EntityManager entityManager,
-                                TransactionTemplate transactionTemplate, SidecarMetadataWriter sidecarMetadataWriter) {
+                                TransactionTemplate transactionTemplate, SidecarMetadataWriter sidecarMetadataWriter,
+                                BookFileMutationGuard bookFileMutationGuard) {
             super(appProperties, bookRepository, bookFileRepository, libraryRepository, fileMoveHelper,
-                    monitoringRegistrationService, libraryMapper, bookMapper, notificationService, entityManager, transactionTemplate, sidecarMetadataWriter);
+                    monitoringRegistrationService, libraryMapper, bookMapper, notificationService, entityManager, transactionTemplate, sidecarMetadataWriter, bookFileMutationGuard);
         }
 
         @Override
@@ -92,7 +94,7 @@ class FileMoveServiceOrderingTest {
         }).when(transactionTemplate).executeWithoutResult(any());
 
         service = spy(new TestableFileMoveService(appProperties, bookRepository, bookFileRepository, libraryRepository,
-                fileMoveHelper, monitoringRegistrationService, libraryMapper, bookMapper, notificationService, entityManager, transactionTemplate, sidecarMetadataWriter));
+                fileMoveHelper, monitoringRegistrationService, libraryMapper, bookMapper, notificationService, entityManager, transactionTemplate, sidecarMetadataWriter, bookFileMutationGuard));
 
         library = new LibraryEntity();
         library.setId(1L);

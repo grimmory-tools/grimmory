@@ -16,6 +16,7 @@ import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.*;
 import org.booklore.service.FileStreamingService;
 import org.booklore.service.audit.AuditService;
+import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.metadata.sidecar.SidecarMetadataWriter;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
 import org.booklore.service.progress.ReadingProgressService;
@@ -70,6 +71,7 @@ public class BookService {
     private final SidecarMetadataWriter sidecarMetadataWriter;
     private final FileStreamingService fileStreamingService;
     private final AuditService auditService;
+    private final BookFileMutationGuard bookFileMutationGuard;
 
 
     public List<Book> getBookDTOs(boolean includeDescription, boolean stripForListView) {
@@ -336,7 +338,9 @@ public class BookService {
                 .body(new FileSystemResource(file));
     }
 
+    @Transactional
     public void replaceBookContent(long bookId, String bookType, InputStream content) throws IOException {
+        bookFileMutationGuard.beforeMutation();
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId)
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
@@ -357,6 +361,7 @@ public class BookService {
 
     @Transactional
     public ResponseEntity<BookDeletionResponse> deleteBooks(Set<Long> ids) {
+        bookFileMutationGuard.beforeMutation();
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         List<BookEntity> books = bookQueryService.findAllWithMetadataByIds(ids);
 

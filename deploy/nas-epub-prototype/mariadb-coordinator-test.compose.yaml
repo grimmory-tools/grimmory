@@ -1,0 +1,51 @@
+services:
+  mariadb-coordinator-test:
+    image: mariadb:11.4.8
+    environment:
+      MARIADB_DATABASE: grimmory_nas_test
+      MARIADB_USER: grimmory_test
+      MARIADB_PASSWORD: ${PROBE_DB_PASSWORD:?Set PROBE_DB_PASSWORD}
+      MARIADB_RANDOM_ROOT_PASSWORD: "yes"
+    tmpfs:
+      - /var/lib/mysql
+    volumes:
+      - ./mariadb-test-init.sql:/docker-entrypoint-initdb.d/test-init.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    networks:
+      - test-network
+    restart: "no"
+  coordinator-test:
+    image: eclipse-temurin:25-jre@sha256:4ba7de2d5d53f8e2faad1f04e08b96719bd085c4b65fad0182b9f1a2cf94d259
+    environment:
+      NAS_MARIADB_TEST: "true"
+      NAS_MARIADB_TEST_HOST: mariadb-coordinator-test
+      NAS_MARIADB_TEST_PASSWORD: ${PROBE_DB_PASSWORD:?Set PROBE_DB_PASSWORD}
+    depends_on:
+      mariadb-coordinator-test:
+        condition: service_healthy
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    volumes:
+      - ./test-bundle:/test-bundle:ro
+    networks:
+      - test-network
+    command:
+      - java
+      - --enable-preview
+      - -cp
+      - "/test-bundle/classes:/test-bundle/lib/*"
+      - org.booklore.service.metadata.writer.NasEpubMariaDbTestRunner
+    restart: "no"
+
+networks:
+  test-network:
+    internal: true

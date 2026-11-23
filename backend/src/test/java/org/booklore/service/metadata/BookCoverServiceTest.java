@@ -6,11 +6,15 @@ import org.booklore.model.dto.settings.AppSettings;
 import org.booklore.model.dto.settings.MetadataPersistenceSettings;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
+import org.booklore.model.websocket.LogNotification;
+import org.booklore.model.websocket.Severity;
+import org.booklore.model.websocket.Topic;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.projection.BookCoverUpdateProjection;
 import org.booklore.service.NotificationService;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.book.BookQueryService;
+import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.fileprocessor.BookFileProcessor;
 import org.booklore.service.fileprocessor.BookFileProcessorRegistry;
 import org.booklore.service.metadata.sidecar.SidecarMetadataWriter;
@@ -65,6 +69,7 @@ class BookCoverServiceTest {
     @Mock private Executor taskExecutor;
     @Mock private AuthenticationService authenticationService;
     @Mock private AppSettings appSettings;
+    @Mock private BookFileMutationGuard bookFileMutationGuard;
 
     @InjectMocks
     private BookCoverService service;
@@ -133,6 +138,40 @@ class BookCoverServiceTest {
         when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[]{(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}));
         when(file.getBytes()).thenReturn(new byte[]{1, 2, 3});
         return file;
+    }
+
+    @Test
+    void reservedMutationRejectsSingleCoverOperationsBeforeReadingBook() {
+        doThrow(new IllegalStateException("reserved")).when(bookFileMutationGuard).beforeMutation();
+        assertThatThrownBy(() -> service.generateCustomCover(1L)).hasMessageContaining("reserved");
+        assertThatThrownBy(() -> service.updateCoverFromFile(1L, null)).hasMessageContaining("reserved");
+        assertThatThrownBy(() -> service.updateCoverFromUrl(1L, "url")).hasMessageContaining("reserved");
+        assertThatThrownBy(() -> service.updateAudiobookCoverFromFile(1L, null)).hasMessageContaining("reserved");
+        assertThatThrownBy(() -> service.updateAudiobookCoverFromUrl(1L, "url")).hasMessageContaining("reserved");
+        assertThatThrownBy(() -> service.regenerateAudiobookCover(1L)).hasMessageContaining("reserved");
+        assertThatThrownBy(() -> service.generateCustomAudiobookCover(1L)).hasMessageContaining("reserved");
+        assertThatThrownBy(() -> service.regenerateCover(1L)).hasMessageContaining("reserved");
+        verifyNoInteractions(bookRepository, fileService, processorRegistry);
+    }
+
+    @Test
+    void reservedMutationReportsFailureForAsyncCoverOperationBeforeReadingBook() {
+        when(bookQueryService.findAllWithMetadataByIds(Set.of(1L))).thenReturn(List.of(buildBook(1L, false)));
+        doThrow(new IllegalStateException("reserved")).when(bookFileMutationGuard).beforeMutation();
+        runAsyncInline();
+        runTransactionsInline();
+
+        service.generateCustomCoversForBooks(Set.of(1L));
+
+        verifyNoInteractions(bookRepository, fileService, coverImageGenerator);
+        verify(notificationService).sendMessageToUser(eq("testuser"), eq(Topic.LOG),
+                argThat(message -> message instanceof LogNotification notification
+                        && notification.getSeverity() == Severity.ERROR
+                        && notification.getMessage().contains("reserved")));
+        verify(notificationService).sendMessageToUser(eq("testuser"), eq(Topic.LOG),
+                argThat(message -> message instanceof LogNotification notification
+                        && notification.getSeverity() == Severity.ERROR
+                        && notification.getMessage().contains("1 failure(s)")));
     }
 
     @Nested

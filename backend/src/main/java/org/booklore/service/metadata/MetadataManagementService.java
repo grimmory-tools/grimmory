@@ -11,6 +11,7 @@ import org.booklore.model.enums.MergeMetadataType;
 import org.booklore.repository.*;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.browse.BrowseService;
+import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.file.FileFingerprint;
 import org.booklore.service.file.FileMoveService;
 import org.booklore.service.metadata.writer.MetadataWriter;
@@ -46,11 +47,12 @@ public class MetadataManagementService {
     private final BookRepository bookRepository;
     private final FileService fileService;
     private final BrowseService<BookEntity, Book> bookBrowse;
+    private final BookFileMutationGuard bookFileMutationGuard;
 
 
     @Transactional
     public void consolidateMetadata(MergeMetadataType metadataType, List<String> targetValues, List<String> valuesToMerge) {
-
+        bookFileMutationGuard.beforeMutation();
         MetadataPersistenceSettings settings = appSettingService.getAppSettings().getMetadataPersistenceSettings();
         boolean moveFile = settings.isMoveFilesToLibraryPattern();
 
@@ -154,6 +156,7 @@ public class MetadataManagementService {
 
     @Transactional
     public void mergeAuthorsById(Long targetId, List<Long> sourceIds) {
+        bookFileMutationGuard.beforeMutation();
         if (targetId == null || sourceIds == null || sourceIds.isEmpty()
                 || sourceIds.stream().anyMatch(id -> id == null || id.equals(targetId))
                 || sourceIds.stream().distinct().count() != sourceIds.size()) {
@@ -377,6 +380,7 @@ public class MetadataManagementService {
 
     @Transactional
     public void deleteMetadata(MergeMetadataType metadataType, List<String> valuesToDelete) {
+        bookFileMutationGuard.beforeMutation();
         MetadataPersistenceSettings settings = appSettingService.getAppSettings().getMetadataPersistenceSettings();
         boolean moveFile = settings.isMoveFilesToLibraryPattern();
 

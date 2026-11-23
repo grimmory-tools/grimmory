@@ -1,6 +1,5 @@
 package org.booklore.service.metadata.writer;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.booklore.model.MetadataClearFlags;
@@ -13,6 +12,7 @@ import org.booklore.util.MimeDetector;
 import org.booklore.util.SecureXmlUtils;
 import org.booklore.util.epub.EpubContentReader;
 import org.booklore.util.epub.EpubContentWriter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -39,19 +39,27 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class EpubMetadataWriter implements MetadataWriter {
 
     private static final String OPF_NS = "http://www.idpf.org/2007/opf";
-    private static final Pattern CALIBRE_PREFIX_PATTERN = Pattern.compile("calibre:\\s*https?://[^\\s]+");
-    private final AppSettingService appSettingService;
+    private final Supplier<MetadataPersistenceSettings> metadataSettings;
     private final ArchiveService archiveService;
+
+    @Autowired
+    public EpubMetadataWriter(AppSettingService appSettingService, ArchiveService archiveService) {
+        this(() -> appSettingService.getAppSettings().getMetadataPersistenceSettings(), archiveService);
+    }
+
+    public EpubMetadataWriter(Supplier<MetadataPersistenceSettings> metadataSettings, ArchiveService archiveService) {
+        this.metadataSettings = Objects.requireNonNull(metadataSettings);
+        this.archiveService = Objects.requireNonNull(archiveService);
+    }
 
     @Override
     public void saveMetadataToFile(File epubFile, BookMetadataEntity metadata, MetadataClearFlags clear) {
@@ -59,14 +67,18 @@ public class EpubMetadataWriter implements MetadataWriter {
             return;
         }
 
-        File backupFile = new File(epubFile.getParentFile(), epubFile.getName() + ".bak");
         try {
-            Files.copy(epubFile.toPath(), backupFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException ex) {
-            log.warn("Failed to create backup of EPUB {}: {}", epubFile.getName(), ex.getMessage());
-            return;
+            writeMetadataToFile(epubFile, metadata, clear);
+        } catch (IOException e) {
+            log.warn("Failed to write metadata to EPUB file {}: {}", epubFile.getName(), e.getMessage(), e);
         }
+    }
+
+    void writeMetadataToFile(File epubFile, BookMetadataEntity metadata, MetadataClearFlags clear) throws IOException {
+        File backupFile = new File(epubFile.getParentFile(), epubFile.getName() + ".bak");
+        Files.copy(epubFile.toPath(), backupFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         Path tempDir = null;
+        boolean keepBackup = false;
         try {
             tempDir = Files.createTempDirectory("epub_edit_" + UUID.randomUUID());
             archiveService.extractToDirectory(epubFile.toPath(), tempDir);
@@ -216,7 +228,6 @@ public class EpubMetadataWriter implements MetadataWriter {
 
             if (hasChanges[0]) {
                 addBookloreMetadata(metadataElement, opfDoc, metadata);
-                cleanupCalibreArtifacts(metadataElement, opfDoc);
                 organizeMetadataElements(metadataElement);
                 removeInvalidMetaRefines(metadataElement, opfDoc);
                 removeEmptyTextNodes(opfDoc);
@@ -237,20 +248,22 @@ public class EpubMetadataWriter implements MetadataWriter {
                 log.info("No changes detected. Skipping EPUB write for: {}", epubFile.getName());
             }
         } catch (Exception e) {
-            log.warn("Failed to write metadata to EPUB file {}: {}", epubFile.getName(), e.getMessage(), e);
             if (backupFile.exists()) {
                 try {
                     Files.copy(backupFile.toPath(), epubFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                     log.info("Restored EPUB from backup: {}", epubFile.getName());
                 } catch (IOException io) {
+                    keepBackup = true;
+                    e.addSuppressed(io);
                     log.error("Failed to restore EPUB from backup for {}: {}", epubFile.getName(), io.getMessage(), io);
                 }
             }
+            throw new IOException("Failed to write EPUB metadata", e);
         } finally {
             if (tempDir != null) {
                 deleteDirectoryRecursively(tempDir);
             }
-            if (backupFile.exists()) {
+            if (!keepBackup && backupFile.exists()) {
                 try {
                     Files.delete(backupFile.toPath());
                 } catch (IOException ex) {
@@ -379,6 +392,14 @@ public class EpubMetadataWriter implements MetadataWriter {
             return;
         }
 
+        try {
+            writeCoverToFile(epubFile, contents);
+        } catch (IOException e) {
+            log.warn("Failed to update EPUB cover image: {}", e.getMessage(), e);
+        }
+    }
+
+    void writeCoverToFile(File epubFile, byte[] contents) throws IOException {
         Path tempDir = null;
         try {
             tempDir = Files.createTempDirectory("epub_cover_" + UUID.randomUUID());
@@ -408,7 +429,7 @@ public class EpubMetadataWriter implements MetadataWriter {
             log.info("Cover image updated in EPUB: {}", epubFile.getName());
 
         } catch (Exception e) {
-            log.warn("Failed to update EPUB cover image: {}", e.getMessage(), e);
+            throw new IOException("Failed to update EPUB cover image", e);
         } finally {
             if (tempDir != null) {
                 deleteDirectoryRecursively(tempDir);
@@ -803,7 +824,7 @@ public class EpubMetadataWriter implements MetadataWriter {
     }
 
     public boolean shouldSaveMetadataToFile(File epubFile) {
-        MetadataPersistenceSettings.SaveToOriginalFile settings = appSettingService.getAppSettings().getMetadataPersistenceSettings().getSaveToOriginalFile();
+        MetadataPersistenceSettings.SaveToOriginalFile settings = metadataSettings.get().getSaveToOriginalFile();
 
         MetadataPersistenceSettings.FormatSettings epubSettings = settings.getEpub();
         if (epubSettings == null || !epubSettings.isEnabled()) {
@@ -1173,60 +1194,6 @@ public class EpubMetadataWriter implements MetadataWriter {
         }
     }
 
-    private void cleanupCalibreArtifacts(Element metadataElement, Document doc) {
-        Element packageElement = doc.getDocumentElement();
-        if (packageElement.hasAttribute("prefix")) {
-            String prefix = packageElement.getAttribute("prefix");
-            if (prefix.contains("calibre:")) {
-                prefix = CALIBRE_PREFIX_PATTERN.matcher(prefix).replaceAll("").trim();
-                if (prefix.isEmpty()) {
-                    packageElement.removeAttribute("prefix");
-                } else {
-                    packageElement.setAttribute("prefix", prefix);
-                }
-            }
-        }
-        
-        if (metadataElement.hasAttribute("xmlns:calibre")) {
-            metadataElement.removeAttribute("xmlns:calibre");
-        }
-        
-        final String DC_NS = "http://purl.org/dc/elements/1.1/";
-        NodeList identifiers = metadataElement.getElementsByTagNameNS(DC_NS, "identifier");
-        for (int i = identifiers.getLength() - 1; i >= 0; i--) {
-            Element idElement = (Element) identifiers.item(i);
-            String content = idElement.getTextContent().trim().toLowerCase();
-            if (content.startsWith("calibre:") || content.startsWith("urn:calibre:")) {
-                metadataElement.removeChild(idElement);
-            }
-        }
-        
-        NodeList contributors = metadataElement.getElementsByTagNameNS(DC_NS, "contributor");
-        for (int i = contributors.getLength() - 1; i >= 0; i--) {
-            Element contributor = (Element) contributors.item(i);
-            String text = contributor.getTextContent().toLowerCase();
-            if (text.contains("calibre")) {
-                String id = contributor.getAttribute("id");
-                metadataElement.removeChild(contributor);
-                if (StringUtils.isNotBlank(id)) {
-                    removeMetaByRefines(metadataElement, "#" + id);
-                }
-            }
-        }
-        
-        NodeList metas = metadataElement.getElementsByTagNameNS("*", "meta");
-        for (int i = metas.getLength() - 1; i >= 0; i--) {
-            Element meta = (Element) metas.item(i);
-            String property = meta.getAttribute("property");
-            String name = meta.getAttribute("name");
-            
-            boolean isCalibreSeries = !isEpub3(doc) && ("calibre:series".equals(name) || "calibre:series_index".equals(name));
-            if (!isCalibreSeries && (property.startsWith("calibre:") || name.startsWith("calibre:"))) {
-                metadataElement.removeChild(meta);
-            }
-        }
-    }
-
     private void organizePackageElements(Document document) {
         // Per the epubcheck dtd:
         // <package> must have as children elements, in this order:
@@ -1266,11 +1233,17 @@ public class EpubMetadataWriter implements MetadataWriter {
         List<Element> bookloreMetas = new ArrayList<>();
         List<Element> modifiedMetas = new ArrayList<>();
         List<Element> otherMetas = new ArrayList<>();
+        List<Node> otherNodes = new ArrayList<>();
         
         NodeList allChildren = metadataElement.getChildNodes();
         for (int i = 0; i < allChildren.getLength(); i++) {
             Node node = allChildren.item(i);
-            if (node.getNodeType() != Node.ELEMENT_NODE) continue;
+            if (node.getNodeType() != Node.ELEMENT_NODE) {
+                if (node.getNodeType() != Node.TEXT_NODE || !node.getTextContent().isBlank()) {
+                    otherNodes.add(node);
+                }
+                continue;
+            }
             Element elem = (Element) node;
             String localName = elem.getLocalName();
             String ns = elem.getNamespaceURI();
@@ -1286,6 +1259,7 @@ public class EpubMetadataWriter implements MetadataWriter {
                     case "publisher" -> publishers.add(elem);
                     case "description" -> descriptions.add(elem);
                     case "subject" -> subjects.add(elem);
+                    default -> otherNodes.add(elem);
                 }
             } else if ("meta".equals(localName)) {
                 String property = elem.getAttribute("property");
@@ -1300,6 +1274,8 @@ public class EpubMetadataWriter implements MetadataWriter {
                 } else {
                     otherMetas.add(elem);
                 }
+            } else {
+                otherNodes.add(elem);
             }
         }
         
@@ -1320,5 +1296,6 @@ public class EpubMetadataWriter implements MetadataWriter {
         modifiedMetas.forEach(metadataElement::appendChild);
         otherMetas.forEach(metadataElement::appendChild);
         bookloreMetas.forEach(metadataElement::appendChild);
+        otherNodes.forEach(metadataElement::appendChild);
     }
 }

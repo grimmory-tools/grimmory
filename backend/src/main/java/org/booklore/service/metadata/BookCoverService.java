@@ -16,6 +16,7 @@ import org.booklore.repository.projection.BookCoverUpdateProjection;
 import org.booklore.service.NotificationService;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.book.BookQueryService;
+import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.file.FileFingerprint;
 import org.booklore.service.fileprocessor.BookFileProcessor;
 import org.booklore.service.fileprocessor.BookFileProcessorRegistry;
@@ -65,6 +66,7 @@ public class BookCoverService {
     private final Executor taskExecutor;
     private final TransactionTemplate transactionTemplate;
     private final AuthenticationService authenticationService;
+    private final BookFileMutationGuard bookFileMutationGuard;
 
     private void sendNotification(String username, Topic topic, Object message) {
         if (username != null) {
@@ -90,6 +92,7 @@ public class BookCoverService {
      * Generate a custom cover for a single book.
      */
     public void generateCustomCover(long bookId) {
+        bookFileMutationGuard.beforeMutation();
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
         if (isCoverLocked(bookEntity)) {
@@ -117,6 +120,7 @@ public class BookCoverService {
      */
     @Transactional
     public void updateCoverFromFile(Long bookId, MultipartFile file) {
+        bookFileMutationGuard.beforeMutation();
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
         if (isCoverLocked(bookEntity)) {
@@ -132,6 +136,7 @@ public class BookCoverService {
      */
     @Transactional
     public void updateCoverFromUrl(Long bookId, String url) {
+        bookFileMutationGuard.beforeMutation();
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
         if (isCoverLocked(bookEntity)) {
@@ -162,6 +167,7 @@ public class BookCoverService {
      */
     @Transactional
     public void updateAudiobookCoverFromFile(Long bookId, MultipartFile file) {
+        bookFileMutationGuard.beforeMutation();
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
         if (isAudiobookCoverLocked(bookEntity)) {
@@ -177,6 +183,7 @@ public class BookCoverService {
      */
     @Transactional
     public void updateAudiobookCoverFromUrl(Long bookId, String url) {
+        bookFileMutationGuard.beforeMutation();
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
         if (isAudiobookCoverLocked(bookEntity)) {
@@ -191,6 +198,7 @@ public class BookCoverService {
      * Regenerate audiobook cover for a single book by extracting from the audiobook file.
      */
     public void regenerateAudiobookCover(long bookId) {
+        bookFileMutationGuard.beforeMutation();
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
         if (isAudiobookCoverLocked(bookEntity)) {
             throw ApiError.METADATA_LOCKED.createException();
@@ -217,6 +225,7 @@ public class BookCoverService {
      * Uses square cover format appropriate for audiobooks.
      */
     public void generateCustomAudiobookCover(long bookId) {
+        bookFileMutationGuard.beforeMutation();
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
         if (isAudiobookCoverLocked(bookEntity)) {
@@ -252,6 +261,7 @@ public class BookCoverService {
      * respecting the library's format priority setting.
      */
     public void regenerateCover(long bookId) {
+        bookFileMutationGuard.beforeMutation();
         BookEntity bookEntity = bookRepository.findByIdWithBookFiles(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
         if (isCoverLocked(bookEntity)) {
             throw ApiError.METADATA_LOCKED.createException();
@@ -342,14 +352,16 @@ public class BookCoverService {
             sendNotification(username, Topic.LOG, LogNotification.info(String.format(messages.startFormat(), total)));
 
             int current = 1;
+            int failed = 0;
 
             for (BookCoverInfo bookInfo : books) {
                 try {
                     String progress = "(" + current + "/" + total + ") ";
                     sendNotification(username, Topic.LOG, LogNotification.info(progress + messages.itemVerb() + ": " + bookInfo.title()));
 
-                    Boolean updated = transactionTemplate.execute(status ->
-                            bookRepository.findByIdWithBookFiles(bookInfo.id())
+                    Boolean updated = transactionTemplate.execute(status -> {
+                        bookFileMutationGuard.beforeMutation();
+                        return bookRepository.findByIdWithBookFiles(bookInfo.id())
                                     .map(book -> {
                                         boolean changed = action.apply(book);
                                         if (changed) {
@@ -357,8 +369,8 @@ public class BookCoverService {
                                         }
                                         return changed;
                                     })
-                                    .orElse(false)
-                    );
+                                    .orElse(false);
+                    });
 
                     if (Boolean.TRUE.equals(updated)) {
                         notifyBulkCoverUpdate(List.of(bookInfo.id()), username);
@@ -368,11 +380,19 @@ public class BookCoverService {
                     }
                 } catch (Exception e) {
                     log.error("Failed cover operation for book ID {}: {}", bookInfo.id(), e.getMessage(), e);
+                    failed++;
+                    sendNotification(username, Topic.LOG, LogNotification.error(
+                            "Failed cover operation for book ID " + bookInfo.id() + ": " + e.getMessage()));
                 }
                 current++;
             }
 
-            sendNotification(username, Topic.LOG, LogNotification.info(messages.finishMessage()));
+            if (failed == 0) {
+                sendNotification(username, Topic.LOG, LogNotification.info(messages.finishMessage()));
+            } else {
+                sendNotification(username, Topic.LOG, LogNotification.error(
+                        messages.finishMessage() + " with " + failed + " failure(s)"));
+            }
         } catch (Exception e) {
             log.error("Error during bulk cover operation: {}", e.getMessage(), e);
             sendNotification(username, Topic.LOG, LogNotification.error("Error occurred during cover operation"));

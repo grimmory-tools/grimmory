@@ -33,6 +33,7 @@ import org.booklore.service.NotificationService;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.audit.AuditService;
 import org.booklore.service.book.BookQueryService;
+import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.metadata.extractor.CbxMetadataExtractor;
 import org.booklore.service.metadata.extractor.MetadataExtractorFactory;
 import org.booklore.service.metadata.parser.BookParser;
@@ -75,6 +76,7 @@ class BookMetadataServiceTest {
     @Mock private MetadataClearFlagsMapper metadataClearFlagsMapper;
     @Mock private PlatformTransactionManager transactionManager;
     @Mock private AppSettingService appSettingService;
+    @Mock private BookFileMutationGuard bookFileMutationGuard;
 
     private Map<MetadataProvider, BookParser> parserMap;
     private BookMetadataService service;
@@ -86,8 +88,20 @@ class BookMetadataServiceTest {
                 bookRepository, bookMapper, bookMetadataMapper, bookMetadataUpdater,
                 notificationService, bookMetadataRepository, bookQueryService,
                 auditService, parserMap, cbxMetadataExtractor, metadataExtractorFactory,
-                metadataClearFlagsMapper, transactionManager, appSettingService
+                metadataClearFlagsMapper, transactionManager, appSettingService, bookFileMutationGuard
         );
+    }
+
+    @Test
+    void reservedMutationRejectsMetadataAndLockUpdatesBeforeReadingBooks() {
+        doThrow(new IllegalStateException("reserved")).when(bookFileMutationGuard).beforeMutation();
+        assertThatThrownBy(() -> service.updateBookMetadata(1L, null, false, MetadataReplaceMode.REPLACE_ALL))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("reserved");
+        assertThatThrownBy(() -> service.toggleFieldLocks(List.of(1L), Map.of("titleLocked", "LOCK")))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("reserved");
+        assertThatThrownBy(() -> service.toggleAllLock(new ToggleAllLockRequest()))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("reserved");
+        verifyNoInteractions(bookRepository, bookMetadataRepository, bookQueryService, bookMetadataUpdater);
     }
 
     @Nested
@@ -554,6 +568,22 @@ class BookMetadataServiceTest {
 
     @Nested
     class BulkUpdateMetadata {
+
+        @Test
+        void reportsReservationFailureBeforeReadingBook() {
+            BulkMetadataUpdateRequest request = new BulkMetadataUpdateRequest();
+            request.setBookIds(Set.of(1L));
+            when(transactionManager.getTransaction(any())).thenReturn(mock(TransactionStatus.class));
+            doThrow(new IllegalStateException("reserved")).when(bookFileMutationGuard).beforeMutation();
+            List<BulkMetadataUpdateProgress> progress = new ArrayList<>();
+
+            var result = service.bulkUpdateMetadata(request, false, false, false, progress::add);
+
+            assertThat(result).isEqualTo(new BulkMetadataUpdateResult(1, 1, 0, 1));
+            assertThat(progress.getFirst().failedBooks())
+                    .containsExactly(new BulkMetadataUpdateFailure(1L, null, "reserved"));
+            verifyNoInteractions(bookRepository, bookMetadataUpdater);
+        }
 
         @Test
         void processesEachBookId() {

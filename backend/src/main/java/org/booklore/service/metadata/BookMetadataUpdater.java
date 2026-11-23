@@ -18,6 +18,7 @@ import org.booklore.model.enums.ComicCreatorRole;
 import org.booklore.model.enums.MetadataReplaceMode;
 import org.booklore.repository.*;
 import org.booklore.service.appsettings.AppSettingService;
+import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.file.FileFingerprint;
 import org.booklore.service.file.FileMoveService;
 import org.booklore.service.metadata.sidecar.SidecarMetadataWriter;
@@ -63,9 +64,11 @@ public class BookMetadataUpdater {
     private final BookReviewUpdateService bookReviewUpdateService;
     private final FileMoveService fileMoveService;
     private final SidecarMetadataWriter sidecarMetadataWriter;
+    private final BookFileMutationGuard bookFileMutationGuard;
 
     @Transactional
     public void setBookMetadata(MetadataUpdateContext context) {
+        bookFileMutationGuard.beforeMutation();
         BookEntity bookEntity = context.getBookEntity();
         MetadataUpdateWrapper wrapper = context.getMetadataUpdateWrapper();
         boolean mergeCategories = context.isMergeCategories();

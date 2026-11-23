@@ -91,6 +91,54 @@ class EpubMetadataWriterTest {
     @DisplayName("Metadata writing Tests")
     class MetadataWritingTests {
         @Test
+        void titleUpdatePreservesUnrelatedMetadata() throws Exception {
+            for (String version : List.of("2.0", "3.0")) {
+                String opfContent = """
+                        <package xmlns="http://www.idpf.org/2007/opf" version="%s"
+                                 prefix="calibre: http://calibre.kovidgoyal.net/2009/metadata"
+                                 unique-identifier="book-id">
+                          <metadata xmlns:dc="http://purl.org/dc/elements/1.1/"
+                                    xmlns:calibre="http://calibre.kovidgoyal.net/2009/metadata"
+                                    xmlns:extra="urn:example">
+                            <dc:identifier id="book-id">urn:calibre:123</dc:identifier>
+                            <dc:title>Original title</dc:title>
+                            <dc:contributor id="contributor">calibre editor</dc:contributor>
+                            <dc:rights xml:lang="en">Rights statement</dc:rights>
+                            <dc:source>Source record</dc:source>
+                            <meta refines="#contributor" property="role">bkp</meta>
+                            <meta name="calibre:rating" content="4"/>
+                            <extra:record extra:kind="example">Extension value</extra:record>
+                            <!-- keep this comment -->
+                          </metadata>
+                        </package>
+                        """.formatted(version);
+                File epubFile = createEpubWithOpf(opfContent, "preserve-" + version + ".epub");
+                BookMetadataEntity titleOnly = new BookMetadataEntity();
+                titleOnly.setTitle("Updated title");
+                titleOnly.setAuthors(null);
+                titleOnly.setCategories(null);
+                titleOnly.setMoods(null);
+                titleOnly.setTags(null);
+
+                writer.saveMetadataToFile(epubFile, titleOnly, new MetadataClearFlags());
+
+                Document doc = parseOpf(epubFile);
+                String dc = "http://purl.org/dc/elements/1.1/";
+                assertThat(doc.getElementsByTagNameNS(dc, "title").item(0).getTextContent()).isEqualTo("Updated title");
+                assertThat(doc.getElementsByTagNameNS(dc, "identifier").item(0).getTextContent()).isEqualTo("urn:calibre:123");
+                assertThat(doc.getElementsByTagNameNS(dc, "contributor").item(0).getTextContent()).isEqualTo("calibre editor");
+                Element rights = (Element) doc.getElementsByTagNameNS(dc, "rights").item(0);
+                assertThat(rights.getTextContent()).isEqualTo("Rights statement");
+                assertThat(rights.getAttributeNS("http://www.w3.org/XML/1998/namespace", "lang")).isEqualTo("en");
+                assertThat(doc.getElementsByTagNameNS(dc, "source").item(0).getTextContent()).isEqualTo("Source record");
+                assertThat(doc.getElementsByTagNameNS("urn:example", "record").item(0).getTextContent()).isEqualTo("Extension value");
+                String content = readOpfContent(epubFile);
+                assertThat(content).contains("refines=\"#contributor\"", "calibre:rating", "keep this comment",
+                        "calibre: http://calibre.kovidgoyal.net/2009/metadata");
+            }
+        }
+
+        @Test
         @DisplayName("Should only overwrite authors of EPUB metadata")
         void writeMetadata_withAuthor_onlyAuthor() throws IOException {
             StringBuilder existingMetadata = new StringBuilder();

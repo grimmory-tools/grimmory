@@ -27,6 +27,7 @@ import org.booklore.repository.BookRepository;
 import org.booklore.service.NotificationService;
 import org.booklore.service.audit.AuditService;
 import org.booklore.service.book.BookQueryService;
+import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.metadata.extractor.CbxMetadataExtractor;
 import org.booklore.service.metadata.extractor.MetadataExtractorFactory;
 import org.booklore.service.metadata.parser.BookParser;
@@ -70,10 +71,12 @@ public class BookMetadataService {
     private final MetadataClearFlagsMapper metadataClearFlagsMapper;
     private final PlatformTransactionManager transactionManager;
     private final AppSettingService appSettingService;
+    private final BookFileMutationGuard bookFileMutationGuard;
 
     @Transactional
     public BookMetadata updateBookMetadata(long bookId, MetadataUpdateWrapper metadataUpdateWrapper,
                                            boolean mergeCategories, MetadataReplaceMode replaceMode) {
+        bookFileMutationGuard.beforeMutation();
         BookEntity bookEntity = bookRepository.findAllWithMetadataByIds(Collections.singleton(bookId)).stream()
                 .findFirst()
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
@@ -194,7 +197,9 @@ public class BookMetadataService {
         return parser;
     }
 
+    @Transactional
     public void toggleFieldLocks(List<Long> bookIds, Map<String, String> fieldActions) {
+        bookFileMutationGuard.beforeMutation();
         Map<String, String> fieldMapping = Map.of(
                 "thumbnailLocked", "coverLocked"
         );
@@ -222,6 +227,7 @@ public class BookMetadataService {
 
     @Transactional
     public List<BookMetadata> toggleAllLock(ToggleAllLockRequest request) {
+        bookFileMutationGuard.beforeMutation();
         boolean lock = request.getLock() == Lock.LOCK;
         List<BookEntity> books = bookQueryService.findAllWithMetadataByIds(request.getBookIds())
                 .stream()
@@ -353,6 +359,7 @@ public class BookMetadataService {
         TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
         transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
         Boolean updated = transactionTemplate.execute(status -> {
+            bookFileMutationGuard.beforeMutation();
             BookEntity book = bookRepository.findByIdFull(bookId).orElse(null);
             if (book == null) {
                 return false;

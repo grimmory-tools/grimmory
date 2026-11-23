@@ -49,9 +49,11 @@ public class FileMoveService {
     private final EntityManager entityManager;
     private final TransactionTemplate transactionTemplate;
     private final SidecarMetadataWriter sidecarMetadataWriter;
+    private final BookFileMutationGuard bookFileMutationGuard;
 
 
     public void bulkMoveFiles(FileMoveRequest request) {
+        bookFileMutationGuard.beforeMutation();
         List<FileMoveRequest.Move> moves = request.getMoves();
 
         validateLocalStorage();
@@ -267,6 +269,7 @@ public class FileMoveService {
     }
 
     public FileMoveResult moveSingleFile(BookEntity bookEntity) {
+        bookFileMutationGuard.beforeMutation();
         record PlannedMove(Path source, Path temp, Path target) {}
 
         validateLocalStorage();

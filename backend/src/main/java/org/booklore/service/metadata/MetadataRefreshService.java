@@ -27,6 +27,7 @@ import org.booklore.repository.LibraryRepository;
 import org.booklore.repository.MetadataFetchJobRepository;
 import org.booklore.service.NotificationService;
 import org.booklore.service.appsettings.AppSettingService;
+import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.metadata.parser.BookParser;
 import org.booklore.task.TaskCancellationManager;
 import org.springframework.stereotype.Service;
@@ -61,13 +62,16 @@ public class MetadataRefreshService {
     private final PlatformTransactionManager transactionManager;
     private final AuthenticationService authenticationService;
     private final TaskCancellationManager cancellationManager;
+    private final BookFileMutationGuard bookFileMutationGuard;
 
 
     public void refreshMetadata(MetadataRefreshRequest request, String jobId) {
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         Long userId = user != null ? user.getId() : null;
-        final Set<Long> bookIds = null;
         final int totalBooks;
+        MetadataFetchJobEntity startedTask = null;
+        int completedBooksForError = 0;
+        int totalBooksForError = 0;
         try {
             AppSettings appSettings = appSettingService.getAppSettings();
 
@@ -82,6 +86,7 @@ public class MetadataRefreshService {
 
             final Set<Long> actualBookIds = getBookEntities(request);
             totalBooks = actualBookIds.size();
+            totalBooksForError = totalBooks;
 
             MetadataRefreshOptions reviewModeOptions = requestRefreshOptions != null ?
                     requestRefreshOptions :
@@ -97,6 +102,7 @@ public class MetadataRefreshService {
                     .completedBooks(0)
                     .build();
             metadataFetchJobRepository.save(task);
+            startedTask = task;
 
             TransactionTemplate txTemplate = new TransactionTemplate(transactionManager);
             int completedCount = 0;
@@ -111,6 +117,7 @@ public class MetadataRefreshService {
 
                 int finalCompletedCount = completedCount;
                 txTemplate.execute(status -> {
+                    bookFileMutationGuard.beforeMutation();
                     BookEntity book = bookRepository.findAllWithMetadataByIds(Collections.singleton(bookId))
                             .stream().findFirst()
                             .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
@@ -177,6 +184,7 @@ public class MetadataRefreshService {
                     return null;
                 });
                 completedCount++;
+                completedBooksForError = completedCount;
             }
 
             completeTask(task, completedCount, totalBooks, isReviewMode);
@@ -190,14 +198,22 @@ public class MetadataRefreshService {
                 return;
             }
             log.error("Fatal error during metadata refresh", e);
-            int totalBooksForError = 0;
-            sendBatchProgressNotification(jobId, 0, totalBooksForError, "Fatal error during metadata refresh: " + e.getMessage(), MetadataFetchTaskStatus.ERROR, false);
+            if (startedTask != null) {
+                try {
+                    if (metadataFetchJobRepository.updateFailure(jobId, MetadataFetchTaskStatus.ERROR, e.getMessage(), Instant.now(), completedBooksForError) != 1) {
+                        log.error("Failed to mark metadata refresh task {} as failed: job not found", jobId);
+                    }
+                } catch (RuntimeException persistenceError) {
+                    e.addSuppressed(persistenceError);
+                    log.error("Failed to mark metadata refresh task {} as failed", jobId, persistenceError);
+                }
+            }
+            sendBatchProgressNotification(jobId, completedBooksForError, totalBooksForError, "Fatal error during metadata refresh: " + e.getMessage(), MetadataFetchTaskStatus.ERROR, false);
             throw e;
         } catch (Exception fatal) {
             cancellationManager.clearCancellation(jobId);
             log.error("Fatal error during metadata refresh", fatal);
-            int totalBooksForError = bookIds != null ? bookIds.size() : 0;
-            sendBatchProgressNotification(jobId, 0, totalBooksForError, "Fatal error during metadata refresh: " + fatal.getMessage(), MetadataFetchTaskStatus.ERROR, false);
+            sendBatchProgressNotification(jobId, completedBooksForError, totalBooksForError, "Fatal error during metadata refresh: " + fatal.getMessage(), MetadataFetchTaskStatus.ERROR, false);
             throw fatal;
         }
     }

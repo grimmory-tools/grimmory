@@ -14,6 +14,7 @@ import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.*;
 import org.booklore.service.audit.AuditService;
+import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
 import org.booklore.service.progress.ReadingProgressService;
 import org.booklore.util.FileService;
@@ -21,6 +22,7 @@ import org.booklore.util.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -35,6 +37,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.nio.file.Files;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -80,6 +84,8 @@ class BookServiceTest {
     private AuditService auditService;
     @Mock
     private EntityManager entityManager;
+    @Mock
+    private BookFileMutationGuard bookFileMutationGuard;
 
     @InjectMocks
     private BookService bookService;
@@ -101,6 +107,36 @@ class BookServiceTest {
 
         epubPath = Path.of("/tmp/library/book.epub");
         pdfPath = Path.of("/tmp/library/book.pdf");
+    }
+
+    @Test
+    void reservedMutationRejectsReplacementAndDeletionBeforeLoadingBooks() {
+        doThrow(new IllegalStateException("reserved")).when(bookFileMutationGuard).beforeMutation();
+        assertThrows(IllegalStateException.class,
+                () -> bookService.replaceBookContent(1L, null, new ByteArrayInputStream(new byte[0])));
+        assertThrows(IllegalStateException.class, () -> bookService.deleteBooks(Set.of(1L)));
+        verifyNoInteractions(bookRepository, bookQueryService, authenticationService);
+    }
+
+    @Test
+    void replaceBookContentStillReplacesSelectedFile(@TempDir Path tempDir) throws Exception {
+        Path file = tempDir.resolve("book.epub");
+        Files.writeString(file, "old");
+        BookEntity book = new BookEntity();
+        LibraryPathEntity libraryPath = new LibraryPathEntity();
+        libraryPath.setPath(tempDir.toString());
+        book.setLibraryPath(libraryPath);
+        BookFileEntity bookFile = new BookFileEntity();
+        bookFile.setBook(book);
+        bookFile.setBookType(BookFileType.EPUB);
+        bookFile.setFileSubPath("");
+        bookFile.setFileName("book.epub");
+        book.setBookFiles(Set.of(bookFile));
+        when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(book));
+
+        bookService.replaceBookContent(1L, "EPUB", new ByteArrayInputStream("new".getBytes(StandardCharsets.UTF_8)));
+
+        assertEquals("new", Files.readString(file));
     }
 
     @Test

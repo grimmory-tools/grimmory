@@ -1,0 +1,56 @@
+services:
+  inherited-acl-probe:
+    image: eclipse-temurin:25-jre@sha256:4ba7de2d5d53f8e2faad1f04e08b96719bd085c4b65fad0182b9f1a2cf94d259
+    network_mode: none
+    user: "0:${PROBE_GID:?Set PROBE_GID}"
+    read_only: true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 64m
+    pids_limit: 32
+    volumes:
+      - ./capability-sandbox:/probe:rw
+      - /usr/syno/bin/synoacltool:/opt/synology/synoacltool:ro
+      - /usr/lib/libsynocore.so.7:/opt/synology/lib/libsynocore.so.7:ro
+      - /usr/lib/libsynoacl.so:/opt/synology/lib/libsynoacl.so:ro
+      - /usr/lib/libicui18n.so.64.2:/opt/synology/lib/libicui18n.so.64:ro
+      - /usr/lib/libicuuc.so.64.2:/opt/synology/lib/libicuuc.so.64:ro
+      - /usr/lib/libicudata.so.64.2:/opt/synology/lib/libicudata.so.64:ro
+      - /usr/lib/libattr.so.1.1.0:/opt/synology/lib/libattr.so.1:ro
+      - /usr/lib/libcrypt.so.1:/opt/synology/lib/libcrypt.so.1:ro
+    entrypoint: []
+    command:
+      - /bin/sh
+      - -ec
+      - |
+        caps=$$(awk '$$1 == "CapEff:" {print $$2}' /proc/self/status)
+        [ "$$caps" = "0000000000000001" ] || { echo "Unexpected effective capabilities: $$caps" >&2; exit 1; }
+        source=/probe/inherited/source.epub
+        candidate=/probe/inherited/candidate.epub
+        [ -d /probe/inherited ] && [ ! -L /probe/inherited ] || { echo 'Invalid test directory' >&2; exit 1; }
+        [ -f "$$source" ] && [ ! -L "$$source" ] && [ "$$(cat "$$source")" = 'synthetic original' ] || {
+          echo 'Expected synthetic input is missing or changed' >&2; exit 1;
+        }
+        [ "$$(stat -c '%u' "$$source")" != 0 ] || { echo 'Input must have a non-root owner' >&2; exit 1; }
+        [ ! -e "$$candidate" ] && [ ! -L "$$candidate" ] || { echo 'Candidate already exists' >&2; exit 1; }
+        trap 'rm -f "$$candidate"' EXIT
+        synoacl() { LD_LIBRARY_PATH=/opt/synology/lib /opt/synology/synoacltool "$$@"; }
+        synoacl -get "$$source" | grep '^Archive:.*is_inherit' >/dev/null || { echo 'Input ACL is not inherited' >&2; exit 1; }
+        source_acl=$$(synoacl -getace "$$source")
+        source_identity=$$(stat -c '%u:%g:%a' "$$source")
+        printf 'synthetic replacement\n' > "$$candidate"
+        synoacl -copy "$$source" "$$candidate"
+        chown --reference="$$source" "$$candidate"
+        [ "$$(stat -c '%u:%g:%a' "$$candidate")" = "$$source_identity" ] || { echo 'Candidate identity or mode differs' >&2; exit 1; }
+        [ "$$(synoacl -getace "$$candidate")" = "$$source_acl" ] || { echo 'Inherited ACL differs' >&2; exit 1; }
+        mv "$$candidate" "$$source"
+        [ "$$(stat -c '%u:%g:%a' "$$source")" = "$$source_identity" ] || { echo 'Replaced identity or mode differs' >&2; exit 1; }
+        [ "$$(synoacl -getace "$$source")" = "$$source_acl" ] || { echo 'Replaced ACL differs' >&2; exit 1; }
+        synoacl -get "$$source" | grep '^Archive:.*is_inherit' >/dev/null || { echo 'Replaced ACL is not inherited' >&2; exit 1; }
+        [ "$$(cat "$$source")" = 'synthetic replacement' ] || { echo 'Replacement content differs' >&2; exit 1; }
+        echo '{"capChownOnly":true,"ownershipAndModePreserved":true,"inheritedAclPreserved":true}'
+    restart: "no"

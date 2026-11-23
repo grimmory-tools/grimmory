@@ -11,6 +11,7 @@ import org.booklore.model.websocket.Topic;
 import org.booklore.repository.LibraryRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.NotificationService;
+import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.fileprocessor.AudiobookProcessor;
 import org.booklore.service.metadata.BookMetadataUpdater;
 import org.booklore.service.metadata.extractor.MetadataExtractorFactory;
@@ -37,8 +38,9 @@ public class LibraryRescanHelper {
     private final TaskCancellationManager cancellationManager;
     private final BookRepository bookRepository;
     private final AudiobookProcessor audiobookProcessor;
+    private final BookFileMutationGuard bookFileMutationGuard;
 
-    public LibraryRescanHelper(LibraryRepository libraryRepository, MetadataExtractorFactory metadataExtractorFactory, @Lazy BookMetadataUpdater bookMetadataUpdater, NotificationService notificationService, TaskCancellationManager cancellationManager, BookRepository bookRepository, AudiobookProcessor audiobookProcessor) {
+    public LibraryRescanHelper(LibraryRepository libraryRepository, MetadataExtractorFactory metadataExtractorFactory, @Lazy BookMetadataUpdater bookMetadataUpdater, NotificationService notificationService, TaskCancellationManager cancellationManager, BookRepository bookRepository, AudiobookProcessor audiobookProcessor, BookFileMutationGuard bookFileMutationGuard) {
         this.libraryRepository = libraryRepository;
         this.metadataExtractorFactory = metadataExtractorFactory;
         this.bookMetadataUpdater = bookMetadataUpdater;
@@ -46,11 +48,17 @@ public class LibraryRescanHelper {
         this.cancellationManager = cancellationManager;
         this.bookRepository = bookRepository;
         this.audiobookProcessor = audiobookProcessor;
+        this.bookFileMutationGuard = bookFileMutationGuard;
     }
 
     @Transactional
     public void handleRescanOptions(RescanLibraryContext context, String taskId) {
-
+        try {
+            bookFileMutationGuard.beforeMutation();
+        } catch (RuntimeException exception) {
+            sendTaskProgressNotification(taskId, 0, "Library rescan failed: " + exception.getMessage(), TaskStatus.FAILED);
+            throw exception;
+        }
         LibraryEntity library = libraryRepository.findById(context.getLibraryId()).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(context.getLibraryId()));
 
         List<BookEntity> bookEntities = bookRepository.findAllWithMetadataByLibraryId(library.getId());

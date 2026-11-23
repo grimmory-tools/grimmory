@@ -12,6 +12,7 @@ import org.booklore.repository.*;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.browse.BrowseService;
 import org.booklore.service.file.FileMoveService;
+import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.metadata.writer.MetadataWriter;
 import org.booklore.service.metadata.writer.MetadataWriterFactory;
 import org.booklore.util.FileService;
@@ -49,6 +50,7 @@ class MetadataManagementServiceTest {
     @Mock private BookRepository bookRepository;
     @Mock private FileService fileService;
     @Mock private BrowseService<BookEntity, Book> bookBrowse;
+    @Mock private BookFileMutationGuard bookFileMutationGuard;
 
     @InjectMocks
     private MetadataManagementService service;
@@ -63,6 +65,18 @@ class MetadataManagementServiceTest {
                                 .build())
                         .build()
         );
+    }
+
+    @Test
+    void reservedMutationRejectsMetadataChangesBeforeReadingBooks() {
+        doThrow(new IllegalStateException("reserved")).when(bookFileMutationGuard).beforeMutation();
+        assertThatThrownBy(() -> service.consolidateMetadata(MergeMetadataType.authors, List.of("A"), List.of("B")))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("reserved");
+        assertThatThrownBy(() -> service.mergeAuthorsById(1L, List.of(2L)))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("reserved");
+        assertThatThrownBy(() -> service.deleteMetadata(MergeMetadataType.authors, List.of("A")))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("reserved");
+        verifyNoInteractions(authorRepository, bookMetadataRepository, metadataWriterFactory, fileMoveService);
     }
 
     @Test

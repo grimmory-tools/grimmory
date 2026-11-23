@@ -14,6 +14,7 @@ import org.booklore.model.entity.UserBookProgressEntity;
 import org.booklore.repository.BookFileRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserBookProgressRepository;
+import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.file.FileMoveHelper;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
 import org.booklore.service.progress.ReadingProgressService;
@@ -46,9 +47,11 @@ public class BookFileAttachmentService {
     private final BookMapper bookMapper;
     private final BookService bookService;
     private final EntityManager entityManager;
+    private final BookFileMutationGuard bookFileMutationGuard;
 
     @Transactional
     public AttachBookFileResponse attachBookFiles(Long targetBookId, List<Long> sourceBookIds, boolean moveFiles) {
+        bookFileMutationGuard.beforeMutation();
         BookEntity targetBook = bookRepository.findByIdWithBookFiles(targetBookId)
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(targetBookId));
 

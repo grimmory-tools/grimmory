@@ -5,6 +5,7 @@ import jakarta.persistence.PersistenceContext;
 import org.booklore.BookloreApplication;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
+import org.booklore.model.enums.MetadataFetchTaskStatus;
 import org.booklore.service.task.TaskCronService;
 import org.flywaydb.core.Flyway;
 import org.hibernate.SessionFactory;
@@ -65,6 +66,12 @@ class BookRepositoryDataJpaTest {
     @Autowired
     private BookOpdsRepository bookOpdsRepository;
 
+    @Autowired
+    private BookFileRepository bookFileRepository;
+
+    @Autowired
+    private MetadataFetchJobRepository metadataFetchJobRepository;
+
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -86,6 +93,64 @@ class BookRepositoryDataJpaTest {
     @Test
     void contextLoads() {
         assertThat(bookRepository).isNotNull();
+    }
+
+    @Test
+    void metadataRefreshFailureUpdatesPersistedJob() {
+        MetadataFetchJobEntity job = MetadataFetchJobEntity.builder()
+                .taskId("failed-refresh")
+                .status(MetadataFetchTaskStatus.IN_PROGRESS)
+                .startedAt(Instant.now())
+                .totalBooksCount(3)
+                .completedBooks(0)
+                .build();
+        entityManager.persist(job);
+        entityManager.flush();
+        Instant completedAt = Instant.now();
+
+        assertThat(metadataFetchJobRepository.updateFailure("failed-refresh", MetadataFetchTaskStatus.ERROR,
+                "Reservation unavailable", completedAt, 1)).isEqualTo(1);
+        entityManager.clear();
+
+        MetadataFetchJobEntity persisted = entityManager.find(MetadataFetchJobEntity.class, "failed-refresh");
+        assertThat(persisted.getStatus()).isEqualTo(MetadataFetchTaskStatus.ERROR);
+        assertThat(persisted.getStatusMessage()).isEqualTo("Reservation unavailable");
+        assertThat(persisted.getCompletedAt()).isNotNull();
+        assertThat(persisted.getCompletedBooks()).isEqualTo(1);
+    }
+
+    @Test
+    void repairLookupReloadsOnlyActiveEpubBookFiles() {
+        LibraryEntity library = LibraryEntity.builder().name("Repair test").icon("book").watch(false).build();
+        entityManager.persist(library);
+        LibraryPathEntity path = LibraryPathEntity.builder().library(library).path("/repair").build();
+        entityManager.persist(path);
+        BookEntity active = BookEntity.builder().library(library).libraryPath(path).addedOn(Instant.now()).deleted(false).build();
+        BookEntity deleted = BookEntity.builder().library(library).libraryPath(path).addedOn(Instant.now()).deleted(true).build();
+        entityManager.persist(active);
+        entityManager.persist(deleted);
+        BookFileEntity epub = BookFileEntity.builder().book(active).fileName("active.epub").fileSubPath("")
+                .isBookFormat(true).bookType(BookFileType.EPUB).fileSizeKb(1L)
+                .initialHash("hash").currentHash("hash").addedOn(Instant.now()).build();
+        BookFileEntity pdf = BookFileEntity.builder().book(active).fileName("other.pdf").fileSubPath("")
+                .isBookFormat(true).bookType(BookFileType.PDF).fileSizeKb(1L)
+                .initialHash("hash").currentHash("hash").addedOn(Instant.now()).build();
+        BookFileEntity deletedEpub = BookFileEntity.builder().book(deleted).fileName("deleted.epub").fileSubPath("")
+                .isBookFormat(true).bookType(BookFileType.EPUB).fileSizeKb(1L)
+                .initialHash("hash").currentHash("hash").addedOn(Instant.now()).build();
+        BookFileEntity attachment = BookFileEntity.builder().book(active).fileName("attachment.epub").fileSubPath("")
+                .isBookFormat(false).bookType(BookFileType.EPUB).fileSizeKb(1L)
+                .initialHash("hash").currentHash("hash").addedOn(Instant.now()).build();
+        entityManager.persist(epub);
+        entityManager.persist(pdf);
+        entityManager.persist(deletedEpub);
+        entityManager.persist(attachment);
+        entityManager.flush();
+        var ids = List.of(epub.getId(), pdf.getId(), deletedEpub.getId(), attachment.getId());
+        entityManager.clear();
+
+        assertThat(bookFileRepository.findAllForRepairByIdIn(ids, BookFileType.EPUB))
+                .extracting(BookFileEntity::getId).containsExactly(epub.getId());
     }
 
     @Test

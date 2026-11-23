@@ -13,6 +13,7 @@ import org.booklore.repository.BookFileRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserBookProgressRepository;
 import org.booklore.service.audit.AuditService;
+import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.metadata.BookCoverService;
 import org.booklore.service.progress.ReadingProgressService;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +45,7 @@ class BookFileDetachmentServiceTest {
     @Mock private BookService bookService;
     @Mock private AuditService auditService;
     @Mock private BookCoverService bookCoverService;
+    @Mock private BookFileMutationGuard bookFileMutationGuard;
 
     @InjectMocks
     private BookFileDetachmentService service;

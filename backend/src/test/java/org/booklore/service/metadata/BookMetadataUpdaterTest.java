@@ -16,6 +16,7 @@ import org.booklore.model.enums.MetadataReplaceMode;
 import org.booklore.repository.*;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.file.FileMoveService;
+import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.metadata.sidecar.SidecarMetadataWriter;
 import org.booklore.service.metadata.writer.MetadataWriterFactory;
 import org.booklore.util.FileService;
@@ -60,6 +61,7 @@ class BookMetadataUpdaterTest {
     @Mock private BookReviewUpdateService bookReviewUpdateService;
     @Mock private FileMoveService fileMoveService;
     @Mock private SidecarMetadataWriter sidecarMetadataWriter;
+    @Mock private BookFileMutationGuard bookFileMutationGuard;
 
     @InjectMocks
     private BookMetadataUpdater updater;
@@ -93,6 +95,16 @@ class BookMetadataUpdaterTest {
                 .metadataUpdateWrapper(MetadataUpdateWrapper.builder().metadata(newMeta).build())
                 .replaceMode(mode)
                 .build();
+    }
+
+    @Test
+    void reservedMutationRejectsMetadataUpdateBeforeChangingBook() {
+        doThrow(new IllegalStateException("reserved")).when(bookFileMutationGuard).beforeMutation();
+        var context = buildContext(BookMetadata.builder().title("Changed").build(), MetadataReplaceMode.REPLACE_ALL);
+        assertThatThrownBy(() -> updater.setBookMetadata(context))
+                .isInstanceOf(IllegalStateException.class).hasMessageContaining("reserved");
+        assertThat(metadataEntity.getTitle()).isEqualTo("Original Title");
+        verifyNoInteractions(bookRepository, metadataWriterFactory, fileMoveService);
     }
 
     private void mockSettingsAndChangeDetector(MockedStatic<MetadataChangeDetector> mcd, boolean hasDiff, boolean hasValueChanges) {

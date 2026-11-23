@@ -5,12 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookFileRepository;
+import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.file.FileFingerprint;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,11 +22,10 @@ import java.nio.file.attribute.FileTime;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -40,6 +42,8 @@ public class EpubRepairService {
     private static final byte[] MIMETYPE_CONTENT = "application/epub+zip".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
 
     private final BookFileRepository bookFileRepository;
+    private final BookFileMutationGuard bookFileMutationGuard;
+    private final TransactionTemplate transactionTemplate;
 
     public EpubRepairResult repairAll(
             String taskId,
@@ -66,37 +70,27 @@ public class EpubRepairService {
             }
             afterId = fileIds.getLast();
 
-            Map<Long, BookFileEntity> filesById = bookFileRepository.findAllForRepairByIdIn(fileIds).stream()
-                    .collect(Collectors.toMap(BookFileEntity::getId, file -> file));
             for (Long fileId : fileIds) {
                 if (cancellationRequested.getAsBoolean()) {
                     break;
                 }
 
-                BookFileEntity file = filesById.get(fileId);
-                if (file == null) {
-                    failedCount++;
-                    log.warn("EPUB repair task {} could not load book file {}", taskId, fileId);
-                } else {
-                    try {
-                        Path epubPath = file.getFullFilePath();
-                        if (repairContainer(epubPath, taskId)) {
-                            long fileSizeKb = Files.size(epubPath) / 1024;
-                            String currentHash = FileFingerprint.generateHash(epubPath);
-                            bookFileRepository.updateFingerprintAndFileSize(fileId, currentHash, fileSizeKb);
-                            repairedCount++;
-                        } else {
-                            unchangedCount++;
-                        }
-                    } catch (IOException | RuntimeException exception) {
+                try {
+                    RepairOutcome outcome = Objects.requireNonNull(
+                            transactionTemplate.execute(status -> repairFile(fileId, taskId)),
+                            "EPUB repair transaction returned no outcome");
+                    if (outcome == RepairOutcome.REPAIRED) {
+                        repairedCount++;
+                    } else if (outcome == RepairOutcome.UNCHANGED) {
+                        unchangedCount++;
+                    } else {
                         failedCount++;
-                        log.warn("EPUB repair task {} failed for file '{}' (id {}): {}",
-                                taskId,
-                                file.getFileName(),
-                                fileId,
-                                exception.getMessage(),
-                                exception);
+                        log.warn("EPUB repair task {} could not load book file {}", taskId, fileId);
                     }
+                } catch (RuntimeException exception) {
+                    failedCount++;
+                    log.warn("EPUB repair task {} failed for file id {}: {}",
+                            taskId, fileId, exception.getMessage(), exception);
                 }
 
                 processedCount++;
@@ -119,6 +113,30 @@ public class EpubRepairService {
                 failedCount,
                 cancellationRequested.getAsBoolean());
     }
+
+    private RepairOutcome repairFile(Long fileId, String taskId) {
+        bookFileMutationGuard.beforeMutation();
+        List<BookFileEntity> files = bookFileRepository.findAllForRepairByIdIn(List.of(fileId), BookFileType.EPUB);
+        if (files.isEmpty()) {
+            return RepairOutcome.MISSING;
+        }
+        Path epubPath = files.getFirst().getFullFilePath();
+        try {
+            if (!repairContainer(epubPath, taskId)) {
+                return RepairOutcome.UNCHANGED;
+            }
+            long fileSizeKb = Files.size(epubPath) / 1024;
+            String currentHash = FileFingerprint.generateHash(epubPath);
+            if (bookFileRepository.updateFingerprintAndFileSize(fileId, currentHash, fileSizeKb) != 1) {
+                throw new IllegalStateException("Could not update fingerprint for repaired book file " + fileId);
+            }
+            return RepairOutcome.REPAIRED;
+        } catch (IOException exception) {
+            throw new UncheckedIOException(exception);
+        }
+    }
+
+    private enum RepairOutcome { REPAIRED, UNCHANGED, MISSING }
 
     boolean repairContainer(Path epubPath, String taskId) throws IOException {
         if (isContainerCompliant(epubPath)) {

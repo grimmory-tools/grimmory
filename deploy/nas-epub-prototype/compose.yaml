@@ -1,0 +1,19 @@
+services:
+  epub-prototype:
+    build:
+      context: ./package
+    network_mode: none
+    user: "${PROTOTYPE_UID:?Set PROTOTYPE_UID}:${PROTOTYPE_GID:?Set PROTOTYPE_GID}"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 512m
+    pids_limit: 128
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=384m
+    volumes:
+      - ./sandbox:/sandbox:rw
+      - ./package/request.json:/request.json:ro
+    restart: "no"

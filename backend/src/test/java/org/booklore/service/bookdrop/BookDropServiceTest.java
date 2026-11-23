@@ -18,6 +18,7 @@ import org.booklore.repository.BookdropFileRepository;
 import org.booklore.repository.LibraryPathRepository;
 import org.booklore.repository.LibraryRepository;
 import org.booklore.service.NotificationService;
+import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.file.FileMovingHelper;
 import org.booklore.service.fileprocessor.BookFileProcessor;
 import org.booklore.service.fileprocessor.BookFileProcessorRegistry;
@@ -88,6 +89,8 @@ class BookDropServiceTest {
     private FileMovingHelper fileMovingHelper;
     @Mock
     private ApplicationEventPublisher eventPublisher;
+    @Mock
+    private BookFileMutationGuard bookFileMutationGuard;
 
     @InjectMocks
     private BookDropService bookDropService;
@@ -215,6 +218,16 @@ class BookDropServiceTest {
     }
 
     @Test
+    void finalizeImport_rejectsReservationBeforeReadingOrPausingMonitoring() {
+        doThrow(new IllegalStateException("Reservation unavailable")).when(bookFileMutationGuard).beforeMutation();
+
+        assertThrows(IllegalStateException.class, () -> bookDropService.finalizeImport(new BookdropFinalizeRequest()));
+
+        verifyNoInteractions(bookdropFileRepository, bookRepository, libraryRepository, bookdropMonitoringService,
+                monitoringRegistrationService, fileMovingHelper, processorRegistry);
+    }
+
+    @Test
     void finalizeImport_ShouldPauseAndResumeMonitoring() {
         BookdropFinalizeRequest request = new BookdropFinalizeRequest();
         request.setSelectAll(false);
@@ -222,6 +235,9 @@ class BookDropServiceTest {
 
         BookdropFinalizeResult result = bookDropService.finalizeImport(request);
 
+        var ordered = inOrder(bookFileMutationGuard, bookdropMonitoringService);
+        ordered.verify(bookFileMutationGuard).beforeMutation();
+        ordered.verify(bookdropMonitoringService).pauseMonitoring();
         assertNotNull(result);
         assertNotNull(result.getProcessedAt());
         verify(bookdropMonitoringService).pauseMonitoring();

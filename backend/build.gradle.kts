@@ -33,10 +33,30 @@ tasks.withType<JavaCompile>().configureEach {
 
 val useLocalLibs = providers.gradleProperty("useLocalLibs").isPresent
 val mainSourceSet = the<SourceSetContainer>()["main"]
+val testSourceSet = the<SourceSetContainer>()["test"]
 val openApiOutputDir = layout.buildDirectory.dir("openapi")
 val openApiOutputFile = openApiOutputDir.map { it.file("grimmory-openapi.json") }
 val openApiLogFile = openApiOutputDir.map { it.file("export-openapi.log") }
 val openApiExportScript = layout.projectDirectory.file("scripts/export-openapi.sh")
+
+tasks.register<Zip>("nasMariaDbTestBundle") {
+    dependsOn(tasks.named("testClasses"))
+    archiveFileName.set("nas-mariadb-test-bundle.zip")
+    destinationDirectory.set(layout.buildDirectory.dir("nas-mariadb-test"))
+    duplicatesStrategy = DuplicatesStrategy.FAIL
+    into("classes") {
+        from(mainSourceSet.output)
+        from(testSourceSet.output) {
+            include("org/booklore/service/metadata/writer/NasEpubMariaDbCoordinatorTest*.class")
+            include("org/booklore/service/metadata/writer/NasEpubMariaDbTestRunner.class")
+            include("org/booklore/service/metadata/writer/NasEpubAgentTest*.class")
+            include("db/nas-synthetic-job.sql")
+        }
+    }
+    into("lib") {
+        from(configurations.testRuntimeClasspath)
+    }
+}
 
 repositories {
     if (useLocalLibs) mavenLocal()
@@ -188,6 +208,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
     testImplementation("org.assertj:assertj-core:3.27.7")
+    testImplementation("org.junit.platform:junit-platform-launcher")
     testRuntimeOnly("com.h2database:h2")
     add(openApiExportRuntimeOnly.name, "com.h2database:h2")
 }

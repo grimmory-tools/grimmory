@@ -1,6 +1,7 @@
 package org.booklore.repository;
 
 import org.booklore.model.entity.MetadataFetchJobEntity;
+import org.booklore.model.enums.MetadataFetchTaskStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -25,4 +26,9 @@ public interface MetadataFetchJobRepository extends JpaRepository<MetadataFetchJ
 
     @Query("SELECT DISTINCT t FROM MetadataFetchJobEntity t LEFT JOIN FETCH t.proposals")
     List<MetadataFetchJobEntity> findAllWithProposals();
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE MetadataFetchJobEntity t SET t.status = :status, t.statusMessage = :message, t.completedAt = :completedAt, t.completedBooks = :completedBooks WHERE t.taskId = :taskId")
+    int updateFailure(String taskId, MetadataFetchTaskStatus status, String message, Instant completedAt, int completedBooks);
 }

@@ -28,6 +28,7 @@ import org.booklore.repository.BookdropFileRepository;
 import org.booklore.repository.LibraryRepository;
 import org.booklore.service.NotificationService;
 import org.booklore.service.event.BookAddedEvent;
+import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.file.FileMovingHelper;
 import org.booklore.service.fileprocessor.BookFileProcessor;
 import org.booklore.service.fileprocessor.BookFileProcessorRegistry;
@@ -76,6 +77,7 @@ public class BookDropService {
     private final FileMovingHelper fileMovingHelper;
     private final MonitoringRegistrationService monitoringRegistrationService;
     private final ApplicationEventPublisher eventPublisher;
+    private final BookFileMutationGuard bookFileMutationGuard;
 
     private static final int CHUNK_SIZE = 100;
 
@@ -104,6 +106,7 @@ public class BookDropService {
     }
 
     public BookdropFinalizeResult finalizeImport(BookdropFinalizeRequest request) {
+        bookFileMutationGuard.beforeMutation();
         try {
             bookdropMonitoringService.pauseMonitoring();
             return processFinalizationRequest(request);

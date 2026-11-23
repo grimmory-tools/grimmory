@@ -9,7 +9,9 @@ import org.booklore.model.dto.settings.AppSettings;
 import org.booklore.model.MetadataUpdateContext;
 import org.booklore.model.MetadataUpdateWrapper;
 import org.booklore.model.entity.BookEntity;
+import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.entity.LibraryEntity;
+import org.booklore.model.enums.MetadataFetchTaskStatus;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.model.enums.MetadataReplaceMode;
 import org.booklore.repository.BookRepository;
@@ -17,6 +19,7 @@ import org.booklore.repository.LibraryRepository;
 import org.booklore.repository.MetadataFetchJobRepository;
 import org.booklore.service.NotificationService;
 import org.booklore.service.appsettings.AppSettingService;
+import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.metadata.parser.BookParser;
 import org.booklore.task.TaskCancellationManager;
 import org.junit.jupiter.api.Nested;
@@ -26,6 +29,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.SimpleTransactionStatus;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.*;
@@ -51,9 +55,61 @@ class MetadataRefreshServiceTest {
     @Mock private PlatformTransactionManager transactionManager;
     @Mock private AuthenticationService authenticationService;
     @Mock private TaskCancellationManager cancellationManager;
+    @Mock private BookFileMutationGuard bookFileMutationGuard;
 
     @InjectMocks
     private MetadataRefreshService service;
+
+    @Test
+    void refreshMetadata_rejectedReservationFailsJobBeforeReadingBook() {
+        MetadataRefreshOptions options = MetadataRefreshOptions.builder().build();
+        MetadataRefreshRequest request = MetadataRefreshRequest.builder()
+                .refreshType(MetadataRefreshRequest.RefreshType.BOOKS)
+                .bookIds(Set.of(1L))
+                .refreshOptions(options)
+                .build();
+        when(appSettingService.getAppSettings()).thenReturn(AppSettings.builder().build());
+        SimpleTransactionStatus transaction = new SimpleTransactionStatus();
+        when(transactionManager.getTransaction(any())).thenReturn(transaction);
+        when(metadataFetchJobRepository.updateFailure(eq("job-1"), eq(MetadataFetchTaskStatus.ERROR), eq("Reservation unavailable"), any(), eq(0))).thenReturn(1);
+        doThrow(new IllegalStateException("Reservation unavailable")).when(bookFileMutationGuard).beforeMutation();
+
+        assertThatThrownBy(() -> service.refreshMetadata(request, "job-1"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Reservation unavailable");
+
+        verify(transactionManager).rollback(transaction);
+        verifyNoInteractions(bookRepository, bookMetadataUpdater);
+        verify(metadataFetchJobRepository).updateFailure(eq("job-1"), eq(MetadataFetchTaskStatus.ERROR), eq("Reservation unavailable"), any(), eq(0));
+    }
+
+    @Test
+    void refreshMetadata_retainsProgressWhenLaterReservationIsRejected() {
+        MetadataRefreshRequest request = MetadataRefreshRequest.builder()
+                .refreshType(MetadataRefreshRequest.RefreshType.BOOKS)
+                .bookIds(new LinkedHashSet<>(List.of(1L, 2L)))
+                .refreshOptions(MetadataRefreshOptions.builder().build())
+                .build();
+        when(appSettingService.getAppSettings()).thenReturn(AppSettings.builder().build());
+        when(transactionManager.getTransaction(any())).thenReturn(new SimpleTransactionStatus(), new SimpleTransactionStatus());
+        doNothing().doThrow(new IllegalStateException("Reservation unavailable")).when(bookFileMutationGuard).beforeMutation();
+        BookEntity book = mock(BookEntity.class);
+        BookMetadataEntity metadata = mock(BookMetadataEntity.class);
+        when(book.getMetadata()).thenReturn(metadata);
+        when(metadata.areAllFieldsLocked()).thenReturn(true);
+        when(bookRepository.findAllWithMetadataByIds(Set.of(1L))).thenReturn(List.of(book));
+        when(metadataFetchJobRepository.updateFailure(eq("job-1"), eq(MetadataFetchTaskStatus.ERROR), eq("Reservation unavailable"), any(), eq(1))).thenReturn(1);
+
+        assertThatThrownBy(() -> service.refreshMetadata(request, "job-1"))
+                .isInstanceOf(IllegalStateException.class);
+
+        var ordered = inOrder(bookFileMutationGuard, bookRepository);
+        ordered.verify(bookFileMutationGuard).beforeMutation();
+        ordered.verify(bookRepository).findAllWithMetadataByIds(Set.of(1L));
+        ordered.verify(bookFileMutationGuard).beforeMutation();
+        verify(bookRepository, never()).findAllWithMetadataByIds(Set.of(2L));
+        verify(metadataFetchJobRepository).updateFailure(eq("job-1"), eq(MetadataFetchTaskStatus.ERROR), eq("Reservation unavailable"), any(), eq(1));
+    }
 
     @Test
     void resolveMetadataRefreshOptions_returnsLibrarySpecificWhenMatched() {

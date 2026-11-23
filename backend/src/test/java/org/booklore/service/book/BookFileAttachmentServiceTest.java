@@ -12,6 +12,7 @@ import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookFileRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserBookProgressRepository;
+import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.file.FileMoveHelper;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
 import org.booklore.service.progress.ReadingProgressService;
@@ -44,6 +45,7 @@ class BookFileAttachmentServiceTest {
     @Mock private BookMapper bookMapper;
     @Mock private BookService bookService;
     @Mock private EntityManager entityManager;
+    @Mock private BookFileMutationGuard bookFileMutationGuard;
 
     @InjectMocks
     private BookFileAttachmentService service;

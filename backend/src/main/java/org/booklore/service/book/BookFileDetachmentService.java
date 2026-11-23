@@ -19,6 +19,7 @@ import org.booklore.repository.BookFileRepository;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.UserBookProgressRepository;
 import org.booklore.service.audit.AuditService;
+import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.metadata.BookCoverService;
 import org.booklore.service.progress.ReadingProgressService;
 import org.springframework.stereotype.Service;
@@ -47,9 +48,11 @@ public class BookFileDetachmentService {
     private final BookService bookService;
     private final AuditService auditService;
     private final BookCoverService bookCoverService;
+    private final BookFileMutationGuard bookFileMutationGuard;
 
     @Transactional
     public DetachBookFileResponse detachBookFile(Long bookId, Long fileId, boolean copyMetadata) {
+        bookFileMutationGuard.beforeMutation();
         BookEntity sourceBook = bookRepository.findByIdWithBookFiles(bookId)
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 

@@ -13,6 +13,7 @@ import org.booklore.model.enums.MetadataReplaceMode;
 import org.booklore.model.enums.SidecarSyncStatus;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.LibraryRepository;
+import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.metadata.BookMetadataUpdater;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,7 @@ public class SidecarService {
     private final SidecarMetadataWriter sidecarWriter;
     private final SidecarMetadataMapper sidecarMapper;
     private final BookMetadataUpdater bookMetadataUpdater;
+    private final BookFileMutationGuard bookFileMutationGuard;
 
     public Optional<SidecarMetadata> getSidecarContent(Long bookId) {
         BookEntity book = bookRepository.findByIdWithBookFiles(bookId)
@@ -54,6 +56,7 @@ public class SidecarService {
 
     @Transactional
     public void exportToSidecar(Long bookId) {
+        bookFileMutationGuard.beforeMutation();
         BookEntity book = bookRepository.findByIdWithBookFiles(bookId)
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
@@ -62,6 +65,7 @@ public class SidecarService {
 
     @Transactional
     public void importFromSidecar(Long bookId) {
+        bookFileMutationGuard.beforeMutation();
         BookEntity book = bookRepository.findByIdWithBookFiles(bookId)
                 .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
@@ -101,6 +105,7 @@ public class SidecarService {
 
     @Transactional
     public int bulkExport(Long libraryId) {
+        bookFileMutationGuard.beforeMutation();
         LibraryEntity library = libraryRepository.findById(libraryId)
                 .orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
 
@@ -122,6 +127,7 @@ public class SidecarService {
 
     @Transactional
     public int bulkImport(Long libraryId) {
+        bookFileMutationGuard.beforeMutation();
         LibraryEntity library = libraryRepository.findById(libraryId)
                 .orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(libraryId));
 

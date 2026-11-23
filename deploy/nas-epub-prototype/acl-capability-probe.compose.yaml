@@ -1,0 +1,57 @@
+services:
+  acl-capability-probe:
+    image: eclipse-temurin:25-jre@sha256:4ba7de2d5d53f8e2faad1f04e08b96719bd085c4b65fad0182b9f1a2cf94d259
+    network_mode: none
+    user: "0:${PROBE_GID:?Set PROBE_GID}"
+    read_only: true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 64m
+    pids_limit: 32
+    volumes:
+      - ./capability-sandbox:/probe:rw
+      - /usr/syno/bin/synoacltool:/opt/synology/synoacltool:ro
+      - /usr/lib/libsynocore.so.7:/opt/synology/lib/libsynocore.so.7:ro
+      - /usr/lib/libsynoacl.so:/opt/synology/lib/libsynoacl.so:ro
+      - /usr/lib/libicui18n.so.64.2:/opt/synology/lib/libicui18n.so.64:ro
+      - /usr/lib/libicuuc.so.64.2:/opt/synology/lib/libicuuc.so.64:ro
+      - /usr/lib/libicudata.so.64.2:/opt/synology/lib/libicudata.so.64:ro
+      - /usr/lib/libattr.so.1.1.0:/opt/synology/lib/libattr.so.1:ro
+      - /usr/lib/libcrypt.so.1:/opt/synology/lib/libcrypt.so.1:ro
+    environment:
+      PROBE_OWNER_UID: "${PROBE_OWNER_UID:?Set PROBE_OWNER_UID}"
+      PROBE_OWNER_GID: "${PROBE_OWNER_GID:?Set PROBE_OWNER_GID}"
+    entrypoint: []
+    command:
+      - /bin/sh
+      - -ec
+      - |
+        case "$$PROBE_OWNER_UID:$$PROBE_OWNER_GID" in
+          *[!0-9:]*|:*|*:) echo "Invalid target identity" >&2; exit 1 ;;
+        esac
+        caps=$$(awk '$$1 == "CapEff:" {print $$2}' /proc/self/status)
+        [ "$$caps" = "0000000000000001" ] || { echo "Unexpected effective capabilities: $$caps" >&2; exit 1; }
+        [ ! -e /probe/source.epub ] && [ ! -e /probe/candidate.epub ] || { echo "Probe files already exist" >&2; exit 1; }
+        trap 'rm -f /probe/source.epub /probe/candidate.epub' EXIT
+        synoacl() { LD_LIBRARY_PATH=/opt/synology/lib /opt/synology/synoacltool "$$@"; }
+        printf 'synthetic original\n' > /probe/source.epub
+        printf 'synthetic replacement\n' > /probe/candidate.epub
+        synoacl -add /probe/source.epub 'owner:*:allow:rwxpdDaARWcCo:----'
+        synoacl -add /probe/source.epub 'everyone:*:allow:rwxpdDaARWcCo:----'
+        chown "$$PROBE_OWNER_UID:$$PROBE_OWNER_GID" /probe/source.epub
+        synoacl -copy /probe/source.epub /probe/candidate.epub
+        chown --reference=/probe/source.epub /probe/candidate.epub
+        source_acl=$$(synoacl -getace /probe/source.epub)
+        candidate_acl=$$(synoacl -getace /probe/candidate.epub)
+        [ "$$source_acl" = "$$candidate_acl" ] || { echo 'ACL entries differ' >&2; exit 1; }
+        expected="$$PROBE_OWNER_UID:$$PROBE_OWNER_GID"
+        mv /probe/candidate.epub /probe/source.epub
+        [ "$$(stat -c '%u:%g' /probe/source.epub)" = "$$expected" ]
+        [ "$$(synoacl -getace /probe/source.epub)" = "$$source_acl" ]
+        [ "$$(cat /probe/source.epub)" = "synthetic replacement" ]
+        echo '{"capChownOnly":true,"ownershipPreserved":true,"aclEntriesPreserved":true}'
+    restart: "no"

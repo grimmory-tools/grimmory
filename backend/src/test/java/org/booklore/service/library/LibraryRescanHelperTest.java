@@ -15,6 +15,7 @@ import org.booklore.model.websocket.Topic;
 import org.booklore.repository.BookRepository;
 import org.booklore.repository.LibraryRepository;
 import org.booklore.service.NotificationService;
+import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.fileprocessor.AudiobookProcessor;
 import org.booklore.service.metadata.BookMetadataUpdater;
 import org.booklore.service.metadata.extractor.MetadataExtractorFactory;
@@ -50,6 +51,7 @@ class LibraryRescanHelperTest {
     @Mock private TaskCancellationManager cancellationManager;
     @Mock private BookRepository bookRepository;
     @Mock private AudiobookProcessor audiobookProcessor;
+    @Mock private BookFileMutationGuard bookFileMutationGuard;
     @InjectMocks private LibraryRescanHelper libraryRescanHelper;
 
     @Captor private ArgumentCaptor<TaskProgressPayload> payloadCaptor;
@@ -76,6 +78,17 @@ class LibraryRescanHelperTest {
                 .build();
 
         taskId = "task-123";
+    }
+
+    @Test
+    void handleRescanOptions_shouldFailBeforeLoadingBooks_whenReservationIsRejected() {
+        doThrow(new IllegalStateException("Reservation unavailable")).when(bookFileMutationGuard).beforeMutation();
+
+        assertThrows(IllegalStateException.class, () -> libraryRescanHelper.handleRescanOptions(rescanContext, taskId));
+
+        verifyNoInteractions(libraryRepository, bookRepository, metadataExtractorFactory, bookMetadataUpdater);
+        verify(notificationService).sendMessage(eq(Topic.TASK_PROGRESS), payloadCaptor.capture());
+        assertEquals(TaskStatus.FAILED, payloadCaptor.getValue().getTaskStatus());
     }
 
     @Test
@@ -108,6 +121,10 @@ class LibraryRescanHelperTest {
 
         libraryRescanHelper.handleRescanOptions(rescanContext, taskId);
 
+        var ordered = inOrder(bookFileMutationGuard, libraryRepository, bookRepository);
+        ordered.verify(bookFileMutationGuard).beforeMutation();
+        ordered.verify(libraryRepository).findById(1L);
+        ordered.verify(bookRepository).findAllWithMetadataByLibraryId(1L);
         verify(libraryRepository).findById(1L);
         verify(metadataExtractorFactory, times(2)).extractMetadata(any(BookFileType.class), any(File.class));
         verify(bookMetadataUpdater, times(2)).setBookMetadata(any(MetadataUpdateContext.class));

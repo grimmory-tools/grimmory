@@ -1,0 +1,83 @@
+services:
+  acl-batch-rollback-probe:
+    image: eclipse-temurin:25-jre@sha256:4ba7de2d5d53f8e2faad1f04e08b96719bd085c4b65fad0182b9f1a2cf94d259
+    network_mode: none
+    user: "0:${PROBE_GID:?Set PROBE_GID}"
+    read_only: true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 64m
+    pids_limit: 32
+    volumes:
+      - ./capability-sandbox:/probe:rw
+      - /usr/syno/bin/synoacltool:/opt/synology/synoacltool:ro
+      - /usr/lib/libsynocore.so.7:/opt/synology/lib/libsynocore.so.7:ro
+      - /usr/lib/libsynoacl.so:/opt/synology/lib/libsynoacl.so:ro
+      - /usr/lib/libicui18n.so.64.2:/opt/synology/lib/libicui18n.so.64:ro
+      - /usr/lib/libicuuc.so.64.2:/opt/synology/lib/libicuuc.so.64:ro
+      - /usr/lib/libicudata.so.64.2:/opt/synology/lib/libicudata.so.64:ro
+      - /usr/lib/libattr.so.1.1.0:/opt/synology/lib/libattr.so.1:ro
+      - /usr/lib/libcrypt.so.1:/opt/synology/lib/libcrypt.so.1:ro
+    entrypoint: []
+    command:
+      - /bin/sh
+      - -ec
+      - |
+        caps=$$(awk '$$1 == "CapEff:" {print $$2}' /proc/self/status)
+        [ "$$caps" = "0000000000000001" ] || { echo "Unexpected effective capabilities: $$caps" >&2; exit 1; }
+        a=/probe/inherited
+        b=/probe/explicit
+        for dir in "$$a" "$$b"; do
+          [ -d "$$dir" ] && [ ! -L "$$dir" ] || { echo 'Invalid test directory' >&2; exit 1; }
+          [ -f "$$dir/source.epub" ] && [ ! -L "$$dir/source.epub" ] || { echo 'Invalid test source' >&2; exit 1; }
+          for name in backup.epub candidate.epub restore.epub; do
+            [ ! -e "$$dir/$$name" ] && [ ! -L "$$dir/$$name" ] || { echo 'Test file already exists' >&2; exit 1; }
+          done
+        done
+        [ "$$(cat "$$a/source.epub")" = 'synthetic original inherited' ] || { echo 'Unexpected inherited input' >&2; exit 1; }
+        [ "$$(cat "$$b/source.epub")" = 'synthetic original explicit' ] || { echo 'Unexpected explicit input' >&2; exit 1; }
+        [ "$$(stat -c '%u' "$$a/source.epub")" != 0 ] || { echo 'Input must have a non-root owner' >&2; exit 1; }
+        synoacl() { LD_LIBRARY_PATH=/opt/synology/lib /opt/synology/synoacltool "$$@"; }
+        synoacl -get "$$a/source.epub" | grep '^Archive:.*is_inherit' >/dev/null || { echo 'Inherited ACL missing' >&2; exit 1; }
+        synoacl -get "$$b/source.epub" | grep '^Archive:.*has_ACL' >/dev/null || { echo 'Explicit ACL missing' >&2; exit 1; }
+        chown 1035:101 "$$b/source.epub"
+        [ "$$(stat -c '%u:%g' "$$b/source.epub")" = '1035:101' ] || { echo 'Explicit identity differs' >&2; exit 1; }
+        check() {
+          [ "$$(stat -c '%u:%g:%a' "$$1")" = "$$(stat -c '%u:%g:%a' "$$2")" ] || { echo 'Identity or mode differs' >&2; return 1; }
+          [ "$$(synoacl -getace "$$1")" = "$$(synoacl -getace "$$2")" ] || { echo 'ACL entries differ' >&2; return 1; }
+          archive1=$$(synoacl -get "$$1" | grep '^Archive:')
+          archive2=$$(synoacl -get "$$2" | grep '^Archive:')
+          [ "$$archive1" = "$$archive2" ] || { echo 'ACL inheritance flags differ' >&2; return 1; }
+        }
+        preserve() {
+          synoacl -copy "$$1" "$$2"
+          chown --reference="$$1" "$$2"
+          check "$$1" "$$2"
+        }
+        for dir in "$$a" "$$b"; do
+          cat "$$dir/source.epub" > "$$dir/backup.epub"
+          preserve "$$dir/source.epub" "$$dir/backup.epub"
+          printf 'synthetic replacement\n' > "$$dir/candidate.epub"
+          preserve "$$dir/source.epub" "$$dir/candidate.epub"
+        done
+        mv "$$a/candidate.epub" "$$a/source.epub"
+        check "$$a/backup.epub" "$$a/source.epub"
+        mv "$$b/candidate.epub" "$$b/source.epub"
+        check "$$b/backup.epub" "$$b/source.epub"
+        [ "$$(cat "$$a/source.epub")" = 'synthetic replacement' ] && [ "$$(cat "$$b/source.epub")" = 'synthetic replacement' ]
+        for dir in "$$b" "$$a"; do
+          cat "$$dir/backup.epub" > "$$dir/restore.epub"
+          preserve "$$dir/source.epub" "$$dir/restore.epub"
+          mv "$$dir/restore.epub" "$$dir/source.epub"
+          check "$$dir/backup.epub" "$$dir/source.epub"
+          cmp "$$dir/backup.epub" "$$dir/source.epub"
+        done
+        [ "$$(cat "$$a/source.epub")" = 'synthetic original inherited' ]
+        [ "$$(cat "$$b/source.epub")" = 'synthetic original explicit' ]
+        rm "$$a/backup.epub" "$$b/backup.epub"
+        echo '{"capChownOnly":true,"twoFilesRestored":true,"ownershipModeAclPreserved":true}'
+    restart: "no"

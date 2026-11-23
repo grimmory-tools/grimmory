@@ -75,8 +75,11 @@ public interface BookFileRepository extends JpaRepository<BookFileEntity, Long> 
             JOIN FETCH bf.book b
             LEFT JOIN FETCH b.libraryPath
             WHERE bf.id IN :ids
+            AND bf.bookType = :bookType
+            AND bf.isBookFormat = true
+            AND (b.deleted IS NULL OR b.deleted = false)
             """)
-    List<BookFileEntity> findAllForRepairByIdIn(@Param("ids") List<Long> ids);
+    List<BookFileEntity> findAllForRepairByIdIn(@Param("ids") List<Long> ids, @Param("bookType") BookFileType bookType);
 
     @Modifying
     @Transactional
