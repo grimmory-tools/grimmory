@@ -21,6 +21,7 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { provideTransloco } from '@jsverse/transloco';
 import { AVAILABLE_LANGS, TranslocoInlineLoader } from './app/core/config/transloco-loader';
 import { provideTanStackQuery, QueryClient } from '@tanstack/angular-query';
+import { injectCommandErrorToasts } from './app/core/data/command-errors';
 import { provideLucideConfig } from '@lucide/angular';
 
 document.addEventListener('touchstart', () => undefined, { passive: true });
@@ -30,6 +31,7 @@ bootstrapApplication(AppComponent, {
     provideZonelessChangeDetection(),
     provideLucideConfig({ size: '1em', strokeWidth: 2 }),
     provideTanStackQuery(() => new QueryClient({
+      mutationCache: injectCommandErrorToasts(),
       defaultOptions: {
         queries: {
           staleTime: Infinity,

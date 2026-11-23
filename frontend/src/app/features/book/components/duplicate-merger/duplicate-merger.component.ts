@@ -72,8 +72,10 @@ export class DuplicateMergerComponent {
   private readonly feedback = injectBookActionFeedback();
   readonly formatFileSize = formatFileSizeKb;
 
-  private readonly attachMutation = injectMutation(() => withLegacyBookCache(
-    this.bookCommandService.attachBookFiles(), legacyBookCachePatches.attachBookFiles));
+  private readonly attachMutation = injectMutation(() => ({
+    ...withLegacyBookCache(this.bookCommandService.attachBookFiles(), legacyBookCachePatches.attachBookFiles),
+    meta: {errorToast: false},
+  }));
   private readonly deleteMutation = injectMutation(() => withLegacyBookCache(
     this.bookCommandService.deleteBooks(), legacyBookCachePatches.deleteBooks));
 
@@ -215,19 +217,12 @@ export class DuplicateMergerComponent {
       this.mergeProgress.set(((success + failed) / groups.length) * 100);
     }
     this.mergeProgress.set(null);
-    if (this.isClosed()) return;
-    if (success) {
-      this.feedback.show('success', bulk ? 'book.duplicateMerger.toast.mergeSuccess' : 'book.bookService.toast.filesAttached', {
-        count: bulk ? success : groups[0].books.length - 1,
-      });
-    }
-    if (failed) {
-      if (bulk) {
-        this.feedback.show('error', 'book.duplicateMerger.toast.mergeFailed', undefined,
-          this.t.translate('book.duplicateMerger.toast.mergePartialDetail', {success, failed}));
-      } else {
-        this.feedback.error('book.duplicateMerger.toast.mergeFailed', firstError);
-      }
+    if (this.isClosed() || !failed) return;
+    if (bulk) {
+      this.feedback.show('error', 'book.duplicateMerger.toast.mergeFailed', undefined,
+        this.t.translate('book.duplicateMerger.toast.mergePartialDetail', {success, failed}));
+    } else {
+      this.feedback.error('book.duplicateMerger.toast.mergeFailed', firstError);
     }
   }
 
@@ -258,17 +253,13 @@ export class DuplicateMergerComponent {
     try {
       const result = await this.deleteMutation.mutateAsync({bookIds});
       this.applyConfirmedDeletion(group, result.removedBookIds);
-      if (this.isClosed()) return;
-      if (result.fileCleanupFailedBookIds.length) {
+      if (!this.isClosed() && result.fileCleanupFailedBookIds.length) {
         this.feedback.show('warn', 'book.bookService.toast.someFilesNotDeleted', {
           fileNames: result.fileCleanupFailedBookIds.join(', '),
         });
-      } else {
-        this.feedback.show('success', 'book.bookService.toast.booksDeleted', {count: result.removedBookIds.length});
       }
     } catch (error) {
       if (error instanceof DeleteBooksPartialError) this.applyConfirmedDeletion(group, error.completed.removedBookIds);
-      if (!this.isClosed()) this.feedback.error('book.bookService.toast.deleteFailed', error);
     }
   }
 
