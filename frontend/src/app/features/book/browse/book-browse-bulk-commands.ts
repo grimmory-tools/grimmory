@@ -5,10 +5,7 @@ import {type DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {injectMutation} from '@tanstack/angular-query';
 import {take} from 'rxjs/operators';
 
-import {
-  BOOK_READ_STATUS_LABEL_KEYS,
-  CLEAR_BOOK_READ_STATUS_LABEL_KEY,
-} from '../components/book-read-status-options';
+import {BOOK_READ_STATUS_LABEL_KEYS} from '../data/book-values';
 import {DeleteBooksPartialError, type BookProgressSource} from '../data/book-command.models';
 import {BookCommandService} from '../data/book-command.service';
 import {ShelfCommandService} from '../../shelf/data/shelf-command.service';
@@ -187,9 +184,7 @@ export function createBookBrowseBulkCommands({selection, books, fetchIds}: BookB
     },
 
     markAs(status: BookReadStatus): void {
-      const statusLabel = transloco.translate(
-        status === 'UNSET' ? CLEAR_BOOK_READ_STATUS_LABEL_KEY : BOOK_READ_STATUS_LABEL_KEYS[status],
-      );
+      const statusLabel = transloco.translate(BOOK_READ_STATUS_LABEL_KEYS[status]);
       confirmationService.confirm({
         header: transloco.translate('browse.bulk.updateReadStatus'),
         message: transloco.translate('browse.bulk.markAsMessage', {count: selectedCount(), status: statusLabel}),

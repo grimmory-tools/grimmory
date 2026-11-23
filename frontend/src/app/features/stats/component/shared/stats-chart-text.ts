@@ -2,7 +2,7 @@ import {inject} from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {TranslocoService} from '@jsverse/transloco';
 
-import {BOOK_READ_STATUS_LABEL_KEYS, CLEAR_BOOK_READ_STATUS_LABEL_KEY} from '../../../book/components/book-read-status-options';
+import {BOOK_READ_STATUS_LABEL_KEYS} from '../../../book/data/book-values';
 import {type BookReadStatus} from '../../../book/data/book-response.models';
 
 const STARS_FORMAT: Intl.NumberFormatOptions = {maximumFractionDigits: 1};
@@ -22,8 +22,7 @@ export function injectStatsText(prefix: string) {
   return {
     locale: activeLang,
     t: (key: string, params?: Readonly<Record<string, string | number>>) => translate(`${prefix}.${key}`, params),
-    readStatus: (status: BookReadStatus) =>
-      translate(status === 'UNSET' ? CLEAR_BOOK_READ_STATUS_LABEL_KEY : BOOK_READ_STATUS_LABEL_KEYS[status]),
+    readStatus: (status: BookReadStatus) => translate(BOOK_READ_STATUS_LABEL_KEYS[status]),
     number: (value: number, options?: Intl.NumberFormatOptions) =>
       value.toLocaleString(activeLang(), options),
     stars: (value: number, options: Intl.NumberFormatOptions = STARS_FORMAT) =>

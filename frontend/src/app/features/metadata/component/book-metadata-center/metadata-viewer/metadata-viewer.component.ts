@@ -29,12 +29,15 @@ import {LibraryService} from '../../../../book/service/library.service';
 import {TagColor, TagComponent} from '../../../../../shared/components/tag/tag.component';
 import {TaskHelperService} from '../../../../settings/task-management/task-helper.service';
 import {formatRangeToken} from '../../../../../shared/browse/facet-ranges';
+import {BOOK_READ_STATUSES} from '../../../../book/data/book-response.models';
 import {
-  AGE_RATING_OPTIONS,
-  bookMatchScoreRangeToken,
-  CONTENT_RATING_LABELS,
-  PAGE_COUNT_RANGES,
-} from '../../../../book/model/book-value-labels';
+  BOOK_READ_STATUS_LABEL_KEYS,
+  bookAgeRatingLabelKey,
+  bookContentRatingLabelKey,
+  bookReadStatusLabelKey,
+  CLEAR_BOOK_READ_STATUS,
+  findBookMatchScoreBand,
+} from '../../../../book/data/book-values';
 import {BookNavigationService, type ReadOptions} from '../../../../book/service/book-navigation.service';
 import {BookMetadataHostService} from '../../../../../shared/service/book-metadata-host.service';
 import {AppSettingsService} from '../../../../../shared/service/app-settings.service';
@@ -55,6 +58,16 @@ interface ProviderBadge {
   rating: number | null;
   tooltip: string | undefined;
 }
+
+const PAGE_COUNT_RANGES = [
+  {min: 0, max: 50},
+  {min: 50, max: 100},
+  {min: 100, max: 200},
+  {min: 200, max: 400},
+  {min: 400, max: 600},
+  {min: 600, max: 1000},
+  {min: 1000, max: null},
+] as const;
 
 @Component({
   selector: 'app-metadata-viewer',
@@ -459,17 +472,10 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   private detachFileId = 0;
   detachFileName = '';
 
-  readStatusOptions: { value: ReadStatus, labelKey: string }[] = [
-    {value: ReadStatus.UNREAD, labelKey: 'metadata.viewer.readStatusUnread'},
-    {value: ReadStatus.PAUSED, labelKey: 'metadata.viewer.readStatusPaused'},
-    {value: ReadStatus.READING, labelKey: 'metadata.viewer.readStatusReading'},
-    {value: ReadStatus.RE_READING, labelKey: 'metadata.viewer.readStatusReReading'},
-    {value: ReadStatus.READ, labelKey: 'metadata.viewer.readStatusRead'},
-    {value: ReadStatus.PARTIALLY_READ, labelKey: 'metadata.viewer.readStatusPartiallyRead'},
-    {value: ReadStatus.ABANDONED, labelKey: 'metadata.viewer.readStatusAbandoned'},
-    {value: ReadStatus.WONT_READ, labelKey: 'metadata.viewer.readStatusWontRead'},
-    {value: ReadStatus.UNSET, labelKey: 'metadata.viewer.readStatusUnset'},
-  ];
+  readStatusOptions = BOOK_READ_STATUSES.map(status => ({
+    value: ReadStatus[status],
+    labelKey: BOOK_READ_STATUS_LABEL_KEYS[status],
+  }));
   readonly navigationState = this.bookNavigationService.navigationState;
   readonly canNavigatePrevious = this.bookNavigationService.canNavigatePrevious;
   readonly canNavigateNext = this.bookNavigationService.canNavigateNext;
@@ -867,15 +873,16 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   }
 
   goToPageCountRange(pageCount: number): void {
-    const range = PAGE_COUNT_RANGES.find(r => pageCount >= r.min && pageCount < r.max);
-    const token = range && formatRangeToken({min: range.min, max: Number.isFinite(range.max) ? range.max : null});
+    const range = PAGE_COUNT_RANGES.find(r => pageCount >= r.min && (r.max == null || pageCount < r.max));
+    const token = range && formatRangeToken(range);
     if (token) {
       this.handleMetadataClick('page_count', token);
     }
   }
 
   goToMatchScoreRange(score: number): void {
-    const token = bookMatchScoreRangeToken(score);
+    const band = findBookMatchScoreBand(score);
+    const token = band && formatRangeToken(band);
     if (token) {
       this.handleMetadataClick('match_score', token);
     }
@@ -889,15 +896,14 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
     this.handleMetadataClick('content_rating', contentRating);
   }
 
-  getAgeRatingLabel(ageRating: number | null | undefined): string {
-    if (ageRating == null) return '-';
-    const match = AGE_RATING_OPTIONS.find(r => r.id === ageRating);
-    return match?.label ?? `${ageRating}+`;
+  getAgeRatingLabel(ageRating: number): string {
+    const labelKey = bookAgeRatingLabelKey(ageRating);
+    return labelKey ? this.t.translate(labelKey) : String(ageRating);
   }
 
-  getContentRatingLabel(contentRating: string | null | undefined): string {
-    if (!contentRating) return '-';
-    return CONTENT_RATING_LABELS[contentRating] ?? contentRating;
+  getContentRatingLabel(contentRating: string): string {
+    const labelKey = bookContentRatingLabelKey(contentRating);
+    return labelKey ? this.t.translate(labelKey) : contentRating;
   }
 
   private extractYear(dateString: string | null | undefined): string | null {
@@ -1089,18 +1095,6 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
   }
 
 
-  getMatchScoreColor(score: number): TagColor {
-    if (score >= 0.95) return 'emerald';
-    if (score >= 0.90) return 'green';
-    if (score >= 0.80) return 'lime';
-    if (score >= 0.70) return 'yellow';
-    if (score >= 0.60) return 'amber';
-    if (score >= 0.50) return 'orange';
-    if (score >= 0.40) return 'red';
-    if (score >= 0.30) return 'rose';
-    return 'pink';
-  }
-
   getStatusColor(status: string | null | undefined): TagColor {
     const normalized = status?.toUpperCase() ?? '';
     switch (normalized) {
@@ -1150,9 +1144,8 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
     command: () => this.updateReadStatus(option.value)
   }));
 
-  getStatusLabel(value: string): string {
-    const option = this.readStatusOptions.find(o => o.value === value);
-    return option ? this.t.translate(option.labelKey).toUpperCase() : 'UNSET';
+  getStatusLabel(status: ReadStatus): string {
+    return this.t.translate(bookReadStatusLabelKey(status) ?? BOOK_READ_STATUS_LABEL_KEYS[CLEAR_BOOK_READ_STATUS]);
   }
 
 

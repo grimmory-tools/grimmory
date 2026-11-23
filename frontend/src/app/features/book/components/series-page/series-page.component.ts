@@ -27,6 +27,7 @@ import {CoverScalePreferenceService} from '../../../../shared/service/cover-scal
 import {BookCardComponent} from '../cards/book-card.component';
 import {bookCardHeightForWidth} from '../cards/book-card.layout';
 import {BookMenuComponent} from '../book-menu/book-menu.component';
+import {BOOK_READ_STATUS_LABEL_KEYS, bookReadStatusLabelKey, CLEAR_BOOK_READ_STATUS} from '../../data/book-values';
 
 const SERIES_BOOKS_PAGE_SIZE = 60;
 const SERIES_GRID_GAP = 16;
@@ -417,28 +418,8 @@ export class SeriesPageComponent implements AfterViewChecked {
     this.isExpanded.update(isExpanded => !isExpanded);
   }
 
-  getStatusLabel(value: string | ReadStatus | null | undefined): string {
-    const v = (value ?? '').toString().toUpperCase();
-    switch (v) {
-      case ReadStatus.UNREAD:
-        return this.t.translate('book.seriesPage.status.unread');
-      case ReadStatus.READING:
-        return this.t.translate('book.seriesPage.status.reading');
-      case ReadStatus.RE_READING:
-        return this.t.translate('book.seriesPage.status.reReading');
-      case ReadStatus.READ:
-        return this.t.translate('book.seriesPage.status.read');
-      case ReadStatus.PARTIALLY_READ:
-        return this.t.translate('book.seriesPage.status.partiallyRead');
-      case ReadStatus.PAUSED:
-        return this.t.translate('book.seriesPage.status.paused');
-      case ReadStatus.ABANDONED:
-        return this.t.translate('book.seriesPage.status.abandoned');
-      case ReadStatus.WONT_READ:
-        return this.t.translate('book.seriesPage.status.wontRead');
-      default:
-        return this.t.translate('book.seriesPage.status.unset');
-    }
+  getStatusLabel(status: ReadStatus | undefined): string {
+    return this.t.translate(bookReadStatusLabelKey(status) ?? BOOK_READ_STATUS_LABEL_KEYS[CLEAR_BOOK_READ_STATUS]);
   }
 
   getStatusColor(status: string | ReadStatus | null | undefined): string {

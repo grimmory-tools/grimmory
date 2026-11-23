@@ -53,9 +53,8 @@ import {
   BOOK_READ_STATUS_LABEL_KEYS,
   BOOK_READ_STATUS_TARGETS,
   CLEAR_BOOK_READ_STATUS,
-  CLEAR_BOOK_READ_STATUS_LABEL_KEY,
   type BookReadStatusTarget,
-} from '../book-read-status-options';
+} from '../../data/book-values';
 import {
   type BookDetail,
   type BookFileResponse,
@@ -173,7 +172,7 @@ export class BookMenuComponent {
 
   protected readonly readStatusTargets = BOOK_READ_STATUS_TARGETS;
   protected readonly clearReadStatus = CLEAR_BOOK_READ_STATUS;
-  protected readonly clearReadStatusLabelKey = CLEAR_BOOK_READ_STATUS_LABEL_KEY;
+  protected readonly clearReadStatusLabelKey = BOOK_READ_STATUS_LABEL_KEYS[CLEAR_BOOK_READ_STATUS];
 
   protected readonly book = computed<BookSummary | null>(() => {
     const snapshot = this.bookSnapshot();

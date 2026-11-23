@@ -22,11 +22,12 @@ import {
 } from '../data/book-query-params';
 import {type BookSummary} from '../data/book-response.models';
 import {
-  CLEAR_BOOK_READ_STATUS,
-  readStatusFacetLabel,
-  readStatusLabelKey,
-} from '../components/book-read-status-options';
-import {MATCH_SCORE_BANDS} from '../model/book-value-labels';
+  BOOK_CONTENT_RATINGS,
+  BOOK_MATCH_SCORE_BANDS,
+  bookAgeRatingLabelKey,
+  bookContentRatingLabelKey,
+  bookReadStatusLabelKey,
+} from '../data/book-values';
 
 export type BookColumnKind = 'text' | 'number' | 'rating' | 'date' | 'fileSize' | 'readStatus';
 export type BookColumnValue = string | number | undefined;
@@ -60,20 +61,12 @@ type BookBrowseField = BrowseField<BookQueryFacetKey, BookQuerySortKey, BookFace
   readonly column?: ColumnField;
 };
 
-const MATCH_SCORE_LABELS = new Map(
-  MATCH_SCORE_BANDS.flatMap(band => {
+const MATCH_SCORE_LABEL_KEYS = new Map(
+  BOOK_MATCH_SCORE_BANDS.flatMap(band => {
     const token = formatRangeToken(band);
     return token == null ? [] : [[token, band.labelKey] as const];
   }),
 );
-
-const CONTENT_RATING_LABEL_KEYS = new Map([
-  ['EVERYONE', 'everyone'],
-  ['TEEN', 'teen'],
-  ['MATURE', 'mature'],
-  ['ADULT', 'adult'],
-  ['EXPLICIT', 'explicit'],
-]);
 
 function fileSizeRangeLabel(token: string): string | null {
   const range = parseRangeToken(token);
@@ -173,7 +166,10 @@ const FIELDS = [
     labelKey: 'book.fields.readStatus',
     facet: {
       key: 'read_status',
-      valueLabel: (value, deps) => readStatusFacetLabel(value, deps.translate),
+      valueLabel: (value, deps) => {
+        const labelKey = bookReadStatusLabelKey(value);
+        return labelKey ? deps.translate(labelKey) : null;
+      },
     },
     sort: {key: 'readStatus', group: 'more', defaultDirection: 'asc', kind: 'alphabetical'},
     display: {kind: 'readStatus', value: book => book.readStatus},
@@ -347,15 +343,25 @@ const FIELDS = [
       valueIcon: (value, deps) => browseFacetEntityIcon(deps.shelf(value)),
     },
   },
-  {labelKey: 'book.fields.ageRating', facet: {key: 'age_rating', order: 'asc'}},
+  {
+    labelKey: 'book.fields.ageRating',
+    facet: {
+      key: 'age_rating',
+      order: 'asc',
+      valueLabel: (value, deps) => {
+        const labelKey = bookAgeRatingLabelKey(value);
+        return labelKey ? deps.translate(labelKey) : null;
+      },
+    },
+  },
   {
     labelKey: 'book.fields.contentRating',
     facet: {
       key: 'content_rating',
-      order: ['EVERYONE', 'TEEN', 'MATURE', 'ADULT', 'EXPLICIT'],
+      order: BOOK_CONTENT_RATINGS,
       valueLabel: (value, deps) => {
-        const labelKey = CONTENT_RATING_LABEL_KEYS.get(value.toUpperCase());
-        return labelKey ? deps.translate(`book.filter.contentRating.${labelKey}`) : null;
+        const labelKey = bookContentRatingLabelKey(value);
+        return labelKey ? deps.translate(labelKey) : null;
       },
     },
   },
@@ -366,8 +372,8 @@ const FIELDS = [
       kind: 'range',
       bands: true,
       valueLabel: (value, deps) => {
-        const labelKey = MATCH_SCORE_LABELS.get(value);
-        return labelKey ? deps.translate(`book.filter.matchScore.${labelKey}`) : rangeTokenLabel(value);
+        const labelKey = MATCH_SCORE_LABEL_KEYS.get(value);
+        return labelKey ? deps.translate(labelKey) : rangeTokenLabel(value);
       },
     },
   },
@@ -473,8 +479,4 @@ export function injectHiddenProviderFieldKeys(): Signal<ReadonlySet<string>> {
       .filter(field => field.providerKey && !enabled[field.providerKey])
       .flatMap(field => [field.facet?.key, field.sort?.key, field.column?.key].filter(key => key !== undefined)));
   });
-}
-
-export function bookReadStatusLabelKey(status: string): string | null {
-  return status && status !== CLEAR_BOOK_READ_STATUS ? readStatusLabelKey(status) : null;
 }

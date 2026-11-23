@@ -10,7 +10,13 @@ import {MessageService} from '@openng/optimus-ui/api';
 import {FacetSuggestionsDirective} from '../../../book/components/facet-suggestions.directive';
 import {BookMetadataManageService} from '../../../book/service/book-metadata-manage.service';
 import {BulkMetadataUpdateRequest} from '../../../book/model/book.model';
-import {AGE_RATING_OPTIONS, CONTENT_RATING_LABELS} from '../../../book/model/book-value-labels';
+import {TranslocoService} from '@jsverse/transloco';
+import {
+  BOOK_AGE_RATING_LABEL_KEYS,
+  BOOK_AGE_RATINGS,
+  BOOK_CONTENT_RATING_LABEL_KEYS,
+  BOOK_CONTENT_RATINGS,
+} from '../../../book/data/book-values';
 import {Checkbox} from '@openng/optimus-ui/checkbox';
 import {AutoComplete} from '@openng/optimus-ui/autocomplete';
 import {AutoCompleteSelectEvent} from '@openng/optimus-ui/autocomplete';
@@ -43,6 +49,7 @@ export class BulkMetadataUpdateComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly bookMetadataManageService = inject(BookMetadataManageService);
   private readonly messageService = inject(MessageService);
+  private readonly t = inject(TranslocoService);
   metadataForm!: FormGroup;
   bookIds: number[] = [];
   mergeCategories = true;
@@ -65,9 +72,14 @@ export class BulkMetadataUpdateComponent implements OnInit {
     contentRating: false,
   };
 
-  readonly ageRatingOptions = AGE_RATING_OPTIONS.map(({id, label}) => ({label, value: id}));
-  readonly contentRatingOptions = Object.entries(CONTENT_RATING_LABELS)
-    .map(([value, label]) => ({label, value}));
+  readonly ageRatingOptions = BOOK_AGE_RATINGS.map(value => ({
+    label: this.t.translate(BOOK_AGE_RATING_LABEL_KEYS[value]),
+    value,
+  }));
+  readonly contentRatingOptions = BOOK_CONTENT_RATINGS.map(value => ({
+    label: this.t.translate(BOOK_CONTENT_RATING_LABEL_KEYS[value]),
+    value,
+  }));
 
   ngOnInit(): void {
     this.bookIds = this.config.data?.bookIds ?? [];

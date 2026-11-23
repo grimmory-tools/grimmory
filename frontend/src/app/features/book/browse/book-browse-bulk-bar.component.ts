@@ -10,9 +10,8 @@ import {
   BOOK_READ_STATUS_LABEL_KEYS,
   BOOK_READ_STATUS_TARGETS,
   CLEAR_BOOK_READ_STATUS,
-  CLEAR_BOOK_READ_STATUS_LABEL_KEY,
   type BookReadStatusTarget,
-} from '../components/book-read-status-options';
+} from '../data/book-values';
 import {
   BrowseBulkActionsBarComponent,
   BrowseBulkActionsDividerComponent,
@@ -82,7 +81,7 @@ export class BookBrowseBulkBarComponent {
   protected readonly isResolving = this.commands.isResolving;
   protected readonly readStatusTargets = BOOK_READ_STATUS_TARGETS;
   protected readonly clearReadStatus = CLEAR_BOOK_READ_STATUS;
-  protected readonly clearReadStatusLabelKey = CLEAR_BOOK_READ_STATUS_LABEL_KEY;
+  protected readonly clearReadStatusLabelKey = BOOK_READ_STATUS_LABEL_KEYS[CLEAR_BOOK_READ_STATUS];
   protected readonly autoSeparatorClass =
     'first:hidden [app-menu-separator+&]:hidden [&:not(:has(~:not(app-menu-separator)))]:hidden';
 

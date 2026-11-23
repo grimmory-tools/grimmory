@@ -454,8 +454,8 @@ describe('MetadataViewerComponent', () => {
     expect(component.getStarColorScaled(null)).toBe('rgb(203, 213, 225)');
     expect(component.getStarColorScaled(5)).toBe('rgb(34, 197, 94)');
     expect(component.getRatingPercent(4.5)).toBe(90);
-    expect(component.getStatusLabel(ReadStatus.READING)).toBe('metadata.viewer.readStatusReading'.toUpperCase());
-    expect(component.getStatusLabel('missing')).toBe('UNSET');
+    expect(component.getStatusLabel(ReadStatus.READING)).toBe('book.filter.readStatus.reading');
+    expect(component.getStatusLabel(ReadStatus.UNSET)).toBe('book.filter.readStatus.unset');
     expect(component.getBookCoverUrl(createBook())).toBe('cover:21:2026-03-26');
     expect(component.getBookCoverUrl(createBook({primaryFile: createFile(1, {bookType: 'AUDIOBOOK'})}))).toBe('audio:21:2026-03-26');
     expect(component.hasAnyFiles(createBook())).toBe(true);
