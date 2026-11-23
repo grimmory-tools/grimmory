@@ -328,7 +328,7 @@
               <span class="metadata-key">{{ t('metadataMatchLabel') }}</span>
               @if (book?.metadataMatchScore !== null && book?.metadataMatchScore !== undefined) {
                 <span role="button" tabindex="0" (click)="goToMatchScoreRange(book?.metadataMatchScore!)" (keydown.enter)="goToMatchScoreRange(book?.metadataMatchScore!)" style="cursor: pointer;">
-                  <app-tag size="3xs" variant="pill" [color]="getMatchScoreColor(book?.metadataMatchScore!)">
+                  <app-tag size="3xs" variant="pill">
                     {{ (book?.metadataMatchScore!) | number:'1.0-0' }}%
                   </app-tag>
                 </span>

@@ -3,12 +3,12 @@ import {formatFileSizeKb} from '../../../shared/util/file-size';
 import {type TableColumnPreference} from '../../settings/user-management/user.service';
 import {type BookQuerySortKey} from '../data/book-query-params';
 import {type BookSummary} from '../data/book-response.models';
+import {bookReadStatusLabelKey, CLEAR_BOOK_READ_STATUS} from '../data/book-values';
 import {
   COLUMNS,
   COLUMNS_BY_KEY,
   COLUMN_GROUP_ORDER,
   bookColumn,
-  bookReadStatusLabelKey,
   type BookBrowseColumnGroupId,
   type BookColumnKey,
   type BookColumnKind,
@@ -138,7 +138,7 @@ export function formatBookValue(
     case 'number':
       return NUMBER_FORMAT.format(Number(value));
     case 'readStatus': {
-      const labelKey = typeof value === 'string' ? bookReadStatusLabelKey(value) : null;
+      const labelKey = typeof value === 'string' && value !== CLEAR_BOOK_READ_STATUS ? bookReadStatusLabelKey(value) : null;
       return labelKey ? translate(labelKey) : null;
     }
     case 'text':

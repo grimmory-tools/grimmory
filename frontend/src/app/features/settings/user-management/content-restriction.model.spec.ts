@@ -1,24 +1,15 @@
 import {describe, expect, it} from 'vitest';
 
 import {
-  AGE_RATING_OPTIONS,
-  CONTENT_RATINGS,
-  ContentRating,
   ContentRestriction,
   ContentRestrictionMode,
   ContentRestrictionType
 } from './content-restriction.model';
 
 describe('content-restriction.model', () => {
-  it('exposes supported restriction enums and derived content ratings', () => {
+  it('exposes supported restriction enums', () => {
     expect(ContentRestrictionType.CATEGORY).toBe('CATEGORY');
     expect(ContentRestrictionMode.ALLOW_ONLY).toBe('ALLOW_ONLY');
-    expect(CONTENT_RATINGS).toEqual(Object.values(ContentRating));
-  });
-
-  it('defines age rating options in ascending order', () => {
-    expect(AGE_RATING_OPTIONS[0]).toEqual({value: '0', label: 'All Ages'});
-    expect(AGE_RATING_OPTIONS.at(-1)).toEqual({value: '21', label: '21+'});
   });
 
   it('supports persisted restriction records', () => {

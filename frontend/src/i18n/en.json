@@ -2375,15 +2375,6 @@
       "ratingTooltip": "★ {{rating}} | {{reviews}} reviews",
       "ratingTooltipNoReviews": "★ {{rating}}",
       "loadingBookDetails": "Loading book details...",
-      "readStatusUnread": "Unread",
-      "readStatusPaused": "Paused",
-      "readStatusReading": "Reading",
-      "readStatusReReading": "Re-reading",
-      "readStatusRead": "Read",
-      "readStatusPartiallyRead": "Partially Read",
-      "readStatusAbandoned": "Abandoned",
-      "readStatusWontRead": "Won't Read",
-      "readStatusUnset": "Unset",
       "menuStreamingReader": "Streaming Reader",
       "menuStandardReader": "Standard Reader",
       "menuShelf": "Shelf",
@@ -3110,7 +3101,13 @@
         "1000plus": "1000+ pages"
       },
       "ageRating": {
-        "allAges": "All Ages"
+        "allAges": "All Ages",
+        "6plus": "6+",
+        "10plus": "10+",
+        "13plus": "13+",
+        "16plus": "16+",
+        "18plus": "18+",
+        "21plus": "21+"
       },
       "contentRating": {
         "everyone": "Everyone",
@@ -3293,17 +3290,6 @@
         "formats": "Formats",
         "totalAudioDuration": "Audio Duration",
         "owned": "Owned"
-      },
-      "status": {
-        "unread": "UNREAD",
-        "reading": "READING",
-        "reReading": "RE-READING",
-        "read": "READ",
-        "partiallyRead": "PARTIALLY READ",
-        "paused": "PAUSED",
-        "abandoned": "ABANDONED",
-        "wontRead": "WON'T READ",
-        "unset": "UNSET"
       }
     },
     "duplicateMerger": {
@@ -4563,24 +4549,6 @@
     "booleanValues": {
       "yes": "Yes",
       "no": "No"
-    },
-    "contentRatings": {
-      "everyone": "Everyone",
-      "teen": "Teen",
-      "mature": "Mature",
-      "adult": "Adult",
-      "explicit": "Explicit"
-    },
-    "readStatuses": {
-      "unread": "Unread",
-      "reading": "Reading",
-      "reReading": "Re Reading",
-      "read": "Read",
-      "partiallyRead": "Partially Read",
-      "paused": "Paused",
-      "wontRead": "Wont Read",
-      "abandoned": "Abandoned",
-      "unset": "Unset"
     },
     "seriesStatuses": {
       "reading": "Currently Reading",

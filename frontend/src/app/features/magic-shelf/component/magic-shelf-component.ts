@@ -6,7 +6,8 @@ import {InputText} from '@openng/optimus-ui/inputtext';
 import {Select} from '@openng/optimus-ui/select';
 import {DatePicker} from '@openng/optimus-ui/datepicker';
 import {InputNumber} from '@openng/optimus-ui/inputnumber';
-import {ReadStatus} from '../../book/model/book.model';
+import {BOOK_READ_STATUSES} from '../../book/data/book-response.models';
+import {BOOK_CONTENT_RATING_LABEL_KEYS, BOOK_CONTENT_RATINGS, BOOK_READ_STATUS_LABEL_KEYS} from '../../book/data/book-values';
 import {LibraryService} from '../../book/service/library.service';
 import {MagicShelf, MagicShelfService} from '../service/magic-shelf.service';
 import {MessageService} from '@openng/optimus-ui/api';
@@ -216,18 +217,6 @@ function isRelativeAmount(value: unknown): boolean {
   return String(value).trim() !== '' && Number.isFinite(Number(value));
 }
 
-const READ_STATUS_KEYS: Record<string, string> = {
-  UNREAD: 'unread',
-  READING: 'reading',
-  RE_READING: 'reReading',
-  READ: 'read',
-  PARTIALLY_READ: 'partiallyRead',
-  PAUSED: 'paused',
-  WONT_READ: 'wontRead',
-  ABANDONED: 'abandoned',
-  UNSET: 'unset'
-};
-
 @Component({
   selector: 'app-magic-shelf',
   templateUrl: './magic-shelf-component.html',
@@ -312,9 +301,9 @@ export class MagicShelfComponent implements OnInit {
   ];
 
   get readStatusOptions() {
-    return Object.entries(ReadStatus).map(([key, value]) => ({
-      label: this.t.translate(`magicShelf.readStatuses.${READ_STATUS_KEYS[key]}`),
-      value
+    return BOOK_READ_STATUSES.map(value => ({
+      label: this.t.translate(BOOK_READ_STATUS_LABEL_KEYS[value]),
+      value,
     }));
   }
 
@@ -326,13 +315,10 @@ export class MagicShelfComponent implements OnInit {
   }
 
   get contentRatingOptions() {
-    return [
-      {label: this.t.translate('magicShelf.contentRatings.everyone'), value: 'EVERYONE'},
-      {label: this.t.translate('magicShelf.contentRatings.teen'), value: 'TEEN'},
-      {label: this.t.translate('magicShelf.contentRatings.mature'), value: 'MATURE'},
-      {label: this.t.translate('magicShelf.contentRatings.adult'), value: 'ADULT'},
-      {label: this.t.translate('magicShelf.contentRatings.explicit'), value: 'EXPLICIT'},
-    ];
+    return BOOK_CONTENT_RATINGS.map(value => ({
+      label: this.t.translate(BOOK_CONTENT_RATING_LABEL_KEYS[value]),
+      value,
+    }));
   }
 
   get seriesStatusOptions() {

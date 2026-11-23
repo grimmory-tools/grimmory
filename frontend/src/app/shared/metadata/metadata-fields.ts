@@ -1,4 +1,10 @@
 import type {BookDetailComicMetadata, BookDetailMetadata} from '../../features/book/data/book-response.models';
+import {
+  BOOK_AGE_RATING_LABEL_KEYS,
+  BOOK_AGE_RATINGS,
+  BOOK_CONTENT_RATING_LABEL_KEYS,
+  BOOK_CONTENT_RATINGS,
+} from '../../features/book/data/book-values';
 import type {BookQueryFacetKey} from '../../features/book/data/book-query-params';
 import type {MetadataProviderId} from './metadata-providers';
 
@@ -42,6 +48,16 @@ type ValueField<Model extends ModelName, Kind extends MetadataValueKind> = Field
   readonly name: KeysOfType<Models[Model], MetadataValueTypes[Kind]>;
   readonly lockName: LockName<Model>;
 };
+type EnumValueKind = 'string' | 'number';
+type EnumField<Model extends ModelName> = {
+  [Kind in EnumValueKind]: FieldBase & {
+    readonly kind: 'enum';
+    readonly name: KeysOfType<Models[Model], MetadataValueTypes[Kind]>;
+    readonly values: readonly MetadataValueTypes[Kind][];
+    readonly labelKeys: Readonly<Record<MetadataValueTypes[Kind], string>>;
+    readonly lockName: LockName<Model>;
+  }
+}[EnumValueKind];
 type LockOnlyField<Model extends ModelName> = FieldBase & {
   readonly kind: MetadataLockOnlyKind;
   readonly name: string;
@@ -49,6 +65,7 @@ type LockOnlyField<Model extends ModelName> = FieldBase & {
 };
 type FieldDefinition<Model extends ModelName> =
   | {[Kind in MetadataValueKind]: ValueField<Model, Kind>}[MetadataValueKind]
+  | EnumField<Model>
   | LockOnlyField<Model>;
 
 function fieldGroup<const Key extends string, const Model extends ModelName, const Field extends FieldDefinition<Model>>(group: {
@@ -90,8 +107,8 @@ export const METADATA_FIELD_GROUPS = [
     {name: 'categories', lockName: 'categoriesLocked', kind: 'set', labelKey: 'book.fields.genre', facet: 'genre'},
     {name: 'moods', lockName: 'moodsLocked', kind: 'set', labelKey: 'book.fields.mood', facet: 'mood'},
     {name: 'tags', lockName: 'tagsLocked', kind: 'set', labelKey: 'book.fields.tag', facet: 'tag'},
-    {name: 'ageRating', lockName: 'ageRatingLocked', kind: 'number', labelKey: 'book.fields.ageRating', facet: 'age_rating'},
-    {name: 'contentRating', lockName: 'contentRatingLocked', kind: 'string', labelKey: 'book.fields.contentRating', facet: 'content_rating'},
+    {name: 'ageRating', lockName: 'ageRatingLocked', kind: 'enum', values: BOOK_AGE_RATINGS, labelKeys: BOOK_AGE_RATING_LABEL_KEYS, labelKey: 'book.fields.ageRating', facet: 'age_rating'},
+    {name: 'contentRating', lockName: 'contentRatingLocked', kind: 'enum', values: BOOK_CONTENT_RATINGS, labelKeys: BOOK_CONTENT_RATING_LABEL_KEYS, labelKey: 'book.fields.contentRating', facet: 'content_rating'},
   ]}),
   fieldGroup({key: 'audiobook', labelKey: 'book.fieldGroups.audiobook', model: 'book', fields: [
     {name: 'narrator', lockName: 'narratorLocked', kind: 'string', labelKey: 'book.fields.narrator', facet: 'narrator'},
