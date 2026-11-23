@@ -22,6 +22,11 @@ import {type BrowseSelection} from '../../../shared/browse/selection';
 
 type FetchMatchingIds = () => Promise<readonly number[]>;
 
+const RESET_PROGRESS_CONFIRM_MESSAGE_KEYS = {
+  GRIMMORY: 'book.browser.confirm.resetGrimmoryMessage',
+  KOREADER: 'book.browser.confirm.resetKOReaderMessage',
+} as const satisfies Partial<Record<BookProgressSource, string>>;
+
 export interface BookBrowseBulkCommandsOptions {
   readonly selection: Signal<BrowseSelection>;
   readonly books: Signal<readonly BookSummary[]>;
@@ -116,8 +121,16 @@ export function createBookBrowseBulkCommands({selection, books, fetchIds}: BookB
         }));
     },
 
-    resetProgress(source: BookProgressSource): void {
-      void withSelectedIds(bookIds => resetProgressMutation.mutate({bookIds: [...bookIds], source}));
+    resetProgress(source: keyof typeof RESET_PROGRESS_CONFIRM_MESSAGE_KEYS): void {
+      confirmationService.confirm({
+        message: transloco.translate(RESET_PROGRESS_CONFIRM_MESSAGE_KEYS[source], {count: selectedCount()}),
+        header: transloco.translate('book.browser.confirm.resetHeader'),
+        acceptLabel: transloco.translate('common.confirm'),
+        rejectLabel: transloco.translate('common.cancel'),
+        accept: () => {
+          void withSelectedIds(bookIds => resetProgressMutation.mutate({bookIds: [...bookIds], source}));
+        },
+      });
     },
 
     setMetadataLocks(locked: boolean): void {
