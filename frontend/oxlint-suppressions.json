@@ -275,9 +275,6 @@
     },
     "typescript/no-unnecessary-condition": {
       "count": 5
-    },
-    "typescript/no-unsafe-enum-comparison": {
-      "count": 8
     }
   },
   "src/app/features/book/components/shelf-assigner/shelf-assigner.component.ts": {
@@ -658,9 +655,6 @@
     },
     "typescript/no-unsafe-assignment": {
       "count": 3
-    },
-    "typescript/no-unsafe-enum-comparison": {
-      "count": 1
     },
     "typescript/no-unsafe-member-access": {
       "count": 3

@@ -44,7 +44,7 @@ export const BOOK_CONTENT_RATING_LABEL_KEYS = {
 } as const satisfies Record<BookContentRating, string>;
 
 export function bookContentRatingLabelKey(raw: string | null | undefined): string | null {
-  const rating = findBookValue(BOOK_CONTENT_RATINGS, raw);
+  const rating = findBookValue(BOOK_CONTENT_RATINGS, raw?.toUpperCase());
   return rating ? BOOK_CONTENT_RATING_LABEL_KEYS[rating] : null;
 }
 
