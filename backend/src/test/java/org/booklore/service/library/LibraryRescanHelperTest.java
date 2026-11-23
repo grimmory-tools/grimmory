@@ -16,6 +16,7 @@ import org.booklore.repository.BookRepository;
 import org.booklore.repository.LibraryRepository;
 import org.booklore.service.NotificationService;
 import org.booklore.service.fileprocessor.AudiobookProcessor;
+import org.booklore.service.metadata.BookCoverService;
 import org.booklore.service.metadata.BookMetadataUpdater;
 import org.booklore.service.metadata.extractor.MetadataExtractorFactory;
 import org.booklore.task.options.RescanLibraryContext;
@@ -50,6 +51,7 @@ class LibraryRescanHelperTest {
     @Mock private TaskCancellationManager cancellationManager;
     @Mock private BookRepository bookRepository;
     @Mock private AudiobookProcessor audiobookProcessor;
+    @Mock private BookCoverService bookCoverService;
     @InjectMocks private LibraryRescanHelper libraryRescanHelper;
 
     @Captor private ArgumentCaptor<TaskProgressPayload> payloadCaptor;
@@ -100,6 +102,8 @@ class LibraryRescanHelperTest {
         BookMetadata metadata2 = new BookMetadata();
         metadata2.setTitle("Book 2");
 
+        rescanContext.getOptions().setMetadataReplaceMode(MetadataReplaceMode.REPLACE_MISSING);
+
         when(libraryRepository.findById(1L)).thenReturn(Optional.of(library));
         when(bookRepository.findAllWithMetadataByLibraryId(1L)).thenReturn(List.of(book1, book2));
         when(metadataExtractorFactory.extractMetadata(eq(BookFileType.EPUB), any(File.class))).thenReturn(metadata1);
@@ -111,6 +115,8 @@ class LibraryRescanHelperTest {
         verify(libraryRepository).findById(1L);
         verify(metadataExtractorFactory, times(2)).extractMetadata(any(BookFileType.class), any(File.class));
         verify(bookMetadataUpdater, times(2)).setBookMetadata(any(MetadataUpdateContext.class));
+        verify(bookCoverService).regenerateCoversFromBookFiles(book1, MetadataReplaceMode.REPLACE_MISSING);
+        verify(bookCoverService).regenerateCoversFromBookFiles(book2, MetadataReplaceMode.REPLACE_MISSING);
         verify(notificationService, times(4)).sendMessage(eq(Topic.TASK_PROGRESS), any(TaskProgressPayload.class));
     }
 
@@ -165,11 +171,15 @@ class LibraryRescanHelperTest {
         when(metadataExtractorFactory.extractMetadata(eq(BookFileType.EPUB), any(File.class))).thenReturn(null);
         when(metadataExtractorFactory.extractMetadata(eq(BookFileType.PDF), any(File.class))).thenReturn(metadata2);
         when(cancellationManager.isTaskCancelled(taskId)).thenReturn(false);
+        when(bookCoverService.regenerateCoversFromBookFiles(book1, MetadataReplaceMode.REPLACE_ALL)).thenReturn(true);
 
         libraryRescanHelper.handleRescanOptions(rescanContext, taskId);
 
         verify(metadataExtractorFactory, times(2)).extractMetadata(any(BookFileType.class), any(File.class));
         verify(bookMetadataUpdater, times(1)).setBookMetadata(any(MetadataUpdateContext.class));
+        verify(bookCoverService).regenerateCoversFromBookFiles(book1, MetadataReplaceMode.REPLACE_ALL);
+        verify(bookCoverService).regenerateCoversFromBookFiles(book2, MetadataReplaceMode.REPLACE_ALL);
+        verify(bookCoverService).saveRegeneratedCovers(List.of(book1));
     }
 
     @Test
@@ -266,7 +276,9 @@ class LibraryRescanHelperTest {
 
         libraryRescanHelper.handleRescanOptions(rescanContext, taskId);
 
-        verify(bookMetadataUpdater).setBookMetadata(metadataContextCaptor.capture());
+        var inOrder = inOrder(bookMetadataUpdater, bookCoverService);
+        inOrder.verify(bookCoverService).regenerateCoversFromBookFiles(book, MetadataReplaceMode.REPLACE_ALL);
+        inOrder.verify(bookMetadataUpdater).setBookMetadata(metadataContextCaptor.capture());
         MetadataUpdateContext capturedContext = metadataContextCaptor.getValue();
 
         assertEquals(book, capturedContext.getBookEntity());
