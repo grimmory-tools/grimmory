@@ -44,6 +44,7 @@ import {
 import {type BookProgressSource} from '../../data/book-command.models';
 import {
   bookActionPermissions,
+  bookCoverTargets,
   bookProgressPercentage,
   bookReadAction,
   type BookReadAction,
@@ -167,8 +168,8 @@ export class BookMenuComponent {
   });
   private readonly resetProgressMutation = injectMutation(() => withLegacyBookCache(
     this.bookCommands.resetProgress(), legacyBookCachePatches.resetProgress));
-  private readonly regenerateCoversMutation = injectMutation(() => this.bookCommands.bulkRegenerateCovers());
-  private readonly generateCoversMutation = injectMutation(() => this.bookCommands.bulkGenerateCovers());
+  private readonly regenerateCoverMutation = injectMutation(() => this.bookCommands.regenerateCover());
+  private readonly generateCoverMutation = injectMutation(() => this.bookCommands.generateCover());
 
   protected readonly readStatusTargets = BOOK_READ_STATUS_TARGETS;
   protected readonly clearReadStatus = CLEAR_BOOK_READ_STATUS;
@@ -240,11 +241,9 @@ export class BookMenuComponent {
   protected readonly canOrganizeFile = computed(() =>
     this.actionPermissions().canOrganizeFiles
       && this.appSettingsService.appSettings()?.diskType === 'LOCAL');
-  protected readonly hasMoreActions = computed(() => {
+  protected readonly hasMetadataActions = computed(() => {
     const permissions = this.actionPermissions();
-    return this.canOrganizeFile()
-      || permissions.canResetGrimmoryProgress
-      || permissions.canResetKoreaderProgress;
+    return permissions.canEditMetadata || permissions.canLockUnlockMetadata;
   });
   protected readonly metadataLocked = linkedSignal(
     () => this.book()?.metadata?.allMetadataLocked ?? false,
@@ -335,8 +334,11 @@ export class BookMenuComponent {
   }
 
   protected onChangeCovers(kind: 'regenerate' | 'generate'): void {
-    const mutation = kind === 'regenerate' ? this.regenerateCoversMutation : this.generateCoversMutation;
-    mutation.mutate({bookIds: [this.book()!.id]});
+    const book = this.book()!;
+    const mutation = kind === 'regenerate' ? this.regenerateCoverMutation : this.generateCoverMutation;
+    for (const target of bookCoverTargets(book, kind)) {
+      mutation.mutate({bookId: book.id, target});
+    }
   }
 
   protected onMetadataLockChange(locked: boolean): void {

@@ -16,15 +16,17 @@
       [appMenuTriggerFor]="bulkShelfMenuHost.menu()">
       <svg lucideBookmark aria-hidden="true"></svg>
     </app-button>
-    <app-button
-      appBrowseBulkActionsItem="markAs"
-      variant="ghost"
-      size="md"
-      [disabled]="isResolving()"
-      [label]="'book.menu.markAs' | transloco"
-      [appMenuTriggerFor]="bulkMarkAsMenu">
-      <svg lucideCheck aria-hidden="true"></svg>
-    </app-button>
+    @if (bulkPermissions().canResetReadStatus) {
+      <app-button
+        appBrowseBulkActionsItem="markAs"
+        variant="ghost"
+        size="md"
+        [disabled]="isResolving()"
+        [label]="'book.menu.markAs' | transloco"
+        [appMenuTriggerFor]="bulkMarkAsMenu">
+        <svg lucideCheck aria-hidden="true"></svg>
+      </app-button>
+    }
     @if (bulkPermissions().canEditMetadata) {
       <app-button
         appBrowseBulkActionsItem="edit"
@@ -47,7 +49,7 @@
         <svg lucideDatabase aria-hidden="true"></svg>
       </app-button>
     }
-    @if (actionPermissions().canDeleteBook) {
+    @if (bulkPermissions().canDeleteBook) {
       <span appBrowseBulkActionsItem="delete" appBrowseBulkActionsTrailing class="flex items-center gap-1">
         <app-browse-bulk-actions-divider />
         <app-button
@@ -108,7 +110,7 @@
     @if (overflowed().has('addToShelf')) {
       <app-menu-item value="add-to-shelf" [disabled]="isResolving()" [submenu]="bulkShelfMenuHost.ariaMenu()">{{ 'book.menu.addToShelf' | transloco }}</app-menu-item>
     }
-    @if (overflowed().has('markAs')) {
+    @if (bulkPermissions().canResetReadStatus && overflowed().has('markAs')) {
       <app-menu-item value="mark-as" [disabled]="isResolving()" [submenu]="bulkMarkAsMenu.menu">{{ 'book.menu.markAs' | transloco }}</app-menu-item>
     }
     @if (overflowed().has('edit')) {
@@ -118,10 +120,10 @@
       <app-menu-item value="metadata" [disabled]="isResolving()" [submenu]="bulkMetadataMenu.menu">{{ 'book.menu.metadata' | transloco }}</app-menu-item>
     }
     <app-menu-separator [class]="autoSeparatorClass" />
-    @if (actionPermissions().canResetGrimmoryProgress) {
+    @if (bulkPermissions().canResetGrimmoryProgress) {
       <app-menu-item value="reset-grimmory-progress" [disabled]="isResolving()" (selected)="commands.resetProgress('GRIMMORY')">{{ 'book.menu.resetGrimmoryProgress' | transloco }}</app-menu-item>
     }
-    @if (actionPermissions().canResetKoreaderProgress) {
+    @if (bulkPermissions().canResetKoreaderProgress) {
       <app-menu-item value="reset-koreader-progress" [disabled]="isResolving()" (selected)="commands.resetProgress('KOREADER')">{{ 'book.menu.resetKoreaderProgress' | transloco }}</app-menu-item>
     }
     <app-menu-separator [class]="autoSeparatorClass" />
