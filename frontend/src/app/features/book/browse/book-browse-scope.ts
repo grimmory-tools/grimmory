@@ -91,9 +91,11 @@ export function bookBrowseScopeTitle(
   }
 }
 
+export type BookBrowsePreferenceContext = EntityViewPreferenceContext | 'global' | 'none';
+
 export function bookBrowseScopePreferenceContext(
   scope: BookBrowseScope | null,
-): EntityViewPreferenceContext | null {
+): BookBrowsePreferenceContext {
   switch (scope?.kind) {
     case 'library':
       return {entityType: 'LIBRARY', entityId: scope.entityId};
@@ -101,10 +103,11 @@ export function bookBrowseScopePreferenceContext(
       return {entityType: 'SHELF', entityId: scope.entityId};
     case 'magicShelf':
       return {entityType: 'MAGIC_SHELF', entityId: scope.entityId};
+    case undefined:
+      return 'global';
     case 'unshelved':
     case 'dashboardRow':
-    case undefined:
-      return null;
+      return 'none';
   }
 }
 
