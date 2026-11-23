@@ -37,37 +37,7 @@ describe('MetadataFormBuilder', () => {
     expect(form.get('audiobookCoverLocked')).toBeNull();
   });
 
-  it('applies lock states after re-enabling unlocked controls first', () => {
-    const form = new FormGroup({
-      title: new FormControl('Title'),
-      titleLocked: new FormControl(false),
-      authors: new FormControl<string[]>(['A']),
-      authorsLocked: new FormControl(false),
-      narrator: new FormControl('Narrator'),
-      narratorLocked: new FormControl(false),
-      comicIssueNumber: new FormControl('7'),
-      comicIssueNumberLocked: new FormControl(false),
-    });
-
-    form.get('title')?.disable();
-    form.get('authors')?.disable();
-
-    builder.applyLockStates(form, {
-      titleLocked: true,
-      narratorLocked: true,
-      comicIssueNumberLocked: false,
-    }, [
-      {label: 'Title', controlName: 'title', lockedKey: 'titleLocked', fetchedKey: 'title', type: 'string'},
-      {label: 'Authors', controlName: 'authors', lockedKey: 'authorsLocked', fetchedKey: 'authors', type: 'array'},
-    ]);
-
-    expect(form.get('title')?.disabled).toBe(true);
-    expect(form.get('authors')?.enabled).toBe(true);
-    expect(form.get('narrator')?.disabled).toBe(true);
-    expect(form.get('comicIssueNumber')?.enabled).toBe(true);
-  });
-
-  it('toggles all locked fields and matching control enabled state together', () => {
+  it('toggles all lock flags', () => {
     const form = new FormGroup({
       title: new FormControl('Title'),
       titleLocked: new FormControl(false),
@@ -78,8 +48,8 @@ describe('MetadataFormBuilder', () => {
     builder.setAllFieldsLocked(form, true);
     expect(form.get('titleLocked')?.value).toBe(true);
     expect(form.get('authorsLocked')?.value).toBe(true);
-    expect(form.get('title')?.disabled).toBe(true);
-    expect(form.get('authors')?.disabled).toBe(true);
+    expect(form.get('title')?.disabled).toBe(false);
+    expect(form.get('authors')?.disabled).toBe(false);
 
     builder.setAllFieldsLocked(form, false);
     expect(form.get('titleLocked')?.value).toBe(false);

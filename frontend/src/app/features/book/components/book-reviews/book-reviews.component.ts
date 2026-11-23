@@ -156,7 +156,7 @@ export class BookReviewsComponent implements OnInit, OnChanges {
 
 
   deleteAllReviews(): void {
-    if (!this.reviews || this.reviews.length === 0 || this.reviewsLocked) return;
+    if (!this.reviews || this.reviews.length === 0) return;
 
     this.confirmationService.confirm({
       message: this.t.translate('book.reviews.confirm.deleteAllMessage', {count: this.reviews.length}),
@@ -276,7 +276,7 @@ export class BookReviewsComponent implements OnInit, OnChanges {
   }
 
   deleteReview(review: BookReview): void {
-    if (!review.id || this.reviewsLocked) return;
+    if (!review.id) return;
 
     this.confirmationService.confirm({
       message: this.t.translate('book.reviews.confirm.deleteMessage', {reviewer: review.reviewerName || 'Anonymous'}),

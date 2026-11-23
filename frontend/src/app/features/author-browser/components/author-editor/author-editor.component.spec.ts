@@ -83,7 +83,7 @@ describe('AuthorEditorComponent', () => {
     vi.restoreAllMocks();
   });
 
-  it('initializes the form and disables controls whose lock flags start enabled', () => {
+  it('initializes the form', () => {
     const component = createComponent({
       author: {
         nameLocked: true,
@@ -96,9 +96,9 @@ describe('AuthorEditorComponent', () => {
     expect(component.form.get('name')?.value).toBe('Ada Lovelace');
     expect(component.form.get('description')?.value).toBe('Analytical engine pioneer');
     expect(component.form.get('asin')?.value).toBe('B00ADA');
-    expect(component.form.get('name')?.disabled).toBe(true);
+    expect(component.form.get('name')?.disabled).toBe(false);
     expect(component.form.get('description')?.disabled).toBe(false);
-    expect(component.form.get('asin')?.disabled).toBe(true);
+    expect(component.form.get('asin')?.disabled).toBe(false);
     expect(component.form.get('photoLocked')?.value).toBe(false);
   });
 
