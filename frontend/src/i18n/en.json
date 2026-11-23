@@ -2717,7 +2717,10 @@
         "regenCoverMessage": "Are you sure you want to regenerate covers for {{ count }} book(s)?",
         "regenCoverHeader": "Confirm Cover Regeneration",
         "customCoverMessage": "Are you sure you want to generate custom covers for {{ count }} book(s)?",
-        "customCoverHeader": "Confirm Custom Cover Generation"
+        "customCoverHeader": "Confirm Custom Cover Generation",
+        "resetGrimmoryMessage": "Are you sure you want to reset Grimmory reading progress for {{ count }} book(s)?",
+        "resetKOReaderMessage": "Are you sure you want to reset KOReader reading progress for {{ count }} book(s)?",
+        "resetHeader": "Confirm Reset"
       },
       "labels": {
         "allBooks": "All Books",
