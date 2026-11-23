@@ -33,7 +33,9 @@
     "on": "On",
     "off": "Off",
     "moreActionsFor": "More actions for {{label}}",
-    "dialogLoadError": "An error occurred while loading the dialog. Please try again."
+    "dialogLoadError": "An error occurred while loading the dialog. Please try again.",
+    "commandFailed": "Something went wrong",
+    "serverUnreachable": "Couldn't reach the server."
   },
   "auth": {
     "oidc": {
@@ -2844,11 +2846,7 @@
         "uploadFailedSummary": "Upload Failed",
         "uploadFailedDetail": "An error occurred while uploading the file.",
         "fieldLockFailedSummary": "Field Lock Update Failed",
-        "fieldLockFailedDetail": "Failed to update metadata field locks. Please try again.",
-        "filesAttachedSummary": "Files Attached",
-        "filesAttachedDetail": "{{ count }} book file(s) have been attached successfully.",
-        "attachmentFailedSummary": "Attachment Failed",
-        "attachmentFailedDetail": "An error occurred while attaching the files."
+        "fieldLockFailedDetail": "Failed to update metadata field locks. Please try again."
       }
     },
     "shelfMenuService": {
@@ -3348,8 +3346,6 @@
       "toast": {
         "scanFailedSummary": "Scan Failed",
         "scanFailedDetail": "Could not scan for duplicates.",
-        "mergeSuccessSummary": "Merge Complete",
-        "mergeSuccessDetail": "Successfully merged {{ count }} group(s).",
         "mergeFailedSummary": "Merge Failed",
         "mergeFailedDetail": "Could not merge this group.",
         "mergePartialDetail": "{{ success }} merged, {{ failed }} failed."
