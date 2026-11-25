@@ -116,6 +116,15 @@ public class BookFileTransactionalHandler {
             return;
         }
 
+        BookFileType incomingFileType = BookFileExtension.fromFileName(fileName)
+                .map(BookFileExtension::getType)
+                .orElse(null);
+        List<BookFileType> allowedFormats = libraryEntity.getAllowedFormats();
+        if (allowedFormats != null && !allowedFormats.isEmpty()
+                && !allowedFormats.contains(incomingFileType)) {
+            return;
+        }
+
         var mode = libraryEntity.getOrganizationMode() != null
                 ? libraryEntity.getOrganizationMode() : LibraryOrganizationMode.AUTO_DETECT;
 
