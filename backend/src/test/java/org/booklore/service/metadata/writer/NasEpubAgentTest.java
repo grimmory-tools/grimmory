@@ -17,6 +17,7 @@ import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.metadata.BookMetadataUpdater;
 import org.booklore.service.metadata.MetadataRefreshService;
+import org.booklore.service.metadata.bulk.BulkMetadataFileUpdateService;
 import org.booklore.service.metadata.parser.BookParser;
 import org.booklore.task.TaskCancellationManager;
 import org.junit.jupiter.api.BeforeAll;
@@ -382,7 +383,7 @@ class NasEpubAgentTest {
                 mock(tools.jackson.databind.ObjectMapper.class), mock(BookRepository.class),
                 mock(org.springframework.transaction.PlatformTransactionManager.class),
                 mock(AuthenticationService.class), mock(TaskCancellationManager.class),
-                mock(BookFileMutationGuard.class));
+                mock(BookFileMutationGuard.class), mock(BulkMetadataFileUpdateService.class));
         var options = MetadataRefreshOptions.builder().fieldOptions(MetadataRefreshOptions.FieldOptions.builder()
                 .title(MetadataRefreshOptions.FieldProvider.builder().p1(MetadataProvider.Google).build())
                 .build()).build();

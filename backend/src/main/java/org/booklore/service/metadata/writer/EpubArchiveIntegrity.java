@@ -31,7 +31,7 @@ import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-final class EpubArchiveIntegrity {
+public final class EpubArchiveIntegrity {
     private static final long MAX_EXPANDED_BYTES = 512L * 1024 * 1024;
     private static final int MAX_ENTRIES = 100_000;
     private static final long MAX_CONTAINER_BYTES = 1024L * 1024;
@@ -41,7 +41,7 @@ final class EpubArchiveIntegrity {
     private EpubArchiveIntegrity() {
     }
 
-    static String sha256(Path path) throws IOException {
+    public static String sha256(Path path) throws IOException {
         BasicFileAttributes before = Files.readAttributes(path, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
         if (!before.isRegularFile() || before.size() > MAX_EXPANDED_BYTES) {
             throw new IOException("EPUB is not a regular file or exceeds the size limit");

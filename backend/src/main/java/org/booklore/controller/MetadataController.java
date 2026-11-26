@@ -12,6 +12,7 @@ import org.booklore.model.MetadataUpdateWrapper;
 import org.booklore.model.dto.BookMetadata;
 import org.booklore.model.dto.request.*;
 import org.booklore.model.dto.response.TaskCreateResponse;
+import org.booklore.model.entity.BulkMetadataJournalEntity;
 import org.booklore.model.enums.MetadataProvider;
 import org.booklore.model.enums.MetadataReplaceMode;
 import org.booklore.repository.BookRepository;
@@ -21,6 +22,7 @@ import org.booklore.service.metadata.MetadataManagementService;
 import org.booklore.service.metadata.MetadataMatchService;
 import org.booklore.service.metadata.MetadataProviderService;
 import org.booklore.service.metadata.bulk.BulkMetadataRecoveryService;
+import org.booklore.service.metadata.bulk.BulkMetadataFileUpdateService;
 import org.booklore.service.task.TaskService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +48,7 @@ public class MetadataController {
     private final BookRepository bookRepository;
     private final LibraryRepository libraryRepository;
     private final BulkMetadataRecoveryService bulkMetadataRecoveryService;
+    private final BulkMetadataFileUpdateService bulkMetadataFileUpdateService;
 
     public record RefreshPreview(long total, long belowThreshold, long atOrAboveThreshold, long unknown) {}
 
@@ -58,6 +61,18 @@ public class MetadataController {
                                 @RequestParam(defaultValue = "50") int size) {
         return ResponseEntity.ok(bulkMetadataRecoveryService.inspect(jobId, page, size));
     }
+
+    @Operation(summary = "Resume a prepared or interrupted bulk EPUB operation")
+    @PostMapping("/metadata/bulk-jobs/operations/{operationId}/resume")
+    @PreAuthorize("@securityUtil.isAdmin()")
+    public ResponseEntity<BulkMetadataFileResumeResult> resumeBulkMetadataFile(
+            @PathVariable String operationId) throws java.io.IOException {
+        return ResponseEntity.ok(new BulkMetadataFileResumeResult(
+                operationId, bulkMetadataFileUpdateService.resume(operationId)));
+    }
+
+    public record BulkMetadataFileResumeResult(String operationId,
+                                               BulkMetadataJournalEntity.Stage stage) {}
 
     @Operation(summary = "Preview library metadata scores without updating books")
     @GetMapping("/metadata/refresh-preview/{libraryId}")

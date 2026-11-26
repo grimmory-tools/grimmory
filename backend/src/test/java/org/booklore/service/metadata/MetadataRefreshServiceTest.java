@@ -24,6 +24,7 @@ import org.booklore.repository.MetadataFetchJobRepository;
 import org.booklore.service.NotificationService;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.file.BookFileMutationGuard;
+import org.booklore.service.metadata.bulk.BulkMetadataFileUpdateService;
 import org.booklore.service.metadata.parser.BookParser;
 import org.booklore.service.task.TaskCronService;
 import org.booklore.service.task.TaskHistoryService;
@@ -71,6 +72,7 @@ class MetadataRefreshServiceTest {
     @Mock private AuthenticationService authenticationService;
     @Mock private TaskCancellationManager cancellationManager;
     @Mock private BookFileMutationGuard bookFileMutationGuard;
+    @Mock private BulkMetadataFileUpdateService bulkMetadataFileUpdateService;
 
     @InjectMocks
     private MetadataRefreshService service;
@@ -163,7 +165,8 @@ class MetadataRefreshServiceTest {
         TaskCancellationManager actualCancellationManager = new TaskCancellationManager();
         MetadataRefreshService actualService = new MetadataRefreshService(libraryRepository, metadataFetchJobRepository,
                 bookMapper, bookMetadataUpdater, notificationService, appSettingService, parserMap, objectMapper,
-                bookRepository, transactionManager, authenticationService, actualCancellationManager, bookFileMutationGuard);
+                bookRepository, transactionManager, authenticationService, actualCancellationManager, bookFileMutationGuard,
+                bulkMetadataFileUpdateService);
         TaskHistoryService history = mock(TaskHistoryService.class);
         TaskService taskService = new TaskService(authenticationService, history, mock(TaskCronService.class),
                 List.of(new RefreshMetadataTask(actualService)), actualCancellationManager, Runnable::run,
@@ -228,7 +231,6 @@ class MetadataRefreshServiceTest {
         SimpleTransactionStatus transaction = new SimpleTransactionStatus();
         when(transactionManager.getTransaction(any())).thenReturn(transaction);
         prepareUnlockedBook(1L);
-        when(bookMapper.toBookWithDescription(any(), eq(true))).thenReturn(Book.builder().build());
         doThrow(new IllegalStateException("Commit failed")).when(transactionManager).commit(transaction);
         when(metadataFetchJobRepository.updateFailure(eq("job-1"), eq(MetadataFetchTaskStatus.ERROR),
                 eq("Commit failed"), any(), eq(0))).thenReturn(1);
@@ -313,6 +315,21 @@ class MetadataRefreshServiceTest {
     }
 
     @Test
+    void refreshMetadataUsesJournaledEpubReplacementWhenSupported() {
+        MetadataRefreshRequest request = refreshRequest(1L);
+        when(transactionManager.getTransaction(any())).thenReturn(new SimpleTransactionStatus());
+        prepareUnlockedBook(1L);
+        when(bulkMetadataFileUpdateService.supportsSafeEpubUpdate(1L)).thenReturn(true);
+        when(bookMapper.toBookWithDescription(any(), eq(true))).thenReturn(Book.builder().build());
+
+        assertThat(service.refreshMetadata(request, "job-safe-epub")).isEqualTo(MetadataFetchTaskStatus.COMPLETED);
+
+        verify(bulkMetadataFileUpdateService).apply(eq("job-safe-epub"), eq(1L),
+                argThat(metadata -> metadata != null), eq(MetadataReplaceMode.REPLACE_MISSING), eq(false));
+        verify(bookMetadataUpdater, never()).setBookMetadata(any());
+    }
+
+    @Test
     void databaseOnlyCommitsEachBookAndRollsBackAFailedBook() {
         var source = new DriverManagerDataSource("jdbc:h2:mem:" + UUID.randomUUID() + ";DB_CLOSE_DELAY=-1", "sa", "");
         var jdbc = new JdbcTemplate(source);
@@ -321,7 +338,7 @@ class MetadataRefreshServiceTest {
         var actualService = new MetadataRefreshService(libraryRepository, metadataFetchJobRepository,
                 bookMapper, bookMetadataUpdater, notificationService, appSettingService, parserMap, objectMapper,
                 bookRepository, new DataSourceTransactionManager(source), authenticationService, cancellationManager,
-                bookFileMutationGuard);
+                bookFileMutationGuard, bulkMetadataFileUpdateService);
         MetadataRefreshRequest request = refreshRequest(1L, 2L);
         request.setDatabaseOnly(true);
         prepareUnlockedBook(1L);

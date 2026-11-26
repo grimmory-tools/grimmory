@@ -29,6 +29,7 @@ import org.booklore.repository.MetadataFetchJobRepository;
 import org.booklore.service.NotificationService;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.file.BookFileMutationGuard;
+import org.booklore.service.metadata.bulk.BulkMetadataFileUpdateService;
 import org.booklore.service.metadata.parser.BookParser;
 import org.booklore.task.TaskCancellationManager;
 import org.springframework.http.HttpStatus;
@@ -66,8 +67,11 @@ public class MetadataRefreshService {
     private final AuthenticationService authenticationService;
     private final TaskCancellationManager cancellationManager;
     private final BookFileMutationGuard bookFileMutationGuard;
+    private final BulkMetadataFileUpdateService bulkMetadataFileUpdateService;
 
-    private record RefreshProgress(String message, boolean review, Book updatedBook) {}
+    private record RefreshProgress(String message, boolean review, Long bookId, BookMetadata fetched,
+                                   MetadataReplaceMode replaceMode, boolean mergeCategories,
+                                   boolean refreshCover) {}
 
     public MetadataFetchTaskStatus refreshMetadata(MetadataRefreshRequest request, String jobId) {
         if (TransactionSynchronizationManager.isActualTransactionActive()) {
@@ -131,7 +135,8 @@ public class MetadataRefreshService {
                     try {
                         if (book.getMetadata().areAllFieldsLocked()) {
                             log.info("Skipping locked book: {}", getBookIdentifier(book));
-                            return new RefreshProgress("Skipped locked book: " + book.getMetadata().getTitle(), isReviewMode, null);
+                            return new RefreshProgress("Skipped locked book: " + book.getMetadata().getTitle(),
+                                    isReviewMode, null, null, null, false, false);
                         }
 
                         MetadataRefreshOptions refreshOptions;
@@ -147,6 +152,8 @@ public class MetadataRefreshService {
                             refreshOptions = resolveMetadataRefreshOptions(book.getLibrary().getId(), appSettings);
                             providers = prepareProviders(refreshOptions);
                         }
+                        refreshOptions = Objects.requireNonNull(refreshOptions,
+                                "Metadata refresh options are required");
 
                         reportProgressIfNeeded(task, jobId, finalCompletedCount, totalBooks, book, isReviewMode);
                         BookMetadata fetched = prepareFetchedMetadata(book, refreshOptions, providers);
@@ -155,30 +162,33 @@ public class MetadataRefreshService {
 
                         if (bookReviewMode) {
                             saveProposal(task, book.getId(), fetched);
+                            return new RefreshProgress("Processed: " + book.getMetadata().getTitle(), true,
+                                    null, null, null, false, false);
                         } else {
-                            // Use the replaceMode from options - allows user to control whether to replace existing or only fill missing
-                            MetadataReplaceMode replaceMode = refreshOptions.getReplaceMode() != null 
-                                    ? refreshOptions.getReplaceMode() 
+                            MetadataReplaceMode replaceMode = refreshOptions.getReplaceMode() != null
+                                    ? refreshOptions.getReplaceMode()
                                     : MetadataReplaceMode.REPLACE_MISSING;
-                            if (fetched != null) {
-                                bookMetadataUpdater.setBookMetadata(metadataUpdateContext(book, fetched,
-                                        refreshOptions.isRefreshCovers(), refreshOptions.isMergeCategories(), replaceMode,
-                                        request.isDatabaseOnly()));
-                            }
+                            return new RefreshProgress("Processed: " + book.getMetadata().getTitle(), false,
+                                    book.getId(), fetched, replaceMode, refreshOptions.isMergeCategories(),
+                                    refreshOptions.isRefreshCovers());
                         }
-                        bookRepository.saveAndFlush(book);
-                        Book updatedBook = !bookReviewMode && fetched != null ? metadataUpdateNotification(book) : null;
-                        return new RefreshProgress("Processed: " + book.getMetadata().getTitle(), bookReviewMode, updatedBook);
                     } catch (Exception e) {
                         log.error("Metadata update failed for book: {}", getBookIdentifier(book), e);
                         throw e;
                     }
                 });
+                if (!progress.review() && progress.fetched() != null) {
+                    if (request.isDatabaseOnly() || progress.refreshCover()
+                            || !bulkMetadataFileUpdateService.supportsSafeEpubUpdate(progress.bookId())) {
+                        updateBookOutsideFetchTransaction(progress, request.isDatabaseOnly());
+                    } else {
+                        bulkMetadataFileUpdateService.apply(jobId, progress.bookId(), progress.fetched(),
+                                progress.replaceMode(), progress.mergeCategories());
+                    }
+                    notificationService.sendMessage(Topic.BOOK_METADATA_UPDATE, loadMetadataUpdateNotification(progress.bookId()));
+                }
                 completedCount++;
                 completedBooksForError = completedCount;
-                if (progress.updatedBook() != null) {
-                    notificationService.sendMessage(Topic.BOOK_METADATA_UPDATE, progress.updatedBook());
-                }
                 sendBatchProgressNotification(jobId, completedCount, totalBooks, progress.message(),
                         MetadataFetchTaskStatus.IN_PROGRESS, progress.review());
             }
@@ -199,6 +209,7 @@ public class MetadataRefreshService {
                     log.error("Failed to mark metadata refresh task {} as failed", jobId, persistenceError);
                 }
             }
+
             sendBatchProgressNotification(jobId, completedBooksForError, totalBooksForError, "Fatal error during metadata refresh: " + e.getMessage(), MetadataFetchTaskStatus.ERROR, false);
             throw e;
         } catch (Exception fatal) {
@@ -206,6 +217,27 @@ public class MetadataRefreshService {
             sendBatchProgressNotification(jobId, completedBooksForError, totalBooksForError, "Fatal error during metadata refresh: " + fatal.getMessage(), MetadataFetchTaskStatus.ERROR, false);
             throw fatal;
         }
+    }
+
+    private void updateBookOutsideFetchTransaction(RefreshProgress progress, boolean databaseOnly) {
+        TransactionTemplate transaction = new TransactionTemplate(transactionManager);
+        transaction.executeWithoutResult(status -> {
+            bookFileMutationGuard.beforeMutation();
+            BookEntity book = bookRepository.findAllWithMetadataByIds(Collections.singleton(progress.bookId()))
+                    .stream().findFirst()
+                    .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(progress.bookId()));
+            bookMetadataUpdater.setBookMetadata(metadataUpdateContext(book, progress.fetched(),
+                    progress.refreshCover(), progress.mergeCategories(), progress.replaceMode(), databaseOnly));
+            bookRepository.saveAndFlush(book);
+        });
+    }
+
+    private Book loadMetadataUpdateNotification(long bookId) {
+        return new TransactionTemplate(transactionManager).execute(status ->
+                bookRepository.findAllWithMetadataByIds(Collections.singleton(bookId))
+                        .stream().findFirst()
+                        .map(this::metadataUpdateNotification)
+                        .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId)));
     }
 
     MetadataRefreshOptions resolveMetadataRefreshOptions(Long libraryId, AppSettings appSettings) {

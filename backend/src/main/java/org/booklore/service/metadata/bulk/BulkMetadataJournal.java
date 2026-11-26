@@ -135,6 +135,14 @@ public class BulkMetadataJournal {
     }
 
     @Transactional
+    public void releaseApplied(String operationId) {
+        BulkMetadataJournalEntity entry = requireStage(operationId, Stage.EPUB_APPLIED);
+        entry.setActiveBookId(null);
+        entry.setUpdatedAt(Instant.now());
+        repository.saveAndFlush(entry);
+    }
+
+    @Transactional
     public void recordSafeFailure(String operationId, String errorCode) {
         validateErrorCode(errorCode);
         BulkMetadataJournalEntity entry = requireStage(operationId, Stage.PENDING_DB);
