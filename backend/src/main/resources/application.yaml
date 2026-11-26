@@ -127,6 +127,8 @@ spring:
           batch_versioned_data: true  # Allow batching UPDATEs on @Version entities
         connection:
           provider_disables_autocommit: true  # Skip unnecessary JDBC autocommit check; reduces roundtrips
+        order_by:
+          default_null_ordering: last  # Consistent NULLS LAST across MariaDB and PostgreSQL
         default_batch_fetch_size: 16  # Global batch fetch for all lazy collections (prevents N+1)
         log_slow_query: ${HIBERNATE_SLOW_QUERY_MS:500}  # Log queries taking longer than 500ms (see org.hibernate.SQL_SLOW)
         generate_statistics: ${HIBERNATE_STATISTICS:false}

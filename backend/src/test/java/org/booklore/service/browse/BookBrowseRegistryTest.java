@@ -191,7 +191,7 @@ class BookBrowseRegistryTest {
         Long b = book("Bravo", null, null, Instant.now(), List.of(), List.of("Sally O'Malley"), null).getId();
         Long c = book("Charlie", null, null, Instant.now(), List.of(), List.of("Haily Yelp"), null).getId();
         em.flush();
-        assertThat(sortedIds("authorName", user.getId())).containsExactly(a, c, b);
+        assertThat(sortedIds("authorName", user.getId())).containsExactly(c, b, a);
         assertThat(sortedIds("-authorName", user.getId())).containsExactly(b, c, a);
     }
 

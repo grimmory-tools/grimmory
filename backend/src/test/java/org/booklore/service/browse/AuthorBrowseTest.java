@@ -275,11 +275,15 @@ class AuthorBrowseTest {
 
         assertThat(ids(browse("-lastReadTime", null, null, null, 0, 20)))
                 .containsExactly(read.getId(), unread.getId());
+        assertThat(ids(browse("lastReadTime", null, null, null, 0, 20)))
+                .containsExactly(read.getId(), unread.getId());
         assertThat(ids(browse("-goodreadsRating", null, null, null, 0, 20)))
                 .containsExactly(unread.getId(), read.getId());
         assertThat(ids(browse("goodreadsRating", null, null, null, 0, 20)))
                 .containsExactly(read.getId(), unread.getId());
         assertThat(ids(browse("-personalRating", null, null, null, 0, 20)))
+                .containsExactly(read.getId(), unread.getId());
+        assertThat(ids(browse("personalRating", null, null, null, 0, 20)))
                 .containsExactly(read.getId(), unread.getId());
     }
 

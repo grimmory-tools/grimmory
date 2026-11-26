@@ -327,7 +327,6 @@ public class AppSeriesService {
 
     private String buildSeriesOrderBy(String sortBy, String sortDir, boolean inProgressOnly) {
         String dir = "asc".equalsIgnoreCase(sortDir) ? "ASC" : "DESC";
-        String nullsClause = "ASC".equals(dir) ? " NULLS LAST" : " NULLS FIRST";
 
         return switch (sortBy != null ? sortBy.toLowerCase() : "") {
             case "name" -> "m.seriesName " + dir;
@@ -335,15 +334,15 @@ public class AppSeriesService {
             case "readprogress" -> "SUM(CASE WHEN p.readStatus = org.booklore.model.enums.ReadStatus.READ THEN 1 ELSE 0 END) " + dir;
             case "lastreadtime" -> {
                 if (inProgressOnly) {
-                    yield "MAX(p.lastReadTime) " + dir + nullsClause;
+                    yield "MAX(p.lastReadTime) " + dir;
                 }
-                yield "MAX(b.addedOn) " + dir + nullsClause;
+                yield "MAX(b.addedOn) " + dir;
             }
             default -> {
                 if (inProgressOnly) {
-                    yield "MAX(p.lastReadTime) " + dir + nullsClause;
+                    yield "MAX(p.lastReadTime) " + dir;
                 }
-                yield "MAX(b.addedOn) " + dir + nullsClause;
+                yield "MAX(b.addedOn) " + dir;
             }
         };
     }
