@@ -37,10 +37,13 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -97,6 +100,298 @@ class EpubMetadataWriterTest {
     @Nested
     @DisplayName("Metadata writing Tests")
     class MetadataWritingTests {
+        @Test
+        void preparationRetainsValidatedCandidateAndBackupWithoutReplacingSource() throws Exception {
+            File epub = createEpubWithOpf("""
+                    <package xmlns="http://www.idpf.org/2007/opf">
+                      <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        <dc:title>Original</dc:title>
+                      </metadata>
+                      <manifest/><spine/>
+                    </package>""", "prepare.epub");
+            Path candidate = tempDir.resolve("prepare.candidate");
+            Path backup = tempDir.resolve("prepare.backup");
+            byte[] original = Files.readAllBytes(epub.toPath());
+
+            String candidateHash = writer.prepareMetadataCandidate(epub.toPath(), candidate, backup,
+                    EpubArchiveIntegrity.sha256(epub.toPath()), metadata, new MetadataClearFlags());
+
+            assertThat(Files.readAllBytes(epub.toPath())).isEqualTo(original);
+            assertThat(Files.readAllBytes(backup)).isEqualTo(original);
+            assertThat(readOpfContent(candidate.toFile())).contains("Test Book");
+            assertThat(candidateHash).isEqualTo(EpubArchiveIntegrity.sha256(candidate));
+            EpubArchiveIntegrity.validateMetadataRewrite(backup, candidate);
+        }
+
+        @Test
+        void preparationCreatesIdenticalCandidateWhenNothingChanges() throws Exception {
+            File epub = createEpubWithOpf("""
+                    <package xmlns="http://www.idpf.org/2007/opf">
+                      <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        <dc:title>Original</dc:title>
+                      </metadata>
+                      <manifest/><spine/>
+                    </package>""", "unchanged.epub");
+            Path candidate = tempDir.resolve("unchanged.candidate");
+            Path backup = tempDir.resolve("unchanged.backup");
+            byte[] original = Files.readAllBytes(epub.toPath());
+            BookMetadataEntity unchanged = new BookMetadataEntity();
+            unchanged.setAuthors(null);
+            unchanged.setCategories(null);
+
+            String candidateHash = writer.prepareMetadataCandidate(epub.toPath(), candidate, backup,
+                    EpubArchiveIntegrity.sha256(epub.toPath()), unchanged, new MetadataClearFlags());
+
+            assertThat(Files.readAllBytes(epub.toPath())).isEqualTo(original);
+            assertThat(Files.readAllBytes(backup)).isEqualTo(original);
+            assertThat(Files.readAllBytes(candidate)).isEqualTo(original);
+            assertThat(candidateHash).isEqualTo(EpubArchiveIntegrity.sha256(epub.toPath()));
+        }
+
+        @Test
+        void preparationKeepsEvidenceIfSourceChangesWhilePreparing() throws Exception {
+            File epub = createEpubWithOpf("""
+                    <package xmlns="http://www.idpf.org/2007/opf">
+                      <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        <dc:title>Original</dc:title>
+                      </metadata>
+                      <manifest/><spine/>
+                    </package>""", "preparation-conflict.epub");
+            Path candidate = tempDir.resolve("conflict.candidate");
+            Path backup = tempDir.resolve("conflict.backup");
+            byte[] original = Files.readAllBytes(epub.toPath());
+            String originalHash = EpubArchiveIntegrity.sha256(epub.toPath());
+            byte[] changed = "external change".getBytes(StandardCharsets.UTF_8);
+            Mockito.doAnswer(invocation -> {
+                Object extracted = invocation.callRealMethod();
+                Files.write(epub.toPath(), changed);
+                return extracted;
+            }).when(archiveService).extractToDirectory(Mockito.any(), Mockito.any());
+
+            assertThatThrownBy(() -> writer.prepareMetadataCandidate(
+                    epub.toPath(), candidate, backup, originalHash, metadata, new MetadataClearFlags()))
+                    .isInstanceOf(IOException.class)
+                    .hasRootCauseMessage("EPUB changed during metadata update");
+            assertThat(Files.readAllBytes(epub.toPath())).isEqualTo(changed);
+            assertThat(Files.readAllBytes(backup)).isEqualTo(original);
+            assertThat(candidate).exists();
+        }
+
+        @Test
+        void preparationDoesNotOverwriteExistingCandidate() throws Exception {
+            File epub = createEpubWithOpf("""
+                    <package xmlns="http://www.idpf.org/2007/opf">
+                      <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        <dc:title>Original</dc:title>
+                      </metadata>
+                      <manifest/><spine/>
+                    </package>""", "preparation-collision.epub");
+            Path candidate = tempDir.resolve("collision.candidate");
+            Path backup = tempDir.resolve("collision.backup");
+            byte[] original = Files.readAllBytes(epub.toPath());
+            Files.writeString(candidate, "existing");
+            String originalHash = EpubArchiveIntegrity.sha256(epub.toPath());
+
+            assertThatThrownBy(() -> writer.prepareMetadataCandidate(
+                    epub.toPath(), candidate, backup, originalHash, metadata, new MetadataClearFlags()))
+                    .isInstanceOf(IOException.class);
+            assertThat(Files.readString(candidate)).isEqualTo("existing");
+            assertThat(Files.readAllBytes(epub.toPath())).isEqualTo(original);
+            assertThat(Files.readAllBytes(backup)).isEqualTo(original);
+        }
+
+        @Test
+        void preparationRejectsOutdatedRecordedHashWithoutCreatingArtifacts() throws Exception {
+            File epub = createEpubWithOpf("""
+                    <package xmlns="http://www.idpf.org/2007/opf">
+                      <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        <dc:title>Original</dc:title>
+                      </metadata>
+                      <manifest/><spine/>
+                    </package>""", "stale-original.epub");
+            Path candidate = tempDir.resolve("stale.candidate");
+            Path backup = tempDir.resolve("stale.backup");
+            byte[] original = Files.readAllBytes(epub.toPath());
+
+            assertThatThrownBy(() -> writer.prepareMetadataCandidate(
+                    epub.toPath(), candidate, backup, "a".repeat(64), metadata, new MetadataClearFlags()))
+                    .isInstanceOf(IOException.class)
+                    .hasMessage("EPUB does not match the recorded original hash");
+            assertThat(Files.readAllBytes(epub.toPath())).isEqualTo(original);
+            assertThat(candidate).doesNotExist();
+            assertThat(backup).doesNotExist();
+        }
+
+        @Test
+        void strictWriteRejectsCorruptEntryWithoutChangingTheEpub() throws Exception {
+            Path epub = tempDir.resolve("corrupt-strict.epub");
+            try (ZipOutputStream zip = new ZipOutputStream(Files.newOutputStream(epub))) {
+                for (var entry : List.of(
+                        Map.entry("mimetype", "application/epub+zip"),
+                        Map.entry("META-INF/container.xml", """
+                                <container xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+                                  <rootfiles><rootfile full-path="OEBPS/content.opf"/></rootfiles>
+                                </container>"""),
+                        Map.entry("OEBPS/content.opf", """
+                                <package xmlns="http://www.idpf.org/2007/opf">
+                                  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                                    <dc:title>Original title</dc:title>
+                                  </metadata>
+                                </package>"""))) {
+                    byte[] content = entry.getValue().getBytes(StandardCharsets.UTF_8);
+                    var crc = new CRC32();
+                    crc.update(content);
+                    var zipEntry = new ZipEntry(entry.getKey());
+                    zipEntry.setMethod(ZipEntry.STORED);
+                    zipEntry.setSize(content.length);
+                    zipEntry.setCompressedSize(content.length);
+                    zipEntry.setCrc(crc.getValue());
+                    zip.putNextEntry(zipEntry);
+                    zip.write(content);
+                    zip.closeEntry();
+                }
+            }
+            byte[] original = Files.readAllBytes(epub);
+            byte[] marker = "Original title".getBytes(StandardCharsets.UTF_8);
+            int offset = -1;
+            for (int i = 0; i <= original.length - marker.length; i++) {
+                if (Arrays.equals(original, i, i + marker.length, marker, 0, marker.length)) {
+                    offset = i;
+                    break;
+                }
+            }
+            assertThat(offset).isGreaterThanOrEqualTo(0);
+            original[offset] ^= 1;
+            Files.write(epub, original);
+
+            assertThatThrownBy(() -> writer.saveMetadataToFileStrict(epub.toFile(), metadata, new MetadataClearFlags()))
+                    .isInstanceOf(IOException.class).hasMessageContaining("integrity check");
+            assertThat(Files.readAllBytes(epub)).isEqualTo(original);
+            assertThat(epub.resolveSibling(epub.getFileName() + ".bak")).doesNotExist();
+            assertThat(epub.resolveSibling(epub.getFileName() + ".tmp")).doesNotExist();
+        }
+
+        @Test
+        void strictWriteRejectsMalformedPackageWithoutChangingTheEpub() throws Exception {
+            File epub = createEpubWithOpf("<package><metadata>", "malformed-strict.epub");
+            byte[] original = Files.readAllBytes(epub.toPath());
+
+            assertThatThrownBy(() -> writer.saveMetadataToFileStrict(epub, metadata, new MetadataClearFlags()))
+                    .isInstanceOf(IOException.class).hasMessage("EPUB XML is invalid");
+            assertThat(Files.readAllBytes(epub.toPath())).isEqualTo(original);
+            assertThat(epub.toPath().resolveSibling(epub.getName() + ".bak")).doesNotExist();
+        }
+
+        @Test
+        void strictWriteRejectsUnsafeArchivePathWithoutChangingTheEpub() throws Exception {
+            Path epub = tempDir.resolve("unsafe-strict.epub");
+            try (ZipOutputStream zip = new ZipOutputStream(Files.newOutputStream(epub))) {
+                zip.putNextEntry(new ZipEntry("../outside.txt"));
+                zip.write("unsafe".getBytes(StandardCharsets.UTF_8));
+                zip.closeEntry();
+            }
+            byte[] original = Files.readAllBytes(epub);
+
+            assertThatThrownBy(() -> writer.saveMetadataToFileStrict(epub.toFile(), metadata, new MetadataClearFlags()))
+                    .isInstanceOf(IOException.class).hasMessageContaining("invalid or duplicate");
+            assertThat(Files.readAllBytes(epub)).isEqualTo(original);
+            Mockito.verify(archiveService, Mockito.never()).extractToDirectory(Mockito.any(), Mockito.any());
+            assertThat(epub.resolveSibling(epub.getFileName() + ".bak")).doesNotExist();
+        }
+
+        @Test
+        void strictWriteRejectsUnexpectedArchiveContentBeforeReplacingOriginal() throws Exception {
+            File epub = createEpubWithOpf("""
+                    <package xmlns="http://www.idpf.org/2007/opf">
+                      <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        <dc:title>Original</dc:title>
+                      </metadata>
+                      <manifest/><spine/>
+                    </package>""", "unexpected-entry.epub");
+            byte[] original = Files.readAllBytes(epub.toPath());
+            Mockito.doAnswer(invocation -> {
+                Object extracted = invocation.callRealMethod();
+                Path directory = invocation.getArgument(1);
+                Files.writeString(directory.resolve("OEBPS").resolve("unexpected.xhtml"), "unexpected");
+                return extracted;
+            }).when(archiveService).extractToDirectory(Mockito.any(), Mockito.any());
+
+            assertThatThrownBy(() -> writer.saveMetadataToFileStrict(epub, metadata, new MetadataClearFlags()))
+                    .isInstanceOf(IOException.class)
+                    .hasRootCauseMessage("EPUB file entries changed during metadata update");
+            assertThat(Files.readAllBytes(epub.toPath())).isEqualTo(original);
+            assertThat(epub.toPath().resolveSibling(epub.getName() + ".bak")).doesNotExist();
+            assertThat(epub.toPath().resolveSibling(epub.getName() + ".tmp")).doesNotExist();
+        }
+
+        @Test
+        void strictWriteDoesNotOverwriteAConcurrentFileChange() throws Exception {
+            File epub = createEpubWithOpf("""
+                    <package xmlns="http://www.idpf.org/2007/opf">
+                      <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        <dc:title>Original</dc:title>
+                      </metadata>
+                      <manifest/><spine/>
+                    </package>""", "concurrent-change.epub");
+            byte[] changed = "external change".getBytes(StandardCharsets.UTF_8);
+            Mockito.doAnswer(invocation -> {
+                Object extracted = invocation.callRealMethod();
+                Files.write(epub.toPath(), changed);
+                return extracted;
+            }).when(archiveService).extractToDirectory(Mockito.any(), Mockito.any());
+
+            assertThatThrownBy(() -> writer.saveMetadataToFileStrict(epub, metadata, new MetadataClearFlags()))
+                    .isInstanceOf(IOException.class)
+                    .hasRootCauseMessage("EPUB changed during metadata update");
+            assertThat(Files.readAllBytes(epub.toPath())).isEqualTo(changed);
+        }
+
+        @Test
+        void strictWriteRejectsChangesToPackageManifest() throws Exception {
+            File epub = createEpubWithOpf("""
+                    <package xmlns="http://www.idpf.org/2007/opf">
+                      <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        <dc:title>Original</dc:title>
+                      </metadata>
+                      <manifest><item id="chapter" href="chapter.xhtml"/></manifest><spine/>
+                    </package>""", "changed-manifest.epub");
+            byte[] original = Files.readAllBytes(epub.toPath());
+            Mockito.doAnswer(invocation -> {
+                Object extracted = invocation.callRealMethod();
+                Path opf = ((Path) invocation.getArgument(1)).resolve("OEBPS").resolve("content.opf");
+                Files.writeString(opf, Files.readString(opf).replace("chapter.xhtml", "other.xhtml"));
+                return extracted;
+            }).when(archiveService).extractToDirectory(Mockito.any(), Mockito.any());
+
+            assertThatThrownBy(() -> writer.saveMetadataToFileStrict(epub, metadata, new MetadataClearFlags()))
+                    .isInstanceOf(IOException.class)
+                    .hasRootCauseMessage("EPUB package content outside metadata changed during metadata update");
+            assertThat(Files.readAllBytes(epub.toPath())).isEqualTo(original);
+        }
+
+        @Test
+        void strictWriteRejectsChangedNonMetadataEntry() throws Exception {
+            File epub = createEpubWithOpf("""
+                    <package xmlns="http://www.idpf.org/2007/opf">
+                      <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+                        <dc:title>Original</dc:title>
+                      </metadata>
+                      <manifest/><spine/>
+                    </package>""", "changed-entry.epub");
+            byte[] original = Files.readAllBytes(epub.toPath());
+            Mockito.doAnswer(invocation -> {
+                Object extracted = invocation.callRealMethod();
+                Path container = ((Path) invocation.getArgument(1)).resolve("META-INF").resolve("container.xml");
+                Files.writeString(container, Files.readString(container).replace("version=\"1.0\" xmlns=", "version=\"2.0\" xmlns="));
+                return extracted;
+            }).when(archiveService).extractToDirectory(Mockito.any(), Mockito.any());
+
+            assertThatThrownBy(() -> writer.saveMetadataToFileStrict(epub, metadata, new MetadataClearFlags()))
+                    .isInstanceOf(IOException.class)
+                    .hasRootCauseMessage("EPUB non-metadata content changed during metadata update: META-INF/container.xml");
+            assertThat(Files.readAllBytes(epub.toPath())).isEqualTo(original);
+        }
+
         @Test
         @MockitoSettings(strictness = Strictness.LENIENT)
         void existingBackupIsNotOverwritten() throws Exception {

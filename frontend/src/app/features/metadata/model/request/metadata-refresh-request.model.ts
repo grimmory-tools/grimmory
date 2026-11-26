@@ -6,4 +6,6 @@ export interface MetadataRefreshRequest {
   libraryId?: number;
   bookIds?: number[];
   refreshOptions?: MetadataRefreshOptions;
+  scoreThreshold?: number;
+  databaseOnly?: boolean;
 }

@@ -20,6 +20,15 @@ app:
     admin-group: ${REMOTE_AUTH_ADMIN_GROUP}
     groups-delimiter: ${REMOTE_AUTH_GROUPS_DELIMITER:\\s+}
   disk-type: ${DISK_TYPE:LOCAL}
+  synology-acl:
+    enabled: ${SYNOLOGY_ACL_ENABLED:false}
+    host: ${SYNOLOGY_ACL_HOST:}
+    port: ${SYNOLOGY_ACL_PORT:2222}
+    user: ${SYNOLOGY_ACL_USER:}
+    identity-file: ${SYNOLOGY_ACL_IDENTITY_FILE:}
+    known-hosts-file: ${SYNOLOGY_ACL_KNOWN_HOSTS_FILE:}
+    local-root: ${SYNOLOGY_ACL_LOCAL_ROOT:/books}
+    timeout-seconds: ${SYNOLOGY_ACL_TIMEOUT_SECONDS:15}
 
   oidc:
     force-disable: ${FORCE_DISABLE_OIDC:false}

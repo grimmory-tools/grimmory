@@ -2957,7 +2957,13 @@
       "previewBelow": "Below threshold",
       "previewAbove": "At or above threshold",
       "previewUnknown": "Missing or invalid score",
-      "previewNotice": "Read-only preview based on saved completeness scores; locked fields can count even if empty. It does not filter the refresh below, verify correctness, or check EPUB synchronization."
+      "applyThreshold": "Refresh only books below the threshold, including missing or invalid scores",
+      "thresholdInvalid": "Enter a threshold between 0 and 100.",
+      "databaseOnly": "Update the database only",
+      "databaseOnlyNotice": "Book files, embedded metadata, covers, sidecars and paths will not be changed. Files and the database may differ. Manual review is not supported in this mode. The refresh stops on an error and does not resume automatically.",
+      "databaseOnlyReviewConflict": "Turn off manual review before starting a database-only refresh.",
+      "previewNotice": "Read-only preview based on saved completeness scores; locked fields can count even if empty. It does not filter the refresh below, verify correctness, or check EPUB synchronization.",
+      "scoreNotice": "The preview uses saved completeness scores; locked fields can count even if empty. It does not verify correctness or EPUB synchronization. Scores may change before the refresh starts."
     },
     "providers": {
       "openLibrary": "Open Library",

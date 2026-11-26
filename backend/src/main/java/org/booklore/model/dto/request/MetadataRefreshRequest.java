@@ -18,6 +18,8 @@ public class MetadataRefreshRequest {
     private Long libraryId;
     private Set<Long> bookIds;
     private MetadataRefreshOptions refreshOptions;
+    private Float scoreThreshold;
+    private boolean databaseOnly;
 
     public enum RefreshType {
         BOOKS, LIBRARY

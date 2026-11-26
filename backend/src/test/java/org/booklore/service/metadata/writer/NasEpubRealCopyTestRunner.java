@@ -20,10 +20,13 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
@@ -46,9 +49,9 @@ public final class NasEpubRealCopyTestRunner {
             Path workDirectory = requiredDirectory("NAS_REAL_EPUB_WORK_DIR");
             Summary summary = run(inputDirectory, workDirectory);
             System.out.printf("REAL_EPUB_COPY_TEST=PASSED%nEPUBS_FOUND=%d%nCOPIES_WRITTEN=%d%n"
-                            + "INPUTS_UNCHANGED=%d%nZIP_VALIDATED=%d%n",
+                            + "INPUTS_UNCHANGED=%d%nZIP_VALIDATED=%d%nINVALID_REFINEMENTS_REMOVED=%d%n",
                     summary.inputsFound(), summary.copiesWritten(), summary.inputsUnchanged(),
-                    summary.archivesValidated());
+                    summary.archivesValidated(), summary.invalidRefinementsRemoved());
         } catch (Exception exception) {
             System.err.println("REAL_EPUB_COPY_TEST=FAILED");
             if (exception instanceof TestFailureException failure) {
@@ -110,6 +113,7 @@ public final class NasEpubRealCopyTestRunner {
         int copiesWritten = 0;
         int inputsUnchanged = 0;
         int archivesValidated = 0;
+        int invalidRefinementsRemoved = 0;
 
         for (int index = 0; index < inputFiles.size(); index++) {
             Path input = inputFiles.get(index);
@@ -150,9 +154,7 @@ public final class NasEpubRealCopyTestRunner {
                 if (!metadata.getTitle().equals(after.mainTitle())) {
                     throw new TestFailureException("UPDATED_TITLE_NOT_FOUND");
                 }
-                if (!before.metadata().equals(after.metadata())) {
-                    throw new TestFailureException("NON_TARGET_METADATA_CHANGED");
-                }
+                int removedRefinements = countRemovedInvalidRefinements(before, after);
                 if (!"application/epub+zip".equals(after.mimetype())) {
                     throw new TestFailureException("INVALID_EPUB_MIMETYPE");
                 }
@@ -167,6 +169,8 @@ public final class NasEpubRealCopyTestRunner {
                 copiesWritten++;
                 inputsUnchanged++;
                 archivesValidated++;
+                invalidRefinementsRemoved += removedRefinements;
+                System.out.printf("SAMPLE_%03d_INVALID_REFINEMENTS_REMOVED=%d%n", index + 1, removedRefinements);
             } catch (Exception exception) {
                 if (exception instanceof TestFailureException failure) {
                     throw new TestFailureException("SAMPLE_%03d_%s".formatted(index + 1, failure.getMessage()),
@@ -191,7 +195,26 @@ public final class NasEpubRealCopyTestRunner {
             }
         }
 
-        return new Summary(inputFiles.size(), copiesWritten, inputsUnchanged, archivesValidated);
+        return new Summary(inputFiles.size(), copiesWritten, inputsUnchanged, archivesValidated,
+                invalidRefinementsRemoved);
+    }
+
+    private static int countRemovedInvalidRefinements(ArchiveSnapshot before, ArchiveSnapshot after)
+            throws TestFailureException {
+        int removed = 0;
+        for (var entry : after.metadata().entrySet()) {
+            if (entry.getValue() > before.metadata().getOrDefault(entry.getKey(), 0)) {
+                throw new TestFailureException("NON_TARGET_METADATA_CHANGED");
+            }
+        }
+        for (var entry : before.metadata().entrySet()) {
+            int difference = entry.getValue() - after.metadata().getOrDefault(entry.getKey(), 0);
+            if (difference > before.invalidRefinements().getOrDefault(entry.getKey(), 0)) {
+                throw new TestFailureException("NON_TARGET_METADATA_CHANGED");
+            }
+            removed += difference;
+        }
+        return removed;
     }
 
     private static Path requiredDirectory(String environmentVariable) throws IOException {
@@ -281,7 +304,7 @@ public final class NasEpubRealCopyTestRunner {
             }
             PackageMetadata metadata = readMetadata(zipFile, opfEntry);
             return new ArchiveSnapshot(opfPath, entryHashes, metadata.mainTitle(), metadata.elements(),
-                    mimetype, totalBytes);
+                    metadata.invalidRefinements(), mimetype, totalBytes);
         } catch (ParserConfigurationException | org.xml.sax.SAXException exception) {
             throw new TestFailureException("EPUB_XML_INVALID", exception);
         } catch (ArithmeticException exception) {
@@ -347,12 +370,27 @@ public final class NasEpubRealCopyTestRunner {
             }
         }
         String title = mainTitle.getTextContent();
-        mainTitle.setTextContent("GRIMMORY_TEST_TITLE_PLACEHOLDER");
-        Map<ElementSnapshot, Integer> elements = new java.util.HashMap<>();
-        for (Element element : children) {
-            elements.merge(snapshot(element), 1, Integer::sum);
+        Set<String> ids = new HashSet<>();
+        NodeList allElements = document.getElementsByTagName("*");
+        for (int index = 0; index < allElements.getLength(); index++) {
+            String id = ((Element) allElements.item(index)).getAttribute("id");
+            if (!id.isBlank()) {
+                ids.add(id);
+            }
         }
-        return new PackageMetadata(title, elements);
+        mainTitle.setTextContent("GRIMMORY_TEST_TITLE_PLACEHOLDER");
+        Map<ElementSnapshot, Integer> elements = new HashMap<>();
+        Map<ElementSnapshot, Integer> invalidRefinements = new HashMap<>();
+        for (Element element : children) {
+            ElementSnapshot elementSnapshot = snapshot(element);
+            elements.merge(elementSnapshot, 1, Integer::sum);
+            String refines = element.getAttribute("refines");
+            if ("meta".equals(element.getLocalName()) && refines.startsWith("#")
+                    && !ids.contains(refines.substring(1))) {
+                invalidRefinements.merge(elementSnapshot, 1, Integer::sum);
+            }
+        }
+        return new PackageMetadata(title, elements, invalidRefinements);
     }
 
     private static ElementSnapshot snapshot(Element element) {
@@ -426,14 +464,18 @@ public final class NasEpubRealCopyTestRunner {
         }
     }
 
-    record Summary(int inputsFound, int copiesWritten, int inputsUnchanged, int archivesValidated) {
+    record Summary(int inputsFound, int copiesWritten, int inputsUnchanged, int archivesValidated,
+                   int invalidRefinementsRemoved) {
     }
 
     private record ArchiveSnapshot(String opfPath, Map<String, String> entryHashes, String mainTitle,
-                                   Map<ElementSnapshot, Integer> metadata, String mimetype, long uncompressedBytes) {
+                                   Map<ElementSnapshot, Integer> metadata,
+                                   Map<ElementSnapshot, Integer> invalidRefinements, String mimetype,
+                                   long uncompressedBytes) {
     }
 
-    private record PackageMetadata(String mainTitle, Map<ElementSnapshot, Integer> elements) {
+    private record PackageMetadata(String mainTitle, Map<ElementSnapshot, Integer> elements,
+                                   Map<ElementSnapshot, Integer> invalidRefinements) {
     }
 
     private record ElementSnapshot(String namespace, String name, Map<String, String> attributes,

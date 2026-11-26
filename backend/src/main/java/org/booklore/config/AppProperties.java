@@ -16,6 +16,7 @@ public class AppProperties {
     private RemoteAuth remoteAuth;
     private OutboundRequests outbound;
     private OIDC oidc;
+    private SynologyAcl synologyAcl = new SynologyAcl();
 
     /**
      * Type of disk storage where library files are stored.
@@ -55,5 +56,18 @@ public class AppProperties {
     public static class OIDC {
         private Boolean forceDisable = false;
         private Boolean allowUnsafeHosts = false;
+    }
+
+    @Getter
+    @Setter
+    public static class SynologyAcl {
+        private boolean enabled;
+        private String host;
+        private int port = 2222;
+        private String user;
+        private String identityFile;
+        private String knownHostsFile;
+        private String localRoot = "/books";
+        private int timeoutSeconds = 15;
     }
 }

@@ -71,6 +71,15 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
     Set<Long> findBookIdsByLibraryId(@Param("libraryId") long libraryId);
 
     @Query("""
+            SELECT b.id FROM BookEntity b
+            WHERE b.library.id = :libraryId AND (b.deleted IS NULL OR b.deleted = false)
+              AND (b.metadataMatchScore IS NULL OR b.metadataMatchScore < 0
+                   OR b.metadataMatchScore > 100 OR b.metadataMatchScore < :threshold)
+            """)
+    Set<Long> findBookIdsBelowMetadataThreshold(@Param("libraryId") long libraryId,
+                                                @Param("threshold") float threshold);
+
+    @Query("""
             SELECT COUNT(b.id) AS total,
                    COUNT(CASE WHEN b.metadataMatchScore >= 0 AND b.metadataMatchScore < :threshold
                               THEN b.id END) AS belowThreshold,

@@ -173,6 +173,62 @@ describe('MetadataFetchOptionsComponent', () => {
     http.verify();
   });
 
+  it('only submits an enabled valid threshold for library refreshes', () => {
+    TestBed.configureTestingModule({
+      providers: [
+        {provide: DynamicDialogConfig, useValue: {data: {libraryId: 7, metadataRefreshType: MetadataRefreshType.LIBRARY}}},
+        {provide: DynamicDialogRef, useValue: {close}},
+        {provide: TaskHelperService, useValue: {refreshMetadataTask}},
+        {provide: AppSettingsService, useValue: {appSettings: () => null}},
+      ]
+    });
+    const component = TestBed.runInInjectionContext(() => new MetadataFetchOptionsComponent());
+    component.ngOnInit();
+    component.onMetadataSubmit(defaultMetadataRefreshOptions);
+    expect(refreshMetadataTask).toHaveBeenCalledWith({
+      refreshType: MetadataRefreshType.LIBRARY,
+      refreshOptions: defaultMetadataRefreshOptions,
+      bookIds: [],
+      libraryId: 7,
+    });
+    refreshMetadataTask.mockClear();
+    close.mockClear();
+    component.applyThreshold.set(true);
+    component.onPreviewThresholdChange(101);
+    component.onMetadataSubmit(defaultMetadataRefreshOptions);
+    expect(refreshMetadataTask).not.toHaveBeenCalled();
+    expect(close).not.toHaveBeenCalled();
+
+    component.onPreviewThresholdChange(80);
+    component.onMetadataSubmit(defaultMetadataRefreshOptions);
+    expect(refreshMetadataTask).toHaveBeenCalledWith(expect.objectContaining({scoreThreshold: 80}));
+    expect(close).toHaveBeenCalledOnce();
+  });
+
+  it('submits database-only explicitly and rejects manual review', () => {
+    TestBed.configureTestingModule({
+      providers: [
+        {provide: DynamicDialogConfig, useValue: {data: {bookIds: [1]}}},
+        {provide: DynamicDialogRef, useValue: {close}},
+        {provide: TaskHelperService, useValue: {refreshMetadataTask}},
+        {provide: AppSettingsService, useValue: {appSettings: () => null}},
+      ]
+    });
+    const component = TestBed.runInInjectionContext(() => new MetadataFetchOptionsComponent());
+    component.ngOnInit();
+    expect(component.databaseOnly()).toBe(false);
+    component.databaseOnly.set(true);
+    component.onMetadataSubmit({...defaultMetadataRefreshOptions, reviewBeforeApply: true});
+    expect(component.databaseOnlyReviewConflict()).toBe(true);
+    expect(refreshMetadataTask).not.toHaveBeenCalled();
+    expect(close).not.toHaveBeenCalled();
+
+    component.onMetadataSubmit(defaultMetadataRefreshOptions);
+    expect(component.databaseOnlyReviewConflict()).toBe(false);
+    expect(refreshMetadataTask).toHaveBeenCalledWith(expect.objectContaining({databaseOnly: true}));
+    expect(close).toHaveBeenCalledOnce();
+  });
+
   it('reports preview errors and rejects invalid thresholds', () => {
     TestBed.configureTestingModule({
       providers: [
@@ -215,6 +271,17 @@ describe('MetadataFetchOptionsComponent', () => {
     const fixture = TestBed.createComponent(MetadataFetchOptionsComponent);
     const http = TestBed.inject(HttpTestingController);
     await fixture.whenStable();
+    const databaseOnlyCheckbox: HTMLInputElement = fixture.nativeElement.querySelector('.database-only input[type="checkbox"]');
+    expect(databaseOnlyCheckbox.checked).toBe(false);
+    expect(databaseOnlyCheckbox.getAttribute('aria-describedby')).toBe('database-only-notice');
+    databaseOnlyCheckbox.click();
+    await fixture.whenStable();
+    expect(fixture.componentInstance.databaseOnly()).toBe(true);
+    const checkbox: HTMLInputElement = fixture.nativeElement.querySelector('.score-preview input[type="checkbox"]');
+    expect(checkbox.checked).toBe(false);
+    checkbox.click();
+    await fixture.whenStable();
+    expect(fixture.componentInstance.applyThreshold()).toBe(true);
     const button: HTMLButtonElement = fixture.nativeElement.querySelector('.score-preview button');
     button.click();
     await fixture.whenStable();

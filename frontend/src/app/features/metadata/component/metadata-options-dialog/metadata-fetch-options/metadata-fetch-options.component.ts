@@ -50,6 +50,9 @@ export class MetadataFetchOptionsComponent implements OnInit, OnChanges {
   metadataRefreshType: MetadataRefreshType = MetadataRefreshType.BOOKS;
   currentMetadataOptions!: MetadataRefreshOptions;
   previewThreshold: number | null = 90;
+  readonly applyThreshold = signal(false);
+  readonly databaseOnly = signal(false);
+  readonly databaseOnlyReviewConflict = signal(false);
   preview = signal<MetadataScorePreview | null>(null);
   previewLoading = signal(false);
   previewError = signal(false);
@@ -82,12 +85,26 @@ export class MetadataFetchOptionsComponent implements OnInit, OnChanges {
   }
 
   onMetadataSubmit(metadataRefreshOptions: MetadataRefreshOptions) {
+    this.databaseOnlyReviewConflict.set(this.databaseOnly() && !!metadataRefreshOptions.reviewBeforeApply);
+    if (this.databaseOnlyReviewConflict()) {
+      return;
+    }
+    const threshold = this.previewThreshold;
+    if (this.isLibraryPreviewAvailable && this.applyThreshold() && (threshold === null || !this.isPreviewThresholdValid)) {
+      return;
+    }
     const metadataRefreshRequest: MetadataRefreshRequest = {
       refreshType: this.metadataRefreshType,
       refreshOptions: metadataRefreshOptions,
       bookIds: this.bookIds,
       libraryId: this.libraryId
     };
+    if (this.isLibraryPreviewAvailable && this.applyThreshold() && threshold !== null) {
+      metadataRefreshRequest.scoreThreshold = threshold;
+    }
+    if (this.databaseOnly()) {
+      metadataRefreshRequest.databaseOnly = true;
+    }
     this.taskHelperService.refreshMetadataTask(metadataRefreshRequest).subscribe();
     this.dynamicDialogRef.close();
   }
@@ -98,7 +115,8 @@ export class MetadataFetchOptionsComponent implements OnInit, OnChanges {
   }
 
   loadPreview(): void {
-    if (!this.isLibraryPreviewAvailable || !this.isPreviewThresholdValid || this.previewLoading()) {
+    const threshold = this.previewThreshold;
+    if (!this.isLibraryPreviewAvailable || threshold === null || !this.isPreviewThresholdValid || this.previewLoading()) {
       return;
     }
     const generation = ++this.previewGeneration;
@@ -107,7 +125,7 @@ export class MetadataFetchOptionsComponent implements OnInit, OnChanges {
     this.previewLoading.set(true);
     this.http.get<MetadataScorePreview>(
       `${API_CONFIG.BASE_URL}/api/v1/books/metadata/refresh-preview/${this.libraryId}`,
-      {params: {threshold: this.previewThreshold!}},
+      {params: {threshold}},
     ).subscribe({
       next: result => {
         if (generation === this.previewGeneration) {
@@ -137,6 +155,9 @@ export class MetadataFetchOptionsComponent implements OnInit, OnChanges {
     metadataRefreshType?: MetadataRefreshType;
   }): void {
     this.clearPreview();
+    this.applyThreshold.set(false);
+    this.databaseOnly.set(false);
+    this.databaseOnlyReviewConflict.set(false);
     this.libraryId = context.libraryId ?? undefined;
     this.bookIds = context.bookIds ?? [];
     this.metadataRefreshType = context.metadataRefreshType ?? MetadataRefreshType.BOOKS;

@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Set;
@@ -171,6 +172,42 @@ class FileMoveHelperTest {
 
             assertDoesNotThrow(() -> fileMoveHelper.rollbackMove(tempPath, originalSource));
             assertFalse(Files.exists(originalSource));
+        }
+
+        @Test
+        void existingStagingFileIsNotOverwritten() throws Exception {
+            Path source = tempDir.resolve("book.epub");
+            Path staged = tempDir.resolve("book.epub.tmp_move");
+            Files.writeString(source, "source");
+            Files.writeString(staged, "previous staging");
+
+            assertThrows(FileAlreadyExistsException.class, () -> fileMoveHelper.moveFileWithBackup(source));
+            assertEquals("source", Files.readString(source));
+            assertEquals("previous staging", Files.readString(staged));
+        }
+
+        @Test
+        void existingDestinationIsNotOverwritten() throws Exception {
+            Path staged = tempDir.resolve("book.epub.tmp_move");
+            Path target = tempDir.resolve("destination.epub");
+            Files.writeString(staged, "staged");
+            Files.writeString(target, "destination");
+
+            assertThrows(FileAlreadyExistsException.class, () -> fileMoveHelper.commitMove(staged, target));
+            assertEquals("staged", Files.readString(staged));
+            assertEquals("destination", Files.readString(target));
+        }
+
+        @Test
+        void rollbackDoesNotOverwriteARecreatedSource() throws Exception {
+            Path staged = tempDir.resolve("book.epub.tmp_move");
+            Path source = tempDir.resolve("book.epub");
+            Files.writeString(staged, "staged");
+            Files.writeString(source, "recreated");
+
+            fileMoveHelper.rollbackMove(staged, source);
+            assertEquals("staged", Files.readString(staged));
+            assertEquals("recreated", Files.readString(source));
         }
     }
 

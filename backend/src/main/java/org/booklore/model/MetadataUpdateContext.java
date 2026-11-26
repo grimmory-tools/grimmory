@@ -20,4 +20,5 @@ public class MetadataUpdateContext {
     private boolean mergeTags;
     private MetadataReplaceMode replaceMode;
     private boolean failOnFileWriteError;
+    private boolean databaseOnly;
 }

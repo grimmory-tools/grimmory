@@ -114,14 +114,14 @@ public class SidecarMetadataWriter {
             if (Files.exists(oldSidecarPath)) {
                 Path newSidecarPath = getSidecarPath(newBookPath);
                 Files.createDirectories(newSidecarPath.getParent());
-                Files.move(oldSidecarPath, newSidecarPath, StandardCopyOption.REPLACE_EXISTING);
+                Files.move(oldSidecarPath, newSidecarPath);
                 log.info("Moved sidecar file from {} to {}", oldSidecarPath, newSidecarPath);
             }
 
             Path oldCoverPath = getCoverPath(oldBookPath);
             if (Files.exists(oldCoverPath)) {
                 Path newCoverPath = getCoverPath(newBookPath);
-                Files.move(oldCoverPath, newCoverPath, StandardCopyOption.REPLACE_EXISTING);
+                Files.move(oldCoverPath, newCoverPath);
                 log.info("Moved sidecar cover from {} to {}", oldCoverPath, newCoverPath);
             }
         } catch (IOException e) {

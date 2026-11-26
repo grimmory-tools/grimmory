@@ -1,6 +1,7 @@
 package org.booklore.service.metadata;
 
 import org.booklore.config.security.service.AuthenticationService;
+import org.booklore.exception.APIException;
 import org.booklore.mapper.BookMapper;
 import org.booklore.model.dto.*;
 import org.booklore.model.dto.request.MetadataRefreshOptions;
@@ -38,6 +39,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.support.SimpleTransactionStatus;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import tools.jackson.databind.ObjectMapper;
@@ -291,6 +295,69 @@ class MetadataRefreshServiceTest {
         ordered.verify(notificationService).sendMessage(eq(Topic.BOOK_METADATA_BATCH_PROGRESS),
                 argThat(message -> message instanceof MetadataBatchProgressNotification progress
                         && progress.getMessage().startsWith("Processed:")));
+    }
+
+    @Test
+    void refreshMetadataPassesDatabaseOnlyAndDisablesCoverUpdates() {
+        MetadataRefreshRequest request = refreshRequest(1L);
+        request.setDatabaseOnly(true);
+        request.getRefreshOptions().setRefreshCovers(true);
+        when(transactionManager.getTransaction(any())).thenReturn(new SimpleTransactionStatus());
+        prepareUnlockedBook(1L);
+        when(bookMapper.toBookWithDescription(any(), eq(true))).thenReturn(Book.builder().build());
+
+        assertThat(service.refreshMetadata(request, "job-1")).isEqualTo(MetadataFetchTaskStatus.COMPLETED);
+
+        verify(bookMetadataUpdater).setBookMetadata(argThat(context ->
+                context.isDatabaseOnly() && !context.isUpdateThumbnail()));
+    }
+
+    @Test
+    void databaseOnlyCommitsEachBookAndRollsBackAFailedBook() {
+        var source = new DriverManagerDataSource("jdbc:h2:mem:" + UUID.randomUUID() + ";DB_CLOSE_DELAY=-1", "sa", "");
+        var jdbc = new JdbcTemplate(source);
+        jdbc.execute("CREATE TABLE synthetic_books (id BIGINT PRIMARY KEY, title VARCHAR(100))");
+        jdbc.update("INSERT INTO synthetic_books VALUES (1, 'Original'), (2, 'Original')");
+        var actualService = new MetadataRefreshService(libraryRepository, metadataFetchJobRepository,
+                bookMapper, bookMetadataUpdater, notificationService, appSettingService, parserMap, objectMapper,
+                bookRepository, new DataSourceTransactionManager(source), authenticationService, cancellationManager,
+                bookFileMutationGuard);
+        MetadataRefreshRequest request = refreshRequest(1L, 2L);
+        request.setDatabaseOnly(true);
+        prepareUnlockedBook(1L);
+        prepareUnlockedBook(2L);
+        when(bookMapper.toBookWithDescription(any(), eq(true))).thenReturn(Book.builder().build());
+        when(metadataFetchJobRepository.updateFailure(eq("job-1"), eq(MetadataFetchTaskStatus.ERROR),
+                eq("Update failed"), any(), eq(1))).thenReturn(1);
+        doAnswer(invocation -> {
+            MetadataUpdateContext context = invocation.getArgument(0);
+            long id = context.getBookEntity().getId();
+            jdbc.update("UPDATE synthetic_books SET title = 'Changed' WHERE id = ?", id);
+            if (id == 2L) {
+                throw new IllegalStateException("Update failed");
+            }
+            return null;
+        }).when(bookMetadataUpdater).setBookMetadata(any());
+
+        assertThatThrownBy(() -> actualService.refreshMetadata(request, "job-1"))
+                .isInstanceOf(IllegalStateException.class).hasMessage("Update failed");
+
+        assertThat(jdbc.queryForObject("SELECT title FROM synthetic_books WHERE id = 1", String.class))
+                .isEqualTo("Changed");
+        assertThat(jdbc.queryForObject("SELECT title FROM synthetic_books WHERE id = 2", String.class))
+                .isEqualTo("Original");
+    }
+
+    @Test
+    void refreshMetadataRejectsDatabaseOnlyReviewBeforeStartingJob() {
+        MetadataRefreshRequest request = MetadataRefreshRequest.builder()
+                .databaseOnly(true)
+                .refreshOptions(MetadataRefreshOptions.builder().reviewBeforeApply(true).build())
+                .build();
+
+        assertThatThrownBy(() -> service.refreshMetadata(request, "job-1"))
+                .isInstanceOf(APIException.class);
+        verifyNoInteractions(metadataFetchJobRepository, bookRepository);
     }
 
     private MetadataRefreshRequest refreshRequest(Long... ids) {
@@ -555,6 +622,35 @@ class MetadataRefreshServiceTest {
         Set<Long> result = service.getBookEntities(request);
 
         assertThat(result).containsExactlyInAnyOrder(10L, 11L);
+    }
+
+    @Test
+    void getBookEntities_usesThresholdForLibraryRefresh() {
+        LibraryEntity library = new LibraryEntity();
+        library.setId(5L);
+        when(libraryRepository.findById(5L)).thenReturn(Optional.of(library));
+        when(bookRepository.findBookIdsBelowMetadataThreshold(5L, 90f)).thenReturn(Set.of(10L));
+        MetadataRefreshRequest request = MetadataRefreshRequest.builder()
+                .refreshType(MetadataRefreshRequest.RefreshType.LIBRARY)
+                .libraryId(5L).scoreThreshold(90f).build();
+
+        assertThat(service.getBookEntities(request)).containsExactly(10L);
+        verify(bookRepository, never()).findBookIdsByLibraryId(anyLong());
+    }
+
+    @Test
+    void getBookEntities_rejectsInvalidOrNonLibraryThresholds() {
+        for (float threshold : new float[]{-1f, 101f, Float.NaN, Float.POSITIVE_INFINITY}) {
+            MetadataRefreshRequest request = MetadataRefreshRequest.builder()
+                    .refreshType(MetadataRefreshRequest.RefreshType.LIBRARY).scoreThreshold(threshold).build();
+            assertThatThrownBy(() -> service.getBookEntities(request))
+                    .isInstanceOf(APIException.class);
+        }
+        MetadataRefreshRequest books = MetadataRefreshRequest.builder()
+                .refreshType(MetadataRefreshRequest.RefreshType.BOOKS).scoreThreshold(90f).build();
+        assertThatThrownBy(() -> service.getBookEntities(books))
+                .isInstanceOf(APIException.class);
+        verifyNoInteractions(bookRepository, libraryRepository);
     }
 
     @Test

@@ -114,6 +114,85 @@ class BookMetadataUpdaterTest {
     }
 
     @Test
+    void databaseOnlyUpdatesMetadataWithoutTouchingFilesOrCovers() throws Exception {
+        Path epub = tempDir.resolve("book.epub");
+        Path sidecar = tempDir.resolve("book.json");
+        Files.writeString(epub, "original book");
+        Files.writeString(sidecar, "original sidecar");
+        bookEntity.setLibraryPath(LibraryPathEntity.builder().path(tempDir.toString()).build());
+        BookFileEntity primaryFile = BookFileEntity.builder()
+                .id(1L).book(bookEntity).fileName("book.epub").fileSubPath("")
+                .isBookFormat(true).bookType(BookFileType.EPUB).currentHash("original-hash").build();
+        bookEntity.setBookFiles(Set.of(primaryFile));
+        MetadataPersistenceSettings persistence = MetadataPersistenceSettings.builder()
+                .moveFilesToLibraryPattern(true)
+                .saveToOriginalFile(MetadataPersistenceSettings.SaveToOriginalFile.builder()
+                        .epub(MetadataPersistenceSettings.FormatSettings.builder().enabled(true).build())
+                        .build())
+                .build();
+        lenient().when(appSettingService.getAppSettings()).thenReturn(AppSettings.builder()
+                .metadataPersistenceSettings(persistence).build());
+        lenient().when(sidecarMetadataWriter.isWriteOnUpdateEnabled()).thenReturn(true);
+        MetadataUpdateContext context = buildContext(BookMetadata.builder()
+                .title("Changed").thumbnailUrl("https://example.com/cover.jpg").build(),
+                MetadataReplaceMode.REPLACE_ALL);
+        context.setDatabaseOnly(true);
+        context.setUpdateThumbnail(true);
+
+        updater.setBookMetadata(context);
+
+        assertThat(metadataEntity.getTitle()).isEqualTo("Changed");
+        assertThat(Files.readString(epub)).isEqualTo("original book");
+        assertThat(Files.readString(sidecar)).isEqualTo("original sidecar");
+        assertThat(primaryFile.getCurrentHash()).isEqualTo("original-hash");
+        assertThat(bookEntity.getMetadataForWriteUpdatedAt()).isNull();
+        verify(bookRepository).save(bookEntity);
+        verifyNoInteractions(fileService, metadataWriterFactory, sidecarMetadataWriter, fileMoveService, appSettingService);
+    }
+
+    @Test
+    void databaseOnlyIgnoresCoverOnlyChanges() {
+        metadataEntity.setTitleLocked(true);
+        MetadataUpdateContext context = buildContext(BookMetadata.builder()
+                .thumbnailUrl("https://example.com/cover.jpg").build(), MetadataReplaceMode.REPLACE_MISSING);
+        context.setDatabaseOnly(true);
+        context.setUpdateThumbnail(true);
+
+        updater.setBookMetadata(context);
+
+        verifyNoInteractions(bookRepository, fileService, metadataWriterFactory, sidecarMetadataWriter, fileMoveService);
+        assertThat(bookEntity.getMetadataUpdatedAt()).isNull();
+        assertThat(metadataEntity.getTitleLocked()).isTrue();
+    }
+
+    @Test
+    void databaseOnlyKeepsLockedFieldsAndUpdatesProvidedFields() {
+        metadataEntity.setTitleLocked(true);
+        MetadataUpdateContext context = buildContext(BookMetadata.builder()
+                .title("Ignored").publisher("New publisher").build(), MetadataReplaceMode.REPLACE_WHEN_PROVIDED);
+        context.setDatabaseOnly(true);
+
+        updater.setBookMetadata(context);
+
+        assertThat(metadataEntity.getTitle()).isEqualTo("Original Title");
+        assertThat(metadataEntity.getTitleLocked()).isTrue();
+        assertThat(metadataEntity.getPublisher()).isEqualTo("New publisher");
+        verifyNoInteractions(fileService, metadataWriterFactory, sidecarMetadataWriter, fileMoveService);
+    }
+
+    @Test
+    void databaseOnlyCannotRequireFileWrites() {
+        MetadataUpdateContext context = buildContext(BookMetadata.builder().title("Changed").build(),
+                MetadataReplaceMode.REPLACE_ALL);
+        context.setDatabaseOnly(true);
+        context.setFailOnFileWriteError(true);
+
+        assertThatThrownBy(() -> updater.setBookMetadata(context))
+                .isInstanceOf(IllegalArgumentException.class);
+        verifyNoInteractions(bookRepository, fileService, metadataWriterFactory, sidecarMetadataWriter, fileMoveService);
+    }
+
+    @Test
     void strictEpubUpdatePropagatesWriterFailure() throws Exception {
         Path library = Files.createDirectory(tempDir.resolve("library"));
         Path epub = Files.createFile(library.resolve("book.epub"));

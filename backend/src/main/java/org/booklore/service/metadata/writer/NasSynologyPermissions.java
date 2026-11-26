@@ -12,18 +12,29 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-final class NasSynologyPermissions {
+public final class NasSynologyPermissions {
     private static final Path TOOL = Path.of("/opt/synology/synoacltool");
     private static final String LIBRARIES = "/opt/synology/lib";
     private static final int MAX_OUTPUT = 64 * 1024;
     private final Commands commands;
     private final Ownership ownership;
 
-    record Identity(int uid, int gid, int mode) {}
-    record Snapshot(Identity identity, String archive, String entries) {}
+    public record Identity(int uid, int gid, int mode) {}
+    public record Snapshot(Identity identity, String archive, String entries) {}
 
-    interface Commands {
+    public interface Commands {
         String run(String action, Path... paths) throws IOException;
+
+        default Snapshot capture(Path path, Identity identity) throws IOException {
+            List<String> archiveLines = run("-get", path).lines()
+                    .filter(line -> line.startsWith("Archive:")).map(String::stripTrailing).toList();
+            String entries = run("-getace", path).stripTrailing();
+            return new Snapshot(identity, archiveLines.size() == 1 ? archiveLines.getFirst() : "", entries);
+        }
+
+        default void copy(Path source, Path target, Snapshot expected) throws IOException {
+            run("-copy", source, target);
+        }
     }
 
     interface Ownership {
@@ -39,38 +50,41 @@ final class NasSynologyPermissions {
         }
     }
 
+    NasSynologyPermissions(Commands commands) {
+        this(commands, new UnixOwnership());
+    }
+
     NasSynologyPermissions(Commands commands, Ownership ownership) {
         this.commands = Objects.requireNonNull(commands);
         this.ownership = Objects.requireNonNull(ownership);
     }
 
-    Snapshot capture(Path path) throws IOException {
+    public Snapshot capture(Path path) throws IOException {
         if (!Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS)) {
             throw new IOException("ACL target must be a regular file");
         }
         Identity identity = ownership.read(path);
-        List<String> archiveLines = commands.run("-get", path).lines()
-                .filter(line -> line.startsWith("Archive:")).map(String::stripTrailing).toList();
-        String entries = commands.run("-getace", path).stripTrailing();
-        if (archiveLines.size() != 1 || !archiveLines.getFirst().contains("is_support_ACL")
-                || !(archiveLines.getFirst().contains("is_inherit") || archiveLines.getFirst().contains("has_ACL"))
-                || archiveLines.getFirst().length() > 512 || entries.isBlank() || entries.length() > 4096
+        Snapshot snapshot = commands.capture(path, identity);
+        if (snapshot == null || snapshot.archive() == null || !snapshot.archive().startsWith("Archive:")
+                || !snapshot.archive().contains("is_support_ACL")
+                || !(snapshot.archive().contains("is_inherit") || snapshot.archive().contains("has_ACL"))
+                || snapshot.archive().length() > 512 || snapshot.entries() == null || snapshot.entries().isBlank()
+                || snapshot.entries().length() > 4096
                 || !identity.equals(ownership.read(path))) {
             throw new IOException("Unsupported or changed Synology ACL");
         }
-        Snapshot snapshot = new Snapshot(identity, archiveLines.getFirst(), entries);
         validate(snapshot);
         return snapshot;
     }
 
-    void verify(Path path, Snapshot expected) throws IOException {
+    public void verify(Path path, Snapshot expected) throws IOException {
         validate(expected);
         if (!expected.equals(capture(path))) {
             throw new IOException("Synology ownership, mode or ACL changed");
         }
     }
 
-    static void validate(Snapshot snapshot) throws IOException {
+    public static void validate(Snapshot snapshot) throws IOException {
         if (snapshot == null || snapshot.identity() == null || snapshot.identity().uid() < 0
                 || snapshot.identity().gid() < 0 || snapshot.identity().mode() < 0
                 || snapshot.identity().mode() > 07777 || snapshot.archive() == null
@@ -82,12 +96,12 @@ final class NasSynologyPermissions {
         }
     }
 
-    void copy(Path source, Path target, Snapshot expected) throws IOException {
+    public void copy(Path source, Path target, Snapshot expected) throws IOException {
         verify(source, expected);
         if (!Files.isRegularFile(target, LinkOption.NOFOLLOW_LINKS)) {
             throw new IOException("ACL candidate must be a regular file");
         }
-        commands.run("-copy", source, target);
+        commands.copy(source, target, expected);
         ownership.set(target, expected.identity());
         verify(target, expected);
         verify(source, expected);
@@ -145,8 +159,16 @@ final class NasSynologyPermissions {
         @Override
         public void set(Path path, Identity identity) throws IOException {
             try {
-                Files.setAttribute(path, "unix:gid", identity.gid(), LinkOption.NOFOLLOW_LINKS);
-                Files.setAttribute(path, "unix:uid", identity.uid(), LinkOption.NOFOLLOW_LINKS);
+                Identity current = read(path);
+                if (current.gid() != identity.gid()) {
+                    Files.setAttribute(path, "unix:gid", identity.gid(), LinkOption.NOFOLLOW_LINKS);
+                }
+                if (current.uid() != identity.uid()) {
+                    Files.setAttribute(path, "unix:uid", identity.uid(), LinkOption.NOFOLLOW_LINKS);
+                }
+                if (current.mode() != identity.mode()) {
+                    Files.setAttribute(path, "unix:mode", identity.mode(), LinkOption.NOFOLLOW_LINKS);
+                }
             } catch (UnsupportedOperationException e) {
                 throw new IOException("Unix file ownership is unavailable", e);
             }

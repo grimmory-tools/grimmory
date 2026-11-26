@@ -3,6 +3,7 @@ package org.booklore.task.tasks;
 import org.booklore.exception.APIException;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.request.MetadataRefreshRequest;
+import org.booklore.model.dto.request.MetadataRefreshOptions;
 import org.booklore.model.dto.request.TaskCreateRequest;
 import org.booklore.model.dto.response.TaskCreateResponse;
 import org.booklore.model.enums.MetadataFetchTaskStatus;
@@ -60,6 +61,27 @@ class RefreshMetadataTaskTest {
         metadataRefreshRequest.setRefreshType(MetadataRefreshRequest.RefreshType.LIBRARY);
         user.getPermissions().setCanBulkAutoFetchMetadata(true);
 
+        assertDoesNotThrow(() -> refreshMetadataTask.validatePermissions(user, taskCreateRequest));
+    }
+
+    @Test
+    void validatePermissions_rejectsInvalidScoreThresholdBeforeScheduling() {
+        metadataRefreshRequest.setRefreshType(MetadataRefreshRequest.RefreshType.LIBRARY);
+        metadataRefreshRequest.setScoreThreshold(101f);
+        user.getPermissions().setCanBulkAutoFetchMetadata(true);
+
+        APIException error = assertThrows(APIException.class,
+                () -> refreshMetadataTask.validatePermissions(user, taskCreateRequest));
+        assertEquals(org.springframework.http.HttpStatus.BAD_REQUEST, error.getStatus());
+    }
+
+    @Test
+    void validatePermissions_rejectsDatabaseOnlyWithoutExplicitNonReviewOptions() {
+        metadataRefreshRequest.setDatabaseOnly(true);
+        assertThrows(APIException.class, () -> refreshMetadataTask.validatePermissions(user, taskCreateRequest));
+        metadataRefreshRequest.setRefreshOptions(MetadataRefreshOptions.builder().reviewBeforeApply(true).build());
+        assertThrows(APIException.class, () -> refreshMetadataTask.validatePermissions(user, taskCreateRequest));
+        metadataRefreshRequest.getRefreshOptions().setReviewBeforeApply(false);
         assertDoesNotThrow(() -> refreshMetadataTask.validatePermissions(user, taskCreateRequest));
     }
 

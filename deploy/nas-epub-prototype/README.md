@@ -78,6 +78,13 @@ Ce test n'établit pas l'isolation d'un futur service réseau ni la cohérence
 entre un fichier et la base Grimmory. La compatibilité complète et le
 remplacement sûr des fichiers restent à valider avant toute utilisation réelle.
 
+L'écriture stricte vérifie aussi l'archive produite avant remplacement : les
+fichiers autres que le package OPF et les éléments du package hors métadonnées
+doivent rester inchangés. Elle refuse également un fichier source modifié
+pendant la préparation. Ces contrôles ne vérifient pas toutes les métadonnées
+OPF et ne fournissent ni verrou exclusif global, ni préservation garantie des
+ACL, ni reprise durable après interruption.
+
 ## Liaison réseau expérimentale
 
 Le code contient également un serveur et un client HTTPS expérimentaux,
@@ -344,7 +351,9 @@ marqueur de test. Il vérifie les tailles et CRC des entrées ZIP, la présence 
 l'absence de changement dans les autres entrées ZIP, l'empreinte inchangée des
 copies d'entrée, les éléments de métadonnées OPF non ciblés et l'absence de
 fichiers temporaires. La comparaison ignore leur ordre et les espaces de
-formatage. Le journal doit indiquer
+formatage. Elle accepte uniquement la suppression de raffinements `meta`
+dont la cible était déjà absente avant l'écriture ; leur nombre est indiqué par
+`INVALID_REFINEMENTS_REMOVED`. Le journal doit indiquer
 `REAL_EPUB_COPY_TEST=PASSED`, trois copies écrites et trois entrées inchangées.
 Arrêter le projet après la campagne.
 
@@ -410,6 +419,24 @@ dans un emplacement protégé. L'essai réussi sur le NAS avec une ACL héritée
 et une ACL explicite ne démontre ni la résistance à une coupure électrique
 ni la préservation des attributs non vérifiés.
 
+`NfsAclCapabilityProbe.java` vérifie, sur un montage de test NFS, que le
+fournisseur Java expose les ACL, sait les copier vers un candidat et conserve
+propriétaire, mode et ACL après un renommage atomique. Il ne crée que des
+fichiers synthétiques dans un sous-dossier temporaire unique, puis le supprime.
+Exécuter uniquement sur un partage de test dédié, jamais sur `/books` :
+
+```bash
+docker run --rm --network none --user <UID>:<GID> \
+  --mount type=bind,source=/test,target=/test \
+  eclipse-temurin:25-jdk \
+  java /test/NfsAclCapabilityProbe.java /test
+```
+
+Remplacer `<UID>:<GID>` par l'identité effective du processus backend. Le
+fichier source doit d'abord être copié dans `/test`. Un résultat `PASS` valide
+uniquement ce partage et cette identité ; il ne valide pas les écritures
+concurrentes Grimmory ni la chaîne de reprise complète.
+
 ## Conditions avant une mise en production
 
 L'agent et son coordinateur ne sont pas intégrés aux écritures Grimmory et
@@ -471,3 +498,49 @@ ne doivent pas être activés sur les livres réels. Avant leur intégration :
 
 L'emploi de `CAP_CHOWN` sur le montage des livres demande une autorisation
 distincte ; les tests existants ne l'utilisent que sur des fichiers factices.
+
+## Helper ACL Synology (test isolé uniquement)
+
+Le backend peut maintenant déléguer la lecture et la copie des ACL à un helper
+installé sur le NAS. Cette intégration reste désactivée par défaut et n'est
+pas une autorisation de l'activer sur `/volume1/Livres` : l'installateur
+refuse volontairement toute racine autre que le partage isolé
+`/volume1/Grimmory-ACL-Test`. Le traitement batch réel, la reprise complète
+et la validation sur ce helper restent à terminer.
+
+Sur le NAS, installer le helper comme `root` depuis une copie vérifiée du
+script, en indiquant le dossier de test et le compte SSH dédié :
+
+```sh
+sh install-grimmory-syno-acl-helper.sh \
+  /volume1/Grimmory-ACL-Test grimmory-acl /chemin/grimmory-syno-acl-helper.py
+```
+
+Le script installe un helper et une règle `sudoers` root-owned qui n'autorise
+que son exécution sans arguments. Il ne modifie pas `authorized_keys`.
+Créer une clé SSH dédiée côté hôte Grimmory et ajouter uniquement sa clé
+publique au compte Synology avec la commande forcée suivante (sans remplacer
+ni assouplir les autres clés) :
+
+```text
+restrict,command="sudo -n /usr/local/libexec/grimmory-syno-acl-helper.py" ssh-ed25519 <clé-publique>
+```
+
+Le serveur doit prendre en charge l'option OpenSSH `restrict`. Refuser toute
+connexion si l'empreinte de la clé hôte n'a pas été vérifiée séparément ; le
+client utilise `StrictHostKeyChecking=yes` et un fichier `known_hosts`
+explicitement configuré. Garder la clé privée uniquement sur l'hôte Grimmory,
+lisible seulement par son processus, et ne jamais la partager. Le helper passe
+les fichiers à `synoacltool` par des descripteurs ouverts (`/proc/self/fd`).
+Vérifier que la version Synology de l'outil accepte cette forme sur le partage
+isolé ; ne pas remplacer ce contrôle par un accès root par chemin si l'outil
+la refuse.
+
+Sur l'hôte Grimmory, monter ce partage de test sous `/test-acl`, préparer un
+EPUB synthétique et configurer `SYNOLOGY_ACL_ENABLED=true`,
+`SYNOLOGY_ACL_HOST`, `SYNOLOGY_ACL_USER`, `SYNOLOGY_ACL_IDENTITY_FILE`,
+`SYNOLOGY_ACL_KNOWN_HOSTS_FILE`, `SYNOLOGY_ACL_LOCAL_ROOT=/test-acl` et le
+port SSH. Vérifier les permissions POSIX, l'ACE Synology avec droit `C`,
+l'installation atomique et le retour après erreur exclusivement sur ce
+partage. Ne pas utiliser de livre réel et ne pas activer ce mécanisme en
+production avant revue humaine et validation complète.

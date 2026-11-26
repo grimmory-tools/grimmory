@@ -3,6 +3,7 @@ package org.booklore.service.metadata;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.booklore.config.security.service.AuthenticationService;
+import org.booklore.exception.APIException;
 import org.booklore.exception.ApiError;
 import org.booklore.mapper.BookMapper;
 import org.booklore.model.MetadataUpdateContext;
@@ -30,6 +31,7 @@ import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.file.BookFileMutationGuard;
 import org.booklore.service.metadata.parser.BookParser;
 import org.booklore.task.TaskCancellationManager;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -71,6 +73,7 @@ public class MetadataRefreshService {
         if (TransactionSynchronizationManager.isActualTransactionActive()) {
             throw new IllegalStateException("Metadata refresh must start outside a transaction");
         }
+        validateDatabaseOnly(request);
         BookLoreUser user = authenticationService.getAuthenticatedUser();
         Long userId = user != null ? user.getId() : null;
         final int totalBooks;
@@ -159,7 +162,8 @@ public class MetadataRefreshService {
                                     : MetadataReplaceMode.REPLACE_MISSING;
                             if (fetched != null) {
                                 bookMetadataUpdater.setBookMetadata(metadataUpdateContext(book, fetched,
-                                        refreshOptions.isRefreshCovers(), refreshOptions.isMergeCategories(), replaceMode));
+                                        refreshOptions.isRefreshCovers(), refreshOptions.isMergeCategories(), replaceMode,
+                                        request.isDatabaseOnly()));
                             }
                         }
                         bookRepository.saveAndFlush(book);
@@ -318,17 +322,18 @@ public class MetadataRefreshService {
     }
 
     public void updateBookMetadata(BookEntity bookEntity, BookMetadata metadata, boolean replaceCover, boolean mergeCategories, MetadataReplaceMode replaceMode) {
-        updateBookMetadata(metadataUpdateContext(bookEntity, metadata, replaceCover, mergeCategories, replaceMode));
+        updateBookMetadata(metadataUpdateContext(bookEntity, metadata, replaceCover, mergeCategories, replaceMode, false));
     }
 
     private MetadataUpdateContext metadataUpdateContext(BookEntity bookEntity, BookMetadata metadata, boolean replaceCover,
-                                                        boolean mergeCategories, MetadataReplaceMode replaceMode) {
+                                                        boolean mergeCategories, MetadataReplaceMode replaceMode, boolean databaseOnly) {
         return MetadataUpdateContext.builder()
                 .bookEntity(bookEntity)
                 .metadataUpdateWrapper(MetadataUpdateWrapper.builder()
                         .metadata(metadata)
                         .build())
-                .updateThumbnail(replaceCover)
+                .updateThumbnail(replaceCover && !databaseOnly)
+                .databaseOnly(databaseOnly)
                 .mergeCategories(mergeCategories)
                 .replaceMode(replaceMode)
                 .mergeMoods(true)
@@ -951,6 +956,7 @@ public class MetadataRefreshService {
     }
 
     protected Set<Long> getBookEntities (MetadataRefreshRequest request){
+        validateScoreThreshold(request);
         MetadataRefreshRequest.RefreshType refreshType = request.getRefreshType();
         if (refreshType != MetadataRefreshRequest.RefreshType.LIBRARY && refreshType != MetadataRefreshRequest.RefreshType.BOOKS) {
             throw ApiError.INVALID_REFRESH_TYPE.createException();
@@ -958,10 +964,30 @@ public class MetadataRefreshService {
         return switch (refreshType) {
             case LIBRARY -> {
                 LibraryEntity libraryEntity = libraryRepository.findById(request.getLibraryId()).orElseThrow(() -> ApiError.LIBRARY_NOT_FOUND.createException(request.getLibraryId()));
-                yield bookRepository.findBookIdsByLibraryId(libraryEntity.getId());
+                yield request.getScoreThreshold() == null
+                        ? bookRepository.findBookIdsByLibraryId(libraryEntity.getId())
+                        : bookRepository.findBookIdsBelowMetadataThreshold(libraryEntity.getId(), request.getScoreThreshold());
             }
             case BOOKS -> request.getBookIds();
         };
+    }
+
+    public static void validateScoreThreshold(MetadataRefreshRequest request) {
+        Float threshold = request.getScoreThreshold();
+        if (threshold != null && (request.getRefreshType() != MetadataRefreshRequest.RefreshType.LIBRARY
+                || !Float.isFinite(threshold) || threshold < 0 || threshold > 100)) {
+            throw new APIException("Score threshold must be between 0 and 100 and applies only to library refreshes",
+                    HttpStatus.BAD_REQUEST);
+        }
+
+    }
+
+    public static void validateDatabaseOnly(MetadataRefreshRequest request) {
+        if (request.isDatabaseOnly() && (request.getRefreshOptions() == null
+                || Boolean.TRUE.equals(request.getRefreshOptions().getReviewBeforeApply()))) {
+            throw new APIException("Database-only refresh requires explicit options and does not support manual review",
+                    HttpStatus.BAD_REQUEST);
+        }
     }
 
     private Set<Shelf> filterShelvesByUserId(Set<Shelf> shelves, Long userId) {

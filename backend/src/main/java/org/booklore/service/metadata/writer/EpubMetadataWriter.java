@@ -12,6 +12,7 @@ import org.booklore.util.MimeDetector;
 import org.booklore.util.SecureXmlUtils;
 import org.booklore.util.epub.EpubContentReader;
 import org.booklore.util.epub.EpubContentWriter;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
@@ -58,15 +59,28 @@ public class EpubMetadataWriter implements MetadataWriter {
             "booklore:moods", "booklore:tags", "booklore:age_rating", "booklore:content_rating");
     private final Supplier<MetadataPersistenceSettings> metadataSettings;
     private final ArchiveService archiveService;
+    private final NasSynologyPermissions synologyPermissions;
 
     @Autowired
+    public EpubMetadataWriter(AppSettingService appSettingService, ArchiveService archiveService,
+                              ObjectProvider<NasSynologyPermissions> synologyPermissions) {
+        this(() -> appSettingService.getAppSettings().getMetadataPersistenceSettings(), archiveService,
+                synologyPermissions.getIfAvailable());
+    }
+
     public EpubMetadataWriter(AppSettingService appSettingService, ArchiveService archiveService) {
         this(() -> appSettingService.getAppSettings().getMetadataPersistenceSettings(), archiveService);
     }
 
     public EpubMetadataWriter(Supplier<MetadataPersistenceSettings> metadataSettings, ArchiveService archiveService) {
+        this(metadataSettings, archiveService, null);
+    }
+
+    EpubMetadataWriter(Supplier<MetadataPersistenceSettings> metadataSettings, ArchiveService archiveService,
+                       NasSynologyPermissions synologyPermissions) {
         this.metadataSettings = Objects.requireNonNull(metadataSettings);
         this.archiveService = Objects.requireNonNull(archiveService);
+        this.synologyPermissions = synologyPermissions;
     }
 
     @Override
@@ -88,26 +102,87 @@ public class EpubMetadataWriter implements MetadataWriter {
         if (!shouldSaveMetadataToFile(epubFile)) {
             throw new IOException("EPUB metadata persistence is disabled or the file exceeds its configured size limit");
         }
-        writeMetadataToFile(epubFile, metadata, clear);
+        EpubArchiveIntegrity.validate(epubFile.toPath());
+        writeMetadataToFile(epubFile, metadata, clear, false, true);
     }
 
+    // The caller must journal the paths and original hash before invoking this and recheck before installation.
+    public String prepareMetadataCandidate(Path source, Path candidate, Path backup, String originalSha256,
+                                           BookMetadataEntity metadata, MetadataClearFlags clear) throws IOException {
+        if (source == null || candidate == null || backup == null
+                || !source.isAbsolute() || !candidate.isAbsolute() || !backup.isAbsolute()) {
+            throw new IllegalArgumentException("EPUB preparation paths must be absolute");
+        }
+        source = source.normalize();
+        candidate = candidate.normalize();
+        backup = backup.normalize();
+        if (source.getParent() == null || !source.getParent().equals(candidate.getParent())
+                || !source.getParent().equals(backup.getParent()) || source.equals(candidate)
+                || source.equals(backup) || candidate.equals(backup)) {
+            throw new IllegalArgumentException("EPUB preparation paths must be distinct siblings");
+        }
+        if (originalSha256 == null || !originalSha256.matches("[0-9a-f]{64}")) {
+            throw new IllegalArgumentException("Invalid original EPUB hash");
+        }
+        if (!shouldSaveMetadataToFile(source.toFile())) {
+            throw new IOException("EPUB metadata persistence is disabled or the file exceeds its configured size limit");
+        }
+        EpubFileAttributes.Snapshot attributes = EpubFileAttributes.capture(source, synologyPermissions);
+        verifyOriginalHash(source, originalSha256);
+        EpubArchiveIntegrity.validate(source);
+        writeMetadataToFile(source.toFile(), metadata, clear, false, true,
+                new PreparedPaths(candidate, backup, originalSha256, attributes));
+        String candidateSha256 = EpubArchiveIntegrity.sha256(candidate);
+        EpubArchiveIntegrity.validateMetadataRewrite(backup, candidate);
+        verifyOriginalHash(source, originalSha256);
+        verifyOriginalHash(backup, originalSha256);
+        if (!candidateSha256.equals(EpubArchiveIntegrity.sha256(candidate))) {
+            throw new IOException("EPUB candidate changed during validation");
+        }
+        return candidateSha256;
+    }
+
+    private static void verifyOriginalHash(Path file, String expected) throws IOException {
+        if (!expected.equals(EpubArchiveIntegrity.sha256(file))) {
+            throw new IOException("EPUB does not match the recorded original hash");
+        }
+    }
+
+    private record PreparedPaths(Path candidate, Path backup, String originalSha256,
+                                 EpubFileAttributes.Snapshot attributes) {}
+
     void writeMetadataToFile(File epubFile, BookMetadataEntity metadata, MetadataClearFlags clear) throws IOException {
-        writeMetadataToFile(epubFile, metadata, clear, false);
+        writeMetadataToFile(epubFile, metadata, clear, false, false);
     }
 
     void writeTitleAndAuthorsToFile(File epubFile, BookMetadataEntity metadata) throws IOException {
-        writeMetadataToFile(epubFile, metadata, null, true);
+        writeMetadataToFile(epubFile, metadata, null, true, false);
     }
 
     private void writeMetadataToFile(File epubFile, BookMetadataEntity metadata, MetadataClearFlags clear,
-                                     boolean preserveBookloreMetadata) throws IOException {
-        File backupFile = new File(epubFile.getParentFile(), epubFile.getName() + ".bak");
+                                     boolean preserveBookloreMetadata, boolean strictValidation) throws IOException {
+        writeMetadataToFile(epubFile, metadata, clear, preserveBookloreMetadata, strictValidation, null);
+    }
+
+    private void writeMetadataToFile(File epubFile, BookMetadataEntity metadata, MetadataClearFlags clear,
+                                     boolean preserveBookloreMetadata, boolean strictValidation,
+                                     PreparedPaths prepared) throws IOException {
+        File backupFile = prepared == null
+                ? new File(epubFile.getParentFile(), epubFile.getName() + ".bak") : prepared.backup().toFile();
         Files.copy(epubFile.toPath(), backupFile.toPath());
+        if (prepared != null) {
+            EpubFileAttributes.applyAndVerify(prepared.attributes(), epubFile.toPath(), backupFile.toPath(),
+                    synologyPermissions);
+        }
         Path tempDir = null;
         Path tempEpub = null;
         boolean keepBackup = false;
         boolean replacementStarted = false;
         try {
+            if (prepared != null) {
+                verifyOriginalHash(backupFile.toPath(), prepared.originalSha256());
+                verifyOriginalHash(epubFile.toPath(), prepared.originalSha256());
+            }
             tempDir = Files.createTempDirectory("epub_edit_" + UUID.randomUUID());
             archiveService.extractToDirectory(epubFile.toPath(), tempDir);
 
@@ -280,16 +355,32 @@ public class EpubMetadataWriter implements MetadataWriter {
                 transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
                 transformer.transform(new DOMSource(opfDoc), new StreamResult(opfPath.toFile()));
 
-                tempEpub = Files.createFile(epubFile.toPath().resolveSibling(epubFile.getName() + ".tmp"));
+                Path output = prepared == null
+                        ? epubFile.toPath().resolveSibling(epubFile.getName() + ".tmp") : prepared.candidate();
+                tempEpub = Files.createFile(output);
                 EpubContentWriter.createEpubFromDirectory(tempDir, tempEpub);
-
-                replacementStarted = true;
-                Files.move(tempEpub, epubFile.toPath(), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-                tempEpub = null;
-
-                log.info("Metadata updated in EPUB: {}", epubFile.getName());
+            } else if (prepared != null) {
+                tempEpub = Files.copy(backupFile.toPath(), prepared.candidate());
             } else {
                 log.info("No changes detected. Skipping EPUB write for: {}", epubFile.getName());
+            }
+            if (tempEpub != null) {
+                if (prepared != null) {
+                    EpubFileAttributes.applyAndVerify(prepared.attributes(), epubFile.toPath(), tempEpub,
+                            synologyPermissions);
+                }
+                if (strictValidation) {
+                    EpubArchiveIntegrity.validateMetadataRewrite(backupFile.toPath(), tempEpub);
+                    if (Files.mismatch(backupFile.toPath(), epubFile.toPath()) != -1) {
+                        throw new IOException("EPUB changed during metadata update");
+                    }
+                }
+                if (prepared == null) {
+                    replacementStarted = true;
+                    Files.move(tempEpub, epubFile.toPath(), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+                    tempEpub = null;
+                    log.info("Metadata updated in EPUB: {}", epubFile.getName());
+                }
             }
         } catch (Exception e) {
             if (replacementStarted && backupFile.exists()) {
@@ -310,14 +401,14 @@ public class EpubMetadataWriter implements MetadataWriter {
             if (tempDir != null) {
                 deleteDirectoryRecursively(tempDir);
             }
-            if (tempEpub != null) {
+            if (prepared == null && tempEpub != null) {
                 try {
                     Files.deleteIfExists(tempEpub);
                 } catch (IOException ex) {
                     log.warn("Failed to delete temporary EPUB for {}: {}", epubFile.getName(), ex.getMessage());
                 }
             }
-            if (!keepBackup && backupFile.exists()) {
+            if (prepared == null && !keepBackup && backupFile.exists()) {
                 try {
                     Files.delete(backupFile.toPath());
                 } catch (IOException ex) {

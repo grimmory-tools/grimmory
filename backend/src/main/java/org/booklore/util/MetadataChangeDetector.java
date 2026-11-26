@@ -325,6 +325,26 @@ public class MetadataChangeDetector {
         return differsLock(newMeta.getCoverLocked(), existingMeta.getCoverLocked()) || differsLock(newMeta.getAudiobookCoverLocked(), existingMeta.getAudiobookCoverLocked());
     }
 
+    public static boolean isDifferentWhenProvided(BookMetadata newMeta, BookMetadataEntity existingMeta, MetadataClearFlags clear) {
+        if (clear == null) return true;
+        for (FieldDescriptor<?> field : SIMPLE_FIELDS) {
+            if ((field.shouldClear(clear) || field.getNewValue(newMeta) != null)
+                    && hasValueDifference(field, newMeta, existingMeta, clear)) return true;
+            if (field.getNewLock(newMeta) != null && differsLock(field.getNewLock(newMeta), field.getOldLock(existingMeta))) return true;
+        }
+        for (CollectionFieldDescriptor field : COLLECTION_FIELDS) {
+            if ((field.shouldClear(clear) || field.getNewValue(newMeta) != null)
+                    && hasCollectionValueDifference(field, newMeta, existingMeta, clear)) return true;
+            if (field.getNewLock(newMeta) != null && differsLock(field.getNewLock(newMeta), field.getOldLock(existingMeta))) return true;
+        }
+        return hasComicMetadataChanges(newMeta, existingMeta) || hasComicLockChanges(newMeta, existingMeta)
+                || (newMeta.getCoverLocked() != null && differsLock(newMeta.getCoverLocked(), existingMeta.getCoverLocked()))
+                || (newMeta.getAudiobookCoverLocked() != null && differsLock(newMeta.getAudiobookCoverLocked(), existingMeta.getAudiobookCoverLocked()))
+                || newMeta.getBookReviews() != null || clear.isReviews() || newMeta.getReviewsLocked() != null
+                || newMeta.getNarrator() != null || clear.isNarrator() || newMeta.getNarratorLocked() != null
+                || newMeta.getAbridged() != null || clear.isAbridged() || newMeta.getAbridgedLocked() != null;
+    }
+
     public static boolean hasValueChanges(BookMetadata newMeta, BookMetadataEntity existingMeta, MetadataClearFlags clear) {
         for (FieldDescriptor<?> field : SIMPLE_FIELDS) {
             if (hasValueDifference(field, newMeta, existingMeta, clear)) {

@@ -20,9 +20,26 @@
             <li>{{ t('previewUnknown') }}: {{ result.unknown }}</li>
           </ul>
         }
-        <p>{{ t('previewNotice') }}</p>
+        <label>
+          <input type="checkbox" [(ngModel)]="applyThreshold">
+          {{ t('applyThreshold') }}
+        </label>
+        @if (applyThreshold() && !isPreviewThresholdValid) {
+          <p role="alert">{{ t('thresholdInvalid') }}</p>
+        }
+        <p>{{ t('scoreNotice') }}</p>
       </section>
     }
+    <section class="database-only">
+      <label>
+        <input type="checkbox" [(ngModel)]="databaseOnly" aria-describedby="database-only-notice">
+        {{ t('databaseOnly') }}
+      </label>
+      <p id="database-only-notice">{{ t('databaseOnlyNotice') }}</p>
+      @if (databaseOnlyReviewConflict()) {
+        <p role="alert">{{ t('databaseOnlyReviewConflict') }}</p>
+      }
+    </section>
     <app-metadata-advanced-fetch-options
       (metadataOptionsSubmitted)="onMetadataSubmit($event)"
       [currentMetadataOptions]="currentMetadataOptions"

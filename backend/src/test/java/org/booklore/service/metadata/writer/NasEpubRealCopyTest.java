@@ -34,7 +34,7 @@ class NasEpubRealCopyTest {
         NasEpubRealCopyTestRunner.Summary summary =
                 NasEpubRealCopyTestRunner.run(inputDirectory, workDirectory);
 
-        assertThat(summary).isEqualTo(new NasEpubRealCopyTestRunner.Summary(3, 3, 3, 3));
+        assertThat(summary).isEqualTo(new NasEpubRealCopyTestRunner.Summary(3, 3, 3, 3, 0));
         assertThat(List.of("one.epub", "two.epub", "three.epub").stream()
                 .map(name -> sha256(inputDirectory.resolve(name))))
                 .containsExactlyElementsOf(originalHashes);
@@ -85,11 +85,51 @@ class NasEpubRealCopyTest {
                 .hasMessage("SAMPLE_001_NON_TARGET_METADATA_CHANGED");
     }
 
+    @Test
+    void reportsRemovalOfOnlyPreviouslyInvalidRefinements() throws Exception {
+        Path inputDirectory = Files.createDirectory(tempDirectory.resolve("input"));
+        Path workDirectory = Files.createDirectory(tempDirectory.resolve("work"));
+        createEpub(inputDirectory.resolve("one.epub"), 1, """
+                <meta refines="#missing" property="role">aut</meta>
+                <meta refines="#missing" property="role">aut</meta>
+                <meta refines="#book-id" property="identifier-type">isbn</meta>
+                """);
+        createEpub(inputDirectory.resolve("two.epub"), 2);
+        createEpub(inputDirectory.resolve("three.epub"), 3);
+
+        assertThat(NasEpubRealCopyTestRunner.run(inputDirectory, workDirectory))
+                .isEqualTo(new NasEpubRealCopyTestRunner.Summary(3, 3, 3, 3, 2));
+    }
+
+    @Test
+    void rejectsRemovalOfRefinementsWhoseTargetIsLostDuringTitleUpdate() throws Exception {
+        Path inputDirectory = Files.createDirectory(tempDirectory.resolve("input"));
+        Path workDirectory = Files.createDirectory(tempDirectory.resolve("work"));
+        createEpub(inputDirectory.resolve("one.epub"), 1,
+                "<meta refines=\"#nested\" property=\"file-as\">Sort title</meta>",
+                "Original <span id=\"nested\">title</span>");
+        createEpub(inputDirectory.resolve("two.epub"), 2);
+        createEpub(inputDirectory.resolve("three.epub"), 3);
+
+        assertThatThrownBy(() -> NasEpubRealCopyTestRunner.run(inputDirectory, workDirectory))
+                .isInstanceOf(IOException.class)
+                .hasMessage("SAMPLE_001_NON_TARGET_METADATA_CHANGED");
+    }
+
     private String createEpub(Path path, int index) throws IOException {
         return createEpub(path, index, false);
     }
 
     private String createEpub(Path path, int index, boolean includeBookloreMetadata) throws IOException {
+        return createEpub(path, index,
+                includeBookloreMetadata ? "<meta property=\"booklore:page_count\">123</meta>" : "");
+    }
+
+    private String createEpub(Path path, int index, String extraMetadata) throws IOException {
+        return createEpub(path, index, extraMetadata, "Original title " + index);
+    }
+
+    private String createEpub(Path path, int index, String extraMetadata, String title) throws IOException {
         try (ZipOutputStream zip = new ZipOutputStream(Files.newOutputStream(path))) {
             writeStoredEntry(zip, "mimetype", "application/epub+zip");
             writeEntry(zip, "META-INF/container.xml", """
@@ -105,15 +145,15 @@ class NasEpubRealCopyTest {
                     <package xmlns="http://www.idpf.org/2007/opf" version="3.0">
                       <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
                         <dc:identifier id="book-id">urn:uuid:test-%d</dc:identifier>
-                        <dc:title id="main">Original title %d</dc:title>
+                        <dc:title id="main">%s</dc:title>
                         <dc:creator>Original author</dc:creator>
                         <dc:subject>Original category</dc:subject>
                         <meta refines="#main" property="title-type">main</meta>
                         %s
                       </metadata>
+                      <manifest/><spine/>
                     </package>
-                    """.formatted(index, index,
-                    includeBookloreMetadata ? "<meta property=\"booklore:page_count\">123</meta>" : ""));
+                    """.formatted(index, title, extraMetadata));
             writeEntry(zip, "OEBPS/chapter.xhtml", """
                     <?xml version="1.0" encoding="UTF-8"?>
                     <html xmlns="http://www.w3.org/1999/xhtml">

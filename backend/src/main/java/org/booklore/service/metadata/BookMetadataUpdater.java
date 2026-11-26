@@ -77,6 +77,11 @@ public class BookMetadataUpdater {
         boolean mergeTags = context.isMergeTags();
         boolean updateThumbnail = context.isUpdateThumbnail();
         MetadataReplaceMode replaceMode = context.getReplaceMode();
+        boolean databaseOnly = context.isDatabaseOnly();
+
+        if (databaseOnly && context.isFailOnFileWriteError()) {
+            throw new IllegalArgumentException("Database-only updates cannot require file writes");
+        }
 
         Long bookId = bookEntity.getId();
         BookMetadata newMetadata = wrapper.getMetadata();
@@ -89,8 +94,10 @@ public class BookMetadataUpdater {
         MetadataClearFlags clearFlags = wrapper.getClearFlags();
         BookMetadataEntity metadata = bookEntity.getMetadata();
 
-        boolean thumbnailRequiresUpdate = StringUtils.hasText(newMetadata.getThumbnailUrl());
-        boolean hasMetadataChanges = MetadataChangeDetector.isDifferent(newMetadata, metadata, clearFlags);
+        boolean thumbnailRequiresUpdate = !databaseOnly && StringUtils.hasText(newMetadata.getThumbnailUrl());
+        boolean hasMetadataChanges = databaseOnly && replaceMode != MetadataReplaceMode.REPLACE_ALL
+                ? MetadataChangeDetector.isDifferentWhenProvided(newMetadata, metadata, clearFlags)
+                : MetadataChangeDetector.isDifferent(newMetadata, metadata, clearFlags);
         boolean hasValueChanges = MetadataChangeDetector.hasValueChanges(newMetadata, metadata, clearFlags);
         if (!thumbnailRequiresUpdate && !hasMetadataChanges) {
             log.info("No changes in metadata for book ID {}. Skipping update.", bookId);
@@ -103,12 +110,12 @@ public class BookMetadataUpdater {
             return;
         }
 
-        MetadataPersistenceSettings settings = appSettingService.getAppSettings().getMetadataPersistenceSettings();
-        MetadataPersistenceSettings.SaveToOriginalFile writeToFile = settings.getSaveToOriginalFile();
-        var primaryFile = bookEntity.getPrimaryBookFile();
+        MetadataPersistenceSettings settings = databaseOnly ? null : appSettingService.getAppSettings().getMetadataPersistenceSettings();
+        MetadataPersistenceSettings.SaveToOriginalFile writeToFile = databaseOnly ? null : settings.getSaveToOriginalFile();
+        var primaryFile = databaseOnly ? null : bookEntity.getPrimaryBookFile();
         BookFileType bookType = primaryFile != null ? primaryFile.getBookType() : null;
 
-        boolean hasValueChangesForFileWrite = MetadataChangeDetector.hasValueChangesForFileWrite(newMetadata, metadata, clearFlags);
+        boolean hasValueChangesForFileWrite = !databaseOnly && MetadataChangeDetector.hasValueChangesForFileWrite(newMetadata, metadata, clearFlags);
         if (context.isFailOnFileWriteError()) {
             validateStrictFileWrite(context, bookEntity, primaryFile, bookType, writeToFile, settings,
                     hasValueChangesForFileWrite);
@@ -120,7 +127,7 @@ public class BookMetadataUpdater {
         updateMoodsIfNeeded(newMetadata, metadata, clearFlags, mergeMoods, replaceMode);
         updateTagsIfNeeded(newMetadata, metadata, clearFlags, mergeTags, replaceMode);
         bookReviewUpdateService.updateBookReviews(newMetadata, metadata, clearFlags, mergeCategories);
-        boolean hasUpdatedThumbnail = updateThumbnailIfNeeded(bookId, bookEntity, newMetadata, metadata, updateThumbnail, bookType);
+        boolean hasUpdatedThumbnail = !databaseOnly && updateThumbnailIfNeeded(bookId, bookEntity, newMetadata, metadata, updateThumbnail, bookType);
         updateAudiobookMetadataIfNeeded(bookEntity, newMetadata, metadata, clearFlags, replaceMode);
         updateComicMetadataIfNeeded(newMetadata, metadata, replaceMode);
         updateLocks(newMetadata, metadata);
@@ -132,6 +139,10 @@ public class BookMetadataUpdater {
             bookEntity.setMetadataMatchScore(score);
         } catch (Exception e) {
             log.warn("Failed to calculate metadata match score for book ID {}: {}", bookId, e.getMessage());
+        }
+
+        if (databaseOnly) {
+            return;
         }
 
         if (appProperties.isLocalStorage() && primaryFile != null && bookType != null && ((writeToFile.isAnyFormatEnabled() && hasValueChangesForFileWrite) || thumbnailRequiresUpdate)) {

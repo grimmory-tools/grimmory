@@ -20,9 +20,11 @@ import org.booklore.service.metadata.BookMetadataService;
 import org.booklore.service.metadata.MetadataManagementService;
 import org.booklore.service.metadata.MetadataMatchService;
 import org.booklore.service.metadata.MetadataProviderService;
+import org.booklore.service.metadata.bulk.BulkMetadataRecoveryService;
 import org.booklore.service.task.TaskService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -43,8 +45,19 @@ public class MetadataController {
     private final TaskService taskService;
     private final BookRepository bookRepository;
     private final LibraryRepository libraryRepository;
+    private final BulkMetadataRecoveryService bulkMetadataRecoveryService;
 
     public record RefreshPreview(long total, long belowThreshold, long atOrAboveThreshold, long unknown) {}
+
+    @Operation(summary = "Inspect bulk metadata recovery state")
+    @GetMapping("/metadata/bulk-jobs/{jobId}/recovery")
+    @PreAuthorize("@securityUtil.isAdmin()")
+    public ResponseEntity<Page<BulkMetadataRecoveryService.RecoveryItem>>
+    inspectBulkMetadataRecovery(@PathVariable String jobId,
+                                @RequestParam(defaultValue = "0") int page,
+                                @RequestParam(defaultValue = "50") int size) {
+        return ResponseEntity.ok(bulkMetadataRecoveryService.inspect(jobId, page, size));
+    }
 
     @Operation(summary = "Preview library metadata scores without updating books")
     @GetMapping("/metadata/refresh-preview/{libraryId}")

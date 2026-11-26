@@ -20,7 +20,6 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -73,7 +72,7 @@ public class FileMoveHelper {
         }
 
         log.info("Moving file from {} to {}", source, target);
-        executeWithRetry(() -> Files.move(source, target, StandardCopyOption.REPLACE_EXISTING));
+        executeWithRetry(() -> Files.move(source, target));
     }
 
     public Path moveFileWithBackup(Path source) throws IOException {
@@ -83,7 +82,7 @@ public class FileMoveHelper {
 
         Path tempPath = source.resolveSibling(source.getFileName().toString() + ".tmp_move");
         log.info("Moving file from {} to temporary location {}", source, tempPath);
-        executeWithRetry(() -> Files.move(source, tempPath, StandardCopyOption.REPLACE_EXISTING));
+        executeWithRetry(() -> Files.move(source, tempPath));
         return tempPath;
     }
 
@@ -96,7 +95,7 @@ public class FileMoveHelper {
             Files.createDirectories(target.getParent());
         }
         log.info("Committing move from temporary location {} to {}", tempPath, target);
-        executeWithRetry(() -> Files.move(tempPath, target, StandardCopyOption.REPLACE_EXISTING));
+        executeWithRetry(() -> Files.move(tempPath, target));
     }
 
     public void rollbackMove(Path tempPath, Path originalSource) {
@@ -107,7 +106,7 @@ public class FileMoveHelper {
         for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
             try {
                 log.info("Rolling back move from {} to {}", tempPath, originalSource);
-                Files.move(tempPath, originalSource, StandardCopyOption.REPLACE_EXISTING);
+                Files.move(tempPath, originalSource);
                 return;
             } catch (IOException e) {
                 if (attempt == MAX_ATTEMPTS) {

@@ -30,6 +30,8 @@ public class RefreshMetadataTask implements Task {
             !CAN_BULK_AUTO_FETCH_METADATA.isGranted(user.getPermissions())) {
             throw PERMISSION_DENIED.createException(CAN_BULK_AUTO_FETCH_METADATA);
         }
+        MetadataRefreshService.validateScoreThreshold(refreshRequest);
+        MetadataRefreshService.validateDatabaseOnly(refreshRequest);
     }
 
     private boolean requiresBulkPermission(MetadataRefreshRequest request) {
