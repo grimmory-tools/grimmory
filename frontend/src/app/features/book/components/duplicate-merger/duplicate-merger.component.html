@@ -184,10 +184,10 @@
                           <span class="file-detail">{{ formatFileSize(sizeKb) }}</span>
                         }
                       </div>
-                      @if (book.primaryFile?.fileName) {
-                        <div class="book-file-path" [title]="getBookFilePath(book)">
+                      @if (getBookFilePath(book); as filePath) {
+                        <div class="book-file-path" [title]="filePath">
                           <i class="pi pi-file"></i>
-                          {{ getBookFilePath(book) }}
+                          {{ t('currentPath', {path: filePath}) }}
                         </div>
                       }
                     </div>

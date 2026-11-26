@@ -23,6 +23,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -81,6 +83,10 @@ public class BookFileAttachmentService {
             if (sourceBookFiles.isEmpty()) {
                 throw ApiError.GENERIC_BAD_REQUEST.createException("Source book " + sourceBook.getId() + " has no book format files to attach");
             }
+            if (!moveFiles && !Objects.equals(targetBook.getLibraryPath().getId(), sourceBook.getLibraryPath().getId())) {
+                throw ApiError.CONFLICT.createException(
+                        "These books are in different library folders. Tick \"Move all files to match your file naming pattern\" to combine them.");
+            }
 
             for (BookFileEntity fileToMove : sourceBookFiles) {
                 if (fileToMove.isFolderBased()) {
@@ -108,30 +114,17 @@ public class BookFileAttachmentService {
 
     private List<Long> attachWithoutFileMove(BookEntity targetBook, List<BookEntity> sourceBooks) {
         List<Long> sourceBooksToDeleteIds = new ArrayList<>();
-        Path targetLibraryRoot = Paths.get(targetBook.getLibraryPath().getPath()).toAbsolutePath().normalize();
 
         for (BookEntity sourceBook : sourceBooks) {
-            boolean sameLibraryPath = sourceBook.getLibraryPath().getId().equals(targetBook.getLibraryPath().getId());
             List<BookFileEntity> bookFormatFiles = sourceBook.getBookFiles().stream()
                     .filter(BookFileEntity::isBookFormat)
                     .toList();
 
             if (!bookFormatFiles.isEmpty()) {
-                if (sameLibraryPath) {
-                    List<Long> bookFileIds = bookFormatFiles.stream()
-                            .map(BookFileEntity::getId)
-                            .toList();
-                    bookFileRepository.reassignFilesToBook(targetBook.getId(), bookFileIds);
-                } else {
-                    Path sourceLibraryRoot = Paths.get(sourceBook.getLibraryPath().getPath()).toAbsolutePath().normalize();
-                    for (BookFileEntity file : bookFormatFiles) {
-                        Path fileDir = sourceLibraryRoot.resolve(file.getFileSubPath()).normalize();
-                        String newSubPath = fileDir.equals(targetLibraryRoot)
-                                ? ""
-                                : targetLibraryRoot.relativize(fileDir).toString();
-                        bookFileRepository.reassignFileToBookWithPath(targetBook.getId(), newSubPath, file.getId());
-                    }
-                }
+                List<Long> bookFileIds = bookFormatFiles.stream()
+                        .map(BookFileEntity::getId)
+                        .toList();
+                bookFileRepository.reassignFilesToBook(targetBook.getId(), bookFileIds);
             }
 
             long remainingBookFiles = sourceBook.getBookFiles().size() - bookFormatFiles.size();
@@ -184,6 +177,18 @@ public class BookFileAttachmentService {
         List<BookEntity> sourceBooksToDelete = new ArrayList<>();
         List<Path> sourceDirectoriesToCleanup = new ArrayList<>();
         Set<Path> pathsToReregister = new HashSet<>();
+        List<CompletedMove> completedMoves = new ArrayList<>();
+        boolean syncActive = TransactionSynchronizationManager.isSynchronizationActive();
+        if (syncActive) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCompletion(int status) {
+                    if (status == STATUS_ROLLED_BACK) {
+                        rollbackCompletedMoves(completedMoves);
+                    }
+                }
+            });
+        }
 
         try {
             try {
@@ -233,6 +238,7 @@ public class BookFileAttachmentService {
                     if (!currentPath.normalize().equals(destinationPath.normalize())) {
                         try {
                             Files.move(currentPath, destinationPath);
+                            completedMoves.add(new CompletedMove(currentPath, destinationPath));
                             log.info("Organized file from {} to {}", currentPath, destinationPath);
                             existingFile.setFileSubPath(targetFileSubPath);
                             existingFile.setFileName(newFileName);
@@ -291,6 +297,7 @@ public class BookFileAttachmentService {
                     Path destinationPath = targetDirectory.resolve(newFileName);
                     try {
                         Files.move(sourceFilePath, destinationPath);
+                        completedMoves.add(new CompletedMove(sourceFilePath, destinationPath));
                         log.info("Moved file from {} to {}", sourceFilePath, destinationPath);
                     } catch (IOException e) {
                         log.error("Failed to move file from {} to {}", sourceFilePath, destinationPath, e);
@@ -307,10 +314,7 @@ public class BookFileAttachmentService {
 
                 sourceDirectoriesToCleanup.addAll(sourceDirectories);
 
-                long remainingBookFiles = sourceBook.getBookFiles().stream()
-                        .filter(BookFileEntity::isBookFormat)
-                        .count();
-                if (remainingBookFiles == 0) {
+                if (sourceBook.getBookFiles().isEmpty()) {
                     sourceBooksToDelete.add(sourceBook);
                 }
             }
@@ -334,6 +338,11 @@ public class BookFileAttachmentService {
             }
 
             return deletedSourceBookIds;
+        } catch (RuntimeException e) {
+            if (!syncActive) {
+                rollbackCompletedMoves(completedMoves);
+            }
+            throw e;
         } finally {
             for (Path path : pathsToReregister) {
                 if (Files.exists(path) && Files.isDirectory(path)) {
@@ -343,6 +352,25 @@ public class BookFileAttachmentService {
                         log.warn("Failed to re-register path for monitoring: {}", path, ex);
                     }
                 }
+            }
+        }
+    }
+
+    private record CompletedMove(Path from, Path to) {
+    }
+
+    private void rollbackCompletedMoves(List<CompletedMove> completedMoves) {
+        for (int i = completedMoves.size() - 1; i >= 0; i--) {
+            CompletedMove move = completedMoves.get(i);
+            try {
+                if (Files.exists(move.to())) {
+                    if (move.from().getParent() != null) {
+                        Files.createDirectories(move.from().getParent());
+                    }
+                    Files.move(move.to(), move.from());
+                }
+            } catch (IOException ex) {
+                log.error("Failed to restore moved file from {} back to {}", move.to(), move.from(), ex);
             }
         }
     }
