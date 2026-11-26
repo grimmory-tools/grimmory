@@ -118,8 +118,8 @@ class NasEpubPrototypeTest {
             assertThat(actualOpf.replaceAll("(creator|collection)-[0-9a-f]{8}", "$1-id"))
                     .isEqualTo(expectedOpf.replaceAll("(creator|collection)-[0-9a-f]{8}", "$1-id"));
             assertThat(actualOpf)
-                    .contains("Old title", "New author", "Fantasy", "Hopeful", "Adventure", "2020-03-05")
-                    .doesNotContain("Locked title", "Keep this description");
+                    .contains("Locked title", "New author", "Fantasy", "Hopeful", "Adventure", "2020-03-05")
+                    .doesNotContain("Old title", "Keep this description");
         }
     }
 

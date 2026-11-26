@@ -33,7 +33,9 @@
     "on": "On",
     "off": "Off",
     "moreActionsFor": "More actions for {{label}}",
-    "dialogLoadError": "An error occurred while loading the dialog. Please try again."
+    "dialogLoadError": "An error occurred while loading the dialog. Please try again.",
+    "commandFailed": "Something went wrong",
+    "serverUnreachable": "Couldn't reach the server."
   },
   "auth": {
     "oidc": {
@@ -498,9 +500,9 @@
     },
     "librarySort": {
       "sectionTitle": "Library and Shelf View & Sort Preferences",
-      "sectionDesc": "Configure default and per-library/shelf preferences for sorting and view mode (grid or table) in the browser.",
+      "sectionDesc": "Configure default and per-library/shelf preferences for sorting, card detail, and view mode (grid or table) in the browser.",
       "defaultPreferences": "Default Preferences",
-      "defaultPreferencesDesc": "Configure the default view mode and multi-field sorting for all libraries and shelves.",
+      "defaultPreferencesDesc": "Configure the default view mode, card detail, and multi-field sorting for all libraries and shelves.",
       "sortOrderLabel": "Sort Order (drag to reorder)",
       "formatOverlay": "File Format Overlay",
       "ascending": "Ascending",
@@ -2425,8 +2427,8 @@
       "previousBookTooltip": "Go to previous book",
       "nextBookTooltip": "Go to next book",
       "autoFetchTooltip": "Automatically fetch metadata using default sources",
-      "unlockAllTooltip": "Unlock all metadata fields for editing",
-      "lockAllTooltip": "Lock all metadata fields to prevent changes",
+      "unlockAllTooltip": "Unlock all metadata fields",
+      "lockAllTooltip": "Lock all metadata fields",
       "navigationPosition": "{{ current }} of {{ total }}",
       "booleanUnknown": "Unknown",
       "booleanYes": "Yes",
@@ -2506,8 +2508,6 @@
         "metadataUpdated": "Book metadata updated",
         "errorSummary": "Error",
         "metadataUpdateFailed": "Failed to update book metadata",
-        "actionBlockedSummary": "Action Blocked",
-        "fieldLockedDetail": "{{ field }} is locked and cannot be updated.",
         "metadataLocked": "Metadata Locked",
         "allFieldsLocked": "All fields have been successfully locked.",
         "metadataUnlocked": "Metadata Unlocked",
@@ -2653,15 +2653,6 @@
       "ratingTooltipNoReviews": "★ {{rating}}",
       "openBabelio": "View on Babelio",
       "loadingBookDetails": "Loading book details...",
-      "readStatusUnread": "Unread",
-      "readStatusPaused": "Paused",
-      "readStatusReading": "Reading",
-      "readStatusReReading": "Re-reading",
-      "readStatusRead": "Read",
-      "readStatusPartiallyRead": "Partially Read",
-      "readStatusAbandoned": "Abandoned",
-      "readStatusWontRead": "Won't Read",
-      "readStatusUnset": "Unset",
       "menuStreamingReader": "Streaming Reader",
       "menuStandardReader": "Standard Reader",
       "menuShelf": "Shelf",
@@ -3011,16 +3002,22 @@
         "regenCoverMessage": "Are you sure you want to regenerate covers for {{ count }} book(s)?",
         "regenCoverHeader": "Confirm Cover Regeneration",
         "customCoverMessage": "Are you sure you want to generate custom covers for {{ count }} book(s)?",
-        "customCoverHeader": "Confirm Custom Cover Generation"
+        "customCoverHeader": "Confirm Custom Cover Generation",
+        "resetGrimmoryMessage": "Are you sure you want to reset Grimmory reading progress for {{ count }} book(s)?",
+        "resetKOReaderMessage": "Are you sure you want to reset KOReader reading progress for {{ count }} book(s)?",
+        "resetHeader": "Confirm Reset"
       },
       "labels": {
         "allBooks": "All Books",
+        "collapseSeries": "Collapse Series",
         "unshelvedBooks": "Unshelved Books"
       }
     },
     "card": {
       "book": {
         "physical": "PHY",
+        "seriesBookCount": "{{ count }} book",
+        "seriesBooksCount": "{{ count }} books",
         "unknownTitle": "Unknown Title"
       },
       "aria": {
@@ -3091,6 +3088,10 @@
       "grid": "Grid",
       "table": "Table"
     },
+    "cardDetail": {
+      "label": "Card Detail",
+      "none": "None"
+    },
     "notes": {
       "ui": {
         "loading": "Loading notes...",
@@ -3148,11 +3149,7 @@
         "uploadFailedSummary": "Upload Failed",
         "uploadFailedDetail": "An error occurred while uploading the file.",
         "fieldLockFailedSummary": "Field Lock Update Failed",
-        "fieldLockFailedDetail": "Failed to update metadata field locks. Please try again.",
-        "filesAttachedSummary": "Files Attached",
-        "filesAttachedDetail": "{{ count }} book file(s) have been attached successfully.",
-        "attachmentFailedSummary": "Attachment Failed",
-        "attachmentFailedDetail": "An error occurred while attaching the files."
+        "fieldLockFailedDetail": "Failed to update metadata field locks. Please try again."
       }
     },
     "shelfMenuService": {
@@ -3238,9 +3235,9 @@
         "deleteFailedSummary": "Delete Failed",
         "deleteFailedDetail": "Could not delete the review.",
         "lockedSummary": "Reviews Locked",
-        "lockedDetail": "Reviews are now protected from modifications and refreshes.",
+        "lockedDetail": "Reviews are now protected from refreshes.",
         "unlockedSummary": "Reviews Unlocked",
-        "unlockedDetail": "Reviews can now be modified and refreshed.",
+        "unlockedDetail": "Reviews can now be refreshed.",
         "lockFailedSummary": "Lock Toggle Failed",
         "lockFailedDetail": "Could not change the lock status for reviews."
       },
@@ -3416,7 +3413,13 @@
         "1000plus": "1000+ pages"
       },
       "ageRating": {
-        "allAges": "All Ages"
+        "allAges": "All Ages",
+        "6plus": "6+",
+        "10plus": "10+",
+        "13plus": "13+",
+        "16plus": "16+",
+        "18plus": "18+",
+        "21plus": "21+"
       },
       "contentRating": {
         "everyone": "Everyone",
@@ -3519,9 +3522,9 @@
       "unknownTitle": "Unknown Title",
       "selectTargetBook": "Select Target Book",
       "searchPlaceholder": "Search for a book in the same library...",
-      "moveFilesLabel": "Move files to target book's directory",
-      "warningMove": "The source file will be moved to the target book's directory and renamed to match.",
-      "warningMoveBulk": "The source files will be moved to the target book's directory and renamed to match.",
+      "moveFilesLabel": "Move all files to match your file naming pattern",
+      "warningMove": "All files for this book will be moved and renamed to match your file naming pattern.",
+      "warningMoveBulk": "All files for these books will be moved and renamed to match your file naming pattern.",
       "warningNoMove": "The source file will stay in its original location on disk.",
       "warningNoMoveBulk": "The source files will stay in their original locations on disk.",
       "warningDelete": "The source book record will be removed (files are preserved in target book).",
@@ -3599,17 +3602,6 @@
         "formats": "Formats",
         "totalAudioDuration": "Audio Duration",
         "owned": "Owned"
-      },
-      "status": {
-        "unread": "UNREAD",
-        "reading": "READING",
-        "reReading": "RE-READING",
-        "read": "READ",
-        "partiallyRead": "PARTIALLY READ",
-        "paused": "PAUSED",
-        "abandoned": "ABANDONED",
-        "wontRead": "WON'T READ",
-        "unset": "UNSET"
       }
     },
     "duplicateMerger": {
@@ -3634,11 +3626,12 @@
       "merge": "Merge",
       "deleteSelected": "Delete ({{ count }})",
       "dismiss": "Dismiss",
-      "target": "Target",
+      "target": "Use this book's details",
       "sameFormatWarning": "Same format",
-      "helpText": "Each group contains books that appear to be duplicates. Select the target book (the one to keep), then click Merge to combine files. To delete specific duplicates, check the ones you want to remove and click Delete.",
+      "helpText": "Each group contains books that appear to be duplicates. Select the book whose details to use, then click Merge to combine files. To delete specific duplicates, check the ones you want to remove and click Delete.",
       "groupLabel": "Group {{ index }}",
       "fileCount": "{{ count }} files",
+      "currentPath": "Current: {{ path }}",
       "reason": {
         "ISBN": "ISBN Match",
         "EXTERNAL_ID": "External ID Match",
@@ -3653,8 +3646,6 @@
       "toast": {
         "scanFailedSummary": "Scan Failed",
         "scanFailedDetail": "Could not scan for duplicates.",
-        "mergeSuccessSummary": "Merge Complete",
-        "mergeSuccessDetail": "Successfully merged {{ count }} group(s).",
         "mergeFailedSummary": "Merge Failed",
         "mergeFailedDetail": "Could not merge this group.",
         "mergePartialDetail": "{{ success }} merged, {{ failed }} failed."
@@ -4888,24 +4879,6 @@
     "booleanValues": {
       "yes": "Yes",
       "no": "No"
-    },
-    "contentRatings": {
-      "everyone": "Everyone",
-      "teen": "Teen",
-      "mature": "Mature",
-      "adult": "Adult",
-      "explicit": "Explicit"
-    },
-    "readStatuses": {
-      "unread": "Unread",
-      "reading": "Reading",
-      "reReading": "Re Reading",
-      "read": "Read",
-      "partiallyRead": "Partially Read",
-      "paused": "Paused",
-      "wontRead": "Wont Read",
-      "abandoned": "Abandoned",
-      "unset": "Unset"
     },
     "seriesStatuses": {
       "reading": "Currently Reading",

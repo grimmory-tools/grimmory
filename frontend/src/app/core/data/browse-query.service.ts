@@ -74,10 +74,9 @@ export abstract class BrowseQueryService<Item extends {id: number}, FacetKey ext
     });
   }
 
-  infinitePage(params: BrowsePageParams<FacetKey, SortKey>) {
+  infinitePage(params: BrowsePageParams<FacetKey, SortKey>, pageParams?: Readonly<Record<string, string>>) {
     const normalized = normalizeBrowsePageParams(params, this.isFacetKey);
-
-    const key = this.keys.infinitePage(normalized);
+    const key = withPageParams(this.keys.infinitePage(normalized), pageParams);
 
     return infiniteQueryOptions({
       queryKey: key,
@@ -85,6 +84,7 @@ export abstract class BrowseQueryService<Item extends {id: number}, FacetKey ext
         normalized,
         pageParam ?? this.seededFirstPageHref(queryKey),
         signal,
+        pageParams,
       ),
       initialPageParam: null,
       getNextPageParam: page => findBrowsePageLink(page, 'next')?.href,
@@ -97,10 +97,13 @@ export abstract class BrowseQueryService<Item extends {id: number}, FacetKey ext
     return firstPage ? findBrowsePageLink(firstPage, 'self')?.href ?? null : null;
   }
 
-  restartInfinitePage(params: BrowsePageParams<FacetKey, SortKey>): Promise<void> {
+  restartInfinitePage(
+    params: BrowsePageParams<FacetKey, SortKey>,
+    pageParams?: Readonly<Record<string, string>>,
+  ): Promise<void> {
     const normalized = normalizeBrowsePageParams(params, this.isFacetKey);
     return this.queryClient.resetQueries({
-      queryKey: this.keys.infinitePage(normalized),
+      queryKey: withPageParams(this.keys.infinitePage(normalized), pageParams),
       exact: true,
     });
   }
@@ -165,10 +168,18 @@ export abstract class BrowseQueryService<Item extends {id: number}, FacetKey ext
     params: BrowsePageParams<FacetKey, SortKey>,
     nextHref: string | null,
     signal: AbortSignal,
+    pageParams?: Readonly<Record<string, string>>,
   ): Promise<BrowsePage<Item>> {
     const page = nextHref !== null
       ? httpGet<RawBrowsePage<Item>>(this.http, `${API_CONFIG.BASE_URL}${nextHref}`, signal)
-      : httpGet<RawBrowsePage<Item>>(this.http, `${this.baseUrl}/page`, signal, toPageHttpParams(params));
+      : httpGet<RawBrowsePage<Item>>(this.http, `${this.baseUrl}/page`, signal, toPageHttpParams(params).appendAll(pageParams ?? {}));
     return page.then(mapBrowsePage);
   }
+}
+
+function withPageParams<Key extends QueryKey>(
+  key: Key,
+  pageParams: Readonly<Record<string, string>> | undefined,
+): Key | readonly [...Key, Readonly<Record<string, string>>] {
+  return pageParams !== undefined && Object.keys(pageParams).length > 0 ? [...key, pageParams] as const : key;
 }

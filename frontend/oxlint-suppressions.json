@@ -275,9 +275,6 @@
     },
     "typescript/no-unnecessary-condition": {
       "count": 5
-    },
-    "typescript/no-unsafe-enum-comparison": {
-      "count": 8
     }
   },
   "src/app/features/book/components/shelf-assigner/shelf-assigner.component.ts": {
@@ -618,7 +615,7 @@
       "count": 3
     },
     "anti-slop/require-safety-comment-for-type-assertion": {
-      "count": 48
+      "count": 45
     },
     "typescript/no-unnecessary-condition": {
       "count": 27
@@ -627,7 +624,7 @@
       "count": 1
     },
     "typescript/no-unsafe-assignment": {
-      "count": 18
+      "count": 16
     },
     "typescript/no-unsafe-call": {
       "count": 3
@@ -658,9 +655,6 @@
     },
     "typescript/no-unsafe-assignment": {
       "count": 3
-    },
-    "typescript/no-unsafe-enum-comparison": {
-      "count": 1
     },
     "typescript/no-unsafe-member-access": {
       "count": 3

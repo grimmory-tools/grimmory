@@ -27,7 +27,7 @@ export class MetadataUtilsService {
     copyCallback: (field: string) => void
   ): void {
     for (const field of Object.keys(fetchedMetadata)) {
-      const isLocked = metadataForm.get(`${field}Locked`)?.value;
+      const isLocked = metadataForm.get(this.lockKey(field))?.value;
       const currentValue = metadataForm.get(field)?.value;
       const fetchedValue = fetchedMetadata[field as keyof BookMetadata];
 
@@ -52,13 +52,17 @@ export class MetadataUtilsService {
     for (const field of Object.keys(fetchedMetadata)) {
       if (excludeFields.includes(field)) continue;
 
-      const isLocked = metadataForm.get(`${field}Locked`)?.value;
+      const isLocked = metadataForm.get(this.lockKey(field))?.value;
       const fetchedValue = fetchedMetadata[field as keyof BookMetadata];
 
       if (!isLocked && fetchedValue != null && fetchedValue !== '') {
         copyCallback(field);
       }
     }
+  }
+
+  private lockKey(field: string): string {
+    return field === 'thumbnailUrl' ? 'coverLocked' : `${field}Locked`;
   }
 
   isValueEmpty(value: unknown): boolean {

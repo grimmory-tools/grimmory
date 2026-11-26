@@ -3,7 +3,6 @@ import {FormsModule} from '@angular/forms';
 import {Button} from '@openng/optimus-ui/button';
 import {TableModule} from '@openng/optimus-ui/table';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
-import {MessageService} from '@openng/optimus-ui/api';
 import {Select} from '@openng/optimus-ui/select';
 import {TranslocoPipe, TranslocoService} from '@jsverse/transloco';
 import {injectMutation, injectQuery} from '@tanstack/angular-query';
@@ -48,7 +47,6 @@ export class FileMoverComponent {
   private readonly bookCommandService = inject(BookCommandService);
   private readonly libraryService = inject(LibraryService);
   private readonly appSettingsService = inject(AppSettingsService);
-  private readonly messageService = inject(MessageService);
   private readonly t = inject(TranslocoService);
 
   protected readonly bookIds = this.config.data?.bookIds ?? [];
@@ -119,27 +117,7 @@ export class FileMoverComponent {
       targetLibraryPathId: this.defaultTargetLibraryPathId()
     });
 
-    this.moveFilesMutation.mutate({moves}, {
-      onSuccess: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: this.t.translate('fileMover.toast.successSummary'),
-          detail: this.t.translate(
-            this.bookIds.length === 1 ? 'fileMover.toast.oneFileSuccess' : 'fileMover.toast.manyFilesSuccess',
-            {count: this.bookIds.length}
-          ),
-          life: 3000
-        });
-      },
-      onError: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: this.t.translate('fileMover.toast.failureSummary'),
-          detail: this.t.translate('fileMover.toast.failureDetail'),
-          life: 3000
-        });
-      }
-    });
+    this.moveFilesMutation.mutate({moves});
   }
 
   protected cancel(): void {

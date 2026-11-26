@@ -35,11 +35,6 @@ public interface BookFileRepository extends JpaRepository<BookFileEntity, Long> 
     @Query("UPDATE BookFileEntity bf SET bf.book.id = :targetBookId WHERE bf.id IN :fileIds")
     void reassignFilesToBook(@Param("targetBookId") Long targetBookId, @Param("fileIds") List<Long> fileIds);
 
-    @Modifying
-    @Transactional
-    @Query("UPDATE BookFileEntity bf SET bf.book.id = :targetBookId, bf.fileSubPath = :fileSubPath WHERE bf.id = :fileId")
-    void reassignFileToBookWithPath(@Param("targetBookId") Long targetBookId, @Param("fileSubPath") String fileSubPath, @Param("fileId") Long fileId);
-
     @Query("""
             SELECT bf FROM BookFileEntity bf
             LEFT JOIN FETCH bf.book b

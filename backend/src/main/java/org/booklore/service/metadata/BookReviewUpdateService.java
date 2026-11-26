@@ -20,11 +20,11 @@ public class BookReviewUpdateService {
                 .bookReviews(bookReviews)
                 .build();
         MetadataClearFlags clearFlags = new MetadataClearFlags();
-        updateBookReviews(tempMetadata, e, clearFlags, true);
+        updateBookReviews(tempMetadata, e, clearFlags, true, false);
     }
 
-    public void updateBookReviews(BookMetadata metadata, BookMetadataEntity entity, MetadataClearFlags clearFlags, boolean mergeWithExisting) {
-        if (Boolean.TRUE.equals(entity.getReviewsLocked())) {
+    public void updateBookReviews(BookMetadata metadata, BookMetadataEntity entity, MetadataClearFlags clearFlags, boolean mergeWithExisting, boolean userEdit) {
+        if (!userEdit && Boolean.TRUE.equals(entity.getReviewsLocked())) {
             return;
         }
         if (clearFlags.isReviews()) {

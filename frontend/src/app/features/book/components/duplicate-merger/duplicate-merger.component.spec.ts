@@ -1,3 +1,4 @@
+import {HttpErrorResponse} from '@angular/common/http';
 import {TestBed} from '@angular/core/testing';
 import {DynamicDialogConfig, DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {ConfirmationService, MessageService} from '@openng/optimus-ui/api';
@@ -24,6 +25,7 @@ const group = (...bookIds: number[]) => ({
 
 describe('DuplicateMergerComponent', () => {
   const confirmationService = {confirm: vi.fn()};
+  const messageService = {add: vi.fn()};
   const attach = vi.fn();
   const remove = vi.fn();
   let component: DuplicateMergerComponent;
@@ -41,7 +43,7 @@ describe('DuplicateMergerComponent', () => {
           deleteBooks: () => ({mutationKey: ['delete'], mutationFn: remove}),
         }},
         {provide: ConfirmationService, useValue: confirmationService},
-        {provide: MessageService, useValue: {add: vi.fn()}},
+        {provide: MessageService, useValue: messageService},
         {provide: TranslocoService, useValue: {translate: (key: string) => key}},
         {provide: UrlHelperService, useValue: {}},
         {provide: AppSettingsService, useValue: {appSettings: () => null}},
@@ -78,5 +80,23 @@ describe('DuplicateMergerComponent', () => {
     await merging;
 
     expect(attach).toHaveBeenCalledTimes(1);
+  });
+
+  it('includes error details in bulk merge failure toasts', async () => {
+    const groups = [group(1, 2), group(3, 4)];
+    component.groups.set(groups);
+    attach
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce(new HttpErrorResponse({
+        status: 409,
+        error: {message: 'These books are in different library folders.'},
+      }));
+
+    await component.mergeGroups(groups, true);
+
+    expect(messageService.add).toHaveBeenCalledWith(expect.objectContaining({
+      severity: 'error',
+      detail: expect.stringContaining('These books are in different library folders.'),
+    }));
   });
 });

@@ -4,11 +4,13 @@ import {
   type EntityViewPreferences,
   type SortCriterion,
 } from './user.service';
+import {type BookDetailLineSortKey} from '../../book/browse/book-browse-fields';
 
 export type EntityViewPreferenceContext = Pick<EntityViewPreferenceOverride, 'entityType' | 'entityId'>;
 
 const DEFAULT_GLOBAL_PREFERENCE: EntityViewPreference = {
-  sortKey: 'title', sortDir: 'ASC', view: 'GRID', coverSize: 1, seriesCollapsed: false, overlayBookType: true,
+  sortKey: 'title', sortDir: 'ASC', view: 'GRID', cardDetail: null, coverSize: 1, seriesCollapsed: false,
+  overlayBookType: true,
 };
 
 export function entityViewSortCriteria(preference: EntityViewPreference | null | undefined): SortCriterion[] {
@@ -35,6 +37,25 @@ export function entityViewMode(
 ): 'GRID' | 'TABLE' {
   const override = context ? findEntityViewPreferenceOverride(preferences, context) : undefined;
   return override?.view ?? preferences?.global?.view ?? 'GRID';
+}
+
+export function entityViewCardDetail(
+  preferences: EntityViewPreferences | undefined,
+  context: EntityViewPreferenceContext | null,
+): BookDetailLineSortKey | null {
+  const override = context ? findEntityViewPreferenceOverride(preferences, context) : undefined;
+  if (override?.cardDetail !== undefined) {
+    return override.cardDetail;
+  }
+  return preferences?.global.cardDetail ?? null;
+}
+
+export function entityViewSeriesCollapsed(
+  preferences: EntityViewPreferences | undefined,
+  context: EntityViewPreferenceContext | null,
+): boolean {
+  const override = context ? findEntityViewPreferenceOverride(preferences, context) : undefined;
+  return override?.seriesCollapsed ?? preferences?.global.seriesCollapsed ?? false;
 }
 
 export function entityViewSortPatch(sortCriteria: readonly SortCriterion[]): Partial<EntityViewPreference> {

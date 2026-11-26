@@ -1,40 +1,37 @@
 import {type User} from '../../settings/user-management/user.service';
+import {type BookCoverTarget} from './book-command.models';
 import {type BookFileResponse, type BookSummary} from './book-response.models';
 
-type BookActionPermissionSource = Pick<
-  User['permissions'],
-  | 'admin'
-  | 'canDownload'
-  | 'canEmailBook'
-  | 'canEditMetadata'
-  | 'canDeleteBook'
-  | 'canBulkResetGrimmoryReadProgress'
-  | 'canBulkResetKoReaderReadProgress'
-  | 'canMoveOrganizeFiles'
->;
-
-interface BookActionPermissions {
-  readonly canDownload: boolean;
-  readonly canEmailBook: boolean;
-  readonly canEditMetadata: boolean;
-  readonly canDeleteBook: boolean;
-  readonly canResetGrimmoryProgress: boolean;
-  readonly canResetKoreaderProgress: boolean;
-  readonly canOrganizeFiles: boolean;
-}
-
 export function bookActionPermissions(
-  permissions: BookActionPermissionSource | null | undefined,
-): BookActionPermissions {
+  permissions: User['permissions'] | null | undefined,
+) {
   const admin = !!permissions?.admin;
   return {
     canDownload: admin || !!permissions?.canDownload,
     canEmailBook: admin || !!permissions?.canEmailBook,
     canEditMetadata: admin || !!permissions?.canEditMetadata,
+    canLockUnlockMetadata: admin || !!permissions?.canBulkLockUnlockMetadata,
     canDeleteBook: admin || !!permissions?.canDeleteBook,
+    canOrganizeFiles: admin || !!permissions?.canMoveOrganizeFiles,
+  };
+}
+
+export function bookBulkActionPermissions(
+  permissions: User['permissions'] | null | undefined,
+) {
+  const admin = !!permissions?.admin;
+  return {
+    canResetReadStatus: admin || !!permissions?.canBulkResetBookReadStatus,
+    canAutoFetchMetadata: admin || !!permissions?.canBulkAutoFetchMetadata,
+    canCustomFetchMetadata: admin || !!permissions?.canBulkCustomFetchMetadata,
+    canEditMetadata: admin || !!permissions?.canBulkEditMetadata,
+    canRegenerateCover: admin || !!permissions?.canBulkRegenerateCover,
+    canLockUnlockMetadata: admin || !!permissions?.canBulkLockUnlockMetadata,
     canResetGrimmoryProgress: admin || !!permissions?.canBulkResetGrimmoryReadProgress,
     canResetKoreaderProgress: admin || !!permissions?.canBulkResetKoReaderReadProgress,
     canOrganizeFiles: admin || !!permissions?.canMoveOrganizeFiles,
+    canAttachFiles: admin || !!permissions?.canManageLibrary,
+    canDeleteBook: admin || !!permissions?.canDeleteBook,
   };
 }
 
@@ -86,4 +83,24 @@ export function bookReadAction(
     return audiobook ? 'continueListening' : 'continueReading';
   }
   return audiobook ? 'play' : 'read';
+}
+
+export function bookCoverTargets(
+  book: BookSummary,
+  kind: 'regenerate' | 'generate',
+): readonly BookCoverTarget[] {
+  const files = [
+    ...(book.primaryFile ? [book.primaryFile] : []),
+    ...(book.alternativeFormats ?? []),
+  ];
+  const hasAudiobook = files.some(file => file.bookType === 'AUDIOBOOK');
+  const hasEbook = files.some(file => file.bookType !== 'AUDIOBOOK');
+  const targets: BookCoverTarget[] = [];
+  if (hasEbook || (kind === 'generate' && !hasAudiobook)) {
+    targets.push('ebook');
+  }
+  if (hasAudiobook) {
+    targets.push('audiobook');
+  }
+  return targets;
 }

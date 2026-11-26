@@ -435,7 +435,9 @@ export class AppMenuComponent {
       positionStrategy: this.overlay
         .position()
         .flexibleConnectedTo(origin)
-        .withFlexibleDimensions(false)
+        .withFlexibleDimensions()
+        .withGrowAfterOpen()
+        .withViewportMargin(8)
         .withPopoverLocation(this.isSubmenu() ? 'inline' : 'global')
         .withPositions(this.isSubmenu() ? submenuOverlayPositions : connectedOverlayPositions),
     });

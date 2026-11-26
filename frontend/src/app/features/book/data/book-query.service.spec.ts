@@ -259,6 +259,17 @@ describe('BookQueryService', () => {
     expect(service.infinitePage(PARAMS).queryKey).toEqual(service.infinitePage(PARAMS).queryKey);
   });
 
+  it('keys and requests infinitePage with optional pageParams', async () => {
+    const collapsed = service.infinitePage(PARAMS, {collapse_series: 'true'});
+    expect(collapsed.queryKey).not.toEqual(service.infinitePage(PARAMS).queryKey);
+
+    const resultPromise = queryClient.fetchInfiniteQuery(collapsed);
+    http.expectOne(
+      `${API_CONFIG.BASE_URL}/api/v1/books/page?query=dune&facet=genre:Science%20Fiction&sort=title&size=20&collapse_series=true`,
+    ).flush(page([1]));
+    await resultPromise;
+  });
+
   it('fetches full book detail with the description flag', async () => {
     const resultPromise = queryClient.query(service.detail(42, {withDescription: true}));
     expectTypeOf(resultPromise).toEqualTypeOf<Promise<BookDetail>>();

@@ -167,7 +167,7 @@ class NasEpubSyntheticAttachmentCoordinationTest {
         bookdrop = new BookDropService(bookdropFiles, mock(LibraryRepository.class), books, bookdropMonitoring,
                 mock(NotificationService.class), mock(MetadataRefreshService.class), mock(BookdropNotificationService.class),
                 mock(BookFileProcessorRegistry.class), mock(AppProperties.class), mock(BookdropFileMapper.class),
-                mock(tools.jackson.databind.ObjectMapper.class), mock(FileMovingHelper.class),
+                mock(BookMapper.class), mock(tools.jackson.databind.ObjectMapper.class), mock(FileMovingHelper.class),
                 mock(MonitoringRegistrationService.class), mock(ApplicationEventPublisher.class), guard);
     }
 

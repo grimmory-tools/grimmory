@@ -4,15 +4,14 @@ import {injectQuery} from '@tanstack/angular-query';
 import {LucideBookmark, LucideCheck, LucideDatabase, LucidePenLine} from '@lucide/angular';
 
 import {
-  bookActionPermissions,
+  bookBulkActionPermissions,
 } from '../data/book-actions';
 import {
   BOOK_READ_STATUS_LABEL_KEYS,
   BOOK_READ_STATUS_TARGETS,
   CLEAR_BOOK_READ_STATUS,
-  CLEAR_BOOK_READ_STATUS_LABEL_KEY,
   type BookReadStatusTarget,
-} from '../components/book-read-status-options';
+} from '../data/book-values';
 import {
   BrowseBulkActionsBarComponent,
   BrowseBulkActionsDividerComponent,
@@ -82,24 +81,16 @@ export class BookBrowseBulkBarComponent {
   protected readonly isResolving = this.commands.isResolving;
   protected readonly readStatusTargets = BOOK_READ_STATUS_TARGETS;
   protected readonly clearReadStatus = CLEAR_BOOK_READ_STATUS;
-  protected readonly clearReadStatusLabelKey = CLEAR_BOOK_READ_STATUS_LABEL_KEY;
+  protected readonly clearReadStatusLabelKey = BOOK_READ_STATUS_LABEL_KEYS[CLEAR_BOOK_READ_STATUS];
   protected readonly autoSeparatorClass =
     'first:hidden [app-menu-separator+&]:hidden [&:not(:has(~:not(app-menu-separator)))]:hidden';
 
-  protected readonly actionPermissions = computed(() =>
-    bookActionPermissions(this.userService.currentUser()?.permissions));
   protected readonly bulkPermissions = computed(() => {
-    const permissions = this.userService.currentUser()?.permissions;
-    const admin = !!permissions?.admin;
+    const permissions = bookBulkActionPermissions(this.userService.currentUser()?.permissions);
     return {
-      canAutoFetchMetadata: admin || !!permissions?.canBulkAutoFetchMetadata,
-      canCustomFetchMetadata: admin || !!permissions?.canBulkCustomFetchMetadata,
-      canEditMetadata: admin || !!permissions?.canBulkEditMetadata,
-      canRegenerateCover: admin || !!permissions?.canBulkRegenerateCover,
-      canLockUnlockMetadata: admin || !!permissions?.canBulkLockUnlockMetadata,
-      canOrganizeFiles: this.actionPermissions().canOrganizeFiles
+      ...permissions,
+      canOrganizeFiles: permissions.canOrganizeFiles
         && this.appSettingsService.appSettings()?.diskType === 'LOCAL',
-      canAttachFiles: admin || !!permissions?.canManageLibrary,
     };
   });
 
@@ -150,11 +141,11 @@ export class BookBrowseBulkBarComponent {
       && new Set(this.selectedLoadedBooks().map(book => book.libraryId)).size === 1,
   );
   protected readonly moreMenuOnlyItems = computed(() => {
-    const permissions = this.actionPermissions();
+    const permissions = this.bulkPermissions();
     return permissions.canResetGrimmoryProgress
       || permissions.canResetKoreaderProgress
-      || this.bulkPermissions().canOrganizeFiles
-      || this.bulkPermissions().canAttachFiles;
+      || permissions.canOrganizeFiles
+      || permissions.canAttachFiles;
   });
   protected readonly bulkDeleting = computed(() => this.pendingDeletions().size > 0);
 

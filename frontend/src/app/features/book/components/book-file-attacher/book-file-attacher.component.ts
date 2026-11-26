@@ -16,7 +16,6 @@ import {AppSettingsService} from '../../../../shared/service/app-settings.servic
 import {debouncedSignal} from '../../../../shared/util/debounced-signal';
 import {SEARCH_DEBOUNCE_MS} from '../../../../shared/util/search-terms';
 import {BookCommandService} from '../../data/book-command.service';
-import {injectBookActionFeedback} from '../../service/book-action-feedback';
 import {DEFAULT_BOOK_SORT_TERMS} from '../../data/book-query-params';
 import {BookSummary} from '../../data/book-response.models';
 import {BookQueryService} from '../../data/book-query.service';
@@ -50,7 +49,6 @@ export class BookFileAttacherComponent {
   private readonly bookQueryService = inject(BookQueryService);
   private readonly bookCommands = inject(BookCommandService);
   private readonly appSettingsService = inject(AppSettingsService);
-  private readonly feedback = injectBookActionFeedback();
 
   readonly sourceBooks: readonly BookFileAttacherSourceBook[] = this.config.data.sourceBook
     ? [this.config.data.sourceBook]
@@ -127,11 +125,7 @@ export class BookFileAttacherComponent {
       sourceBookIds: this.sourceBookIds,
       moveFiles: this.moveFiles(),
     }, {
-      onSuccess: (_data, variables) => {
-        this.feedback.show('success', 'book.bookService.toast.filesAttached', {count: variables.sourceBookIds.length});
-        this.dialogRef.close({success: true});
-      },
-      onError: error => this.feedback.error('book.bookService.toast.attachmentFailed', error),
+      onSuccess: () => this.dialogRef.close({success: true}),
     });
   }
 

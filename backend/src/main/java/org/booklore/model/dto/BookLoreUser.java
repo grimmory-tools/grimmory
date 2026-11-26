@@ -114,6 +114,7 @@ public class BookLoreUser {
             private String sortDir;
             private List<SortCriterion> sortCriteria;
             private String view;
+            private String cardDetail;
             private Float coverSize;
             @JsonAlias("seriesCollapse")
             private Boolean seriesCollapsed;
@@ -139,6 +140,7 @@ public class BookLoreUser {
             private String sortDir;
             private List<SortCriterion> sortCriteria;
             private String view;
+            private String cardDetail;
             @JsonAlias("seriesCollapse")
             private Boolean seriesCollapsed;
             private Boolean overlayBookType;

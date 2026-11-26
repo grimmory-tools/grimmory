@@ -41,13 +41,18 @@ class TestRouteComponent {}
 
 function bookPage(ids: number[], totalElements = ids.length, links: BrowseLink[] = []) {
   return {
-    content: ids.map(id => ({id, libraryId: 1, libraryName: 'Library'})),
+    content: ids.map(book),
     page: {number: 0, size: 60, totalElements, totalPages: Math.ceil(totalElements / 60)},
     links,
   };
 }
 
+function book(id: number): BookSummary {
+  return {id, libraryId: 1, libraryName: 'Library'};
+}
+
 interface PageHarness {
+  detailLineFor(book: BookSummary): string | null;
   page: {
     setSortTerms(terms: readonly BookSortTerm[]): void;
     searchDraft: {set(value: string): void};
@@ -305,6 +310,47 @@ describe('BookBrowsePageComponent', () => {
       request.url === PAGE_URL && request.params.get('sort') === '-title',
     ).flush(bookPage([1], 1));
     await flushQueryAsync();
+  });
+
+  it('keeps None on a library with a default card detail instead of falling back to the default', async () => {
+    currentUser.set(userFixture({}, 5, {cardDetail: 'addedOn'}));
+    const routerHarness = await routeTo('/library/3/books');
+    flushFacetRegistry();
+    http.expectOne(candidate => candidate.url === PAGE_URL).flush(bookPage([1], 1));
+    await flushQueryAsync();
+    const pageElement = routerHarness.routeDebugElement!;
+    const libraryPage = pageElement.componentInstance as PageHarness;
+    const dated = {...book(1), addedOn: '2026-02-14T10:00:00Z'};
+    expect(libraryPage.detailLineFor(dated)).toContain('2026');
+
+    pageElement.query(By.css('app-book-browse-toolbar')).componentInstance.cardDetail.set(null);
+    expect(libraryPage.detailLineFor(dated)).toBeNull();
+
+    const saved = updateUserSetting.mock.calls.at(-1)![2];
+    expect(saved.overrides).toEqual([expect.objectContaining({
+      entityType: 'LIBRARY',
+      entityId: 3,
+      preferences: expect.objectContaining({cardDetail: null}),
+    })]);
+    currentUser.set({...userFixture({}, 5), userSettings: {entityViewPreferences: saved}});
+    expect(libraryPage.detailLineFor(dated)).toBeNull();
+  });
+
+  it('applies card detail and series collapse on unshelved books without saving them', async () => {
+    currentUser.set(userFixture({}, 5));
+    const routerHarness = await routeTo('/unshelved-books');
+    flushFacetRegistry();
+    http.expectOne(candidate => candidate.url === PAGE_URL).flush(bookPage([1], 1));
+    await flushQueryAsync();
+    const pageElement = routerHarness.routeDebugElement!;
+    const unshelvedPage = pageElement.componentInstance as PageHarness;
+    const toolbar = pageElement.query(By.css('app-book-browse-toolbar')).componentInstance;
+
+    toolbar.cardDetail.set('addedOn');
+    expect(unshelvedPage.detailLineFor({...book(1), addedOn: '2026-02-14T10:00:00Z'})).toContain('2026');
+    toolbar.collapseSeries.set(true);
+
+    expect(updateUserSetting).not.toHaveBeenCalled();
   });
 
   it('ignores reselecting the active sort and flips only the primary term on a direction toggle', async () => {

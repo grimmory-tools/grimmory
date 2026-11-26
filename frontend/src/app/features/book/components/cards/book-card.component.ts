@@ -104,8 +104,11 @@ export class BookCardComponent {
     initialValue: this.transloco.getActiveLang(),
   });
 
+  protected readonly seriesBookCount = computed(() => this.book().seriesBookIds?.length ?? null);
+  protected readonly isSeries = computed(() => this.seriesBookCount() !== null);
   protected readonly title = computed(() => {
-    const title = this.book().metadata?.title?.trim();
+    const metadata = this.book().metadata;
+    const title = (this.isSeries() ? metadata?.seriesName : metadata?.title)?.trim();
     if (title) {
       return title;
     }
@@ -119,6 +122,17 @@ export class BookCardComponent {
       return authors.join(', ');
     }
     return `${authors.slice(0, 2).join(', ')} +${authors.length - 2}`;
+  });
+  protected readonly subtitle = computed(() => {
+    const count = this.seriesBookCount();
+    if (count === null) {
+      return this.authorsLabel();
+    }
+    this.activeLang();
+    return this.transloco.translate(
+      count === 1 ? 'book.card.book.seriesBookCount' : 'book.card.book.seriesBooksCount',
+      {count},
+    );
   });
   protected readonly seriesNumber = computed(() => this.book().metadata?.seriesNumber ?? null);
 
@@ -181,7 +195,11 @@ export class BookCardComponent {
     return this.transloco.translate(this.verbKey());
   });
 
-  protected readonly detailLink = computed(() => ['/book', this.book().id]);
+  protected readonly detailLink = computed(() => {
+    const book = this.book();
+    return this.isSeries() ? ['/series', book.metadata?.seriesName] : ['/book', book.id];
+  });
+  protected readonly bookOverlays = computed(() => this.overlays() && !this.isSeries());
   protected readonly detailHref = computed(() =>
     this.locationStrategy.prepareExternalUrl(
       this.router.serializeUrl(this.router.createUrlTree(this.detailLink())),
@@ -193,14 +211,14 @@ export class BookCardComponent {
   );
   protected readonly menuPinned = computed(() => this.menuOpen() && !this.selectionActive());
   protected readonly badgeVisible = computed(
-    () => this.showBadge() && this.seriesNumber() !== null,
+    () => this.showBadge() && (this.isSeries() || this.seriesNumber() !== null),
   );
 
   protected readonly rootClass = computed(() =>
     cn(
       `group/card relative block min-w-0 cursor-pointer ${BOOK_CARD_RADIUS_CLASS}`,
       'pointer-coarse:select-none pointer-coarse:[-webkit-touch-callout:none]',
-      !this.selectionActive() && this.overlays() && 'group/lift',
+      !this.selectionActive() && this.bookOverlays() && 'group/lift',
       this.menuPinned() && 'cover-lifted',
     ),
   );
@@ -215,7 +233,7 @@ export class BookCardComponent {
   protected readonly badgeClass =
     'absolute right-2 top-2 z-10 rounded-md bg-black/55 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-white';
   protected readonly formatPillVisible = computed(
-    () => this.showFormatPill() && !this.checkboxTakesOver(),
+    () => this.showFormatPill() && !this.isSeries() && !this.checkboxTakesOver(),
   );
   protected readonly formatPillClass = computed(() =>
     cn(

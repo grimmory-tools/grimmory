@@ -255,16 +255,6 @@ label {
   background: var(--p-inputtext-background);
   flex: 1;
   min-width: 0;
-
-  &.disabled {
-    opacity: 0.6;
-    background: var(--p-inputtext-disabled-background);
-    cursor: default;
-
-    .author-chip {
-      cursor: default;
-    }
-  }
 }
 
 .author-add-input {

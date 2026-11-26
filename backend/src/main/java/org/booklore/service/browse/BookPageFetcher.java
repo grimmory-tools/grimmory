@@ -50,7 +50,7 @@ public class BookPageFetcher implements PageFetcher<BookEntity, Book> {
         };
     }
 
-    private void enrich(List<Book> books, Long userId) {
+    void enrich(List<Book> books, Long userId) {
         Set<Long> bookIds = books.stream().map(Book::getId).collect(Collectors.toSet());
         Map<Long, UserBookProgressEntity> progress = readingProgressService.fetchUserProgress(userId, bookIds);
         Map<Long, UserBookFileProgressEntity> fileProgress = readingProgressService.fetchUserFileProgress(userId, bookIds);

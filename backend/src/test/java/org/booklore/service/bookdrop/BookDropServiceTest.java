@@ -1,6 +1,7 @@
 package org.booklore.service.bookdrop;
 
 import org.booklore.config.AppProperties;
+import org.booklore.mapper.BookMapper;
 import org.booklore.mapper.BookdropFileMapper;
 import org.booklore.model.FileProcessResult;
 import org.booklore.model.dto.Book;
@@ -83,6 +84,8 @@ class BookDropServiceTest {
     private AppProperties appProperties;
     @Mock
     private BookdropFileMapper mapper;
+    @Mock
+    private BookMapper bookMapper;
     @Mock
     private ObjectMapper objectMapper;
     @Mock
@@ -492,6 +495,7 @@ class BookDropServiceTest {
         BookEntity bookEntity = new BookEntity();
         bookEntity.setId(1L);
         when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(bookEntity));
+        when(bookMapper.toBookWithDescription(bookEntity, true)).thenReturn(book);
         
         when(bookRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
 

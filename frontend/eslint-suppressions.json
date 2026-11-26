@@ -135,7 +135,7 @@
   },
   "src/app/features/metadata/component/book-metadata-center/metadata-editor/metadata-editor.component.html": {
     "@angular-eslint/template/no-non-null-assertion": {
-      "count": 31
+      "count": 27
     }
   },
   "src/app/features/metadata/component/book-metadata-center/metadata-editor/metadata-editor.component.ts": {
@@ -163,7 +163,7 @@
   },
   "src/app/features/metadata/component/book-metadata-center/metadata-viewer/metadata-viewer.component.html": {
     "@angular-eslint/template/no-non-null-assertion": {
-      "count": 62
+      "count": 61
     },
     "@angular-eslint/template/prefer-contextual-for-variables": {
       "count": 3

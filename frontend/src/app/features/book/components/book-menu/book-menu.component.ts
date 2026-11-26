@@ -44,6 +44,7 @@ import {
 import {type BookProgressSource} from '../../data/book-command.models';
 import {
   bookActionPermissions,
+  bookCoverTargets,
   bookProgressPercentage,
   bookReadAction,
   type BookReadAction,
@@ -52,9 +53,8 @@ import {
   BOOK_READ_STATUS_LABEL_KEYS,
   BOOK_READ_STATUS_TARGETS,
   CLEAR_BOOK_READ_STATUS,
-  CLEAR_BOOK_READ_STATUS_LABEL_KEY,
   type BookReadStatusTarget,
-} from '../book-read-status-options';
+} from '../../data/book-values';
 import {
   type BookDetail,
   type BookFileResponse,
@@ -167,12 +167,12 @@ export class BookMenuComponent {
   });
   private readonly resetProgressMutation = injectMutation(() => withLegacyBookCache(
     this.bookCommands.resetProgress(), legacyBookCachePatches.resetProgress));
-  private readonly regenerateCoversMutation = injectMutation(() => this.bookCommands.bulkRegenerateCovers());
-  private readonly generateCoversMutation = injectMutation(() => this.bookCommands.bulkGenerateCovers());
+  private readonly regenerateCoverMutation = injectMutation(() => this.bookCommands.regenerateCover());
+  private readonly generateCoverMutation = injectMutation(() => this.bookCommands.generateCover());
 
   protected readonly readStatusTargets = BOOK_READ_STATUS_TARGETS;
   protected readonly clearReadStatus = CLEAR_BOOK_READ_STATUS;
-  protected readonly clearReadStatusLabelKey = CLEAR_BOOK_READ_STATUS_LABEL_KEY;
+  protected readonly clearReadStatusLabelKey = BOOK_READ_STATUS_LABEL_KEYS[CLEAR_BOOK_READ_STATUS];
 
   protected readonly book = computed<BookSummary | null>(() => {
     const snapshot = this.bookSnapshot();
@@ -240,11 +240,9 @@ export class BookMenuComponent {
   protected readonly canOrganizeFile = computed(() =>
     this.actionPermissions().canOrganizeFiles
       && this.appSettingsService.appSettings()?.diskType === 'LOCAL');
-  protected readonly hasMoreActions = computed(() => {
+  protected readonly hasMetadataActions = computed(() => {
     const permissions = this.actionPermissions();
-    return this.canOrganizeFile()
-      || permissions.canResetGrimmoryProgress
-      || permissions.canResetKoreaderProgress;
+    return permissions.canEditMetadata || permissions.canLockUnlockMetadata;
   });
   protected readonly metadataLocked = linkedSignal(
     () => this.book()?.metadata?.allMetadataLocked ?? false,
@@ -335,8 +333,11 @@ export class BookMenuComponent {
   }
 
   protected onChangeCovers(kind: 'regenerate' | 'generate'): void {
-    const mutation = kind === 'regenerate' ? this.regenerateCoversMutation : this.generateCoversMutation;
-    mutation.mutate({bookIds: [this.book()!.id]});
+    const book = this.book()!;
+    const mutation = kind === 'regenerate' ? this.regenerateCoverMutation : this.generateCoverMutation;
+    for (const target of bookCoverTargets(book, kind)) {
+      mutation.mutate({bookId: book.id, target});
+    }
   }
 
   protected onMetadataLockChange(locked: boolean): void {

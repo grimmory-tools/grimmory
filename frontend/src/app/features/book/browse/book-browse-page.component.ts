@@ -1,7 +1,7 @@
 import {NgTemplateOutlet} from '@angular/common';
 import {Component, computed, effect, inject, untracked, viewChild} from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {TranslocoPipe} from '@jsverse/transloco';
 
 import {BrowseEmptyDef, BrowseGridItemDef, BrowseGridSkeletonDef} from '../../../shared/browse/grid/grid.directives';
@@ -73,6 +73,7 @@ const BOOK_BROWSE_MESSAGES: BrowsePageMessages = {
 export class BookBrowsePageComponent {
   private readonly bookQuery = inject(BookQueryService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly detailLines = inject(BookBrowseDetailLineService);
   private readonly libraryService = inject(LibraryService);
   private readonly bookNavigation = inject(BookNavigationService);
@@ -122,6 +123,11 @@ export class BookBrowsePageComponent {
     clickAwayExempt: 'app-book-card, app-book-browse-table',
     selectionSuspended: () => this.menuOpenBookId() !== null,
     scrollToTop: () => this.tableRef()?.scrollToTop(),
+    pageParams: computed(() =>
+      this.preferences.seriesCollapsed() && !this.urlState.facets().series?.include.length
+        ? {collapse_series: 'true'}
+        : undefined),
+    selectionIds: book => book.seriesBookIds ?? [book.id],
     density: {
       baseWidth: 135,
       scale: this.coverScale.scaleFactor,
@@ -152,7 +158,7 @@ export class BookBrowsePageComponent {
       const primary = this.page.sortTerms().at(0);
       return primary && !this.page.isDefaultSort(this.page.sortTerms()) && bookSortHasDetailLine(primary.key)
         ? primary.key
-        : null;
+        : this.preferences.cardDetail();
     },
     this.page.results.showingPreviousResults,
   );
@@ -193,6 +199,10 @@ export class BookBrowsePageComponent {
   }
 
   protected onBookDetailRequested(book: BookSummary): void {
-    this.bookNavigation.openBook(book.id, this.books().map(presented => presented.id));
+    if (book.seriesBookIds != null) {
+      void this.router.navigate(['/series', book.metadata?.seriesName]);
+      return;
+    }
+    this.bookNavigation.openBook(book.id, this.books().filter(presented => presented.seriesBookIds == null).map(presented => presented.id));
   }
 }

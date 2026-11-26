@@ -80,8 +80,6 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
       isniLocked: new FormControl(this.author.isniLocked || false),
       photoLocked: new FormControl(this.author.photoLocked || false)
     });
-
-    this.applyLockStates();
   }
 
   toggleLock(field: string): void {
@@ -89,15 +87,6 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
     if (!lockedControl) return;
     const isLocked = !lockedControl.value;
     lockedControl.setValue(isLocked);
-
-    const fieldControl = this.form.get(field);
-    if (fieldControl) {
-      if (isLocked) {
-        fieldControl.disable();
-      } else {
-        fieldControl.enable();
-      }
-    }
 
     this.saveMetadata();
   }
@@ -116,7 +105,6 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
   lockAll(): void {
     for (const field of ['name', 'description', 'asin', 'isni']) {
       this.form.get(field + 'Locked')?.setValue(true);
-      this.form.get(field)?.disable();
     }
     this.form.get('photoLocked')?.setValue(true);
     this.saveMetadata();
@@ -125,7 +113,6 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
   unlockAll(): void {
     for (const field of ['name', 'description', 'asin']) {
       this.form.get(field + 'Locked')?.setValue(false);
-      this.form.get(field)?.enable();
     }
     this.form.get('photoLocked')?.setValue(false);
     this.saveMetadata();
@@ -252,15 +239,5 @@ export class AuthorEditorComponent implements OnInit, OnChanges {
         });
       }
     });
-  }
-
-  private applyLockStates(): void {
-    for (const field of ['name', 'description', 'asin', 'isni']) {
-      const lockedControl = this.form.get(field + 'Locked');
-      const fieldControl = this.form.get(field);
-      if (lockedControl?.value && fieldControl) {
-        fieldControl.disable();
-      }
-    }
   }
 }

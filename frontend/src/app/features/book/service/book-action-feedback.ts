@@ -1,8 +1,7 @@
-import {HttpErrorResponse} from '@angular/common/http';
 import {inject} from '@angular/core';
 import {TranslocoService} from '@jsverse/transloco';
 import {MessageService} from '@openng/optimus-ui/api';
-import {DeleteBooksPartialError} from '../data/book-command.models';
+import {commandErrorDetail} from '../../../core/data/command-errors';
 
 export function injectBookActionFeedback() {
   const messages = inject(MessageService);
@@ -20,16 +19,7 @@ export function injectBookActionFeedback() {
   return {
     show,
     error: (key: string, error: unknown) => {
-      show('error', key, undefined, errorDetail(error instanceof DeleteBooksPartialError ? error.cause : error));
+      show('error', key, undefined, commandErrorDetail(error));
     },
   };
-}
-
-function errorDetail(cause: unknown): string | undefined {
-  if (cause instanceof HttpErrorResponse) {
-    const body: unknown = cause.error;
-    const serverMessage = typeof body === 'object' && body !== null && 'message' in body ? body.message : undefined;
-    return typeof serverMessage === 'string' && serverMessage ? serverMessage : cause.message;
-  }
-  return cause instanceof Error ? cause.message : undefined;
 }

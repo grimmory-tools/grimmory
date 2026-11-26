@@ -89,6 +89,7 @@ public class BookMetadataService {
                 .replaceMode(replaceMode)
                 .mergeMoods(false)
                 .mergeTags(false)
+                .userEdit(true)
                 .build();
 
         bookMetadataUpdater.setBookMetadata(context);
@@ -376,6 +377,7 @@ public class BookMetadataService {
                     .mergeMoods(mergeMoods)
                     .mergeTags(mergeTags)
                     .replaceMode(replaceAll ? MetadataReplaceMode.REPLACE_ALL : null)
+                    .userEdit(true)
                     .build();
 
             try {

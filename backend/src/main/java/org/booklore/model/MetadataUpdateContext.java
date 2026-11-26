@@ -21,4 +21,5 @@ public class MetadataUpdateContext {
     private MetadataReplaceMode replaceMode;
     private boolean failOnFileWriteError;
     private boolean databaseOnly;
+    private boolean userEdit;
 }

@@ -5,10 +5,7 @@ import {type DynamicDialogRef} from '@openng/optimus-ui/dynamicdialog';
 import {injectMutation} from '@tanstack/angular-query';
 import {take} from 'rxjs/operators';
 
-import {
-  BOOK_READ_STATUS_LABEL_KEYS,
-  CLEAR_BOOK_READ_STATUS_LABEL_KEY,
-} from '../components/book-read-status-options';
+import {BOOK_READ_STATUS_LABEL_KEYS} from '../data/book-values';
 import {DeleteBooksPartialError, type BookProgressSource} from '../data/book-command.models';
 import {BookCommandService} from '../data/book-command.service';
 import {ShelfCommandService} from '../../shelf/data/shelf-command.service';
@@ -21,6 +18,11 @@ import {injectSelectedIds} from '../../../shared/browse/selected-ids';
 import {type BrowseSelection} from '../../../shared/browse/selection';
 
 type FetchMatchingIds = () => Promise<readonly number[]>;
+
+const RESET_PROGRESS_CONFIRM_MESSAGE_KEYS = {
+  GRIMMORY: 'book.browser.confirm.resetGrimmoryMessage',
+  KOREADER: 'book.browser.confirm.resetKOReaderMessage',
+} as const satisfies Partial<Record<BookProgressSource, string>>;
 
 export interface BookBrowseBulkCommandsOptions {
   readonly selection: Signal<BrowseSelection>;
@@ -116,8 +118,16 @@ export function createBookBrowseBulkCommands({selection, books, fetchIds}: BookB
         }));
     },
 
-    resetProgress(source: BookProgressSource): void {
-      void withSelectedIds(bookIds => resetProgressMutation.mutate({bookIds: [...bookIds], source}));
+    resetProgress(source: keyof typeof RESET_PROGRESS_CONFIRM_MESSAGE_KEYS): void {
+      confirmationService.confirm({
+        message: transloco.translate(RESET_PROGRESS_CONFIRM_MESSAGE_KEYS[source], {count: selectedCount()}),
+        header: transloco.translate('book.browser.confirm.resetHeader'),
+        acceptLabel: transloco.translate('common.confirm'),
+        rejectLabel: transloco.translate('common.cancel'),
+        accept: () => {
+          void withSelectedIds(bookIds => resetProgressMutation.mutate({bookIds: [...bookIds], source}));
+        },
+      });
     },
 
     setMetadataLocks(locked: boolean): void {
@@ -174,9 +184,7 @@ export function createBookBrowseBulkCommands({selection, books, fetchIds}: BookB
     },
 
     markAs(status: BookReadStatus): void {
-      const statusLabel = transloco.translate(
-        status === 'UNSET' ? CLEAR_BOOK_READ_STATUS_LABEL_KEY : BOOK_READ_STATUS_LABEL_KEYS[status],
-      );
+      const statusLabel = transloco.translate(BOOK_READ_STATUS_LABEL_KEYS[status]);
       confirmationService.confirm({
         header: transloco.translate('browse.bulk.updateReadStatus'),
         message: transloco.translate('browse.bulk.markAsMessage', {count: selectedCount(), status: statusLabel}),

@@ -23,39 +23,41 @@
   }
 </span>
 <app-menu #sortMenu menuClass="w-60" [ariaLabel]="'browse.toolbar.sort' | transloco" (opened)="onSortMenuOpened()">
-  @for (option of commonOptions(); track option.id) {
-    <app-menu-item
-      [value]="option.id"
-      [icon]="directionIconFor(option)"
-      [badge]="sortRankFor(option)"
-      inset
-      (selected)="onSelect(option)">
-      {{ option.labelKey | transloco }}
-    </app-menu-item>
-  }
-  @if (moreOptions().length > 0) {
-    @if (moreSortsExpanded()) {
-      <div class="grid grid-rows-[1fr] transition-[grid-template-rows] duration-200 ease-out starting:grid-rows-[0fr] motion-reduce:transition-none">
-        <div class="min-h-0 overflow-hidden">
-          @for (option of moreOptions(); track option.id) {
-            <app-menu-item
-              [value]="option.id"
-              [icon]="directionIconFor(option)"
-              [badge]="sortRankFor(option)"
-              inset
-              (selected)="onSelect(option)">
-              {{ option.labelKey | transloco }}
-            </app-menu-item>
-          }
-        </div>
-      </div>
+  <div class="flex min-h-0 flex-col overflow-x-hidden overflow-y-auto overscroll-contain">
+    @for (option of commonOptions(); track option.id) {
+      <app-menu-item
+        [value]="option.id"
+        [icon]="directionIconFor(option)"
+        [badge]="sortRankFor(option)"
+        inset
+        (selected)="onSelect(option)">
+        {{ option.labelKey | transloco }}
+      </app-menu-item>
     }
-    <app-menu-item value="toggle-more-sorts" [icon]="moreSortsToggleIcon()" [closeOnSelect]="false" (selected)="moreSortsExpanded.set(!moreSortsExpanded())">
-      <span class="text-text-muted">
-        {{ (moreSortsExpanded() ? 'browse.showFewer' : 'browse.showAll') | transloco }}
-      </span>
-    </app-menu-item>
-  }
+    @if (moreOptions().length > 0) {
+      @if (moreSortsExpanded()) {
+        <div class="grid grid-rows-[1fr] transition-[grid-template-rows] duration-200 ease-out starting:grid-rows-[0fr] motion-reduce:transition-none">
+          <div class="min-h-0 overflow-hidden">
+            @for (option of moreOptions(); track option.id) {
+              <app-menu-item
+                [value]="option.id"
+                [icon]="directionIconFor(option)"
+                [badge]="sortRankFor(option)"
+                inset
+                (selected)="onSelect(option)">
+                {{ option.labelKey | transloco }}
+              </app-menu-item>
+            }
+          </div>
+        </div>
+      }
+      <app-menu-item value="toggle-more-sorts" [icon]="moreSortsToggleIcon()" [closeOnSelect]="false" (selected)="moreSortsExpanded.set(!moreSortsExpanded())">
+        <span class="text-text-muted">
+          {{ (moreSortsExpanded() ? 'browse.showFewer' : 'browse.showAll') | transloco }}
+        </span>
+      </app-menu-item>
+    }
+  </div>
   @if (sortOptions().length > 0) {
     <app-menu-separator />
     <app-menu-item
