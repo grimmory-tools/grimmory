@@ -7,6 +7,7 @@ import org.booklore.model.dto.response.DuplicateGroup;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookRepository;
+import org.booklore.service.file.FileMovingHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,9 @@ class DuplicateDetectionServiceTest {
 
     @Mock
     private BookMapper bookMapper;
+
+    @Mock
+    private FileMovingHelper fileMovingHelper;
 
     @InjectMocks
     private DuplicateDetectionService service;
@@ -88,6 +92,14 @@ class DuplicateDetectionServiceTest {
         BookEntity book = createBook(fileType, title, authorName);
         book.getMetadata().setIsbn13(isbn13);
         book.getMetadata().setIsbn10(isbn10);
+        return book;
+    }
+
+    private BookEntity createBookAt(BookFileType fileType, String title, String authorName,
+                                    String subPath, String fileName) {
+        BookEntity book = createBook(fileType, title, authorName);
+        book.getPrimaryBookFile().setFileSubPath(subPath);
+        book.getPrimaryBookFile().setFileName(fileName);
         return book;
     }
 
@@ -851,6 +863,61 @@ class DuplicateDetectionServiceTest {
 
             assertThat(result).hasSize(1);
             assertThat(result.getFirst().suggestedTargetBookId()).isEqualTo(book1.getId());
+        }
+
+        @Test
+        void prefersBookMatchingFileNamingPattern() {
+            when(fileMovingHelper.getFileNamingPattern(library)).thenReturn("{authors}/{title}/{title}");
+            BookEntity misfiled = createBookAt(BookFileType.EPUB, "Dune", "Frank Herbert", "Dune", "Dune.epub");
+            BookEntity organized = createBookAt(BookFileType.EPUB, "Dune", "Frank Herbert", "Frank Herbert/Dune", "Dune.epub");
+            stubBooks(misfiled, organized);
+
+            List<DuplicateGroup> result = service.findDuplicates(onlyTitleAuthor());
+
+            assertThat(result).hasSize(1);
+            assertThat(result.getFirst().suggestedTargetBookId()).isEqualTo(organized.getId());
+        }
+
+        @Test
+        void prefersBookMatchingPatternDirectoryWhenFilenameDiffers() {
+            when(fileMovingHelper.getFileNamingPattern(library))
+                    .thenReturn("{authors}/<{series}/><{seriesIndex} - >{title}/{title}< - {authors}>< ({year})>");
+            BookEntity misfiled = createBookAt(BookFileType.EPUB, "Dune", "Frank Herbert", "Dune", "Dune.epub");
+            BookEntity matchingFolder = createBookAt(BookFileType.EPUB, "Dune", "Frank Herbert", "Frank Herbert/Dune", "Dune.epub");
+            stubBooks(misfiled, matchingFolder);
+
+            List<DuplicateGroup> result = service.findDuplicates(onlyTitleAuthor());
+
+            assertThat(result).hasSize(1);
+            assertThat(result.getFirst().suggestedTargetBookId()).isEqualTo(matchingFolder.getId());
+        }
+
+        @Test
+        void prefersExactPatternMatchOverDirectoryMatch() {
+            when(fileMovingHelper.getFileNamingPattern(library)).thenReturn("{authors}/{title}/{title} - {authors}");
+            BookEntity directoryOnly = createBookAt(BookFileType.EPUB, "Dune", "Frank Herbert", "Frank Herbert/Dune", "Dune.epub");
+            BookEntity exactMatch = createBookAt(BookFileType.EPUB, "Dune", "Frank Herbert", "Frank Herbert/Dune", "Dune - Frank Herbert.epub");
+            stubBooks(directoryOnly, exactMatch);
+
+            List<DuplicateGroup> result = service.findDuplicates(onlyTitleAuthor());
+
+            assertThat(result).hasSize(1);
+            assertThat(result.getFirst().suggestedTargetBookId()).isEqualTo(exactMatch.getId());
+        }
+
+        @Test
+        void metadataMatchScoreStillOutranksPatternMatch() {
+            when(fileMovingHelper.getFileNamingPattern(library)).thenReturn("{authors}/{title}/{title}");
+            BookEntity matchingPathLowScore = createBookAt(BookFileType.EPUB, "Dune", "Frank Herbert", "Frank Herbert/Dune", "Dune.epub");
+            matchingPathLowScore.setMetadataMatchScore(0.3f);
+            BookEntity misfiledHighScore = createBookAt(BookFileType.EPUB, "Dune", "Frank Herbert", "Dune", "Dune.epub");
+            misfiledHighScore.setMetadataMatchScore(0.9f);
+            stubBooks(matchingPathLowScore, misfiledHighScore);
+
+            List<DuplicateGroup> result = service.findDuplicates(onlyTitleAuthor());
+
+            assertThat(result).hasSize(1);
+            assertThat(result.getFirst().suggestedTargetBookId()).isEqualTo(misfiledHighScore.getId());
         }
     }
 
