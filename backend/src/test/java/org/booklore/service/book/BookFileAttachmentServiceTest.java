@@ -762,15 +762,20 @@ class BookFileAttachmentServiceTest {
             assertTrue(Files.exists(tempDir.resolve("target.pdf")));
         }
 
-        @Test
-        @DisplayName("Rejects books from different library paths without moving files")
-        void attachBookFiles_differentLibraryPathsWithoutMove_rejectsBeforeChanges() throws IOException {
-            LibraryPathEntity otherLibraryPath = LibraryPathEntity.builder()
+        private LibraryPathEntity addOtherLibraryPath() {
+            LibraryPathEntity other = LibraryPathEntity.builder()
                     .id(2L)
                     .library(library)
                     .path(tempDir.resolve("other_root").toString())
                     .build();
-            library.setLibraryPaths(new ArrayList<>(List.of(libraryPath, otherLibraryPath)));
+            library.setLibraryPaths(new ArrayList<>(List.of(libraryPath, other)));
+            return other;
+        }
+
+        @Test
+        @DisplayName("Rejects books from different library paths without moving files")
+        void attachBookFiles_differentLibraryPathsWithoutMove_rejectsBeforeChanges() throws IOException {
+            LibraryPathEntity otherLibraryPath = addOtherLibraryPath();
 
             BookEntity target = createBook(1L);
             createBookFile(10L, target, "target.epub", "target_dir", true, false);
@@ -792,6 +797,29 @@ class BookFileAttachmentServiceTest {
             assertSame(source, sourceFile.getBook());
             verifyNoInteractions(bookFileRepository, entityManager, monitoringRegistrationService);
             verify(bookRepository, never()).deleteAll(any());
+        }
+
+        @Test
+        @DisplayName("Allows cross-library-path merge when moveFiles is enabled")
+        void attachBookFiles_differentLibraryPathsWithMove_succeeds() throws IOException {
+            BookEntity target = createBook(1L);
+            createBookFile(10L, target, "target.epub", "target_dir", true, false);
+            BookEntity source = createBook(2L);
+            source.setLibraryPath(addOtherLibraryPath());
+            BookFileEntity sourceFile = createBookFile(20L, source, "source.pdf", "source_dir", true, false);
+            sourceFile.setBookType(BookFileType.PDF);
+            Path originalSource = sourceFile.getFullFilePath();
+
+            when(bookRepository.findByIdWithBookFiles(1L)).thenReturn(Optional.of(target));
+            when(bookRepository.findByIdWithBookFiles(2L)).thenReturn(Optional.of(source));
+            setupGetUpdatedBookMocks(1L, target);
+            setupFileMoveStubs(target, "target_dir/{title}");
+
+            AttachBookFileResponse result = service.attachBookFiles(1L, List.of(2L), true);
+
+            assertFalse(Files.exists(originalSource));
+            assertTrue(Files.exists(tempDir.resolve("target_dir/target.pdf")));
+            assertEquals(List.of(2L), result.deletedSourceBookIds());
         }
 
         @Test
