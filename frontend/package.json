@@ -75,7 +75,7 @@
     "@tailwindcss/postcss": "^4.3.5",
     "@types/d3-shape": "3.2.0",
     "@types/node": "^26.6.6",
-    "@vitest/coverage-v8": "^5.1.0",
+    "@vitest/coverage-v8": "^5.1.1",
     "angular-eslint": "^22.7.0",
     "eslint": "^10.15.0",
     "eslint-plugin-oxlint": "1.94.0",
@@ -89,6 +89,6 @@
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.73.0",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.1"
   }
 }
