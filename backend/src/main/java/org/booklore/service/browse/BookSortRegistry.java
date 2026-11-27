@@ -97,7 +97,7 @@ public class BookSortRegistry {
 
     static Expression<byte[]> randomOrderExpression(CriteriaBuilder cb, Expression<Long> id, Integer randomSeed) {
         int seed = randomSeed == null ? 0 : randomSeed;
-        return cb.function("sha", byte[].class, cb.concat(id.cast(String.class), ":" + seed).cast(byte[].class));
+        return cb.function("md5", byte[].class, cb.concat(id.cast(String.class), ":" + seed));
     }
 
     private static Expression<Float> greatestOf(CriteriaBuilder cb, Expression<Float> a, Expression<Float> b) {
