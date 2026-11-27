@@ -9,11 +9,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -422,6 +425,199 @@ class EpubCfiServiceTest {
             assertNotNull(converter0);
             assertNotNull(converter1);
             assertNotNull(converter2);
+        }
+    }
+
+    @Nested
+    class SelfClosingElementTests {
+
+        private static final String ANCHORED_CHAPTER = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <!DOCTYPE html>
+                <html xmlns="http://www.w3.org/1999/xhtml">
+                <head><title>Chapter 8</title></head>
+                <body>
+                    <div class="chapter" id="c8">
+                        <h2><a id="chap08"/>Chapter 8</h2>
+                        <p>First paragraph.</p>
+                        <p>Second paragraph.</p>
+                        <p>Third paragraph with <i>italic</i> text.</p>
+                    </div>
+                </body>
+                </html>
+                """;
+
+        private File anchoredEpub;
+
+        @BeforeEach
+        void createAnchoredEpub() throws IOException {
+            Book book = new Book();
+            book.getMetadata().addTitle("Anchored");
+            book.addSection("Chapter 8", new Resource(ANCHORED_CHAPTER.getBytes(StandardCharsets.UTF_8), "chapter8.xhtml"));
+            anchoredEpub = tempDir.resolve("anchored.epub").toFile();
+            try (FileOutputStream out = new FileOutputStream(anchoredEpub)) {
+                new EpubWriter().write(book, out);
+            }
+        }
+
+        @Test
+        void convertCfiToProgressXPointer_paragraphAfterSelfClosingAnchor_pointsAtThatParagraph() {
+            String webReaderCfi = "epubcfi(/6/2!/4/2[c8],/8/1:5,/8/1:20)";
+
+            String xpointer = service.convertCfiToProgressXPointer(anchoredEpub, webReaderCfi);
+
+            assertEquals("/body/DocFragment[1]/body/div/p[3]", xpointer);
+        }
+
+        @Test
+        void convertCfiToProgressXPointer_rangeWithBodyAsCommonParent_keepsPosition() {
+            String webReaderCfi = "epubcfi(/6/2!/4,/2/6/1:0,/2/8/1:4)";
+
+            String xpointer = service.convertCfiToProgressXPointer(anchoredEpub, webReaderCfi);
+
+            assertEquals("/body/DocFragment[1]/body/div/p[2]", xpointer);
+        }
+
+        @Test
+        void convertXPointerToCfi_paragraphAfterSelfClosingAnchor_usesDocumentStructure() {
+            String cfi = service.convertXPointerToCfi(anchoredEpub, "/body/DocFragment[1]/body/div/p[3]/text().5");
+
+            assertEquals("epubcfi(/6/2!/4/2/8:5)", cfi);
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {
+                "<!DOCTYPE html>\n<html lang=\"en\">",
+                "<!-- example: <html xmlns=\"http://www.w3.org/1999/xhtml\"> -->\n<!DOCTYPE html>\n<html lang=\"en\">",
+                "<html lang=\"en\" data-note='xmlns=\"http://www.w3.org/1999/xhtml\"'>"
+        })
+        void convertCfiToProgressXPointer_html5ChapterQuotingXhtmlNamespace_keepsHtmlParsing(String head) throws IOException {
+            String html5Chapter = head + """
+
+                    <head><title>Parsing XHTML</title></head>
+                    <body>
+                        <div id="c1">
+                            <p>An XHTML root: <code>&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;</code></p>
+                            <hr>
+                            <p>Second paragraph.</p>
+                            <p>Third paragraph.</p>
+                        </div>
+                    </body>
+                    </html>
+                    """;
+
+            String xpointer = service.convertCfiToProgressXPointer(
+                    singleChapterEpub(html5Chapter, "chapter1.html"), "epubcfi(/6/2!/4/2[c1],/8/1:0,/8/1:5)");
+
+            assertEquals("/body/DocFragment[1]/body/div/p[3]", xpointer);
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {
+                "<html xmlns='http://www.w3.org/1999/xhtml' lang=\"en\">",
+                "<html title=\"a > b\" xmlns=\"http://www.w3.org/1999/xhtml\">",
+                "<html data-x='1 > 0' xmlns:epub=\"http://www.idpf.org/2007/ops\"\n      xmlns = \"http://www.w3.org/1999/xhtml\">",
+                "<!-- generated > by hand -->\n<!DOCTYPE html>\n<html xmlns=\"http://www.w3.org/1999/xhtml\">",
+                "<!DOCTYPE html [<!ENTITY rb \"]\">]>\n<html xmlns=\"http://www.w3.org/1999/xhtml\">",
+                "<!DOCTYPE html [<!ENTITY q '\"]>'>]>\n<html xmlns=\"http://www.w3.org/1999/xhtml\">",
+                "<!DOCTYPE html [<!-- ] > \" --> <!ENTITY a \"b\">]>\n<html xmlns=\"http://www.w3.org/1999/xhtml\">",
+                "<!DOCTYPE html PUBLIC \"-//x>y//EN\" \"a>b.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\">",
+                "<!DOCTYPE html [<?note don't ] > ?>]>\n<html xmlns=\"http://www.w3.org/1999/xhtml\">"
+        })
+        void convertCfiToProgressXPointer_xhtmlRootWithoutXmlDeclaration_handlesSelfClosingAnchor(String head) throws IOException {
+            String xhtmlChapter = head + """
+
+                    <head><title>Chapter 8</title></head>
+                    <body>
+                        <div id="c8">
+                            <h2><a id="chap08"/>Chapter 8</h2>
+                            <p>First paragraph.</p>
+                            <p>Second paragraph.</p>
+                            <p>Third paragraph.</p>
+                        </div>
+                    </body>
+                    </html>
+                    """;
+
+            String xpointer = service.convertCfiToProgressXPointer(
+                    singleChapterEpub(xhtmlChapter, "chapter8.xhtml"), "epubcfi(/6/2!/4/2[c8],/8/1:0,/8/1:5)");
+
+            assertEquals("/body/DocFragment[1]/body/div/p[3]", xpointer);
+        }
+
+        private File singleChapterEpub(String chapter, String href) throws IOException {
+            Book book = new Book();
+            book.getMetadata().addTitle("Single chapter");
+            book.addSection("Chapter", new Resource(chapter.getBytes(StandardCharsets.UTF_8), href));
+            File epub = Files.createTempFile(tempDir, "chapter", ".epub").toFile();
+            try (FileOutputStream out = new FileOutputStream(epub)) {
+                new EpubWriter().write(book, out);
+            }
+            return epub;
+        }
+    }
+
+    @Nested
+    class BodyRelativePathTests {
+
+        private static final String TWO_DIVISION_CHAPTER = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <!DOCTYPE html>
+                <html xmlns="http://www.w3.org/1999/xhtml">
+                <head><title>Two divisions</title></head>
+                <body>
+                    <div id="one">
+                        <p>Division one, first paragraph with enough text to move the offset along.</p>
+                        <p>Division one, second paragraph with enough text to move the offset along.</p>
+                    </div>
+                    <div id="two">
+                        <p>Division two, first paragraph with enough text to move the offset along.</p>
+                        <p>Division two, second paragraph.</p>
+                    </div>
+                </body>
+                </html>
+                """;
+
+        private File twoDivisionEpub;
+
+        @BeforeEach
+        void createTwoDivisionEpub() throws IOException {
+            Book book = new Book();
+            book.getMetadata().addTitle("Two divisions");
+            book.addSection("Chapter", new Resource(TWO_DIVISION_CHAPTER.getBytes(StandardCharsets.UTF_8), "chapter.xhtml"));
+            twoDivisionEpub = tempDir.resolve("two-divisions.epub").toFile();
+            try (FileOutputStream out = new FileOutputStream(twoDivisionEpub)) {
+                new EpubWriter().write(book, out);
+            }
+        }
+
+        private float expectedPercentOf(String text) {
+            return TWO_DIVISION_CHAPTER.indexOf(text) * 100f / TWO_DIVISION_CHAPTER.length();
+        }
+
+        @Test
+        void resolveCfiLocation_rangeWithBodyAsCommonParent_resolvesSecondDivisionParagraph() {
+            String rangeCfi = "epubcfi(/6/2!/4,/4/2/1:0,/4/4/1:0)";
+
+            EpubCfiService.CfiLocation location = service.resolveCfiLocation(twoDivisionEpub, rangeCfi).orElseThrow();
+
+            assertEquals(expectedPercentOf("Division two, second paragraph."), location.contentSourceProgressPercent(), 0.5f);
+        }
+
+        @Test
+        void resolveCfiLocation_pointInSecondDivision_resolvesThatParagraph() {
+            String pointCfi = "epubcfi(/6/2!/4/4/4/1:0)";
+
+            EpubCfiService.CfiLocation location = service.resolveCfiLocation(twoDivisionEpub, pointCfi).orElseThrow();
+
+            assertEquals(expectedPercentOf("Division two, second paragraph."), location.contentSourceProgressPercent(), 0.5f);
+        }
+
+        @Test
+        void convertCfiToProgressXPointer_rangeWithBodyAsCommonParent_pointsAtRangeStart() {
+            String rangeCfi = "epubcfi(/6/2!/4,/4/2/1:0,/4/4/1:0)";
+
+            assertEquals("/body/DocFragment[1]/body/div[2]/p[1]", service.convertCfiToProgressXPointer(twoDivisionEpub, rangeCfi));
         }
     }
 
