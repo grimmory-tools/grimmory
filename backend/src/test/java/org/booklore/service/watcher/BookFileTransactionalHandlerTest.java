@@ -15,6 +15,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
@@ -281,6 +283,51 @@ class BookFileTransactionalHandlerTest {
             handler.handleNewBookFile(1L, Path.of("/library/sub/test.epub"));
 
             verify(libraryProcessingService).processLibraryFiles(anyList(), eq(library));
+        }
+
+        @Test
+        void allowedPdf_isSentForImport() {
+            library.setAllowedFormats(List.of(BookFileType.EPUB, BookFileType.PDF));
+
+            handler.handleNewBookFile(1L, Path.of("/library/sub/test.pdf"));
+
+            verify(libraryProcessingService).processLibraryFiles(argThat(files ->
+                    files.size() == 1 && files.getFirst().getBookFileType() == BookFileType.PDF), eq(library));
+        }
+
+        @Test
+        void disallowedPdf_isNotSentForImport() {
+            library.setAllowedFormats(List.of(BookFileType.EPUB));
+
+            handler.handleNewBookFile(1L, Path.of("/library/sub/test.pdf"));
+
+            verify(libraryProcessingService, never()).processLibraryFiles(anyList(), any());
+        }
+
+        @Test
+        void disallowedPdf_isNotAttachedToMatchingBook() {
+            library.setAllowedFormats(List.of(BookFileType.EPUB));
+            BookEntity existingBook = buildBook(20L, false);
+            existingBook.setBookFiles(Set.of(buildBookFile(200L, existingBook, "test.epub", "otherhash")));
+            when(bookRepository.findAllByLibraryPathIdAndFileSubPath(1L, "sub")).thenReturn(List.of(existingBook));
+            groupingMock.when(() -> BookFileGroupingUtils.extractGroupingKey("test.pdf")).thenReturn("test");
+            groupingMock.when(() -> BookFileGroupingUtils.extractGroupingKey("test.epub")).thenReturn("test");
+
+            handler.handleNewBookFile(1L, Path.of("/library/sub/test.pdf"));
+
+            verify(bookAdditionalFileRepository, never()).save(any(BookFileEntity.class));
+            verify(libraryProcessingService, never()).processLibraryFiles(anyList(), any());
+        }
+
+        @ParameterizedTest
+        @NullAndEmptySource
+        void unrestrictedFormats_pdfIsSentForImport(List<BookFileType> allowedFormats) {
+            library.setAllowedFormats(allowedFormats);
+
+            handler.handleNewBookFile(1L, Path.of("/library/sub/test.pdf"));
+
+            verify(libraryProcessingService).processLibraryFiles(argThat(files ->
+                    files.size() == 1 && files.getFirst().getBookFileType() == BookFileType.PDF), eq(library));
         }
 
         @Test
