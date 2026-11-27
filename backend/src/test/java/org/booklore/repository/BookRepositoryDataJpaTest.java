@@ -794,6 +794,55 @@ class BookRepositoryDataJpaTest {
         assertThat(bookEntity.getPrimaryBookFile()).isNotNull();
     }
 
+    @Test
+    void findByIdForBulkMetadataEpubUpdate_eagerlyLoadsFilesForDetachedUse() {
+        LibraryEntity library = LibraryEntity.builder()
+                .name("Bulk EPUB update")
+                .icon("book")
+                .watch(false)
+                .formatPriority(List.of(BookFileType.EPUB))
+                .build();
+        entityManager.persist(library);
+        entityManager.flush();
+
+        LibraryPathEntity libraryPath = LibraryPathEntity.builder()
+                .library(library)
+                .path("/test/path")
+                .build();
+        entityManager.persist(libraryPath);
+
+        BookEntity book = BookEntity.builder()
+                .library(library)
+                .libraryPath(libraryPath)
+                .addedOn(Instant.now())
+                .deleted(false)
+                .build();
+        entityManager.persist(book);
+        BookMetadataEntity metadata = BookMetadataEntity.builder().book(book).title("Bulk EPUB").build();
+        entityManager.persist(metadata);
+
+        BookFileEntity bookFile = BookFileEntity.builder()
+                .book(book)
+                .fileName("bulk.epub")
+                .fileSubPath("")
+                .isBookFormat(true)
+                .bookType(BookFileType.EPUB)
+                .fileSizeKb(1L)
+                .initialHash("hash")
+                .currentHash("hash")
+                .addedOn(Instant.now())
+                .build();
+        entityManager.persist(bookFile);
+        entityManager.flush();
+        Long bookId = book.getId();
+        entityManager.clear();
+
+        BookEntity loaded = bookRepository.findByIdForBulkMetadataEpubUpdate(bookId).orElseThrow();
+
+        assertThat(org.hibernate.Hibernate.isInitialized(loaded.getBookFiles())).isTrue();
+        assertThat(loaded.getPrimaryBookFile().getFileName()).isEqualTo("bulk.epub");
+    }
+
     private record LibraryFixture(Long libraryId, List<Long> bookIds, List<Long> comicBookIds) {
     }
 

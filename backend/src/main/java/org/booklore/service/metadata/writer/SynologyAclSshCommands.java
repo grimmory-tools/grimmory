@@ -1,7 +1,7 @@
 package org.booklore.service.metadata.writer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.booklore.config.AppProperties;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -49,7 +49,7 @@ public final class SynologyAclSshCommands implements NasSynologyPermissions.Comm
         Path localPath = requireLibraryPath(path);
         HelperSnapshot snapshot = request(Map.of("action", "snapshot", "path", relative(localPath)));
         requireIdentity(snapshot, identity);
-        return new NasSynologyPermissions.Snapshot(identity, snapshot.archive(), snapshot.entries());
+        return new NasSynologyPermissions.Snapshot(identity, snapshot.archive(), snapshot.entries(), snapshot.mode());
     }
 
     @Override
@@ -68,11 +68,12 @@ public final class SynologyAclSshCommands implements NasSynologyPermissions.Comm
                 "expected", Map.of(
                         "uid", identity.uid(),
                         "gid", identity.gid(),
-                        "mode", identity.mode(),
+                        "mode", expected.effectiveHelperMode(),
                         "archive", expected.archive(),
                         "entries", expected.entries())));
         requireIdentity(actual, identity);
-        if (!expected.archive().equals(actual.archive()) || !expected.entries().equals(actual.entries())) {
+        if (actual.mode() != expected.effectiveHelperMode()
+                || !expected.archive().equals(actual.archive()) || !expected.entries().equals(actual.entries())) {
             throw new IOException("Synology ACL helper did not preserve the expected ACL");
         }
     }
@@ -244,7 +245,7 @@ public final class SynologyAclSshCommands implements NasSynologyPermissions.Comm
     private static void requireIdentity(HelperSnapshot snapshot, NasSynologyPermissions.Identity identity)
             throws IOException {
         if (snapshot == null || snapshot.uid() != identity.uid() || snapshot.gid() != identity.gid()
-                || snapshot.mode() != identity.mode() || snapshot.archive() == null
+                || snapshot.mode() < 0 || snapshot.mode() > 07777 || snapshot.archive() == null
                 || snapshot.entries() == null) {
             throw new IOException("Synology ACL helper returned mismatched file attributes");
         }

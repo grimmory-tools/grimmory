@@ -1,10 +1,10 @@
 package org.booklore.service.metadata.writer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.booklore.config.AppProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import tools.jackson.databind.ObjectMapper;
 
 @Configuration(proxyBeanMethods = false)
 public class SynologyAclConfiguration {

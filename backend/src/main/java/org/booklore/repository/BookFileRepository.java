@@ -27,6 +27,18 @@ public interface BookFileRepository extends JpaRepository<BookFileEntity, Long> 
             @Param("fileSubPath") String fileSubPath,
             @Param("fileName") String fileName);
 
+    @Query("""
+            SELECT bf FROM BookFileEntity bf
+            WHERE bf.book.libraryPath.id = :libraryPathId
+            AND bf.fileSubPath = :fileSubPath
+            AND bf.fileName = :fileName
+            ORDER BY bf.id
+            """)
+    List<BookFileEntity> findAllByLibraryPathIdAndFileSubPathAndFileName(
+            @Param("libraryPathId") Long libraryPathId,
+            @Param("fileSubPath") String fileSubPath,
+            @Param("fileName") String fileName);
+
     @Query("SELECT COUNT(bf) FROM BookFileEntity bf WHERE bf.book.id = :bookId")
     long countByBookId(@Param("bookId") Long bookId);
 

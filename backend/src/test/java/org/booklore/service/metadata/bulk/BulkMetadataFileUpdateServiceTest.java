@@ -44,6 +44,7 @@ class BulkMetadataFileUpdateServiceTest {
         BookFileMutationGuard guard = mock(BookFileMutationGuard.class);
         when(journal.enqueue("job-1", 7L)).thenReturn("00000000-0000-0000-0000-000000000007");
         when(books.findAllWithMetadataByIds(Set.of(7L))).thenReturn(List.of(book));
+        when(books.findByIdForBulkMetadataEpubUpdate(7L)).thenReturn(java.util.Optional.of(book));
         when(preparation.prepare(anyString(), any(), same(book.getMetadata()), any())).thenReturn("c".repeat(64));
         when(installer.install(anyString())).thenReturn(BulkMetadataJournalEntity.Stage.EPUB_APPLIED);
         when(files.updateFingerprintAndFileSize(eq(11L), anyString(), eq(1L))).thenReturn(1);
@@ -59,6 +60,10 @@ class BulkMetadataFileUpdateServiceTest {
         verify(preparation).prepare(eq("00000000-0000-0000-0000-000000000007"),
                 argThat(intent -> intent.originalSha256().matches("[0-9a-f]{64}")
                         && intent.source().equals(source.toAbsolutePath().normalize())
+                        && intent.candidate().getFileName().toString()
+                        .matches("\\.grimmory-[0-9a-f-]{36}\\.candidate")
+                        && intent.backup().getFileName().toString()
+                        .matches("\\.grimmory-[0-9a-f-]{36}\\.backup")
                         && intent.candidate().getParent().equals(source.getParent())
                         && intent.backup().getParent().equals(source.getParent())),
                 same(book.getMetadata()), any());
@@ -84,6 +89,7 @@ class BulkMetadataFileUpdateServiceTest {
                 .build();
         when(journal.getForRecovery("operation-1")).thenReturn(entry);
         when(books.findAllWithMetadataByIds(Set.of(7L))).thenReturn(List.of(book));
+        when(books.findByIdForBulkMetadataEpubUpdate(7L)).thenReturn(java.util.Optional.of(book));
         when(installer.install("operation-1")).thenReturn(BulkMetadataJournalEntity.Stage.EPUB_APPLIED);
         when(files.updateFingerprintAndFileSize(eq(11L), anyString(), eq(1L))).thenReturn(1);
         var service = new BulkMetadataFileUpdateService(

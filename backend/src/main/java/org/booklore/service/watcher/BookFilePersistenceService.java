@@ -112,6 +112,10 @@ public class BookFilePersistenceService {
         return bookFileRepository.findByLibraryPathIdAndFileSubPathAndFileName(libraryPathId, fileSubPath, fileName);
     }
 
+    public List<BookFileEntity> findBookFilesByLibraryPathSubPathAndFileName(long libraryPathId, String fileSubPath, String fileName) {
+        return bookFileRepository.findAllByLibraryPathIdAndFileSubPathAndFileName(libraryPathId, fileSubPath, fileName);
+    }
+
     @Transactional
     public void deleteBookFile(BookFileEntity bookFile) {
         bookFileRepository.delete(bookFile);

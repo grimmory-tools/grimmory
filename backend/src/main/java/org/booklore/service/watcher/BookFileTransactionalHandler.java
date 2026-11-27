@@ -63,15 +63,34 @@ public class BookFileTransactionalHandler {
         LibraryPathEntity libraryPathEntity = bookFilePersistenceService.getLibraryPathEntityForFile(libraryEntity, libraryPath);
         String fileSubPath = FileUtils.getRelativeSubPath(libraryPathEntity.getPath(), path);
 
-        Optional<BookFileEntity> existingAtPath = bookFilePersistenceService
-                .findBookFileByLibraryPathSubPathAndFileName(libraryPathEntity.getId(), fileSubPath, fileName);
+        String currentHash = FileFingerprint.generateHash(path);
+        List<BookFileEntity> matchingFiles = bookFilePersistenceService
+                .findBookFilesByLibraryPathSubPathAndFileName(libraryPathEntity.getId(), fileSubPath, fileName);
+        // Keep existing mocks and integrations that still expose the original optional lookup working.
+        if (matchingFiles == null || matchingFiles.isEmpty()) {
+            matchingFiles = bookFilePersistenceService
+                    .findBookFileByLibraryPathSubPathAndFileName(libraryPathEntity.getId(), fileSubPath, fileName)
+                    .map(List::of).orElseGet(List::of);
+        }
+        if (matchingFiles.size() > 1) {
+            List<BookFileEntity> hashMatches = matchingFiles.stream()
+                    .filter(file -> currentHash.equals(file.getCurrentHash()))
+                    .toList();
+            if (hashMatches.size() != 1) {
+                log.warn("[CREATE] Ambiguous database file rows for '{}': {} rows, {} matching hashes; skipping event",
+                        filePath, matchingFiles.size(), hashMatches.size());
+                notificationService.sendMessageToPermissions(Topic.LOG,
+                        LogNotification.info("Finished processing file: " + filePath), Set.of(ADMIN, MANAGE_LIBRARY));
+                return;
+            }
+            matchingFiles = hashMatches;
+        }
+        Optional<BookFileEntity> existingAtPath = matchingFiles.stream().findFirst();
         if (existingAtPath.isPresent()) {
             BookFileEntity existing = existingAtPath.get();
             BookEntity existingBook = existing.getBook();
             boolean wasDeleted = Boolean.TRUE.equals(existingBook.getDeleted());
             String existingHash = existing.getCurrentHash();
-            String currentHash = FileFingerprint.generateHash(path);
-
             if (wasDeleted) {
                 pendingDeletionPool.matchByHash(existingHash);
                 existingBook.setDeleted(false);
@@ -96,8 +115,6 @@ public class BookFileTransactionalHandler {
             notificationService.sendMessageToPermissions(Topic.LOG, LogNotification.info("Finished processing file: " + filePath), Set.of(ADMIN, MANAGE_LIBRARY));
             return;
         }
-
-        String currentHash = FileFingerprint.generateHash(path);
 
         Optional<PendingDeletionPool.MatchResult> poolMatch = pendingDeletionPool.matchByHash(currentHash);
         if (poolMatch.isPresent()) {

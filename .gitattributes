@@ -65,6 +65,7 @@
 *.fish     text eol=lf
 *.ksh      text eol=lf
 *.sh       text eol=lf
+deploy/nas-epub-prototype/grimmory-syno-acl-helper.py text eol=lf
 *.zsh      text eol=lf
 # Likewise, force cmd and batch scripts to always use crlf
 *.bat      text eol=crlf

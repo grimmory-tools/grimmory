@@ -98,9 +98,11 @@ public class BulkMetadataFileUpdateService {
             fileMutationGuard.beforeMutation();
             PreparedEpub prepared = loadPreparedEpub(bookId);
             Path parent = prepared.source().getParent();
-            String token = ".grimmory-metadata-" + operationId;
-            Path candidate = parent.resolve(prepared.source().getFileName() + token + ".candidate.epub");
-            Path backup = parent.resolve(prepared.source().getFileName() + token + ".backup.epub");
+            // Keep operation files hidden and extensionless: library watchers must not
+            // mistake a byte-for-byte backup for a renamed book during preparation.
+            String token = ".grimmory-" + operationId;
+            Path candidate = parent.resolve(token + ".candidate");
+            Path backup = parent.resolve(token + ".backup");
             String sourceHash = EpubArchiveIntegrity.sha256(prepared.source());
             var intent = new BulkMetadataJournal.EpubPreparationIntent(
                     prepared.source(), candidate, backup, sourceHash);
@@ -145,8 +147,7 @@ public class BulkMetadataFileUpdateService {
 
     @Transactional(readOnly = true)
     public PreparedEpub loadPreparedEpub(long bookId) {
-        BookEntity book = bookRepository.findAllWithMetadataByIds(java.util.Collections.singleton(bookId))
-                .stream().findFirst()
+        BookEntity book = bookRepository.findByIdForBulkMetadataEpubUpdate(bookId)
                 .orElseThrow(() -> new IllegalStateException("Book disappeared during EPUB update"));
         if (book.getPrimaryBookFile() == null || book.getPrimaryBookFile().getBookType() != BookFileType.EPUB) {
             throw new IllegalStateException("Bulk metadata update no longer targets an EPUB");

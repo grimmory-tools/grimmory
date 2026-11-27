@@ -20,7 +20,15 @@ public final class NasSynologyPermissions {
     private final Ownership ownership;
 
     public record Identity(int uid, int gid, int mode) {}
-    public record Snapshot(Identity identity, String archive, String entries) {}
+    public record Snapshot(Identity identity, String archive, String entries, Integer helperMode) {
+        public Snapshot(Identity identity, String archive, String entries) {
+            this(identity, archive, entries, null);
+        }
+
+        public int effectiveHelperMode() {
+            return helperMode == null ? identity.mode() : helperMode;
+        }
+    }
 
     public interface Commands {
         String run(String action, Path... paths) throws IOException;
@@ -91,7 +99,8 @@ public final class NasSynologyPermissions {
                 || snapshot.archive().length() > 512 || !snapshot.archive().startsWith("Archive:")
                 || !snapshot.archive().contains("is_support_ACL")
                 || !(snapshot.archive().contains("is_inherit") || snapshot.archive().contains("has_ACL"))
-                || snapshot.entries() == null || snapshot.entries().isBlank() || snapshot.entries().length() > 4096) {
+                || snapshot.entries() == null || snapshot.entries().isBlank() || snapshot.entries().length() > 4096
+                || (snapshot.helperMode() != null && (snapshot.helperMode() < 0 || snapshot.helperMode() > 07777))) {
             throw new IOException("Invalid Synology ACL snapshot");
         }
     }

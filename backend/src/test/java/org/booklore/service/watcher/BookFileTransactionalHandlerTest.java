@@ -178,6 +178,40 @@ class BookFileTransactionalHandlerTest {
         }
 
         @Test
+        void duplicateRowsAtPath_selectsOnlyTheRowMatchingCurrentFileHash() {
+            BookEntity book = buildBook(10L, false);
+            BookFileEntity staleRow = buildBookFile(99L, book, "test.epub", "oldhash");
+            BookFileEntity currentRow = buildBookFile(100L, book, "test.epub", "hash123");
+            book.setBookFiles(Set.of(staleRow, currentRow));
+
+            when(bookFilePersistenceService.findBookFilesByLibraryPathSubPathAndFileName(1L, "sub", "test.epub"))
+                    .thenReturn(List.of(staleRow, currentRow));
+
+            handler.handleNewBookFile(1L, Path.of("/library/sub/test.epub"));
+
+            verify(pendingDeletionPool).cancelByPath(Path.of("/library/sub/test.epub"));
+            verify(bookFilePersistenceService, never()).save(any());
+            verify(bookRepository, never()).findByCurrentHashIncludingRecentlyDeleted(anyString(), any());
+        }
+
+        @Test
+        void duplicateRowsAtPathWithoutUniqueHashMatch_skipsAmbiguousEvent() {
+            BookEntity book = buildBook(10L, false);
+            BookFileEntity staleRow = buildBookFile(99L, book, "test.epub", "oldhash");
+            BookFileEntity anotherStaleRow = buildBookFile(100L, book, "test.epub", "otherhash");
+            book.setBookFiles(Set.of(staleRow, anotherStaleRow));
+
+            when(bookFilePersistenceService.findBookFilesByLibraryPathSubPathAndFileName(1L, "sub", "test.epub"))
+                    .thenReturn(List.of(staleRow, anotherStaleRow));
+
+            handler.handleNewBookFile(1L, Path.of("/library/sub/test.epub"));
+
+            verify(bookRepository, never()).findByCurrentHashIncludingRecentlyDeleted(anyString(), any());
+            verify(libraryProcessingService, never()).processLibraryFiles(any(), any());
+            verify(bookFilePersistenceService, never()).save(any());
+        }
+
+        @Test
         void existingAtPath_hashChanged_updatesHash() {
             BookEntity book = buildBook(10L, false);
             BookFileEntity bookFile = buildBookFile(100L, book, "test.epub", "oldhash");
