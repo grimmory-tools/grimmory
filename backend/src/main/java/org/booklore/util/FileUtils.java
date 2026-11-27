@@ -8,8 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -23,6 +26,22 @@ import java.util.regex.Pattern;
 public class FileUtils {
 
     private final String FILE_NOT_FOUND_MESSAGE = "File does not exist: ";
+
+    private final FileAttribute<?>[] UMASK_FILE_ATTRIBUTES =
+            FileSystems.getDefault().supportedFileAttributeViews().contains("posix")
+                    ? new FileAttribute<?>[]{PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-rw-rw-"))}
+                    : new FileAttribute<?>[0];
+
+    /**
+     * Create a temp file whose permissions follow the process umask, like any other newly created file.
+     * {@link Files#createTempFile} always uses owner-only permissions, which a later move into the
+     * library would otherwise carry along. A {@code null} directory means the system temp directory.
+     */
+    public Path createTempFile(Path dir, String prefix, String suffix) throws IOException {
+        return dir == null
+                ? Files.createTempFile(prefix, suffix, UMASK_FILE_ATTRIBUTES)
+                : Files.createTempFile(dir, prefix, suffix, UMASK_FILE_ATTRIBUTES);
+    }
 
     /**
      * Normalize a path to its absolute form with all {@code .} and {@code ..} segments resolved.

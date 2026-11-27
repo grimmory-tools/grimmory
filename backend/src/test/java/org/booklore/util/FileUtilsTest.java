@@ -7,12 +7,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 class FileUtilsTest {
 
@@ -615,5 +617,21 @@ class FileUtilsTest {
                 Path.of("10. Moving Pictures.m4b")
         );
         assertTrue(FileUtils.isSeriesFolder(files));
+    }
+
+    @Test
+    void createTempFile_followsUmaskLikeANewFile() throws IOException {
+        assumeTrue(FileSystems.getDefault().supportedFileAttributeViews().contains("posix"));
+        Path regular = Files.createFile(tempDir.resolve("regular.epub"));
+
+        Path inDir = FileUtils.createTempFile(tempDir, "upload-", ".epub");
+        Path inSystemTemp = FileUtils.createTempFile(null, "upload-", ".epub");
+        try {
+            assertEquals(tempDir, inDir.getParent());
+            assertEquals(Files.getPosixFilePermissions(regular), Files.getPosixFilePermissions(inDir));
+            assertEquals(Files.getPosixFilePermissions(regular), Files.getPosixFilePermissions(inSystemTemp));
+        } finally {
+            Files.deleteIfExists(inSystemTemp);
+        }
     }
 }

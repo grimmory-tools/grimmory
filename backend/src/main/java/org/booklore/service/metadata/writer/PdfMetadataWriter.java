@@ -12,6 +12,7 @@ import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.service.appsettings.AppSettingService;
 import org.booklore.service.metadata.BookLoreMetadata;
+import org.booklore.util.FileUtils;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -53,7 +54,7 @@ public class PdfMetadataWriter implements MetadataWriter {
         Path tempPath = null;
 
         try {
-            backupPath = Files.createTempFile(parentDir, ".pdfBackup-", ".pdf");
+            backupPath = FileUtils.createTempFile(parentDir, ".pdfBackup-", ".pdf");
             Files.copy(filePath, backupPath, StandardCopyOption.REPLACE_EXISTING);
             backupCreated = true;
         } catch (IOException e) {
@@ -62,7 +63,7 @@ public class PdfMetadataWriter implements MetadataWriter {
 
         try (PdfDocument doc = PdfDocument.open(filePath)) {
             applyMetadataToDocument(doc, metadataEntity, clear);
-            tempPath = Files.createTempFile(parentDir, ".pdfmeta-", ".pdf");
+            tempPath = FileUtils.createTempFile(parentDir, ".pdfmeta-", ".pdf");
             doc.save(tempPath);
             Files.move(tempPath, filePath, StandardCopyOption.REPLACE_EXISTING);
             tempPath = null;

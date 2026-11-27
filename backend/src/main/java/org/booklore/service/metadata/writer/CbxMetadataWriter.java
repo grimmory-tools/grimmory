@@ -17,6 +17,7 @@ import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.ComicCreatorRole;
 import org.booklore.service.appsettings.AppSettingService;
+import org.booklore.util.FileUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
 import org.springframework.stereotype.Component;
@@ -103,7 +104,7 @@ public class CbxMetadataWriter implements MetadataWriter {
 
     private Path createBackupFile(File file) {
         try {
-            Path backupPath = Files.createTempFile(file.getParentFile().toPath(), "cbx_backup_", ".bak");
+            Path backupPath = FileUtils.createTempFile(file.getParentFile().toPath(), "cbx_backup_", ".bak");
             Files.copy(file.toPath(), backupPath, StandardCopyOption.REPLACE_EXISTING);
             return backupPath;
         } catch (Exception ex) {
@@ -468,7 +469,7 @@ public class CbxMetadataWriter implements MetadataWriter {
 
     private Path updateArchive(File originalFile, byte[] xmlContent) throws Exception {
         // Create temp file in same directory as original for true atomic move on same filesystem
-        Path tempArchive = Files.createTempFile(originalFile.toPath().getParent(), ".cbx_edit_", ".cbz");
+        Path tempArchive = FileUtils.createTempFile(originalFile.toPath().getParent(), ".cbx_edit_", ".cbz");
         rebuildArchiveWithNewXml(originalFile.toPath(), tempArchive, xmlContent);
 
         Path originalPath = originalFile.toPath().toAbsolutePath();
