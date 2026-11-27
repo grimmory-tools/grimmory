@@ -250,4 +250,34 @@ class ShelfServiceTest {
         assertEquals("<svg>...</svg>", saved.getIcon());
         assertEquals(IconType.CUSTOM_SVG, saved.getIconType());
     }
+
+    @Test
+    void deleteShelf_withKoboShelf_shouldThrow() {
+        ShelfEntity existingShelf = ShelfEntity.builder()
+                .id(1L)
+                .name("Kobo")
+                .icon("star")
+                .iconType(IconType.LUCIDE)
+                .user(userEntity)
+                .build();
+
+        when(shelfRepository.findById(1L)).thenReturn(Optional.of(existingShelf));
+
+        assertThrows(APIException.class, () -> shelfService.deleteShelf(1L));
+    }
+
+    @Test
+    void deleteShelf_withKoboShelfLowercase_shouldThrow() {
+        ShelfEntity existingShelf = ShelfEntity.builder()
+                .id(1L)
+                .name("kobo")
+                .icon("star")
+                .iconType(IconType.LUCIDE)
+                .user(userEntity)
+                .build();
+
+        when(shelfRepository.findById(1L)).thenReturn(Optional.of(existingShelf));
+
+        assertThrows(APIException.class, () -> shelfService.deleteShelf(1L));
+    }
 }

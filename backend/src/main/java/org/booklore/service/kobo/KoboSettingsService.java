@@ -4,12 +4,7 @@ import org.booklore.config.security.service.AuthenticationService;
 import org.booklore.model.dto.BookLoreUser;
 import org.booklore.model.dto.HardcoverSyncSettings;
 import org.booklore.model.dto.KoboSyncSettings;
-import org.booklore.model.dto.Shelf;
-import org.booklore.model.dto.request.ShelfCreateRequest;
 import org.booklore.model.entity.KoboUserSettingsEntity;
-import org.booklore.model.entity.ShelfEntity;
-import org.booklore.model.enums.IconType;
-import org.booklore.model.enums.ShelfType;
 import org.booklore.repository.KoboUserSettingsRepository;
 import org.booklore.service.ShelfService;
 import org.booklore.service.hardcover.HardcoverSyncSettingsService;
@@ -17,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -54,7 +48,7 @@ public class KoboSettingsService {
                         .build());
 
         if (entity.isSyncEnabled()) {
-            ensureKoboShelfExists(user.getId());
+            ensureKoboShelfExists();
         }
         repository.save(entity);
 
@@ -67,14 +61,12 @@ public class KoboSettingsService {
         KoboUserSettingsEntity entity = repository.findByUserId(user.getId()).orElseGet(() -> initDefaultSettings(user.getId()));
 
         if (settings.isSyncEnabled() != entity.isSyncEnabled()) {
-            Shelf userKoboShelf = shelfService.getUserKoboShelf();
             if (!settings.isSyncEnabled()) {
-                if (userKoboShelf != null) {
-                    shelfService.deleteShelf(userKoboShelf.getId());
-                }
+                deleteKoboShelfIfExists();
             } else {
-                ensureKoboShelfExists(user.getId());
+                ensureKoboShelfExists();
             }
+
             entity.setSyncEnabled(settings.isSyncEnabled());
         }
 
@@ -100,16 +92,15 @@ public class KoboSettingsService {
         return repository.save(entity);
     }
 
-    private void ensureKoboShelfExists(Long userId) {
-        Optional<ShelfEntity> shelf = shelfService.getShelf(userId, ShelfType.KOBO.getName());
-        if (shelf.isEmpty()) {
-            shelfService.createShelf(
-                    ShelfCreateRequest.builder()
-                            .name(ShelfType.KOBO.getName())
-                            .icon(ShelfType.KOBO.getIcon())
-                            .iconType(IconType.LUCIDE)
-                            .build()
-            );
+    private void deleteKoboShelfIfExists() {
+        if (shelfService.hasUserKoboShelf()) {
+            shelfService.deleteUserKoboShelf();
+        }
+    }
+
+    private void ensureKoboShelfExists() {
+        if (!shelfService.hasUserKoboShelf()) {
+            shelfService.createUserKoboShelf();
         }
     }
 
