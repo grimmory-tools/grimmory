@@ -61,7 +61,7 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
     // BOOKS BY SHELF ID - Two Query Pattern
     // ============================================
 
-    @Query("SELECT DISTINCT b.id FROM BookEntity b JOIN b.shelves s WHERE s.id = :shelfId AND (b.deleted IS NULL OR b.deleted = false) ORDER BY b.addedOn DESC, b.id DESC")
+    @Query("SELECT b.id FROM BookEntity b JOIN b.shelves s WHERE s.id = :shelfId AND (b.deleted IS NULL OR b.deleted = false) ORDER BY b.addedOn DESC, b.id DESC")
     Page<Long> findBookIdsByShelfId(@Param("shelfId") Long shelfId, Pageable pageable);
 
     @EntityGraph(attributePaths = {"metadata", "metadata.comicMetadata", "bookFiles", "shelves"})
@@ -73,7 +73,7 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
     // ============================================
 
     @Query("""
-            SELECT DISTINCT b.id FROM BookEntity b
+            SELECT b.id FROM BookEntity b
             LEFT JOIN b.metadata m
             WHERE (b.deleted IS NULL OR b.deleted = false) AND (
                   m.searchText LIKE CONCAT('%', :text, '%')
@@ -91,7 +91,7 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
     // ============================================
 
     @Query("""
-            SELECT DISTINCT b.id FROM BookEntity b
+            SELECT b.id FROM BookEntity b
             LEFT JOIN b.metadata m
             WHERE (b.deleted IS NULL OR b.deleted = false)
               AND b.library.id IN :libraryIds
@@ -111,12 +111,11 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
     // ============================================
 
     @Query("""
-            SELECT DISTINCT b.id FROM BookEntity b
+            SELECT b.id FROM BookEntity b
             LEFT JOIN b.metadata m
-            JOIN b.shelves s
             WHERE (b.deleted IS NULL OR b.deleted = false)
               AND b.library.id IN :libraryIds
-              AND s.id IN :shelfIds
+              AND EXISTS (SELECT 1 FROM b.shelves s WHERE s.id IN :shelfIds)
               AND (
                   m.searchText LIKE CONCAT('%', :text, '%')
               )
@@ -141,11 +140,10 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
     // ============================================
 
     @Query("""
-            SELECT DISTINCT b.id FROM BookEntity b
-            JOIN b.shelves s
+            SELECT b.id FROM BookEntity b
             WHERE
                 b.library.id IN :libraryIds
-                AND s.id IN :shelfIds
+                AND EXISTS (SELECT 1 FROM b.shelves s WHERE s.id IN :shelfIds)
                 AND (b.deleted IS NULL OR b.deleted = false)
             ORDER BY b.addedOn DESC, b.id DESC
     """)
@@ -181,7 +179,7 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
             JOIN m.book b
             WHERE (b.deleted IS NULL OR b.deleted = false)
               AND a.name IS NOT NULL
-            ORDER BY a.name, b.id DESC
+            ORDER BY a.name
             """)
     Page<String> findDistinctAuthorNames(Pageable pageable);
 
@@ -193,7 +191,7 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
             WHERE (b.deleted IS NULL OR b.deleted = false)
               AND b.library.id IN :libraryIds
               AND a.name IS NOT NULL
-            ORDER BY a.name, b.id DESC
+            ORDER BY a.name
             """)
     Page<String> findDistinctAuthorNamesByLibraryIds(@Param("libraryIds") Collection<Long> libraryIds, Pageable pageable);
 
@@ -202,20 +200,16 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
     // ============================================
 
     @Query("""
-            SELECT DISTINCT b.id FROM BookEntity b
-            JOIN b.metadata m
-            JOIN m.authors a
-            WHERE a.name = :authorName
+            SELECT b.id FROM BookEntity b
+            WHERE EXISTS (SELECT 1 FROM b.metadata m JOIN m.authors a WHERE a.name = :authorName)
               AND (b.deleted IS NULL OR b.deleted = false)
             ORDER BY b.addedOn DESC, b.id DESC
             """)
     Page<Long> findBookIdsByAuthorName(@Param("authorName") String authorName, Pageable pageable);
 
     @Query("""
-            SELECT DISTINCT b.id FROM BookEntity b
-            JOIN b.metadata m
-            JOIN m.authors a
-            WHERE a.name = :authorName
+            SELECT b.id FROM BookEntity b
+            WHERE EXISTS (SELECT 1 FROM b.metadata m JOIN m.authors a WHERE a.name = :authorName)
               AND b.library.id IN :libraryIds
               AND (b.deleted IS NULL OR b.deleted = false)
             ORDER BY b.addedOn DESC, b.id DESC
@@ -232,7 +226,7 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
             WHERE (b.deleted IS NULL OR b.deleted = false)
               AND m.seriesName IS NOT NULL
               AND m.seriesName != ''
-            ORDER BY m.seriesName, m.bookId
+            ORDER BY m.seriesName
             """)
     Page<String> findDistinctSeries(Pageable pageable);
 
@@ -243,7 +237,7 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
               AND b.library.id IN :libraryIds
               AND m.seriesName IS NOT NULL
               AND m.seriesName != ''
-            ORDER BY m.seriesName, m.bookId
+            ORDER BY m.seriesName
             """)
     Page<String> findDistinctSeriesByLibraryIds(@Param("libraryIds") Collection<Long> libraryIds, Pageable pageable);
 
@@ -252,7 +246,7 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
     // ============================================
 
     @Query("""
-            SELECT DISTINCT b.id FROM BookEntity b
+            SELECT b.id FROM BookEntity b
             JOIN b.metadata m
             WHERE m.seriesName = :seriesName
               AND (b.deleted IS NULL OR b.deleted = false)
@@ -261,7 +255,7 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
     Page<Long> findBookIdsBySeriesName(@Param("seriesName") String seriesName, Pageable pageable);
 
     @Query("""
-            SELECT DISTINCT b.id FROM BookEntity b
+            SELECT b.id FROM BookEntity b
             JOIN b.metadata m
             WHERE m.seriesName = :seriesName
               AND b.library.id IN :libraryIds

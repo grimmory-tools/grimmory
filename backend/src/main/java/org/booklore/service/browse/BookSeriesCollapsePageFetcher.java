@@ -91,7 +91,6 @@ public class BookSeriesCollapsePageFetcher implements PageFetcher<BookEntity, Bo
         Expression<String> series = cb.nullif(metadata.<String>get("seriesName"), "");
 
         query.where(matching.toPredicate(root, query, cb));
-        query.distinct(false);
         List<Order> orders = new ArrayList<>();
         for (SortTerm term : sortTerms) {
             switch (term.key()) {
@@ -146,7 +145,6 @@ public class BookSeriesCollapsePageFetcher implements PageFetcher<BookEntity, Bo
         Expression<String> series = cb.nullif(root.join("metadata", JoinType.LEFT).<String>get("seriesName"), "");
 
         query.where(matching.toPredicate(root, query, cb));
-        query.distinct(false);
         query.multiselect(cb.sum(cb.countDistinct(standaloneId(root, cb, series)), cb.countDistinct(series)),
                 cb.countDistinct(root.get("id")));
         Tuple row = entityManager.createQuery(query).getSingleResult();

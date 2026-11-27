@@ -5,6 +5,7 @@ import jakarta.persistence.PersistenceContext;
 import org.booklore.BookloreApplication;
 import org.booklore.model.dto.*;
 import org.booklore.model.entity.*;
+import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.ReadStatus;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.task.TaskCronService;
@@ -1003,6 +1004,24 @@ class BookRuleEvaluatorEdgeCasesTest {
             List<Long> ids = findMatchingIds(group);
             assertThat(ids).contains(match.getId());
             assertThat(ids).doesNotContain(wrongLang.getId());
+        }
+
+        @Test
+        void fileFieldRule_returnsBookOnceAcrossMultipleMatchingFiles() {
+            BookEntity multiFile = createBook("Multi File Book");
+            em.persist(BookFileEntity.builder().book(multiFile).fileName("a.epub").fileSubPath("").isBookFormat(true).bookType(BookFileType.EPUB).fileSizeKb(500L).addedOn(Instant.now()).build());
+            em.persist(BookFileEntity.builder().book(multiFile).fileName("b.epub").fileSubPath("").isBookFormat(true).bookType(BookFileType.EPUB).fileSizeKb(800L).addedOn(Instant.now()).build());
+            BookEntity fileless = createBook("Fileless Book");
+            em.flush();
+            em.clear();
+
+            GroupRule sizeRule = singleRule(RuleField.FILE_SIZE, RuleOperator.GREATER_THAN, 100);
+            GroupRule typeRule = singleRule(RuleField.FILE_TYPE, RuleOperator.EQUALS, "epub");
+            assertThat(bookRepository.count(evaluator.toSpecification(sizeRule, user.getId()))).isEqualTo(1);
+            assertThat(bookRepository.count(evaluator.toSpecification(typeRule, user.getId()))).isEqualTo(1);
+            assertThat(findMatchingIds(sizeRule)).containsExactly(multiFile.getId());
+            assertThat(findMatchingIds(typeRule)).containsExactly(multiFile.getId());
+            assertThat(findMatchingIds(singleRule(RuleField.FILE_SIZE, RuleOperator.IS_EMPTY, null))).containsExactly(fileless.getId());
         }
     }
 }

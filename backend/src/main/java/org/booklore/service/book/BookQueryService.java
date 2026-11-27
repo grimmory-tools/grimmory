@@ -1,6 +1,5 @@
 package org.booklore.service.book;
 
-import jakarta.persistence.criteria.From;
 import lombok.RequiredArgsConstructor;
 import org.booklore.app.specification.AppBookSpecification;
 import org.booklore.mapper.v2.BookMapperV2;
@@ -58,25 +57,12 @@ public class BookQueryService {
         return findBooksPaged(visibleBooks(libraryIds, userId), pageable, userId);
     }
 
-    private Specification<BookEntity> distinct(Specification<BookEntity> filter) {
-        return (root, query, cb) -> {
-            var predicate = filter.toPredicate(root, query, cb);
-            query.distinct(query.isDistinct() || hasCollectionJoin(root));
-            return predicate;
-        };
-    }
-
-    private static boolean hasCollectionJoin(From<?, ?> from) {
-        return from.getJoins().stream().anyMatch(join ->
-                join.getAttribute().isCollection() || hasCollectionJoin(join));
-    }
-
     private interface BookIdProjection {
         Long getId();
     }
 
     public Page<Book> findBooksPaged(Specification<BookEntity> spec, Pageable pageable, Long userId) {
-        Page<BookIdProjection> page = bookRepository.findBy(distinct(spec),
+        Page<BookIdProjection> page = bookRepository.findBy(spec,
                 query -> query.as(BookIdProjection.class).page(pageable));
         Map<Long, BookEntity> booksById = bookRepository
                 .findAllWithMetadataByIds(page.getContent().stream().map(BookIdProjection::getId).collect(Collectors.toSet()))
@@ -91,7 +77,7 @@ public class BookQueryService {
     }
 
     public List<Book> findBooks(Specification<BookEntity> spec, Long userId) {
-        List<BookEntity> matches = bookRepository.findAll(distinct(spec));
+        List<BookEntity> matches = bookRepository.findAll(spec);
         Map<Long, BookEntity> booksById = bookRepository
                 .findAllWithMetadataByIds(matches.stream().map(BookEntity::getId).collect(Collectors.toSet()))
                 .stream()
