@@ -7,7 +7,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.LazyGroup;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 
@@ -45,9 +47,9 @@ public class MetadataFetchProposalEntity {
     @Column(nullable = false, length = 30)
     private FetchedMetadataProposalStatus status;
 
-    @Lob
     @Basic(fetch = FetchType.LAZY)
     @LazyGroup("lob")
-    @Column(name = "metadata_json", columnDefinition = "JSON")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "metadata_json")
     private String metadataJson;
 }

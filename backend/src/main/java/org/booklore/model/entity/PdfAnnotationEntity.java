@@ -2,6 +2,7 @@ package org.booklore.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.Length;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.LazyGroup;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -35,10 +36,9 @@ public class PdfAnnotationEntity {
     @Column(name = "book_id", insertable = false, updatable = false)
     private Long bookId;
 
-    @Lob
     @Basic(fetch = FetchType.LAZY)
     @LazyGroup("lob")
-    @Column(name = "data", nullable = false, columnDefinition = "LONGTEXT")
+    @Column(name = "data", nullable = false, length = Length.LONG32)
     private String data;
 
     @Version

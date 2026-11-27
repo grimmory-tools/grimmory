@@ -5,6 +5,7 @@ import org.booklore.task.TaskStatus;
 import org.booklore.model.enums.TaskType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.Length;
 import org.hibernate.annotations.LazyGroup;
 
 import java.time.LocalDateTime;
@@ -49,9 +50,9 @@ public class TaskHistoryEntity {
     @Column(length = 512)
     private String message;
 
-    @Lob
     @Basic(fetch = FetchType.LAZY)
     @LazyGroup("lob")
+    @Column(length = Length.LONG32)
     private String errorDetails;
 
     @Convert(converter = JpaJsonConverter.class)
