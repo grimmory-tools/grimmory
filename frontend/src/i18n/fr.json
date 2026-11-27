@@ -2783,6 +2783,9 @@
       "previewBelow": "Sous le seuil",
       "previewAbove": "Au seuil ou au-dessus",
       "previewUnknown": "Score absent ou invalide",
+      "applyThreshold": "Actualiser uniquement les livres sous le seuil, y compris ceux dont le score est absent ou invalide",
+      "thresholdInvalid": "Saisissez un seuil compris entre 0 et 100.",
+      "scoreNotice": "L’aperçu utilise les scores de complétude enregistrés. Les champs verrouillés peuvent compter même s’ils sont vides. Le score ne vérifie ni l’exactitude des métadonnées ni leur synchronisation avec les fichiers EPUB. Il peut changer avant le début de l’actualisation.",
       "previewNotice": "Aperçu en lecture seule fondé sur les scores de complétude enregistrés : un champ verrouillé peut compter même vide. Il ne filtre pas l'actualisation ci-dessous et ne vérifie ni la justesse des données ni la synchronisation des EPUB."
     },
     "providers": {
