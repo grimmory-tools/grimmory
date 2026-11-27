@@ -228,7 +228,10 @@ public class MetadataRefreshService {
                     .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(progress.bookId()));
             bookMetadataUpdater.setBookMetadata(metadataUpdateContext(book, progress.fetched(),
                     progress.refreshCover(), progress.mergeCategories(), progress.replaceMode(), databaseOnly));
-            bookRepository.saveAndFlush(book);
+            // BookMetadataUpdater persists metadata itself. When automatic file moves are enabled,
+            // FileMoveService clears the persistence context and updates book_file directly. Saving
+            // this old BookEntity again would merge stale BookFileEntity state and can conflict with
+            // the library watcher under MariaDB snapshot isolation.
         });
     }
 
