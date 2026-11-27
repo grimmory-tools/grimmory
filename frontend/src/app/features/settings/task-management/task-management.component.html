@@ -9,6 +9,20 @@
     <p class="settings-description" [innerHTML]="t('description')"></p>
   </div>
 
+  @if (getActiveMetadataRefresh(); as metadataProgress) {
+    <div class="settings-card metadata-batch-progress" aria-live="polite">
+      <div class="metadata-progress-heading">
+        <h3>{{ t('progress.metadataBatchTitle') }}</h3>
+        <span>{{ t('progress.metadataBatchCount', {completed: metadataProgress.completed, total: metadataProgress.total}) }}</span>
+      </div>
+      <p class="metadata-progress-message">{{ metadataProgress.message }}</p>
+      <div class="progress-bar-container">
+        <p-progressbar [value]="getMetadataBatchProgressPercent(metadataProgress)" />
+        <span class="progress-percent">{{ getMetadataBatchProgressPercent(metadataProgress) }}%</span>
+      </div>
+    </div>
+  }
+
   <div class="settings-card">
     <div class="section-header">
       <h3 class="section-title">
@@ -176,6 +190,32 @@
                     </ng-template>
                   </p-select>
                   <span class="option-hint">{{ getMetadataReplaceDescription(selectedMetadataReplaceMode) }}</span>
+                </div>
+                <div class="provider-refresh-section">
+                  <div>
+                    <h4>{{ t('providerRefresh.title') }}</h4>
+                    <p>{{ t('providerRefresh.description') }}</p>
+                  </div>
+                  <div class="provider-refresh-controls">
+                    <label class="option-label" for="metadata-refresh-library">{{ t('providerRefresh.libraryLabel') }}</label>
+                    <p-select
+                      inputId="metadata-refresh-library"
+                      [options]="libraries()"
+                      [ngModel]="getSelectedRefreshLibraryId()"
+                      (ngModelChange)="setSelectedRefreshLibraryId($event)"
+                      size="small"
+                      optionLabel="name"
+                      optionValue="id"
+                      [placeholder]="t('providerRefresh.libraryPlaceholder')"
+                      class="mode-select" />
+                    <p-button
+                      [label]="t('providerRefresh.configureButton')"
+                      icon="pi pi-sliders-h"
+                      severity="info"
+                      [outlined]="true"
+                      [disabled]="getSelectedRefreshLibraryId() === null || !!getActiveMetadataRefresh()"
+                      (onClick)="openProviderMetadataRefresh()" />
+                  </div>
                 </div>
               }
 

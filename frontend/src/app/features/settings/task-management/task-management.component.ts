@@ -1,5 +1,5 @@
-import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {Button} from '@openng/optimus-ui/button';
 import {ProgressBar} from '@openng/optimus-ui/progressbar';
 import {MessageService} from '@openng/optimus-ui/api';
@@ -19,6 +19,11 @@ import {
   TaskType
 } from './task.service';
 import {MetadataRefreshRequest} from '../../metadata/model/request/metadata-refresh-request.model';
+import {MetadataRefreshType} from '../../metadata/model/request/metadata-refresh-type.enum';
+import {BookDialogHelperService} from '../../book/service/book-dialog-helper.service';
+import {LibraryService} from '../../book/service/library.service';
+import {MetadataProgressService} from '../../../shared/service/metadata-progress.service';
+import {MetadataBatchProgressNotification, MetadataBatchStatus} from '../../../shared/model/metadata-batch-progress.model';
 import {finalize, forkJoin} from 'rxjs';
 import {ExternalDocLinkComponent} from '../../../shared/components/external-doc-link/external-doc-link.component';
 import {ToggleSwitch} from '@openng/optimus-ui/toggleswitch';
@@ -46,6 +51,9 @@ export class TaskManagementComponent implements OnInit {
   // Services
   private readonly messageService = inject(MessageService);
   private readonly taskService = inject(TaskService);
+  private readonly bookDialogHelperService = inject(BookDialogHelperService, {optional: true});
+  private readonly libraryService = inject(LibraryService, {optional: true});
+  private readonly metadataProgressService = inject(MetadataProgressService, {optional: true});
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -54,6 +62,11 @@ export class TaskManagementComponent implements OnInit {
   private readonly taskHistoriesByType = signal(new Map<string, TaskHistory>());
   readonly loading = signal(false);
   private readonly executingTaskTypes = signal(new Set<string>());
+  readonly libraries = computed(() => this.libraryService?.libraries() ?? []);
+  readonly activeMetadataTasks = this.metadataProgressService
+    ? toSignal(this.metadataProgressService.activeTasks$, {initialValue: {}})
+    : signal<Record<string, MetadataBatchProgressNotification>>({});
+  readonly selectedRefreshLibraryId = signal<number | null>(null);
 
   // Metadata Replace Options
   metadataReplaceOptions = [
@@ -190,6 +203,36 @@ export class TaskManagementComponent implements OnInit {
     }
 
     this.runTaskWithOptions(type, options);
+  }
+
+  openProviderMetadataRefresh(): void {
+    const libraryId = this.getSelectedRefreshLibraryId();
+    if (libraryId == null || !this.bookDialogHelperService) {
+      return;
+    }
+    void this.bookDialogHelperService.openMetadataRefreshDialogWithContext({
+      metadataRefreshType: MetadataRefreshType.LIBRARY,
+      libraryId,
+    });
+  }
+
+  getSelectedRefreshLibraryId(): number | null {
+    return this.selectedRefreshLibraryId()
+      ?? this.libraries().find(library => library.id != null)?.id
+      ?? null;
+  }
+
+  setSelectedRefreshLibraryId(libraryId: number | null): void {
+    this.selectedRefreshLibraryId.set(libraryId);
+  }
+
+  getActiveMetadataRefresh(): MetadataBatchProgressNotification | null {
+    return Object.values(this.activeMetadataTasks()).find(task => task.status === MetadataBatchStatus.IN_PROGRESS) ?? null;
+  }
+
+  getMetadataBatchProgressPercent(task: MetadataBatchProgressNotification): number {
+    if (task.total <= 0) return 0;
+    return Math.min(100, Math.round((task.completed / task.total) * 100));
   }
 
   private runTaskWithOptions(type: string, options: LibraryRescanOptions | MetadataRefreshRequest | null): void {

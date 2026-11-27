@@ -1365,10 +1365,19 @@
       "replaceMissingDesc": "Only update books that are missing metadata information. Existing metadata will be preserved.",
       "replaceAllDesc": "Replace all metadata for all books, even if they already have metadata. Use with caution as this will overwrite existing data."
     },
+    "providerRefresh": {
+      "title": "Fetch metadata from providers",
+      "description": "Choose a library to open the metadata refresh options, including the completeness score threshold.",
+      "libraryLabel": "Library:",
+      "libraryPlaceholder": "Select a library",
+      "configureButton": "Configure metadata refresh"
+    },
     "progress": {
       "staleWarning": "This task appears stuck. No updates received for over 5 minutes.",
       "statusLabel": "Status:",
       "progressLabel": "Progress:",
+      "metadataBatchTitle": "Metadata update progress",
+      "metadataBatchCount": "{{completed}} of {{total}} books processed",
       "startedLabel": "Started:",
       "processing": "Processing...",
       "stuckMessage": "Task appears to be stuck (no updates received)"

@@ -1189,10 +1189,19 @@
       "replaceMissingDesc": "Met à jour uniquement les livres dont les métadonnées sont manquantes. Les métadonnées existantes seront préservées.",
       "replaceAllDesc": "Remplace toutes les métadonnées pour tous les livres, même s'ils en ont déjà. Utilisez avec précaution car cela écrasera les données existantes."
     },
+    "providerRefresh": {
+      "title": "Récupérer les métadonnées auprès des fournisseurs",
+      "description": "Choisissez une bibliothèque pour ouvrir les options de récupération, dont le seuil de complétude.",
+      "libraryLabel": "Bibliothèque :",
+      "libraryPlaceholder": "Sélectionner une bibliothèque",
+      "configureButton": "Configurer la récupération des métadonnées"
+    },
     "progress": {
       "staleWarning": "Cette tâche semble bloquée. Aucune mise à jour reçue depuis plus de 5 minutes.",
       "statusLabel": "Statut :",
       "progressLabel": "Progression :",
+      "metadataBatchTitle": "Progression de la mise à jour des métadonnées",
+      "metadataBatchCount": "{{completed}} livres traités sur {{total}}",
       "startedLabel": "Démarrée :",
       "processing": "Traitement...",
       "stuckMessage": "La tâche semble bloquée (aucune mise à jour reçue)"
