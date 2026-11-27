@@ -188,7 +188,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
     testImplementation("org.assertj:assertj-core:3.27.7")
-    testRuntimeOnly("com.h2database:h2")
+    testImplementation("org.testcontainers:testcontainers-mariadb")
     add(openApiExportRuntimeOnly.name, "com.h2database:h2")
 }
 
@@ -203,15 +203,51 @@ hibernate {
     }
 }
 
-tasks.named<Test>("test") {
-    useJUnitPlatform()
+val testSourceSet = the<SourceSetContainer>()["test"]
+
+tasks.withType<Test>().configureEach {
     maxHeapSize = "2560m"
     jvmArgs("-XX:+EnableDynamicAgentLoading", "--enable-native-access=ALL-UNNAMED", "--enable-preview")
+}
+
+tasks.named<Test>("test") {
+    useJUnitPlatform {
+        excludeTags("database")
+    }
     finalizedBy(tasks.named("jacocoTestReport"))
+}
+
+val databaseTest = tasks.register<Test>("databaseTest") {
+    group = "verification"
+    description = "Run database tests via Testcontainers (configured by TEST_DATABASE and TEST_DATABASE_VERSION)."
+    testClassesDirs = testSourceSet.output.classesDirs
+    classpath = testSourceSet.runtimeClasspath
+    useJUnitPlatform {
+        includeTags("database")
+    }
+    inputs.property("testDatabase", providers.environmentVariable("TEST_DATABASE").orElse(""))
+    inputs.property("testDatabaseVersion", providers.environmentVariable("TEST_DATABASE_VERSION").orElse(""))
+    shouldRunAfter(tasks.named("test"))
+}
+
+tasks.named("check") {
+    dependsOn(databaseTest)
 }
 
 tasks.named<JacocoReport>("jacocoTestReport") {
     dependsOn(tasks.named("test"))
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+val jacocoFullReport = tasks.register<JacocoReport>("jacocoFullReport") {
+    group = "verification"
+    description = "Generate a combined JaCoCo coverage report from unit and database tests."
+    dependsOn(tasks.named("test"), databaseTest)
+    executionData(tasks.named("test").get(), databaseTest.get())
+    sourceSets(mainSourceSet)
     reports {
         xml.required.set(true)
         html.required.set(true)

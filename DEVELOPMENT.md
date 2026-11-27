@@ -140,9 +140,11 @@ just ui coverage    # With coverage report (output: coverage/)
 **Backend (JUnit + Gradle):**
 
 ```bash
-just api test                                                              # Run all tests
-just api test-class test_class=org.booklore.service.BookServiceTest        # Specific class
-just api coverage                                                          # Coverage report
+just api test                                                                      # Run unit tests
+just api test-database                                                             # Run database tests (requires Docker)
+just api test-class org.booklore.service.BookServiceTest                           # Specific unit test class
+just api test-database-class org.booklore.service.HibernateRegressionTest          # Specific database test class
+just api coverage                                                                  # Coverage report (requires Docker)
 ```
 
 ---

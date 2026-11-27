@@ -27,6 +27,7 @@ import org.booklore.model.entity.BookMetadataEntity;
 import org.booklore.model.entity.UserBookFileProgressEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.ReadStatus;
+import org.booklore.test.DatabaseTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,15 +53,10 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.booklore.service.stats.StatsFixture.NO_FILTER;
 import static org.mockito.Mockito.when;
 
+@DatabaseTest
 @SpringBootTest(classes = BookloreApplication.class)
 @Transactional
 @TestPropertySource(properties = {
-        "spring.flyway.enabled=false",
-        "spring.jpa.hibernate.ddl-auto=create-drop",
-        "spring.datasource.url=jdbc:h2:mem:statstest;DB_CLOSE_DELAY=-1;NON_KEYWORDS=VALUE;MODE=MYSQL",
-        "spring.datasource.driver-class-name=org.h2.Driver",
-        "spring.datasource.username=sa",
-        "spring.datasource.password=",
         "app.path-config=build/tmp/test-config",
         "app.bookdrop-folder=build/tmp/test-bookdrop"
 })

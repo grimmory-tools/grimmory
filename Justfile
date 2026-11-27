@@ -30,8 +30,11 @@ bootstrap: ui::install api::version
 # Run the full local verification pass used before opening a PR.
 check: api::check ui::check
 
-# Run the frontend and backend test suites.
+# Run the frontend and backend unit tests.
 test: api::test ui::test
+
+# Run the backend database tests via Testcontainers.
+test-database database='mariadb' version='': (api::test-database database version)
 
 # Build both application components without publishing a container image.
 build: api::build ui::build

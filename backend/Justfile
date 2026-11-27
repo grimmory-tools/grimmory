@@ -22,17 +22,25 @@ build:
 openapi-export:
     {{ gradle }} buildOpenApiArtifacts --no-daemon --parallel --build-cache
 
-# Run the backend test suite.
+# Run the backend unit tests.
 test:
     {{ gradle }} test --no-daemon --parallel --build-cache
 
-# Run a single backend test class, for example `just test-class test_class=org.booklore.service.BookServiceTest`.
+# Run the backend database tests, for example `just api test-database mariadb 11.4`.
+test-database database='mariadb' version='':
+    TEST_DATABASE={{ quote(database) }} TEST_DATABASE_VERSION={{ quote(version) }} {{ gradle }} databaseTest --no-daemon --parallel --build-cache
+
+# Run a single backend unit test class, for example `just api test-class org.booklore.service.BookServiceTest`.
 test-class test_class:
     {{ gradle }} test --tests "{{ test_class }}" --no-daemon --parallel --build-cache
 
-# Run tests and generate JaCoCo coverage output.
+# Run a single backend database test class, for example `just api test-database-class org.booklore.service.HibernateRegressionTest`.
+test-database-class test_class database='mariadb' version='':
+    TEST_DATABASE={{ quote(database) }} TEST_DATABASE_VERSION={{ quote(version) }} {{ gradle }} databaseTest --tests "{{ test_class }}" --no-daemon --parallel --build-cache
+
+# Run tests and generate combined JaCoCo coverage output.
 coverage:
-    {{ gradle }} test jacocoTestReport --no-daemon --parallel --build-cache
+    {{ gradle }} jacocoFullReport --no-daemon --parallel --build-cache
 
 # Run the Gradle `check` lifecycle used for local backend verification.
 check:
