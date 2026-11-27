@@ -53,6 +53,20 @@ public final class SynologyAclSshCommands implements NasSynologyPermissions.Comm
     }
 
     @Override
+    public void verify(Path path, NasSynologyPermissions.Snapshot expected) throws IOException {
+        requireEnabled();
+        Path localPath = requireLibraryPath(path);
+        HelperSnapshot actual = request(Map.of("action", "snapshot", "path", relative(localPath)));
+        NasSynologyPermissions.Identity identity = expected.identity();
+        requireIdentity(actual, new NasSynologyPermissions.Identity(
+                identity.uid(), identity.gid(), expected.effectiveHelperMode()));
+        if (actual.mode() != expected.effectiveHelperMode()
+                || !expected.archive().equals(actual.archive()) || !expected.entries().equals(actual.entries())) {
+            throw new IOException("Synology ACL helper found changed ownership, mode, or ACL");
+        }
+    }
+
+    @Override
     public void copy(Path source, Path target, NasSynologyPermissions.Snapshot expected) throws IOException {
         requireEnabled();
         Path localSource = requireLibraryPath(source);
@@ -244,10 +258,17 @@ public final class SynologyAclSshCommands implements NasSynologyPermissions.Comm
 
     private static void requireIdentity(HelperSnapshot snapshot, NasSynologyPermissions.Identity identity)
             throws IOException {
-        if (snapshot == null || snapshot.uid() != identity.uid() || snapshot.gid() != identity.gid()
-                || snapshot.mode() < 0 || snapshot.mode() > 07777 || snapshot.archive() == null
+        if (snapshot == null) {
+            throw new IOException("Synology ACL helper returned no file attributes");
+        }
+        if (snapshot.uid() != identity.uid() || snapshot.gid() != identity.gid()) {
+            throw new IOException("Synology ACL helper identity mismatch: expected uid=" + identity.uid()
+                    + ", gid=" + identity.gid() + " but NAS returned uid=" + snapshot.uid()
+                    + ", gid=" + snapshot.gid());
+        }
+        if (snapshot.mode() < 0 || snapshot.mode() > 07777 || snapshot.archive() == null
                 || snapshot.entries() == null) {
-            throw new IOException("Synology ACL helper returned mismatched file attributes");
+            throw new IOException("Synology ACL helper returned invalid mode or ACL data");
         }
     }
 

@@ -38,6 +38,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class NasEpubPrototypeTest {
@@ -525,6 +526,22 @@ class NasEpubPrototypeTest {
     }
 
     @Test
+    void remoteAclVerificationIgnoresStaleNfsOwnershipForCopiedInode() throws Exception {
+        Path source = createEpub("source.epub");
+        Path target = createEpub("target.epub");
+        var fake = new FakeSynologyPermissions();
+        var expectedIdentity = new NasSynologyPermissions.Identity(1035, 101, 0777);
+        fake.set(source, expectedIdentity, "Archive: has_ACL,is_support_ACL", "explicit ACL");
+        fake.staleLocalIdentity(target, new NasSynologyPermissions.Identity(1000, 1000, 0777));
+
+        var snapshot = fake.permissions.capture(source);
+        fake.permissions.copy(source, target, snapshot);
+
+        assertThat(fake.permissions.capture(source)).isEqualTo(snapshot);
+        assertThatCode(() -> fake.permissions.verifyRemote(target, snapshot)).doesNotThrowAnyException();
+    }
+
+    @Test
     void syntheticRollbackDoesNotOverwriteAnUnexpectedAclChange() throws Exception {
         Path first = createEpub("first.epub");
         Path second = createEpub("second.epub");
@@ -748,13 +765,14 @@ class NasEpubPrototypeTest {
 
     private static final class FakeSynologyPermissions {
         private final Map<Object, NasSynologyPermissions.Snapshot> files = new HashMap<>();
+        private final Map<Object, NasSynologyPermissions.Identity> staleLocalIdentities = new HashMap<>();
         private boolean failCopy;
         private int ownershipSetCalls;
         private final NasSynologyPermissions permissions = new NasSynologyPermissions(this::command,
                 new NasSynologyPermissions.Ownership() {
                     @Override
                     public NasSynologyPermissions.Identity read(Path path) throws IOException {
-                        return get(path).identity();
+                        return staleLocalIdentities.getOrDefault(key(path), get(path).identity());
                     }
 
                     @Override
@@ -770,6 +788,10 @@ class NasEpubPrototypeTest {
         private void set(Path path, NasSynologyPermissions.Identity identity, String archive, String entries)
                 throws IOException {
             files.put(key(path), new NasSynologyPermissions.Snapshot(identity, archive, entries));
+        }
+
+        private void staleLocalIdentity(Path path, NasSynologyPermissions.Identity identity) throws IOException {
+            staleLocalIdentities.put(key(path), identity);
         }
 
         private NasSynologyPermissions.Snapshot get(Path path) throws IOException {

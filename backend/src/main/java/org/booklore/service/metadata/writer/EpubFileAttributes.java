@@ -94,6 +94,15 @@ public final class EpubFileAttributes {
 
     public static void verify(Snapshot expected, Path file, NasSynologyPermissions synologyPermissions)
             throws IOException {
+        if (expected.synologyAcl() != null) {
+            if (synologyPermissions == null) {
+                throw new IOException("Synology ACL helper is required to verify this file");
+            }
+            // The DSM helper is authoritative for Synology ACLs. Local NFS UID/GID
+            // attributes can remain cached after the helper updates a sibling inode.
+            synologyPermissions.verifyRemote(file, expected.synologyAcl());
+            return;
+        }
         Snapshot actual = capture(file, synologyPermissions);
         if (!Objects.equals(expected.acl(), actual.acl()) || !expected.owner().equals(actual.owner())
                 || !Objects.equals(expected.group(), actual.group())

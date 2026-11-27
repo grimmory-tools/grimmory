@@ -40,6 +40,13 @@ public final class NasSynologyPermissions {
             return new Snapshot(identity, archiveLines.size() == 1 ? archiveLines.getFirst() : "", entries);
         }
 
+        default void verify(Path path, Snapshot expected) throws IOException {
+            Snapshot actual = capture(path, expected.identity());
+            if (!expected.equals(actual)) {
+                throw new IOException("Synology ACL did not match the expected snapshot");
+            }
+        }
+
         default void copy(Path source, Path target, Snapshot expected) throws IOException {
             run("-copy", source, target);
         }
@@ -92,6 +99,14 @@ public final class NasSynologyPermissions {
         }
     }
 
+    public void verifyRemote(Path path, Snapshot expected) throws IOException {
+        validate(expected);
+        if (!Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS)) {
+            throw new IOException("ACL target must be a regular file");
+        }
+        commands.verify(path, expected);
+    }
+
     public static void validate(Snapshot snapshot) throws IOException {
         if (snapshot == null || snapshot.identity() == null || snapshot.identity().uid() < 0
                 || snapshot.identity().gid() < 0 || snapshot.identity().mode() < 0
@@ -111,10 +126,9 @@ public final class NasSynologyPermissions {
             throw new IOException("ACL candidate must be a regular file");
         }
         commands.copy(source, target, expected);
-        // The Synology helper copies and verifies ownership, mode and ACL on DSM.
-        // A local chown over NFS is often denied by root squashing and can undo
-        // the helper's verified result, so only verify the resulting NFS view here.
-        verify(target, expected);
+        // The helper verifies the new inode on DSM. The NFS client may still
+        // cache the pre-copy UID/GID for this path, so verify through DSM again.
+        verifyRemote(target, expected);
         verify(source, expected);
     }
 
