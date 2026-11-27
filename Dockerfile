@@ -71,7 +71,7 @@ ADD \
 
 FROM kepubify-layer-${TARGETARCH} AS kepubify-layer
 
-FROM eclipse-temurin:25-jre-alpine
+FROM eclipse-temurin:25.0.5.1_2-jre-alpine
 
 ENV JAVA_TOOL_OPTIONS="-XX:+UseShenandoahGC \
     -XX:ShenandoahGCHeuristics=compact \
@@ -117,7 +117,7 @@ LABEL org.opencontainers.image.title="Grimmory" \
     org.opencontainers.image.version=$APP_VERSION \
     org.opencontainers.image.revision=$APP_REVISION \
     org.opencontainers.image.licenses="AGPL-3.0" \
-    org.opencontainers.image.base.name="docker.io/library/eclipse-temurin:25-jre-alpine"
+    org.opencontainers.image.base.name="docker.io/library/eclipse-temurin:25.0.5.1_2-jre-alpine"
 
 ENV APP_VERSION=${APP_VERSION} \
     APP_REVISION=${APP_REVISION}
