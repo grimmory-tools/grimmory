@@ -290,7 +290,16 @@ public class FileUploadService {
         }
         // Owner-only directory keeps the staged upload private while the file itself follows the umask
         Path stagingDir = Files.createTempDirectory(prefix);
-        return FileUtils.createTempFile(stagingDir, prefix, suffix);
+        try {
+            return FileUtils.createTempFile(stagingDir, prefix, suffix);
+        } catch (IOException e) {
+            try {
+                Files.deleteIfExists(stagingDir);
+            } catch (IOException cleanupError) {
+                e.addSuppressed(cleanupError);
+            }
+            throw e;
+        }
     }
 
     private void validateFinalPath(Path finalPath, Path expectedRoot) {
