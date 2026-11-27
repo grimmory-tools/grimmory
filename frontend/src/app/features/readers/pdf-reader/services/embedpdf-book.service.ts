@@ -270,7 +270,10 @@ export class EmbedPdfBookService {
     const page = this.currentPage;
     this.scrollLayout = layout;
     this.applyScrollLayout(layout);
+    this.restorePageAfterLayout(page);
+  }
 
+  private restorePageAfterLayout(page: number): void {
     // EmbedPDF layout changes are asynchronous and can reset the current page internally.
     // We wait for the layout engine to settle before restoring the page position.
     let handled = false;
@@ -367,7 +370,9 @@ export class EmbedPdfBookService {
   }
 
   setSpreadMode(mode: string): void {
+    const page = this.currentPage;
     this.spread?.setSpreadMode?.(mode as SpreadMode);
+    if (page > 1) this.restorePageAfterLayout(page);
   }
 
   // --- Rotation ---

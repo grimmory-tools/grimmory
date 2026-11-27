@@ -1045,22 +1045,16 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
           const buf = this.pendingPdfBuffer;
           this.pendingPdfBuffer = undefined;
           this.embedPdfIframe.contentWindow.postMessage(
-            { type: 'load', buffer: buf },
+            { type: 'load', buffer: buf, initialPage: this.initialPage },
             location.origin,
             [buf]
           );
         }
         break;
       case 'documentOpened':
-        // Scroll to the page the user was on in book mode and release progress saving when navigation settles
+        // Scroll to the page the user was on in book mode happens in the frame once layout is ready
         if (typeof msg.pageCount === 'number' && msg.pageCount > 0) {
           this.totalPages.set(msg.pageCount);
-        }
-        if (this.embedPdfIframe?.contentWindow && this.initialPage > 1) {
-          this.embedPdfIframe.contentWindow.postMessage(
-            { type: 'scrollToPage', pageNumber: this.initialPage },
-            location.origin
-          );
         }
         this.startDocProgressReleaseFallback();
         break;

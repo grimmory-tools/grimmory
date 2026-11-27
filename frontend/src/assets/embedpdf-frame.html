@@ -447,6 +447,17 @@
         }
 
         log('Loading PDF buffer into viewer');
+        const initialPage = Number.isInteger(msg.initialPage) && msg.initialPage > 1 ? msg.initialPage : null;
+        const loadScroll = registry.getPlugin('scroll')?.provides();
+        if (initialPage && loadScroll?.onLayoutReady) {
+          let done = false;
+          const unsub = loadScroll.onLayoutReady(() => {
+            if (done) return;
+            done = true;
+            unsub?.();
+            loadScroll.scrollToPage({ pageNumber: initialPage, behavior: 'instant' });
+          });
+        }
         dm.openDocumentBuffer({ buffer: msg.buffer, name: 'document.pdf' });
       } catch (err) {
         log('Load error:', err);
