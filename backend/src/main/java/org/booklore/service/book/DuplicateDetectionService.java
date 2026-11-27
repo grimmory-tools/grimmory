@@ -8,9 +8,12 @@ import org.booklore.model.entity.AuthorEntity;
 import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.BookMetadataEntity;
+import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.enums.BookFileType;
 import org.booklore.repository.BookRepository;
+import org.booklore.service.file.FileMovingHelper;
 import org.booklore.util.BookUtils;
+import org.booklore.util.PathPatternResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +36,7 @@ public class DuplicateDetectionService {
 
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
+    private final FileMovingHelper fileMovingHelper;
 
     @Transactional(readOnly = true)
     public List<DuplicateGroup> findDuplicates(DuplicateDetectionRequest request) {
@@ -41,36 +45,39 @@ public class DuplicateDetectionService {
             return List.of();
         }
 
-        List<BookFileType> formatPriority = books.getFirst().getLibrary() != null
-                ? books.getFirst().getLibrary().getFormatPriority()
+        LibraryEntity library = books.getFirst().getLibrary();
+        List<BookFileType> formatPriority = library != null
+                ? library.getFormatPriority()
                 : null;
         if (formatPriority == null || formatPriority.isEmpty()) {
             formatPriority = DEFAULT_FORMAT_PRIORITY;
         }
+        String fileNamingPattern = library != null ? fileMovingHelper.getFileNamingPattern(library) : null;
+        Comparator<BookEntity> targetComparator = buildTargetComparator(formatPriority, fileNamingPattern);
 
         Set<Long> alreadyGrouped = new HashSet<>();
         List<DuplicateGroup> groups = new ArrayList<>();
 
         if (request.matchByIsbn()) {
-            groups.addAll(findByIsbn(books, alreadyGrouped, formatPriority));
+            groups.addAll(findByIsbn(books, alreadyGrouped, targetComparator));
         }
         if (request.matchByExternalId()) {
-            groups.addAll(findByExternalId(books, alreadyGrouped, formatPriority));
+            groups.addAll(findByExternalId(books, alreadyGrouped, targetComparator));
         }
         if (request.matchByTitleAuthor()) {
-            groups.addAll(findByTitleAuthor(books, alreadyGrouped, formatPriority));
+            groups.addAll(findByTitleAuthor(books, alreadyGrouped, targetComparator));
         }
         if (request.matchByDirectory()) {
-            groups.addAll(findByDirectory(books, alreadyGrouped, formatPriority));
+            groups.addAll(findByDirectory(books, alreadyGrouped, targetComparator));
         }
         if (request.matchByFilename()) {
-            groups.addAll(findByFilename(books, alreadyGrouped, formatPriority));
+            groups.addAll(findByFilename(books, alreadyGrouped, targetComparator));
         }
 
         return groups;
     }
 
-    private List<DuplicateGroup> findByIsbn(List<BookEntity> books, Set<Long> alreadyGrouped, List<BookFileType> formatPriority) {
+    private List<DuplicateGroup> findByIsbn(List<BookEntity> books, Set<Long> alreadyGrouped, Comparator<BookEntity> targetComparator) {
         Map<String, List<BookEntity>> isbnGroups = new HashMap<>();
 
         for (BookEntity book : books) {
@@ -87,10 +94,10 @@ public class DuplicateDetectionService {
             }
         }
 
-        return buildGroups(isbnGroups, "ISBN", alreadyGrouped, formatPriority);
+        return buildGroups(isbnGroups, "ISBN", alreadyGrouped, targetComparator);
     }
 
-    private List<DuplicateGroup> findByExternalId(List<BookEntity> books, Set<Long> alreadyGrouped, List<BookFileType> formatPriority) {
+    private List<DuplicateGroup> findByExternalId(List<BookEntity> books, Set<Long> alreadyGrouped, Comparator<BookEntity> targetComparator) {
         Map<Long, Long> parent = new HashMap<>();
         Map<Long, BookEntity> bookMap = new HashMap<>();
 
@@ -127,7 +134,7 @@ public class DuplicateDetectionService {
         for (List<BookEntity> group : groups.values()) {
             if (group.size() < 2) continue;
             group.forEach(b -> alreadyGrouped.add(b.getId()));
-            result.add(toDuplicateGroup(group, "EXTERNAL_ID", formatPriority));
+            result.add(toDuplicateGroup(group, "EXTERNAL_ID", targetComparator));
         }
         return result;
     }
@@ -167,7 +174,7 @@ public class DuplicateDetectionService {
         }
     }
 
-    private List<DuplicateGroup> findByTitleAuthor(List<BookEntity> books, Set<Long> alreadyGrouped, List<BookFileType> formatPriority) {
+    private List<DuplicateGroup> findByTitleAuthor(List<BookEntity> books, Set<Long> alreadyGrouped, Comparator<BookEntity> targetComparator) {
         Map<String, List<BookEntity>> titleGroups = new HashMap<>();
 
         for (BookEntity book : books) {
@@ -226,14 +233,14 @@ public class DuplicateDetectionService {
             for (List<BookEntity> subGroup : subGroups.values()) {
                 if (subGroup.size() < 2) continue;
                 subGroup.forEach(b -> alreadyGrouped.add(b.getId()));
-                result.add(toDuplicateGroup(subGroup, "TITLE_AUTHOR", formatPriority));
+                result.add(toDuplicateGroup(subGroup, "TITLE_AUTHOR", targetComparator));
             }
         }
 
         return result;
     }
 
-    private List<DuplicateGroup> findByDirectory(List<BookEntity> books, Set<Long> alreadyGrouped, List<BookFileType> formatPriority) {
+    private List<DuplicateGroup> findByDirectory(List<BookEntity> books, Set<Long> alreadyGrouped, Comparator<BookEntity> targetComparator) {
         Map<String, List<BookEntity>> dirGroups = new HashMap<>();
 
         for (BookEntity book : books) {
@@ -251,10 +258,10 @@ public class DuplicateDetectionService {
             dirGroups.computeIfAbsent(key, k -> new ArrayList<>()).add(book);
         }
 
-        return buildGroups(dirGroups, "DIRECTORY", alreadyGrouped, formatPriority);
+        return buildGroups(dirGroups, "DIRECTORY", alreadyGrouped, targetComparator);
     }
 
-    private List<DuplicateGroup> findByFilename(List<BookEntity> books, Set<Long> alreadyGrouped, List<BookFileType> formatPriority) {
+    private List<DuplicateGroup> findByFilename(List<BookEntity> books, Set<Long> alreadyGrouped, Comparator<BookEntity> targetComparator) {
         Map<String, List<BookEntity>> nameGroups = new HashMap<>();
 
         for (BookEntity book : books) {
@@ -277,28 +284,23 @@ public class DuplicateDetectionService {
             }
         }
 
-        return buildGroups(nameGroups, "FILENAME", alreadyGrouped, formatPriority);
+        return buildGroups(nameGroups, "FILENAME", alreadyGrouped, targetComparator);
     }
 
     private List<DuplicateGroup> buildGroups(Map<String, List<BookEntity>> groupMap, String reason,
-                                              Set<Long> alreadyGrouped, List<BookFileType> formatPriority) {
+                                              Set<Long> alreadyGrouped, Comparator<BookEntity> targetComparator) {
         List<DuplicateGroup> result = new ArrayList<>();
         for (List<BookEntity> group : groupMap.values()) {
             if (group.size() < 2) continue;
             group.forEach(b -> alreadyGrouped.add(b.getId()));
-            result.add(toDuplicateGroup(group, reason, formatPriority));
+            result.add(toDuplicateGroup(group, reason, targetComparator));
         }
         return result;
     }
 
-    private DuplicateGroup toDuplicateGroup(List<BookEntity> entities, String reason, List<BookFileType> formatPriority) {
+    private DuplicateGroup toDuplicateGroup(List<BookEntity> entities, String reason, Comparator<BookEntity> targetComparator) {
         BookEntity suggested = entities.stream()
-                .max(Comparator
-                        .comparingInt((BookEntity b) -> formatPriorityScore(b, formatPriority))
-                        .thenComparingLong(b -> b.getBookFiles() == null ? 0 :
-                                b.getBookFiles().stream().filter(BookFileEntity::isBookFormat).count())
-                        .thenComparing(b -> b.getMetadataMatchScore() != null ? b.getMetadataMatchScore() : 0f)
-                        .thenComparing(BookEntity::getId, Comparator.reverseOrder()))
+                .max(targetComparator)
                 .orElse(entities.getFirst());
 
         List<Book> books = entities.stream()
@@ -306,6 +308,37 @@ public class DuplicateDetectionService {
                 .toList();
 
         return new DuplicateGroup(suggested.getId(), reason, books);
+    }
+
+    private Comparator<BookEntity> buildTargetComparator(List<BookFileType> formatPriority, String fileNamingPattern) {
+        return Comparator
+                .comparingInt((BookEntity b) -> formatPriorityScore(b, formatPriority))
+                .thenComparingLong(b -> b.getBookFiles() == null ? 0 :
+                        b.getBookFiles().stream().filter(BookFileEntity::isBookFormat).count())
+                .thenComparing(b -> b.getMetadataMatchScore() != null ? b.getMetadataMatchScore() : 0f)
+                .thenComparingInt(b -> patternMatchScore(b, fileNamingPattern))
+                .thenComparing(BookEntity::getId, Comparator.reverseOrder());
+    }
+
+    private int patternMatchScore(BookEntity book, String fileNamingPattern) {
+        if (fileNamingPattern == null || fileNamingPattern.isBlank()) {
+            return 0;
+        }
+        BookFileEntity primary = book.getPrimaryBookFile();
+        if (primary == null || primary.getFileName() == null) {
+            return 0;
+        }
+
+        String expected = PathPatternResolver.resolvePattern(book, primary, fileNamingPattern);
+        String actualDir = primary.getFileSubPath() != null ? primary.getFileSubPath().replace('\\', '/') : "";
+        String actualPath = actualDir.isEmpty() ? primary.getFileName() : actualDir + "/" + primary.getFileName();
+        if (actualPath.equals(expected)) {
+            return 2;
+        }
+
+        int lastSlash = expected.lastIndexOf('/');
+        String expectedDir = lastSlash >= 0 ? expected.substring(0, lastSlash) : "";
+        return !expectedDir.isEmpty() && actualDir.equals(expectedDir) ? 1 : 0;
     }
 
     private int formatPriorityScore(BookEntity book, List<BookFileType> formatPriority) {
