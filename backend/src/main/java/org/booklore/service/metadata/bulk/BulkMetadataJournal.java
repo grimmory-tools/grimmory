@@ -160,6 +160,10 @@ public class BulkMetadataJournal {
         }
         entry.setPreviousStage(entry.getStage());
         entry.setErrorCode(errorCode);
+        // NEEDS_ATTENTION is a terminal state for the current refresh task. Keep the
+        // journal evidence for manual recovery, but do not leave the book reserved
+        // forever by the unique active-book constraint.
+        entry.setActiveBookId(null);
         advance(entry, Stage.NEEDS_ATTENTION);
     }
 

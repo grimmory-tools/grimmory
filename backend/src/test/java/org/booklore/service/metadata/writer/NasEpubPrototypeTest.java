@@ -513,6 +513,7 @@ class NasEpubPrototypeTest {
 
         assertThat(new NasEpubSyntheticReplacement(fake.permissions).apply(sandbox, request))
                 .isEqualTo(NasEpubSyntheticReplacement.State.APPLIED);
+        assertThat(fake.ownershipSetCalls).isZero();
         assertThat(fake.permissions.capture(first)).isEqualTo(firstPermissions);
         assertThat(fake.permissions.capture(second)).isEqualTo(secondPermissions);
         assertThat(new NasEpubSyntheticReplacement(fake.permissions).rollback(sandbox, request))
@@ -748,6 +749,7 @@ class NasEpubPrototypeTest {
     private static final class FakeSynologyPermissions {
         private final Map<Object, NasSynologyPermissions.Snapshot> files = new HashMap<>();
         private boolean failCopy;
+        private int ownershipSetCalls;
         private final NasSynologyPermissions permissions = new NasSynologyPermissions(this::command,
                 new NasSynologyPermissions.Ownership() {
                     @Override
@@ -757,6 +759,7 @@ class NasEpubPrototypeTest {
 
                     @Override
                     public void set(Path path, NasSynologyPermissions.Identity identity) throws IOException {
+                        ownershipSetCalls++;
                         var current = get(path);
                         files.put(key(path), new NasSynologyPermissions.Snapshot(
                                 new NasSynologyPermissions.Identity(identity.uid(), identity.gid(), current.identity().mode()),
@@ -784,10 +787,8 @@ class NasEpubPrototypeTest {
                         throw new IOException("Simulated ACL copy failure");
                     }
                     var source = get(paths[0]);
-                    var target = get(paths[1]);
                     files.put(key(paths[1]), new NasSynologyPermissions.Snapshot(
-                            new NasSynologyPermissions.Identity(target.identity().uid(), target.identity().gid(),
-                                    source.identity().mode()), source.archive(), source.entries()));
+                            source.identity(), source.archive(), source.entries()));
                     yield "";
                 }
                 default -> throw new IOException("Unexpected fake ACL command");

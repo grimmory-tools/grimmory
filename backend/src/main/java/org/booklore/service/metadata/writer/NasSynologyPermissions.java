@@ -111,7 +111,9 @@ public final class NasSynologyPermissions {
             throw new IOException("ACL candidate must be a regular file");
         }
         commands.copy(source, target, expected);
-        ownership.set(target, expected.identity());
+        // The Synology helper copies and verifies ownership, mode and ACL on DSM.
+        // A local chown over NFS is often denied by root squashing and can undo
+        // the helper's verified result, so only verify the resulting NFS view here.
         verify(target, expected);
         verify(source, expected);
     }
