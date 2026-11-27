@@ -59,10 +59,10 @@ public interface NotebookEntryRepository extends Repository<NotebookEntryView, L
             AND ne.entryType IN :types
             AND (:bookId IS NULL OR ne.bookId = :bookId)
             AND (:search IS NULL
-                 OR ne.textContent LIKE :search ESCAPE '\\'
-                 OR ne.noteContent LIKE :search ESCAPE '\\'
-                 OR ne.bookTitle LIKE :search ESCAPE '\\'
-                 OR ne.chapterTitle LIKE :search ESCAPE '\\')
+                 OR lower(ne.textContent) LIKE :search ESCAPE '\\'
+                 OR lower(ne.noteContent) LIKE :search ESCAPE '\\'
+                 OR lower(ne.bookTitle) LIKE :search ESCAPE '\\'
+                 OR lower(ne.chapterTitle) LIKE :search ESCAPE '\\')
             """,
            countQuery = """
             SELECT count(ne)
@@ -71,10 +71,10 @@ public interface NotebookEntryRepository extends Repository<NotebookEntryView, L
             AND ne.entryType IN :types
             AND (:bookId IS NULL OR ne.bookId = :bookId)
             AND (:search IS NULL
-                 OR ne.textContent LIKE :search ESCAPE '\\'
-                 OR ne.noteContent LIKE :search ESCAPE '\\'
-                 OR ne.bookTitle LIKE :search ESCAPE '\\'
-                 OR ne.chapterTitle LIKE :search ESCAPE '\\')
+                 OR lower(ne.textContent) LIKE :search ESCAPE '\\'
+                 OR lower(ne.noteContent) LIKE :search ESCAPE '\\'
+                 OR lower(ne.bookTitle) LIKE :search ESCAPE '\\'
+                 OR lower(ne.chapterTitle) LIKE :search ESCAPE '\\')
             """)
     Page<EntryProjection> findEntries(@Param("userId") Long userId,
                                       @Param("types") Set<String> types,
@@ -86,7 +86,7 @@ public interface NotebookEntryRepository extends Repository<NotebookEntryView, L
             SELECT DISTINCT ne.bookId as bookId, ne.bookTitle as bookTitle
             FROM NotebookEntryView ne
             WHERE ne.userId = :userId
-            AND (:search IS NULL OR ne.bookTitle LIKE :search ESCAPE '\\')
+            AND (:search IS NULL OR lower(ne.bookTitle) LIKE :search ESCAPE '\\')
             ORDER BY ne.bookTitle
             """)
     List<BookProjection> findBooksWithAnnotations(@Param("userId") Long userId,
@@ -100,7 +100,7 @@ public interface NotebookEntryRepository extends Repository<NotebookEntryView, L
                    ne.coverUpdatedOn as coverUpdatedOn
             FROM NotebookEntryView ne
             WHERE ne.userId = :userId
-            AND (:search IS NULL OR ne.bookTitle LIKE :search ESCAPE '\\')
+            AND (:search IS NULL OR lower(ne.bookTitle) LIKE :search ESCAPE '\\')
             GROUP BY ne.bookId, ne.bookTitle, ne.coverUpdatedOn
             ORDER BY ne.bookTitle
             """,
@@ -108,7 +108,7 @@ public interface NotebookEntryRepository extends Repository<NotebookEntryView, L
             SELECT count(DISTINCT ne.bookId)
             FROM NotebookEntryView ne
             WHERE ne.userId = :userId
-            AND (:search IS NULL OR ne.bookTitle LIKE :search ESCAPE '\\')
+            AND (:search IS NULL OR lower(ne.bookTitle) LIKE :search ESCAPE '\\')
             """)
     Page<BookWithCountProjection> findBooksWithAnnotationsPaginated(@Param("userId") Long userId,
                                                                     @Param("search") String search,

@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.LocalDateField;
 import jakarta.persistence.criteria.Root;
 import org.booklore.exception.ApiError;
 import org.booklore.model.entity.AuthorEntity;
@@ -23,6 +24,7 @@ import org.booklore.service.opds.MagicShelfBookService;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +101,7 @@ public class BookFacetRegistry {
                 number("match_score", "Match Score", any(BookFilterSpecification::withMatchScores),
                         (root, query, cb, scope) -> root.get("metadataMatchScore")).banded(MATCH_SCORE_BANDS),
                 number("published_year", "Published Year", any(BookFilterSpecification::withPublishedYears),
-                        (root, query, cb, scope) -> cb.function("YEAR", Integer.class, metadata(root).get("publishedDate"))),
+                        (root, query, cb, scope) -> cb.extract(LocalDateField.YEAR, metadata(root).<LocalDate>get("publishedDate"))),
                 values("library", "Library", any(BookFilterSpecification::inLibraries),
                         (root, query, cb, scope) -> root.join("library").get("id")).uncapped(),
                 values("shelf", "Shelf", this::shelves,

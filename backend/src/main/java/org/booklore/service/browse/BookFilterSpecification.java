@@ -6,6 +6,7 @@ import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.From;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.LocalDateField;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
@@ -26,6 +27,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -438,7 +440,7 @@ public class BookFilterSpecification {
             List<NumericRange<Integer>> ranges = NumericRange.parseAll(years, Integer::valueOf, "publishedDate");
             if (ranges.isEmpty()) return cb.conjunction();
             Join<BookEntity, BookMetadataEntity> metadataJoin = getOrCreateJoin(root, "metadata", JoinType.INNER);
-            Expression<Integer> yearExpr = cb.function("YEAR", Integer.class, metadataJoin.get("publishedDate"));
+            Expression<Integer> yearExpr = cb.extract(LocalDateField.YEAR, metadataJoin.<LocalDate>get("publishedDate"));
             Predicate combined = NumericRange.anyOf(cb, yearExpr, ranges);
             return combined;
         };
