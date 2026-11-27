@@ -226,8 +226,8 @@ importers:
         specifier: ^7.5.0
         version: 7.5.0
       '@tanstack/angular-query':
-        specifier: 5.108.0
-        version: 5.108.0(@angular-devkit/schematics@22.3.0(chokidar@6.0.0))(@angular/common@22.3.0(@angular/core@22.3.0(@angular/compiler@22.3.0)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.3.0(@angular/compiler@22.3.0)(rxjs@7.8.2))(@schematics/angular@22.3.0(chokidar@6.0.0))(typescript@6.0.3)
+        specifier: 5.108.4
+        version: 5.108.4(@angular-devkit/schematics@22.3.0(chokidar@6.0.0))(@angular/common@22.3.0(@angular/core@22.3.0(@angular/compiler@22.3.0)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.3.0(@angular/compiler@22.3.0)(rxjs@7.8.2))(@schematics/angular@22.3.0(chokidar@6.0.0))(typescript@6.0.3)
       '@tanstack/angular-table':
         specifier: 9.3.2
         version: 9.3.2(@angular/common@22.3.0(@angular/core@22.3.0(@angular/compiler@22.3.0)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.3.0(@angular/compiler@22.3.0)(rxjs@7.8.2))
@@ -2673,8 +2673,8 @@ packages:
   '@tailwindcss/postcss@4.3.5':
     resolution: {integrity: sha512-FAV37Tlx9wBiT/hkfgVD0Q6CWsP2oUX3lf28nrfjW8+ksILjnpuFulUqWDfNR4/ZiEHHDRBX8DUTzD1Rys687A==}
 
-  '@tanstack/angular-query@5.108.0':
-    resolution: {integrity: sha512-iv7uva7ZAQambEZNA8V06ZA5V4sCxFKk0lZJVs+Kenoclq3x6p+NG7rZzxoKIG9KXjeT3KdIogon8osqP+QxbA==}
+  '@tanstack/angular-query@5.108.4':
+    resolution: {integrity: sha512-jfBsHUqoBlCaKt9ohO8oPy1ScN4knfpgO5Qfc1FlHKnrzwY+zdohss8l6Qg/T/DVPntfO9GEeNqDiLZIZ5dROw==}
     peerDependencies:
       '@angular-devkit/schematics': '>=20.1.0'
       '@angular/common': '>=20.1.0'
@@ -2750,8 +2750,8 @@ packages:
       vue:
         optional: true
 
-  '@tanstack/query-core@5.108.0':
-    resolution: {integrity: sha512-X9zJUtEV/0D2q9pmGS/Bza8S4bNovSBhZOtdhtu0fzsHwizC6C+Eh/q5CX3MQBchsRMrirWVQmv7Fp4OStzV9g==}
+  '@tanstack/query-core@5.108.4':
+    resolution: {integrity: sha512-2Ks5dlLWz4eXJrthOyG0qW3SLt3xx0RrQmAmN0rnmogiaaOYuWiAe6HAm9KE2b2v8nig+vraNz8fsfZ6fF6zFg==}
 
   '@tanstack/store@0.11.2':
     resolution: {integrity: sha512-sJ4mjol8uQsHV0gOJzzjwXfh2Fwm+Sz0+8deqiTm4jGbMdjzNSW+xZCFm0kUa870uhd8yi+DpKnZb5Kc4apa0Q==}
@@ -6760,11 +6760,11 @@ snapshots:
       postcss: 8.5.33
       tailwindcss: 4.3.5
 
-  '@tanstack/angular-query@5.108.0(@angular-devkit/schematics@22.3.0(chokidar@6.0.0))(@angular/common@22.3.0(@angular/core@22.3.0(@angular/compiler@22.3.0)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.3.0(@angular/compiler@22.3.0)(rxjs@7.8.2))(@schematics/angular@22.3.0(chokidar@6.0.0))(typescript@6.0.3)':
+  '@tanstack/angular-query@5.108.4(@angular-devkit/schematics@22.3.0(chokidar@6.0.0))(@angular/common@22.3.0(@angular/core@22.3.0(@angular/compiler@22.3.0)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.3.0(@angular/compiler@22.3.0)(rxjs@7.8.2))(@schematics/angular@22.3.0(chokidar@6.0.0))(typescript@6.0.3)':
     dependencies:
       '@angular/common': 22.3.0(@angular/core@22.3.0(@angular/compiler@22.3.0)(rxjs@7.8.2))(rxjs@7.8.2)
       '@angular/core': 22.3.0(@angular/compiler@22.3.0)(rxjs@7.8.2)
-      '@tanstack/query-core': 5.108.0
+      '@tanstack/query-core': 5.108.4
     optionalDependencies:
       '@angular-devkit/schematics': 22.3.0(chokidar@6.0.0)
       '@schematics/angular': 22.3.0(chokidar@6.0.0)
@@ -6821,7 +6821,7 @@ snapshots:
       svelte: 5.55.9(@typescript-eslint/types@8.72.2)
       vue: 3.5.34(typescript@6.0.3)
 
-  '@tanstack/query-core@5.108.0': {}
+  '@tanstack/query-core@5.108.4': {}
 
   '@tanstack/store@0.11.2': {}
 
