@@ -76,7 +76,7 @@
     "@types/d3-shape": "3.2.0",
     "@types/node": "^26.6.6",
     "@vitest/coverage-v8": "^5.1.1",
-    "angular-eslint": "^22.7.0",
+    "angular-eslint": "^22.8.0",
     "eslint": "^10.15.0",
     "eslint-plugin-oxlint": "1.95.0",
     "jsdom": "^31.0.1",
@@ -88,7 +88,7 @@
     "stylelint-config-standard-scss": "^18.0.0",
     "tailwindcss": "^4.3.5",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.73.0",
+    "typescript-eslint": "^8.74.0",
     "vitest": "^5.1.1"
   }
 }
