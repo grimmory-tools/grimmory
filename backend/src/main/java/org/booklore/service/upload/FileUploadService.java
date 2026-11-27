@@ -288,7 +288,7 @@ public class FileUploadService {
         if (lastDotIndex >= 0) {
             suffix = fileName.substring(lastDotIndex);
         }
-        return Files.createTempFile(prefix, suffix);
+        return FileUtils.createTempFile(null, prefix, suffix);
     }
 
     private void validateFinalPath(Path finalPath, Path expectedRoot) {
