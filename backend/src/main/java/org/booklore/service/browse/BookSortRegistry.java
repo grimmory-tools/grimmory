@@ -92,29 +92,12 @@ public class BookSortRegistry {
     }
 
     private static SortOrderBuilder<BookEntity> random() {
-        return ctx -> {
-            CriteriaBuilder cb = ctx.cb();
+        return ctx -> List.of(order(ctx, randomOrderExpression(ctx.cb(), ctx.root().<Long>get("id"), ctx.randomSeed())));
+    }
 
-            // If the random seed isn't set (null) we hard code it to 0.  This means
-            // that the "randomness" will never change until a new book is added.
-            // This is a decent enough fallback because:
-            // * We don't care if this isn't _that_ random, just that it's good enough
-            // * It's a reasonable approach for most folks use cases.
-            int randomSeed = ctx.randomSeed() == null ? 0 : ctx.randomSeed();
-
-            // This is hard coded to the mariadb "RAND" function.  This has poor performance
-            // on larger tables but gives a consistent sort every time.  This is done by
-            // seeding the random number generator which we use for ordering.
-            //
-            // While just the seed for the pagination "session" is sufficient for MariaDB,
-            // H2 will emit the same number every row - so we have to include the current ID.
-            Expression<Double> random = cb.function(
-                    "RAND",
-                    Double.class,
-                    cb.sum(cb.literal(randomSeed), ctx.root().get("id"))
-            );
-            return List.of(order(ctx, random));
-        };
+    static Expression<byte[]> randomOrderExpression(CriteriaBuilder cb, Expression<Long> id, Integer randomSeed) {
+        int seed = randomSeed == null ? 0 : randomSeed;
+        return cb.function("sha", byte[].class, cb.concat(id.cast(String.class), ":" + seed).cast(byte[].class));
     }
 
     private static Expression<Float> greatestOf(CriteriaBuilder cb, Expression<Float> a, Expression<Float> b) {

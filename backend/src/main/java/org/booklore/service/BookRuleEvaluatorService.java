@@ -546,7 +546,7 @@ public class BookRuleEvaluatorService {
         } else if (value instanceof Number) {
             return cb.equal(field, value);
         }
-        return cb.equal(cb.lower(field.as(String.class)), value.toString().toLowerCase());
+        return cb.equal(cb.lower(toTextExpression(field)), value.toString().toLowerCase());
     }
 
     private Predicate buildNotEquals(Rule rule, CriteriaQuery<?> query, CriteriaBuilder cb, Root<BookEntity> root, Join<BookEntity, UserBookProgressEntity> progressJoin) {
@@ -594,7 +594,7 @@ public class BookRuleEvaluatorService {
         Expression<?> fieldExpr = getFieldExpression(field, cb, root, progressJoin);
         if (fieldExpr == null) return cb.conjunction();
 
-        return predicateBuilder.apply(fieldExpr.as(String.class));
+        return predicateBuilder.apply(toTextExpression(fieldExpr));
     }
 
     private Predicate buildGreaterThan(Rule rule, CriteriaBuilder cb, Root<BookEntity> root, Join<BookEntity, UserBookProgressEntity> progressJoin) {
@@ -690,6 +690,7 @@ public class BookRuleEvaluatorService {
 
         Expression<?> field = getFieldExpression(rule.getField(), cb, root, progressJoin);
         if (field == null) return cb.conjunction();
+        if (field.getJavaType() != String.class) return cb.isNull(field);
 
         return cb.or(cb.isNull(field), cb.equal(cb.trim(field.as(String.class)), ""));
     }
@@ -760,7 +761,7 @@ public class BookRuleEvaluatorService {
         }
 
         List<String> lowerList = ruleList.stream().map(String::toLowerCase).toList();
-        return cb.lower(field.as(String.class)).in(lowerList);
+        return cb.lower(toTextExpression(field)).in(lowerList);
     }
 
     private Expression<?> getFieldExpression(RuleField field, CriteriaBuilder cb, Root<BookEntity> root, Join<BookEntity, UserBookProgressEntity> progressJoin) {
@@ -817,8 +818,8 @@ public class BookRuleEvaluatorService {
                 Expression<Float> cbx = cb.coalesce(progressJoin.get("cbxProgressPercent"), 0f);
                 yield cb.function("GREATEST", Float.class, koreader, kobo, pdf, epub, cbx);
             }
-            case FILE_TYPE -> cb.function("SUBSTRING_INDEX", String.class,
-                    root.join("bookFiles", JoinType.LEFT).get("fileName"), cb.literal("."), cb.literal(-1));
+            case FILE_TYPE -> cb.function("REGEXP_REPLACE", String.class,
+                    root.join("bookFiles", JoinType.LEFT).get("fileName"), cb.literal("^.*[.]"), cb.literal(""));
             default -> null;
         };
     }
@@ -839,7 +840,7 @@ public class BookRuleEvaluatorService {
 
     private Expression<String> getArrayFieldNameExpression(RuleField field, Join<?, ?> arrayJoin) {
         if (field == RuleField.SHELF) {
-            return arrayJoin.get("id").as(String.class);
+            return arrayJoin.get("id").cast(String.class);
         }
         return arrayJoin.get("name");
     }
@@ -971,6 +972,10 @@ public class BookRuleEvaluatorService {
     @SuppressWarnings("unchecked")
     private static Expression<Number> toNumericExpression(Expression<?> expr) {
         return (Expression<Number>) expr;
+    }
+
+    private static Expression<String> toTextExpression(Expression<?> expr) {
+        return expr.getJavaType() == String.class ? expr.as(String.class) : expr.cast(String.class);
     }
 
     private String escapeLike(String value) {

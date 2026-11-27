@@ -467,6 +467,22 @@ class BookBrowseTest {
         assertThat(page.page().totalMembers()).isEqualTo(1);
     }
 
+    @Test
+    void collapsedSeriesRandomSortIsSameWithSameCursor() {
+        seriesBook("First", "Saga", 1);
+        seriesBook("Second", "Saga", 2);
+        book("Standalone A", List.of());
+        book("Standalone B", List.of());
+        em.flush();
+
+        BrowsePage<Book> response = browseCollapsed("random", null, null, 20);
+        List<Long> ids = response.content().stream().map(Book::getId).toList();
+
+        assertThat(ids).hasSize(3);
+        assertThat(browseCollapsed("random", null, response.page().cursor(), 20)
+                .content().stream().map(Book::getId).toList()).isEqualTo(ids);
+    }
+
     private BookLoreUser noLibrariesUser() {
         BookLoreUser.UserPermissions permissions = new BookLoreUser.UserPermissions();
         permissions.setAdmin(false);

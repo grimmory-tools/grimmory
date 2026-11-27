@@ -167,8 +167,8 @@ public interface BookOpdsRepository extends JpaRepository<BookEntity, Long>, Jpa
     // RANDOM BOOKS - "Surprise Me" Feed
     // ============================================
 
-    @Query("SELECT b.id FROM BookEntity b WHERE b.library.id IN :libraryIds AND (b.deleted IS NULL OR b.deleted = false) ORDER BY function('RAND')")
-    List<Long> findRandomBookIdsByLibraryIds(@Param("libraryIds") Collection<Long> libraryIds, Pageable pageable);
+    @Query("SELECT b.id FROM BookEntity b WHERE b.library.id IN :libraryIds AND (b.deleted IS NULL OR b.deleted = false) ORDER BY sha(cast(concat(cast(b.id as String), ':', cast(:seed as String)) as binary))")
+    List<Long> findRandomBookIdsByLibraryIds(@Param("libraryIds") Collection<Long> libraryIds, @Param("seed") int seed, Pageable pageable);
 
     // ============================================
     // AUTHORS - Distinct Authors List

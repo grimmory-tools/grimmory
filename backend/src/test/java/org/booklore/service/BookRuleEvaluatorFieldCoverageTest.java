@@ -5,6 +5,7 @@ import jakarta.persistence.PersistenceContext;
 import org.booklore.BookloreApplication;
 import org.booklore.model.dto.*;
 import org.booklore.model.entity.*;
+import org.booklore.model.enums.BookFileType;
 import org.booklore.model.enums.ReadStatus;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.task.TaskCronService;
@@ -198,6 +199,17 @@ class BookRuleEvaluatorFieldCoverageTest {
             List<Long> ids = findMatchingIds(singleRule(RuleField.LIBRARY, RuleOperator.INCLUDES_ANY,
                     List.of(String.valueOf(library.getId()), String.valueOf(library2.getId()))));
             assertThat(ids).contains(book1.getId(), book2.getId());
+        }
+
+        @Test
+        void equals_matchesTextLibraryId() {
+            BookEntity book1 = createBook("Lib1 Book", library, libraryPath);
+            createBook("Lib2 Book", library2, libraryPath2);
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.LIBRARY, RuleOperator.EQUALS, String.valueOf(library.getId())));
+            assertThat(ids).containsExactly(book1.getId());
         }
     }
 
@@ -1418,6 +1430,46 @@ class BookRuleEvaluatorFieldCoverageTest {
             List<Long> ids = findMatchingIds(singleRule(RuleField.TITLE, RuleOperator.ENDS_WITH, "rings"));
             assertThat(ids).contains(book.getId());
             assertThat(ids).doesNotContain(other.getId());
+        }
+    }
+
+    @Nested
+    class FileTypeFieldTests {
+        private BookEntity createBookWithFile(String title, String fileName, BookFileType type) {
+            BookEntity book = createBook(title);
+            em.persist(BookFileEntity.builder().book(book).fileName(fileName).fileSubPath("")
+                    .isBookFormat(true).bookType(type).build());
+            return book;
+        }
+
+        @Test
+        void equals_matchesExtensionAfterLastDot() {
+            BookEntity epub = createBookWithFile("Dune", "Dune.Part.One.EPUB", BookFileType.EPUB);
+            BookEntity cbz = createBookWithFile("Mort", "Mort.cbz", BookFileType.CBX);
+            em.flush();
+            em.clear();
+
+            List<Long> ids = findMatchingIds(singleRule(RuleField.FILE_TYPE, RuleOperator.EQUALS, "epub"));
+            assertThat(ids).containsExactly(epub.getId());
+            assertThat(ids).doesNotContain(cbz.getId());
+        }
+    }
+
+    @Nested
+    class NonTextEmptyTests {
+        @Test
+        void isEmpty_onNumberMatchesOnlyMissingValues() {
+            BookEntity missing = createBook("No Pages");
+            BookEntity zero = createBook("Zero Pages");
+            zero.getMetadata().setPageCount(0);
+            BookEntity some = createBook("Some Pages");
+            some.getMetadata().setPageCount(300);
+            em.flush();
+            em.clear();
+
+            assertThat(findMatchingIds(singleRule(RuleField.PAGE_COUNT, RuleOperator.IS_EMPTY, null))).containsExactly(missing.getId());
+            assertThat(findMatchingIds(singleRule(RuleField.PAGE_COUNT, RuleOperator.IS_NOT_EMPTY, null)))
+                    .containsExactlyInAnyOrder(zero.getId(), some.getId());
         }
     }
 }

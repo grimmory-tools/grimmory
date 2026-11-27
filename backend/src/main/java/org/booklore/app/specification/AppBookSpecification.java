@@ -11,6 +11,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -580,7 +581,7 @@ public class AppBookSpecification {
             List<NumericRange<Integer>> ranges = parseNumericRanges(years, Integer::valueOf, "publishedDate");
             if (ranges.isEmpty()) return cb.conjunction();
             Join<BookEntity, BookMetadataEntity> metadataJoin = getOrCreateJoin(root, "metadata", JoinType.INNER);
-            Expression<Integer> yearExpr = cb.function("YEAR", Integer.class, metadataJoin.get("publishedDate"));
+            Expression<Integer> yearExpr = cb.extract(LocalDateField.YEAR, metadataJoin.<LocalDate>get("publishedDate"));
             Predicate combined = rangesPredicate(cb, yearExpr, ranges);
             return "not".equals(mode) ? cb.not(combined) : combined;
         };

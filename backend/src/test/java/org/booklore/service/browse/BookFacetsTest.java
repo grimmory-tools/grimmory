@@ -43,6 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -686,5 +687,20 @@ class BookFacetsTest {
         assertThat(count(facet("genre", null), "Romance")).isEqualTo(1);
         assertThat(count(facet("genre", null), "Horror")).isNull();
         assertThat(count(facet("author", null), "Alice")).isNull();
+    }
+
+    @Test
+    void publishedYearFacetExtractsAndFiltersByYear() {
+        book("Old", "Horror", "Alice").setPublishedDate(LocalDate.of(1999, 12, 31));
+        book("New", "Romance", "Bob").setPublishedDate(LocalDate.of(2024, 6, 15));
+        em.flush();
+
+        FacetGroup years = facet("published_year", null);
+        assertThat(years.links()).hasSize(1);
+        assertThat(years.links().getFirst().properties().min().intValue()).isEqualTo(1999);
+        assertThat(years.links().getFirst().properties().max().intValue()).isEqualTo(2024);
+
+        assertThat(count(facet("genre", List.of("published_year:2024")), "Romance")).isEqualTo(1);
+        assertThat(count(facet("genre", List.of("published_year:2024")), "Horror")).isNull();
     }
 }

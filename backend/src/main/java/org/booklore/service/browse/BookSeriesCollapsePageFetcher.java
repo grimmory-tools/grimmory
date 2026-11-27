@@ -96,8 +96,9 @@ public class BookSeriesCollapsePageFetcher implements PageFetcher<BookEntity, Bo
         for (SortTerm term : sortTerms) {
             switch (term.key()) {
                 case "title" -> orders.add(groupOrder(cb, order(cb, cb.coalesce(series, metadata.<String>get("title")), term.descending())));
-                case "random" -> orders.add(order(cb, cb.function("RAND", Double.class,
-                        cb.sum(cb.literal(randomSeed == null ? 0 : randomSeed), cb.min(root.<Long>get("id")))), term.descending()));
+                case "random" -> orders.add(order(cb,
+                        BookSortRegistry.randomOrderExpression(cb, cb.min(root.<Long>get("id")), randomSeed),
+                        term.descending()));
                 default -> sorts.toOrders(List.of(term), root, query, cb, userId, randomSeed)
                         .forEach(order -> orders.add(groupOrder(cb, order)));
             }

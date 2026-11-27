@@ -160,7 +160,7 @@ public class AppNotebookService {
 
     private String wrapSearch(String search) {
         if (search == null || search.isBlank()) return null;
-        return "%" + escapeLike(search) + "%";
+        return "%" + escapeLike(search.toLowerCase(Locale.ROOT)) + "%";
     }
 
     private static String escapeLike(String input) {

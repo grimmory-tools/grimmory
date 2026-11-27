@@ -93,8 +93,8 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
                    coalesce(rs.durationSeconds, 0) as durationSeconds
             FROM ReadingSessionEntity rs
             WHERE rs.user.id = :userId
-            AND (:periodStart IS NULL OR rs.startTime >= :periodStart)
-            AND (:periodEnd IS NULL OR rs.startTime < :periodEnd)
+            AND (cast(:periodStart as Instant) IS NULL OR rs.startTime >= :periodStart)
+            AND (cast(:periodEnd as Instant) IS NULL OR rs.startTime < :periodEnd)
             ORDER BY rs.startTime
             """)
     List<SessionTimestampDto> findSessionTimestampsByUser(
@@ -198,8 +198,8 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
             FROM ReadingSessionEntity rs
             WHERE rs.user.id = :userId
             AND rs.bookType != org.booklore.model.enums.BookFileType.AUDIOBOOK
-            AND (:periodStart IS NULL OR rs.startTime >= :periodStart)
-            AND (:periodEnd IS NULL OR rs.startTime < :periodEnd)
+            AND (cast(:periodStart as Instant) IS NULL OR rs.startTime >= :periodStart)
+            AND (cast(:periodEnd as Instant) IS NULL OR rs.startTime < :periodEnd)
             ORDER BY rs.startTime
             """)
     List<SessionTimestampDto> findReadingSessionTimestampsByUser(
@@ -213,8 +213,8 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
             FROM ReadingSessionEntity rs
             WHERE rs.user.id = :userId
             AND rs.bookType = org.booklore.model.enums.BookFileType.AUDIOBOOK
-            AND (:periodStart IS NULL OR rs.startTime >= :periodStart)
-            AND (:periodEnd IS NULL OR rs.startTime < :periodEnd)
+            AND (cast(:periodStart as Instant) IS NULL OR rs.startTime >= :periodStart)
+            AND (cast(:periodEnd as Instant) IS NULL OR rs.startTime < :periodEnd)
             ORDER BY rs.startTime
             """)
     List<SessionTimestampDto> findListeningSessionTimestampsByUser(
@@ -252,8 +252,8 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSessionEn
             FROM ReadingSessionEntity rs
             WHERE rs.user.id = :userId
             AND rs.bookType = org.booklore.model.enums.BookFileType.AUDIOBOOK
-            AND (:periodStart IS NULL OR rs.startTime >= :periodStart)
-            AND (:periodEnd IS NULL OR rs.startTime < :periodEnd)
+            AND (cast(:periodStart as Instant) IS NULL OR rs.startTime >= :periodStart)
+            AND (cast(:periodEnd as Instant) IS NULL OR rs.startTime < :periodEnd)
             ORDER BY rs.startTime
             """)
     List<SessionTimestampDto> findListeningTimestampsByUser(

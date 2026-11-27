@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -163,7 +164,7 @@ public class OpdsBookService {
         }
 
         List<Long> libraryIds = accessibleLibraries.stream().map(Library::getId).toList();
-        List<Long> ids = bookOpdsRepository.findRandomBookIdsByLibraryIds(libraryIds, PageRequest.of(0, count));
+        List<Long> ids = bookOpdsRepository.findRandomBookIdsByLibraryIds(libraryIds, ThreadLocalRandom.current().nextInt(), PageRequest.of(0, count));
 
         if (ids.isEmpty()) {
             return List.of();
