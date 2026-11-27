@@ -33,13 +33,13 @@ public class BookRuleEvaluatorService {
             RuleField.SERIES_STATUS, RuleField.SERIES_GAPS, RuleField.SERIES_POSITION
     );
 
+    private static final Set<RuleField> FILE_FIELDS = Set.of(
+            RuleField.FILE_SIZE, RuleField.FILE_TYPE, RuleField.AUDIOBOOK_DURATION,
+            RuleField.AUDIOBOOK_CODEC, RuleField.AUDIOBOOK_CHAPTER_COUNT, RuleField.AUDIOBOOK_BITRATE
+    );
+
     public Specification<BookEntity> toSpecification(GroupRule groupRule, Long userId) {
         return (root, query, cb) -> {
-            // JOINs on multi-valued associations (authors, tags, shelves, etc.) can
-            // produce duplicate rows — use DISTINCT so pagination counts and page
-            // content reflect unique BookEntity results.
-            query.distinct(true);
-
             Join<BookEntity, UserBookProgressEntity> progressJoin = joinProgress(root, cb, JoinType.LEFT, userId);
 
             return buildPredicate(groupRule, query, cb, root, progressJoin, userId);
@@ -102,6 +102,20 @@ public class BookRuleEvaluatorService {
             return buildCompositeFieldPredicate(rule, query, cb, root, progressJoin, userId);
         }
 
+        if (FILE_FIELDS.contains(rule.getField())) {
+            Subquery<Long> matchingFile = query.subquery(Long.class);
+            Root<BookEntity> book = matchingFile.from(BookEntity.class);
+            matchingFile.select(cb.literal(1L)).where(
+                    cb.equal(book.get("id"), root.get("id")),
+                    buildOperatorPredicate(rule, query, cb, book, progressJoin)
+            );
+            return cb.exists(matchingFile);
+        }
+
+        return buildOperatorPredicate(rule, query, cb, root, progressJoin);
+    }
+
+    private Predicate buildOperatorPredicate(Rule rule, CriteriaQuery<?> query, CriteriaBuilder cb, Root<BookEntity> root, Join<BookEntity, UserBookProgressEntity> progressJoin) {
         return switch (rule.getOperator()) {
             case EQUALS -> buildEquals(rule, query, cb, root, progressJoin);
             case NOT_EQUALS -> buildNotEquals(rule, query, cb, root, progressJoin);

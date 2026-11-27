@@ -5,6 +5,7 @@ import jakarta.persistence.PersistenceContext;
 import org.booklore.BookloreApplication;
 import org.booklore.model.entity.*;
 import org.booklore.model.enums.BookFileType;
+import org.booklore.model.enums.ReadStatus;
 import org.booklore.service.task.TaskCronService;
 import org.booklore.test.DatabaseTest;
 import org.hibernate.SessionFactory;
@@ -26,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,6 +59,9 @@ class BookRepositoryDataJpaTest {
 
     @Autowired
     private BookOpdsRepository bookOpdsRepository;
+
+    @Autowired
+    private UserBookProgressRepository userBookProgressRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -200,5 +205,54 @@ class BookRepositoryDataJpaTest {
                 "opds findAllWithFullMetadataByIds", () -> bookOpdsRepository.findAllWithFullMetadataByIds(fixture.bookIds()));
 
         queries.forEach((query, load) -> assertLoadsComicMetadataInOneStatement(query, load, fixture));
+    }
+
+    @Test
+    void distinctFreeRepositoryQueries_returnUniqueOrderedResults() {
+        LibraryEntity library = LibraryEntity.builder().name("Distinct Lib").icon("book").watch(false)
+                .formatPriority(List.of(BookFileType.EPUB, BookFileType.PDF, BookFileType.AUDIOBOOK)).build();
+        BookLoreUserEntity user = BookLoreUserEntity.builder().username("distinctuser").passwordHash("h").isDefaultPassword(true).name("U").build();
+        AuthorEntity author = AuthorEntity.builder().name("Alpha").build();
+        entityManager.persist(library);
+        entityManager.persist(user);
+        entityManager.persist(author);
+
+        ShelfEntity shelfA = ShelfEntity.builder().user(user).name("A").build();
+        ShelfEntity shelfB = ShelfEntity.builder().user(user).name("B").build();
+        entityManager.persist(shelfA);
+        entityManager.persist(shelfB);
+
+        BookEntity book1 = BookEntity.builder().library(library).addedOn(Instant.parse("2025-01-01T00:00:00Z")).deleted(false).shelves(Set.of(shelfA, shelfB)).build();
+        BookEntity book2 = BookEntity.builder().library(library).addedOn(Instant.parse("2025-01-02T00:00:00Z")).deleted(false).shelves(Set.of(shelfA)).build();
+        BookEntity audio = BookEntity.builder().library(library).addedOn(Instant.parse("2025-01-03T00:00:00Z")).deleted(false).build();
+        entityManager.persist(book1);
+        entityManager.persist(book2);
+        entityManager.persist(audio);
+        entityManager.flush();
+
+        entityManager.persist(BookMetadataEntity.builder().book(book1).title("Dune 2").searchText("dune").authors(List.of(author)).build());
+        entityManager.persist(BookMetadataEntity.builder().book(book2).title("Dune 1").searchText("dune").authors(List.of(author)).build());
+
+        entityManager.persist(BookFileEntity.builder().book(book1).fileName("b1.epub").fileSubPath("").isBookFormat(true).bookType(BookFileType.EPUB).addedOn(Instant.now()).build());
+        entityManager.persist(BookFileEntity.builder().book(book1).fileName("b1.pdf").fileSubPath("").isBookFormat(true).bookType(BookFileType.PDF).addedOn(Instant.now()).build());
+        entityManager.persist(BookFileEntity.builder().book(book2).fileName("b2.epub").fileSubPath("").isBookFormat(true).bookType(BookFileType.EPUB).addedOn(Instant.now()).build());
+        entityManager.persist(BookFileEntity.builder().book(audio).fileName("a1.m4b").fileSubPath("").isBookFormat(true).bookType(BookFileType.AUDIOBOOK).addedOn(Instant.now()).build());
+        entityManager.persist(BookFileEntity.builder().book(audio).fileName("a2.mp3").fileSubPath("").isBookFormat(true).bookType(BookFileType.AUDIOBOOK).addedOn(Instant.now()).build());
+
+        entityManager.persist(UserBookProgressEntity.builder().user(user).book(book1).readStatus(ReadStatus.READING).lastReadTime(Instant.parse("2025-01-01T10:00:00Z")).build());
+        entityManager.persist(UserBookProgressEntity.builder().user(user).book(book2).readStatus(ReadStatus.RE_READING).lastReadTime(Instant.parse("2025-01-02T10:00:00Z")).build());
+        entityManager.persist(UserBookProgressEntity.builder().user(user).book(audio).readStatus(ReadStatus.READING).lastReadTime(Instant.parse("2025-01-03T10:00:00Z")).build());
+        entityManager.flush();
+        entityManager.clear();
+
+        PageRequest page = PageRequest.of(0, 10);
+        List<Long> libs = List.of(library.getId());
+        List<Long> shelves = List.of(shelfA.getId(), shelfB.getId());
+
+        assertThat(bookOpdsRepository.findBookIdsByShelfIds(libs, shelves, page).getContent()).containsExactly(book2.getId(), book1.getId());
+        assertThat(bookOpdsRepository.findBookIdsByMetadataSearchAndShelfIds("dune", libs, shelves, page).getContent()).containsExactly(book2.getId(), book1.getId());
+        assertThat(bookOpdsRepository.findBookIdsByAuthorName("Alpha", page).getContent()).containsExactly(book2.getId(), book1.getId());
+        assertThat(userBookProgressRepository.findTopContinueReadingBookIds(user.getId(), libs, page)).containsExactly(book2.getId(), book1.getId());
+        assertThat(userBookProgressRepository.findTopContinueListeningBookIds(user.getId(), libs, page)).containsExactly(audio.getId());
     }
 }

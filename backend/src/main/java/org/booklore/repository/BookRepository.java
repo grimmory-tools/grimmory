@@ -358,7 +358,7 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
      */
     @EntityGraph(attributePaths = {"metadata", "metadata.comicMetadata", "shelves", "libraryPath", "bookFiles"})
     @Query("""
-            SELECT DISTINCT b FROM BookEntity b
+            SELECT b FROM BookEntity b
             LEFT JOIN b.metadata m
             WHERE b.library.id = :libraryId
             AND (
@@ -408,7 +408,7 @@ public interface BookRepository extends JpaRepository<BookEntity, Long>, JpaSpec
      */
     @EntityGraph(attributePaths = {"metadata", "metadata.comicMetadata", "shelves", "libraryPath", "bookFiles"})
     @Query("""
-            SELECT DISTINCT b FROM BookEntity b
+            SELECT b FROM BookEntity b
             LEFT JOIN b.metadata m
             WHERE (
                 (m.seriesName = :seriesName)
