@@ -288,7 +288,9 @@ public class FileUploadService {
         if (lastDotIndex >= 0) {
             suffix = fileName.substring(lastDotIndex);
         }
-        return FileUtils.createTempFile(null, prefix, suffix);
+        // Owner-only directory keeps the staged upload private while the file itself follows the umask
+        Path stagingDir = Files.createTempDirectory(prefix);
+        return FileUtils.createTempFile(stagingDir, prefix, suffix);
     }
 
     private void validateFinalPath(Path finalPath, Path expectedRoot) {
@@ -325,6 +327,10 @@ public class FileUploadService {
             try {
                 Path safeTempPath = requirePathWithinSystemTemp(tempPath);
                 Files.deleteIfExists(safeTempPath);
+                Path stagingDir = requirePathWithinSystemTemp(safeTempPath.getParent());
+                if (!stagingDir.equals(systemTempRoot())) {
+                    Files.deleteIfExists(stagingDir);
+                }
             } catch (RuntimeException e) {
                 log.warn("Skipping cleanup for suspicious temp file path: {}", tempPath);
             } catch (IOException e) {
@@ -391,8 +397,11 @@ public class FileUploadService {
     }
 
     private Path requirePathWithinSystemTemp(Path candidatePath) {
-        Path tempRoot = FileUtils.normalizeAbsolutePath(Path.of(System.getProperty("java.io.tmpdir")));
-        return requirePathWithinRoot(candidatePath, tempRoot, "Invalid temporary file path");
+        return requirePathWithinRoot(candidatePath, systemTempRoot(), "Invalid temporary file path");
+    }
+
+    private Path systemTempRoot() {
+        return FileUtils.normalizeAbsolutePath(Path.of(System.getProperty("java.io.tmpdir")));
     }
 
     private BookMetadata extractMetadata(BookFileExtension fileExt, File file, String originalFileName) {

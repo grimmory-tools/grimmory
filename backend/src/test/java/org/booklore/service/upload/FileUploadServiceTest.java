@@ -34,13 +34,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.Mockito.*;
 
 class FileUploadServiceTest {
@@ -105,6 +108,29 @@ class FileUploadServiceTest {
         Path dropped = tempDir.resolve("test.pdf");
         assertThat(Files.exists(dropped)).isTrue();
         assertThat(Files.readAllBytes(dropped)).isEqualTo(content);
+    }
+
+    @Test
+    void uploadFileBookDrop_stagesPrivately_andLandsWithUmaskPermissions() throws IOException {
+        assumeTrue(FileSystems.getDefault().supportedFileAttributeViews().contains("posix"));
+        Path[] staged = new Path[1];
+        String[] stagingDirPermissions = new String[1];
+        MockMultipartFile file = new MockMultipartFile("file", "perm.epub", "application/epub+zip", "data".getBytes()) {
+            @Override
+            public void transferTo(Path dest) throws IOException {
+                staged[0] = dest;
+                stagingDirPermissions[0] = PosixFilePermissions.toString(Files.getPosixFilePermissions(dest.getParent()));
+                super.transferTo(dest);
+            }
+        };
+        Path regular = Files.createFile(tempDir.resolve("regular.epub"));
+
+        service.uploadFileBookDrop(file);
+
+        assertThat(stagingDirPermissions[0]).isEqualTo("rwx------");
+        assertThat(Files.exists(staged[0].getParent())).isFalse();
+        assertThat(Files.getPosixFilePermissions(tempDir.resolve("perm.epub")))
+                .isEqualTo(Files.getPosixFilePermissions(regular));
     }
 
     @Test
