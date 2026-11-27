@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
 @Slf4j
 @Service
 @AllArgsConstructor
-public class GoodReadsParser implements BookParser, DetailedMetadataProvider {
+public class GoodReadsParser implements BookParser {
     private static final TypeReference<List<GoodreadsAutocompleteEntry>> AUTOCOMPLETE_RESPONSE_TYPE = new TypeReference<>() {};
 
     // Located in Goodreads _app JS chunk, visible in DevTools → Network → GraphQL requests
@@ -581,17 +581,6 @@ return;
         return (book.getPrimaryFile() != null && book.getPrimaryFile().getFileName() != null && !book.getPrimaryFile().getFileName().isEmpty()
                 ? BookUtils.cleanFileName(book.getPrimaryFile().getFileName())
                 : null);
-    }
-
-    @Override
-    public BookMetadata fetchDetailedMetadata(String goodreadsId) {
-        log.info("GoodReads: Fetching detailed metadata for ID: {}", goodreadsId);
-        try {
-            return fetchAndParseBook(goodreadsId);
-        } catch (Exception e) {
-            log.error("Error fetching detailed metadata for GoodReads ID: {}", goodreadsId, e);
-            return null;
-        }
     }
 
     private <T> T fetchJson(String url, TypeReference<T> typeReference) throws InterruptedException {
