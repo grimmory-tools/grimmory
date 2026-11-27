@@ -3,8 +3,10 @@ package org.booklore.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.LazyGroup;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 
@@ -35,16 +37,16 @@ public class BookdropFileEntity {
     @Builder.Default
     private Status status = Status.PENDING_REVIEW;
 
-    @Lob
     @Basic(fetch = FetchType.LAZY)
     @LazyGroup("metadata")
-    @Column(name = "original_metadata", columnDefinition = "JSON")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "original_metadata")
     private String originalMetadata;
 
-    @Lob
     @Basic(fetch = FetchType.LAZY)
     @LazyGroup("metadata")
-    @Column(name = "fetched_metadata", columnDefinition = "JSON")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "fetched_metadata")
     private String fetchedMetadata;
 
     @CreationTimestamp

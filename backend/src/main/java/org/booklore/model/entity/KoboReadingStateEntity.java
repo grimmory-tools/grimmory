@@ -2,7 +2,9 @@ package org.booklore.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "kobo_reading_state")
@@ -33,13 +35,16 @@ public class KoboReadingStateEntity {
     @Column(name = "priority_timestamp")
     private String priorityTimestamp;
 
-    @Column(name = "current_bookmark_json", columnDefinition = "json")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "current_bookmark_json")
     private String currentBookmarkJson;
 
-    @Column(name = "statistics_json", columnDefinition = "json")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "statistics_json")
     private String statisticsJson;
 
-    @Column(name = "status_info_json", columnDefinition = "json")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "status_info_json")
     private String statusInfoJson;
 
     @Column(name = "last_modified_string")

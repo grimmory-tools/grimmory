@@ -2,6 +2,7 @@ package org.booklore.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,7 +23,8 @@ public class KoboLibrarySnapshotEntity {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "created_date", nullable = false)
+    @CreationTimestamp
+    @Column(name = "created_date", nullable = false, updatable = false)
     private LocalDateTime createdDate;
 
     @OneToMany(mappedBy = "snapshot", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

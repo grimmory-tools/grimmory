@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.booklore.convertor.KoboSpanMapJsonConverter;
 import org.booklore.model.dto.kobo.KoboSpanPositionMap;
+import org.hibernate.Length;
 
 import java.time.Instant;
 
@@ -29,7 +30,7 @@ public class KoboSpanMapEntity {
     private String fileHash;
 
     @Convert(converter = KoboSpanMapJsonConverter.class)
-    @Column(name = "span_map_json", nullable = false, columnDefinition = "LONGTEXT")
+    @Column(name = "span_map_json", nullable = false, length = Length.LONG32)
     private KoboSpanPositionMap spanMap;
 
     @Column(name = "created_at", nullable = false)
