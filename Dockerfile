@@ -73,7 +73,10 @@ ADD \
 
 FROM kepubify-layer-${TARGETARCH} AS kepubify-layer
 
-FROM eclipse-temurin:25-jre-alpine
+FROM scratch AS backend-jar-export
+COPY --from=backend-build /workspace/backend/app.jar /app.jar
+
+FROM eclipse-temurin:25-jre-alpine AS runtime
 
 ENV JAVA_TOOL_OPTIONS="-XX:+UseShenandoahGC \
     -XX:ShenandoahGCHeuristics=compact \
@@ -131,6 +134,3 @@ HEALTHCHECK --interval=60s --timeout=10s --start-period=60s --retries=5 \
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["java", "--enable-native-access=ALL-UNNAMED", "--enable-preview", "-XX:-UseBASE64Intrinsics", "-jar", "/app/app.jar"]
-
-FROM scratch AS backend-jar-export
-COPY --from=backend-build /workspace/backend/app.jar /app.jar
