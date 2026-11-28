@@ -6,6 +6,7 @@ import lombok.Data;
 public class UserProfileUpdateRequest {
     private String name;
     private String email;
+    private String kindleEmail;
     private String locale;
     private String theme;
     private String themeAccent;

@@ -249,6 +249,7 @@ export interface User {
   username: string;
   name: string;
   email: string;
+  kindleEmail?: string | null;
   locale: string;
   theme: AppTheme;
   themeAccent: CustomPrimary | null;
@@ -308,6 +309,7 @@ export interface UserUpdateRequest {
 export interface UserProfileUpdateRequest {
   name?: string;
   email?: string;
+  kindleEmail?: string | null;
   locale?: string;
   theme?: AppTheme;
   themeAccent?: CustomPrimary | null;

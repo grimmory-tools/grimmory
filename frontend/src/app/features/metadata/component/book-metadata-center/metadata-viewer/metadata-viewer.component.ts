@@ -319,6 +319,12 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
     }
 
     const hasFiles = this.hasAnyFiles(book);
+    const kindleCompatibleFile = [book.primaryFile, ...(book.alternativeFormats ?? [])]
+      .filter((file): file is BookFile => !!file)
+      .find(file => file.bookType === 'EPUB')
+      ?? [book.primaryFile, ...(book.alternativeFormats ?? [])]
+        .filter((file): file is BookFile => !!file)
+        .find(file => file.bookType === 'PDF');
 
     if (hasFiles && (permissions?.canManageLibrary || permissions?.admin) && appSettings?.diskType === 'LOCAL') {
       items.push({
@@ -339,6 +345,12 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
             label: this.t.translate('metadata.viewer.menuQuickSend'),
             icon: 'pi pi-bolt',
             command: () => this.quickSend(book)
+          },
+          {
+            label: this.t.translate('metadata.viewer.menuSendToKindle'),
+            icon: 'pi pi-tablet',
+            disabled: !this.userService.currentUser()?.kindleEmail?.trim() || !kindleCompatibleFile,
+            command: () => this.quickSendToKindle(book, kindleCompatibleFile)
           },
           {
             label: this.t.translate('metadata.viewer.menuCustomSend'),
@@ -704,6 +716,39 @@ export class MetadataViewerComponent implements OnInit, AfterViewChecked {
         rejectLabel: this.t.translate('common.cancel'),
         acceptButtonProps: { severity: 'warn' },
         rejectButtonProps: { severity: 'secondary' },
+        accept: doSend,
+      });
+    } else {
+      doSend();
+    }
+  }
+
+  private quickSendToKindle(book: Book, kindleFile?: BookFile) {
+    if (!kindleFile) return;
+    const doSend = () => {
+      this.emailService.emailBookToKindle(book.id).subscribe({
+        next: () => this.messageService.add({
+          severity: 'info',
+          summary: this.t.translate('metadata.viewer.toast.kindleSendSuccessSummary'),
+          detail: this.t.translate('metadata.viewer.toast.kindleSendSuccessDetail'),
+        }),
+        error: (err) => this.messageService.add({
+          severity: 'error',
+          summary: this.t.translate('metadata.viewer.toast.kindleSendErrorSummary'),
+          detail: err?.error?.message || this.t.translate('metadata.viewer.toast.kindleSendErrorDetail'),
+        })
+      });
+    };
+
+    if (kindleFile.fileSizeKb && kindleFile.fileSizeKb > 25 * 1024) {
+      this.confirmationService.confirm({
+        message: this.t.translate('metadata.viewer.confirm.largeFileMessage'),
+        header: this.t.translate('metadata.viewer.confirm.largeFileHeader'),
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: this.t.translate('metadata.viewer.confirm.sendAnyway'),
+        rejectLabel: this.t.translate('common.cancel'),
+        acceptButtonProps: {severity: 'warn'},
+        rejectButtonProps: {severity: 'secondary'},
         accept: doSend,
       });
     } else {

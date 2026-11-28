@@ -124,6 +124,12 @@
       font-size: var(--app-text-sm);
     }
   }
+
+  .field-hint {
+    color: var(--color-text-secondary);
+    font-size: var(--app-text-sm);
+    line-height: 1.4;
+  }
 }
 
 .edit-actions {

@@ -77,6 +77,7 @@ export class UserProfileDialogComponent {
         username: this.currentUser.username,
         name: this.currentUser.name,
         email: this.currentUser.email,
+        kindleEmail: this.currentUser.kindleEmail ?? '',
       };
     }
   }
@@ -91,7 +92,8 @@ export class UserProfileDialogComponent {
       return;
     }
 
-    if (this.editUserData.name === this.currentUser.name && this.editUserData.email === this.currentUser.email) {
+    if (this.editUserData.name === this.currentUser.name && this.editUserData.email === this.currentUser.email
+      && (this.editUserData.kindleEmail ?? '') === (this.currentUser.kindleEmail ?? '')) {
       this.messageService.add({severity: 'info', summary: this.t.translate('common.info'), detail: this.t.translate('settingsProfile.toast.noChanges')});
       this.isEditing = false;
       return;
@@ -100,6 +102,7 @@ export class UserProfileDialogComponent {
     const updateRequest: UserProfileUpdateRequest = {
       name: this.editUserData.name,
       email: this.editUserData.email,
+      kindleEmail: this.editUserData.kindleEmail?.trim() ?? '',
     };
     this.userService.updateUserProfile(this.currentUser.id, updateRequest).subscribe({
       next: () => {

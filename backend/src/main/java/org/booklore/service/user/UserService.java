@@ -28,10 +28,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
+    private static final Pattern EMAIL_ADDRESS = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
     private static final Set<String> SUPPORTED_THEMES = Set.of(
             "grimmory", "cobalt", "ember", "crimson", "rose", "forest",
             "meadow", "teal", "lagoon", "violet", "fuchsia", "slate", "custom"
@@ -110,6 +112,14 @@ public class UserService {
 
         if (updateRequest.getEmail() != null) {
             user.setEmail(updateRequest.getEmail());
+        }
+
+        if (updateRequest.getKindleEmail() != null) {
+            String kindleEmail = updateRequest.getKindleEmail().trim();
+            if (!kindleEmail.isEmpty() && !EMAIL_ADDRESS.matcher(kindleEmail).matches()) {
+                throw ApiError.INVALID_INPUT.createException("Invalid Kindle email address");
+            }
+            user.setKindleEmail(kindleEmail.isEmpty() ? null : kindleEmail);
         }
 
         if (updateRequest.getLocale() != null) {

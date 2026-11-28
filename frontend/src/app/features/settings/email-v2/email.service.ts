@@ -16,4 +16,8 @@ export class EmailService {
   emailBookQuick(bookId: number): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/book/${bookId}`, {});
   }
+
+  emailBookToKindle(bookId: number): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/book/${bookId}/kindle`, {});
+  }
 }

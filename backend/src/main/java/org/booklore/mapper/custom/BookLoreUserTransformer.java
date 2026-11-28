@@ -32,6 +32,7 @@ public class BookLoreUserTransformer {
         bookLoreUser.setUsername(userEntity.getUsername());
         bookLoreUser.setName(userEntity.getName());
         bookLoreUser.setEmail(userEntity.getEmail());
+        bookLoreUser.setKindleEmail(userEntity.getKindleEmail());
         bookLoreUser.setLocale(userEntity.getLocale());
         bookLoreUser.setTheme(userEntity.getTheme());
         bookLoreUser.setThemeAccent(userEntity.getThemeAccent());

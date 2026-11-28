@@ -9,6 +9,7 @@ import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.EmailProviderV2Entity;
 import org.booklore.model.entity.EmailRecipientV2Entity;
 import org.booklore.model.entity.UserEmailProviderPreferenceEntity;
+import org.booklore.model.enums.BookFileType;
 import org.booklore.model.websocket.LogNotification;
 import org.booklore.model.websocket.Topic;
 import org.booklore.repository.BookRepository;
@@ -54,6 +55,29 @@ public class SendEmailV2Service {
         EmailRecipientV2Entity defaultEmailRecipient = emailRecipientRepository.findDefaultEmailRecipientByUserId(user.getId()).orElseThrow(ApiError.DEFAULT_EMAIL_RECIPIENT_NOT_FOUND::createException);
         BookFileEntity bookFile = book.getPrimaryBookFile();
         sendEmailInVirtualThread(defaultEmailProvider, defaultEmailRecipient.getEmail(), book, bookFile,
+                user.getId(), user.getUsername());
+    }
+
+    public void emailBookToKindle(Long bookId) {
+        BookLoreUser user = authenticationService.getAuthenticatedUser();
+        if (user.getKindleEmail() == null || user.getKindleEmail().isBlank()) {
+            throw ApiError.INVALID_INPUT.createException("Configure your Kindle email in your user profile first");
+        }
+
+        BookEntity book = bookRepository.findByIdWithBookFiles(bookId)
+                .orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
+        BookFileEntity bookFile = book.getBookFiles().stream()
+                .filter(BookFileEntity::isBookFormat)
+                .filter(file -> file.getBookType() == BookFileType.EPUB)
+                .min(java.util.Comparator.comparing(BookFileEntity::getId))
+                .orElseGet(() -> book.getBookFiles().stream()
+                        .filter(BookFileEntity::isBookFormat)
+                        .filter(file -> file.getBookType() == BookFileType.PDF)
+                        .min(java.util.Comparator.comparing(BookFileEntity::getId))
+                        .orElseThrow(() -> ApiError.UNSUPPORTED_FILE_TYPE.createException(
+                                "Kindle email delivery supports EPUB and PDF files")));
+
+        sendEmailInVirtualThread(getDefaultEmailProvider(), user.getKindleEmail(), book, bookFile,
                 user.getId(), user.getUsername());
     }
 

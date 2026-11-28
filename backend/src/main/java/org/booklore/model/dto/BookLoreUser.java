@@ -21,6 +21,7 @@ public class BookLoreUser {
     private boolean isDefaultPassword;
     private String name;
     private String email;
+    private String kindleEmail;
     private String locale;
     private String theme;
     private String themeAccent;

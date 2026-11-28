@@ -39,4 +39,14 @@ public class SendEmailV2Controller {
         service.emailBookQuick(bookId);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "Send a book to the configured Kindle address", description = "Prefers EPUB and falls back to PDF.")
+    @ApiResponse(responseCode = "204", description = "Kindle delivery queued")
+    @PreAuthorize("@securityUtil.canEmailBook() or @securityUtil.isAdmin()")
+    @PostMapping("/book/{bookId}/kindle")
+    public ResponseEntity<?> emailBookToKindle(
+            @Parameter(description = "ID of the book to send") @PathVariable Long bookId) {
+        service.emailBookToKindle(bookId);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -39,6 +39,9 @@ public class BookLoreUserEntity {
     @Column(unique = true)
     private String email;
 
+    @Column(name = "kindle_email", length = 255)
+    private String kindleEmail;
+
     @Builder.Default
     @Column(nullable = false, length = 16)
     private String locale = "en";

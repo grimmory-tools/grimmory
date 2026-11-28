@@ -63,6 +63,19 @@
           [placeholder]="t('emailPlaceholder')"/>
       </div>
 
+      <div class="form-field">
+        <label class="field-label" for="kindleEmail">{{ t('kindleEmail') }}</label>
+        <input
+          [disabled]="!isEditing"
+          id="kindleEmail"
+          type="email"
+          pInputText
+          [(ngModel)]="editUserData.kindleEmail"
+          class="field-input"
+          [placeholder]="t('kindleEmailPlaceholder')"/>
+        <small class="field-hint">{{ t('kindleEmailHint') }}</small>
+      </div>
+
       <div class="edit-actions">
         @if (!isEditing) {
           <p-button [label]="t('editProfile')" severity="info" icon="pi pi-pencil" [outlined]="true" (onClick)="toggleEdit()" />
