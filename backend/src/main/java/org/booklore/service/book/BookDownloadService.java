@@ -240,6 +240,28 @@ public class BookDownloadService {
     private record ZipSource(Path path, String name, boolean folderBased) {
     }
 
+    public Path getKepubPath(Path originalFile, Path targetDir) throws IOException {
+        String originalFilename = originalFile.getFileName().toString();
+        String targetFilename = originalFilename;
+
+        if (!originalFilename.endsWith(".kepub.epub")) {
+            if (originalFilename.endsWith(".epub")) {
+                targetFilename = originalFilename.substring(0, originalFilename.length() - 5) + ".kepub.epub";
+            } else {
+                targetFilename = originalFilename + ".kepub.epub";
+            }
+        }
+
+        Path targetPath = targetDir.resolve(targetFilename).normalize();
+
+        if (!targetPath.startsWith(targetDir)) {
+            log.warn("Failed to generate kepub path, falling back to temp file");
+            return Files.createTempFile(targetDir, "grimmory", ".kepub.epub");
+        }
+
+        return targetPath;
+    }
+
     public void downloadKoboBook(Long bookId, HttpServletResponse response) {
         BookEntity bookEntity = bookRepository.findByIdForKoboDownload(bookId).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(bookId));
 
@@ -279,8 +301,16 @@ public class BookDownloadService {
             }
 
             if (convertEpubToKepub) {
-                fileToSend = kepubConversionService.convertEpubToKepub(inputFile, tempDir.toFile(),
-                    koboSettings.isForceEnableHyphenation());
+                var kepubPath = getKepubPath(inputFile.toPath(), tempDir);
+
+                kepubConversionService.convertEpubToKepub(
+                        inputFile.toPath(),
+                        kepubPath,
+                        koboSettings.isForceEnableHyphenation()
+                );
+
+                fileToSend = kepubPath.toFile();
+
                 try {
                     koboSpanMapService.computeAndStoreIfNeeded(primaryFile, fileToSend);
                 } catch (Exception e) {
