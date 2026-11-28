@@ -53,7 +53,8 @@ public class SendEmailV2Service {
         EmailProviderV2Entity defaultEmailProvider = getDefaultEmailProvider();
         EmailRecipientV2Entity defaultEmailRecipient = emailRecipientRepository.findDefaultEmailRecipientByUserId(user.getId()).orElseThrow(ApiError.DEFAULT_EMAIL_RECIPIENT_NOT_FOUND::createException);
         BookFileEntity bookFile = book.getPrimaryBookFile();
-        sendEmailInVirtualThread(defaultEmailProvider, defaultEmailRecipient.getEmail(), book, bookFile);
+        sendEmailInVirtualThread(defaultEmailProvider, defaultEmailRecipient.getEmail(), book, bookFile,
+                user.getId(), user.getUsername());
     }
 
     public void emailBook(SendBookByEmailRequest request) {
@@ -66,10 +67,12 @@ public class SendEmailV2Service {
         BookEntity book = bookRepository.findByIdWithBookFiles(request.getBookId()).orElseThrow(() -> ApiError.BOOK_NOT_FOUND.createException(request.getBookId()));
         EmailRecipientV2Entity emailRecipient = emailRecipientRepository.findByIdAndUserId(request.getRecipientId(), user.getId()).orElseThrow(() -> ApiError.EMAIL_RECIPIENT_NOT_FOUND.createException(request.getRecipientId()));
         BookFileEntity bookFile = resolveBookFile(book, request.getBookFileId());
-        sendEmailInVirtualThread(emailProvider, emailRecipient.getEmail(), book, bookFile);
+        sendEmailInVirtualThread(emailProvider, emailRecipient.getEmail(), book, bookFile,
+                user.getId(), user.getUsername());
     }
 
-    private void sendEmailInVirtualThread(EmailProviderV2Entity emailProvider, String recipientEmail, BookEntity book, BookFileEntity bookFile) {
+    private void sendEmailInVirtualThread(EmailProviderV2Entity emailProvider, String recipientEmail, BookEntity book,
+                                         BookFileEntity bookFile, Long senderId, String senderUsername) {
         String bookTitle = book.getMetadata().getTitle();
         String logMessage = "Email dispatch initiated for book: " + bookTitle + " to " + recipientEmail;
         notificationService.sendMessage(Topic.LOG, LogNotification.info(logMessage));
@@ -77,7 +80,8 @@ public class SendEmailV2Service {
         taskExecutor.execute(() -> {
             try {
                 sendEmail(emailProvider, recipientEmail, book, bookFile);
-                auditService.log(AuditAction.BOOK_SENT, "Book", book.getId(), "Sent book: " + bookTitle + " to " + recipientEmail);
+                auditService.logAsUser(senderId, senderUsername, AuditAction.BOOK_SENT, "Book", book.getId(),
+                        "Sent book: " + bookTitle + " to " + recipientEmail);
                 String successMessage = "The book: " + bookTitle + " has been successfully sent to " + recipientEmail;
                 notificationService.sendMessage(Topic.LOG, LogNotification.info(successMessage));
                 log.info(successMessage);

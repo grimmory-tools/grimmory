@@ -40,6 +40,16 @@ public interface UserBookProgressRepository extends JpaRepository<UserBookProgre
 
     List<UserBookProgressEntity> findByUserIdAndBookIdIn(Long userId, Set<Long> bookIds);
 
+    @EntityGraph(attributePaths = {"book", "book.metadata", "book.metadata.authors", "book.metadata.categories"})
+    @Query("""
+        SELECT DISTINCT progress FROM UserBookProgressEntity progress
+        WHERE progress.user.id = :userId
+          AND (progress.readStatus IN :readStatuses OR progress.personalRating IS NOT NULL)
+        """)
+    List<UserBookProgressEntity> findRecommendationInteractions(
+            @Param("userId") Long userId,
+            @Param("readStatuses") Set<ReadStatus> readStatuses);
+
     @EntityGraph(attributePaths = {"book", "book.bookFiles", "book.library", "book.libraryPath"})
     @Query("""
         SELECT DISTINCT ubp FROM UserBookProgressEntity ubp

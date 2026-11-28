@@ -36,4 +36,13 @@ public interface AuditLogRepository extends JpaRepository<AuditLogEntity, Long> 
 
     @Query("SELECT DISTINCT a.username FROM AuditLogEntity a ORDER BY a.username")
     List<String> findDistinctUsernames();
+
+    @Query("""
+            SELECT DISTINCT a.entityId FROM AuditLogEntity a
+            WHERE a.userId = :userId
+              AND a.action = :action
+              AND a.entityType = 'Book'
+              AND a.entityId IS NOT NULL
+            """)
+    List<Long> findBookIdsByUserIdAndAction(@Param("userId") Long userId, @Param("action") AuditAction action);
 }

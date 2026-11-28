@@ -32,16 +32,19 @@ public class AuditService {
     private static final int MAX_DESCRIPTION_LENGTH = 1024;
 
     public void log(AuditAction action, String entityType, Long entityId, String description) {
+        Long userId = null;
+        String username = "system";
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof BookLoreUser user) {
+            userId = user.getId();
+            username = user.getUsername();
+        }
+        logAsUser(userId, username, action, entityType, entityId, description);
+    }
+
+    public void logAsUser(Long userId, String username, AuditAction action, String entityType, Long entityId,
+                          String description) {
         try {
-            Long userId = null;
-            String username = "system";
-
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null && authentication.getPrincipal() instanceof BookLoreUser user) {
-                userId = user.getId();
-                username = user.getUsername();
-            }
-
             String ipAddress = null;
             try {
                 ipAddress = RequestUtils.getCurrentRequest().getRemoteAddr();
