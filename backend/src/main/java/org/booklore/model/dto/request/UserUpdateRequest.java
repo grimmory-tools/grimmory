@@ -8,6 +8,7 @@ import java.util.List;
 public class UserUpdateRequest {
     private String name;
     private String email;
+    private String kindleEmail;
     private Permissions permissions;
     private List<Long> assignedLibraries;
 

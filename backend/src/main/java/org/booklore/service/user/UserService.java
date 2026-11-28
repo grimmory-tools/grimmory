@@ -65,6 +65,13 @@ public class UserService {
         BookLoreUserEntity user = userRepository.findByIdWithDetails(id).orElseThrow(() -> ApiError.USER_NOT_FOUND.createException(id));
         user.setName(updateRequest.getName());
         user.setEmail(updateRequest.getEmail());
+        if (updateRequest.getKindleEmail() != null) {
+            String kindleEmail = updateRequest.getKindleEmail().trim();
+            if (!kindleEmail.isEmpty() && !EMAIL_ADDRESS.matcher(kindleEmail).matches()) {
+                throw ApiError.INVALID_INPUT.createException("Invalid Kindle email address");
+            }
+            user.setKindleEmail(kindleEmail.isEmpty() ? null : kindleEmail);
+        }
 
         boolean isTargetAdmin = updateRequest.getPermissions() == null ?
                 user.getPermissions().isPermissionAdmin() :

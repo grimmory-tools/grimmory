@@ -794,13 +794,15 @@
       "title": "User Information",
       "fullName": "Full Name",
       "email": "Email",
+      "kindleEmail": "Kindle email address",
       "libraries": "Libraries",
       "notSet": "Not set",
       "allLibrariesAdmin": "All libraries (Admin)",
       "noLibrariesAssigned": "No libraries assigned",
       "selectLibraries": "Select Libraries",
       "enterFullName": "Enter full name",
-      "enterEmail": "Enter email"
+      "enterEmail": "Enter email",
+      "enterKindleEmail": "Enter Kindle email address"
     },
     "permGroups": {
       "administration": "Administration",

@@ -73,12 +73,18 @@ export class BookSenderComponent implements OnInit {
 
     this.emailRecipientService.getRecipients().subscribe({
       next: (emailRecipients: EmailRecipient[]) => {
-        this.emailRecipients = emailRecipients.map(recipient => ({
-          label: `${recipient.name} | ${recipient.email}`,
-          value: recipient
-        }));
+        this.emailRecipients = emailRecipients
+          .filter(recipient => !this.isKindleAddress(recipient.email))
+          .map(recipient => ({
+            label: `${recipient.name} | ${recipient.email}`,
+            value: recipient
+          }));
       }
     });
+  }
+
+  private isKindleAddress(email: string | null | undefined): boolean {
+    return email?.trim().toLowerCase().endsWith('@kindle.com') ?? false;
   }
 
   private buildEmailableFiles(): void {

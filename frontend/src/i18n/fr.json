@@ -808,13 +808,15 @@
       "title": "Informations utilisateur",
       "fullName": "Nom complet",
       "email": "E-mail",
+      "kindleEmail": "Adresse e-mail Kindle",
       "libraries": "Bibliothèques",
       "notSet": "Non défini",
       "allLibrariesAdmin": "Toutes les bibliothèques (Admin)",
       "noLibrariesAssigned": "Aucune bibliothèque attribuée",
       "selectLibraries": "Sélectionner les bibliothèques",
       "enterFullName": "Entrez le nom complet",
-      "enterEmail": "Entrez l'e-mail"
+      "enterEmail": "Entrez l'e-mail",
+      "enterKindleEmail": "Entrez l'adresse e-mail Kindle"
     },
     "permGroups": {
       "administration": "Administration",

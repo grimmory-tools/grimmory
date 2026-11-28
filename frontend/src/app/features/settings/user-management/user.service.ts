@@ -302,6 +302,7 @@ export interface UserState {
 export interface UserUpdateRequest {
   name?: string;
   email?: string;
+  kindleEmail?: string | null;
   permissions?: User['permissions'];
   assignedLibraries?: number[];
 }

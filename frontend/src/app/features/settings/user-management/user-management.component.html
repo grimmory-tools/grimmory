@@ -197,6 +197,14 @@
                           <span>{{ user.email || t('userInfo.notSet') }}</span>
                         }
                       </div>
+                      <div class="detail-field">
+                        <label [for]="'user-kindle-email-' + user.id">{{ t('userInfo.kindleEmail') }}</label>
+                        @if (user.isEditing) {
+                          <input [id]="'user-kindle-email-' + user.id" type="email" pInputText [(ngModel)]="user.kindleEmail" [placeholder]="t('userInfo.enterKindleEmail')"/>
+                        } @else {
+                          <span>{{ user.kindleEmail || t('userInfo.notSet') }}</span>
+                        }
+                      </div>
                       <div class="detail-field detail-field-wide">
                         <label [for]="'user-libraries-' + user.id">{{ t('userInfo.libraries') }}</label>
                         @if (user.isEditing) {

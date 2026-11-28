@@ -59,6 +59,7 @@ export class UserManagementComponent implements OnInit {
   readonly users: WritableSignal<UserWithEditing[]> = signal([]);
   currentUser: User | null = null;
   editingLibraryIds: number[] = [];
+  private readonly originalKindleEmails = new Map<number, string | null>();
   expandedRows: Record<string, boolean> = {};
 
   isPasswordDialogVisible = false;
@@ -113,7 +114,12 @@ export class UserManagementComponent implements OnInit {
     user.isEditing = !user.isEditing;
     if (user.isEditing) {
       this.editingLibraryIds = [...(user.selectedLibraryIds ?? [])];
+      this.originalKindleEmails.set(user.id, user.kindleEmail ?? null);
     } else {
+      if (this.originalKindleEmails.has(user.id)) {
+        user.kindleEmail = this.originalKindleEmails.get(user.id) ?? null;
+        this.originalKindleEmails.delete(user.id);
+      }
       user.libraryNames =
         user.assignedLibraries
           ?.map((lib: Library) => lib.name)
@@ -138,6 +144,7 @@ export class UserManagementComponent implements OnInit {
     const updateRequest: UserUpdateRequest = {
       name: user.name,
       email: user.email,
+      kindleEmail: user.kindleEmail ?? '',
       permissions: user.permissions,
       assignedLibraries: user.selectedLibraryIds || [],
     };
@@ -146,6 +153,7 @@ export class UserManagementComponent implements OnInit {
       .subscribe({
         next: () => {
           user.isEditing = false;
+          this.originalKindleEmails.delete(user.id);
           this.loadUsers();
           this.messageService.add({
             severity: 'success',
