@@ -44,6 +44,7 @@ public class BookRecommendationService {
     private final AuditLogRepository auditLogRepository;
 
     private static final int MAX_BOOKS_PER_AUTHOR = 3;
+    private static final int MINIMUM_PERSONALIZED_CANDIDATE_POOL = 100;
 
     @Transactional
     public List<Book> getRecommendations(Long bookId, int limit) {
@@ -52,7 +53,7 @@ public class BookRecommendationService {
         Set<BookRecommendationLite> recommendations = book.getSimilarBooksJson();
         if (recommendations == null || recommendations.isEmpty()) {
             log.info("Recommendations for book ID {} are missing or empty. Computing similarity...", bookId);
-            recommendations = findSimilarBookIds(bookId, limit);
+            recommendations = findSimilarBookIds(bookId, Math.max(MINIMUM_PERSONALIZED_CANDIDATE_POOL, limit));
             book.setSimilarBooksJson(recommendations);
             bookRepository.save(book);
         }

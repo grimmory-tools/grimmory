@@ -39,7 +39,7 @@ public class BookRecommendationUpdaterTask implements Task {
     private final TaskHistoryService taskHistoryService;
     private final TaskCancellationManager cancellationManager;
 
-    private static final int RECOMMENDATION_LIMIT = 25;
+    private static final int RECOMMENDATION_CANDIDATE_POOL_SIZE = 100;
     private static final int BATCH_SIZE = 500;
     private static final long MIN_NOTIFICATION_INTERVAL_MS = 250;
     private static final long MIN_HISTORY_UPDATE_INTERVAL_MS = 30_000;
@@ -133,7 +133,7 @@ public class BookRecommendationUpdaterTask implements Task {
                 Comparator<BookVectorService.ScoredBook> worstFirst = Comparator
                         .comparingDouble(BookVectorService.ScoredBook::getScore)
                         .thenComparing(BookVectorService.ScoredBook::getBookId, Comparator.reverseOrder());
-                PriorityQueue<BookVectorService.ScoredBook> topCandidates = new PriorityQueue<>(RECOMMENDATION_LIMIT, worstFirst);
+                PriorityQueue<BookVectorService.ScoredBook> topCandidates = new PriorityQueue<>(RECOMMENDATION_CANDIDATE_POOL_SIZE, worstFirst);
                 int candidateIndex = 0;
                 for (Long candidateId : allBookIds) {
                     if ((candidateIndex++ & 255) == 0 && isCancelled(taskId)) {
@@ -145,7 +145,7 @@ public class BookRecommendationUpdaterTask implements Task {
                     double similarity = vectorService.cosineSimilarity(targetVector, embeddings.get(candidateId));
                     if (similarity <= 0.1) continue;
                     BookVectorService.ScoredBook scored = new BookVectorService.ScoredBook(candidateId, similarity);
-                    if (topCandidates.size() < RECOMMENDATION_LIMIT) {
+                    if (topCandidates.size() < RECOMMENDATION_CANDIDATE_POOL_SIZE) {
                         topCandidates.add(scored);
                     } else if (worstFirst.compare(scored, topCandidates.peek()) > 0) {
                         topCandidates.poll();
