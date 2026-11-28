@@ -794,8 +794,8 @@ export class TaskManagementComponent implements OnInit {
       && !(taskType === TaskType.REFRESH_LIBRARY_METADATA && this.getMetadataRefreshToDisplay() !== null);
   }
 
-  getTaskUpdatedAt(taskType: string): string | null {
-    return this.getTaskHistory(taskType)?.updatedAt || null;
+  getTaskStartedAt(taskType: string): string | null {
+    return this.getTaskHistory(taskType)?.createdAt || null;
   }
 
   getTaskStatusMessage(taskType: string): string {

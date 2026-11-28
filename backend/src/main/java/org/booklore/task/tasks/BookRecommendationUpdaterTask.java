@@ -14,6 +14,7 @@ import org.booklore.model.websocket.Topic;
 import org.booklore.service.NotificationService;
 import org.booklore.service.book.BookQueryService;
 import org.booklore.service.recommender.BookVectorService;
+import org.booklore.service.task.TaskHistoryService;
 import org.booklore.task.TaskStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @Component
@@ -31,10 +33,12 @@ public class BookRecommendationUpdaterTask implements Task {
     private final BookQueryService bookQueryService;
     private final BookVectorService vectorService;
     private final NotificationService notificationService;
+    private final TaskHistoryService taskHistoryService;
 
     private static final int RECOMMENDATION_LIMIT = 25;
     private static final int BATCH_SIZE = 500;
     private static final long MIN_NOTIFICATION_INTERVAL_MS = 250;
+    private static final long MIN_HISTORY_UPDATE_INTERVAL_MS = 30_000;
 
     @Override
     public void validatePermissions(BookLoreUser user, TaskCreateRequest request) {
@@ -55,15 +59,16 @@ public class BookRecommendationUpdaterTask implements Task {
         log.info("{}: Task started", getTaskType());
 
         long lastNotificationTime = 0;
+        AtomicLong lastHistoryUpdateTime = new AtomicLong(0);
 
-        lastNotificationTime = sendTaskProgressNotification(taskId, 0, "Starting book recommendation update", TaskStatus.IN_PROGRESS, lastNotificationTime, true);
+        lastNotificationTime = sendTaskProgressNotification(taskId, 0, "Starting book recommendation update", TaskStatus.IN_PROGRESS, lastNotificationTime, lastHistoryUpdateTime, true);
 
         // Load books in batches, generate embeddings, store lightweight data only
         long totalBooks = bookQueryService.countAllNonDeleted();
         Map<Long, double[]> embeddings = new HashMap<>();
         Map<Long, String> seriesNames = new HashMap<>();
 
-        lastNotificationTime = sendTaskProgressNotification(taskId, 2, String.format("Found %d books, generating embeddings in batches...", totalBooks), TaskStatus.IN_PROGRESS, lastNotificationTime, false);
+        lastNotificationTime = sendTaskProgressNotification(taskId, 2, String.format("Found %d books, generating embeddings in batches...", totalBooks), TaskStatus.IN_PROGRESS, lastNotificationTime, lastHistoryUpdateTime, false);
 
         int embeddingProgress = 0;
         int batchPage = 0;
@@ -98,13 +103,13 @@ public class BookRecommendationUpdaterTask implements Task {
             int progress = 5 + (int) (embeddingProgress * 30L / totalBooks);
             lastNotificationTime = sendTaskProgressNotification(taskId, progress,
                     String.format("Generated embeddings: %d/%d books", embeddingProgress, totalBooks),
-                    TaskStatus.IN_PROGRESS, lastNotificationTime, false);
+                    TaskStatus.IN_PROGRESS, lastNotificationTime, lastHistoryUpdateTime, false);
 
             if (batch.size() < BATCH_SIZE) break;
             batchPage++;
         }
 
-        lastNotificationTime = sendTaskProgressNotification(taskId, 35, "Computing book similarities...", TaskStatus.IN_PROGRESS, lastNotificationTime, false);
+        lastNotificationTime = sendTaskProgressNotification(taskId, 35, "Computing book similarities...", TaskStatus.IN_PROGRESS, lastNotificationTime, lastHistoryUpdateTime, false);
 
         // Compute similarities using only in-memory vectors (no entities needed)
         Set<Long> allBookIds = embeddings.keySet();
@@ -155,44 +160,51 @@ public class BookRecommendationUpdaterTask implements Task {
                 int progress = 35 + (int) (processedBooks * 50L / totalBooks);
                 lastNotificationTime = sendTaskProgressNotification(taskId, progress,
                         String.format("Computing similarities: %d/%d books", processedBooks, totalBooks),
-                        TaskStatus.IN_PROGRESS, lastNotificationTime, false);
+                        TaskStatus.IN_PROGRESS, lastNotificationTime, lastHistoryUpdateTime, false);
             }
         }
 
         // Save recommendations in batches
-        lastNotificationTime = sendTaskProgressNotification(taskId, 85, String.format("Saving recommendations for %d books...", allRecommendations.size()), TaskStatus.IN_PROGRESS, lastNotificationTime, false);
+        lastNotificationTime = sendTaskProgressNotification(taskId, 85, String.format("Saving recommendations for %d books...", allRecommendations.size()), TaskStatus.IN_PROGRESS, lastNotificationTime, lastHistoryUpdateTime, false);
 
         bookQueryService.saveRecommendationsInBatches(allRecommendations, BATCH_SIZE);
 
         long endTime = System.currentTimeMillis();
         log.info("{}: Task completed. Duration: {} ms", getTaskType(), endTime - startTime);
 
-        sendTaskProgressNotification(taskId, 100, String.format("Updated recommendations for %d books in %d ms", totalBooks, endTime - startTime), TaskStatus.COMPLETED, lastNotificationTime, true);
+        sendTaskProgressNotification(taskId, 100, String.format("Updated recommendations for %d books in %d ms", totalBooks, endTime - startTime), TaskStatus.COMPLETED, lastNotificationTime, lastHistoryUpdateTime, true);
 
         return builder
                 .status(TaskStatus.COMPLETED)
                 .build();
     }
 
-    private long sendTaskProgressNotification(String taskId, int progress, String message, TaskStatus taskStatus, long lastNotificationTime, boolean force) {
+    private long sendTaskProgressNotification(String taskId, int progress, String message, TaskStatus taskStatus,
+                                              long lastNotificationTime, AtomicLong lastHistoryUpdateTime, boolean force) {
         long currentTime = System.currentTimeMillis();
 
         // Send if forced (start/end) or if enough time has passed
         if (force || (currentTime - lastNotificationTime) >= MIN_NOTIFICATION_INTERVAL_MS) {
+            TaskProgressPayload payload = TaskProgressPayload.builder()
+                    .taskId(taskId)
+                    .taskType(TaskType.UPDATE_BOOK_RECOMMENDATIONS)
+                    .message(message)
+                    .progress(progress)
+                    .taskStatus(taskStatus)
+                    .build();
             try {
-                TaskProgressPayload payload = TaskProgressPayload.builder()
-                        .taskId(taskId)
-                        .taskType(TaskType.UPDATE_BOOK_RECOMMENDATIONS)
-                        .message(message)
-                        .progress(progress)
-                        .taskStatus(taskStatus)
-                        .build();
-
                 notificationService.sendMessage(Topic.TASK_PROGRESS, payload);
-                return currentTime;
             } catch (Exception e) {
                 log.error("Failed to send task progress notification for taskId={}: {}", taskId, e.getMessage(), e);
             }
+
+            long previousHistoryUpdate = lastHistoryUpdateTime.get();
+            if (force || taskStatus != TaskStatus.IN_PROGRESS
+                    || currentTime - previousHistoryUpdate >= MIN_HISTORY_UPDATE_INTERVAL_MS) {
+                taskHistoryService.updateTaskProgress(taskId, progress, message);
+                lastHistoryUpdateTime.set(currentTime);
+            }
+            return currentTime;
         }
 
         return lastNotificationTime;

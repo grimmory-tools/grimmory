@@ -69,15 +69,15 @@
                 <div class="task-details">
                   <div class="task-name-row">
                     <span class="task-name">{{ getTaskLabel(taskInfo.taskType) }}</span>
-                    @if (isTaskRunning(taskInfo.taskType)) {
-                      <span class="status-badge running">
-                        <i class="pi pi-spin pi-spinner"></i>
-                        {{ t('status.running') }}
-                      </span>
-                    } @else if (isTaskStale(getTaskHistory(taskInfo.taskType))) {
+                    @if (isTaskStale(getTaskHistory(taskInfo.taskType))) {
                       <span class="status-badge stale">
                         <i class="pi pi-exclamation-triangle"></i>
                         {{ t('status.stale') }}
+                      </span>
+                    } @else if (isTaskRunning(taskInfo.taskType)) {
+                      <span class="status-badge running">
+                        <i class="pi pi-spin pi-spinner"></i>
+                        {{ t('status.running') }}
                       </span>
                     } @else if (getTaskHistory(taskInfo.taskType)?.id) {
                       <span class="status-badge" [class]="getLastRunInfoClass(taskInfo.taskType)">
@@ -302,10 +302,10 @@
                       </div>
                     </div>
                   }
-                  @if (getTaskUpdatedAt(taskInfo.taskType)) {
+                  @if (getTaskStartedAt(taskInfo.taskType)) {
                     <div class="progress-row">
                       <span class="progress-label">{{ t('progress.startedLabel') }}</span>
-                      <span class="progress-value">{{ formatDate(getTaskUpdatedAt(taskInfo.taskType)!) }}</span>
+                      <span class="progress-value">{{ formatDate(getTaskStartedAt(taskInfo.taskType)!) }}</span>
                     </div>
                   }
                 </div>

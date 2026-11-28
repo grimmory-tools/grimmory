@@ -100,6 +100,20 @@ public class TaskHistoryService {
     }
 
     @Transactional
+    public void updateTaskProgress(String taskId, int progressPercentage, String message) {
+        taskHistoryRepository.findById(taskId).ifPresent(task -> {
+            if (task.getStatus() != TaskStatus.IN_PROGRESS && task.getStatus() != TaskStatus.ACCEPTED) {
+                return;
+            }
+            task.setStatus(TaskStatus.IN_PROGRESS);
+            task.setProgressPercentage(Math.max(0, Math.min(100, progressPercentage)));
+            task.setMessage(message);
+            task.setUpdatedAt(LocalDateTime.now());
+            taskHistoryRepository.save(task);
+        });
+    }
+
+    @Transactional
     public void cancelInProgressMetadataTasks() {
         List<TaskType> metadataTypes = List.of(TaskType.REFRESH_METADATA_MANUAL, TaskType.BULK_UPDATE_BOOK_METADATA);
         taskHistoryRepository.findAllByStatusInAndTypeIn(List.of(TaskStatus.ACCEPTED, TaskStatus.IN_PROGRESS), metadataTypes)
