@@ -22,5 +22,5 @@ public interface TaskHistoryRepository extends JpaRepository<TaskHistoryEntity, 
     """)
     List<TaskHistoryEntity> findLatestTaskForEachType(List<TaskType> taskTypes);
 
-    List<TaskHistoryEntity> findAllByStatusAndTypeIn(List<TaskStatus> statuses, List<TaskType> types);
+    List<TaskHistoryEntity> findAllByStatusInAndTypeIn(List<TaskStatus> statuses, List<TaskType> types);
 }

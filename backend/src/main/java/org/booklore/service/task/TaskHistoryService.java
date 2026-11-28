@@ -102,7 +102,7 @@ public class TaskHistoryService {
     @Transactional
     public void cancelInProgressMetadataTasks() {
         List<TaskType> metadataTypes = List.of(TaskType.REFRESH_METADATA_MANUAL, TaskType.BULK_UPDATE_BOOK_METADATA);
-        taskHistoryRepository.findAllByStatusAndTypeIn(List.of(TaskStatus.ACCEPTED, TaskStatus.IN_PROGRESS), metadataTypes)
+        taskHistoryRepository.findAllByStatusInAndTypeIn(List.of(TaskStatus.ACCEPTED, TaskStatus.IN_PROGRESS), metadataTypes)
                 .forEach(task -> updateTaskStatus(task.getId(), TaskStatus.CANCELLED, "Metadata batch cancelled by user"));
     }
 
