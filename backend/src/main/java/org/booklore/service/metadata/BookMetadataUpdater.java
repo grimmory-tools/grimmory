@@ -23,6 +23,7 @@ import org.booklore.service.file.FileFingerprint;
 import org.booklore.service.file.FileMoveService;
 import org.booklore.service.metadata.sidecar.SidecarMetadataWriter;
 import org.booklore.service.metadata.writer.MetadataWriterFactory;
+import org.booklore.service.watcher.BookFileEventSuppression;
 import org.booklore.util.BookCoverUtils;
 import org.booklore.util.FileService;
 import org.booklore.util.MetadataChangeDetector;
@@ -37,6 +38,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.time.Duration;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -66,6 +68,7 @@ public class BookMetadataUpdater {
     private final FileMoveService fileMoveService;
     private final SidecarMetadataWriter sidecarMetadataWriter;
     private final BookFileMutationGuard bookFileMutationGuard;
+    private final BookFileEventSuppression bookFileEventSuppression;
 
     @Transactional
     public void setBookMetadata(MetadataUpdateContext context) {
@@ -159,6 +162,7 @@ public class BookMetadataUpdater {
             metadataWriterFactory.getWriter(bookType).ifPresent(writer -> {
                 try {
                     File file = bookEntity.getFullFilePath().toFile();
+                    bookFileEventSuppression.suppress(file.toPath(), Duration.ofMinutes(2), file.isDirectory());
 
                     if (hasUpdatedThumbnail) {
                         Path imagePath;

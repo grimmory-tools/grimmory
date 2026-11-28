@@ -9,13 +9,22 @@
     <p class="settings-description" [innerHTML]="t('description')"></p>
   </div>
 
-  @if (getActiveMetadataRefresh(); as metadataProgress) {
+  @if (getMetadataRefreshToDisplay(); as metadataProgress) {
     <div class="settings-card metadata-batch-progress" aria-live="polite">
       <div class="metadata-progress-heading">
-        <h3>{{ t('progress.metadataBatchTitle') }}</h3>
+        <h3>{{ t(isMetadataRefreshInProgress(metadataProgress) ? 'progress.metadataBatchTitle' : 'progress.metadataBatchSummaryTitle') }}</h3>
         <span>{{ t('progress.metadataBatchCount', {completed: metadataProgress.completed, total: metadataProgress.total}) }}</span>
+        <span class="metadata-progress-status">{{ t('progress.' + getMetadataRefreshStatusKey(metadataProgress)) }}</span>
+        @if (isMetadataRefreshInProgress(metadataProgress) && getMetadataBatchEta(metadataProgress); as metadataEta) {
+          <span>{{ t('progress.metadataBatchEta', {time: metadataEta}) }}</span>
+        }
+        @if (isMetadataRefreshInProgress(metadataProgress)) {
+          <p-button icon="pi pi-stop-circle" severity="danger" size="small"
+                    [label]="t('progress.cancelMetadataBatches')"
+                    (onClick)="cancelAllMetadataBatches()" />
+        }
       </div>
-      <p class="metadata-progress-message">{{ metadataProgress.message }}</p>
+      <p class="metadata-progress-message">{{ getMetadataRefreshMessage(metadataProgress) }}</p>
       <div class="progress-bar-container">
         <p-progressbar [value]="getMetadataBatchProgressPercent(metadataProgress)" />
         <span class="progress-percent">{{ getMetadataBatchProgressPercent(metadataProgress) }}%</span>
@@ -88,7 +97,7 @@
                       <i class="pi pi-clock"></i>
                       @if (!isEditingCron(taskInfo.taskType)) {
                         @if (getCronConfig(taskInfo.taskType)?.cronExpression) {
-                          <code class="cron-value">{{ getCronConfig(taskInfo.taskType)!.cronExpression }}</code>
+                          <span class="cron-value">{{ getCronDescription(taskInfo.taskType) }}</span>
                         } @else {
                           <span class="cron-empty">{{ t('cron.noSchedule') }}</span>
                         }
@@ -103,21 +112,72 @@
                           (onClick)="startEditingCron(taskInfo.taskType)" />
                       } @else {
                         <div class="cron-edit">
-                          <input
-                            type="text"
-                            class="cron-input"
-                            [class.has-error]="!!cronValidationError"
-                            [(ngModel)]="editingCronExpression"
-                            (ngModelChange)="onCronExpressionChange()"
-                            [placeholder]="t('cron.placeholder')"
-                            (keyup.enter)="saveCronExpression(taskInfo.taskType)"
-                            (keyup.escape)="cancelEditingCron()">
+                          <select class="cron-select" [(ngModel)]="cronEditorMode" (ngModelChange)="onCronEditorModeChange()">
+                            <option value="simple">{{ t('cron.simpleMode') }}</option>
+                            <option value="advanced">{{ t('cron.advancedMode') }}</option>
+                          </select>
+                          @if (cronEditorMode === 'simple') {
+                            <select class="cron-select" [(ngModel)]="cronFrequency" (ngModelChange)="onSimpleCronChange()">
+                              <option value="minutes">{{ t('cron.minutesFrequency') }}</option>
+                              <option value="hourly">{{ t('cron.hourlyFrequency') }}</option>
+                              <option value="daily">{{ t('cron.dailyFrequency') }}</option>
+                              <option value="weekly">{{ t('cron.weeklyFrequency') }}</option>
+                              <option value="monthly">{{ t('cron.monthlyFrequency') }}</option>
+                            </select>
+                            @if (cronFrequency === 'minutes') {
+                              <select class="cron-select" [(ngModel)]="cronIntervalMinutes" (ngModelChange)="onSimpleCronChange()">
+                                <option [ngValue]="5">5 {{ t('cron.minutesUnit') }}</option>
+                                <option [ngValue]="10">10 {{ t('cron.minutesUnit') }}</option>
+                                <option [ngValue]="15">15 {{ t('cron.minutesUnit') }}</option>
+                                <option [ngValue]="30">30 {{ t('cron.minutesUnit') }}</option>
+                              </select>
+                            } @else if (cronFrequency === 'hourly') {
+                              <label class="cron-field-label">{{ t('cron.atMinute') }}
+                                <select class="cron-select" [(ngModel)]="cronTime" (ngModelChange)="onSimpleCronChange()">
+                                  <option value="00:00">00</option>
+                                  <option value="00:15">15</option>
+                                  <option value="00:30">30</option>
+                                  <option value="00:45">45</option>
+                                </select>
+                              </label>
+                            } @else {
+                              <label class="cron-field-label">{{ t('cron.atTime') }}
+                                <input type="time" class="cron-input" [(ngModel)]="cronTime" (ngModelChange)="onSimpleCronChange()">
+                              </label>
+                              @if (cronFrequency === 'weekly') {
+                                <select class="cron-select" [(ngModel)]="cronWeekday" (ngModelChange)="onSimpleCronChange()">
+                                  <option [ngValue]="1">{{ t('cron.weekdays.monday') }}</option>
+                                  <option [ngValue]="2">{{ t('cron.weekdays.tuesday') }}</option>
+                                  <option [ngValue]="3">{{ t('cron.weekdays.wednesday') }}</option>
+                                  <option [ngValue]="4">{{ t('cron.weekdays.thursday') }}</option>
+                                  <option [ngValue]="5">{{ t('cron.weekdays.friday') }}</option>
+                                  <option [ngValue]="6">{{ t('cron.weekdays.saturday') }}</option>
+                                  <option [ngValue]="0">{{ t('cron.weekdays.sunday') }}</option>
+                                </select>
+                              } @else if (cronFrequency === 'monthly') {
+                                <label class="cron-field-label">{{ t('cron.dayOfMonth') }}
+                                  <input type="number" min="1" max="31" class="cron-input cron-day-input" [(ngModel)]="cronMonthDay" (ngModelChange)="onSimpleCronChange()">
+                                </label>
+                              }
+                            }
+                            <span class="cron-preview">{{ describeCronExpression(editingCronExpression) }}</span>
+                          } @else {
+                            <input
+                              type="text"
+                              class="cron-input cron-advanced-input"
+                              [class.has-error]="!!cronValidationError"
+                              [(ngModel)]="editingCronExpression"
+                              (ngModelChange)="onCronExpressionChange()"
+                              [placeholder]="t('cron.placeholder')"
+                              (keyup.enter)="saveCronExpression(taskInfo.taskType)"
+                              (keyup.escape)="cancelEditingCron()">
+                          }
                           <p-button
                             [icon]="cronUpdating ? 'pi pi-spinner pi-spin' : 'pi pi-check'"
                             size="small"
                             [rounded]="true"
                             severity="success"
-                            [disabled]="!!cronValidationError || cronUpdating"
+                            [disabled]="(cronEditorMode === 'advanced' && !!cronValidationError) || cronUpdating"
                             (onClick)="saveCronExpression(taskInfo.taskType)" />
                           <p-button
                             icon="pi pi-times"
@@ -233,7 +293,7 @@
                       <span class="progress-value">{{ getTaskStatusMessage(taskInfo.taskType) }}</span>
                     </div>
                   }
-                  @if (getTaskProgressPercentage(taskInfo.taskType) !== null) {
+                    @if (shouldShowTaskProgressBar(taskInfo.taskType)) {
                     <div class="progress-row">
                       <span class="progress-label">{{ t('progress.progressLabel') }}</span>
                       <div class="progress-bar-container">

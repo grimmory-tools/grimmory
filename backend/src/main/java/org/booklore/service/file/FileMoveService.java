@@ -20,6 +20,7 @@ import org.booklore.repository.LibraryRepository;
 import org.booklore.service.NotificationService;
 import org.booklore.service.metadata.sidecar.SidecarMetadataWriter;
 import org.booklore.service.monitoring.MonitoringRegistrationService;
+import org.booklore.service.watcher.BookFileEventSuppression;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -30,6 +31,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.time.Duration;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -54,6 +56,7 @@ public class FileMoveService {
     private final TransactionTemplate transactionTemplate;
     private final SidecarMetadataWriter sidecarMetadataWriter;
     private final BookFileMutationGuard bookFileMutationGuard;
+    private final BookFileEventSuppression bookFileEventSuppression;
 
     private record PlannedMove(Path source, Path temp, Path target) {}
 
@@ -197,6 +200,9 @@ public class FileMoveService {
                     continue;
                 }
 
+                bookFileEventSuppression.suppress(sourcePath, Duration.ofMinutes(2), bookFile.isFolderBased());
+                bookFileEventSuppression.suppress(targetPath, Duration.ofMinutes(2), bookFile.isFolderBased());
+
                 Path tempPath = fileMoveHelper.moveFileWithBackup(sourcePath);
                 plannedMovesByBookFileId.put(bookFile.getId(), new PlannedMove(sourcePath, tempPath, targetPath));
                 if (sourcePath.getParent() != null) {
@@ -296,15 +302,14 @@ public class FileMoveService {
             Set<Path> existingPaths = monitoringRegistrationService.getPathsForLibraries(Set.of(libraryId));
             isLibraryMonitoredWhenCalled = monitoringRegistrationService.isLibraryMonitored(libraryId) || !existingPaths.isEmpty();
 
-            // Ensure bookFiles are loaded
-            BookEntity bookWithFiles = bookEntity;
-            if (bookEntity.getBookFiles() == null || bookEntity.getBookFiles().isEmpty()) {
-                Optional<BookEntity> optionalBook = bookRepository.findByIdWithBookFiles(bookEntity.getId());
-                if (optionalBook.isEmpty()) {
-                    log.warn("Book not found for move operation: bookId={}", bookEntity.getId());
-                    return FileMoveResult.builder().moved(false).build();
-                }
-                bookWithFiles = optionalBook.get();
+            // Always use the current persistence-context instance. The caller may have already
+            // changed metadata or the file hash in this transaction; a separately loaded or
+            // detached BookFileEntity would be stale when the move updates its path.
+            BookEntity bookWithFiles = bookRepository.findByIdWithBookFiles(bookEntity.getId())
+                    .orElse(null);
+            if (bookWithFiles == null) {
+                log.warn("Book not found for move operation: bookId={}", bookEntity.getId());
+                return FileMoveResult.builder().moved(false).build();
             }
 
             if (bookWithFiles.getBookFiles() == null || bookWithFiles.getBookFiles().isEmpty()) {
@@ -383,19 +388,21 @@ public class FileMoveService {
             }
             plannedMovesByBookFileId.clear();
 
-            // Update database for ALL BookFileEntity records (only after all commits succeed)
-            BookEntity finalBookWithFiles = bookWithFiles;
+            // Update the managed rows directly. A bulk JPQL update here bypasses Hibernate's
+            // first-level cache; the dirty managed BookFileEntity would then flush its stale
+            // snapshot at transaction commit and collide with that update under MariaDB.
             transactionTemplate.executeWithoutResult(status -> {
                 registerMoveRollback(new MoveAttempt(bookEntity.getId(), List.copyOf(committedMoves), restored));
                 for (var bookFile : bookFiles) {
                     String newFileName;
                     if (bookFile.isBook()) {
-                        Path targetPath = fileMoveHelper.generateNewFilePath(finalBookWithFiles, bookFile, finalBookWithFiles.getLibraryPath(), pattern);
+                        Path targetPath = fileMoveHelper.generateNewFilePath(bookWithFiles, bookFile, bookWithFiles.getLibraryPath(), pattern);
                         newFileName = targetPath.getFileName().toString();
                     } else {
                         newFileName = bookFile.getFileName();
                     }
-                    bookFileRepository.updateFileNameAndSubPath(bookFile.getId(), newFileName, newFileSubPath);
+                    bookFile.setFileName(newFileName);
+                    bookFile.setFileSubPath(newFileSubPath);
                 }
             });
             databaseUpdated = true;

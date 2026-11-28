@@ -23,8 +23,9 @@ import {MetadataRefreshType} from '../../metadata/model/request/metadata-refresh
 import {BookDialogHelperService} from '../../book/service/book-dialog-helper.service';
 import {LibraryService} from '../../book/service/library.service';
 import {MetadataProgressService} from '../../../shared/service/metadata-progress.service';
+import {MetadataTaskService} from '../../book/service/metadata-task';
 import {MetadataBatchProgressNotification, MetadataBatchStatus} from '../../../shared/model/metadata-batch-progress.model';
-import {finalize, forkJoin} from 'rxjs';
+import {finalize, forkJoin, interval} from 'rxjs';
 import {ExternalDocLinkComponent} from '../../../shared/components/external-doc-link/external-doc-link.component';
 import {ToggleSwitch} from '@openng/optimus-ui/toggleswitch';
 import {Tooltip} from '@openng/optimus-ui/tooltip';
@@ -54,6 +55,7 @@ export class TaskManagementComponent implements OnInit {
   private readonly bookDialogHelperService = inject(BookDialogHelperService, {optional: true});
   private readonly libraryService = inject(LibraryService, {optional: true});
   private readonly metadataProgressService = inject(MetadataProgressService, {optional: true});
+  private readonly metadataTaskService = inject(MetadataTaskService);
   private readonly t = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -67,6 +69,8 @@ export class TaskManagementComponent implements OnInit {
     ? toSignal(this.metadataProgressService.activeTasks$, {initialValue: {}})
     : signal<Record<string, MetadataBatchProgressNotification>>({});
   readonly selectedRefreshLibraryId = signal<number | null>(null);
+  private readonly metadataProgressSamples = new Map<string, {startCompleted: number; startAt: number; latestCompleted: number; latestAt: number}>();
+  private readonly metadataEtaClock = signal(Date.now());
 
   // Metadata Replace Options
   metadataReplaceOptions = [
@@ -90,6 +94,12 @@ export class TaskManagementComponent implements OnInit {
   editingCronTaskType: string | null = null;
   editingCronExpression: string = '';
   cronValidationError: string | null = null;
+  cronEditorMode: 'simple' | 'advanced' = 'simple';
+  cronFrequency: 'minutes' | 'hourly' | 'daily' | 'weekly' | 'monthly' = 'daily';
+  cronIntervalMinutes = 15;
+  cronTime = '02:00';
+  cronWeekday = 1;
+  cronMonthDay = 1;
 
   // Constants
   private readonly STALE_TASK_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes
@@ -102,6 +112,12 @@ export class TaskManagementComponent implements OnInit {
   ngOnInit(): void {
     this.loadTasks();
     this.subscribeToTaskProgress();
+    this.metadataProgressService?.activeTasks$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(tasks => this.recordMetadataProgressSamples(tasks));
+    interval(15_000)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.metadataEtaClock.set(Date.now()));
   }
 
   // ============================================================================
@@ -227,12 +243,105 @@ export class TaskManagementComponent implements OnInit {
   }
 
   getActiveMetadataRefresh(): MetadataBatchProgressNotification | null {
-    return Object.values(this.activeMetadataTasks()).find(task => task.status === MetadataBatchStatus.IN_PROGRESS) ?? null;
+    const tasks = Object.values(this.activeMetadataTasks());
+    return tasks.find(task => task.status === MetadataBatchStatus.IN_PROGRESS) ?? null;
+  }
+
+  getMetadataRefreshToDisplay(): MetadataBatchProgressNotification | null {
+    const tasks = Object.values(this.activeMetadataTasks());
+    return this.getActiveMetadataRefresh()
+      ?? [...tasks].reverse().find(task => task.status === MetadataBatchStatus.COMPLETED
+        || task.status === MetadataBatchStatus.ERROR
+        || task.status === MetadataBatchStatus.CANCELLED)
+      ?? null;
+  }
+
+  isMetadataRefreshInProgress(task: MetadataBatchProgressNotification): boolean {
+    return task.status === MetadataBatchStatus.IN_PROGRESS;
+  }
+
+  cancelAllMetadataBatches(): void {
+    this.metadataTaskService.cancelAllInProgressTasks().subscribe({
+      next: (cancelled) => {
+        cancelled.forEach(progress => this.metadataProgressService?.handleIncomingProgress(progress));
+        this.showMessage('success', this.t.translate('settingsTasks.toast.taskCancelled'),
+          this.t.translate('settingsTasks.progress.metadataBatchesCancelled', {count: cancelled.length}));
+        this.loadTasks();
+      },
+      error: (error) => {
+        console.error('Error cancelling metadata batches:', error);
+        this.showMessage('error', this.t.translate('common.error'), this.t.translate('settingsTasks.toast.cancelError'));
+      }
+    });
+  }
+
+  getMetadataRefreshStatusKey(task: MetadataBatchProgressNotification): string {
+    return `metadataBatchStatus.${task.status}`;
+  }
+
+  getMetadataRefreshMessage(task: MetadataBatchProgressNotification): string {
+    return task.status === MetadataBatchStatus.COMPLETED
+      ? this.t.translate('settingsTasks.progress.metadataBatchSuccessMessage')
+      : task.message;
   }
 
   getMetadataBatchProgressPercent(task: MetadataBatchProgressNotification): number {
     if (task.total <= 0) return 0;
     return Math.min(100, Math.round((task.completed / task.total) * 100));
+  }
+
+  getMetadataBatchEta(task: MetadataBatchProgressNotification): string | null {
+    // Read the clock signal so Angular refreshes the estimate while progress is steady.
+    const now = this.metadataEtaClock();
+    const samples = this.metadataProgressSamples.get(task.taskId);
+    if (!samples || now - samples.latestAt > 2 * 60_000 || samples.latestCompleted - samples.startCompleted < 3) {
+      return null;
+    }
+
+    const elapsedSeconds = (samples.latestAt - samples.startAt) / 1000;
+    if (elapsedSeconds < 30) {
+      return null;
+    }
+
+    const booksPerSecond = (samples.latestCompleted - samples.startCompleted) / elapsedSeconds;
+    const remainingSeconds = Math.ceil((task.total - task.completed) / booksPerSecond);
+    if (!Number.isFinite(remainingSeconds) || remainingSeconds < 0) {
+      return null;
+    }
+
+    return this.formatMetadataEta(remainingSeconds);
+  }
+
+  private recordMetadataProgressSamples(tasks: Record<string, MetadataBatchProgressNotification>): void {
+    const now = Date.now();
+    for (const task of Object.values(tasks)) {
+      if (task.status !== MetadataBatchStatus.IN_PROGRESS) {
+        continue;
+      }
+      const samples = this.metadataProgressSamples.get(task.taskId);
+      if (!samples) {
+        this.metadataProgressSamples.set(task.taskId, {
+          startCompleted: task.completed,
+          startAt: now,
+          latestCompleted: task.completed,
+          latestAt: now
+        });
+      } else if (samples.latestCompleted !== task.completed) {
+        samples.latestCompleted = task.completed;
+        samples.latestAt = now;
+      }
+    }
+  }
+
+  private formatMetadataEta(seconds: number): string {
+    const days = Math.floor(seconds / 86_400);
+    const hours = Math.floor((seconds % 86_400) / 3_600);
+    const minutes = Math.ceil((seconds % 3_600) / 60);
+    const parts: string[] = [];
+    if (days > 0) parts.push(this.t.translate('settingsTasks.progress.etaDays', {count: days}));
+    if (hours > 0) parts.push(this.t.translate('settingsTasks.progress.etaHours', {count: hours}));
+    if (minutes > 0 || parts.length === 0) parts.push(this.t.translate('settingsTasks.progress.etaMinutes', {count: minutes}));
+    return parts.slice(0, 2).join(' ');
   }
 
   private runTaskWithOptions(type: string, options: LibraryRescanOptions | MetadataRefreshRequest | null): void {
@@ -347,6 +456,42 @@ export class TaskManagementComponent implements OnInit {
     };
   }
 
+  getCronDescription(taskType: string): string {
+    const expression = this.getCronConfig(taskType)?.cronExpression;
+    if (!expression) return this.t.translate('settingsTasks.cron.noSchedule');
+    return this.describeCronExpression(expression);
+  }
+
+  describeCronExpression(expression: string): string {
+    const parts = expression.trim().split(/\s+/);
+    if (parts.length !== 6) return expression;
+
+    const [, minute, hour, day, month, weekday] = parts;
+    if (minute.startsWith('*/') && hour === '*' && day === '*' && month === '*' && weekday === '*') {
+      return this.t.translate('settingsTasks.cron.everyMinutes', {minutes: minute.slice(2)});
+    }
+    if (hour === '*' && day === '*' && month === '*' && weekday === '*') {
+      return this.t.translate('settingsTasks.cron.hourlyAt', {minute: minute.padStart(2, '0')});
+    }
+    if (day === '*' && month === '*' && weekday === '*') {
+      return this.t.translate('settingsTasks.cron.dailyAt', {time: `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`});
+    }
+    if (day === '*' && month === '*' && weekday !== '*') {
+      const weekdayKey = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][Number(weekday) % 7];
+      return this.t.translate('settingsTasks.cron.weeklyAt', {
+        day: this.t.translate(`settingsTasks.cron.weekdays.${weekdayKey}`),
+        time: `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`
+      });
+    }
+    if (month === '*' && weekday === '*' && /^\d+$/.test(day)) {
+      return this.t.translate('settingsTasks.cron.monthlyAt', {
+        day,
+        time: `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`
+      });
+    }
+    return expression;
+  }
+
   toggleCronEnabled(taskType: string): void {
     const cronConfig = this.getCronConfig(taskType);
     if (!cronConfig) return;
@@ -366,7 +511,88 @@ export class TaskManagementComponent implements OnInit {
     const cronConfig = this.getCronConfig(taskType);
     this.editingCronTaskType = taskType;
     this.editingCronExpression = cronConfig?.cronExpression || '';
+    this.parseCronForEditor(this.editingCronExpression);
     this.cronValidationError = null;
+    if (this.cronEditorMode === 'advanced') this.validateCronExpression(this.editingCronExpression);
+    else this.updateSimpleCronExpression();
+  }
+
+  onCronEditorModeChange(): void {
+    if (this.cronEditorMode === 'simple') {
+      this.updateSimpleCronExpression();
+    } else {
+      this.cronValidationError = null;
+    }
+  }
+
+  onSimpleCronChange(): void {
+    this.updateSimpleCronExpression();
+  }
+
+  private parseCronForEditor(expression: string): void {
+    const parts = expression.trim().split(/\s+/);
+    this.cronEditorMode = 'simple';
+    this.cronFrequency = 'daily';
+    this.cronIntervalMinutes = 15;
+    this.cronTime = '02:00';
+    this.cronWeekday = 1;
+    this.cronMonthDay = 1;
+    if (parts.length !== 6) return;
+
+    const [, minute, hour, day, month, weekday] = parts;
+    if (/^\*\/([0-9]+)$/.test(minute) && hour === '*' && day === '*' && month === '*' && weekday === '*') {
+      const interval = Number(minute.slice(2));
+      if (![5, 10, 15, 30].includes(interval)) {
+        this.cronEditorMode = 'advanced';
+        return;
+      }
+      this.cronFrequency = 'minutes';
+      this.cronIntervalMinutes = interval;
+    } else if (hour === '*' && day === '*' && month === '*' && weekday === '*') {
+      this.cronFrequency = 'hourly';
+      this.cronTime = `00:${minute.padStart(2, '0')}`;
+    } else if (day === '*' && month === '*' && weekday === '*') {
+      this.cronFrequency = 'daily';
+      this.cronTime = `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
+    } else if (day === '*' && month === '*' && /^\d+$/.test(weekday)) {
+      this.cronFrequency = 'weekly';
+      this.cronWeekday = Number(weekday) % 7;
+      this.cronTime = `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
+    } else if (month === '*' && /^\d+$/.test(day) && (weekday === '*' || weekday === '?')) {
+      this.cronFrequency = 'monthly';
+      this.cronMonthDay = Number(day);
+      this.cronTime = `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
+    } else {
+      this.cronEditorMode = 'advanced';
+    }
+  }
+
+  private updateSimpleCronExpression(): void {
+    const [hourText, minuteText] = this.cronTime.split(':');
+    const hour = Number(hourText) || 0;
+    const minute = Number(minuteText) || 0;
+    if (this.cronFrequency === 'monthly' && (!Number.isInteger(this.cronMonthDay) || this.cronMonthDay < 1 || this.cronMonthDay > 31)) {
+      this.editingCronExpression = '';
+      this.cronValidationError = this.t.translate('settingsTasks.cron.invalidDayOfMonth');
+      return;
+    }
+    switch (this.cronFrequency) {
+      case 'minutes':
+        this.editingCronExpression = `0 */${this.cronIntervalMinutes} * * * *`;
+        break;
+      case 'hourly':
+        this.editingCronExpression = `0 ${minute} * * * *`;
+        break;
+      case 'daily':
+        this.editingCronExpression = `0 ${minute} ${hour} * * *`;
+        break;
+      case 'weekly':
+        this.editingCronExpression = `0 ${minute} ${hour} * * ${this.cronWeekday}`;
+        break;
+      case 'monthly':
+        this.editingCronExpression = `0 ${minute} ${hour} ${this.cronMonthDay} * ?`;
+        break;
+    }
     this.validateCronExpression(this.editingCronExpression);
   }
 
@@ -561,6 +787,11 @@ export class TaskManagementComponent implements OnInit {
 
   getTaskProgressPercentage(taskType: string): number | null {
     return this.getTaskHistory(taskType)?.progressPercentage ?? null;
+  }
+
+  shouldShowTaskProgressBar(taskType: string): boolean {
+    return this.getTaskProgressPercentage(taskType) !== null
+      && !(taskType === TaskType.REFRESH_LIBRARY_METADATA && this.getMetadataRefreshToDisplay() !== null);
   }
 
   getTaskUpdatedAt(taskType: string): string | null {

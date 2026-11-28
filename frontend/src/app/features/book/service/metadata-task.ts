@@ -61,4 +61,8 @@ export class MetadataTaskService {
   getActiveTasks(): Observable<MetadataBatchProgressNotification[]> {
     return this.http.get<MetadataBatchProgressNotification[]>(`${this.url}/active`);
   }
+
+  cancelAllInProgressTasks(): Observable<MetadataBatchProgressNotification[]> {
+    return this.http.post<MetadataBatchProgressNotification[]>(`${this.url}/cancel-in-progress`, null);
+  }
 }

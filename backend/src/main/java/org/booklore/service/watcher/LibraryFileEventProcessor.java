@@ -46,6 +46,7 @@ public class LibraryFileEventProcessor implements SmartLifecycle {
     private final BookFilePersistenceService bookFilePersistenceService;
     private final LibraryProcessingService libraryProcessingService;
     private final PendingDeletionPool pendingDeletionPool;
+    private final BookFileEventSuppression bookFileEventSuppression;
 
     private ScheduledExecutorService scheduler;
     private final ConcurrentMap<Path, ScheduledFuture<?>> pendingDeletes = new ConcurrentHashMap<>();
@@ -105,6 +106,10 @@ public class LibraryFileEventProcessor implements SmartLifecycle {
 
     public void processEvent(WatchEvent.Kind<?> eventKind, long libraryId, Path fullPath, boolean isDirectory) {
         Path path = fullPath.toAbsolutePath().normalize();
+        if (bookFileEventSuppression.isSuppressed(path)) {
+            log.debug("[SKIP] Suppressed application file event '{}' for '{}'", eventKind.name(), path);
+            return;
+        }
 
         if (eventKind == StandardWatchEventKinds.ENTRY_DELETE) {
             ScheduledFuture<?> existing = pendingDeletes.put(path, scheduler.schedule(() -> {
@@ -159,6 +164,10 @@ public class LibraryFileEventProcessor implements SmartLifecycle {
 
     private void handleEvent(FileEvent event) {
         Path path = event.fullPath();
+        if (bookFileEventSuppression.isSuppressed(path)) {
+            log.debug("[SKIP] Suppressed queued application file event '{}' for '{}'", event.eventKind().name(), path);
+            return;
+        }
         String fileName = path.getFileName().toString();
         log.info("[PROCESS] '{}' event for '{}'{}", event.eventKind().name(), fileName,
                 event.isDirectory() ? " (directory)" : "");

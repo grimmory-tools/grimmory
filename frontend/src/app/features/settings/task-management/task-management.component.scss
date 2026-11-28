@@ -401,7 +401,7 @@
   display: flex;
   align-items: center;
   gap: 0.4375rem;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
 
   .pi-clock {
     color: var(--p-primary-color);
@@ -436,6 +436,8 @@
   display: flex;
   align-items: center;
   gap: 0.2188rem;
+  flex-wrap: wrap;
+  max-width: min(100%, 560px);
 
   @media (width <= 600px) {
     flex-wrap: wrap;
@@ -466,6 +468,40 @@
   @media (width <= 600px) {
     width: 100%;
   }
+}
+
+.cron-select {
+  min-width: 110px;
+  max-width: 180px;
+  padding: 0.2188rem 0.4375rem;
+  color: var(--p-text-color);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: var(--app-text-xs);
+}
+
+.cron-field-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3281rem;
+  color: var(--p-text-muted-color);
+  font-size: var(--app-text-xs);
+  white-space: nowrap;
+}
+
+.cron-preview {
+  flex-basis: 100%;
+  color: var(--p-text-muted-color);
+  font-size: var(--app-text-xs);
+}
+
+.cron-advanced-input {
+  width: 200px;
+}
+
+.cron-day-input {
+  width: 64px;
 }
 
 .cron-error {

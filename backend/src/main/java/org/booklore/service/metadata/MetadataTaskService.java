@@ -10,8 +10,14 @@ import org.booklore.model.entity.MetadataFetchJobEntity;
 import org.booklore.model.entity.MetadataFetchProposalEntity;
 import org.booklore.model.enums.FetchedMetadataProposalStatus;
 import org.booklore.model.enums.MetadataFetchTaskStatus;
+import org.booklore.model.enums.TaskType;
 import org.booklore.repository.MetadataFetchJobRepository;
 import org.booklore.repository.MetadataFetchProposalRepository;
+import org.booklore.service.NotificationService;
+import org.booklore.service.task.TaskHistoryService;
+import org.booklore.task.TaskCancellationManager;
+import org.booklore.task.TaskStatus;
+import org.booklore.model.websocket.Topic;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +34,9 @@ public class MetadataTaskService {
     private final MetadataFetchProposalRepository proposalRepository;
     private final FetchedProposalMapper fetchedProposalMapper;
     private final AuthenticationService authenticationService;
+    private final TaskCancellationManager cancellationManager;
+    private final TaskHistoryService taskHistoryService;
+    private final NotificationService notificationService;
 
     @Transactional(readOnly = true)
     public Optional<MetadataTaskDetailsResponse> getTaskWithProposals(String taskId) {
@@ -94,20 +103,17 @@ public class MetadataTaskService {
         List<MetadataFetchJobEntity> tasks = metadataFetchTaskRepository.findAllWithProposals();
 
         return tasks.stream()
-                .filter(task -> task.getStatus() == MetadataFetchTaskStatus.COMPLETED || task.getStatus() == MetadataFetchTaskStatus.ERROR)
+                .filter(task -> task.getStatus() == MetadataFetchTaskStatus.COMPLETED
+                        || task.getStatus() == MetadataFetchTaskStatus.ERROR
+                        || task.getStatus() == MetadataFetchTaskStatus.CANCELLED)
                 .map(task -> {
                     List<MetadataFetchProposalEntity> proposals = task.getProposals();
                     List<MetadataFetchProposalEntity> remaining = proposals.stream()
                             .filter(p -> p.getStatus() != FetchedMetadataProposalStatus.REJECTED)
                             .toList();
+                    boolean reviewMode = !proposals.isEmpty();
 
                     int total;
-                    long acceptedCount = remaining.stream()
-                            .filter(p -> p.getStatus() == FetchedMetadataProposalStatus.ACCEPTED)
-                            .count();
-                    long fetchedCount = remaining.stream()
-                            .filter(p -> p.getStatus() == FetchedMetadataProposalStatus.FETCHED)
-                            .count();
 
                     String message;
                     String status;
@@ -115,13 +121,18 @@ public class MetadataTaskService {
 
                     if (task.getStatus() == MetadataFetchTaskStatus.ERROR) {
                         total = task.getTotalBooksCount() != null ? task.getTotalBooksCount() : remaining.size();
-                        message = String.format("Metadata fetch failed, processed %d of %d books.", completedCount, total);
+                        message = task.getStatusMessage() != null && !task.getStatusMessage().isBlank()
+                                ? task.getStatusMessage()
+                                : String.format("Metadata fetch failed after processing %d of %d books.", completedCount, total);
                         status = "ERROR";
+                    } else if (task.getStatus() == MetadataFetchTaskStatus.CANCELLED) {
+                        total = task.getTotalBooksCount() != null ? task.getTotalBooksCount() : remaining.size();
+                        message = String.format("Metadata fetch cancelled after processing %d of %d books.", completedCount, total);
+                        status = "CANCELLED";
                     } else {
-                        total = remaining.size();
-                        message = String.format("Metadata fetch completed! %d books need review.", fetchedCount);
+                        total = task.getTotalBooksCount() != null ? task.getTotalBooksCount() : remaining.size();
+                        message = String.format("Metadata fetch completed successfully. %d books processed.", completedCount);
                         status = "COMPLETED";
-                        completedCount = (int) acceptedCount;
                     }
 
                     return new MetadataBatchProgressNotification(
@@ -130,10 +141,35 @@ public class MetadataTaskService {
                             total,
                             message,
                             status,
-                            true
+                            reviewMode
                     );
                 })
                 .filter(n -> n.getTotal() > 0)
                 .toList();
+    }
+
+    @Transactional
+    public List<MetadataBatchProgressNotification> cancelAllInProgressTasks() {
+        Instant completedAt = Instant.now();
+        List<MetadataFetchJobEntity> jobs = metadataFetchTaskRepository.findAllByStatus(MetadataFetchTaskStatus.IN_PROGRESS);
+        List<MetadataBatchProgressNotification> cancelled = new java.util.ArrayList<>();
+        for (MetadataFetchJobEntity job : jobs) {
+            cancellationManager.cancelTask(job.getTaskId());
+            job.setStatus(MetadataFetchTaskStatus.CANCELLED);
+            job.setStatusMessage("Metadata batch cancelled by user");
+            job.setCompletedAt(completedAt);
+            metadataFetchTaskRepository.save(job);
+            taskHistoryService.updateTaskStatus(job.getTaskId(), TaskStatus.CANCELLED, "Metadata batch cancelled by user");
+            int completed = job.getCompletedBooks() != null ? job.getCompletedBooks() : 0;
+            int total = job.getTotalBooksCount() != null ? job.getTotalBooksCount() : completed;
+            MetadataBatchProgressNotification progress = new MetadataBatchProgressNotification(job.getTaskId(), completed, total,
+                    "Metadata batch cancelled by user", MetadataFetchTaskStatus.CANCELLED.name(), !job.getProposals().isEmpty());
+            notificationService.sendMessage(Topic.BOOK_METADATA_BATCH_PROGRESS, progress);
+            cancelled.add(progress);
+        }
+
+        // Close orphaned task-history rows left behind by a restart even when their job row is missing.
+        taskHistoryService.cancelInProgressMetadataTasks();
+        return cancelled;
     }
 }

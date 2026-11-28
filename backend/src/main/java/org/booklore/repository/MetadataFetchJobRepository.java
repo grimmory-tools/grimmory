@@ -24,8 +24,10 @@ public interface MetadataFetchJobRepository extends JpaRepository<MetadataFetchJ
     @Query("SELECT COUNT(m) FROM MetadataFetchJobEntity m")
     long countAll();
 
-    @Query("SELECT DISTINCT t FROM MetadataFetchJobEntity t LEFT JOIN FETCH t.proposals")
+    @Query("SELECT DISTINCT t FROM MetadataFetchJobEntity t LEFT JOIN FETCH t.proposals ORDER BY t.startedAt ASC")
     List<MetadataFetchJobEntity> findAllWithProposals();
+
+    List<MetadataFetchJobEntity> findAllByStatus(MetadataFetchTaskStatus status);
 
     @Modifying
     @Transactional

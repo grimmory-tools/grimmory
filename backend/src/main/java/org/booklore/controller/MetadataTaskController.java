@@ -41,6 +41,13 @@ public class MetadataTaskController {
         return ResponseEntity.ok(metadataTaskService.getActiveTasks());
     }
 
+    @Operation(summary = "Cancel all in-progress metadata batches")
+    @PostMapping("/cancel-in-progress")
+    @PreAuthorize("@securityUtil.canEditMetadata() or @securityUtil.isAdmin()")
+    public ResponseEntity<List<MetadataBatchProgressNotification>> cancelAllInProgressTasks() {
+        return ResponseEntity.ok(metadataTaskService.cancelAllInProgressTasks());
+    }
+
     @Operation(summary = "Delete a metadata task", description = "Delete a metadata task and its proposals by task ID. Requires metadata edit permission or admin.")
     @ApiResponse(responseCode = "204", description = "Task deleted successfully")
     @DeleteMapping("/{taskId}")
