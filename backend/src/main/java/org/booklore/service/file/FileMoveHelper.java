@@ -15,13 +15,16 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystemException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Slf4j
@@ -41,6 +44,7 @@ public class FileMoveHelper {
             DirectoryNotEmptyException.class
     );
     private static final Set<String> IGNORED_FILENAMES = Set.of(".DS_Store", "Thumbs.db");
+    public static final String TEMP_SUFFIX = ".tmp_move";
 
     public boolean waitForFileAccessible(Path path) {
         for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
@@ -63,6 +67,70 @@ public class FileMoveHelper {
         return Files.exists(sourcePath);
     }
 
+    /**
+     * Verifies that every planned move can be performed without overwriting anything.
+     * Fails if two sources resolve to the same target, if a target is already occupied
+     * by a file other than its own source (a case-only rename of the same file is allowed),
+     * or if an existing source still has a {@value #TEMP_SUFFIX} sibling left by an earlier failed
+     * move (that leftover may be the only copy of a file, so it is never overwritten).
+     * Also fails if a reserved slot is occupied by a file other than one of the sources being moved.
+     * Must be called before any file is touched.
+     *
+     * @param sourceToTarget planned moves, keyed by source path
+     * @param reservedSlots  paths nothing is moved into, but that the moved book will use afterwards
+     *                       (e.g. its sidecar slots), so they must not belong to another file
+     * @throws FileAlreadyExistsException if a move would overwrite an existing file
+     */
+    public void ensureTargetsAvailable(Map<Path, Path> sourceToTarget, Set<Path> reservedSlots) throws IOException {
+        Map<Path, Path> claimedTargets = new HashMap<>();
+        for (Map.Entry<Path, Path> entry : sourceToTarget.entrySet()) {
+            Path source = entry.getKey();
+            Path target = entry.getValue();
+            Path normalizedTarget = target.toAbsolutePath().normalize();
+
+            Path previousSource = claimedTargets.putIfAbsent(normalizedTarget, source);
+            if (previousSource != null) {
+                throw new FileAlreadyExistsException(target.toString(), null,
+                        "Both " + previousSource + " and " + source + " would be moved to this path");
+            }
+
+            if (Files.exists(target, LinkOption.NOFOLLOW_LINKS) && !isSameFile(source, target)) {
+                throw new FileAlreadyExistsException(target.toString(), null,
+                        "Target is already occupied by another file; refusing to overwrite it while moving " + source);
+            }
+
+            Path staleTemp = tempPathFor(source);
+            if (Files.exists(source, LinkOption.NOFOLLOW_LINKS) && Files.exists(staleTemp, LinkOption.NOFOLLOW_LINKS)) {
+                throw new FileAlreadyExistsException(staleTemp.toString(), null,
+                        "Leftover temporary file from an earlier failed move; it may be the only copy of a file and must be checked manually");
+            }
+        }
+
+        for (Path slot : reservedSlots) {
+            if (Files.exists(slot, LinkOption.NOFOLLOW_LINKS)
+                    && sourceToTarget.keySet().stream().noneMatch(source -> isSameFile(source, slot))) {
+                throw new FileAlreadyExistsException(slot.toString(), null,
+                        "Slot the moved book will use is already occupied by another file");
+            }
+        }
+    }
+
+    public static Path tempPathFor(Path source) {
+        return source.resolveSibling(source.getFileName().toString() + TEMP_SUFFIX);
+    }
+
+    public static boolean isTempPath(String path) {
+        return path != null && path.endsWith(TEMP_SUFFIX);
+    }
+
+    private boolean isSameFile(Path a, Path b) {
+        try {
+            return Files.isSameFile(a, b);
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
     public void moveFile(Path source, Path target) throws IOException {
         if (!waitForFileAccessible(source)) {
             throw new NoSuchFileException(source.toString(), null, "Source file not accessible after retries");
@@ -73,7 +141,7 @@ public class FileMoveHelper {
         }
 
         log.info("Moving file from {} to {}", source, target);
-        executeWithRetry(() -> Files.move(source, target, StandardCopyOption.REPLACE_EXISTING));
+        executeWithRetry(() -> Files.move(source, target));
     }
 
     public Path moveFileWithBackup(Path source) throws IOException {
@@ -81,9 +149,9 @@ public class FileMoveHelper {
             throw new NoSuchFileException(source.toString(), null, "Source file not accessible after retries");
         }
 
-        Path tempPath = source.resolveSibling(source.getFileName().toString() + ".tmp_move");
+        Path tempPath = tempPathFor(source);
         log.info("Moving file from {} to temporary location {}", source, tempPath);
-        executeWithRetry(() -> Files.move(source, tempPath, StandardCopyOption.REPLACE_EXISTING));
+        executeWithRetry(() -> Files.move(source, tempPath));
         return tempPath;
     }
 
@@ -96,7 +164,7 @@ public class FileMoveHelper {
             Files.createDirectories(target.getParent());
         }
         log.info("Committing move from temporary location {} to {}", tempPath, target);
-        executeWithRetry(() -> Files.move(tempPath, target, StandardCopyOption.REPLACE_EXISTING));
+        executeWithRetry(() -> Files.move(tempPath, target));
     }
 
     public void rollbackMove(Path tempPath, Path originalSource) {
@@ -107,12 +175,19 @@ public class FileMoveHelper {
         for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
             try {
                 log.info("Rolling back move from {} to {}", tempPath, originalSource);
-                Files.move(tempPath, originalSource, StandardCopyOption.REPLACE_EXISTING);
+                Files.move(tempPath, originalSource);
                 return;
             } catch (IOException e) {
+                // In both cases the temp file still holds the file's content: it must be recovered, not deleted.
+                if (e instanceof FileAlreadyExistsException) {
+                    log.error("Cannot roll back file move: original path {} is now occupied by another file. " +
+                            "Temp file {} may be the only copy of the file and needs manual recovery.",
+                            originalSource, tempPath, e);
+                    return;
+                }
                 if (attempt == MAX_ATTEMPTS) {
-                    log.error("Failed to rollback file move from {} to {} after {} attempts. " +
-                            "Orphaned temp file may need manual cleanup: {}", 
+                    log.error("Failed to roll back file move from {} to {} after {} attempts. " +
+                            "Temp file {} may be the only copy of the file and needs manual recovery.",
                             tempPath, originalSource, MAX_ATTEMPTS, tempPath, e);
                     return;
                 }
@@ -306,6 +381,10 @@ public class FileMoveHelper {
     }
 
     private boolean isRetryableException(IOException e) {
+        // FileAlreadyExistsException is a FileSystemException, but retrying cannot make the target disappear
+        if (e instanceof FileAlreadyExistsException) {
+            return false;
+        }
         return RETRYABLE_EXCEPTIONS.stream().anyMatch(type -> type.isInstance(e));
     }
 

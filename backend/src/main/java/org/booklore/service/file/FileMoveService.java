@@ -13,6 +13,7 @@ import org.booklore.model.entity.BookEntity;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.LibraryEntity;
 import org.booklore.model.entity.LibraryPathEntity;
+import org.booklore.model.websocket.LogNotification;
 import org.booklore.model.websocket.Topic;
 import org.booklore.repository.BookAdditionalFileRepository;
 import org.booklore.repository.BookRepository;
@@ -24,9 +25,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -36,6 +40,11 @@ import java.util.stream.Collectors;
 public class FileMoveService {
 
     private static final long EVENT_DRAIN_TIMEOUT_MS = 300;
+
+    private record PlannedMove(Path source, Path temp, Path target) {}
+
+    /** A refused move: the user-facing message, and whether it is a leftover temp file (possible only copy). */
+    private record Conflict(String message, boolean staleTemp) {}
 
     private final AppProperties appProperties;
     private final BookRepository bookRepository;
@@ -63,18 +72,68 @@ public class FileMoveService {
         monitoringRegistrationService.unregisterLibraries(allAffectedLibraryIds);
         monitoringRegistrationService.waitForEventsDrainedByPaths(libraryPaths, EVENT_DRAIN_TIMEOUT_MS);
 
+        List<Conflict> conflicts = new ArrayList<>();
         try {
             for (FileMoveRequest.Move move : moves) {
-                processSingleMove(move);
+                processSingleMove(move).ifPresent(conflicts::add);
             }
             // Ensure any file system events from the moves are drained/ignored while we are still unregistered
             sleep(EVENT_DRAIN_TIMEOUT_MS);
         } finally {
-            for (Long libraryId : allAffectedLibraryIds) {
-                libraryRepository.findByIdWithPaths(libraryId)
-                        .ifPresent(library -> monitoringRegistrationService.registerLibrary(libraryMapper.toLibrary(library)));
+            // Refused books must be reported even if re-registering a library fails
+            try {
+                for (Long libraryId : allAffectedLibraryIds) {
+                    libraryRepository.findByIdWithPaths(libraryId)
+                            .ifPresent(library -> monitoringRegistrationService.registerLibrary(libraryMapper.toLibrary(library)));
+                }
+            } finally {
+                notifyConflicts(conflicts);
             }
         }
+    }
+
+    /**
+     * Leftover temp files are always reported individually: each may be the only copy of a file, so the warning
+     * and its path must never be folded into a summary. Ordinary path conflicts get their own message when there
+     * is one, and a single summary when there are several.
+     */
+    private void notifyConflicts(List<Conflict> conflicts) {
+        List<Conflict> taken = new ArrayList<>();
+        for (Conflict conflict : conflicts) {
+            if (conflict.staleTemp()) {
+                notificationService.sendMessage(Topic.LOG, LogNotification.warn(conflict.message()));
+            } else {
+                taken.add(conflict);
+            }
+        }
+        if (taken.size() == 1) {
+            notificationService.sendMessage(Topic.LOG, LogNotification.warn(taken.getFirst().message()));
+        } else if (taken.size() > 1) {
+            notificationService.sendMessage(Topic.LOG, LogNotification.warn(
+                    taken.size() + " books were not moved: their target paths are already taken by other files."));
+        }
+    }
+
+    /**
+     * Short, user-facing description of a refused move, e.g.
+     * {@code Not moved: "Comics/Series 01.cbz" is already taken by another file.}
+     * A leftover {@value FileMoveHelper#TEMP_SUFFIX} file gets its own message: it is not a destination
+     * conflict, and it may be the only remaining copy of a file.
+     */
+    private static String describeConflict(FileAlreadyExistsException e, String libraryRoot) {
+        String shown = e.getFile();
+        if (shown != null && libraryRoot != null) {
+            Path target = Paths.get(shown).toAbsolutePath().normalize();
+            Path root = Paths.get(libraryRoot).toAbsolutePath().normalize();
+            if (target.startsWith(root)) {
+                shown = root.relativize(target).toString().replace('\\', '/');
+            }
+        }
+        if (FileMoveHelper.isTempPath(shown)) {
+            return "Not moved: leftover temporary file \"" + shown + "\" from an earlier failed move. "
+                    + "Check it before deleting it: it may be the only copy of the file.";
+        }
+        return "Not moved: \"" + shown + "\" is already taken by another file.";
     }
 
     private Set<Long> collectAllAffectedLibraryIds(List<FileMoveRequest.Move> moves) {
@@ -91,21 +150,24 @@ public class FileMoveService {
         return libraryIds;
     }
 
-    private void processSingleMove(FileMoveRequest.Move move) {
+    /**
+     * @return the conflict, if the move was refused because a target is taken or a leftover temp file blocks it
+     */
+    private Optional<Conflict> processSingleMove(FileMoveRequest.Move move) {
         Long bookId = move.getBookId();
         Long targetLibraryId = move.getTargetLibraryId();
         Long targetLibraryPathId = move.getTargetLibraryPathId();
 
-        record PlannedMove(Path source, Path temp, Path target) {}
-
-        Map<Long, PlannedMove> plannedMovesByBookFileId = new HashMap<>();
+        Map<Path, PlannedMove> stagedMoves = new LinkedHashMap<>();
         Set<Path> sourceParentsToCleanup = new HashSet<>();
+        // Resolved before any file operation, so the conflict handler needs no further (fallible) query.
+        String targetRoot = null;
 
         try {
             Optional<BookEntity> optionalBook = bookRepository.findByIdWithBookFiles(bookId);
             if (optionalBook.isEmpty()) {
                 log.warn("Book not found for move operation: bookId={}", bookId);
-                return;
+                return Optional.empty();
             }
             BookEntity bookEntity = optionalBook.get();
             if (targetLibraryId == null) {
@@ -114,7 +176,7 @@ public class FileMoveService {
             Optional<LibraryEntity> optionalLibrary = libraryRepository.findByIdWithPaths(targetLibraryId);
             if (optionalLibrary.isEmpty()) {
                 log.warn("Target library not found for move operation: libraryId={}", targetLibraryId);
-                return;
+                return Optional.empty();
             }
             LibraryEntity targetLibrary = optionalLibrary.get();
 
@@ -123,9 +185,10 @@ public class FileMoveService {
                     .findFirst();
             if (optionalLibraryPathEntity.isEmpty()) {
                 log.warn("Target library path not found for move operation: libraryId={}, pathId={}", targetLibraryId, targetLibraryPathId);
-                return;
+                return Optional.empty();
             }
             LibraryPathEntity libraryPathEntity = optionalLibraryPathEntity.get();
+            targetRoot = libraryPathEntity.getPath();
 
             if (bookEntity.getBookFiles() == null || bookEntity.getBookFiles().isEmpty()) {
                 if (Boolean.TRUE.equals(bookEntity.getIsPhysical())) {
@@ -137,7 +200,7 @@ public class FileMoveService {
                 } else {
                     log.warn("Book has no files to move: bookId={}", bookId);
                 }
-                return;
+                return Optional.empty();
             }
 
             List<BookFileEntity> bookFiles = bookEntity.getBookFiles().stream()
@@ -150,7 +213,7 @@ public class FileMoveService {
             Path newFilePath = fileMoveHelper.generateNewFilePath(bookEntity, libraryPathEntity, pattern);
 
             if (currentPrimaryFilePath.equals(newFilePath)) {
-                return;
+                return Optional.empty();
             }
 
             String newFileSubPath = fileMoveHelper.extractSubPath(newFilePath, libraryPathEntity);
@@ -158,7 +221,7 @@ public class FileMoveService {
 
             if (targetParentDir == null) {
                 log.warn("Target parent directory could not be determined for move operation: bookId={}", bookId);
-                return;
+                return Optional.empty();
             }
 
             // Validate all source paths exist before attempting moves
@@ -167,10 +230,14 @@ public class FileMoveService {
                 if (!fileMoveHelper.validateSourceExists(sourcePath, bookFile.isFolderBased())) {
                     log.warn("Source {} not found: bookId={}, path={}",
                             bookFile.isFolderBased() ? "folder" : "file", bookId, sourcePath);
-                    return;
+                    return Optional.empty();
                 }
             }
 
+            // Resolve every target up front and refuse to proceed if any of them would overwrite
+            // an existing file (e.g. another book whose metadata resolves to the same path).
+            Map<BookFileEntity, Path> targetsByBookFile = new LinkedHashMap<>();
+            Map<Path, Path> sourceToTarget = new LinkedHashMap<>();
             for (var bookFile : bookFiles) {
                 Path sourcePath = bookFile.getFullFilePath();
                 Path targetPath;
@@ -183,26 +250,38 @@ public class FileMoveService {
                 if (sourcePath.equals(targetPath)) {
                     continue;
                 }
+                targetsByBookFile.put(bookFile, targetPath);
+                sourceToTarget.put(sourcePath, targetPath);
+            }
+            Set<Path> reservedSlots = new LinkedHashSet<>();
+            Map<Path, Path> sidecarsToStage = planSidecarMoves(currentPrimaryFilePath, newFilePath, trackedPaths(bookFiles), sourceToTarget, reservedSlots);
+            fileMoveHelper.ensureTargetsAvailable(sourceToTarget, reservedSlots);
+
+            for (var entry : targetsByBookFile.entrySet()) {
+                BookFileEntity bookFile = entry.getKey();
+                Path sourcePath = bookFile.getFullFilePath();
+                Path targetPath = entry.getValue();
 
                 Path tempPath = fileMoveHelper.moveFileWithBackup(sourcePath);
-                plannedMovesByBookFileId.put(bookFile.getId(), new PlannedMove(sourcePath, tempPath, targetPath));
+                stagedMoves.put(sourcePath, new PlannedMove(sourcePath, tempPath, targetPath));
                 if (sourcePath.getParent() != null) {
                     sourceParentsToCleanup.add(sourcePath.getParent());
                 }
             }
+            for (var sidecar : sidecarsToStage.entrySet()) {
+                Path tempPath = fileMoveHelper.moveFileWithBackup(sidecar.getKey());
+                stagedMoves.put(sidecar.getKey(), new PlannedMove(sidecar.getKey(), tempPath, sidecar.getValue()));
+            }
 
-            if (plannedMovesByBookFileId.isEmpty()) {
-                return;
+            if (stagedMoves.isEmpty()) {
+                return Optional.empty();
             }
 
             List<PlannedMove> committedMoves = new ArrayList<>();
 
             // Commit file moves FIRST before updating database
-            for (PlannedMove planned : plannedMovesByBookFileId.values()) {
-                fileMoveHelper.commitMove(planned.temp(), planned.target());
-                committedMoves.add(planned);
-            }
-            plannedMovesByBookFileId.clear();
+            // On failure, already-committed moves are reverted here; still-staged ones are reverted in finally.
+            commitPlannedMoves(stagedMoves, committedMoves, bookId);
 
             // Only update database after all file commits succeed
             try {
@@ -222,13 +301,7 @@ public class FileMoveService {
                 });
             } catch (Exception e) {
                 log.error("Database update failed after files were moved. Attempting to rollback file moves for book ID {}", bookId, e);
-                for (PlannedMove committed : committedMoves) {
-                    try {
-                        fileMoveHelper.moveFile(committed.target(), committed.source());
-                    } catch (Exception rollbackEx) {
-                        log.error("Failed to rollback file move (Target -> Source) for book ID {}: {} -> {}", bookId, committed.target(), committed.source(), rollbackEx);
-                    }
-                }
+                rollbackCommittedMoves(committedMoves, bookId);
                 throw e;
             }
 
@@ -241,12 +314,6 @@ public class FileMoveService {
             // Also protect the source library root so cleanup doesn't traverse above it
             libraryRoots.add(Paths.get(bookEntity.getLibraryPath().getPath()).toAbsolutePath().normalize());
 
-            try {
-                sidecarMetadataWriter.moveSidecarFiles(currentPrimaryFilePath, newFilePath);
-            } catch (Exception e) {
-                log.warn("Failed to move sidecar files for book ID {}: {}", bookId, e.getMessage());
-            }
-
             for (Path sourceParent : sourceParentsToCleanup) {
                 fileMoveHelper.deleteEmptyParentDirsUpToLibraryFolders(sourceParent, libraryRoots);
             }
@@ -257,18 +324,20 @@ public class FileMoveService {
 
             notificationService.sendMessage(Topic.BOOK_UPDATE, bookMapper.toBookWithDescription(fresh, false));
 
+        } catch (FileAlreadyExistsException e) {
+            log.warn("Refusing to move book ID {}: {}", bookId, e.getMessage());
+            return Optional.of(new Conflict(describeConflict(e, targetRoot), FileMoveHelper.isTempPath(e.getFile())));
         } catch (Exception e) {
             log.error("Error moving file for book ID {}: {}", bookId, e.getMessage(), e);
         } finally {
-            for (PlannedMove planned : plannedMovesByBookFileId.values()) {
+            for (PlannedMove planned : stagedMoves.values()) {
                 fileMoveHelper.rollbackMove(planned.temp(), planned.source());
             }
         }
+        return Optional.empty();
     }
 
     public FileMoveResult moveSingleFile(BookEntity bookEntity) {
-        record PlannedMove(Path source, Path temp, Path target) {}
-
         validateLocalStorage();
 
         Long libraryId = bookEntity.getLibraryPath().getLibrary().getId();
@@ -285,7 +354,7 @@ public class FileMoveService {
         }
 
         boolean isLibraryMonitoredWhenCalled = false;
-        Map<Long, PlannedMove> plannedMovesByBookFileId = new HashMap<>();
+        Map<Path, PlannedMove> stagedMoves = new LinkedHashMap<>();
         Set<Path> sourceParentsToCleanup = new HashSet<>();
 
         try {
@@ -347,7 +416,10 @@ public class FileMoveService {
                 monitoringRegistrationService.waitForEventsDrainedByPaths(existingPaths, EVENT_DRAIN_TIMEOUT_MS);
             }
 
-            // Stage all files to temp locations
+            // Resolve every target up front and refuse to proceed if any of them would overwrite
+            // an existing file (e.g. another book whose metadata resolves to the same path).
+            Map<BookFileEntity, Path> targetsByBookFile = new LinkedHashMap<>();
+            Map<Path, Path> sourceToTarget = new LinkedHashMap<>();
             for (var bookFile : bookFiles) {
                 Path sourcePath = bookFile.getFullFilePath();
                 Path targetPath;
@@ -360,26 +432,39 @@ public class FileMoveService {
                 if (sourcePath.equals(targetPath)) {
                     continue;
                 }
+                targetsByBookFile.put(bookFile, targetPath);
+                sourceToTarget.put(sourcePath, targetPath);
+            }
+            Set<Path> reservedSlots = new LinkedHashSet<>();
+            Map<Path, Path> sidecarsToStage = planSidecarMoves(currentPrimaryFilePath, expectedPrimaryFilePath, trackedPaths(bookFiles), sourceToTarget, reservedSlots);
+            fileMoveHelper.ensureTargetsAvailable(sourceToTarget, reservedSlots);
+
+            // Stage all files to temp locations
+            for (var entry : targetsByBookFile.entrySet()) {
+                BookFileEntity bookFile = entry.getKey();
+                Path sourcePath = bookFile.getFullFilePath();
+                Path targetPath = entry.getValue();
 
                 Path tempPath = fileMoveHelper.moveFileWithBackup(sourcePath);
-                plannedMovesByBookFileId.put(bookFile.getId(), new PlannedMove(sourcePath, tempPath, targetPath));
+                stagedMoves.put(sourcePath, new PlannedMove(sourcePath, tempPath, targetPath));
                 if (sourcePath.getParent() != null) {
                     sourceParentsToCleanup.add(sourcePath.getParent());
                 }
             }
+            for (var sidecar : sidecarsToStage.entrySet()) {
+                Path tempPath = fileMoveHelper.moveFileWithBackup(sidecar.getKey());
+                stagedMoves.put(sidecar.getKey(), new PlannedMove(sidecar.getKey(), tempPath, sidecar.getValue()));
+            }
 
-            if (plannedMovesByBookFileId.isEmpty()) {
+            if (stagedMoves.isEmpty()) {
                 return FileMoveResult.builder().moved(false).build();
             }
 
             List<PlannedMove> committedMoves = new ArrayList<>();
 
             // Commit all file moves FIRST before updating database
-            for (PlannedMove planned : plannedMovesByBookFileId.values()) {
-                fileMoveHelper.commitMove(planned.temp(), planned.target());
-                committedMoves.add(planned);
-            }
-            plannedMovesByBookFileId.clear();
+            // On failure, already-committed moves are reverted here; still-staged ones are reverted in finally.
+            commitPlannedMoves(stagedMoves, committedMoves, bookEntity.getId());
 
             // Update database for ALL BookFileEntity records (only after all commits succeed)
             BookEntity finalBookWithFiles = bookWithFiles;
@@ -398,13 +483,7 @@ public class FileMoveService {
                 });
             } catch (Exception e) {
                 log.error("Database update failed after files were moved. Attempting to rollback file moves for book ID {}", bookEntity.getId(), e);
-                for (PlannedMove committed : committedMoves) {
-                    try {
-                        fileMoveHelper.moveFile(committed.target(), committed.source());
-                    } catch (Exception rollbackEx) {
-                        log.error("Failed to rollback file move (Target -> Source) for book ID {}: {} -> {}", bookEntity.getId(), committed.target(), committed.source(), rollbackEx);
-                    }
-                }
+                rollbackCommittedMoves(committedMoves, bookEntity.getId());
                 throw e;
             }
 
@@ -422,12 +501,6 @@ public class FileMoveService {
             // Also protect the source library root so cleanup doesn't traverse above it
             libraryRoots.add(Paths.get(bookWithFiles.getLibraryPath().getPath()).toAbsolutePath().normalize());
 
-            try {
-                sidecarMetadataWriter.moveSidecarFiles(currentPrimaryFilePath, expectedPrimaryFilePath);
-            } catch (Exception e) {
-                log.warn("Failed to move sidecar files for book ID {}: {}", bookEntity.getId(), e.getMessage());
-            }
-
             for (Path sourceParent : sourceParentsToCleanup) {
                 fileMoveHelper.deleteEmptyParentDirsUpToLibraryFolders(sourceParent, libraryRoots);
             }
@@ -444,11 +517,14 @@ public class FileMoveService {
                     .newFileName(newFileName)
                     .newFileSubPath(newFileSubPath)
                     .build();
+        } catch (FileAlreadyExistsException e) {
+            log.warn("Refusing to move book ID {}: {}", bookEntity.getId(), e.getMessage());
+            notificationService.sendMessage(Topic.LOG, LogNotification.warn(describeConflict(e, libraryRoot.toString())));
         } catch (Exception e) {
             log.error("Failed to move files for book ID {}: {}", bookEntity.getId(), e.getMessage(), e);
         } finally {
             // Rollback any uncommitted moves
-            for (PlannedMove planned : plannedMovesByBookFileId.values()) {
+            for (PlannedMove planned : stagedMoves.values()) {
                 fileMoveHelper.rollbackMove(planned.temp(), planned.source());
             }
 
@@ -463,6 +539,88 @@ public class FileMoveService {
         }
 
         return FileMoveResult.builder().moved(false).build();
+    }
+
+    /**
+     * The sidecar metadata file and sidecar cover are located purely from the primary file's base name
+     * ({@code X.cbz} -> {@code X.metadata.json}, {@code X.cover.jpg}), so they are moved as part of the same
+     * plan as the book files: checked up front, staged, committed and rolled back together.
+     * <p>
+     * Their target slots are added to {@code targetsToCheck} even when this book has no sidecar yet: if another
+     * book's sidecar already sits there, moving this book would make it read (and later overwrite) that sidecar.
+     * <p>
+     * A sidecar path that is also one of the book's tracked files (in {@code trackedPaths}, whether or not that
+     * file moves) is owned by the book-file plan and never moved here, so its database record stays valid. The
+     * slot the renamed book will use is still added to {@code reservedSlots}, unless it is itself a tracked file.
+     *
+     * @return the sidecar files that actually exist and must be staged, source -> target
+     */
+    private Map<Path, Path> planSidecarMoves(Path currentPrimary, Path newPrimary, Set<Path> trackedPaths,
+                                             Map<Path, Path> targetsToCheck, Set<Path> reservedSlots) {
+        Map<Path, Path> toStage = new LinkedHashMap<>();
+        List<UnaryOperator<Path>> companions = List.of(sidecarMetadataWriter::getSidecarPath, sidecarMetadataWriter::getCoverPath);
+        for (UnaryOperator<Path> companion : companions) {
+            Path source = companion.apply(currentPrimary);
+            Path target = companion.apply(newPrimary);
+            if (source == null || target == null || source.equals(target)) {
+                continue;
+            }
+            if (trackedPaths.contains(normalize(source))) {
+                if (!trackedPaths.contains(normalize(target))) {
+                    reservedSlots.add(target);
+                }
+                continue;
+            }
+            targetsToCheck.put(source, target);
+            if (fileMoveHelper.validateSourceExists(source, false)) {
+                toStage.put(source, target);
+            }
+        }
+        return toStage;
+    }
+
+    private static Set<Path> trackedPaths(List<BookFileEntity> bookFiles) {
+        return bookFiles.stream()
+                .map(BookFileEntity::getFullFilePath)
+                .filter(Objects::nonNull)
+                .map(FileMoveService::normalize)
+                .collect(Collectors.toSet());
+    }
+
+    private static Path normalize(Path path) {
+        return path.toAbsolutePath().normalize();
+    }
+
+    /**
+     * Commits staged moves one by one. Each successful commit is moved from {@code staged} to
+     * {@code committed}. If a commit fails, the moves committed so far are reverted before rethrowing,
+     * so the caller only has to roll back what is left in {@code staged}.
+     */
+    private void commitPlannedMoves(Map<Path, PlannedMove> staged, List<PlannedMove> committed, Long bookId) throws IOException {
+        Iterator<PlannedMove> it = staged.values().iterator();
+        while (it.hasNext()) {
+            PlannedMove planned = it.next();
+            try {
+                fileMoveHelper.commitMove(planned.temp(), planned.target());
+            } catch (IOException e) {
+                rollbackCommittedMoves(committed, bookId);
+                committed.clear();
+                throw e;
+            }
+            committed.add(planned);
+            it.remove();
+        }
+    }
+
+    private void rollbackCommittedMoves(List<PlannedMove> committed, Long bookId) {
+        for (int i = committed.size() - 1; i >= 0; i--) {
+            PlannedMove move = committed.get(i);
+            try {
+                fileMoveHelper.moveFile(move.target(), move.source());
+            } catch (Exception rollbackEx) {
+                log.error("Failed to rollback file move (Target -> Source) for book ID {}: {} -> {}", bookId, move.target(), move.source(), rollbackEx);
+            }
+        }
     }
 
     protected void sleep(long millis) {
