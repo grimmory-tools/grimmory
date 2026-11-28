@@ -10,6 +10,8 @@ public interface MagicShelfRepository extends JpaRepository<MagicShelfEntity, Lo
 
     List<MagicShelfEntity> findAllByUserId(Long userId);
 
+    List<MagicShelfEntity> findAllByUserIdAndKoboSyncTrue(Long userId);
+
     List<MagicShelfEntity> findAllByIsPublicIsTrue();
 
     List<MagicShelfEntity> findAllByUserIdOrIsPublicIsTrue(Long userId);

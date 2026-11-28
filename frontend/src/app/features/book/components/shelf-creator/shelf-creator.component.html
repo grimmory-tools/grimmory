@@ -90,6 +90,21 @@
       }
     </div>
 
+    @if (canSyncKobo) {
+      <div class="gradient-divider"></div>
+
+      <div class="form-group highlight-group">
+        <span class="form-label">
+          <i class="pi pi-tablet label-icon"></i>
+          {{ t('koboLabel') }}
+        </span>
+        <div class="input-wrapper" style="display: flex; align-items: center; gap: 0.4375rem;">
+          <p-checkbox [(ngModel)]="koboSync" [binary]="true" inputId="koboSyncShelf" />
+          <label for="koboSyncShelf" style="cursor: pointer">{{ t('syncToKoboLabel') }}</label>
+        </div>
+      </div>
+    }
+
     @if (isAdmin) {
       <div class="gradient-divider"></div>
 

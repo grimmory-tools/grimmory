@@ -60,6 +60,14 @@
             }
           </div>
         </div>
+        @if (canSyncKobo) {
+          <div class="public-checkbox-section">
+            <div class="checkbox-wrapper">
+              <p-checkbox formControlName="koboSync" [binary]="true" inputId="koboSync" />
+              <label for="koboSync">{{ t('form.syncToKobo') }}</label>
+            </div>
+          </div>
+        }
         @if (isAdmin) {
           <div class="public-checkbox-section">
             <div class="checkbox-wrapper">
