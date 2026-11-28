@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 import java.time.Instant;
 
@@ -165,8 +166,15 @@ public class BookQueryService {
 
     @Transactional
     public void saveRecommendationsInBatches(Map<Long, Set<BookRecommendationLite>> recommendations, int batchSize) {
+        saveRecommendationsInBatches(recommendations, batchSize, () -> false);
+    }
+
+    @Transactional
+    public void saveRecommendationsInBatches(Map<Long, Set<BookRecommendationLite>> recommendations, int batchSize,
+                                             BooleanSupplier cancellationRequested) {
         List<Long> bookIds = new ArrayList<>(recommendations.keySet());
         for (int i = 0; i < bookIds.size(); i += batchSize) {
+            if (cancellationRequested.getAsBoolean()) return;
             List<Long> batchIds = bookIds.subList(i, Math.min(i + batchSize, bookIds.size()));
             List<BookEntity> batch = bookRepository.findAllById(batchIds);
             for (BookEntity book : batch) {

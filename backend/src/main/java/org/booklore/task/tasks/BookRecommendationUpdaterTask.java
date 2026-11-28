@@ -16,6 +16,7 @@ import org.booklore.service.book.BookQueryService;
 import org.booklore.service.recommender.BookVectorService;
 import org.booklore.service.task.TaskHistoryService;
 import org.booklore.task.TaskStatus;
+import org.booklore.task.TaskCancellationManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +24,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.PriorityQueue;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 @Component
@@ -34,6 +37,7 @@ public class BookRecommendationUpdaterTask implements Task {
     private final BookVectorService vectorService;
     private final NotificationService notificationService;
     private final TaskHistoryService taskHistoryService;
+    private final TaskCancellationManager cancellationManager;
 
     private static final int RECOMMENDATION_LIMIT = 25;
     private static final int BATCH_SIZE = 500;
@@ -78,6 +82,7 @@ public class BookRecommendationUpdaterTask implements Task {
             if (batch.isEmpty()) break;
 
             for (BookEntity book : batch) {
+                if (isCancelled(taskId)) return cancelled(builder, taskId, lastNotificationTime, lastHistoryUpdateTime);
                 double[] embedding = vectorService.generateEmbedding(book);
                 embeddings.put(book.getId(), embedding);
 
@@ -117,6 +122,7 @@ public class BookRecommendationUpdaterTask implements Task {
 
         int processedBooks = 0;
         for (Map.Entry<Long, double[]> entry : embeddings.entrySet()) {
+            if (isCancelled(taskId)) return cancelled(builder, taskId, lastNotificationTime, lastHistoryUpdateTime);
             Long targetId = entry.getKey();
             try {
                 double[] targetVector = entry.getValue();
@@ -124,26 +130,32 @@ public class BookRecommendationUpdaterTask implements Task {
 
                 String targetSeries = seriesNames.get(targetId);
 
-                List<BookVectorService.ScoredBook> candidates = allBookIds.stream()
-                        .filter(candidateId -> !candidateId.equals(targetId))
-                        .filter(candidateId -> {
-                            if (targetSeries == null) return true;
-                            String candidateSeries = seriesNames.get(candidateId);
-                            return !targetSeries.equals(candidateSeries);
-                        })
-                        .map(candidateId -> {
-                            double[] candidateVector = embeddings.get(candidateId);
-                            double similarity = vectorService.cosineSimilarity(targetVector, candidateVector);
-                            return new BookVectorService.ScoredBook(candidateId, similarity);
-                        })
-                        .filter(scored -> scored.getScore() > 0.1)
+                Comparator<BookVectorService.ScoredBook> worstFirst = Comparator
+                        .comparingDouble(BookVectorService.ScoredBook::getScore)
+                        .thenComparing(BookVectorService.ScoredBook::getBookId, Comparator.reverseOrder());
+                PriorityQueue<BookVectorService.ScoredBook> topCandidates = new PriorityQueue<>(RECOMMENDATION_LIMIT, worstFirst);
+                int candidateIndex = 0;
+                for (Long candidateId : allBookIds) {
+                    if ((candidateIndex++ & 255) == 0 && isCancelled(taskId)) {
+                        return cancelled(builder, taskId, lastNotificationTime, lastHistoryUpdateTime);
+                    }
+                    if (candidateId.equals(targetId)) continue;
+                    String candidateSeries = seriesNames.get(candidateId);
+                    if (targetSeries != null && targetSeries.equals(candidateSeries)) continue;
+                    double similarity = vectorService.cosineSimilarity(targetVector, embeddings.get(candidateId));
+                    if (similarity <= 0.1) continue;
+                    BookVectorService.ScoredBook scored = new BookVectorService.ScoredBook(candidateId, similarity);
+                    if (topCandidates.size() < RECOMMENDATION_LIMIT) {
+                        topCandidates.add(scored);
+                    } else if (worstFirst.compare(scored, topCandidates.peek()) > 0) {
+                        topCandidates.poll();
+                        topCandidates.add(scored);
+                    }
+                }
+                List<BookVectorService.ScoredBook> topSimilar = topCandidates.stream()
+                        .sorted(Comparator.comparingDouble(BookVectorService.ScoredBook::getScore).reversed()
+                                .thenComparing(BookVectorService.ScoredBook::getBookId))
                         .toList();
-
-                List<BookVectorService.ScoredBook> topSimilar = vectorService.findTopKSimilar(
-                        targetVector,
-                        candidates,
-                        RECOMMENDATION_LIMIT
-                );
 
                 Set<BookRecommendationLite> recommendations = topSimilar.stream()
                         .map(scored -> new BookRecommendationLite(scored.getBookId(), scored.getScore()))
@@ -167,7 +179,9 @@ public class BookRecommendationUpdaterTask implements Task {
         // Save recommendations in batches
         lastNotificationTime = sendTaskProgressNotification(taskId, 85, String.format("Saving recommendations for %d books...", allRecommendations.size()), TaskStatus.IN_PROGRESS, lastNotificationTime, lastHistoryUpdateTime, false);
 
-        bookQueryService.saveRecommendationsInBatches(allRecommendations, BATCH_SIZE);
+        if (isCancelled(taskId)) return cancelled(builder, taskId, lastNotificationTime, lastHistoryUpdateTime);
+        bookQueryService.saveRecommendationsInBatches(allRecommendations, BATCH_SIZE, () -> isCancelled(taskId));
+        if (isCancelled(taskId)) return cancelled(builder, taskId, lastNotificationTime, lastHistoryUpdateTime);
 
         long endTime = System.currentTimeMillis();
         log.info("{}: Task completed. Duration: {} ms", getTaskType(), endTime - startTime);
@@ -177,6 +191,17 @@ public class BookRecommendationUpdaterTask implements Task {
         return builder
                 .status(TaskStatus.COMPLETED)
                 .build();
+    }
+
+    private boolean isCancelled(String taskId) {
+        return cancellationManager.isTaskCancelled(taskId);
+    }
+
+    private TaskCreateResponse cancelled(TaskCreateResponse.TaskCreateResponseBuilder builder, String taskId,
+                                         long lastNotificationTime, AtomicLong lastHistoryUpdateTime) {
+        sendTaskProgressNotification(taskId, 0, "Cancellation requested; stopping recommendation update",
+                TaskStatus.CANCELLED, lastNotificationTime, lastHistoryUpdateTime, true);
+        return builder.status(TaskStatus.CANCELLED).build();
     }
 
     private long sendTaskProgressNotification(String taskId, int progress, String message, TaskStatus taskStatus,
