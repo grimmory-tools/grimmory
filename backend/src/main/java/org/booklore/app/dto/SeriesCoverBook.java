@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.List;
+import org.booklore.model.enums.ReadStatus;
 
 @Data
 @Builder
@@ -15,4 +17,8 @@ public class SeriesCoverBook {
     private Instant coverUpdatedOn;
     private Float seriesNumber;
     private String primaryFileType;
+    private String title;
+    private List<String> authors;
+    private Instant audiobookCoverUpdatedOn;
+    private ReadStatus readStatus;
 }

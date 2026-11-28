@@ -1,4 +1,4 @@
-import {Book, computeSeriesReadStatus, ReadStatus} from '../../book/model/book.model';
+import {Book, BookType, computeSeriesReadStatus, ReadStatus} from '../../book/model/book.model';
 
 export interface SeriesSummary {
   seriesName: string;
@@ -13,6 +13,79 @@ export interface SeriesSummary {
   lastReadTime: string | null;
   coverBooks: Book[];
   addedOn: string | null;
+}
+
+export interface AppSeriesCoverBook {
+  bookId: number;
+  coverUpdatedOn?: string | null;
+  audiobookCoverUpdatedOn?: string | null;
+  seriesNumber?: number | null;
+  primaryFileType?: BookType | null;
+  title?: string | null;
+  authors?: string[] | null;
+  readStatus?: ReadStatus | null;
+}
+
+export interface AppSeriesSummaryResponse {
+  seriesName: string;
+  bookCount: number;
+  seriesTotal?: number | null;
+  authors?: string[] | null;
+  booksRead: number;
+  latestAddedOn?: string | null;
+  lastReadTime?: string | null;
+  seriesStatus?: ReadStatus | null;
+  coverBooks?: AppSeriesCoverBook[] | null;
+  nextUnread?: AppSeriesCoverBook | null;
+}
+
+export interface AppSeriesPageResponse {
+  content: AppSeriesSummaryResponse[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
+export function mapAppSeriesSummary(summary: AppSeriesSummaryResponse): SeriesSummary {
+  const coverBooks = (summary.coverBooks ?? []).map(toCardBook);
+  const nextUnread = summary.nextUnread ? toCardBook(summary.nextUnread) : null;
+  return {
+    seriesName: summary.seriesName,
+    books: [],
+    authors: summary.authors ?? [],
+    categories: [],
+    bookCount: summary.bookCount,
+    readCount: summary.booksRead,
+    progress: summary.bookCount > 0 ? summary.booksRead / summary.bookCount : 0,
+    seriesStatus: summary.seriesStatus ?? ReadStatus.UNREAD,
+    nextUnread,
+    lastReadTime: summary.lastReadTime ?? null,
+    coverBooks,
+    addedOn: summary.latestAddedOn ?? null,
+  };
+}
+
+function toCardBook(summary: AppSeriesCoverBook): Book {
+  return {
+    id: summary.bookId,
+    libraryId: 0,
+    libraryName: '',
+    primaryFile: summary.primaryFileType
+      ? {id: 0, bookId: summary.bookId, bookType: summary.primaryFileType}
+      : undefined,
+    readStatus: summary.readStatus ?? ReadStatus.UNREAD,
+    metadata: {
+      bookId: summary.bookId,
+      title: summary.title ?? undefined,
+      authors: summary.authors ?? [],
+      seriesNumber: summary.seriesNumber ?? undefined,
+      coverUpdatedOn: summary.coverUpdatedOn ?? undefined,
+      audiobookCoverUpdatedOn: summary.audiobookCoverUpdatedOn ?? undefined,
+    },
+  };
 }
 
 export function buildSeriesSummaries(books: readonly Book[]): SeriesSummary[] {

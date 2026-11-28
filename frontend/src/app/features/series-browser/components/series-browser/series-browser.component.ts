@@ -1,15 +1,14 @@
-import {Component, DestroyRef, ElementRef, HostListener, computed, inject, OnInit, signal, viewChild} from '@angular/core';
+import {Component, DestroyRef, ElementRef, HostListener, computed, effect, inject, OnInit, signal, viewChild} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {ProgressSpinner} from '@openng/optimus-ui/progressspinner';
 import {InputText} from '@openng/optimus-ui/inputtext';
 import {Select} from '@openng/optimus-ui/select';
 import {Popover} from '@openng/optimus-ui/popover';
 import {TranslocoDirective, TranslocoPipe, TranslocoService} from '@jsverse/transloco';
-import {injectQuery} from '@tanstack/angular-query';
-import {buildSeriesSummaries, SeriesSummary} from '../../model/series.model';
+import {injectInfiniteQuery} from '@tanstack/angular-query';
+import {mapAppSeriesSummary, SeriesSummary} from '../../model/series.model';
 import {SeriesCardComponent} from '../series-card/series-card.component';
-import {BookService} from '../../../book/service/book.service';
-import {ReadStatus} from '../../../book/model/book.model';
+import {SeriesQueryService} from '../../service/series-query.service';
 import {PageTitleService} from '../../../../shared/service/page-title.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {createVirtualGrid} from '../../../../shared/util/virtual-grid.util';
@@ -62,7 +61,7 @@ export class SeriesBrowserComponent implements OnInit {
   private static readonly MIN_SCALE = 0.7;
   private static readonly MAX_SCALE = 1.3;
 
-  private readonly bookService = inject(BookService);
+  private readonly seriesQueryService = inject(SeriesQueryService);
   private readonly pageTitle = inject(PageTitleService);
   private readonly t = inject(TranslocoService);
   private readonly router = inject(Router);
@@ -72,26 +71,18 @@ export class SeriesBrowserComponent implements OnInit {
   private readonly localStorageService = inject(LocalStorageService);
   private readonly layoutService = inject(LayoutService);
 
-  private readonly booksQuery = injectQuery(() => this.bookService.booksQueryOptions(true));
-  readonly isBooksLoading = computed(() => this.booksQuery.isPending());
-  private readonly allSeries = computed(() => buildSeriesSummaries(this.booksQuery.data() ?? []));
   private readonly searchTerm = signal('');
   private readonly statusFilter = signal('all');
   private readonly sortBy = signal('name-asc');
-  readonly filteredSeries = computed(() => {
-    let result = this.allSeries();
-
-    const search = this.searchTerm().trim().toLowerCase();
-    if (search) {
-      result = result.filter(series =>
-        series.seriesName.toLowerCase().includes(search) ||
-        series.authors.some(author => author.toLowerCase().includes(search))
-      );
-    }
-
-    result = this.applyStatusFilter(result, this.statusFilter());
-    return this.applySort(result, this.sortBy());
-  });
+  private readonly seriesQuery = injectInfiniteQuery(() => this.seriesQueryService.infinitePage({
+    search: this.searchTerm(),
+    status: this.statusFilter(),
+    sort: this.sortBy(),
+  }));
+  readonly isBooksLoading = computed(() => this.seriesQuery.isPending());
+  readonly filteredSeries = computed(() =>
+    (this.seriesQuery.data()?.pages.flatMap(page => page.content) ?? []).map(mapAppSeriesSummary)
+  );
 
   private readonly scrollElement = viewChild<ElementRef<HTMLElement>>('scrollElement');
   private readonly initialScrollOffset = () => this.scrollService.getPosition(this.scrollService.keyFor(this.activatedRoute)) ?? 0;
@@ -153,6 +144,19 @@ export class SeriesBrowserComponent implements OnInit {
   });
   readonly currentCardScale = computed(() => this.virtualGrid.itemWidth() / this.baseCardWidth());
 
+  constructor() {
+    effect(() => {
+      const lastVisible = this.virtualGrid.virtualizer.getVirtualItems().at(-1);
+      const itemCount = this.filteredSeries().length;
+      if (lastVisible
+          && lastVisible.index >= itemCount - 12
+          && this.seriesQuery.hasNextPage()
+          && !this.seriesQuery.isFetching()) {
+        void this.seriesQuery.fetchNextPage({cancelRefetch: false});
+      }
+    });
+  }
+
   get searchValue(): string {
     return this.searchTerm();
   }
@@ -211,52 +215,4 @@ export class SeriesBrowserComponent implements OnInit {
     this.router.navigate(['/series', series.seriesName]);
   }
 
-  private applyStatusFilter(series: SeriesSummary[], filterValue: string): SeriesSummary[] {
-    switch (filterValue) {
-      case 'not-started':
-        return series.filter(s => s.seriesStatus === ReadStatus.UNREAD);
-      case 'in-progress':
-        return series.filter(s =>
-          s.seriesStatus === ReadStatus.READING ||
-          s.seriesStatus === ReadStatus.PARTIALLY_READ
-        );
-      case 'completed':
-        return series.filter(s => s.seriesStatus === ReadStatus.READ);
-      case 'abandoned':
-        return series.filter(s =>
-          s.seriesStatus === ReadStatus.ABANDONED ||
-          s.seriesStatus === ReadStatus.WONT_READ
-        );
-      default:
-        return series;
-    }
-  }
-
-  private applySort(series: SeriesSummary[], sortBy: string): SeriesSummary[] {
-    const sorted = [...series];
-    switch (sortBy) {
-      case 'name-asc':
-        return sorted.sort((a, b) => a.seriesName.localeCompare(b.seriesName));
-      case 'name-desc':
-        return sorted.sort((a, b) => b.seriesName.localeCompare(a.seriesName));
-      case 'book-count':
-        return sorted.sort((a, b) => b.bookCount - a.bookCount);
-      case 'progress':
-        return sorted.sort((a, b) => b.progress - a.progress);
-      case 'recently-read':
-        return sorted.sort((a, b) => {
-          const aTime = a.lastReadTime ? new Date(a.lastReadTime).getTime() : 0;
-          const bTime = b.lastReadTime ? new Date(b.lastReadTime).getTime() : 0;
-          return bTime - aTime;
-        });
-      case 'recently-added':
-        return sorted.sort((a, b) => {
-          const aTime = a.addedOn ? new Date(a.addedOn).getTime() : 0;
-          const bTime = b.addedOn ? new Date(b.addedOn).getTime() : 0;
-          return bTime - aTime;
-        });
-      default:
-        return sorted;
-    }
-  }
 }

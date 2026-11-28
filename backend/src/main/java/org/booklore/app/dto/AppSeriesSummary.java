@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.Instant;
 import java.util.List;
+import org.booklore.model.enums.ReadStatus;
 
 @Data
 @Builder
@@ -18,5 +19,8 @@ public class AppSeriesSummary {
     private List<String> authors;
     private int booksRead;
     private Instant latestAddedOn;
+    private Instant lastReadTime;
+    private ReadStatus seriesStatus;
     private List<SeriesCoverBook> coverBooks;
+    private SeriesCoverBook nextUnread;
 }
