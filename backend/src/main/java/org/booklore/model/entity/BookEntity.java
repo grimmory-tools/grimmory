@@ -129,12 +129,13 @@ public class BookEntity {
         }
         return bookFiles
                 .stream()
+                .filter(BookFileEntity::isBookFormat)
                 .min(Comparator.comparingLong(BookFileEntity::getId))
                 .orElse(null);
     }
 
     public boolean hasFiles() {
-        return bookFiles != null && !bookFiles.isEmpty();
+        return getPrimaryBookFile() != null;
     }
 
     @Override
