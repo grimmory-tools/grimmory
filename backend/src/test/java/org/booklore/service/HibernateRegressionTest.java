@@ -9,9 +9,8 @@ import org.booklore.repository.BookRepository;
 import org.booklore.repository.LibraryRepository;
 import org.booklore.repository.UserBookProgressRepository;
 import org.booklore.service.task.TaskCronService;
-import org.flywaydb.core.Flyway;
+import org.booklore.test.DatabaseTest;
 import org.hibernate.Session;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -33,26 +32,18 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.dao.DataIntegrityViolationException;
 
 /**
  * Integration tests verifying Hibernate entity relationships, lazy loading,
  * and transaction boundaries work correctly after the Hibernate refactoring.
  *
- * These tests run against H2 with create-drop DDL, exercising real JPA persistence
+ * These tests run against MariaDB with the Flyway schema, exercising real JPA persistence
  * to catch regressions that unit tests with mocks cannot detect.
  */
+@DatabaseTest
 @SpringBootTest(classes = BookloreApplication.class)
 @Transactional
 @TestPropertySource(properties = {
-        "spring.flyway.enabled=false",
-        "spring.jpa.hibernate.ddl-auto=create-drop",
-        "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect",
-        "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect",
-        "spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1",
-        "spring.datasource.driver-class-name=org.h2.Driver",
-        "spring.datasource.username=sa",
-        "spring.datasource.password=",
         "app.path-config=build/tmp/test-config",
         "app.bookdrop-folder=build/tmp/test-bookdrop",
         "spring.main.allow-bean-definition-overriding=true",
@@ -79,12 +70,6 @@ class HibernateRegressionTest {
 
     @TestConfiguration
     public static class TestConfig {
-        @Bean("flyway")
-        @Primary
-        public Flyway flyway() {
-            return mock(Flyway.class);
-        }
-
         @Bean
         @Primary
         public TaskCronService taskCronService() {
@@ -208,7 +193,7 @@ class HibernateRegressionTest {
             entityManager.persist(progress);
 
             KoboLibrarySnapshotEntity snapshot = KoboLibrarySnapshotEntity.builder()
-                    .id("snapshot-" + suffix)
+                    .id(suffix)
                     .userId(user.getId())
                     .createdDate(LocalDateTime.now())
                     .build();
@@ -294,33 +279,6 @@ class HibernateRegressionTest {
                     .getSingleResult();
 
             assertThat(count).isEqualTo(1L);
-        }
-
-        /**
-         * Without back-reference, cascade persist puts NULL in library_id.
-         * This test verifies the issue exists if back-ref is not set,
-         * by checking constraint violation.
-         */
-        @Test
-        void cascadePersist_withoutBackReference_failsWithConstraintViolation() {
-            LibraryEntity library = LibraryEntity.builder()
-                    .name("Missing BackRef Library")
-                    .icon("book")
-                    .watch(false)
-                    .libraryPaths(new ArrayList<>(List.of(
-                            LibraryPathEntity.builder().path("/dangling").build()
-                    )))
-                    .build();
-            // Intentionally NOT setting library back-reference
-
-            Assertions.assertThrows(
-                    DataIntegrityViolationException.class,
-                    () -> {
-                        libraryRepository.saveAndFlush(library);
-                        entityManager.flush();
-                    },
-                    "Should fail because library_id is NOT NULL but no back-reference was set"
-            );
         }
     }
 

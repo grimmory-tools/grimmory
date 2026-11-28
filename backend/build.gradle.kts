@@ -7,9 +7,9 @@ import org.springframework.boot.gradle.tasks.run.BootRun
 
 plugins {
     java
-    id("org.springframework.boot") version "4.1.2"
+    id("org.springframework.boot") version "4.2.0"
     id("io.spring.dependency-management") version "1.1.7"
-    id("org.hibernate.orm") version "7.4.16.Final"
+    id("org.hibernate.orm") version "7.4.17.Final"
     id("com.github.ben-manes.versions") version "0.67.0"
     jacoco
 }
@@ -178,7 +178,7 @@ dependencies {
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
 
     // --- API Documentation ---
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:3.2.0")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:3.2.1")
     implementation("org.apache.commons:commons-compress:1.28.0")
     implementation("org.tukaani:xz:1.12") // Required by commons-compress for 7z support
     implementation("org.apache.commons:commons-text:1.15.0")
@@ -211,6 +211,7 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.27.7")
     testImplementation("org.junit.platform:junit-platform-launcher")
     testRuntimeOnly("com.h2database:h2")
+    testImplementation("org.testcontainers:testcontainers-mariadb")
     add(openApiExportRuntimeOnly.name, "com.h2database:h2")
 }
 
@@ -225,15 +226,51 @@ hibernate {
     }
 }
 
-tasks.named<Test>("test") {
-    useJUnitPlatform()
+val testSourceSet = the<SourceSetContainer>()["test"]
+
+tasks.withType<Test>().configureEach {
     maxHeapSize = "2560m"
     jvmArgs("-XX:+EnableDynamicAgentLoading", "--enable-native-access=ALL-UNNAMED", "--enable-preview")
+}
+
+tasks.named<Test>("test") {
+    useJUnitPlatform {
+        excludeTags("database")
+    }
     finalizedBy(tasks.named("jacocoTestReport"))
+}
+
+val databaseTest = tasks.register<Test>("databaseTest") {
+    group = "verification"
+    description = "Run database tests via Testcontainers (configured by TEST_DATABASE and TEST_DATABASE_VERSION)."
+    testClassesDirs = testSourceSet.output.classesDirs
+    classpath = testSourceSet.runtimeClasspath
+    useJUnitPlatform {
+        includeTags("database")
+    }
+    inputs.property("testDatabase", providers.environmentVariable("TEST_DATABASE").orElse(""))
+    inputs.property("testDatabaseVersion", providers.environmentVariable("TEST_DATABASE_VERSION").orElse(""))
+    shouldRunAfter(tasks.named("test"))
+}
+
+tasks.named("check") {
+    dependsOn(databaseTest)
 }
 
 tasks.named<JacocoReport>("jacocoTestReport") {
     dependsOn(tasks.named("test"))
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+val jacocoFullReport = tasks.register<JacocoReport>("jacocoFullReport") {
+    group = "verification"
+    description = "Generate a combined JaCoCo coverage report from unit and database tests."
+    dependsOn(tasks.named("test"), databaseTest)
+    executionData(tasks.named("test").get(), databaseTest.get())
+    sourceSets(mainSourceSet)
     reports {
         xml.required.set(true)
         html.required.set(true)

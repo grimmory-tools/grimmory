@@ -184,6 +184,7 @@ jobs:
     name: Create Draft Release
     runs-on: ubuntu-latest
     needs:
+      - test-suite
       - semantic-version
       - build-frontend
       - build-backend

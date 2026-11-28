@@ -8,7 +8,7 @@ import org.booklore.model.entity.*;
 import org.booklore.model.enums.ReadStatus;
 import org.booklore.repository.BookRepository;
 import org.booklore.service.task.TaskCronService;
-import org.flywaydb.core.Flyway;
+import org.booklore.test.DatabaseTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -37,17 +37,10 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+@DatabaseTest
 @SpringBootTest(classes = {BookloreApplication.class})
 @Transactional
 @TestPropertySource(properties = {
-        "spring.flyway.enabled=false",
-        "spring.jpa.hibernate.ddl-auto=create-drop",
-        "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect",
-        "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect",
-        "spring.datasource.url=jdbc:h2:mem:ruleeval_fields;DB_CLOSE_DELAY=-1",
-        "spring.datasource.driver-class-name=org.h2.Driver",
-        "spring.datasource.username=sa",
-        "spring.datasource.password=",
         "app.path-config=build/tmp/test-config",
         "app.bookdrop-folder=build/tmp/test-bookdrop",
         "spring.main.allow-bean-definition-overriding=true",
@@ -62,12 +55,6 @@ class BookRuleEvaluatorFieldCoverageTest {
 
     @TestConfiguration
     static class TestConfig {
-        @Bean("flyway")
-        @Primary
-        public Flyway flyway() {
-            return mock(Flyway.class);
-        }
-
         @Bean
         @Primary
         public TaskCronService taskCronService() {

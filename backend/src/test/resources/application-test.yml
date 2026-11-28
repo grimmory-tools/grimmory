@@ -1,13 +1,7 @@
 spring:
-  datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: 
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: none
     properties:
       hibernate:
         format_sql: true
@@ -15,8 +9,6 @@ spring:
           fail_on_pagination_over_collection_fetch: true
         connection:
           provider_disables_autocommit: false
-  flyway:
-    enabled: false
 app:
   bookdrop-folder: build/bookdrop
   path-config: build/app-data

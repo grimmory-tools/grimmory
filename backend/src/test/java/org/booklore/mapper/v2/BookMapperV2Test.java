@@ -1,6 +1,7 @@
 package org.booklore.mapper.v2;
 
-import org.booklore.mapper.BookMapper;
+import org.booklore.mapper.ComicMetadataMapperImpl;
+import org.booklore.mapper.ShelfMapperImpl;
 import org.booklore.model.dto.Book;
 import org.booklore.model.entity.BookFileEntity;
 import org.booklore.model.entity.BookEntity;
@@ -11,15 +12,13 @@ import org.booklore.model.enums.BookFileType;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
-@ActiveProfiles("test")
+@SpringJUnitConfig({BookMapperV2Impl.class, ShelfMapperImpl.class, ComicMetadataMapperImpl.class})
 class BookMapperV2Test {
     @Autowired
     private BookMapperV2 mapper;
